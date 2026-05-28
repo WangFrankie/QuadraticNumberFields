@@ -34,3 +34,9 @@ home_page/vendor/
 .worktrees/
 
 *.db
+
+#AI
+.omc
+.omx
+AGENTS.md
+CLAUDE.md
