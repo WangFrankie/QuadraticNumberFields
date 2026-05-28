@@ -93,25 +93,33 @@ variable (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
 
 /-- For `α ∈ 𝓞(Q(√d))`, the norm `N(α)` is an integer.
 
-This follows from the classification theorem: elements of the ring of integers
-live in either `ℤ[√d]` or `ℤ[(1+√d)/2]`, both of which have integer-valued norm.
-
-TODO: This proof requires establishing that the ring isomorphism from the
-classification commutes with the coercion to the number field. -/
+Elements of the ring of integers live in either `ℤ[√d]` or `ℤ[(1+√d)/2]`
+(by `ringOfIntegers_classification`), both of which have integer-valued norm. -/
 theorem norm_mem_ringOfIntegers (α : 𝓞 (Qsqrtd (d : ℚ))) :
     ∃ n : ℤ, Qsqrtd.norm (α : Qsqrtd (d : ℚ)) = n := by
-  rcases ringOfIntegers_classification d with ⟨hd4, h_equiv⟩ | ⟨k, hk, h_equiv⟩
-  · -- d % 4 ≠ 1 branch: 𝓞 ≃ ℤ[√d]
-    let e := Classical.choice h_equiv
-    let z : Zsqrtd d := e α
-    -- TODO: Prove that (α : Qsqrtd (d : ℚ)) = Zsqrtd.toQsqrtd z
-    sorry
+  have hd_sf : Squarefree d := Fact.out
+  have hd_ne : d ≠ 1 := Fact.out
+  by_cases hd4 : d % 4 = 1
   · -- d % 4 = 1 branch: 𝓞 ≃ ℤ[(1 + √d)/2]
+    obtain ⟨k, hk⟩ := exists_k_of_mod_four_eq_one hd4
     subst hk
-    let e := Classical.choice h_equiv
-    let z : ZOnePlusSqrtOverTwo k := e α
-    -- TODO: Prove that (α : Qsqrtd ...) = toQsqrtdHom k z
-    sorry
+    have hd_ne' : (1 + 4 * k : ℤ) ≠ 1 := hd_ne
+    have happly := ringOfIntegers_equiv_of_embedding_apply
+      (_root_.ZOnePlusSqrtOverTwo.toQsqrtdHom k)
+      (_root_.ZOnePlusSqrtOverTwo.toQsqrtdHom_injective k)
+      (fun _ hx => exists_zOnePlusSqrtOverTwo_of_isIntegral_of_one_mod_four k
+        hd_sf hd_ne' hx)
+      (fun z => isIntegral_toQsqrtd_of_zOnePlusSqrtOverTwo k z) α
+    rw [← happly]
+    exact norm_mem_zOnePlusSqrtOverTwo k _
+  · -- d % 4 ≠ 1 branch: 𝓞 ≃ ℤ[√d]
+    have happly := ringOfIntegers_equiv_of_embedding_apply
+      (Zsqrtd.toQsqrtdHom d)
+      (Zsqrtd.toQsqrtdHom_injective d)
+      (fun _ hx => exists_zsqrtd_of_isIntegral_of_ne_one_mod_four d hd_sf hd_ne hd4 hx)
+      (fun z => isIntegral_toQsqrtd d z) α
+    rw [← happly]
+    exact norm_mem_zsqrtd d _
 
 end ParamLevel
 

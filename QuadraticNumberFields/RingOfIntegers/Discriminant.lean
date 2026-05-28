@@ -105,7 +105,7 @@ When `d % 4 ≠ 1`, the ring of integers is `𝓞 ≅ ℤ[√d]` with ℤ-basis 
 giving discriminant `4d`. -/
 theorem discr_of_mod_four_ne_one (hd4 : d % 4 ≠ 1) :
     NumberField.discr (Qsqrtd (d : ℚ)) = 4 * d := by
-  obtain ⟨e⟩ := ringOfIntegers_equiv_zsqrtd_of_mod_four_ne_one d hd4
+  let e := ringOfIntegers_equiv_zsqrtd_of_mod_four_ne_one d hd4
   let f : Zsqrtd d ≃ₐ[ℤ] 𝓞 (Qsqrtd (d : ℚ)) :=
     ringEquivToIntAlgEquiv e.symm
   let b' : Module.Basis (Fin 2) ℤ (𝓞 (Qsqrtd (d : ℚ))) :=
@@ -121,9 +121,9 @@ Uses the ℤ-basis `{1, ω}` where `ω = (1 + √d)/2` for `𝓞 = ℤ[(1+√d)/
 to compute `disc = d`. -/
 theorem discr_of_mod_four_eq_one (hd4 : d % 4 = 1) :
     NumberField.discr (Qsqrtd (d : ℚ)) = d := by
-  obtain ⟨k, hk, ⟨e⟩⟩ :=
-    ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one d hd4
+  obtain ⟨k, hk⟩ := exists_k_of_mod_four_eq_one hd4
   subst hk
+  let e := ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_eq (1 + 4 * k) k rfl
   let f : ZOnePlusSqrtOverTwo k ≃ₐ[ℤ] 𝓞 (Qsqrtd (((1 + 4 * k : ℤ) : ℚ))) :=
     ringEquivToIntAlgEquiv e.symm
   let b' : Module.Basis (Fin 2) ℤ (𝓞 (Qsqrtd (((1 + 4 * k : ℤ) : ℚ)))) :=

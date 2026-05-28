@@ -72,33 +72,68 @@ section FieldLevel
 
 /-- **Generic fact**: the ring of integers `𝓞 K` is ring-isomorphic to any
 commutative ring `R` equipped with an `IsIntegralClosure R ℤ K` instance. -/
-theorem ringOfIntegers_equiv_of_integralClosure
+noncomputable def ringOfIntegers_equiv_of_integralClosure
     (K : Type*) [Field K] (R : Type*) [CommRing R] [Algebra R K] [IsIntegralClosure R ℤ K] :
-    Nonempty (𝓞 K ≃+* R) :=
-  ⟨NumberField.RingOfIntegers.equiv (K := K) (R := R)⟩
+    𝓞 K ≃+* R :=
+  NumberField.RingOfIntegers.equiv (K := K) (R := R)
+
+/-- The equiv `𝓞 K ≃+* R` commutes with the natural maps to `K`. -/
+@[simp]
+lemma ringOfIntegers_equiv_of_integralClosure_apply
+    {K : Type*} [Field K] {R : Type*} [CommRing R] [Algebra R K] [IsIntegralClosure R ℤ K]
+    (α : 𝓞 K) :
+    algebraMap R K (ringOfIntegers_equiv_of_integralClosure K R α) = (algebraMap (𝓞 K) K) α := by
+  change algebraMap R K ((IsIntegralClosure.equiv ℤ R K (𝓞 K)).symm α) = algebraMap (𝓞 K) K α
+  have key := IsIntegralClosure.algebraMap_equiv ℤ R K (𝓞 K)
+    ((IsIntegralClosure.equiv ℤ R K (𝓞 K)).symm α)
+  rw [(IsIntegralClosure.equiv ℤ R K (𝓞 K)).apply_symm_apply α] at key
+  exact key.symm
 
 /-- **General criterion for identifying the ring of integers.** -/
-theorem ringOfIntegers_equiv_of_embedding
+noncomputable def ringOfIntegers_equiv_of_embedding
     (K : Type*) [Field K]
     (R : Type*) [CommRing R]
     (φ : R →+* K)
     (h_inj : Function.Injective φ)
     (h_exists : ∀ x : K, IsIntegral ℤ x → ∃ z : R, φ z = x)
     (h_integral : ∀ z : R, IsIntegral ℤ (φ z)) :
-    Nonempty (𝓞 K ≃+* R) := by
+    𝓞 K ≃+* R :=
   letI : Algebra R K := φ.toAlgebra
   letI : IsIntegralClosure R ℤ K :=
     { algebraMap_injective := by
         simpa [RingHom.toAlgebra] using h_inj
       isIntegral_iff := by
         intro x
-        constructor
-        · intro hx
-          rcases h_exists x hx with ⟨z, hz⟩
+        refine ⟨fun hx => ?_, ?_⟩
+        · rcases h_exists x hx with ⟨z, hz⟩
           exact ⟨z, by simpa [RingHom.toAlgebra] using hz⟩
         · rintro ⟨z, rfl⟩
           simpa [RingHom.toAlgebra] using h_integral z }
-  exact ringOfIntegers_equiv_of_integralClosure K R
+  ringOfIntegers_equiv_of_integralClosure K R
+
+/-- The general embedding equiv commutes with `φ`: for any `α : 𝓞 K`, the underlying
+element `(α : K)` equals `φ (e α)`. -/
+lemma ringOfIntegers_equiv_of_embedding_apply
+    {K : Type*} [Field K]
+    {R : Type*} [CommRing R]
+    (φ : R →+* K)
+    (h_inj : Function.Injective φ)
+    (h_exists : ∀ x : K, IsIntegral ℤ x → ∃ z : R, φ z = x)
+    (h_integral : ∀ z : R, IsIntegral ℤ (φ z))
+    (α : 𝓞 K) :
+    φ (ringOfIntegers_equiv_of_embedding K R φ h_inj h_exists h_integral α) = (α : K) := by
+  letI : Algebra R K := φ.toAlgebra
+  letI : IsIntegralClosure R ℤ K :=
+    { algebraMap_injective := by simpa [RingHom.toAlgebra] using h_inj
+      isIntegral_iff := by
+        intro x
+        refine ⟨fun hx => ?_, ?_⟩
+        · rcases h_exists x hx with ⟨z, hz⟩
+          exact ⟨z, by simpa [RingHom.toAlgebra] using hz⟩
+        · rintro ⟨z, rfl⟩
+          simpa [RingHom.toAlgebra] using h_integral z }
+  change algebraMap R K _ = algebraMap (𝓞 K) K α
+  exact ringOfIntegers_equiv_of_integralClosure_apply (R := R) α
 
 end FieldLevel
 
@@ -117,19 +152,15 @@ lies in `ℤ[√d]`. -/
 /-- If `d % 4 ≠ 1`, then `𝓞(ℚ(√d)) ≃+* ℤ[√d]`.
 
 **mathlib target: `Mathlib.NumberTheory.QuadraticField.RingOfIntegers`** -/
-theorem ringOfIntegers_equiv_zsqrtd_of_mod_four_ne_one (hd4 : d % 4 ≠ 1) :
-    Nonempty (𝓞 (Qsqrtd (d : ℚ)) ≃+* Zsqrtd d) := by
-  have hd_sf : Squarefree d := Fact.out
-  have hd_ne : d ≠ 1 := Fact.out
-  exact ringOfIntegers_equiv_of_embedding (Qsqrtd (d : ℚ)) (Zsqrtd d)
+noncomputable def ringOfIntegers_equiv_zsqrtd_of_mod_four_ne_one (hd4 : d % 4 ≠ 1) :
+    𝓞 (Qsqrtd (d : ℚ)) ≃+* Zsqrtd d :=
+  let hd_sf : Squarefree d := Fact.out
+  let hd_ne : d ≠ 1 := Fact.out
+  ringOfIntegers_equiv_of_embedding (Qsqrtd (d : ℚ)) (Zsqrtd d)
     (Zsqrtd.toQsqrtdHom d)
     (Zsqrtd.toQsqrtdHom_injective d)
-    (by
-      intro x hx
-      exact exists_zsqrtd_of_isIntegral_of_ne_one_mod_four d hd_sf hd_ne hd4 hx)
-    (by
-      intro z
-      exact isIntegral_toQsqrtd d z)
+    (fun _ hx => exists_zsqrtd_of_isIntegral_of_ne_one_mod_four d hd_sf hd_ne hd4 hx)
+    (fun z => isIntegral_toQsqrtd d z)
 
 /-! ## Dedekind Domain Properties of `ℤ[√d]`
 
@@ -149,11 +180,8 @@ isomorphism.
 
 **mathlib target: `Mathlib.NumberTheory.Zsqrtd.DedekindDomain`** -/
 theorem isDedekindDomain_zsqrtd_of_mod_four_ne_one (hd4 : d % 4 ≠ 1) :
-    IsDedekindDomain (Zsqrtd d) := by
-  rcases ringOfIntegers_equiv_zsqrtd_of_mod_four_ne_one d hd4 with ⟨e⟩
-  -- letI : IsDedekindDomain (𝓞 (Qsqrtd (d : ℚ))) := inferInstance
-  -- Instance : `IsDedekindDomain (𝓞 (Qsqrtd (d : ℚ)))`
-  exact RingEquiv.isDedekindDomain e
+    IsDedekindDomain (Zsqrtd d) :=
+  RingEquiv.isDedekindDomain (ringOfIntegers_equiv_zsqrtd_of_mod_four_ne_one d hd4)
 
 /-- If `d % 4 = 1`, then `ℤ[√d]` is **not** a Dedekind domain.
 
@@ -259,32 +287,41 @@ enlarging the integral closure from `ℤ[√d]` to `ℤ[ω]`.
 The ring `ℤ[ω]` is modeled as `QuadraticAlgebra ℤ k 1` (the relation `ω² = ω + k`),
 which we call `ZOnePlusSqrtOverTwo k`. -/
 
-/-- If `d % 4 = 1`, writing `d = 1 + 4k`, then `𝓞(ℚ(√d)) ≃+* ℤ[(1+√d)/2]`.
+/-- Data-level equivalence in the `d = 1 + 4k` branch, with the parameter `k`
+supplied explicitly.
 
-The existential `∃ k` witnesses the parametrization; the caller typically already
-knows `k` from `exists_k_of_mod_four_eq_one`.
-
-**mathlib target: `Mathlib.NumberTheory.QuadraticField.RingOfIntegers`** -/
-theorem ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one
-    (hd4 : d % 4 = 1) :
-    ∃ k : ℤ, d = 1 + 4 * k ∧
-      Nonempty (𝓞 (Qsqrtd (d : ℚ)) ≃+* ZOnePlusSqrtOverTwo k) := by
+This is the actual workhorse of the `d % 4 = 1` branch:
+`ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one` is a thin wrapper
+that picks `k := d / 4`. -/
+noncomputable def ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_eq
+    (k : ℤ) (hk : d = 1 + 4 * k) :
+    𝓞 (Qsqrtd (d : ℚ)) ≃+* ZOnePlusSqrtOverTwo k := by
   have hd_sf : Squarefree d := Fact.out
   have hd_ne : d ≠ 1 := Fact.out
-  rcases exists_k_of_mod_four_eq_one (d := d) hd4 with ⟨k, hk⟩
-  refine ⟨k, hk, ?_⟩
   subst hk
   have hd_ne' : (1 + 4 * k) ≠ 1 := hd_ne
   exact ringOfIntegers_equiv_of_embedding
     (Qsqrtd (((1 + 4 * k : ℤ) : ℚ))) (ZOnePlusSqrtOverTwo k)
     (_root_.ZOnePlusSqrtOverTwo.toQsqrtdHom k)
     (_root_.ZOnePlusSqrtOverTwo.toQsqrtdHom_injective k)
-    (by
-      intro x hx
-      exact exists_zOnePlusSqrtOverTwo_of_isIntegral_of_one_mod_four k hd_sf hd_ne' hx)
-    (by
-      intro z
-      exact isIntegral_toQsqrtd_of_zOnePlusSqrtOverTwo k z)
+    (fun _ hx => exists_zOnePlusSqrtOverTwo_of_isIntegral_of_one_mod_four k hd_sf hd_ne' hx)
+    (fun z => isIntegral_toQsqrtd_of_zOnePlusSqrtOverTwo k z)
+
+/-- If `d % 4 = 1`, writing `d = 1 + 4k`, then `𝓞(ℚ(√d)) ≃+* ℤ[(1+√d)/2]`.
+
+The result packages the witness `k` together with the equiv as data
+(via `PSigma`), so the equiv is computable in principle (it is `noncomputable`
+due to `NumberField.RingOfIntegers.equiv`, but no `Classical.choice` on `Nonempty`
+is involved). Use `.fst`, `.snd.fst`, `.snd.snd` to project out `k`, the equality,
+and the equiv respectively.
+
+**mathlib target: `Mathlib.NumberTheory.QuadraticField.RingOfIntegers`** -/
+noncomputable def ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one
+    (hd4 : d % 4 = 1) :
+    Σ' k : ℤ, PLift (d = 1 + 4 * k) ×'
+      (𝓞 (Qsqrtd (d : ℚ)) ≃+* ZOnePlusSqrtOverTwo k) :=
+  ⟨d / 4, ⟨PLift.up (by omega),
+    ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_eq d (d / 4) (by omega)⟩⟩
 
 /-! ## Combined Classification -/
 
@@ -298,15 +335,15 @@ This is the classical result found in [Marcus, Theorem 2.16],
 [Neukirch, I.2], [Stewart–Tall, Theorem 4.6].
 
 **mathlib target: `Mathlib.NumberTheory.QuadraticField.RingOfIntegers`** -/
-theorem ringOfIntegers_classification
-    :
+theorem ringOfIntegers_classification :
     (d % 4 ≠ 1 ∧
       Nonempty (𝓞 (Qsqrtd (d : ℚ)) ≃+* Zsqrtd d)) ∨
     (∃ k : ℤ, d = 1 + 4 * k ∧
       Nonempty (𝓞 (Qsqrtd (d : ℚ)) ≃+* ZOnePlusSqrtOverTwo k)) := by
   by_cases hd4 : d % 4 = 1
-  · exact Or.inr <| ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one d hd4
-  · exact Or.inl ⟨hd4, ringOfIntegers_equiv_zsqrtd_of_mod_four_ne_one d hd4⟩
+  · let ex := ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one d hd4
+    exact Or.inr ⟨ex.fst, ex.snd.fst.down, ⟨ex.snd.snd⟩⟩
+  · exact Or.inl ⟨hd4, ⟨ringOfIntegers_equiv_zsqrtd_of_mod_four_ne_one d hd4⟩⟩
 
 /-! ## Concrete Examples
 
@@ -320,16 +357,15 @@ the second. -/
 /-- **Gaussian integers**: `𝓞(ℚ(√(-1))) ≃+* ℤ[i]`.
 
 Since `-1 ≡ 3 (mod 4)`, the ring of integers is `ℤ[√(-1)] = ℤ[i]`. -/
-example : Nonempty (𝓞 (Qsqrtd ((-1 : ℤ) : ℚ)) ≃+* Zsqrtd (-1)) :=
+noncomputable example : 𝓞 (Qsqrtd ((-1 : ℤ) : ℚ)) ≃+* Zsqrtd (-1) :=
   ringOfIntegers_equiv_zsqrtd_of_mod_four_ne_one (-1) (by decide)
 
 /-- **Eisenstein integers**: `𝓞(ℚ(√(-3))) ≃+* ℤ[(1+√(-3))/2]`.
 
 Since `-3 ≡ 1 (mod 4)`, the ring of integers is `ℤ[ω]` where `ω = (1+√(-3))/2`
-is a primitive cube root of unity. -/
-example : ∃ k : ℤ, (-3 : ℤ) = 1 + 4 * k ∧
-    Nonempty (𝓞 (Qsqrtd ((-3 : ℤ) : ℚ)) ≃+* ZOnePlusSqrtOverTwo k) :=
-  ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one (-3) (by decide)
+is a primitive cube root of unity. Here `-3 = 1 + 4 * (-1)`, so `k = -1`. -/
+noncomputable example : 𝓞 (Qsqrtd ((-3 : ℤ) : ℚ)) ≃+* ZOnePlusSqrtOverTwo (-1) :=
+  ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_eq (-3) (-1) (by decide)
 
 end ParamLevel
 

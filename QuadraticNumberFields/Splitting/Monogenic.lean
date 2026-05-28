@@ -89,9 +89,9 @@ noncomputable def ringOfIntegersGenerator :
     𝓞 (Qsqrtd (d : ℚ)) :=
   if hd4 : d % 4 = 1 then
     let ex := RingOfIntegers.ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one d hd4
-    ex.choose_spec.2.some.symm QuadraticAlgebra.omega
+    ex.snd.snd.symm QuadraticAlgebra.omega
   else
-    (RingOfIntegers.ringOfIntegers_equiv_zsqrtd_of_mod_four_ne_one d hd4).some.symm
+    (RingOfIntegers.ringOfIntegers_equiv_zsqrtd_of_mod_four_ne_one d hd4).symm
       QuadraticAlgebra.omega
 
 /-- The generator `θ` generates `𝓞(ℚ(√d))` as a ℤ-algebra. -/
@@ -101,11 +101,11 @@ theorem adjoin_generator_eq_top :
   split
   · next hd4 =>
     let ex := RingOfIntegers.ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one d hd4
-    exact adjoin_eq_top_of_ringEquiv ex.choose_spec.2.some QuadraticAlgebra.omega
-      (adjoin_omega_eq_top ex.choose 1)
+    exact adjoin_eq_top_of_ringEquiv ex.snd.snd QuadraticAlgebra.omega
+      (adjoin_omega_eq_top ex.fst 1)
   · next hd4 =>
     exact adjoin_eq_top_of_ringEquiv
-      (RingOfIntegers.ringOfIntegers_equiv_zsqrtd_of_mod_four_ne_one d hd4).some
+      (RingOfIntegers.ringOfIntegers_equiv_zsqrtd_of_mod_four_ne_one d hd4)
       QuadraticAlgebra.omega (adjoin_omega_eq_top d 0)
 
 /-- The exponent of the generator is `1`, i.e., `𝓞 = ℤ[θ]` exactly. -/
