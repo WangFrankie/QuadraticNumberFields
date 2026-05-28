@@ -153,7 +153,7 @@ private theorem exists_rat_param_of_isQuadraticField
 /-- Every quadratic field over `ℚ` is isomorphic to `ℚ(√z)` for some squarefree
 integer parameter `z ≠ 1`. -/
 theorem exists_squarefree_int_param_of_isQuadraticField
-    (K : Type*) [Field K] [Algebra ℚ K] [IsQuadraticField K] :
+    (K : Type*) [Field K] [Algebra ℚ K] [Algebra.IsQuadraticExtension ℚ K] :
     ∃ z : ℤ, Squarefree z ∧ z ≠ 1 ∧ Nonempty (K ≃ₐ[ℚ] Qsqrtd (z : ℚ)) := by
   obtain ⟨q, _hq, hKq⟩ := exists_rat_param_of_isQuadraticField K
   rcases hKq with ⟨eKq⟩
@@ -179,11 +179,11 @@ theorem exists_squarefree_int_param_of_isQuadraticField
 squarefree integer `z ≠ 1`. -/
 theorem isQuadraticField_iff_exists_squarefree_int_param
     (K : Type*) [Field K] [Algebra ℚ K] :
-    IsQuadraticField K ↔
+    Algebra.IsQuadraticExtension ℚ K ↔
       ∃ z : ℤ, Squarefree z ∧ z ≠ 1 ∧ Nonempty (K ≃ₐ[ℚ] Qsqrtd (z : ℚ)) := by
   constructor
   · intro hK
-    letI : IsQuadraticField K := hK
+    letI : Algebra.IsQuadraticExtension ℚ K := hK
     exact exists_squarefree_int_param_of_isQuadraticField K
   · rintro ⟨z, hzsf, hz1, ⟨e⟩⟩
     letI : Fact (Squarefree z) := ⟨hzsf⟩

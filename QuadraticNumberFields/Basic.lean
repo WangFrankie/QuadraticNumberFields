@@ -19,14 +19,16 @@ including norm, trace, and field/number field instances.
 
 ## Main Definitions
 
-* `IsQuadraticField K`: A predicate asserting that `K` is a quadratic extension of `ℚ`.
-  This is defined as `Algebra.IsQuadraticExtension ℚ K`.
 * `Qsqrtd d`: The quadratic algebra `QuadraticAlgebra ℚ d 0`, representing `ℚ(√d)`.
 * `Qsqrtd.norm`: The norm `N(x) = x · x̄ = x.re² - d · x.im²`.
 
+The predicate "K is a quadratic extension of ℚ" is provided by mathlib as
+`Algebra.IsQuadraticExtension ℚ K` (the local deprecated alias
+`IsQuadraticField` is kept only as a backward-compatibility shim).
+
 ## Main Results
 
-* `IsQuadraticField.instNumberField`: Any quadratic field is a number field.
+* `Algebra.IsQuadraticExtension.instNumberField`: Any quadratic field is a number field.
 * `Qsqrtd.instIsQuadraticExtension`: `ℚ(√d)/ℚ` is a degree-2 extension.
 * `not_isSquare_ratCast_of_squarefree_ne_one`: squarefree integer parameters
   with `d ≠ 1` give genuine quadratic fields.
