@@ -1,163 +1,184 @@
 # AGENTS.md
 
-Main rules and guidelines for AI agents working on this repository.
+Main instructions for AI agents working in this repository.
+
+## Agent Operating Rules
+
+- Work autonomously on clear, safe, reversible tasks.
+- Ask only when the next step is ambiguous, destructive, irreversible, or requires missing authority.
+- Read the relevant Lean files before changing them.
+- Keep diffs small, reviewable, and reversible.
+- Prefer deletion, reuse, and local patterns over new abstractions.
+- Do not add dependencies unless explicitly requested.
+- Preserve user changes; never revert unrelated work.
+- For simple repository lookups, prefer `rg`, `rg --files`, or `omx explore` when available.
+- Use Codex native subagents only for independent bounded subtasks where parallelism improves quality or speed.
 
 ## Project Overview
 
-A Lean 4 formalization of quadratic number fields `Q(√d)` and the
-classification of their ring of integers.
+This is a Lean 4 formalization of quadratic number fields `Q(√d)` and the
+classification of their rings of integers, built on mathlib's
+`QuadraticAlgebra`.
 
 Core objects:
-- `Qsqrtd (d : ℚ) := QuadraticAlgebra ℚ d 0`
-- Parameters: `[Fact (Squarefree d)] [Fact (d ≠ 1)]` (explicit Fact instances)
 
-Main ring-of-integers theorems (`RingOfIntegers/Classification.lean`):
+- `Qsqrtd (d : ℚ) := QuadraticAlgebra ℚ d 0`
+- Parameters are usually explicit `Fact` instances:
+  `[Fact (Squarefree d)] [Fact (d ≠ 1)]`
+- Candidate integer rings:
+  - `Zsqrtd d`
+  - `ZOnePlusSqrtOverTwo k`
+
+Main theorem files:
+
+- `QuadraticNumberFields/RingOfIntegers/Classification.lean`
+- `QuadraticNumberFields/RingOfIntegers/Discriminant.lean`
+- `QuadraticNumberFields/RingOfIntegers/ZsqrtdMathlibInstances.lean`
+
+Main declarations:
+
 - `ringOfIntegers_equiv_zsqrtd_of_mod_four_ne_one`
 - `ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one`
 - `ringOfIntegers_classification`
+- `discr_formula`
+- `isDedekindDomain_iff_mod_four_ne_one`
 
-## Build Commands
+## Repository Layout
 
-```bash
-lake exe cache get    # Download mathlib cache (required before first build)
-lake build            # Build the project
-```
+- `QuadraticNumberFields.lean` re-exports the public library.
+- `QuadraticNumberFields/Basic.lean` defines `Qsqrtd` and basic trace/norm API.
+- `QuadraticNumberFields/Instances.lean` provides field and number field instances.
+- `QuadraticNumberFields/Parameters.lean` handles squarefree normalization,
+  rescaling, and parameter uniqueness.
+- `QuadraticNumberFields/FieldClassification.lean` classifies quadratic fields by
+  squarefree parameters.
+- `QuadraticNumberFields/TotallyRealComplex.lean` proves real/complex/CM behavior.
+- `QuadraticNumberFields/RingEquiv.lean` transfers Dedekind-domain structure
+  across ring equivalences.
+- `QuadraticNumberFields/RingOfIntegers/` contains the integer-ring
+  classification, trace/norm preliminaries, mod-4 arithmetic, discriminants,
+  and `Zsqrtd` ideal theory.
+- `QuadraticNumberFields/Euclidean/Basic.lean` contains the norm-Euclidean
+  classification framework.
+- `QuadraticNumberFields/Examples/ZsqrtdNeg5/` contains verified examples for
+  `ℤ[√(-5)]`.
+- `blueprint/` contains leanblueprint sources.
+- `home_page/` contains the GitHub Pages/docgen homepage content.
 
-Only run `lake build` if Lean files were actually modified. Use `lean_diagnostic_messages` (lean-lsp MCP) to check individual files first.
+## Dependencies And Build
 
-## Key Architecture
+Current dependency versions are defined in `lakefile.toml` and `lean-toolchain`.
+As of this file, the project uses Lean/mathlib/repl `v4.30.0-rc2`.
 
-The Lean source lives under `QuadraticNumberFields/`. The base type is
-`Qsqrtd`; parameters are provided via explicit `[Fact (Squarefree d)]` and
-`[Fact (d ≠ 1)]` instances rather than a bundled typeclass.
-
-- **`Basic.lean`** — Defines `Qsqrtd d` with trace, norm, and ℚ-embedding
-- **`Instances.lean`** — `Field`/`NumberField` instances for `Qsqrtd`
-- **`Parameters.lean`** — Common `Fact` instances (squarefree, `d ≠ 1`), rescaling isomorphisms, and parameter uniqueness
-- **`TotallyRealComplex.lean`** — Totally real / complex place behavior for `Q(√d)`
-- **`RingEquiv.lean`** — Dedekind domain transfer via ring equivalences
-- **`RingOfIntegers/`** — Classification theorem:
-  - `Integrality.lean` — `IsIntegralClosure` constructions, half-integer normal form
-  - `ModFour.lean` — Modulo-4 arithmetic lemmas
-  - `Zsqrtd.lean` — ℤ√d ring and its embedding into Q(√d)
-  - `ZOnePlusSqrtOverTwo.lean` — ℤ[(1+√d)/2] ring
-  - `HalfInt.lean` — Half-integer normal form
-  - `Norm.lean` — Norm computations
-  - `Discriminant.lean` — Discriminant formula for quadratic fields
-  - `Classification.lean` — Final `ringOfIntegers_classification` theorem
-  - `ZsqrtdMathlibInstances.lean` — Dedekind domain characterization for mathlib's `Zsqrtd`
-- **`Euclidean/Basic.lean`** — Norm-Euclidean classification: `d ∈ {-1, -2, -3, -7, -11}` iff norm-Euclidean
-- **`Examples/`** — Concrete verified examples:
-  - `ZsqrtdNeg5/Basic.lean` — General `NoZeroDivisors`/`IsDomain` for negative `d`
-  - `ZsqrtdNeg5/Ideals.lean` — Ideal factorization and primality in ℤ[√-5]
-  - `ZsqrtdNeg5/RamificationInertia.lean` — Ramification indices and inertia degrees
-
-### Other Components
-
-- **`blueprint/`** — leanblueprint source files for the blueprint site
-- **`home_page/`** — Homepage content used by `docgen-action` for GitHub Pages
-
-## Dependencies
-
-- Lean 4 v4.29.0-rc2, mathlib v4.29.0-rc2, repl v4.29.0-rc2
-- Linter options: `weak.linter.mathlibStandardSet = true`, `relaxedAutoImplicit = false` (in `lakefile.toml`)
-
-## Authors
-
-- Name: Frankie Wang
-- Email: git@frankie.wang
-- GitHub: FrankieeW
-- Should check gh and git config and status after every session to ensure commits are properly attributed
-
-## Workflow Guidelines
-
-### Git Worktree
-- Use `git worktree` to create a separate branch for each new feature or bug fix
-- Follow standard GitHub flow: PR, code review, merge into main
-
-### mathlib Contributions (Bidirectional Sync)
-
-This project maintains a **bidirectional sync** with mathlib PRs:
-
-#### Active PRs
-
-| PR | Topic | Status | Key Files |
-|----|-------|--------|-----------|
-| [#36347](https://github.com/leanprover-community/mathlib4/pull/36347) | `Qsqrtd` definition, `IsQuadraticField` | OPEN | `NumberTheory/QuadraticField/Basic.lean` |
-| [#36387](https://github.com/leanprover-community/mathlib4/pull/36387) | Parameter uniqueness | OPEN | `NumberTheory/QuadraticField/Basic.lean` |
-
-#### Project → mathlib Flow
-
-When adding features that belong in mathlib:
-
-1. **Develop in this project first** — iterate faster with local builds
-2. **Identify mathlib-scope content**:
-   - ✅ Basic definitions: `Qsqrtd`, `IsQuadraticField`, trace/norm
-   - ✅ General lemmas: squarefree, rescaling, parameter uniqueness
-   - ❌ Project-specific: ring of integers classification, discriminant formula (too advanced)
-3. **Port to PR**: Copy relevant code to mathlib PR, adapt to mathlib style
-4. **Update PR description** with link to project commit
+Useful commands:
 
 ```bash
-# Check PR diff vs project
-gh pr diff 36347 --repo leanprover-community/mathlib4 > /tmp/pr.diff
-diff QuadraticNumberFields/Basic.lean <(gh pr view 36347 --repo leanprover-community/mathlib4 --json files --jq '.files[].path' | xargs cat)
+lake exe cache get
+lake build
 ```
 
-#### mathlib PR → Project Flow
+Only run `lake build` when Lean files were modified or a full build is needed.
+For targeted Lean changes, use Lean diagnostics first when available.
 
-When PR receives review feedback:
+## Lean Workflow
 
-1. **Address review in PR first** — mathlib standards take priority
-2. **Sync back to project** after changes are approved:
-   ```bash
-   # After addressing review in PR, sync the change pattern back
-   # Example: if reviewer asked to generalize trace, update project's trace definition too
-   ```
-3. **Document sync**: Note in project commit which PR review was addressed
+- Use the `lean4` and `mathlib-style` skills when writing, editing, or reviewing
+  Lean code.
+- Follow mathlib style.
+- Use existing project APIs and naming conventions before adding new helpers.
+- Add module docstrings to new Lean files.
+- Add docstrings to public definitions and theorems.
+- Keep theorem statements stable unless the task requires changing them.
+- Preserve `-- ANCHOR: name --` and `-- ANCHOR_END:` comments; they are used by
+  documentation tooling.
+- Prefer local checks on changed files before full builds.
+- After Lean edits, verification should normally be:
+  1. Lean diagnostics for each modified Lean file.
+  2. `lake build` if the change affects imports, shared declarations, or public API.
 
-#### Sync Checklist
+## Ring-Of-Integers Architecture
 
-Before syncing, verify:
-- [ ] Definition signatures match (type parameters, instances)
-- [ ] Docstrings are compatible (mathlib uses stricter format)
-- [ ] No project-only dependencies (e.g., `CommonInstances.lean`)
-- [ ] Test with `lake build` in both repos
+The ring-of-integers proof is organized around:
 
-#### Content Classification
+- `ModFour.lean`: arithmetic modulo 4.
+- `TraceNorm.lean`: trace/norm facts used by integrality proofs.
+- `HalfInt.lean`: half-integer normal forms.
+- `Zsqrtd.lean`: the `ℤ[√d]` model and embedding into `Qsqrtd`.
+- `ZOnePlusSqrtOverTwo.lean`: the `ℤ[(1+√d)/2]` model.
+- `Integrality.lean`: integral-closure constructions and normal-form arguments.
+- `Classification.lean`: the final classification equivalences.
+- `Norm.lean`: norm formulas and unit criteria.
+- `Discriminant.lean`: field discriminant formula.
+- `ZsqrtdIdeals.lean`: ideal membership, quotients, and primality.
+- `ZsqrtdMathlibInstances.lean`: Dedekind-domain characterization for mathlib's
+  `Zsqrtd`.
 
-| Content | mathlib? | Project-only? |
-|---------|----------|---------------|
-| `Qsqrtd d = QuadraticAlgebra ℚ d 0` | ✅ | — |
-| `IsQuadraticField` predicate | ✅ | — |
-| Trace/norm basic lemmas | ✅ | — |
-| Rescale isomorphisms | ✅ | — |
-| Parameter uniqueness | ✅ | — |
-| Ring of integers classification | ❌ | ✅ (future separate PR) |
-| Discriminant formula | ❌ | ✅ (future separate PR) |
-| Dedekind domain for `Zsqrtd` | ❌ | ✅ (future separate PR) |
-| Euclidean domain classification | ❌ | ✅ |
-| Ideal theory examples | ❌ | ✅ |
+Keep new lemmas near the proof that needs them unless they clearly belong in one
+of these shared files.
 
-### Commit Messages
-- Do not include Claude session URLs in commit messages
-- Use conventional commit format: `type: description`
+## mathlib Sync
 
-### Documentation
-- Add module docstrings (`/-! ... -/`) to all source files with `## Main Definitions` and `## Main Theorems` sections
-- Add definition docstrings (`/-- ... -/`) to public definitions
+Some basic quadratic-field material is intended to sync with mathlib PRs.
 
-### Lean Code Quality
+Likely mathlib-scope content:
 
-1. **Always verify with lean-lsp-mcp first**: Run `lean_diagnostic_messages` on modified files until there are no errors or warnings
-2. **Build only when needed**: Only run `lake build` if Lean files were actually modified
-3. **Commit after verification**: Commit only after both lean-lsp-mcp passes AND (if applicable) `lake build` succeeds
+- `Qsqrtd`
+- basic trace/norm lemmas
+- squarefree/rescaling facts
+- parameter uniqueness
+- general quadratic-field classification helpers
 
-### Website Documentation Anchors
+Project-only content for now:
 
-- **Preserve** `-- ANCHOR: name --` and `-- ANCHOR_END:` comments — they mark sections extracted for website documentation
-- Do not remove or modify these anchor comments
+- ring of integers classification
+- discriminant formula
+- Dedekind-domain characterization for `Zsqrtd`
+- Euclidean-domain classification
+- concrete ideal-theory examples
 
-## Lean 4 & mathlib Style
+When syncing with mathlib, verify signatures, imports, docstrings, and style in
+both repositories.
 
-Use the `lean4` and `mathlib-style` skills.
+## OMX / Skills
+
+- OMX is available, but runtime-only workflows such as `ralph`, `team`,
+  `ultrawork`, `ultraqa`, and `ecomode` require an actual OMX CLI/tmux runtime.
+- In Codex App or outside-tmux sessions, do not pretend those runtime workflows
+  are active; use direct execution, planning, or native subagents instead.
+- Use workflow skills when the user explicitly invokes them or the request
+  clearly matches:
+  - `analyze` / `investigate`: read-only deep analysis.
+  - `plan this`: planning only.
+  - `deep interview`: clarify requirements before implementation.
+  - `code review`: review findings first, ordered by severity.
+  - `cleanup` / `refactor` / `deslop`: write a cleanup plan first and protect
+    behavior with tests where practical.
+
+## Git And Commits
+
+- Check `git status` before and after substantial work.
+- Do not commit unless the user asks.
+- Do not include Claude session URLs in commit messages.
+- Commit messages should explain why the change was made.
+- Prefer the repository's Lore protocol trailers when making commits:
+  `Constraint:`, `Rejected:`, `Confidence:`, `Scope-risk:`, `Directive:`,
+  `Tested:`, `Not-tested:`.
+- Author identity should be:
+  - Name: `Frankie Wang`
+  - Email: `git@frankie.wang`
+  - GitHub: `FrankieeW`
+
+## Verification And Final Reports
+
+Before claiming completion:
+
+- Confirm the intended files changed.
+- Run the relevant checks.
+- Read the output of those checks.
+- Report verification evidence and any known gaps.
+
+Final reports should include:
+
+- changed files
+- verification performed
+- remaining risks or skipped checks
