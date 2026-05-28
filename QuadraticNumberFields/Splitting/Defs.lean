@@ -43,7 +43,7 @@ local notation3 "g(" p ")" => (primesOver p S).ncard
 
 section GeneralDefs
 
-local notation3 "e(" p "," P ")" => ramificationIdx (algebraMap R S) p P
+local notation3 "e(" p "," P ")" => ramificationIdx p P
 local notation3 "f(" p "," P ")" => Ideal.inertiaDeg p P
 local notation3 "τ(" p "," P ")" => (e(p, P), f(p, P), g(p))
 
@@ -83,7 +83,7 @@ def IsRamifiedIn : Prop :=
 
 lemma ramificationIdxIn_eq_of_mem (G : Type*) [Group G] [Finite G] [MulSemiringAction G S]
     [IsGaloisGroup G R S] {P : Ideal S} (hP : P ∈ primesOver p S) :
-    e(p) = ramificationIdx (algebraMap R S) p P := by
+    e(p) = ramificationIdx p P := by
   letI : P.IsPrime := hP.1
   letI : P.LiesOver p := hP.2
   simpa using (Ideal.ramificationIdxIn_eq_ramificationIdx p P G)

@@ -125,7 +125,7 @@ private theorem ramificationIdx_eq_one_of_le_and_not_sq
     (P : Ideal R)
     (hP : (span ({(3 : R)} : Set R) : Ideal R) ≤ P)
     (hnot : ¬ (span ({(3 : R)} : Set R) : Ideal R) ≤ P ^ (1 + 1)) :
-    ramificationIdx (algebraMap ℤ R) (span {(3 : ℤ)}) P = 1 := by
+    ramificationIdx (span {(3 : ℤ)}) P = 1 := by
   rw [ramificationIdx_spec]
   · rw [Zsqrtd.Ideal.map_span_int_singleton, pow_one]
     simpa using hP
@@ -178,7 +178,7 @@ noncomputable def quotEquivP3₂ : (R ⧸ P3₂) ≃+* ZMod 3 :=
 Mathematical reason: (2) = P2² in ℤ[√-5], so 2 = e(P2|2) × f(P2|2) = 2 × 1.
 This means P2 appears with exponent 2 in the factorization of (2). -/
 theorem ramificationIdx_P2 :
-    ramificationIdx (algebraMap ℤ R) (span {(2 : ℤ)}) P2 = 2 := by
+    ramificationIdx (span {(2 : ℤ)}) P2 = 2 := by
   rw [ramificationIdx_spec]
   · rw [Zsqrtd.Ideal.map_span_int_singleton]
     convert le_refl _ using 1
@@ -200,7 +200,7 @@ theorem ramificationIdx_P2 :
 
 Mathematical reason: (3) = P3₁ · P3₂, so P3₁ appears with exponent 1. -/
 theorem ramificationIdx_P3₁ :
-    ramificationIdx (algebraMap ℤ R) (span {(3 : ℤ)}) P3₁ = 1 :=
+    ramificationIdx (span {(3 : ℤ)}) P3₁ = 1 :=
   ramificationIdx_eq_one_of_le_and_not_sq P3₁
     (by
       rw [factorization_of_three]
@@ -209,7 +209,7 @@ theorem ramificationIdx_P3₁ :
 
 /-- The ramification index of P3₂ over (3) is 1. -/
 theorem ramificationIdx_P3₂ :
-    ramificationIdx (algebraMap ℤ R) (span {(3 : ℤ)}) P3₂ = 1 :=
+    ramificationIdx (span {(3 : ℤ)}) P3₂ = 1 :=
   ramificationIdx_eq_one_of_le_and_not_sq P3₂
     (by
       rw [factorization_of_three]
