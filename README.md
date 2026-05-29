@@ -3,8 +3,6 @@
 A Lean 4 formalization of quadratic number fields `ℚ(√d)` and the classification
 of their ring of integers, built on mathlib's `QuadraticAlgebra`.
 
-**[Documentation site](https://frankieew.github.io/QuadraticNumberFields)**
-
 ## Main Results
 
 ### Ring of Integers Classification
