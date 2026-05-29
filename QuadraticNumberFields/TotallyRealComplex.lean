@@ -106,7 +106,7 @@ private theorem conjugate_embedding_eq
 
 end InternalLemmas
 
-section FieldLevel
+section InfinitePlaceClassification
 
 variable (d : ℤ) [Fact (¬ IsSquare ((d : ℤ) : ℚ))]
 
@@ -144,6 +144,6 @@ theorem isCMField (hd : d < 0) :
   letI := isTotallyComplex d hd
   exact NumberField.IsCMField.ofCMExtension ℚ (Qsqrtd (d : ℚ))
 
-end FieldLevel
+end InfinitePlaceClassification
 
 end Qsqrtd

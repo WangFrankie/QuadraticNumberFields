@@ -33,12 +33,87 @@ and proves that integral elements have specific normal forms.
 
 The file provides equivalence theorems connecting divisibility by 4 with
 membership in various carrier sets, used by `Classification.lean`.
+
+It also provides the general `ringOfIntegers_equiv_of_embedding` criterion used to
+turn these image classifications into ring equivalences with the full ring of integers.
 -/
 
 namespace QuadraticNumberFields
 namespace RingOfIntegers
 
 open scoped NumberField
+
+section RingOfIntegersEquiv
+
+/-! ## General Criterion for Ring of Integers Identification -/
+
+/-- **Generic fact**: the ring of integers `𝓞 K` is ring-isomorphic to any
+commutative ring `R` equipped with an `IsIntegralClosure R ℤ K` instance. -/
+noncomputable def ringOfIntegers_equiv_of_integralClosure
+    (K : Type*) [Field K] (R : Type*) [CommRing R] [Algebra R K] [IsIntegralClosure R ℤ K] :
+    𝓞 K ≃+* R :=
+  NumberField.RingOfIntegers.equiv (K := K) (R := R)
+
+/-- The equiv `𝓞 K ≃+* R` commutes with the natural maps to `K`. -/
+@[simp]
+lemma ringOfIntegers_equiv_of_integralClosure_apply
+    {K : Type*} [Field K] {R : Type*} [CommRing R] [Algebra R K] [IsIntegralClosure R ℤ K]
+    (α : 𝓞 K) :
+    algebraMap R K (ringOfIntegers_equiv_of_integralClosure K R α) = (algebraMap (𝓞 K) K) α := by
+  change algebraMap R K ((IsIntegralClosure.equiv ℤ R K (𝓞 K)).symm α) =
+    algebraMap (𝓞 K) K α
+  have key := IsIntegralClosure.algebraMap_equiv ℤ R K (𝓞 K)
+    ((IsIntegralClosure.equiv ℤ R K (𝓞 K)).symm α)
+  rw [(IsIntegralClosure.equiv ℤ R K (𝓞 K)).apply_symm_apply α] at key
+  exact key.symm
+
+/-- **General criterion for identifying the ring of integers.** -/
+noncomputable def ringOfIntegers_equiv_of_embedding
+    (K : Type*) [Field K]
+    (R : Type*) [CommRing R]
+    (φ : R →+* K)
+    (h_inj : Function.Injective φ)
+    (h_exists : ∀ x : K, IsIntegral ℤ x → ∃ z : R, φ z = x)
+    (h_integral : ∀ z : R, IsIntegral ℤ (φ z)) :
+    𝓞 K ≃+* R :=
+  letI : Algebra R K := φ.toAlgebra
+  letI : IsIntegralClosure R ℤ K :=
+    { algebraMap_injective := by
+        simpa [RingHom.toAlgebra] using h_inj
+      isIntegral_iff := by
+        intro x
+        refine ⟨fun hx => ?_, ?_⟩
+        · rcases h_exists x hx with ⟨z, hz⟩
+          exact ⟨z, by simpa [RingHom.toAlgebra] using hz⟩
+        · rintro ⟨z, rfl⟩
+          simpa [RingHom.toAlgebra] using h_integral z }
+  ringOfIntegers_equiv_of_integralClosure K R
+
+/-- The general embedding equiv commutes with `φ`: for any `α : 𝓞 K`, the underlying
+element `(α : K)` equals `φ (e α)`. -/
+lemma ringOfIntegers_equiv_of_embedding_apply
+    {K : Type*} [Field K]
+    {R : Type*} [CommRing R]
+    (φ : R →+* K)
+    (h_inj : Function.Injective φ)
+    (h_exists : ∀ x : K, IsIntegral ℤ x → ∃ z : R, φ z = x)
+    (h_integral : ∀ z : R, IsIntegral ℤ (φ z))
+    (α : 𝓞 K) :
+    φ (ringOfIntegers_equiv_of_embedding K R φ h_inj h_exists h_integral α) = (α : K) := by
+  letI : Algebra R K := φ.toAlgebra
+  letI : IsIntegralClosure R ℤ K :=
+    { algebraMap_injective := by simpa [RingHom.toAlgebra] using h_inj
+      isIntegral_iff := by
+        intro x
+        refine ⟨fun hx => ?_, ?_⟩
+        · rcases h_exists x hx with ⟨z, hz⟩
+          exact ⟨z, by simpa [RingHom.toAlgebra] using hz⟩
+        · rintro ⟨z, rfl⟩
+          simpa [RingHom.toAlgebra] using h_integral z }
+  change algebraMap R K _ = algebraMap (𝓞 K) K α
+  exact ringOfIntegers_equiv_of_integralClosure_apply (R := R) α
+
+end RingOfIntegersEquiv
 
 /-! ## Divisibility-Carrier Equivalences -/
 

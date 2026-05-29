@@ -44,7 +44,7 @@ instance instNoZeroDivisors {d : ℤ} [Fact (d < 0)] : NoZeroDivisors (Zsqrtd d)
 instance instIsDomain {d : ℤ} [Fact (d < 0)] : IsDomain (Zsqrtd d) :=
   NoZeroDivisors.to_isDomain (Zsqrtd d)
 
-section ParamLevel
+section SquarefreeIntegerParameter
 
 variable (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
 
@@ -83,6 +83,6 @@ theorem isDedekindDomain_iff_mod_four_ne_one
     exact not_isDedekindDomain_of_mod_four_eq_one d hd4 hDed
   · exact isDedekindDomain_of_mod_four_ne_one d
 
-end ParamLevel
+end SquarefreeIntegerParameter
 
 end Zsqrtd

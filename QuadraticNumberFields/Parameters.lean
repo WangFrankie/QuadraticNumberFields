@@ -208,7 +208,7 @@ lemma squarefree_eq_of_rat_sq_mul {d₁ d₂ : ℤ}
 
 /-! ## Main Theorem -/
 
-section ParamLevel
+section ParameterUniqueness
 
 variable (d₁ d₂ : ℤ)
 
@@ -259,4 +259,4 @@ theorem Qsqrtd.param_unique (φ : Qsqrtd (d₁ : ℚ) ≃ₐ[ℚ] Qsqrtd (d₂ :
   -- removes that ambiguity.
   exact squarefree_eq_of_rat_sq_mul hsf₁ hsf₂ hr
 
-end ParamLevel
+end ParameterUniqueness

@@ -95,7 +95,7 @@ def ringEquivToIntAlgEquiv
 
 /-! ## Transport to NumberField.discr -/
 
-section ParamLevel
+section SquarefreeIntegerParameter
 
 variable (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
 
@@ -166,7 +166,7 @@ theorem discr_Qsqrtd_neg_five :
   discr_of_mod_four_ne_one (-5) (by decide)
 
 
-end ParamLevel
+end SquarefreeIntegerParameter
 
 end RingOfIntegers
 end QuadraticNumberFields

@@ -87,7 +87,7 @@ theorem norm_mem_zOnePlusSqrtOverTwo (k : ℤ) (z : ZOnePlusSqrtOverTwo k) :
     ∃ n : ℤ, Qsqrtd.norm (ZOnePlusSqrtOverTwo.toQsqrtdHom k z) = n := by
   exact ⟨QuadraticAlgebra.norm z, norm_zOnePlusSqrtOverTwo_toQsqrtd k z⟩
 
-section ParamLevel
+section SquarefreeIntegerParameter
 
 variable (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
 
@@ -121,7 +121,7 @@ theorem norm_mem_ringOfIntegers (α : 𝓞 (Qsqrtd (d : ℚ))) :
     rw [← happly]
     exact norm_mem_zsqrtd d _
 
-end ParamLevel
+end SquarefreeIntegerParameter
 
 /-! ## Unit Criterion -/
 
