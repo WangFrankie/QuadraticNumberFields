@@ -16,7 +16,6 @@ build/
 .idea/
 *.swp
 *~
-.venv-leanblueprint/
 
 # OS
 .DS_Store
@@ -27,9 +26,6 @@ Thumbs.db
 docbuild/
 _site/
 
-# Ruby/Bundler
-home_page/vendor/
-
 # Git worktrees
 .worktrees/
 
@@ -38,5 +34,10 @@ home_page/vendor/
 #AI
 .omc
 .omx
+.claude
 AGENTS.md
 CLAUDE.md
+docs/superpowers/
+
+#Local Files
+docs/local/

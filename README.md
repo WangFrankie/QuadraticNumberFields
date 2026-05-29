@@ -116,8 +116,6 @@ QuadraticNumberFields/
 │       ├── Zsqrtd.lean               # ℤ[√d] ring model and mathlib bridge
 │       ├── ZsqrtdIdeals.lean         # Ideal theory: membership, primality, quotients
 │       └── ZsqrtdMathlibInstances.lean  # Dedekind domain for mathlib's ℤ√d
-├── blueprint/                        # leanblueprint source files
-└── home_page/                        # Homepage content for docgen-action / GitHub Pages
 ```
 
 ## Prerequisites
