@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 import QuadraticNumberFields.RingOfIntegers.Classification
+import Mathlib.Algebra.Polynomial.Degree.IsMonicOfDegree
 import Mathlib.NumberTheory.NumberField.Ideal.KummerDedekind
 
 /-!
@@ -76,6 +77,14 @@ theorem adjoin_eq_top_of_ringEquiv {A B : Type*} [CommRing A] [CommRing B]
   obtain ⟨b, hb, heb⟩ := Subalgebra.mem_map.mp hmem
   rwa [show b = a from e'.injective heb] at hb
 
+private theorem minpoly_eq_of_ringEquiv {A B : Type*} [CommRing A] [CommRing B]
+    (e : A ≃+* B) (x : B) :
+    minpoly ℤ (e.symm x) = minpoly ℤ x := by
+  let e' : A ≃ₐ[ℤ] B := AlgEquiv.ofRingEquiv (f := e) (fun _ => by simp)
+  have he_symm : (e'.symm x : A) = e.symm x := rfl
+  rw [← he_symm]
+  exact minpoly.algEquiv_eq e'.symm x
+
 /-! ## The generator -/
 
 namespace Splitting
@@ -129,7 +138,8 @@ open Polynomial in
 theorem aeval_omega_X_sq_sub_C (a : ℤ) :
     (Polynomial.aeval (QuadraticAlgebra.omega (R := ℤ) (a := a) (b := 0)))
       (X ^ 2 - C a) = 0 := by
-  simp [sq, QuadraticAlgebra.omega_mul_omega_eq_mk]
+  simp only [eq_intCast, aeval_sub, map_pow, aeval_X, map_intCast]
+  rw [sq, QuadraticAlgebra.omega_mul_omega_eq_mk]
   ext <;> simp
 
 open Polynomial in
@@ -137,8 +147,9 @@ open Polynomial in
 theorem aeval_omega_X_sq_sub_X_sub_C (k : ℤ) :
     (Polynomial.aeval (QuadraticAlgebra.omega (R := ℤ) (a := k) (b := 1)))
       (X ^ 2 - X - C k) = 0 := by
-  simp [sq, QuadraticAlgebra.omega_mul_omega_eq_mk]
-  ext <;> simp [mul_comm]
+  simp only [eq_intCast, aeval_sub, map_pow, aeval_X, map_intCast]
+  rw [sq, QuadraticAlgebra.omega_mul_omega_eq_mk]
+  ext <;> simp
 
 open Polynomial in
 /-- `omega` in `QuadraticAlgebra ℤ a b` is not in the image of `algebraMap ℤ`. -/
@@ -149,30 +160,70 @@ theorem omega_ne_algebraMap (a b : ℤ) (c : ℤ) :
   simp [QuadraticAlgebra.omega] at this
 
 open Polynomial in
+private lemma eq_C_add_C_mul_X_of_natDegree_lt_two {q : ℤ[X]} (hq : q.natDegree < 2) :
+    q = C (q.coeff 0) + C (q.coeff 1) * X := by
+  calc
+    q = ∑ i ∈ Finset.range 2, C (q.coeff i) * X ^ i := by
+      simpa using q.as_sum_range_C_mul_X_pow' hq
+    _ = C (q.coeff 0) + C (q.coeff 1) * X := by
+      norm_num [Finset.sum_range_succ]
+
+open Polynomial in
+private lemma eq_zero_of_aeval_omega_eq_zero_of_natDegree_lt_two (a b : ℤ) {q : ℤ[X]}
+    (hq : q.natDegree < 2)
+    (hroot : Polynomial.aeval (QuadraticAlgebra.omega (R := ℤ) (a := a) (b := b)) q = 0) :
+    q = 0 := by
+  have hqform := eq_C_add_C_mul_X_of_natDegree_lt_two hq
+  rw [hqform] at hroot ⊢
+  have hre := congr_arg QuadraticAlgebra.re hroot
+  have him := congr_arg QuadraticAlgebra.im hroot
+  simp at hre him
+  simp [hre, him]
+
+open Polynomial in
+private lemma natDegree_lt_two_of_degree_lt {q p : ℤ[X]} (hqzero : q ≠ 0)
+    (hp : p.degree = 2) (hq : q.degree < p.degree) :
+    q.natDegree < 2 := by
+  rw [hp, degree_eq_natDegree hqzero] at hq
+  exact WithBot.coe_lt_coe.mp hq
+
+open Polynomial in
 /-- The minimal polynomial of `omega` in `QuadraticAlgebra ℤ d 0` is `X² - d`. -/
 theorem minpoly_omega_quadAlg_zero (d : ℤ) :
     minpoly ℤ (QuadraticAlgebra.omega (R := ℤ) (a := d) (b := 0)) = X ^ 2 - C d := by
   symm
-  refine IsIntegrallyClosed.minpoly.unique (monic_X_pow_sub_C d two_ne_zero)
-    (aeval_omega_X_sq_sub_C d) ?_
-  intro Q hQ_monic hQ_aeval
-  by_contra h
-  push_neg at h
-  have hdeg : Q.natDegree < 2 := by
-    rwa [degree_X_pow_sub_C two_ne_zero d, Polynomial.degree_lt_iff_natDegree_lt hQ_monic.ne_zero]
-      at h
-  interval_cases Q.natDegree
-  · exact absurd (Polynomial.Monic.eq_one_of_natDegree_eq_zero hQ_monic (by rfl))
-      (by simp [Polynomial.ext_iff, ← hQ_aeval])
-  · have : Q.IsUnit := by
-      sorry -- need to show degree-1 annihilator gives omega ∈ ℤ, contradiction
-    exact hQ_monic.not_isUnit this
+  refine minpoly.unique' ℤ (QuadraticAlgebra.omega (R := ℤ) (a := d) (b := 0))
+    (monic_X_pow_sub_C d two_ne_zero) (aeval_omega_X_sq_sub_C d) ?_
+  intro q hq
+  by_cases hqzero : q = 0
+  · exact Or.inl hqzero
+  · right
+    intro hroot
+    apply hqzero
+    exact eq_zero_of_aeval_omega_eq_zero_of_natDegree_lt_two d 0
+      (natDegree_lt_two_of_degree_lt hqzero (degree_X_pow_sub_C zero_lt_two d) hq) hroot
 
 open Polynomial in
 /-- The minimal polynomial of `omega` in `QuadraticAlgebra ℤ k 1` is `X² - X - k`. -/
 theorem minpoly_omega_quadAlg_one (k : ℤ) :
     minpoly ℤ (QuadraticAlgebra.omega (R := ℤ) (a := k) (b := 1)) = X ^ 2 - X - C k := by
-  sorry
+  symm
+  have hmd : Polynomial.IsMonicOfDegree (X ^ 2 - X - C k : ℤ[X]) 2 := by
+    simpa [sub_eq_add_neg, one_mul] using
+      (Polynomial.isMonicOfDegree_sub_add_two (R := ℤ) (1 : ℤ) (-k))
+  refine minpoly.unique' ℤ (QuadraticAlgebra.omega (R := ℤ) (a := k) (b := 1)) hmd.monic
+    (aeval_omega_X_sq_sub_X_sub_C k) ?_
+  intro q hq
+  by_cases hqzero : q = 0
+  · exact Or.inl hqzero
+  · right
+    intro hroot
+    apply hqzero
+    have hpdeg : (X ^ 2 - X - C k : ℤ[X]).degree = 2 := by
+      rw [degree_eq_natDegree hmd.monic.ne_zero, hmd.natDegree_eq]
+      rfl
+    exact eq_zero_of_aeval_omega_eq_zero_of_natDegree_lt_two k 1
+      (natDegree_lt_two_of_degree_lt hqzero hpdeg hq) hroot
 
 /-- The minimal polynomial of the generator `θ` of `𝓞(ℚ(√d))`.
 When `d % 4 ≠ 1`: `minpoly ℤ θ = X² - d`.
@@ -182,8 +233,29 @@ theorem minpoly_generator :
     (∀ hd4 : d % 4 = 1,
       let ex := RingOfIntegers.ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one d hd4
       minpoly ℤ (ringOfIntegersGenerator d) =
-        Polynomial.X ^ 2 - Polynomial.X - Polynomial.C ex.choose) := by
-  sorry
+        Polynomial.X ^ 2 - Polynomial.X - Polynomial.C ex.fst) := by
+  constructor
+  · intro hd4
+    unfold ringOfIntegersGenerator
+    rw [dif_neg hd4]
+    calc
+      minpoly ℤ ((RingOfIntegers.ringOfIntegers_equiv_zsqrtd_of_mod_four_ne_one d hd4).symm
+          QuadraticAlgebra.omega) =
+          minpoly ℤ (QuadraticAlgebra.omega (R := ℤ) (a := d) (b := 0)) :=
+        minpoly_eq_of_ringEquiv
+          (RingOfIntegers.ringOfIntegers_equiv_zsqrtd_of_mod_four_ne_one d hd4)
+          QuadraticAlgebra.omega
+      _ = Polynomial.X ^ 2 - Polynomial.C d := minpoly_omega_quadAlg_zero d
+  · intro hd4
+    unfold ringOfIntegersGenerator
+    rw [dif_pos hd4]
+    let ex := RingOfIntegers.ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one d hd4
+    calc
+      minpoly ℤ (ex.snd.snd.symm QuadraticAlgebra.omega) =
+          minpoly ℤ (QuadraticAlgebra.omega (R := ℤ) (a := ex.fst) (b := 1)) :=
+        minpoly_eq_of_ringEquiv ex.snd.snd QuadraticAlgebra.omega
+      _ = Polynomial.X ^ 2 - Polynomial.X - Polynomial.C ex.fst :=
+        minpoly_omega_quadAlg_one ex.fst
 
 end Splitting
 end QuadraticNumberFields
