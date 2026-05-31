@@ -10,11 +10,11 @@ import QuadraticNumberFields.Instances
 import QuadraticNumberFields.FieldClassification
 import QuadraticNumberFields.RingEquiv
 import QuadraticNumberFields.RingOfIntegers.ModFour
-import QuadraticNumberFields.Zsqrtd
+import QuadraticNumberFields.Zsqrtd.Basic
 import QuadraticNumberFields.Zsqrtd.MathlibInstances
 import QuadraticNumberFields.Zsqrtd.Ideals
 import QuadraticNumberFields.RingOfIntegers.HalfInt
-import QuadraticNumberFields.ZOnePlusSqrtOverTwo
+import QuadraticNumberFields.ZOnePlusSqrtOverTwo.Basic
 import QuadraticNumberFields.RingOfIntegers.TraceNorm
 import QuadraticNumberFields.RingOfIntegers.Integrality
 import QuadraticNumberFields.RingOfIntegers.Classification
