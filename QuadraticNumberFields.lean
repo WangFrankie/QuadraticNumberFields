@@ -11,6 +11,7 @@ import QuadraticNumberFields.FieldClassification
 import QuadraticNumberFields.RingEquiv
 import QuadraticNumberFields.RingOfIntegers.ModFour
 import QuadraticNumberFields.Zsqrtd.Basic
+import QuadraticNumberFields.Zsqrtd.Dedekind
 import QuadraticNumberFields.Zsqrtd.MathlibInstances
 import QuadraticNumberFields.Zsqrtd.Ideals
 import QuadraticNumberFields.RingOfIntegers.HalfInt

@@ -3,7 +3,7 @@ Copyright (c) 2026 Frankie Wang. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
-import QuadraticNumberFields.RingOfIntegers.Classification
+import QuadraticNumberFields.Zsqrtd.Dedekind
 import QuadraticNumberFields.RingEquiv
 import QuadraticNumberFields.Zsqrtd.MathlibBridge
 import Mathlib.RingTheory.IntegralClosure.IntegrallyClosed
@@ -51,7 +51,7 @@ theorem isDedekindDomain_of_mod_four_ne_one (hd4 : d % 4 ≠ 1) :
     IsDedekindDomain (Zsqrtd d) := by
   let e := QuadraticNumberFields.Zsqrtd.equivMathlib d
   letI : IsDedekindDomain (QuadraticNumberFields.Zsqrtd d) :=
-    QuadraticNumberFields.RingOfIntegers.isDedekindDomain_zsqrtd_of_mod_four_ne_one
+    QuadraticNumberFields.Zsqrtd.isDedekindDomain_of_mod_four_ne_one
       d hd4
   exact RingEquiv.isDedekindDomain e
 instance instIsDedekindDomain_zsqrtd_of_mod_four_ne_one
@@ -69,7 +69,7 @@ theorem not_isDedekindDomain_of_mod_four_eq_one
     RingEquiv.isDedekindDomain
       (QuadraticNumberFields.Zsqrtd.equivMathlib d).symm
   exact
-    ((QuadraticNumberFields.RingOfIntegers.isDedekindDomain_zsqrtd_iff_mod_four_ne_one
+    ((QuadraticNumberFields.Zsqrtd.isDedekindDomain_iff_mod_four_ne_one
       d).mp hDedQA) hd4
 
 /-- For a squarefree `d ≠ 1`, mathlib's `ℤ√d` is Dedekind exactly in
