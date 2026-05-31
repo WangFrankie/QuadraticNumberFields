@@ -35,8 +35,7 @@ namespace RingOfIntegers
 /-- The norm of an element of `Zsqrtd d` is an integer: `N(a + b√d) = a² - d·b²`. -/
 theorem norm_zsqrtd (d : ℤ) (z : Zsqrtd d) :
     Zsqrtd.norm z = z.re ^ 2 - d * z.im ^ 2 := by
-  unfold Zsqrtd.norm QuadraticAlgebra.norm
-  simp only [MonoidHom.coe_mk, OneHom.coe_mk]
+  simp [Zsqrtd.norm, QuadraticAlgebra.norm]
   ring
 
 /-- The norm on `Zsqrtd d` is multiplicative. -/
@@ -47,10 +46,7 @@ theorem norm_mul_zsqrtd (d : ℤ) (x y : Zsqrtd d) :
 /-- The norm of `a + b√d` embeds to `a² - d·b²` in `ℚ`. -/
 theorem norm_zsqrtd_toQsqrtd (d : ℤ) (z : Zsqrtd d) :
     Qsqrtd.norm (Zsqrtd.toQsqrtd z) = (Zsqrtd.norm z : ℚ) := by
-  unfold Zsqrtd.norm Qsqrtd.norm Zsqrtd.toQsqrtd QuadraticAlgebra.norm
-  simp only [MonoidHom.coe_mk, OneHom.coe_mk]
-  push_cast
-  ring
+  simp [Zsqrtd.norm, Qsqrtd.norm, Zsqrtd.toQsqrtd, QuadraticAlgebra.norm]
 
 /-- For `d % 4 ≠ 1`, elements of `ℤ[√d]` have integer norm after embedding. -/
 theorem norm_mem_zsqrtd (d : ℤ) (z : Zsqrtd d) :
@@ -66,8 +62,7 @@ theorem norm_mul_zOnePlusSqrtOverTwo (k : ℤ) (x y : ZOnePlusSqrtOverTwo k) :
 /-- The norm of an element of `ZOnePlusSqrtOverTwo k` is `a² + a·b - k·b²`. -/
 theorem norm_zOnePlusSqrtOverTwo (k : ℤ) (z : ZOnePlusSqrtOverTwo k) :
     QuadraticAlgebra.norm z = z.re ^ 2 + z.re * z.im - k * z.im ^ 2 := by
-  unfold QuadraticAlgebra.norm
-  simp only [MonoidHom.coe_mk, OneHom.coe_mk]
+  simp [QuadraticAlgebra.norm]
   ring
 
 /-- The norm of `a + b·ω` embeds correctly to `ℚ`. -/
