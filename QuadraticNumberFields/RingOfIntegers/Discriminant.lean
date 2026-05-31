@@ -40,9 +40,8 @@ theorem leftMulMatrix_qa (a b : ℤ) (x : QuadraticAlgebra ℤ a b) :
     Algebra.leftMulMatrix (QuadraticAlgebra.basis a b) x =
       !![x.re, a * x.im; x.im, x.re + b * x.im] := by
   ext i j
-  rw [Algebra.leftMulMatrix_eq_repr_mul]
   fin_cases i <;> fin_cases j <;>
-    simp [QuadraticAlgebra.basis,
+    simp [Algebra.leftMulMatrix_eq_repr_mul, QuadraticAlgebra.basis,
       QuadraticAlgebra.re_mul, QuadraticAlgebra.im_mul,
       Matrix.cons_val_zero, Matrix.cons_val_one,
       Matrix.of_apply]
@@ -61,30 +60,26 @@ theorem traceMatrix_qa (a b : ℤ) :
     Algebra.traceMatrix ℤ (QuadraticAlgebra.basis a b) =
       !![2, b; b, 2 * a + b ^ 2] := by
   ext i j
-  simp only [Algebra.traceMatrix_apply]
   fin_cases i <;> fin_cases j <;>
-    simp [trace_qa, QuadraticAlgebra.basis, pow_two]
+    simp [Algebra.traceMatrix_apply, trace_qa, QuadraticAlgebra.basis, pow_two]
 
 /-- The discriminant of the standard basis of `QuadraticAlgebra ℤ a b` is `4a + b²`. -/
 theorem discr_qa_basis (a b : ℤ) :
     Algebra.discr ℤ (QuadraticAlgebra.basis a b) = 4 * a + b ^ 2 := by
-  rw [Algebra.discr_def, traceMatrix_qa]
-  simp [Matrix.det_fin_two]
+  simp [Algebra.discr_def, traceMatrix_qa, Matrix.det_fin_two]
   ring
 
 /-- The discriminant of the standard basis of `ℤ[√d]` is `4 * d`. -/
 theorem discr_zsqrtd_basis (d : ℤ) :
     Algebra.discr ℤ (QuadraticAlgebra.basis d 0 :
       Module.Basis (Fin 2) ℤ (Zsqrtd d)) = 4 * d := by
-  rw [discr_qa_basis]
-  ring
+  simp [discr_qa_basis]
 
 /-- The discriminant of the standard basis of `ℤ[(1+√(1+4k))/2]` is `1 + 4 * k`. -/
 theorem discr_zOnePlusSqrtOverTwo_basis (k : ℤ) :
     Algebra.discr ℤ (QuadraticAlgebra.basis k 1 :
       Module.Basis (Fin 2) ℤ (ZOnePlusSqrtOverTwo k)) = 1 + 4 * k := by
-  rw [discr_qa_basis]
-  ring
+  simpa [add_comm] using discr_qa_basis k 1
 
 /-- Any ring equivalence between `ℤ`-algebras is automatically an `AlgEquiv ℤ`. -/
 def ringEquivToIntAlgEquiv
