@@ -5,8 +5,7 @@ Authors: Frankie Wang
 -/
 import QuadraticNumberFields.RingOfIntegers.Classification
 import QuadraticNumberFields.RingEquiv
-import QuadraticNumberFields.RingOfIntegers.Zsqrtd
-import Mathlib.NumberTheory.Zsqrtd.Basic
+import QuadraticNumberFields.Zsqrtd.MathlibBridge
 import Mathlib.RingTheory.IntegralClosure.IntegrallyClosed
 import Mathlib.RingTheory.Noetherian.Basic
 
@@ -50,8 +49,8 @@ variable (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
 
 theorem isDedekindDomain_of_mod_four_ne_one (hd4 : d % 4 ≠ 1) :
     IsDedekindDomain (Zsqrtd d) := by
-  let e := QuadraticNumberFields.RingOfIntegers.Zsqrtd.equivMathlib d
-  letI : IsDedekindDomain (QuadraticNumberFields.RingOfIntegers.Zsqrtd d) :=
+  let e := QuadraticNumberFields.Zsqrtd.equivMathlib d
+  letI : IsDedekindDomain (QuadraticNumberFields.Zsqrtd d) :=
     QuadraticNumberFields.RingOfIntegers.isDedekindDomain_zsqrtd_of_mod_four_ne_one
       d hd4
   exact RingEquiv.isDedekindDomain e
@@ -66,9 +65,9 @@ theorem not_isDedekindDomain_of_mod_four_eq_one
     ¬ IsDedekindDomain (Zsqrtd d) := by
   intro hDed
   letI : IsDedekindDomain (Zsqrtd d) := hDed
-  have hDedQA : IsDedekindDomain (QuadraticNumberFields.RingOfIntegers.Zsqrtd d) :=
+  have hDedQA : IsDedekindDomain (QuadraticNumberFields.Zsqrtd d) :=
     RingEquiv.isDedekindDomain
-      (QuadraticNumberFields.RingOfIntegers.Zsqrtd.equivMathlib d).symm
+      (QuadraticNumberFields.Zsqrtd.equivMathlib d).symm
   exact
     ((QuadraticNumberFields.RingOfIntegers.isDedekindDomain_zsqrtd_iff_mod_four_ne_one
       d).mp hDedQA) hd4

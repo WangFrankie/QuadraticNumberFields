@@ -4,13 +4,15 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 import QuadraticNumberFields.Basic
-import Mathlib.NumberTheory.Zsqrtd.Basic
 
 /-!
 # Model of `ℤ[√d]`
 
 This module provides a QA-owned model of `ℤ[√d]` based on `QuadraticAlgebra ℤ d 0`,
-along with its embedding into `Q(√d)` and isomorphism with mathlib's `ℤ√d`.
+along with its embedding into `Q(√d)`.
+
+This file is deliberately independent of mathlib's `_root_.Zsqrtd` (`ℤ√d`); the
+bridge between the two models lives in `QuadraticNumberFields.Zsqrtd.MathlibBridge`.
 
 ## Main Definitions
 
@@ -24,13 +26,11 @@ along with its embedding into `Q(√d)` and isomorphism with mathlib's `ℤ√d`
 ## Main Theorems
 
 * `Zsqrtd.toQsqrtdHom_injective`: The embedding is injective.
-* `Zsqrtd.equivMathlib`: Ring isomorphism with mathlib's `ℤ√d`.
 * `Zsqrtd.halfInt_mem_range_toQsqrtdHom_iff_even_even`: Characterization of
   half-integers in the image of `Zsqrtd d`.
 -/
 
 namespace QuadraticNumberFields
-namespace RingOfIntegers
 
 /-- QA base model of `ℤ[√d]` reusing `QuadraticAlgebra`. -/
 abbrev Zsqrtd (d : ℤ) : Type := QuadraticAlgebra ℤ d 0
@@ -87,51 +87,6 @@ theorem toQsqrtdHom_injective (d : ℤ) : Function.Injective (toQsqrtdHom d) := 
       simpa [toQsqrtdHom] using congrArg QuadraticAlgebra.im hxy
     exact_mod_cast him
 
-/-- Coordinate map from QA `Zsqrtd` to mathlib's `ℤ√d`. -/
-def toMathlib (d : ℤ) : Zsqrtd d →+* ℤ√d where
-  toFun := fun z => ⟨z.re, z.im⟩
-  map_one' := by ext <;> rfl
-  map_mul' := by
-    intro x y
-    ext <;> simp
-  map_zero' := by ext <;> rfl
-  map_add' := by
-    intro x y
-    ext <;> rfl
-
-/-- Coordinate map from mathlib's `ℤ√d` to QA `Zsqrtd`. -/
-def ofMathlib (d : ℤ) : ℤ√d →+* Zsqrtd d where
-  toFun := fun z => ⟨z.re, z.im⟩
-  map_one' := by ext <;> rfl
-  map_mul' := by
-    intro x y
-    ext <;> simp
-  map_zero' := by ext <;> rfl
-  map_add' := by
-    intro x y
-    ext <;> rfl
-
-@[simp] theorem toMathlib_ofMathlib (d : ℤ) (z : ℤ√d) :
-    toMathlib d (ofMathlib d z) = z := by
-  rfl
-
-@[simp] theorem ofMathlib_toMathlib (d : ℤ) (z : Zsqrtd d) :
-    ofMathlib d (toMathlib d z) = z := by
-  rfl
-
-/-- Ring isomorphism between QA `Zsqrtd` and mathlib's `ℤ√d`. -/
-def equivMathlib (d : ℤ) : Zsqrtd d ≃+* ℤ√d where
-  toFun := toMathlib d
-  invFun := ofMathlib d
-  left_inv := ofMathlib_toMathlib d
-  right_inv := toMathlib_ofMathlib d
-  map_mul' := by
-    intro x y
-    ext <;> simp [mul_comm, mul_left_comm]
-  map_add' := by
-    intro x y
-    rfl
-
 /-- Pair conversion helper for interoperability. -/
 abbrev toPair (z : Zsqrtd d) : ℤ × ℤ := (z.re, z.im)
 
@@ -170,5 +125,4 @@ end Zsqrtd
 def zsqrtdCarrierInQ (d : ℤ) : Set (Qsqrtd (d : ℚ)) :=
   Set.range (Zsqrtd.toQsqrtd (d := d))
 
-end RingOfIntegers
 end QuadraticNumberFields

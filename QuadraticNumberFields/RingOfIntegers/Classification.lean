@@ -6,7 +6,7 @@ Authors: Frankie Wang
 import QuadraticNumberFields.RingOfIntegers.CommonInstances
 import QuadraticNumberFields.RingOfIntegers.Integrality
 import QuadraticNumberFields.RingOfIntegers.ModFour
-import QuadraticNumberFields.RingOfIntegers.ZOnePlusSqrtOverTwo
+import QuadraticNumberFields.ZOnePlusSqrtOverTwo
 import QuadraticNumberFields.RingEquiv
 import QuadraticNumberFields.Instances
 
