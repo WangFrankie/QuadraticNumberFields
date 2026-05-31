@@ -9,7 +9,6 @@ import QuadraticNumberFields.Parameters
 import QuadraticNumberFields.Instances
 import QuadraticNumberFields.FieldClassification
 import QuadraticNumberFields.RingEquiv
-import QuadraticNumberFields.Euclidean.Basic
 import QuadraticNumberFields.RingOfIntegers.ModFour
 import QuadraticNumberFields.Zsqrtd
 import QuadraticNumberFields.Zsqrtd.MathlibInstances
@@ -36,9 +35,11 @@ including:
 * Ring of integers classification (`ℤ[√d]` vs `ℤ[(1+√d)/2]`)
 * Discriminant formulas
 * Totally real/complex classification
-* Euclidean domain classification framework
 
 ## Main Import
 
-This file is the main entry point; it re-exports all public modules.
+This file is the main entry point; it re-exports the completed, sorry-free
+public modules. Work-in-progress modules (the Euclidean classification
+framework and the prime-splitting development) are collected separately in
+`QuadraticNumberFields.Sketch`.
 -/
