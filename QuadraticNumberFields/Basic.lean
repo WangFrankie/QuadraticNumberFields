@@ -58,13 +58,10 @@ with respect to the basis `{1, i}`.
 PR#36347 this theorem will be in QuadraticAlgebra.Defs.lean -/
 theorem leftMulMatrix_eq (x : QuadraticAlgebra R a b) :
     Algebra.leftMulMatrix (basis a b) x = !![x.re, a * x.im; x.im, x.re + b * x.im] := by
-  -- In the basis `{1, i}`, multiplication by `x = x.re + x.im * i`
-  -- sends `1` and `i` to the two displayed columns.
   ext i j
   fin_cases i <;> fin_cases j
   all_goals
-    rw [Algebra.leftMulMatrix_apply, LinearMap.toMatrix_apply]
-    simp [QuadraticAlgebra.basis]
+    simp [Algebra.leftMulMatrix_apply, LinearMap.toMatrix_apply, QuadraticAlgebra.basis]
 
 end CommSemiring
 
@@ -80,10 +77,7 @@ end CommSemiring
 /-- In the model `Q(√d) = QuadraticAlgebra ℚ d 0`, the trace is `2 * re`. -/
 theorem trace_eq_two_re (x : Qsqrtd d) :
     Algebra.trace ℚ (Qsqrtd d) x = 2 * x.re := by
-  -- In `QuadraticAlgebra ℚ d 0`, conjugation fixes the real part.
-  rw [trace_eq_re_add_re_star]
-  simp
-  ring
+  simp [trace_eq_re_add_re_star, two_mul]
 
 /-- The norm of an element `x : Q(√d)`, defined as `N(x) = x · x̄ = x.re² - d · x.im²`. -/
 abbrev norm {d : ℚ} (x : Qsqrtd d) : ℚ := QuadraticAlgebra.norm x
@@ -97,7 +91,7 @@ lemma zero_not_isReduced : ¬ IsReduced (Qsqrtd (0 : ℚ)) := by
     ⟨2, by ext <;> simp [pow_succ, pow_zero, QuadraticAlgebra.mk_mul_mk]⟩
   have hne : (⟨0, 1⟩ : Qsqrtd 0) ≠ 0 := by
     intro heq
-    exact one_ne_zero (congr_arg QuadraticAlgebra.im heq)
+    simpa using congr_arg QuadraticAlgebra.im heq
   exact hne (h _ hnil)
 
 /-- `Q(√0)` is not a field (it has nilpotents). -/
@@ -116,10 +110,10 @@ lemma one_not_isField : ¬ IsField (Qsqrtd (1 : ℚ)) := by
     ext <;> simp
   have hne : (⟨1, 1⟩ : Qsqrtd 1) ≠ 0 := by
     intro h
-    exact one_ne_zero (congr_arg QuadraticAlgebra.re h)
+    simpa using congr_arg QuadraticAlgebra.re h
   have hne' : (⟨1, -1⟩ : Qsqrtd 1) ≠ 0 := by
     intro h
-    exact one_ne_zero (congr_arg QuadraticAlgebra.re h)
+    simpa using congr_arg QuadraticAlgebra.re h
   rcases mul_eq_zero.mp hprod with h | h <;> contradiction
 
 /-- Bridge: `¬ IsSquare d` implies the technical `Fact` needed by
@@ -142,7 +136,7 @@ lemma eq_one_of_squarefree_isSquare {d : ℤ} (hd : Squarefree d) (hsq : IsSquar
   have hsqz2 : Squarefree (z ^ 2) := by simpa [pow_two] using hd
   have huz : IsUnit z := by
     by_contra hne
-    have h01 : (2 : ℕ) = 0 ∨ (2 : ℕ) = 1 :=
+    have h01 :=
       Squarefree.eq_zero_or_one_of_pow_of_not_isUnit (x := z) (n := 2) hsqz2 hne
     norm_num at h01
   rcases Int.isUnit_iff.mp huz with rfl | rfl <;> simp
