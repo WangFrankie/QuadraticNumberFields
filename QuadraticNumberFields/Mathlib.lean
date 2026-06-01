@@ -1,0 +1,16 @@
+/-
+Copyright (c) 2026 Frankie Wang. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Frankie Wang
+-/
+
+import QuadraticNumberFields.Mathlib.Algebra.Squarefree.Basic
+
+/-!
+# Temporary Mathlib Material
+
+This file re-exports project-local material that is intended to be upstreamed to
+mathlib. Modules under `QuadraticNumberFields.Mathlib` should mirror the target
+mathlib import path when possible and should stay independent of project-specific
+quadratic-field definitions.
+-/

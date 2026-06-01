@@ -93,6 +93,8 @@ QuadraticNumberFields/
 │   ├── Instances.lean                # NumberField instance for quadratic extensions
 │   ├── Parameters.lean               # Rescaling, squarefree normalization, uniqueness
 │   ├── FieldClassification.lean      # Quadratic field ↔ squarefree parameter
+│   ├── Mathlib/
+│   │   └── ...                       # Temporary material destined for mathlib
 │   ├── TotallyRealComplex.lean       # Totally real / complex / CM classification
 │   ├── RingEquiv.lean                # Dedekind domain transfer via ring equivalences
 │   ├── Euclidean/
@@ -118,8 +120,8 @@ QuadraticNumberFields/
 
 ## Prerequisites
 
-- [Lean 4](https://leanprover.github.io/) `v4.29.0-rc2`
-- [mathlib](https://github.com/leanprover-community/mathlib4) `v4.29.0-rc2`
+- [Lean 4](https://leanprover.github.io/) `v4.30.0-rc2`
+- [mathlib](https://github.com/leanprover-community/mathlib4) `v4.30.0-rc2`
 - [elan](https://github.com/leanprover/elan) (Lean version manager)
 
 ## Build Instructions
@@ -134,6 +136,11 @@ lake build
 This project was originally developed at [ClassificationOfIntegersOfQuadraticNumberFields](https://github.com/FrankieeW/ClassificationOfIntegersOfQuadraticNumberFields). It has since been restructured and expanded in this repository.
 
 ## Contributions to mathlib
+
+Temporary general-purpose facts that are intended for mathlib live under
+`QuadraticNumberFields/Mathlib/`, mirroring the target mathlib path when
+practical. The project still depends on upstream mathlib through Lake; these
+files are local shims, not patches to `.lake/packages/mathlib`.
 
 - [PR #36347](https://github.com/leanprover-community/mathlib4/pull/36347): Define quadratic number fields as `QuadraticAlgebra ℚ d 0`
 - [PR #36387](https://github.com/leanprover-community/mathlib4/pull/36387): Parameter uniqueness for quadratic fields

@@ -4,11 +4,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 import Mathlib.Algebra.QuadraticAlgebra.Basic
-import Mathlib.Algebra.Squarefree.Basic
 import Mathlib.LinearAlgebra.Dimension.Finrank
 import Mathlib.RingTheory.Int.Basic
 import Mathlib.RingTheory.Trace.Basic
 import Mathlib.NumberTheory.NumberField.Basic
+import QuadraticNumberFields.Mathlib.Algebra.Squarefree.Basic
 
 /-!
 # Basic Definitions for Quadratic Number Fields
@@ -133,19 +133,6 @@ instance instFact_of_not_isSquare (d : ℚ) [Fact (¬ IsSquare d)] :
 end Qsqrtd
 
 /-! ## Integer Parameter Lemmas -/
-
-/-- A squarefree integer that is a perfect square must equal `1` or `-1`.
-This is a local version until `Squarefree.isUnit_of_isSquare` is merged into mathlib. -/
-lemma eq_one_of_squarefree_isSquare {d : ℤ} (hd : Squarefree d) (hsq : IsSquare d) :
-    d = 1 ∨ d = -1 := by
-  obtain ⟨z, rfl⟩ := hsq
-  have hsqz2 : Squarefree (z ^ 2) := by simpa [pow_two] using hd
-  have huz : IsUnit z := by
-    by_contra hne
-    have h01 : (2 : ℕ) = 0 ∨ (2 : ℕ) = 1 :=
-      Squarefree.eq_zero_or_one_of_pow_of_not_isUnit (x := z) (n := 2) hsqz2 hne
-    norm_num at h01
-  rcases Int.isUnit_iff.mp huz with rfl | rfl <;> simp
 
 /-- For a squarefree integer `d ≠ 1`, `d` is not a perfect square in `ℤ`. -/
 lemma not_isSquare_int_of_squarefree_ne_one {d : ℤ}
