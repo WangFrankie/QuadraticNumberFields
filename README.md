@@ -93,10 +93,14 @@ QuadraticNumberFields/
 │   ├── Instances.lean                # NumberField instance for quadratic extensions
 │   ├── Parameters.lean               # Rescaling, squarefree normalization, uniqueness
 │   ├── FieldClassification.lean      # Quadratic field ↔ squarefree parameter
+│   ├── Category/
+│   │   └── Basic.lean                # Bundled category of quadratic fields
 │   ├── Mathlib/
-│   │   └── ...                       # Temporary material destined for mathlib
+│   │   ├── Algebra/
+│   │   ├── Data/
+│   │   └── RingTheory/               # Temporary material destined for mathlib
 │   ├── TotallyRealComplex.lean       # Totally real / complex / CM classification
-│   ├── RingEquiv.lean                # Dedekind domain transfer via ring equivalences
+│   ├── RingEquiv.lean                # Compatibility re-export for migrated RingEquiv lemmas
 │   ├── Euclidean/
 │   │   └── Basic.lean                # Norm-Euclidean classification framework
 │   ├── Examples/

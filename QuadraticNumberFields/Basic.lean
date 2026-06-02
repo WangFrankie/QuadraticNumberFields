@@ -9,6 +9,7 @@ import Mathlib.RingTheory.Int.Basic
 import Mathlib.RingTheory.Trace.Basic
 import Mathlib.NumberTheory.NumberField.Basic
 import QuadraticNumberFields.Mathlib.Algebra.Squarefree.Basic
+import QuadraticNumberFields.Mathlib.Algebra.QuadraticAlgebra.Defs
 
 /-!
 # Basic Definitions for Quadratic Number Fields
@@ -51,30 +52,13 @@ open QuadraticAlgebra
 
 variable {d : ℚ}
 
-section CommSemiring
-variable [CommSemiring R]
-/-- The left multiplication matrix of an element in `QuadraticAlgebra R a b`
-with respect to the basis `{1, i}`.
-PR#36347 this theorem will be in QuadraticAlgebra.Defs.lean -/
-theorem leftMulMatrix_eq (x : QuadraticAlgebra R a b) :
-    Algebra.leftMulMatrix (basis a b) x = !![x.re, a * x.im; x.im, x.re + b * x.im] := by
-  -- In the basis `{1, i}`, multiplication by `x = x.re + x.im * i`
-  -- sends `1` and `i` to the two displayed columns.
-  ext i j
-  fin_cases i <;> fin_cases j
-  all_goals
-    rw [Algebra.leftMulMatrix_apply, LinearMap.toMatrix_apply]
-    simp [QuadraticAlgebra.basis]
-
-end CommSemiring
-
 /-- The trace in `Q(√d)` is `x.re + x̄.re`. -/
 @[simp] theorem trace_eq_re_add_re_star (x : Qsqrtd d) :
     Algebra.trace ℚ (Qsqrtd d) x = x.re + (star x).re := by
   -- The trace is the matrix trace of left multiplication, so we just
   -- read off the two diagonal entries from the explicit `2 × 2` matrix.
-  rw [Algebra.trace_eq_matrix_trace (QuadraticAlgebra.basis d 0), leftMulMatrix_eq,
-    Matrix.trace_fin_two_of]
+  rw [Algebra.trace_eq_matrix_trace (QuadraticAlgebra.basis d 0),
+    QuadraticAlgebra.leftMulMatrix_eq, Matrix.trace_fin_two_of]
   simp
 
 /-- In the model `Q(√d) = QuadraticAlgebra ℚ d 0`, the trace is `2 * re`. -/

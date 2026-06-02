@@ -7,7 +7,7 @@ import QuadraticNumberFields.RingOfIntegers.CommonInstances
 import QuadraticNumberFields.RingOfIntegers.Integrality
 import QuadraticNumberFields.RingOfIntegers.ModFour
 import QuadraticNumberFields.ZOnePlusSqrtOverTwo.Basic
-import QuadraticNumberFields.RingEquiv
+import QuadraticNumberFields.Mathlib.RingTheory.DedekindDomain.Basic
 import QuadraticNumberFields.Instances
 
 /-!

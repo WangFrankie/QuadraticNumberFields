@@ -5,6 +5,10 @@ Authors: Frankie Wang
 -/
 
 import QuadraticNumberFields.Mathlib.Algebra.Squarefree.Basic
+import QuadraticNumberFields.Mathlib.Algebra.QuadraticAlgebra.Defs
+import QuadraticNumberFields.Mathlib.Data.Int.Squarefree
+import QuadraticNumberFields.Mathlib.RingTheory.Krull
+import QuadraticNumberFields.Mathlib.RingTheory.DedekindDomain.Basic
 
 /-!
 # Temporary Mathlib Material
