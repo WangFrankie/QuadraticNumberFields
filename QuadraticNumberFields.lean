@@ -10,6 +10,7 @@ import QuadraticNumberFields.QuadraticField.Basic
 import QuadraticNumberFields.QuadraticField.Parameters
 import QuadraticNumberFields.Instances
 import QuadraticNumberFields.QuadraticField.Category
+import QuadraticNumberFields.QuadraticField.SqfreeParam
 import QuadraticNumberFields.QuadraticField.Classification
 import QuadraticNumberFields.QuadraticField.Conj
 import QuadraticNumberFields.Qsqrtd.Automorphism
