@@ -130,6 +130,53 @@ instance instFact_of_not_isSquare (d : ℚ) [Fact (¬ IsSquare d)] :
   -- reduces to saying that `X^2 - d` has no rational root.
   ⟨by intro r hr; exact (Fact.out : ¬ IsSquare d) ⟨r, by nlinarith [hr]⟩⟩
 
+/-- The generator relation behind every `ℚ`-algebra equivalence of standard
+models. If `d` is not a square and `φ : Qsqrtd d ≃ₐ[ℚ] Qsqrtd d'`, then writing
+`φ ⟨0, 1⟩ = ⟨a, b⟩` we have `a = 0`, `b ≠ 0`, and `d = d' * b²`; i.e. the two
+parameters differ by the rational square `b²`.
+
+This packages the shared computation used by `param_unique`,
+`algEquiv_iff_isSquareRatio`, and `algEquiv_self_eq_refl_or_star`. -/
+theorem algEquiv_param_rel {d d' : ℚ} (hd : ¬ IsSquare d)
+    (φ : Qsqrtd d ≃ₐ[ℚ] Qsqrtd d') :
+    (φ ⟨0, 1⟩).re = 0 ∧ (φ ⟨0, 1⟩).im ≠ 0 ∧ d = d' * (φ ⟨0, 1⟩).im ^ 2 := by
+  set a := (φ ⟨0, 1⟩).re
+  set b := (φ ⟨0, 1⟩).im
+  -- `⟨0, 1⟩² = ⟨d, 0⟩`, and `φ` fixes the scalar `⟨d, 0⟩`, so `(φ ⟨0,1⟩)² = ⟨d, 0⟩`.
+  have hε_sq : (⟨0, 1⟩ : Qsqrtd d) * ⟨0, 1⟩ = ⟨d, 0⟩ := by
+    ext <;> simp [QuadraticAlgebra.mk_mul_mk]
+  have hφ_sq : φ ⟨0, 1⟩ * φ ⟨0, 1⟩ = ⟨d, 0⟩ := by
+    rw [← map_mul, hε_sq]
+    show φ ⟨d, 0⟩ = ⟨d, 0⟩
+    have hleft : (⟨d, 0⟩ : Qsqrtd d) = algebraMap ℚ (Qsqrtd d) d :=
+      (QuadraticAlgebra.algebraMap_eq (R := ℚ) (a := d) (b := 0) d).symm
+    have hright : (⟨d, 0⟩ : Qsqrtd d') = algebraMap ℚ (Qsqrtd d') d :=
+      (QuadraticAlgebra.algebraMap_eq (R := ℚ) (a := d') (b := 0) d).symm
+    rw [hleft, hright]
+    exact φ.commutes d
+  have hφ_eta : φ ⟨0, 1⟩ = ⟨a, b⟩ := by ext <;> rfl
+  -- Comparing coordinates gives `a² + d'·b² = d` and `2ab = 0`.
+  have hre : a ^ 2 + d' * b ^ 2 = d := by
+    have := congr_arg QuadraticAlgebra.re hφ_sq
+    rw [hφ_eta, QuadraticAlgebra.mk_mul_mk] at this
+    simp at this
+    nlinarith
+  have him : 2 * a * b = 0 := by
+    have := congr_arg QuadraticAlgebra.im hφ_sq
+    rw [hφ_eta, QuadraticAlgebra.mk_mul_mk] at this
+    simp at this
+    linarith
+  -- `b ≠ 0`, else `a² = d` makes `d` a square; then `2ab = 0` forces `a = 0`.
+  have hb : b ≠ 0 := by
+    intro hb0
+    simp [hb0] at hre
+    exact hd ⟨a, by nlinarith⟩
+  have ha : a = 0 := by
+    rcases mul_eq_zero.mp him with h | h
+    · exact (mul_eq_zero.mp h).resolve_left (by norm_num)
+    · exact absurd h hb
+  exact ⟨ha, hb, by nlinarith [hre, ha]⟩
+
 end Qsqrtd
 
 /-! ## Integer Parameter Lemmas -/

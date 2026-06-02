@@ -74,39 +74,9 @@ theorem algEquiv_iff_isSquareRatio
     Nonempty (Qsqrtd d ≃ₐ[ℚ] Qsqrtd d') ↔ IsSquareRatio d d' := by
   constructor
   · rintro ⟨φ⟩
-    set a := (φ ⟨0, 1⟩).re
+    obtain ⟨-, hb, hr⟩ := algEquiv_param_rel (Fact.out : ¬ IsSquare d) φ
     set b := (φ ⟨0, 1⟩).im
-    have hε_sq : (⟨0, 1⟩ : Qsqrtd d) * ⟨0, 1⟩ = ⟨d, 0⟩ := by
-      ext <;> simp [QuadraticAlgebra.mk_mul_mk]
-    have hφ_sq : φ ⟨0, 1⟩ * φ ⟨0, 1⟩ = ⟨d, 0⟩ := by
-      rw [← map_mul, hε_sq]
-      show φ ⟨d, 0⟩ = ⟨d, 0⟩
-      have hleft : (⟨d, 0⟩ : Qsqrtd d) = algebraMap ℚ (Qsqrtd d) d := by
-        exact (QuadraticAlgebra.algebraMap_eq (R := ℚ) (a := d) (b := 0) d).symm
-      have hright : (⟨d, 0⟩ : Qsqrtd d') = algebraMap ℚ (Qsqrtd d') d := by
-        exact (QuadraticAlgebra.algebraMap_eq (R := ℚ) (a := d') (b := 0) d).symm
-      rw [hleft, hright]
-      exact φ.commutes d
-    have hφ_eta : φ ⟨0, 1⟩ = ⟨a, b⟩ := by ext <;> rfl
-    have hre : a ^ 2 + d' * b ^ 2 = d := by
-      have := congr_arg QuadraticAlgebra.re hφ_sq
-      rw [hφ_eta, QuadraticAlgebra.mk_mul_mk] at this
-      simp at this
-      nlinarith
-    have him : 2 * a * b = 0 := by
-      have := congr_arg QuadraticAlgebra.im hφ_sq
-      rw [hφ_eta, QuadraticAlgebra.mk_mul_mk] at this
-      simp at this
-      linarith
-    have hb : b ≠ 0 := by
-      intro hb0
-      simp [hb0] at hre
-      exact (Fact.out : ¬ IsSquare d) ⟨a, by nlinarith⟩
-    have ha : a = 0 := by
-      rcases mul_eq_zero.mp him with h | h
-      · exact (mul_eq_zero.mp h).resolve_left (by norm_num)
-      · exact absurd h hb
-    have hr : d = d' * b ^ 2 := by nlinarith [hre, ha]
+    -- `hr : d = d' * b²` with `b ≠ 0`, so `d' = (b⁻¹)² * d`.
     refine ⟨Units.mk0 b⁻¹ (inv_ne_zero hb), ?_⟩
     change d' = (b⁻¹) ^ 2 * d
     rw [hr]

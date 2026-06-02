@@ -47,6 +47,40 @@ theorem isDedekindDomain_of_mod_four_ne_one (hd4 : d % 4 ≠ 1) :
   RingEquiv.isDedekindDomain
     (RingOfIntegers.ringOfIntegers_equiv_zsqrtd_of_mod_four_ne_one d hd4)
 
+/-- `ℚ(√d)` is the fraction field of the project model `ℤ[√d]`, via the canonical
+embedding `toQsqrtdHom`. The witness clears denominators coordinate-wise: for
+`z = r + s√d`, the rational integer `z.re.den * z.im.den` scales `z` into `ℤ[√d]`.
+
+**mathlib target: `Mathlib.NumberTheory.Zsqrtd.Basic`** -/
+theorem isFractionRing_qsqrtd :
+    letI : Algebra (Zsqrtd d) (Qsqrtd (d : ℚ)) := (Zsqrtd.toQsqrtdHom d).toAlgebra
+    IsFractionRing (Zsqrtd d) (Qsqrtd (d : ℚ)) := by
+  letI : Algebra (Zsqrtd d) (Qsqrtd (d : ℚ)) := (Zsqrtd.toQsqrtdHom d).toAlgebra
+  letI : FaithfulSMul (Zsqrtd d) (Qsqrtd (d : ℚ)) :=
+    (faithfulSMul_iff_algebraMap_injective (Zsqrtd d) (Qsqrtd (d : ℚ))).mpr
+      (Zsqrtd.toQsqrtdHom_injective d)
+  refine IsFractionRing.of_field (R := Zsqrtd d) (K := Qsqrtd (d : ℚ)) ?_
+  intro z
+  refine ⟨⟨(z.re.num : ℤ) * z.im.den, (z.im.num : ℤ) * z.re.den⟩,
+      ((z.re.den * z.im.den : ℕ) : Zsqrtd d), ?_⟩
+  refine (eq_div_iff ?_).2 ?_
+  · norm_num
+  · ext
+    · simp only [Nat.cast_mul, map_mul, map_natCast, QuadraticAlgebra.re_mul,
+         QuadraticAlgebra.im_natCast, mul_zero, add_zero,
+        QuadraticAlgebra.im_mul, zero_mul]
+      calc
+        z.re * (↑z.re.den * ↑z.im.den) = z.re * (z.re.den : ℚ) * z.im.den := by ring
+        _ = ((z.re.num : ℤ) : ℚ) * z.im.den := by rw [Rat.mul_den_eq_num]
+        _ = (((z.re.num : ℤ) * z.im.den : ℤ) : ℚ) := by norm_num
+    · simp only [Nat.cast_mul, map_mul, map_natCast, QuadraticAlgebra.im_mul,
+         QuadraticAlgebra.im_natCast, mul_zero, zero_mul,
+        add_zero, QuadraticAlgebra.re_mul, zero_add]
+      calc
+        z.im * (↑z.re.den * ↑z.im.den) = z.im * (z.im.den : ℚ) * z.re.den := by ring
+        _ = ((z.im.num : ℤ) : ℚ) * z.re.den := by rw [Rat.mul_den_eq_num]
+        _ = (((z.im.num : ℤ) * z.re.den : ℤ) : ℚ) := by norm_num
+
 /-- If `d % 4 = 1`, then `ℤ[√d]` is **not** a Dedekind domain.
 
 The obstruction is that `ℤ[√d]` is not integrally closed in its fraction field
@@ -65,36 +99,9 @@ standalone result in `Mathlib.NumberTheory.Zsqrtd.Basic`. -/
 theorem not_isDedekindDomain_of_mod_four_eq_one
     (hd4 : d % 4 = 1) :
     ¬ IsDedekindDomain (Zsqrtd d) := by
-  have hd_sf : Squarefree d := Fact.out
-  have hd_ne : d ≠ 1 := Fact.out
-  -- Set up `ℚ(√d)` as an algebra over `ℤ[√d]` via the canonical embedding.
+  -- `ℚ(√d) = Frac(ℤ[√d])` via the canonical embedding.
   letI : Algebra (Zsqrtd d) (Qsqrtd (d : ℚ)) := (Zsqrtd.toQsqrtdHom d).toAlgebra
-  letI : FaithfulSMul (Zsqrtd d) (Qsqrtd (d : ℚ)) :=
-    (faithfulSMul_iff_algebraMap_injective (Zsqrtd d) (Qsqrtd (d : ℚ))).mpr
-      (Zsqrtd.toQsqrtdHom_injective d)
-  -- Establish `ℚ(√d) = Frac(ℤ[√d])` by clearing denominators coordinate-wise.
-  have hFrac : IsFractionRing (Zsqrtd d) (Qsqrtd (d : ℚ)) := by
-    refine IsFractionRing.of_field (R := Zsqrtd d) (K := Qsqrtd (d : ℚ)) ?_
-    intro z
-    refine ⟨⟨(z.re.num : ℤ) * z.im.den, (z.im.num : ℤ) * z.re.den⟩,
-        ((z.re.den * z.im.den : ℕ) : Zsqrtd d), ?_⟩
-    refine (eq_div_iff ?_).2 ?_
-    · norm_num
-    · ext
-      · simp only [Nat.cast_mul, map_mul, map_natCast, QuadraticAlgebra.re_mul,
-           QuadraticAlgebra.im_natCast, mul_zero, add_zero,
-          QuadraticAlgebra.im_mul, zero_mul]
-        calc
-          z.re * (↑z.re.den * ↑z.im.den) = z.re * (z.re.den : ℚ) * z.im.den := by ring
-          _ = ((z.re.num : ℤ) : ℚ) * z.im.den := by rw [Rat.mul_den_eq_num]
-          _ = (((z.re.num : ℤ) * z.im.den : ℤ) : ℚ) := by norm_num
-      · simp only [Nat.cast_mul, map_mul, map_natCast, QuadraticAlgebra.im_mul,
-           QuadraticAlgebra.im_natCast, mul_zero, zero_mul,
-          add_zero, QuadraticAlgebra.re_mul, zero_add]
-        calc
-          z.im * (↑z.re.den * ↑z.im.den) = z.im * (z.im.den : ℚ) * z.re.den := by ring
-          _ = ((z.im.num : ℤ) : ℚ) * z.re.den := by rw [Rat.mul_den_eq_num]
-          _ = (((z.im.num : ℤ) * z.re.den : ℤ) : ℚ) := by norm_num
+  have hFrac : IsFractionRing (Zsqrtd d) (Qsqrtd (d : ℚ)) := isFractionRing_qsqrtd d
   intro _
   -- A Dedekind domain is integrally closed in its fraction field.
   -- Write `d = 1 + 4k` and consider `ω = (1 + √d)/2`.

@@ -182,48 +182,9 @@ lemma squarefree_eq_of_rat_sq_mul {d₁ d₂ : ℤ}
 /-- The squarefree integer parameter of a quadratic field is unique:
     `ℚ(√d₁) ≃ₐ[ℚ] ℚ(√d₂)` with both squarefree and `≠ 1` implies `d₁ = d₂`. -/
 theorem Qsqrtd.param_unique (φ : Qsqrtd (d₁ : ℚ) ≃ₐ[ℚ] Qsqrtd (d₂ : ℚ))
-    (hsf₁ : Squarefree d₁) (h1₁ : d₁ ≠ 1) (hsf₂ : Squarefree d₂) : d₁ = d₂ := by
-  -- The idea is to write `φ ⟨0, 1⟩ = ⟨a, b⟩`
-  -- ⟨0, 1⟩² = ⟨d₁, 0⟩ implies `a² + d₂ b² = d₁` and `2ab = 0`.
-  set a := (φ ⟨0, 1⟩).re
-  set b := (φ ⟨0, 1⟩).im
-  have hε_sq : (⟨0, 1⟩ : Qsqrtd (d₁ : ℚ)) * ⟨0, 1⟩ = ⟨(d₁ : ℚ), 0⟩ := by
-    ext <;> simp [QuadraticAlgebra.mk_mul_mk]
-  have hφ_sq : φ ⟨0, 1⟩ * φ ⟨0, 1⟩ = ⟨(d₁ : ℚ), 0⟩ := by
-    rw [← map_mul, hε_sq]
-    show φ ⟨(d₁ : ℚ), 0⟩ = ⟨(d₁ : ℚ), 0⟩
-    have hleft : (⟨(d₁ : ℚ), 0⟩ : Qsqrtd (d₁ : ℚ)) =
-        algebraMap ℚ (Qsqrtd (d₁ : ℚ)) (d₁ : ℚ) := by
-      ext <;> simp
-    have hright : (⟨(d₁ : ℚ), 0⟩ : Qsqrtd (d₂ : ℚ)) =
-        algebraMap ℚ (Qsqrtd (d₂ : ℚ)) (d₁ : ℚ) := by
-      ext <;> simp
-    rw [hleft, hright]
-    exact φ.commutes (d₁ : ℚ)
-  have hφ_eta : φ ⟨0, 1⟩ = ⟨a, b⟩ := by ext <;> rfl
-  --`a² + d₂ b² = d₁`
-  have hre : a ^ 2 + (d₂ : ℚ) * b ^ 2 = d₁ := by
-    have := congr_arg QuadraticAlgebra.re hφ_sq
-    rw [hφ_eta, QuadraticAlgebra.mk_mul_mk] at this; simp at this; nlinarith
-  -- `2ab = 0`
-  have him : 2 * a * b = 0 := by
-    have := congr_arg QuadraticAlgebra.im hφ_sq
-    rw [hφ_eta, QuadraticAlgebra.mk_mul_mk] at this; simp at this; linarith
-  have hb : b ≠ 0 := by
-    -- If `b = 0`, then the equation for the real part says `d₁ = a²`,
-    -- contradicting that the squarefree integer parameter `d₁` is non-square.
-    intro hb0; simp [hb0] at hre
-    have : IsSquare ((d₁ : ℤ) : ℚ) := ⟨a, by nlinarith⟩
-    exact not_isSquare_int_of_squarefree_ne_one hsf₁ h1₁
-      (Rat.isSquare_intCast_iff.mp this)
-  have ha : a = 0 := by
-    -- Since `b ≠ 0`, the vanishing of the imaginary part forces `a = 0`.
-    rcases mul_eq_zero.mp him with h | h
-    · exact (mul_eq_zero.mp h).resolve_left (by norm_num)
-    · exact absurd h hb
-  have hr : (d₁ : ℚ) = d₂ * b ^ 2 := by nlinarith [hre, ha]
-  -- So the two parameters differ by a rational square factor, and squarefreeness
-  -- removes that ambiguity.
-  exact squarefree_eq_of_rat_sq_mul hsf₁ hsf₂ hr
+    (hsf₁ : Squarefree d₁) (h1₁ : d₁ ≠ 1) (hsf₂ : Squarefree d₂) : d₁ = d₂ :=
+  -- `φ ⟨0, 1⟩ = ⟨0, b⟩` with `(d₁ : ℚ) = d₂ * b²`, so squarefreeness pins `d₁ = d₂`.
+  squarefree_eq_of_rat_sq_mul hsf₁ hsf₂
+    (Qsqrtd.algEquiv_param_rel (not_isSquare_ratCast_of_squarefree_ne_one hsf₁ h1₁) φ).2.2
 
 end ParameterUniqueness

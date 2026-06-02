@@ -52,6 +52,9 @@ theorem algEquiv_self_eq_refl_or_star
     (σ : Qsqrtd (d : ℚ) ≃ₐ[ℚ] Qsqrtd (d : ℚ)) :
     σ = AlgEquiv.refl ∨ σ = Qsqrtd.starAlgEquiv (d : ℚ) := by
   -- `σ` is determined by the image of `√d = ⟨0, 1⟩`; let `σ ⟨0, 1⟩ = ⟨a, b⟩`.
+  -- NB: here `Qsqrtd (d : ℚ)` carries its `Field` algebra instance, so the shared
+  -- `Qsqrtd.algEquiv_param_rel` (stated for `QuadraticAlgebra.instAlgebra`) does
+  -- not apply; we redo the short coordinate computation directly.
   set a := (σ (⟨0, 1⟩ : Qsqrtd (d : ℚ))).re
   set b := (σ (⟨0, 1⟩ : Qsqrtd (d : ℚ))).im
   have hε_sq :
