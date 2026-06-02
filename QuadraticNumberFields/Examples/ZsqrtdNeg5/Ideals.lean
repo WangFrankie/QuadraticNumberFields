@@ -37,9 +37,7 @@ local notation "sqrtd" => _root_.Zsqrtd.sqrtd
 
 instance : Fact ((-5 : ℤ) < 0) := ⟨by decide⟩
 
--- ============================================================================
--- Arithmetic conditions for d = -5
--- ============================================================================
+/-! ## Arithmetic conditions for d = -5 -/
 
 /-- Arithmetic input for the prime `2` in `ℤ[√-5]`: `2 ∣ (-5 - 1)`. -/
 lemma neg5_dvd_two : 2 ∣ ((-5 : ℤ) - 1) := ⟨-3, by norm_num⟩
@@ -47,18 +45,14 @@ lemma neg5_dvd_two : 2 ∣ ((-5 : ℤ) - 1) := ⟨-3, by norm_num⟩
 /-- Arithmetic input for the prime `3` in `ℤ[√-5]`: `3 ∣ (-5 - 1)`. -/
 lemma neg5_dvd_three : 3 ∣ ((-5 : ℤ) - 1) := ⟨-2, by norm_num⟩
 
--- ============================================================================
--- Helper lemmas for factorization proofs
--- ============================================================================
+/-! ## Helper lemmas for factorization proofs -/
 
 private lemma in_span_of_eq
   {x y : R} (h : x = y) (hy : y ∈ (I : Ideal R)) :
   x ∈ I :=
 by simpa [h] using hy
 
--- ============================================================================
--- Ideal factorizations (specific to d = -5)
--- ============================================================================
+/-! ## Ideal factorizations (specific to d = -5) -/
 
 theorem factorization_of_two :
     span {(2 : R)} = (span {2, 1 + sqrtd}) ^ 2 := by
@@ -170,9 +164,7 @@ theorem factorization_of_one_minus_sqrtd :
     · simp  -- (1-√-5)·3
     · simp  -- (1-√-5)² = (1-√-5)·(1-√-5)
 
--- ============================================================================
--- Primality (instantiated from general theory)
--- ============================================================================
+/-! ## Primality (instantiated from general theory) -/
 
 theorem isPrime_span_two_one_plus_sqrtd :
     IsPrime (span {2, 1 + sqrtd} : Ideal R) :=

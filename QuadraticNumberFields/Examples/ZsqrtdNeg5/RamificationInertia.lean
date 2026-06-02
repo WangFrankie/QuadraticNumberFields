@@ -45,9 +45,7 @@ namespace QuadraticNumberFields.Examples.ZsqrtdNeg5
 
 local notation "sqrtd" => _root_.Zsqrtd.sqrtd
 
--- ============================================================================
--- Prime ideal definitions
--- ============================================================================
+/-! ## Prime ideal definitions -/
 
 /-- The prime ideal (2, 1+√-5) in ℤ[√-5] -/
 def P2 : Ideal R := span {2, 1 + sqrtd}
@@ -58,9 +56,7 @@ def P3₁ : Ideal R := span {3, 1 + sqrtd}
 /-- The prime ideal (3, 1-√-5) in ℤ[√-5] -/
 def P3₂ : Ideal R := span {3, 1 - sqrtd}
 
--- ============================================================================
--- Helper lemmas (specific to d = -5)
--- ============================================================================
+/-! ## Helper lemmas (specific to d = -5) -/
 
 /-- Ring hom sending `√-5` to `2` in `ZMod 9`. -/
 noncomputable def phiPlus9 : R →+* ZMod 9 :=
@@ -143,9 +139,7 @@ lemma not_span3_le_P3₂_sq : ¬(span ({(3 : R)} : Set R) : Ideal R) ≤ P3₂ ^
   refine not_span3_le_sq_of_map_le_span3_mod9 phiMinus9 P3₂ map_P3₂_le_span3_mod9 ?_
   simp [phiMinus9]
 
--- ============================================================================
--- Comap and quotient lemmas (instantiated from general theory)
--- ============================================================================
+/-! ## Comap and quotient lemmas (instantiated from general theory) -/
 
 instance : Fact (Nat.Prime 2) := ⟨by decide⟩
 instance : Fact (Nat.Prime 3) := ⟨by decide⟩
@@ -171,9 +165,7 @@ noncomputable def quotEquivP3₁ : (R ⧸ P3₁) ≃+* ZMod 3 :=
 noncomputable def quotEquivP3₂ : (R ⧸ P3₂) ≃+* ZMod 3 :=
   _root_.Zsqrtd.Ideal.quotEquivZModP 3 neg5_dvd_three
 
--- ============================================================================
--- Main Results: Ramification Index
--- ============================================================================
+/-! ## Main Results: Ramification Index -/
 
 /-- The ramification index of P2 over (2) is 2.
 
@@ -218,9 +210,7 @@ theorem ramificationIdx_P3₂ :
       exact Ideal.mul_le_left)
     not_span3_le_P3₂_sq
 
--- ============================================================================
--- Main Results: Inertia Degree
--- ============================================================================
+/-! ## Main Results: Inertia Degree -/
 
 /-- The inertia degree of P2 over (2) is 1.
 

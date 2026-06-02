@@ -57,9 +57,7 @@ lemma map_span_int_singleton (n : ℤ) :
     Ideal.map (algebraMap ℤ (Zsqrtd d)) (Ideal.span {n}) = Ideal.span {(n : Zsqrtd d)} := by
   rw [Ideal.map_span, Set.image_singleton, algebraMap_int_coe]
 
--- ============================================================================
--- General theory for any prime p with p | (d - 1)
--- ============================================================================
+/-! ## General theory for any prime p with p | (d - 1) -/
 
 variable {d}
 

@@ -29,10 +29,8 @@ namespace TraceNorm
 
 /-! ## `Qsqrtd` Trace/Norm-Star API
 
-The following identities sit at the heart of the integrality story and are
-exposed in the `Qsqrtd` namespace so they can be used by Galois-group
-machinery, classification data, and the `Conj` interface without going
-through `RingOfIntegers.TraceNorm`. -/
+Trace/norm-star identities exposed in the `Qsqrtd` namespace for reuse by the
+Galois-group, classification, and `Conj` interfaces. -/
 
 namespace Qsqrtd
 
