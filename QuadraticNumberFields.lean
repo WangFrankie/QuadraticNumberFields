@@ -12,6 +12,7 @@ import QuadraticNumberFields.Instances
 import QuadraticNumberFields.QuadraticField.Category
 import QuadraticNumberFields.QuadraticField.Classification
 import QuadraticNumberFields.QuadraticField.Conj
+import QuadraticNumberFields.Qsqrtd.Automorphism
 import QuadraticNumberFields.QuadraticField.Transport
 import QuadraticNumberFields.Mathlib.RingTheory.DedekindDomain.Basic
 import QuadraticNumberFields.RingOfIntegers.ModFour

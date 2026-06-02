@@ -26,20 +26,17 @@ square in `ℚ`, so `b ≠ 0` and hence `a = 0`; then `b² = 1` gives
 ## Main Theorems
 
 * `Qsqrtd.algEquiv_self_eq_refl_or_star`: for squarefree `d ≠ 1`, every
-  `ℚ`-algebra endomorphism of `Q(√d)` is either `refl` or `star`.
+  `ℚ`-algebra automorphism of `Q(√d)` is either `refl` or `star`.
 
-## Note
+## Implementation notes
 
-The final two `AlgEquiv` equalities (showing `σ = refl` and
-`σ = starAlgEquiv`) are currently `sorry`d.  The argument strategy is
-clear: once we know `σ ⟨0, 1⟩ = ⟨0, 1⟩` (resp. `star ⟨0, 1⟩`), the
-equality `σ x = refl x` (resp. `σ x = star x`) for all `x` follows from
-the decomposition `x = algebraMap x.re + algebraMap x.im * ⟨0, 1⟩` and
-`σ.commutes`.  The remaining work is a straightforward algebraic
-computation using `QuadraticAlgebra.algebraMap_eq` and the
-multiplication formula, with the conclusion assembled via
-`AlgEquiv.ext`.  This will be completed as part of follow-up work
-combining `algHom_ext` with `AlgEquiv.toAlgHom_eq_coe`.
+Once we know `σ ⟨0, 1⟩ = ⟨0, 1⟩` (resp. `star ⟨0, 1⟩`), the equality
+`σ x = refl x` (resp. `σ x = star x`) for all `x` follows from the
+decomposition `x = algebraMap x.re + algebraMap x.im * ⟨0, 1⟩` together
+with `σ.commutes`.  Since the `Field` instance routes `algebraMap ℚ`
+through `DivisionRing.toRatAlgebra` rather than the basic
+`QuadraticAlgebra.instAlgebra`, the helper `hAM` bridges the two via
+`Subsingleton.elim` before the decomposition is computed elementwise.
 -/
 
 namespace Qsqrtd
@@ -104,15 +101,34 @@ theorem algEquiv_self_eq_refl_or_star
       exact_mod_cast (Squarefree.ne_zero (Fact.out : Squarefree d))
     field_simp [hdQ] at h
     linarith
+  -- The rational algebra map sends `q ↦ ⟨q, 0⟩`.
+  have hAM : ∀ q : ℚ, algebraMap ℚ (Qsqrtd (d : ℚ)) q = (⟨q, 0⟩ : Qsqrtd (d : ℚ)) := by
+    intro q
+    rw [← QuadraticAlgebra.algebraMap_eq (R := ℚ) (a := (d : ℚ)) (b := 0) q]
+    congr 1
+    exact Subsingleton.elim _ _
+  -- Every element decomposes as `x = algebraMap x.re + algebraMap x.im * ⟨0, 1⟩`.
+  have hdecomp : ∀ x : Qsqrtd (d : ℚ),
+      x = algebraMap ℚ (Qsqrtd (d : ℚ)) x.re +
+        algebraMap ℚ (Qsqrtd (d : ℚ)) x.im * ⟨0, 1⟩ := by
+    intro x
+    rw [hAM x.re, hAM x.im]
+    ext <;> simp [QuadraticAlgebra.mk_mul_mk]
   -- Branch on `b = 1` or `b = -1`.
   rcases sq_eq_one_iff.mp hbsq with hb1 | hbneg1
-  · -- Case `b = 1` and `a = 0`: `σ ⟨0, 1⟩ = ⟨0, 1⟩ = AlgEquiv.refl ⟨0, 1⟩`.
-    -- Need to show `σ = AlgEquiv.refl`.  This follows from the decomposition
-    -- `x = algebraMap x.re + algebraMap x.im * ⟨0, 1⟩` plus `σ.commutes`
-    -- and the fact that `σ` agrees with `AlgEquiv.refl` on `⟨0, 1⟩`.
-    sorry
-  · -- Case `b = -1` and `a = 0`: `σ ⟨0, 1⟩ = ⟨0, -1⟩ = starAlgEquiv ⟨0, 1⟩`.
-    sorry
+  · -- Case `b = 1` and `a = 0`: `σ ⟨0, 1⟩ = ⟨0, 1⟩`, so `σ = AlgEquiv.refl`.
+    refine Or.inl (AlgEquiv.ext fun x => ?_)
+    have hσε : σ (⟨0, 1⟩ : Qsqrtd (d : ℚ)) = ⟨0, 1⟩ := by rw [hφ_eta, ha, hb1]
+    conv_lhs => rw [hdecomp x]
+    rw [map_add, map_mul, σ.commutes, σ.commutes, hσε, ← hdecomp x]
+    rfl
+  · -- Case `b = -1` and `a = 0`: `σ ⟨0, 1⟩ = ⟨0, -1⟩ = star ⟨0, 1⟩`, so `σ = starAlgEquiv`.
+    refine Or.inr (AlgEquiv.ext fun x => ?_)
+    have hσε : σ (⟨0, 1⟩ : Qsqrtd (d : ℚ)) = ⟨0, -1⟩ := by rw [hφ_eta, ha, hbneg1]
+    rw [Qsqrtd.starAlgEquiv_apply]
+    conv_lhs => rw [hdecomp x]
+    rw [map_add, map_mul, σ.commutes, σ.commutes, hσε, hAM x.re, hAM x.im]
+    ext <;> simp [QuadraticAlgebra.mk_mul_mk]
 
 end AutomorphismDichotomy
 
