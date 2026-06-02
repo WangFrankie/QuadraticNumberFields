@@ -5,7 +5,7 @@ Authors: Frankie Wang
 -/
 
 import QuadraticNumberFields.Mathlib
-import QuadraticNumberFields.Basic
+import QuadraticNumberFields.Qsqrtd.Basic
 import QuadraticNumberFields.QuadraticField.Basic
 import QuadraticNumberFields.QuadraticField.Parameters
 import QuadraticNumberFields.Instances
@@ -20,14 +20,14 @@ import QuadraticNumberFields.Zsqrtd.MathlibInstances
 import QuadraticNumberFields.Zsqrtd.Ideals
 import QuadraticNumberFields.RingOfIntegers.HalfInt
 import QuadraticNumberFields.ZOnePlusSqrtOverTwo.Basic
-import QuadraticNumberFields.RingOfIntegers.TraceNorm
+import QuadraticNumberFields.Qsqrtd.TraceNorm
 import QuadraticNumberFields.RingOfIntegers.Integrality
 import QuadraticNumberFields.RingOfIntegers.Classification
 import QuadraticNumberFields.RingOfIntegers.Norm
 import QuadraticNumberFields.RingOfIntegers.Discriminant
 import QuadraticNumberFields.Examples.ZsqrtdNeg5.Ideals
 import QuadraticNumberFields.Examples.ZsqrtdNeg5.RamificationInertia
-import QuadraticNumberFields.TotallyRealComplex
+import QuadraticNumberFields.Qsqrtd.TotallyRealComplex
 
 /-!
 # Quadratic Number Fields
