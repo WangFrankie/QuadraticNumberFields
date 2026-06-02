@@ -62,6 +62,18 @@ def transportAlong [QuadraticField K] (e : K ≃ₐ[ℚ] L) : QuadraticField L w
 def transportBack [QuadraticField L] (e : K ≃ₐ[ℚ] L) : QuadraticField K :=
   transportAlong e.symm
 
+/-- Trace is invariant under a `ℚ`-algebra equivalence: this is the project-level
+wrapper of mathlib's `Algebra.trace_eq_of_algEquiv`. -/
+theorem trace_eq_trace_of_algEquiv (e : K ≃ₐ[ℚ] L) (x : K) :
+    Algebra.trace ℚ L (e x) = Algebra.trace ℚ K x :=
+  Algebra.trace_eq_of_algEquiv e x
+
+/-- Norm is invariant under a `ℚ`-algebra equivalence: this is the project-level
+wrapper of mathlib's `Algebra.norm_eq_of_algEquiv`. -/
+theorem norm_eq_norm_of_algEquiv (e : K ≃ₐ[ℚ] L) (x : K) :
+    Algebra.norm ℚ (e x) = Algebra.norm ℚ x :=
+  Algebra.norm_eq_of_algEquiv e x
+
 /-- Absolute discriminants are invariant under `ℚ`-algebra equivalence. -/
 theorem discr_eq_of_algEquiv [NumberField K] [NumberField L] (e : K ≃ₐ[ℚ] L) :
     NumberField.discr K = NumberField.discr L :=
@@ -71,6 +83,25 @@ theorem discr_eq_of_algEquiv [NumberField K] [NumberField L] (e : K ≃ₐ[ℚ] 
 noncomputable def ringOfIntegersEquivOfAlgEquiv (e : K ≃ₐ[ℚ] L) :
     𝓞 K ≃+* 𝓞 L :=
   (e.restrictScalars ℤ).mapIntegralClosure.toRingEquiv
+
+@[simp]
+theorem ringOfIntegersEquivOfAlgEquiv_apply (e : K ≃ₐ[ℚ] L) (x : 𝓞 K) :
+    (ringOfIntegersEquivOfAlgEquiv e).toFun x = (e (x : K) : L) := by
+  rfl
+
+@[simp]
+theorem ringOfIntegersEquivOfAlgEquiv_symm_apply (e : K ≃ₐ[ℚ] L) (y : 𝓞 L) :
+    (ringOfIntegersEquivOfAlgEquiv e).symm.toFun y = (e.symm (y : L) : K) := by
+  rfl
+
+/-- `ringOfIntegersEquivOfAlgEquiv` is natural: composing two equivalences
+gives the ring-of-integers equivalence of the composite. -/
+theorem ringOfIntegersEquivOfAlgEquiv_trans {M : Type*} [Field M] [Algebra ℚ M]
+    (e : K ≃ₐ[ℚ] L) (f : L ≃ₐ[ℚ] M) :
+    ringOfIntegersEquivOfAlgEquiv (e.trans f) =
+      (ringOfIntegersEquivOfAlgEquiv e).trans (ringOfIntegersEquivOfAlgEquiv f) := by
+  ext x
+  rfl
 
 /-- Transport rings of integers across a ring equivalence of fields. -/
 noncomputable def ringOfIntegersEquivOfRingEquiv (e : K ≃+* L) :
