@@ -130,30 +130,23 @@ instance instFact_of_not_isSquare (d : ℚ) [Fact (¬ IsSquare d)] :
   -- reduces to saying that `X^2 - d` has no rational root.
   ⟨by intro r hr; exact (Fact.out : ¬ IsSquare d) ⟨r, by nlinarith [hr]⟩⟩
 
-/-- The generator relation behind every `ℚ`-algebra equivalence of standard
-models. If `d` is not a square and `φ : Qsqrtd d ≃ₐ[ℚ] Qsqrtd d'`, then writing
-`φ ⟨0, 1⟩ = ⟨a, b⟩` we have `a = 0`, `b ≠ 0`, and `d = d' * b²`; i.e. the two
-parameters differ by the rational square `b²`.
+/-- Ring-level core of the generator relation, independent of any `Algebra ℚ`
+instance. If `d` is not a square, `φ : Qsqrtd d ≃+* Qsqrtd d'` is a ring
+isomorphism fixing the scalar `⟨d, 0⟩`, then writing `φ ⟨0, 1⟩ = ⟨a, b⟩` we have
+`a = 0`, `b ≠ 0`, and `d = d' * b²`.
 
-This packages the shared computation used by `param_unique`,
-`algEquiv_iff_isSquareRatio`, and `algEquiv_self_eq_refl_or_star`. -/
-theorem algEquiv_param_rel {d d' : ℚ} (hd : ¬ IsSquare d)
-    (φ : Qsqrtd d ≃ₐ[ℚ] Qsqrtd d') :
+Being stated for `≃+*` (rather than `≃ₐ[ℚ]`), this sidesteps the `Algebra ℚ`
+instance diamond on `Qsqrtd`, so it serves call sites that elaborate against
+either the canonical or the `Field` algebra instance. -/
+theorem ringEquiv_param_rel {d d' : ℚ} (hd : ¬ IsSquare d)
+    (φ : Qsqrtd d ≃+* Qsqrtd d') (hfix : φ ⟨d, 0⟩ = ⟨d, 0⟩) :
     (φ ⟨0, 1⟩).re = 0 ∧ (φ ⟨0, 1⟩).im ≠ 0 ∧ d = d' * (φ ⟨0, 1⟩).im ^ 2 := by
   set a := (φ ⟨0, 1⟩).re
   set b := (φ ⟨0, 1⟩).im
-  -- `⟨0, 1⟩² = ⟨d, 0⟩`, and `φ` fixes the scalar `⟨d, 0⟩`, so `(φ ⟨0,1⟩)² = ⟨d, 0⟩`.
+  -- `⟨0, 1⟩² = ⟨d, 0⟩` and `φ` fixes `⟨d, 0⟩`, so `(φ ⟨0,1⟩)² = ⟨d, 0⟩`.
   have hε_sq : (⟨0, 1⟩ : Qsqrtd d) * ⟨0, 1⟩ = ⟨d, 0⟩ := by
     ext <;> simp [QuadraticAlgebra.mk_mul_mk]
-  have hφ_sq : φ ⟨0, 1⟩ * φ ⟨0, 1⟩ = ⟨d, 0⟩ := by
-    rw [← map_mul, hε_sq]
-    show φ ⟨d, 0⟩ = ⟨d, 0⟩
-    have hleft : (⟨d, 0⟩ : Qsqrtd d) = algebraMap ℚ (Qsqrtd d) d :=
-      (QuadraticAlgebra.algebraMap_eq (R := ℚ) (a := d) (b := 0) d).symm
-    have hright : (⟨d, 0⟩ : Qsqrtd d') = algebraMap ℚ (Qsqrtd d') d :=
-      (QuadraticAlgebra.algebraMap_eq (R := ℚ) (a := d') (b := 0) d).symm
-    rw [hleft, hright]
-    exact φ.commutes d
+  have hφ_sq : φ ⟨0, 1⟩ * φ ⟨0, 1⟩ = ⟨d, 0⟩ := by rw [← map_mul, hε_sq, hfix]
   have hφ_eta : φ ⟨0, 1⟩ = ⟨a, b⟩ := by ext <;> rfl
   -- Comparing coordinates gives `a² + d'·b² = d` and `2ab = 0`.
   have hre : a ^ 2 + d' * b ^ 2 = d := by
@@ -176,6 +169,25 @@ theorem algEquiv_param_rel {d d' : ℚ} (hd : ¬ IsSquare d)
     · exact (mul_eq_zero.mp h).resolve_left (by norm_num)
     · exact absurd h hb
   exact ⟨ha, hb, by nlinarith [hre, ha]⟩
+
+/-- The generator relation behind every `ℚ`-algebra equivalence of standard
+models. If `d` is not a square and `φ : Qsqrtd d ≃ₐ[ℚ] Qsqrtd d'`, then writing
+`φ ⟨0, 1⟩ = ⟨a, b⟩` we have `a = 0`, `b ≠ 0`, and `d = d' * b²`; i.e. the two
+parameters differ by the rational square `b²`.
+
+A thin `Algebra` wrapper over `ringEquiv_param_rel`: `φ.commutes` supplies the
+`⟨d, 0⟩ = algebraMap d` fix. Used by `param_unique` and
+`algEquiv_iff_isSquareRatio`. -/
+theorem algEquiv_param_rel {d d' : ℚ} (hd : ¬ IsSquare d)
+    (φ : Qsqrtd d ≃ₐ[ℚ] Qsqrtd d') :
+    (φ ⟨0, 1⟩).re = 0 ∧ (φ ⟨0, 1⟩).im ≠ 0 ∧ d = d' * (φ ⟨0, 1⟩).im ^ 2 :=
+  ringEquiv_param_rel hd φ.toRingEquiv <| by
+    have hleft : (⟨d, 0⟩ : Qsqrtd d) = algebraMap ℚ (Qsqrtd d) d :=
+      (QuadraticAlgebra.algebraMap_eq (R := ℚ) (a := d) (b := 0) d).symm
+    have hright : (⟨d, 0⟩ : Qsqrtd d') = algebraMap ℚ (Qsqrtd d') d :=
+      (QuadraticAlgebra.algebraMap_eq (R := ℚ) (a := d') (b := 0) d).symm
+    rw [show (φ.toRingEquiv ⟨d, 0⟩ : Qsqrtd d') = φ ⟨d, 0⟩ from rfl, hleft, hright]
+    exact φ.commutes d
 
 end Qsqrtd
 

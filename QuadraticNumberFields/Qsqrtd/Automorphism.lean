@@ -51,59 +51,24 @@ variable (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
 theorem algEquiv_self_eq_refl_or_star
     (σ : Qsqrtd (d : ℚ) ≃ₐ[ℚ] Qsqrtd (d : ℚ)) :
     σ = AlgEquiv.refl ∨ σ = Qsqrtd.starAlgEquiv (d : ℚ) := by
-  -- `σ` is determined by the image of `√d = ⟨0, 1⟩`; let `σ ⟨0, 1⟩ = ⟨a, b⟩`.
-  -- NB: here `Qsqrtd (d : ℚ)` carries its `Field` algebra instance, so the shared
-  -- `Qsqrtd.algEquiv_param_rel` (stated for `QuadraticAlgebra.instAlgebra`) does
-  -- not apply; we redo the short coordinate computation directly.
+  -- `σ ⟨0, 1⟩ = ⟨a, b⟩`. Feed the ring-level core `ringEquiv_param_rel`, which is
+  -- instance-agnostic — so the `Field`-vs-canonical `Algebra ℚ` diamond on
+  -- `Qsqrtd (d : ℚ)` is irrelevant. It gives `a = 0` and `(d : ℚ) = d * b²`,
+  -- and `d ≠ 0` then forces `b² = 1`.
+  have hφ_d : σ.toRingEquiv (⟨(d : ℚ), 0⟩ : Qsqrtd (d : ℚ)) = ⟨(d : ℚ), 0⟩ := by
+    have hleft : (⟨(d : ℚ), 0⟩ : Qsqrtd (d : ℚ)) =
+        algebraMap ℚ (Qsqrtd (d : ℚ)) (d : ℚ) := by ext <;> simp
+    rw [show (σ.toRingEquiv ⟨(d : ℚ), 0⟩ : Qsqrtd (d : ℚ)) = σ ⟨(d : ℚ), 0⟩ from rfl, hleft]
+    exact σ.commutes (d : ℚ)
+  obtain ⟨ha, -, hr⟩ :=
+    ringEquiv_param_rel (not_isSquare_ratCast_of_squarefree_ne_one Fact.out Fact.out)
+      σ.toRingEquiv hφ_d
+  simp only [AlgEquiv.coe_ringEquiv] at ha hr
   set a := (σ (⟨0, 1⟩ : Qsqrtd (d : ℚ))).re
   set b := (σ (⟨0, 1⟩ : Qsqrtd (d : ℚ))).im
-  have hε_sq :
-      (⟨0, 1⟩ : Qsqrtd (d : ℚ)) * ⟨0, 1⟩ = ⟨(d : ℚ), 0⟩ := by
-    ext <;> simp [QuadraticAlgebra.mk_mul_mk]
-  -- Reduce `σ ⟨(d : ℚ), 0⟩ = ⟨(d : ℚ), 0⟩` to `σ.commutes`.
-  have hφ_d : σ (⟨(d : ℚ), 0⟩ : Qsqrtd (d : ℚ)) = ⟨(d : ℚ), 0⟩ := by
-    have hleft : (⟨(d : ℚ), 0⟩ : Qsqrtd (d : ℚ)) =
-        algebraMap ℚ (Qsqrtd (d : ℚ)) (d : ℚ) := by
-      ext <;> simp
-    rw [hleft]
-    exact σ.commutes (d : ℚ)
-  have hφ_sq : σ (⟨0, 1⟩) * σ (⟨0, 1⟩) = ⟨(d : ℚ), 0⟩ := by
-    rw [← map_mul, hε_sq, hφ_d]
   have hφ_eta : σ (⟨0, 1⟩ : Qsqrtd (d : ℚ)) = ⟨a, b⟩ := by ext <;> rfl
-  -- The real-part equation: `a² + d·b² = d`.
-  have hre : a ^ 2 + (d : ℚ) * b ^ 2 = d := by
-    have := congr_arg QuadraticAlgebra.re hφ_sq
-    rw [hφ_eta, QuadraticAlgebra.mk_mul_mk] at this
-    simp at this
-    nlinarith
-  -- The imaginary-part equation: `2ab = 0`.
-  have him : 2 * a * b = 0 := by
-    have := congr_arg QuadraticAlgebra.im hφ_sq
-    rw [hφ_eta, QuadraticAlgebra.mk_mul_mk] at this
-    simp at this
-    linarith
-  -- `b ≠ 0`: if `b = 0`, then `a² = d`, contradicting squarefree `d ≠ 1`.
-  have hb : b ≠ 0 := by
-    intro hb0
-    have hsq : a * a = (d : ℚ) := by
-      have h := hre
-      rw [hb0] at h
-      linarith
-    have : IsSquare ((d : ℤ) : ℚ) := ⟨a, hsq.symm⟩
-    exact not_isSquare_int_of_squarefree_ne_one (Fact.out : Squarefree d)
-      (Fact.out : d ≠ 1) (Rat.isSquare_intCast_iff.mp this)
-  -- Since `b ≠ 0`, `2ab = 0` forces `a = 0`.
-  have ha : a = 0 := by
-    rcases mul_eq_zero.mp him with h | h
-    · exact (mul_eq_zero.mp h).resolve_left (by norm_num)
-    · exact absurd h hb
-  -- With `a = 0`, `a² + d·b² = d` becomes `d·b² = d`, so `b² = 1`.
-  have hbsq : b ^ 2 = 1 := by
-    have h : (d : ℚ) * b ^ 2 = d := by nlinarith
-    have hdQ : (d : ℚ) ≠ 0 := by
-      exact_mod_cast (Squarefree.ne_zero (Fact.out : Squarefree d))
-    field_simp [hdQ] at h
-    linarith
+  have hdQ : (d : ℚ) ≠ 0 := by exact_mod_cast (Squarefree.ne_zero (Fact.out : Squarefree d))
+  have hbsq : b ^ 2 = 1 := mul_left_cancel₀ hdQ (by rw [mul_one]; exact hr.symm)
   -- The rational algebra map sends `q ↦ ⟨q, 0⟩`.
   have hAM : ∀ q : ℚ, algebraMap ℚ (Qsqrtd (d : ℚ)) q = (⟨q, 0⟩ : Qsqrtd (d : ℚ)) := by
     intro q
