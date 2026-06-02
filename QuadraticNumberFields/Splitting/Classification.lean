@@ -296,22 +296,21 @@ theorem isSplit_iff_legendreSym_eq_one_of_mod_four_eq_one
       ↔ legendreSym p d = 1 := by
   rw [isSplitIn_iff_primesOver_ncard_eq_two d p,
     primesOver_ncard_eq_monicFactorsMod_card d p]
-  let ex := RingOfIntegers.ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one d hd4
   have hmin :
       RingOfIntegers.monicFactorsMod (ringOfIntegersGenerator d) p =
-        (normalizedFactors ((X ^ 2 - X - C (ex.fst : ZMod p)) : (ZMod p)[X])).toFinset := by
-    simp [RingOfIntegers.monicFactorsMod, (minpoly_generator d).2 hd4, ex]
+        (normalizedFactors ((X ^ 2 - X - C ((d / 4 : ℤ) : ZMod p)) : (ZMod p)[X])).toFinset := by
+    simp [RingOfIntegers.monicFactorsMod, (minpoly_generator d).2 hd4]
   rw [hmin]
   constructor
   · intro hcard
     by_contra hleg
     have hcard_one :=
       normalizedFactors_X_sq_sub_X_sub_C_card_eq_one_of_legendre_ne_one d p hpd
-        ex.snd.fst.down hleg
+        (show d = 1 + 4 * (d / 4) by omega) hleg
     omega
   · intro hleg
     exact normalizedFactors_X_sq_sub_X_sub_C_card_eq_two_of_legendre_eq_one d p hp hpd
-      ex.snd.fst.down hleg
+      (show d = 1 + 4 * (d / 4) by omega) hleg
 
 -- TODO: split ↔ legendreSym = 1
 theorem isSplit_iff_legendreSym_eq_one

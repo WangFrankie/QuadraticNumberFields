@@ -59,64 +59,6 @@ open scoped NumberField
 namespace QuadraticNumberFields
 namespace RingOfIntegers
 
-/-! ## Structured Classification Data
-
-The disjunctive `ringOfIntegers_classification` is convenient as a statement but
-forces downstream callers to re-split on `d % 4`.  `RingOfIntegersClassificationData`
-instead bundles, for each squarefree `d ≠ 1`, a single integer model together
-with the ring isomorphism `𝓞(ℚ(√d)) ≃+* model`, its embedding back into the
-field, and the compatibility identity.  The old disjunctive theorem is retained
-unchanged. -/
-
-/-- Structured ring-of-integers classification data for `ℚ(√d)`: a concrete
-integer model, the ring isomorphism `𝓞(ℚ(√d)) ≃+* model`, an embedding of the
-model back into the field, and the identity relating them. -/
-structure RingOfIntegersClassificationData (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] where
-  /-- The concrete integer model (`ℤ[√d]` or `ℤ[(1+√d)/2]`). -/
-  model : Type
-  /-- The model's commutative-ring structure. -/
-  [instCommRing : CommRing model]
-  /-- The ring isomorphism from the ring of integers to the model. -/
-  equiv : 𝓞 (Qsqrtd (d : ℚ)) ≃+* model
-  /-- The embedding of the model back into the ambient field. -/
-  emb : model →+* Qsqrtd (d : ℚ)
-  /-- The embedding is injective. -/
-  emb_injective : Function.Injective emb
-  /-- `emb` undoes `equiv`: applied to `equiv α`, it recovers `(α : ℚ(√d))`. -/
-  apply_equiv : ∀ α, emb (equiv α) = (α : Qsqrtd (d : ℚ))
-
-attribute [instance] RingOfIntegersClassificationData.instCommRing
-
-/-- Assemble `RingOfIntegersClassificationData` from an integral-closure
-embedding, reusing the generic `ringOfIntegers_equiv_of_embedding`. -/
-noncomputable def RingOfIntegersClassificationData.ofEmbedding
-    {d : ℤ} [Fact (Squarefree d)] [Fact (d ≠ 1)]
-    (M : Type) [CommRing M] (φ : M →+* Qsqrtd (d : ℚ))
-    (h_inj : Function.Injective φ)
-    (h_exists : ∀ x : Qsqrtd (d : ℚ), IsIntegral ℤ x → ∃ z : M, φ z = x)
-    (h_integral : ∀ z : M, IsIntegral ℤ (φ z)) :
-    RingOfIntegersClassificationData d where
-  model := M
-  equiv := ringOfIntegers_equiv_of_embedding (Qsqrtd (d : ℚ)) M φ h_inj h_exists h_integral
-  emb := φ
-  emb_injective := h_inj
-  apply_equiv := ringOfIntegers_equiv_of_embedding_apply φ h_inj h_exists h_integral
-
-/-- Classification data in the `d = 1 + 4k` branch, with the parameter `k`
-supplied explicitly so that the standard model `ℤ[(1+√d)/2]` aligns. -/
-noncomputable def RingOfIntegersClassificationData.ofZOnePlusSqrtOverTwo
-    {d : ℤ} [Fact (Squarefree d)] [Fact (d ≠ 1)] (k : ℤ) (hk : d = 1 + 4 * k) :
-    RingOfIntegersClassificationData d := by
-  have hd_sf : Squarefree d := Fact.out
-  have hd_ne : d ≠ 1 := Fact.out
-  subst hk
-  have hd_ne' : (1 + 4 * k) ≠ 1 := hd_ne
-  exact RingOfIntegersClassificationData.ofEmbedding
-    (ZOnePlusSqrtOverTwo k) (_root_.ZOnePlusSqrtOverTwo.toQsqrtdHom k)
-    (_root_.ZOnePlusSqrtOverTwo.toQsqrtdHom_injective k)
-    (fun _ hx => exists_zOnePlusSqrtOverTwo_of_isIntegral_of_one_mod_four k hd_sf hd_ne' hx)
-    (fun z => isIntegral_toQsqrtd_of_zOnePlusSqrtOverTwo k z)
-
 section SquarefreeIntegerParameter
 
 variable (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
@@ -141,6 +83,17 @@ noncomputable def ringOfIntegers_equiv_zsqrtd_of_mod_four_ne_one (hd4 : d % 4 �
     (Zsqrtd.toQsqrtdHom_injective d)
     (fun _ hx => exists_zsqrtd_of_isIntegral_of_ne_one_mod_four d hd_sf hd_ne hd4 hx)
     (fun z => isIntegral_toQsqrtd d z)
+
+/-- `ringOfIntegers_equiv_zsqrtd_of_mod_four_ne_one` commutes with the embedding back
+into `ℚ(√d)`: applied to `e α`, the embedding recovers `(α : ℚ(√d))`. -/
+lemma ringOfIntegers_equiv_zsqrtd_of_mod_four_ne_one_apply (hd4 : d % 4 ≠ 1)
+    (α : 𝓞 (Qsqrtd (d : ℚ))) :
+    Zsqrtd.toQsqrtdHom d (ringOfIntegers_equiv_zsqrtd_of_mod_four_ne_one d hd4 α)
+      = (α : Qsqrtd (d : ℚ)) :=
+  ringOfIntegers_equiv_of_embedding_apply (Zsqrtd.toQsqrtdHom d)
+    (Zsqrtd.toQsqrtdHom_injective d)
+    (fun _ hx => exists_zsqrtd_of_isIntegral_of_ne_one_mod_four d Fact.out Fact.out hd4 hx)
+    (fun z => isIntegral_toQsqrtd d z) α
 
 /-! ## The `d % 4 = 1` Branch: `𝓞(ℚ(√d)) = ℤ[(1+√d)/2]`
 
@@ -172,21 +125,15 @@ noncomputable def ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_eq
     (fun _ hx => exists_zOnePlusSqrtOverTwo_of_isIntegral_of_one_mod_four k hd_sf hd_ne' hx)
     (fun z => isIntegral_toQsqrtd_of_zOnePlusSqrtOverTwo k z)
 
-/-- If `d % 4 = 1`, writing `d = 1 + 4k`, then `𝓞(ℚ(√d)) ≃+* ℤ[(1+√d)/2]`.
-
-The result packages the witness `k` together with the equiv as data
-(via `PSigma`), so the equiv is computable in principle (it is `noncomputable`
-due to `NumberField.RingOfIntegers.equiv`, but no `Classical.choice` on `Nonempty`
-is involved). Use `.fst`, `.snd.fst`, `.snd.snd` to project out `k`, the equality,
-and the equiv respectively.
+/-- If `d % 4 = 1`, then `𝓞(ℚ(√d)) ≃+* ℤ[(1+√d)/2]`, using the canonical witness
+`k := d / 4` (so `d = 1 + 4 * (d / 4)`).  This is a thin wrapper over the
+explicit-parameter `ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_eq`.
 
 **mathlib target: `Mathlib.NumberTheory.QuadraticField.RingOfIntegers`** -/
 noncomputable def ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one
     (hd4 : d % 4 = 1) :
-    Σ' k : ℤ, PLift (d = 1 + 4 * k) ×'
-      (𝓞 (Qsqrtd (d : ℚ)) ≃+* ZOnePlusSqrtOverTwo k) :=
-  ⟨d / 4, ⟨PLift.up (by omega),
-    ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_eq d (d / 4) (by omega)⟩⟩
+    𝓞 (Qsqrtd (d : ℚ)) ≃+* ZOnePlusSqrtOverTwo (d / 4) :=
+  ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_eq d (d / 4) (by omega)
 
 /-! ## Combined Classification -/
 
@@ -194,20 +141,15 @@ noncomputable def ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one
 
 For squarefree `d ≠ 1`, exactly one of the following holds:
 * If `d ≢ 1 (mod 4)`, then `𝓞(ℚ(√d)) ≃+* ℤ[√d]`.
-* If `d ≡ 1 (mod 4)`, then writing `d = 1 + 4k`, `𝓞(ℚ(√d)) ≃+* ℤ[(1+√d)/2]`.
-
-This is the classical result found in [Marcus, Theorem 2.16],
-[Neukirch, I.2], [Stewart–Tall, Theorem 4.6].
-
-**mathlib target: `Mathlib.NumberTheory.QuadraticField.RingOfIntegers`** -/
+* If `d ≡ 1 (mod 4)`, then writing `d = 1 + 4k`, `𝓞(ℚ(√d)) ≃+* ℤ[(1+√d)/2]`. -/
 theorem ringOfIntegers_classification :
     (d % 4 ≠ 1 ∧
       Nonempty (𝓞 (Qsqrtd (d : ℚ)) ≃+* Zsqrtd d)) ∨
     (∃ k : ℤ, d = 1 + 4 * k ∧
       Nonempty (𝓞 (Qsqrtd (d : ℚ)) ≃+* ZOnePlusSqrtOverTwo k)) := by
   by_cases hd4 : d % 4 = 1
-  · let ex := ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one d hd4
-    exact Or.inr ⟨ex.fst, ex.snd.fst.down, ⟨ex.snd.snd⟩⟩
+  · exact Or.inr ⟨d / 4, by omega,
+      ⟨ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one d hd4⟩⟩
   · exact Or.inl ⟨hd4, ⟨ringOfIntegers_equiv_zsqrtd_of_mod_four_ne_one d hd4⟩⟩
 
 /-- Transport the ring-of-integers classification from `Qsqrtd d` back to an
@@ -256,21 +198,6 @@ Since `-3 ≡ 1 (mod 4)`, the ring of integers is `ℤ[ω]` where `ω = (1+√(-
 is a primitive cube root of unity. Here `-3 = 1 + 4 * (-1)`, so `k = -1`. -/
 noncomputable example : 𝓞 (Qsqrtd ((-3 : ℤ) : ℚ)) ≃+* ZOnePlusSqrtOverTwo (-1) :=
   ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_eq (-3) (-1) (by decide)
-
-/-- The structured ring-of-integers classification data for `ℚ(√d)`: in the
-`d % 4 ≠ 1` branch the model is `ℤ[√d]`, and in the `d % 4 = 1` branch (writing
-`d = 1 + 4k`) it is `ℤ[(1+√d)/2]`. -/
-noncomputable def ringOfIntegersClassificationData :
-    RingOfIntegersClassificationData d := by
-  have hd_sf : Squarefree d := Fact.out
-  have hd_ne : d ≠ 1 := Fact.out
-  by_cases hd4 : d % 4 = 1
-  · exact RingOfIntegersClassificationData.ofZOnePlusSqrtOverTwo (d / 4) (by omega)
-  · exact RingOfIntegersClassificationData.ofEmbedding
-      (Zsqrtd d) (Zsqrtd.toQsqrtdHom d)
-      (Zsqrtd.toQsqrtdHom_injective d)
-      (fun _ hx => exists_zsqrtd_of_isIntegral_of_ne_one_mod_four d hd_sf hd_ne hd4 hx)
-      (fun z => isIntegral_toQsqrtd d z)
 
 end SquarefreeIntegerParameter
 

@@ -115,12 +115,7 @@ theorem norm_mem_ringOfIntegers (α : 𝓞 (Qsqrtd (d : ℚ))) :
     rw [← happly]
     exact norm_mem_zOnePlusSqrtOverTwo k _
   · -- d % 4 ≠ 1 branch: 𝓞 ≃ ℤ[√d]
-    have happly := ringOfIntegers_equiv_of_embedding_apply
-      (Zsqrtd.toQsqrtdHom d)
-      (Zsqrtd.toQsqrtdHom_injective d)
-      (fun _ hx => exists_zsqrtd_of_isIntegral_of_ne_one_mod_four d hd_sf hd_ne hd4 hx)
-      (fun z => isIntegral_toQsqrtd d z) α
-    rw [← happly]
+    rw [← ringOfIntegers_equiv_zsqrtd_of_mod_four_ne_one_apply d hd4 α]
     exact norm_mem_zsqrtd d _
 
 end SquarefreeIntegerParameter

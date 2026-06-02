@@ -97,8 +97,8 @@ When `d % 4 = 1`, this is the image of `(1 + √d)/2` (= `omega` in `ZOnePlusSqr
 noncomputable def ringOfIntegersGenerator :
     𝓞 (Qsqrtd (d : ℚ)) :=
   if hd4 : d % 4 = 1 then
-    let ex := RingOfIntegers.ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one d hd4
-    ex.snd.snd.symm QuadraticAlgebra.omega
+    (RingOfIntegers.ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one d hd4).symm
+      QuadraticAlgebra.omega
   else
     (RingOfIntegers.ringOfIntegers_equiv_zsqrtd_of_mod_four_ne_one d hd4).symm
       QuadraticAlgebra.omega
@@ -109,9 +109,9 @@ theorem adjoin_generator_eq_top :
   unfold ringOfIntegersGenerator
   split
   · next hd4 =>
-    let ex := RingOfIntegers.ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one d hd4
-    exact adjoin_eq_top_of_ringEquiv ex.snd.snd QuadraticAlgebra.omega
-      (adjoin_omega_eq_top ex.fst 1)
+    exact adjoin_eq_top_of_ringEquiv
+      (RingOfIntegers.ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one d hd4)
+      QuadraticAlgebra.omega (adjoin_omega_eq_top (d / 4) 1)
   · next hd4 =>
     exact adjoin_eq_top_of_ringEquiv
       (RingOfIntegers.ringOfIntegers_equiv_zsqrtd_of_mod_four_ne_one d hd4)
@@ -230,10 +230,9 @@ When `d % 4 ≠ 1`: `minpoly ℤ θ = X² - d`.
 When `d % 4 = 1` (with `d = 1 + 4k`): `minpoly ℤ θ = X² - X - k`. -/
 theorem minpoly_generator :
     (d % 4 ≠ 1 → minpoly ℤ (ringOfIntegersGenerator d) = Polynomial.X ^ 2 - Polynomial.C d) ∧
-    (∀ hd4 : d % 4 = 1,
-      let ex := RingOfIntegers.ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one d hd4
+    (∀ _ : d % 4 = 1,
       minpoly ℤ (ringOfIntegersGenerator d) =
-        Polynomial.X ^ 2 - Polynomial.X - Polynomial.C ex.fst) := by
+        Polynomial.X ^ 2 - Polynomial.X - Polynomial.C (d / 4)) := by
   constructor
   · intro hd4
     unfold ringOfIntegersGenerator
@@ -249,13 +248,15 @@ theorem minpoly_generator :
   · intro hd4
     unfold ringOfIntegersGenerator
     rw [dif_pos hd4]
-    let ex := RingOfIntegers.ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one d hd4
     calc
-      minpoly ℤ (ex.snd.snd.symm QuadraticAlgebra.omega) =
-          minpoly ℤ (QuadraticAlgebra.omega (R := ℤ) (a := ex.fst) (b := 1)) :=
-        minpoly_eq_of_ringEquiv ex.snd.snd QuadraticAlgebra.omega
-      _ = Polynomial.X ^ 2 - Polynomial.X - Polynomial.C ex.fst :=
-        minpoly_omega_quadAlg_one ex.fst
+      minpoly ℤ ((RingOfIntegers.ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one
+            d hd4).symm QuadraticAlgebra.omega) =
+          minpoly ℤ (QuadraticAlgebra.omega (R := ℤ) (a := d / 4) (b := 1)) :=
+        minpoly_eq_of_ringEquiv
+          (RingOfIntegers.ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one d hd4)
+          QuadraticAlgebra.omega
+      _ = Polynomial.X ^ 2 - Polynomial.X - Polynomial.C (d / 4) :=
+        minpoly_omega_quadAlg_one (d / 4)
 
 end Splitting
 end QuadraticNumberFields
