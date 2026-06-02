@@ -42,6 +42,17 @@ instance (K : Type*) [Field K] [Algebra ℚ K] [QuadraticField K] :
     Algebra.IsQuadraticExtension ℚ K :=
   QuadraticField.isQuadratic
 
+--TODO:see `docs/design/quadratic-field-abstraction.md`
+namespace Others
+
+abbrev QuadraticField'' (K : Type*) [Field K] [Algebra ℚ K] :=
+  Algebra.IsQuadraticExtension ℚ K
+
+class QuadraticField' (K : Type*) [Field K] [Algebra ℚ K]
+  extends Algebra.IsQuadraticExtension ℚ K
+
+--using Algebra.IsQuadraticExtension ℚ K directly.
+end Others
 namespace QuadraticField
 
 /-- A quadratic field has degree two over `ℚ`. -/
