@@ -33,6 +33,9 @@ multiplicative monoid is not a group).  The two-element dichotomy of `Task 5`
 model's group is `{refl, starAlgEquiv}` of order two.
 -/
 
+-- Use the canonical `QuadraticAlgebra` algebra structure for standard `Qsqrtd` models.
+attribute [-instance] DivisionRing.toRatAlgebra
+
 namespace QuadraticField
 
 section Galois

@@ -5,6 +5,7 @@ Authors: Frankie Wang
 -/
 
 import Mathlib.Algebra.QuadraticAlgebra.Basic
+import Mathlib.LinearAlgebra.Dimension.StrongRankCondition
 import Mathlib.LinearAlgebra.Matrix.Reindex
 import Mathlib.LinearAlgebra.Matrix.ToLin
 import Mathlib.Tactic.Ring
@@ -16,6 +17,17 @@ Material destined for mathlib.
 -/
 
 namespace QuadraticAlgebra
+
+section IsQuadraticExtension
+
+variable {R : Type*} [CommSemiring R] [StrongRankCondition R] (a b : R)
+
+/-- A quadratic algebra is a quadratic extension of its base ring. -/
+instance instIsQuadraticExtension :
+    Algebra.IsQuadraticExtension R (QuadraticAlgebra R a b) where
+  finrank_eq_two' := QuadraticAlgebra.finrank_eq_two a b
+
+end IsQuadraticExtension
 
 section CommSemiring
 

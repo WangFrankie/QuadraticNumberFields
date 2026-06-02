@@ -48,6 +48,9 @@ genuinely non-trivial.
   of `Algebra.norm ℚ x`.
 -/
 
+-- Use the canonical `QuadraticAlgebra` algebra structure for standard `Qsqrtd` models.
+attribute [-instance] DivisionRing.toRatAlgebra
+
 namespace QuadraticField
 
 /-- A `Conj` structure on a quadratic field `K` is a distinguished

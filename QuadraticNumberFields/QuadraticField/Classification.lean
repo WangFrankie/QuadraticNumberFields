@@ -5,7 +5,6 @@ Authors: Frankie Wang
 -/
 import QuadraticNumberFields.QuadraticField.Parameters
 import QuadraticNumberFields.QuadraticField.Basic
-import QuadraticNumberFields.Instances
 import Mathlib.FieldTheory.PrimitiveElement
 import Mathlib.Algebra.Polynomial.Degree.IsMonicOfDegree
 import Mathlib.Algebra.Field.Equiv

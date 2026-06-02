@@ -29,6 +29,9 @@ This file proves the explicit discriminant formula for `Qsqrtd (d : ℚ)`:
 
 open scoped NumberField
 
+-- Use the canonical `QuadraticAlgebra` algebra structure for standard `Qsqrtd` models.
+attribute [-instance] DivisionRing.toRatAlgebra
+
 namespace QuadraticNumberFields
 namespace RingOfIntegers
 

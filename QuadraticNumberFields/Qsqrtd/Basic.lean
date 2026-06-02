@@ -29,7 +29,7 @@ The predicate "K is a quadratic extension of ℚ" is provided by mathlib as
 
 ## Main Results
 
-* `Algebra.IsQuadraticExtension.instNumberField`: Any quadratic field is a number field.
+* `QuadraticField.instNumberField`: Any project-level quadratic field is a number field.
 * `Qsqrtd.instIsQuadraticExtension`: `ℚ(√d)/ℚ` is a degree-2 extension.
 * `not_isSquare_ratCast_of_squarefree_ne_one`: squarefree integer parameters
   with `d ≠ 1` give genuine quadratic fields.
@@ -89,7 +89,7 @@ theorem normUnitsHom_coe (d : ℚ) (u : (Qsqrtd d)ˣ) :
   simp [normUnitsHom, normHom]
 
 /-- `Q(√0)` is not reduced because `√0² = 0` but `√0 ≠ 0`. -/
-lemma zero_not_isReduced : ¬ IsReduced (Qsqrtd (0 : ℚ)) := by
+ lemma zero_not_isReduced : ¬ IsReduced (Qsqrtd (0 : ℚ)) := by
   intro ⟨h⟩
   -- When `d = 0`, the element `ε = ⟨0, 1⟩` satisfies `ε² = 0`,
   -- so it is a nonzero nilpotent.
@@ -107,7 +107,7 @@ lemma zero_not_isField : ¬ IsField (Qsqrtd (0 : ℚ)) := by
   exact zero_not_isReduced (inferInstance : IsReduced (Qsqrtd (0 : ℚ)))
 
 /-- `Q(√1) ≅ ℚ × ℚ` is not a field (it has zero divisors). -/
-lemma one_not_isField : ¬ IsField (Qsqrtd (1 : ℚ)) := by
+ lemma one_not_isField : ¬ IsField (Qsqrtd (1 : ℚ)) := by
   intro hF
   haveI := hF.isDomain
   -- For `d = 1`, the standard factorization

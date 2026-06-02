@@ -29,6 +29,9 @@ They instead provide a family of standard objects through `QuadraticFieldCat.ofQ
 
 open CategoryTheory
 
+-- Use the canonical `QuadraticAlgebra` algebra structure for standard `Qsqrtd` models.
+attribute [-instance] DivisionRing.toRatAlgebra
+
 universe u
 
 /-- The category of quadratic fields over `ℚ`.

@@ -30,6 +30,9 @@ The mathlib `ℤ√d` counterparts (transported across `equivMathlib`) live in
 
 open scoped NumberField
 
+-- Use the canonical `QuadraticAlgebra` algebra structure for standard `Qsqrtd` models.
+attribute [-instance] DivisionRing.toRatAlgebra
+
 namespace QuadraticNumberFields
 namespace Zsqrtd
 

@@ -8,7 +8,6 @@ import QuadraticNumberFields.Mathlib
 import QuadraticNumberFields.Qsqrtd.Basic
 import QuadraticNumberFields.QuadraticField.Basic
 import QuadraticNumberFields.QuadraticField.Parameters
-import QuadraticNumberFields.Instances
 import QuadraticNumberFields.QuadraticField.Category
 import QuadraticNumberFields.QuadraticField.SqfreeParam
 import QuadraticNumberFields.QuadraticField.Classification

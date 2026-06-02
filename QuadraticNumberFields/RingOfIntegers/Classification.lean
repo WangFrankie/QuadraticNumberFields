@@ -10,7 +10,6 @@ import QuadraticNumberFields.ZOnePlusSqrtOverTwo.Basic
 import QuadraticNumberFields.Mathlib.RingTheory.DedekindDomain.Basic
 import QuadraticNumberFields.QuadraticField.Classification
 import QuadraticNumberFields.QuadraticField.Transport
-import QuadraticNumberFields.Instances
 
 /-!
 # Classification of the Ring of Integers of Quadratic Fields
