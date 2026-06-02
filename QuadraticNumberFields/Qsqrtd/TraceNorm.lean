@@ -27,6 +27,32 @@ namespace QuadraticNumberFields
 namespace RingOfIntegers
 namespace TraceNorm
 
+/-! ## Public `Qsqrtd` Trace/Norm-Star API
+
+The following identities sit at the heart of the integrality story.  They
+were previously kept as private lemmas inside `TraceNorm`; we now expose
+them in the `Qsqrtd` namespace so they can be used by Galois-group
+machinery, classification data, and the `Conj` interface without going
+through `RingOfIntegers.TraceNorm`. -/
+
+namespace Qsqrtd
+
+/-- The sum `x + star x` is the trace of `x` viewed inside `Q(√d)`. -/
+theorem add_star_eq_trace_image {d : ℤ} (x : Qsqrtd (d : ℚ)) :
+    x + star x =
+      algebraMap ℚ (Qsqrtd (d : ℚ)) (Algebra.trace ℚ (Qsqrtd (d : ℚ)) x) := by
+  ext
+  · simp [Qsqrtd.trace_eq_re_add_re_star, star]
+  · simp [star]
+
+/-- The norm of `x`, viewed inside `Q(√d)`, is the product `x * star x`. -/
+theorem norm_image_eq_mul_star {d : ℤ} (x : Qsqrtd (d : ℚ)) :
+    algebraMap ℚ (Qsqrtd (d : ℚ)) (Qsqrtd.norm x) = x * star x := by
+  simpa [Qsqrtd.norm, mul_comm] using
+    (QuadraticAlgebra.algebraMap_norm_eq_mul_star (a := (d : ℚ)) (b := (0 : ℚ)) x)
+
+end Qsqrtd
+
 /-- The canonical embedding of `ℚ` into `Q(√d)`. -/
 private def ratCastHom (d : ℤ) : ℚ →+* Qsqrtd (d : ℚ) :=
   { toFun := QuadraticAlgebra.C (a := (d : ℚ)) (b := (0 : ℚ))
