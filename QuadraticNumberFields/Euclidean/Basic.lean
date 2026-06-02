@@ -5,7 +5,7 @@ Authors: Frankie Wang
 -/
 import Mathlib.RingTheory.EuclideanDomain
 import QuadraticNumberFields.Instances
-import QuadraticNumberFields.Basic
+import QuadraticNumberFields.Qsqrtd.Basic
 
 /-!
 # Euclidean Classification Framework

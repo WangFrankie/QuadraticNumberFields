@@ -5,7 +5,7 @@ Authors: Frankie Wang
 -/
 import QuadraticNumberFields.RingOfIntegers.HalfInt
 import QuadraticNumberFields.RingOfIntegers.ModFour
-import QuadraticNumberFields.RingOfIntegers.TraceNorm
+import QuadraticNumberFields.Qsqrtd.TraceNorm
 import QuadraticNumberFields.ZOnePlusSqrtOverTwo.Basic
 import QuadraticNumberFields.QuadraticField.Parameters
 
