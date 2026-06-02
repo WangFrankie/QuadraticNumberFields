@@ -115,7 +115,7 @@ theorem factorization_of_three :
       exact in_span_of_eq three_eq
         ((span _).sub_mem (Ideal.subset_span (by simp)) (Ideal.subset_span (by simp)))
     · -- Reverse inclusion: each of the four generators is divisible by 3
-      apply _root_.Zsqrtd.Ideal.span_le_span_singleton_of_forall_dvd
+      apply Ideal.span_le_span_singleton_of_forall_dvd
       intro x hx
       rcases hx with rfl  | rfl | rfl | rfl
       · simp  -- 3·3 is divisible by 3
@@ -137,7 +137,7 @@ theorem factorization_of_one_plus_sqrtd :
     exact in_span_of_eq one_plus_sqrtd_eq
       ((span _).sub_mem (Ideal.subset_span (by simp)) (Ideal.subset_span (by simp)))
   · -- Reverse inclusion: each of the four generators is divisible by (1+√-5)
-    apply _root_.Zsqrtd.Ideal.span_le_span_singleton_of_forall_dvd
+    apply Ideal.span_le_span_singleton_of_forall_dvd
     intro x hx
     rcases hx with rfl | rfl | rfl | rfl
     · -- 2·3 = 6 = (1+√-5)(1-√-5), so (1+√-5) | 6
@@ -161,7 +161,7 @@ theorem factorization_of_one_minus_sqrtd :
     exact in_span_of_eq one_mins_sqrtd_eq
       ((span _).sub_mem (Ideal.subset_span (by simp)) (Ideal.subset_span (by simp)))
   · -- Reverse inclusion: each of the four generators is divisible by (1-√-5)
-    apply _root_.Zsqrtd.Ideal.span_le_span_singleton_of_forall_dvd
+    apply Ideal.span_le_span_singleton_of_forall_dvd
     intro x hx
     rcases hx with rfl | rfl | rfl | rfl
     · -- 2·3 = 6 = (1-√-5)(1+√-5), so (1-√-5) | 6

@@ -7,6 +7,7 @@ Authors: Frankie Wang
 import Mathlib.Algebra.QuadraticAlgebra.Basic
 import Mathlib.LinearAlgebra.Matrix.Reindex
 import Mathlib.LinearAlgebra.Matrix.ToLin
+import Mathlib.Tactic.Ring
 
 /-!
 # Quadratic Algebra Defs
@@ -16,11 +17,12 @@ Material destined for mathlib.
 
 namespace QuadraticAlgebra
 
+section CommSemiring
+
 variable {R : Type*} [CommSemiring R] {a b : R}
 
 /-- The left multiplication matrix of an element in `QuadraticAlgebra R a b`
-with respect to the basis `{1, i}`.
-PR#36347 this theorem will be in QuadraticAlgebra.Defs.lean -/
+with respect to the basis `{1, i}`. -/
 theorem leftMulMatrix_eq (x : QuadraticAlgebra R a b) :
     Algebra.leftMulMatrix (basis a b) x = !![x.re, a * x.im; x.im, x.re + b * x.im] := by
   -- In the basis `{1, i}`, multiplication by `x = x.re + x.im * i`
@@ -30,5 +32,29 @@ theorem leftMulMatrix_eq (x : QuadraticAlgebra R a b) :
   all_goals
     rw [Algebra.leftMulMatrix_apply, LinearMap.toMatrix_apply]
     simp [QuadraticAlgebra.basis]
+
+end CommSemiring
+
+section CommRing
+
+variable {R : Type*} [CommRing R] {a : R}
+
+/-- The fundamental identity for `re + im` of a product in
+`QuadraticAlgebra R a 0`. -/
+lemma mul_re_add_im_eq (x y : QuadraticAlgebra R a 0) :
+    (x * y).re + (x * y).im =
+      (x.re + x.im) * (y.re + y.im) + (a - 1) * x.im * y.im := by
+  simp only [re_mul, im_mul]
+  ring
+
+/-- The fundamental identity for `re - im` of a product in
+`QuadraticAlgebra R a 0`. -/
+lemma mul_re_sub_im_eq (x y : QuadraticAlgebra R a 0) :
+    (x * y).re - (x * y).im =
+      (x.re - x.im) * (y.re - y.im) + (a - 1) * x.im * y.im := by
+  simp only [re_mul, im_mul]
+  ring
+
+end CommRing
 
 end QuadraticAlgebra

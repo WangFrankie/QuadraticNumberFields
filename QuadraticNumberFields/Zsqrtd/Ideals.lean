@@ -13,6 +13,8 @@ import Mathlib.Tactic.Ring
 import Mathlib.Data.ZMod.Basic
 import Mathlib.Data.ZMod.QuotientRing
 import Mathlib.RingTheory.Ideal.Quotient.Operations
+import QuadraticNumberFields.Mathlib.NumberTheory.Zsqrtd.Basic
+import QuadraticNumberFields.Mathlib.RingTheory.Ideal.Span
 
 /-!
 # Ideal Theory for ℤ[√d]
@@ -21,13 +23,6 @@ General results about ideals in the quadratic integer ring `ℤ[√d]`, paramete
 by an integer `d` satisfying appropriate arithmetic conditions.
 
 ## Main Results
-
-### Key algebraic identities
-
-* `Zsqrtd.Ideal.mul_re_add_im_eq`:
-  `(a*b).re + (a*b).im = (a.re+a.im)*(b.re+b.im) + (d-1)*a.im*b.im`
-* `Zsqrtd.Ideal.mul_re_sub_im_eq`:
-  `(a*b).re - (a*b).im = (a.re-a.im)*(b.re-b.im) + (d-1)*a.im*b.im`
 
 ### General theory for any prime `p` with `p ∣ (d - 1)`
 
@@ -46,8 +41,8 @@ by an integer `d` satisfying appropriate arithmetic conditions.
 
 ### Utility lemmas
 
-* `Zsqrtd.Ideal.span_le_span_singleton_of_forall_dvd`
-* `Zsqrtd.Ideal.ideal_of_prime_norm_is_prime`
+The general ideal-span helper used in this file is imported from
+`QuadraticNumberFields.Mathlib.RingTheory.Ideal.Span`.
 -/
 
 open Ideal Zsqrtd
@@ -56,62 +51,11 @@ namespace Zsqrtd.Ideal
 
 variable (d : ℤ)
 
--- ============================================================================
--- Utility lemmas
--- ============================================================================
-
-/-- If `a` divides every element of `S`, then `Ideal.span S ≤ Ideal.span {a}`.
-
-This is a **general ideal-lattice lemma** for any commutative semiring —
-it has nothing to do with `ℤ[√d]` and would be useful throughout ring theory.
-
-**mathlib target: `Mathlib.RingTheory.Ideal.Operations`** -/
-theorem span_le_span_singleton_of_forall_dvd
-    {α : Type*} [CommSemiring α] {a : α} {S : Set α}
-    (h : ∀ x ∈ S, a ∣ x) :
-    Ideal.span S ≤ Ideal.span {a} :=
-  Ideal.span_le.2 fun x hx => Ideal.mem_span_singleton.mpr (h x hx)
-
-/-- An ideal whose absolute norm is a prime number is a prime ideal.
-
-This is a **general fact for Dedekind domains** — an ideal with prime norm
-is irreducible in the ideal monoid, hence prime by unique factorization of ideals.
-
-**mathlib target: `Mathlib.RingTheory.DedekindDomain.Ideal`** -/
-theorem ideal_of_prime_norm_is_prime {R : Type*} [CommRing R] [IsDedekindDomain R]
-    [Module.Free ℤ R] (I : Ideal R) (hI : I.absNorm.Prime) : I.IsPrime :=
-  Ideal.isPrime_of_irreducible_absNorm hI
-
 @[simp] lemma algebraMap_int_coe (n : ℤ) : algebraMap ℤ (Zsqrtd d) n = n := rfl
 
 lemma map_span_int_singleton (n : ℤ) :
     Ideal.map (algebraMap ℤ (Zsqrtd d)) (Ideal.span {n}) = Ideal.span {(n : Zsqrtd d)} := by
   rw [Ideal.map_span, Set.image_singleton, algebraMap_int_coe]
-
--- ============================================================================
--- Key algebraic identities
--- ============================================================================
-
-/-- The fundamental identity for `re + im` of a product in `ℤ[√d]`:
-`(a*b).re + (a*b).im = (a.re + a.im) * (b.re + b.im) + (d - 1) * a.im * b.im`.
-
-This identity is purely algebraic in the multiplication law of `QuadraticAlgebra ℤ d 0`.
-It shows that the "augmentation" map `z ↦ z.re + z.im` is *almost* multiplicative,
-with a correction term proportional to `d - 1`. When `p ∣ (d - 1)`, the correction
-vanishes mod `p`, making the augmentation a ring hom `ℤ[√d] → ℤ/pℤ`.
-
-**mathlib target: `Mathlib.NumberTheory.Zsqrtd.Basic`** -/
-lemma mul_re_add_im_eq (a b : Zsqrtd d) :
-    (a * b).re + (a * b).im =
-      (a.re + a.im) * (b.re + b.im) + (d - 1) * a.im * b.im := by
-  simp only [Zsqrtd.re_mul, Zsqrtd.im_mul]; ring
-
-/-- The fundamental identity for `re - im` of a product in `ℤ[√d]`:
-`(a*b).re - (a*b).im = (a.re - a.im) * (b.re - b.im) + (d - 1) * a.im * b.im`. -/
-lemma mul_re_sub_im_eq (a b : Zsqrtd d) :
-    (a * b).re - (a * b).im =
-      (a.re - a.im) * (b.re - b.im) + (d - 1) * a.im * b.im := by
-  simp only [Zsqrtd.re_mul, Zsqrtd.im_mul]; ring
 
 -- ============================================================================
 -- General theory for any prime p with p | (d - 1)
@@ -283,7 +227,7 @@ theorem isPrime_span_p_one_minus_sqrtd (p : ℕ) [Fact p.Prime] (hd : (p : ℤ) 
     simpa using h1
   · intro a b hab
     simp only [mem_span_p_one_minus_sqrtd_iff p hd] at hab ⊢
-    rw [mul_re_add_im_eq] at hab
+    rw [Zsqrtd.mul_re_add_im_eq] at hab
     obtain ⟨c, hc⟩ := hd
     have hcorr : ((p : ℤ) ∣ (d - 1) * a.im * b.im) :=
       ⟨c * a.im * b.im, by rw [hc]; ring⟩
@@ -301,7 +245,7 @@ theorem isPrime_span_p_one_plus_sqrtd (p : ℕ) [Fact p.Prime] (hd : (p : ℤ) �
     simpa using h1
   · intro a b hab
     simp only [mem_span_p_one_plus_sqrtd_iff p hd] at hab ⊢
-    rw [mul_re_sub_im_eq] at hab
+    rw [Zsqrtd.mul_re_sub_im_eq] at hab
     obtain ⟨c, hc⟩ := hd
     have hcorr : ((p : ℤ) ∣ (d - 1) * a.im * b.im) :=
       ⟨c * a.im * b.im, by rw [hc]; ring⟩

@@ -25,9 +25,7 @@ variable {R S : Type*} [CommRing R] [CommRing S]
 
 A Dedekind domain is characterized by: (1) Noetherian, (2) domain,
 (3) integrally closed, (4) dimension ≤ 1. Each of these is individually
-invariant under ring isomorphism, so the conjunction is as well.
-
-**mathlib target: `Mathlib.RingTheory.DedekindDomain.Basic`** -/
+invariant under ring isomorphism, so the conjunction is as well. -/
 theorem isDedekindDomain (e : R ≃+* S) [IsDedekindDomain R] :
     IsDedekindDomain S := by
   letI : IsNoetherianRing R :=
@@ -43,9 +41,7 @@ theorem isDedekindDomain (e : R ≃+* S) [IsDedekindDomain R] :
         show IsIntegralClosure S S (FractionRing S) from inferInstance }
   infer_instance
 
-/-- `IsDedekindDomain` is invariant under ring equivalence.
-
-**mathlib target: `Mathlib.RingTheory.DedekindDomain.Basic`** -/
+/-- `IsDedekindDomain` is invariant under ring equivalence. -/
 theorem isDedekindDomain_iff (e : R ≃+* S) :
     IsDedekindDomain R ↔ IsDedekindDomain S := by
   constructor

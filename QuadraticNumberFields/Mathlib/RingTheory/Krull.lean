@@ -22,9 +22,7 @@ variable {R S : Type*} [CommRing R] [CommRing S]
 /-- Transport `Ring.DimensionLEOne` across a ring equivalence.
 
 The proof pulls back prime ideals via `Ideal.comap`, applies `DimensionLEOne` on
-the source ring, then pushes forward via `Ideal.map`.
-
-**mathlib target: `Mathlib.RingTheory.Krull`** -/
+the source ring, then pushes forward via `Ideal.map`. -/
 theorem dimensionLEOne (e : R ≃+* S) [Ring.DimensionLEOne R] :
     Ring.DimensionLEOne S := by
   refine ⟨?_⟩

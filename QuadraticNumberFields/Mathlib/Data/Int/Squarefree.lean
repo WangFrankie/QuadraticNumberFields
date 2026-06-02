@@ -33,9 +33,7 @@ lemma nat_eq_one_of_squarefree_intcast_of_isSquare (m : ℕ)
 This is a **general number-theoretic fact** about squarefree integers: if a
 squarefree integer divides the denominator of a reduced fraction that is a perfect
 square, then the denominator must be `1` (since its square part is constrained
-by squarefreeness).
-
-**mathlib target: `Mathlib.Data.Int.Squarefree` or `Mathlib.Data.Rat.Squarefree`** -/
+by squarefreeness). -/
 lemma int_dvd_of_ratio_square (d₁ d₂ : ℤ) (hd₂ : d₂ ≠ 0)
     (hsq_d₂ : Squarefree d₂) (hr : IsSquare ((d₁ : ℚ) / (d₂ : ℚ))) : d₂ ∣ d₁ := by
   -- A rational square has square numerator and denominator.
