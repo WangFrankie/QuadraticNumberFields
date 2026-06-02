@@ -125,8 +125,8 @@ theorem dvd_four_sub_sq_iff_exists_zsqrtd_image_of_ne_one_mod_four
       ∃ z : Zsqrtd d, Zsqrtd.toQsqrtdHom d z = Zsqrtd.halfInt (d := d) a' b' := by
   -- Away from the `d ≡ 1 (mod 4)` case, divisibility by `4` forces both
   -- half-integer coordinates to be even, so the element already comes from `ℤ[√d]`.
-  rw [dvd_four_sub_sq_iff_even_even_of_ne_one_mod_four d a' b' hd hd4]
-  simpa using (Zsqrtd.halfInt_mem_range_toQsqrtdHom_iff_even_even d a' b').symm
+  rw [dvd_four_sub_sq_iff_even_even_of_ne_one_mod_four d a' b' hd hd4,
+    (Zsqrtd.halfInt_mem_range_toQsqrtdHom_iff_even_even d a' b').symm]
 
 /-- Forward direction in the non-`1 mod 4` branch. -/
 theorem exists_zsqrtd_image_of_dvd_four_sub_sq_of_ne_one_mod_four
@@ -150,13 +150,12 @@ theorem dvd_four_sub_sq_iff_exists_zOnePlusSqrtOverTwo_image_of_one_mod_four
       ∃ z : ZOnePlusSqrtOverTwo k,
         ZOnePlusSqrtOverTwo.toQsqrtdFun k z =
           halfInt (1 + 4 * k) a' b' := by
-          
   -- In the `1 mod 4` case, integrality is controlled by parity agreement
   -- of the two numerator coordinates, matching the carrier of `ℤ[(1 + √d)/2]`.
   have hd4 : (1 + 4 * k) % 4 = 1 :=
     mod_four_eq_one_of_exists_k (d := 1 + 4 * k) ⟨k, by ring⟩
-  rw [dvd_four_sub_sq_iff_same_parity_of_one_mod_four (d := 1 + 4 * k) a' b' hd hd4]
-  simpa using (ZOnePlusSqrtOverTwo.halfInt_mem_carrierSet_iff_same_parity k a' b').symm
+  rw [dvd_four_sub_sq_iff_same_parity_of_one_mod_four (d := 1 + 4 * k) a' b' hd hd4,
+    (ZOnePlusSqrtOverTwo.halfInt_mem_carrierSet_iff_same_parity k a' b').symm]
 
 /-- Forward direction in the `1 mod 4` branch. -/
 theorem exists_zOnePlusSqrtOverTwo_image_of_dvd_four_sub_sq_of_one_mod_four
@@ -223,10 +222,9 @@ private lemma dvd_four_sub_sq_of_int_norm_halfInt
     (d a' b' n' : ℤ) {x : Qsqrtd (d : ℚ)}
     (hxHalf : x = Zsqrtd.halfInt (d := d) a' b')
     (hn'norm : (n' : ℚ) = Qsqrtd.norm x) :
-    (4 : ℤ) ∣ (a' ^ 2 - d * b' ^ 2) := by
-  exact (Rat.den_div_intCast_eq_one_iff (a' ^ 2 - d * b' ^ 2) 4 (by norm_num)).1 <| by
-    rw [← int_norm_eq_norm_halfInt d a' b' n' hxHalf hn'norm]
-    simp
+    (4 : ℤ) ∣ (a' ^ 2 - d * b' ^ 2) :=
+  TraceNorm.dvd_four_sub_sq_of_norm_eq_int a' b' d n'
+    (int_norm_eq_norm_halfInt d a' b' n' hxHalf hn'norm)
 
 /-- Any element of `Q(√d)` integral over `ℤ` has half-integer coordinates with
 `4 ∣ (a'^2 - d * b'^2)`. -/

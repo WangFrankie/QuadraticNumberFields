@@ -27,11 +27,10 @@ namespace QuadraticNumberFields
 namespace RingOfIntegers
 namespace TraceNorm
 
-/-! ## Public `Qsqrtd` Trace/Norm-Star API
+/-! ## `Qsqrtd` Trace/Norm-Star API
 
-The following identities sit at the heart of the integrality story.  They
-were previously kept as private lemmas inside `TraceNorm`; we now expose
-them in the `Qsqrtd` namespace so they can be used by Galois-group
+The following identities sit at the heart of the integrality story and are
+exposed in the `Qsqrtd` namespace so they can be used by Galois-group
 machinery, classification data, and the `Conj` interface without going
 through `RingOfIntegers.TraceNorm`. -/
 
@@ -53,25 +52,6 @@ theorem norm_image_eq_mul_star {d : ℤ} (x : Qsqrtd (d : ℚ)) :
 
 end Qsqrtd
 
-/-- The canonical embedding of `ℚ` into `Q(√d)`. -/
-private def ratCastHom (d : ℤ) : ℚ →+* Qsqrtd (d : ℚ) :=
-  { toFun := QuadraticAlgebra.C (a := (d : ℚ)) (b := (0 : ℚ))
-    map_one' := by
-      simp [QuadraticAlgebra.C_one]
-    map_mul' := by
-      intro r s
-      simp [QuadraticAlgebra.C_mul]
-    map_zero' := by
-      simp [QuadraticAlgebra.C_zero]
-    map_add' := by
-      intro r s
-      simp [QuadraticAlgebra.C_add] }
-
-/-- The canonical embedding `ℚ → Q(√d)` is injective. -/
-private lemma ratCastHom_injective (d : ℤ) : Function.Injective (ratCastHom d) := by
-  intro r s hrs
-  exact (QuadraticAlgebra.C_inj (R := ℚ) (a := (d : ℚ)) (b := (0 : ℚ))).1 hrs
-
 /-- Integrality is preserved by the quadratic conjugation map. -/
 private lemma isIntegral_star {d : ℤ} {x : Qsqrtd (d : ℚ)} (hx : IsIntegral ℤ x) :
     IsIntegral ℤ (star x) :=
@@ -83,27 +63,16 @@ theorem norm_eq_sqr_minus_d_sqr {d : ℤ} (x : Qsqrtd (d : ℚ)) :
   simp [Qsqrtd.norm, QuadraticAlgebra.norm]
   ring
 
-/-- The sum `x + star x` is the trace viewed inside `Q(√d)`. -/
-private lemma add_star_eq_trace_image {d : ℤ} (x : Qsqrtd (d : ℚ)) :
-    x + star x =
-      QuadraticAlgebra.C (a := (d : ℚ)) (b := (0 : ℚ))
-        (Algebra.trace ℚ (Qsqrtd d) x) := by
-  ext
-  · simp [Qsqrtd.trace_eq_re_add_re_star, star, QuadraticAlgebra.C]
-  · simp [star, QuadraticAlgebra.C]
-
 /-- The trace, viewed inside `Q(√d)`, is integral over `ℤ`. -/
 private lemma isIntegral_trace_image {d : ℤ} {x : Qsqrtd (d : ℚ)} (hx : IsIntegral ℤ x) :
-    IsIntegral ℤ
-      (QuadraticAlgebra.C (a := (d : ℚ)) (b := (0 : ℚ))
-        (Algebra.trace ℚ (Qsqrtd d) x)) := by
-  simpa [add_star_eq_trace_image x] using hx.add (isIntegral_star hx)
+    IsIntegral ℤ (algebraMap ℚ (Qsqrtd (d : ℚ)) (Algebra.trace ℚ (Qsqrtd d) x)) := by
+  simpa [Qsqrtd.add_star_eq_trace_image x] using hx.add (isIntegral_star hx)
 
 /-- The trace of an integral element of `Q(√d)` is integral over `ℤ`. -/
 private lemma isIntegral_trace {d : ℤ} {x : Qsqrtd (d : ℚ)} (hx : IsIntegral ℤ x) :
     IsIntegral ℤ (Algebra.trace ℚ (Qsqrtd d) x) :=
-  (isIntegral_algHom_iff (ratCastHom d).toIntAlgHom (ratCastHom_injective d)).1
-    (isIntegral_trace_image hx)
+  (isIntegral_algHom_iff (algebraMap ℚ (Qsqrtd (d : ℚ))).toIntAlgHom
+    (algebraMap ℚ (Qsqrtd (d : ℚ))).injective).1 (isIntegral_trace_image hx)
 
 /-- The trace of an integral element of `Q(√d)` is an integer. -/
 lemma exists_int_trace {d : ℤ} {x : Qsqrtd (d : ℚ)} (hx : IsIntegral ℤ x) :
@@ -112,16 +81,10 @@ lemma exists_int_trace {d : ℤ} {x : Qsqrtd (d : ℚ)} (hx : IsIntegral ℤ x) 
     (isIntegral_trace hx)
   exact ⟨a', by simpa using ha'⟩
 
-/-- The norm, viewed inside `Q(√d)`, is the product `x * star x`. -/
-private lemma norm_image_eq_mul_star {d : ℤ} (x : Qsqrtd (d : ℚ)) :
-    algebraMap ℚ (Qsqrtd (d : ℚ)) (Qsqrtd.norm x) = x * star x := by
-  simpa [Qsqrtd.norm, mul_comm] using
-    (QuadraticAlgebra.algebraMap_norm_eq_mul_star (a := (d : ℚ)) (b := (0 : ℚ)) x)
-
 /-- The norm, viewed inside `Q(√d)`, is integral over `ℤ`. -/
 private lemma isIntegral_norm_image {d : ℤ} {x : Qsqrtd (d : ℚ)} (hx : IsIntegral ℤ x) :
     IsIntegral ℤ (algebraMap ℚ (Qsqrtd (d : ℚ)) (Qsqrtd.norm x)) := by
-  simpa [norm_image_eq_mul_star x] using hx.mul (isIntegral_star hx)
+  simpa [Qsqrtd.norm_image_eq_mul_star x] using hx.mul (isIntegral_star hx)
 
 /-- The norm of an integral element of `Q(√d)` is integral over `ℤ`. -/
 private lemma isIntegral_norm {d : ℤ} {x : Qsqrtd (d : ℚ)} (hx : IsIntegral ℤ x) :
@@ -149,15 +112,9 @@ lemma re_eq_half_trace_int {d : ℤ} {x : Qsqrtd (d : ℚ)} {a' : ℤ}
 lemma isIntegral_of_sq_int {q : ℚ} {k : ℤ} (hq2 : q ^ 2 = (k : ℚ)) :
     IsIntegral ℤ q := by
   refine ⟨Polynomial.X ^ 2 - Polynomial.C k,
-    Polynomial.monic_X_pow_sub_C (R := ℤ) (n := 2) k (show (2 : ℕ) ≠ 0 by decide), ?_⟩
-  have hC : Polynomial.eval₂ (Int.castRingHom ℚ) q (Polynomial.C k) = (k : ℚ) := by
-    simpa using (Polynomial.eval₂_C (f := Int.castRingHom ℚ) (x := q) (a := k))
-  calc
-    Polynomial.eval₂ (Int.castRingHom ℚ) q (Polynomial.X ^ 2 - Polynomial.C k)
-        = q ^ 2 - Polynomial.eval₂ (Int.castRingHom ℚ) q (Polynomial.C k) := by
-          simp [Polynomial.eval₂_sub]
-    _ = q ^ 2 - (k : ℚ) := by simpa [hC]
-    _ = 0 := by simp [hq2]
+    Polynomial.monic_X_pow_sub_C (R := ℤ) (n := 2) k (by decide), ?_⟩
+  rw [Polynomial.eval₂_sub, Polynomial.eval₂_pow, Polynomial.eval₂_X, Polynomial.eval₂_C]
+  simp [hq2]
 
 /-- The doubled imaginary part satisfies the basic norm identity. -/
 private lemma double_im_sq_mul_eq

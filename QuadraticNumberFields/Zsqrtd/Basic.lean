@@ -96,12 +96,8 @@ def toQsqrtdHom (d : ℤ) : Zsqrtd d →+* Qsqrtd (d : ℚ) where
 theorem toQsqrtdHom_injective (d : ℤ) : Function.Injective (toQsqrtdHom d) := by
   intro x y hxy
   ext
-  · have hre : ((x.re : ℚ) : ℚ) = (y.re : ℚ) := by
-      simpa [toQsqrtdHom] using congrArg QuadraticAlgebra.re hxy
-    exact_mod_cast hre
-  · have him : ((x.im : ℚ) : ℚ) = (y.im : ℚ) := by
-      simpa [toQsqrtdHom] using congrArg QuadraticAlgebra.im hxy
-    exact_mod_cast him
+  · simpa [toQsqrtdHom] using congrArg QuadraticAlgebra.re hxy
+  · simpa [toQsqrtdHom] using congrArg QuadraticAlgebra.im hxy
 
 /-- Pair conversion helper for interoperability. -/
 abbrev toPair (z : Zsqrtd d) : ℤ × ℤ := (z.re, z.im)
