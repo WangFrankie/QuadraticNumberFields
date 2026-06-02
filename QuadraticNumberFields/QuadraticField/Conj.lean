@@ -4,6 +4,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 import Mathlib.Algebra.Star.Basic
+import Mathlib.FieldTheory.Galois.Basic
+import Mathlib.FieldTheory.Perfect
+import Mathlib.RingTheory.Trace.Basic
+import Mathlib.RingTheory.Norm.Transitivity
 import QuadraticNumberFields.Qsqrtd.Basic
 import QuadraticNumberFields.QuadraticField.Basic
 
@@ -33,6 +37,15 @@ genuinely non-trivial.
 * `QuadraticField.conjAut`: the underlying `AlgEquiv` of a `Conj` instance.
 * `QuadraticField.instConjQsqrtd`: the `Conj` instance for `Qsqrtd d`
   with squarefree `d ≠ 1`.
+
+## Main Theorems
+
+* `QuadraticField.univ_aut_eq_pair`: the `ℚ`-automorphism group of a
+  quadratic field is exactly `{AlgEquiv.refl, conjAut K}`.
+* `QuadraticField.add_conj_eq_trace_image`: `x + conjAut K x` is the image
+  of `Algebra.trace ℚ K x`.
+* `QuadraticField.mul_conj_eq_norm_image`: `x * conjAut K x` is the image
+  of `Algebra.norm ℚ x`.
 -/
 
 namespace QuadraticField
@@ -130,5 +143,53 @@ noncomputable instance instConjQsqrtd (d : ℤ) [Fact (Squarefree d)] [Fact (d �
     have h₂ : (1 : ℚ) = -1 := by
       linarith
     exact absurd h₂ (by norm_num)
+
+/-! ## Trace and Norm via the Distinguished Conjugation
+
+For a quadratic field `K` over `ℚ`, the extension is Galois with group of
+order two.  The distinguished involution `conjAut K` is non-trivial, so the
+automorphism group is exactly `{AlgEquiv.refl, conjAut K}`.  Summing/multiplying
+the Galois orbit then recovers the trace and norm. -/
+
+section TraceNorm
+
+variable {K : Type*} [Field K] [Algebra ℚ K] [QuadraticField K] [Conj K]
+
+/-- The `ℚ`-automorphism group of a quadratic field is exactly the pair
+`{AlgEquiv.refl, conjAut K}`. -/
+theorem univ_aut_eq_pair [DecidableEq (K ≃ₐ[ℚ] K)] :
+    (Finset.univ : Finset (K ≃ₐ[ℚ] K)) = {AlgEquiv.refl, conjAut K} := by
+  haveI : Algebra.IsSeparable ℚ K := Algebra.IsAlgebraic.isSeparable_of_perfectField
+  haveI : IsGalois ℚ K := Algebra.IsQuadraticExtension.isGalois ℚ K
+  have hne : (AlgEquiv.refl : K ≃ₐ[ℚ] K) ≠ conjAut K := (Conj.conj_ne_refl).symm
+  have hcard : Fintype.card (K ≃ₐ[ℚ] K) = 2 := by
+    rw [← Nat.card_eq_fintype_card, IsGalois.card_aut_eq_finrank,
+      Algebra.IsQuadraticExtension.finrank_eq_two]
+  refine (Finset.eq_univ_of_card _ ?_).symm
+  rw [Finset.card_pair hne, hcard]
+
+/-- For a quadratic field `K`, `x + conjAut K x` equals the image of the trace
+`Algebra.trace ℚ K x` under the algebra map. -/
+theorem add_conj_eq_trace_image (x : K) :
+    x + conjAut K x = algebraMap ℚ K (Algebra.trace ℚ K x) := by
+  classical
+  haveI : Algebra.IsSeparable ℚ K := Algebra.IsAlgebraic.isSeparable_of_perfectField
+  haveI : IsGalois ℚ K := Algebra.IsQuadraticExtension.isGalois ℚ K
+  have hne : (AlgEquiv.refl : K ≃ₐ[ℚ] K) ≠ conjAut K := (Conj.conj_ne_refl).symm
+  rw [trace_eq_sum_automorphisms, univ_aut_eq_pair, Finset.sum_pair hne]
+  rfl
+
+/-- For a quadratic field `K`, `x * conjAut K x` equals the image of the norm
+`Algebra.norm ℚ x` under the algebra map. -/
+theorem mul_conj_eq_norm_image (x : K) :
+    x * conjAut K x = algebraMap ℚ K (Algebra.norm ℚ x) := by
+  classical
+  haveI : Algebra.IsSeparable ℚ K := Algebra.IsAlgebraic.isSeparable_of_perfectField
+  haveI : IsGalois ℚ K := Algebra.IsQuadraticExtension.isGalois ℚ K
+  have hne : (AlgEquiv.refl : K ≃ₐ[ℚ] K) ≠ conjAut K := (Conj.conj_ne_refl).symm
+  rw [Algebra.norm_eq_prod_automorphisms, univ_aut_eq_pair, Finset.prod_pair hne]
+  rfl
+
+end TraceNorm
 
 end QuadraticField
