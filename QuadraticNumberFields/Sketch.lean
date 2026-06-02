@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 import QuadraticNumberFields.Euclidean.Basic
+import QuadraticNumberFields.Qsqrtd.Automorphism
 import QuadraticNumberFields.Qsqrtd.Basic
 import QuadraticNumberFields.Qsqrtd.Equiv
 import QuadraticNumberFields.Qsqrtd.TraceNorm
