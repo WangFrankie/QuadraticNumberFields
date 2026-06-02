@@ -54,6 +54,22 @@ abbrev trace (z : Zsqrtd d) : ℤ := z.re + (star z).re
 /-- Norm API on `Zsqrtd`. -/
 abbrev norm (z : Zsqrtd d) : ℤ := QuadraticAlgebra.norm z
 
+/-- The norm on `ℤ[√d]` as a `MonoidHom` to `ℤ`. -/
+abbrev normHom (d : ℤ) : Zsqrtd d →* ℤ :=
+  QuadraticAlgebra.norm
+
+theorem normHom_apply (d : ℤ) (z : Zsqrtd d) :
+    normHom d z = Zsqrtd.norm z :=
+  rfl
+
+/-- The norm on the unit group of `ℤ[√d]`, as a `MonoidHom` to `ℤˣ`. -/
+abbrev normUnitsHom (d : ℤ) : (Zsqrtd d)ˣ →* ℤˣ :=
+  Units.map (normHom d)
+
+theorem normUnitsHom_coe (d : ℤ) (u : (Zsqrtd d)ˣ) :
+    ((normUnitsHom d u : ℤˣ) : ℤ) = Zsqrtd.norm (u : Zsqrtd d) := by
+  simp [normUnitsHom, normHom]
+
 /-- Rational embedding into `Q(√d)`. -/
 def toQsqrtd (z : Zsqrtd d) : Qsqrtd (d : ℚ) := ⟨(z.re : ℚ), (z.im : ℚ)⟩
 

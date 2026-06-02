@@ -72,6 +72,22 @@ theorem trace_eq_two_re (x : Qsqrtd d) :
 /-- The norm of an element `x : Q(√d)`, defined as `N(x) = x · x̄ = x.re² - d · x.im²`. -/
 abbrev norm {d : ℚ} (x : Qsqrtd d) : ℚ := QuadraticAlgebra.norm x
 
+/-- The norm on `Q(√d)` as a `MonoidHom` to `ℚ`. -/
+abbrev normHom (d : ℚ) : Qsqrtd d →* ℚ :=
+  QuadraticAlgebra.norm
+
+theorem normHom_apply (d : ℚ) (x : Qsqrtd d) :
+    normHom d x = Qsqrtd.norm x :=
+  rfl
+
+/-- The norm on the unit group of `Q(√d)`, as a `MonoidHom` to `ℚˣ`. -/
+abbrev normUnitsHom (d : ℚ) : (Qsqrtd d)ˣ →* ℚˣ :=
+  Units.map (normHom d)
+
+theorem normUnitsHom_coe (d : ℚ) (u : (Qsqrtd d)ˣ) :
+    ((normUnitsHom d u : ℚˣ) : ℚ) = Qsqrtd.norm (u : Qsqrtd d) := by
+  simp [normUnitsHom, normHom]
+
 /-- `Q(√0)` is not reduced because `√0² = 0` but `√0 ≠ 0`. -/
 lemma zero_not_isReduced : ¬ IsReduced (Qsqrtd (0 : ℚ)) := by
   intro ⟨h⟩

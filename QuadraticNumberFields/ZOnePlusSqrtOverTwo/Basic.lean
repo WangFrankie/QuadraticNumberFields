@@ -55,6 +55,22 @@ namespace ZOnePlusSqrtOverTwo
 /-- Ambient parameter in `ℚ`: `1 + 4d`. -/
 abbrev qParam (d : ℤ) : ℚ := Qsqrtd.d_of_k d
 
+/-- The norm on `ℤ[(1 + √(1 + 4d))/2]` as a `MonoidHom` to `ℤ`. -/
+abbrev normHom (d : ℤ) : ZOnePlusSqrtOverTwo d →* ℤ :=
+  QuadraticAlgebra.norm
+
+theorem normHom_apply (d : ℤ) (z : ZOnePlusSqrtOverTwo d) :
+    normHom d z = QuadraticAlgebra.norm z :=
+  rfl
+
+/-- The norm on the unit group of `ℤ[(1 + √(1 + 4d))/2]`, as a `MonoidHom` to `ℤˣ`. -/
+abbrev normUnitsHom (d : ℤ) : (ZOnePlusSqrtOverTwo d)ˣ →* ℤˣ :=
+  Units.map (normHom d)
+
+theorem normUnitsHom_coe (d : ℤ) (u : (ZOnePlusSqrtOverTwo d)ˣ) :
+    ((normUnitsHom d u : ℤˣ) : ℤ) = QuadraticAlgebra.norm (u : ZOnePlusSqrtOverTwo d) := by
+  simp [normUnitsHom, normHom]
+
 /-- Coordinate-level embedding candidate into `Q(√(1 + 4d))`. -/
 def toQsqrtdFun (d : ℤ) : ZOnePlusSqrtOverTwo d → Qsqrtd (qParam d) :=
   -- Send `r + sω` to `r + s * (1 + √(1 + 4d)) / 2`,

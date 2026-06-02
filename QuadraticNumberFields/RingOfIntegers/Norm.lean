@@ -4,6 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 import QuadraticNumberFields.RingOfIntegers.Classification
+import QuadraticNumberFields.Zsqrtd.Basic
+import QuadraticNumberFields.ZOnePlusSqrtOverTwo.Basic
 
 /-!
 # Norm Multiplicativity
@@ -42,7 +44,7 @@ theorem norm_zsqrtd (d : ℤ) (z : Zsqrtd d) :
 /-- The norm on `Zsqrtd d` is multiplicative. -/
 theorem norm_mul_zsqrtd (d : ℤ) (x y : Zsqrtd d) :
     Zsqrtd.norm (x * y) = Zsqrtd.norm x * Zsqrtd.norm y :=
-  QuadraticAlgebra.norm.map_mul x y
+  (Zsqrtd.normHom d).map_mul x y
 
 /-- The norm of `a + b√d` embeds to `a² - d·b²` in `ℚ`. -/
 theorem norm_zsqrtd_toQsqrtd (d : ℤ) (z : Zsqrtd d) :
@@ -61,7 +63,7 @@ theorem norm_mem_zsqrtd (d : ℤ) (z : Zsqrtd d) :
 theorem norm_mul_zOnePlusSqrtOverTwo (k : ℤ) (x y : ZOnePlusSqrtOverTwo k) :
     QuadraticAlgebra.norm (x * y) =
       QuadraticAlgebra.norm x * QuadraticAlgebra.norm y :=
-  QuadraticAlgebra.norm.map_mul x y
+  (ZOnePlusSqrtOverTwo.normHom k).map_mul x y
 
 /-- The norm of an element of `ZOnePlusSqrtOverTwo k` is `a² + a·b - k·b²`. -/
 theorem norm_zOnePlusSqrtOverTwo (k : ℤ) (z : ZOnePlusSqrtOverTwo k) :
