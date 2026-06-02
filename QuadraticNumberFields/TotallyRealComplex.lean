@@ -5,6 +5,8 @@ Authors: Frankie Wang
 -/
 import QuadraticNumberFields.Instances
 import QuadraticNumberFields.Basic
+import QuadraticNumberFields.QuadraticField.Classification
+import QuadraticNumberFields.QuadraticField.Transport
 import Mathlib.NumberTheory.NumberField.InfinitePlace.TotallyRealComplex
 import Mathlib.NumberTheory.NumberField.CMField
 
@@ -22,6 +24,9 @@ This file classifies quadratic number fields `Q(√d)` according to the sign of 
 * `Qsqrtd.isTotallyReal`: `Q(√d)` is totally real when `0 < d`.
 * `Qsqrtd.isTotallyComplex`: `Q(√d)` is totally complex when `d < 0`.
 * `Qsqrtd.isCMField`: `Q(√d)` is a CM field when `d < 0`.
+* `QuadraticField.exists_totallyReal_or_totallyComplex`: every abstract
+  quadratic field is classified as real or imaginary after choosing a standard
+  squarefree parameter.
 
 ## Proof Strategy
 
@@ -147,3 +152,46 @@ theorem isCMField (hd : d < 0) :
 end InfinitePlaceClassification
 
 end Qsqrtd
+
+namespace QuadraticField
+
+variable {K : Type*} [Field K] [Algebra ℚ K]
+variable (d : ℤ) [Fact (¬ IsSquare ((d : ℤ) : ℚ))]
+
+/-- Transport total reality from the standard model `Qsqrtd d` back to an
+abstract field identified with it. -/
+theorem isTotallyReal_of_algEquiv_qsqrtd
+    (e : K ≃ₐ[ℚ] Qsqrtd (d : ℚ)) (hd : 0 < d) :
+    NumberField.IsTotallyReal K := by
+  exact (isTotallyReal_iff_of_algEquiv e).mpr (Qsqrtd.isTotallyReal d hd)
+
+/-- Transport total complexity from the standard model `Qsqrtd d` back to an
+abstract field identified with it. -/
+theorem isTotallyComplex_of_algEquiv_qsqrtd
+    (e : K ≃ₐ[ℚ] Qsqrtd (d : ℚ)) (hd : d < 0) :
+    NumberField.IsTotallyComplex K := by
+  exact (isTotallyComplex_iff_of_algEquiv e).mpr (Qsqrtd.isTotallyComplex d hd)
+
+/-- Every abstract quadratic field is either real or imaginary after choosing
+a standard squarefree integer parameter.
+
+This packages the intended workflow for infinite-place classification:
+`exists_algEquiv_qsqrtd` chooses `d`, `Qsqrtd.isTotallyReal` or
+`Qsqrtd.isTotallyComplex` computes on the standard model, and the transport API
+moves the result back to `K`. -/
+theorem exists_totallyReal_or_totallyComplex
+    (K : Type*) [Field K] [Algebra ℚ K] [QuadraticField K] :
+    ∃ d : ℤ, Squarefree d ∧ d ≠ 1 ∧ Nonempty (K ≃ₐ[ℚ] Qsqrtd (d : ℚ)) ∧
+      ((0 < d ∧ NumberField.IsTotallyReal K) ∨
+      (d < 0 ∧ NumberField.IsTotallyComplex K)) := by
+  obtain ⟨d, hd_sf, hd_ne, ⟨e⟩⟩ := exists_algEquiv_qsqrtd K
+  letI : Fact (Squarefree d) := ⟨hd_sf⟩
+  letI : Fact (d ≠ 1) := ⟨hd_ne⟩
+  rcases lt_trichotomy d 0 with hd_neg | hd_zero | hd_pos
+  · exact ⟨d, hd_sf, hd_ne, ⟨e⟩,
+      Or.inr ⟨hd_neg, isTotallyComplex_of_algEquiv_qsqrtd d e hd_neg⟩⟩
+  · exact False.elim (Squarefree.ne_zero hd_sf hd_zero)
+  · exact ⟨d, hd_sf, hd_ne, ⟨e⟩,
+      Or.inl ⟨hd_pos, isTotallyReal_of_algEquiv_qsqrtd d e hd_pos⟩⟩
+
+end QuadraticField

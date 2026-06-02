@@ -5,7 +5,7 @@ Authors: Frankie Wang
 -/
 
 import Mathlib.Algebra.Category.AlgCat.Basic
-import QuadraticNumberFields.Instances
+import QuadraticNumberFields.QuadraticField.Basic
 
 /-!
 # The Category of Quadratic Fields
@@ -17,8 +17,8 @@ They instead provide a family of standard objects through `QuadraticFieldCat.ofQ
 
 ## Main definitions
 
-* `QuadraticFieldCat`: bundled quadratic extensions of `ℚ`.
-* `QuadraticFieldCat.of`: bundle any quadratic extension of `ℚ`.
+* `QuadraticFieldCat`: bundled abstract quadratic fields over `ℚ`.
+* `QuadraticFieldCat.of`: bundle any `QuadraticField` over `ℚ`.
 * `QuadraticFieldCat.ofQsqrtd`: the standard model `ℚ(√d)` as a bundled object.
 * `QuadraticFieldCat.forgetToAlgCat`: the forgetful functor to `AlgCat ℚ`.
 -/
@@ -37,11 +37,11 @@ structure QuadraticFieldCat where
   carrier : Type u
   [field : Field carrier]
   [algebra : Algebra ℚ carrier]
-  [isQuadratic : Algebra.IsQuadraticExtension ℚ carrier]
+  [quadraticField : QuadraticField carrier]
 
 attribute [instance] QuadraticFieldCat.field
 attribute [instance] QuadraticFieldCat.algebra
-attribute [instance] QuadraticFieldCat.isQuadratic
+attribute [instance] QuadraticFieldCat.quadraticField
 
 namespace QuadraticFieldCat
 
@@ -52,7 +52,7 @@ attribute [coe] QuadraticFieldCat.carrier
 
 /-- Bundle any quadratic extension of `ℚ` as an object of `QuadraticFieldCat`. -/
 abbrev of (K : Type u) [Field K] [Algebra ℚ K]
-    [Algebra.IsQuadraticExtension ℚ K] : QuadraticFieldCat.{u} :=
+    [QuadraticField K] : QuadraticFieldCat.{u} :=
   ⟨K⟩
 
 /-- The type of morphisms in `QuadraticFieldCat`. -/

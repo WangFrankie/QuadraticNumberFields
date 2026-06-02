@@ -21,7 +21,8 @@ will be sufficient to pin down a unique quadratic field `ℚ(√d)` up to isomor
 
 ## Main Results
 
-* `Qsqrtd.rescale`: `ℚ(√d) ≃ₐ[ℚ] ℚ(√(a²d))` for `a ≠ 0`.
+* `Qsqrtd.rescale`: `ℚ(√d) ≃ₐ[ℚ] ℚ(√(a²d))` for `a : ℚˣ`.
+* `Qsqrtd.rescaleOfNeZero`: the same rescaling API for a rational `a ≠ 0`.
 * `Qsqrtd_iso_int_param`: every quadratic field is isomorphic to one with an
   integer parameter.
 * `Qsqrtd_iso_squarefree_int_param`: every quadratic field is isomorphic to one
@@ -40,11 +41,12 @@ because they are destined for mathlib.
 
 /-! ## Rescaling Isomorphisms -/
 
-/-- `ℚ(√d) ≃ₐ[ℚ] ℚ(√(a²d))` via `⟨r, s⟩ ↦ ⟨r, s·a⁻¹⟩`.
+/-- `ℚ(√d) ≃ₐ[ℚ] ℚ(√(a²d))` via `⟨r, s⟩ ↦ ⟨r, s·a⁻¹⟩`, for a
+rational scaling factor `a ≠ 0`.
 
 This shows that scaling the parameter by a rational square yields an
 isomorphic quadratic field. -/
-def Qsqrtd.rescale (d : ℚ) (a : ℚ) (ha : a ≠ 0) :
+def Qsqrtd.rescaleOfNeZero (d : ℚ) (a : ℚ) (ha : a ≠ 0) :
     Qsqrtd d ≃ₐ[ℚ] Qsqrtd (a ^ 2 * d) := by
   have h1d : (1 : Qsqrtd d) = ⟨1, 0⟩ := by ext <;> rfl
   have h1a : (1 : Qsqrtd (a ^ 2 * d)) = ⟨1, 0⟩ := by
@@ -63,6 +65,14 @@ def Qsqrtd.rescale (d : ℚ) (a : ℚ) (ha : a ≠ 0) :
     (by simp [h1d, h1a])
     (by intro x y; ext <;> simp <;> field_simp)
 
+/-- `ℚ(√d) ≃ₐ[ℚ] ℚ(√(a²d))` for a unit `a : ℚˣ`.
+
+This is the preferred public rescaling API: using units packages the nonzero
+side condition into the scaling parameter. -/
+def Qsqrtd.rescale (d : ℚ) (a : ℚˣ) :
+    Qsqrtd d ≃ₐ[ℚ] Qsqrtd ((a : ℚ) ^ 2 * d) :=
+  Qsqrtd.rescaleOfNeZero d a a.ne_zero
+
 /-- Every quadratic field `Q(√d)` is isomorphic to one with an integer parameter:
 `∃ z ∈ ℤ, Q(√d) ≃ₐ[ℚ] Q(√z)`. -/
 theorem Qsqrtd_iso_int_param (d : ℚ) :
@@ -74,7 +84,7 @@ theorem Qsqrtd_iso_int_param (d : ℚ) :
   have ha : (n : ℚ) ≠ 0 := by exact_mod_cast hn0
   -- Clearing the denominator replaces `d = m / n` by `n² d = mn`,
   -- so after rescaling the parameter becomes an integer.
-  have hrescale : Qsqrtd d ≃ₐ[ℚ] Qsqrtd (n ^ 2 * d) := Qsqrtd.rescale d n ha
+  have hrescale : Qsqrtd d ≃ₐ[ℚ] Qsqrtd (n ^ 2 * d) := Qsqrtd.rescaleOfNeZero d n ha
   have heq : (n : ℚ) ^ 2 * d = m * n := by
     rw [hd]
     field_simp [mul_assoc]
@@ -97,7 +107,7 @@ theorem Qsqrtd_iso_squarefree_int_param {d : ℤ} (hd : d ≠ 0) :
   · have hbQ : (b : ℚ) ≠ 0 := Nat.cast_ne_zero.mpr hb
     -- Write `|d| = b² a` with `a` squarefree, then absorb the square factor `b²`
     -- using the rescaling isomorphism.
-    have hrescale := Qsqrtd.rescale (↑d) (↑b)⁻¹ (inv_ne_zero hbQ)
+    have hrescale := Qsqrtd.rescaleOfNeZero (↑d) (↑b)⁻¹ (inv_ne_zero hbQ)
     have hd_int : d = d.sign * (↑b ^ 2 * ↑a) := by
       conv_lhs => rw [(Int.sign_mul_natAbs d).symm]
       congr 1

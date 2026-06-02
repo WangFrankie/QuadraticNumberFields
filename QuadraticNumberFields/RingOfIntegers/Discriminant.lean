@@ -5,6 +5,8 @@ Authors: Frankie Wang
 -/
 import QuadraticNumberFields.RingOfIntegers.CommonInstances
 import QuadraticNumberFields.RingOfIntegers.Classification
+import QuadraticNumberFields.QuadraticField.Classification
+import QuadraticNumberFields.QuadraticField.Transport
 import Mathlib.RingTheory.Discriminant
 import Mathlib.NumberTheory.NumberField.Discriminant.Defs
 
@@ -143,6 +145,36 @@ theorem discr_formula :
   split
   · exact discr_of_mod_four_eq_one d ‹_›
   · exact discr_of_mod_four_ne_one d ‹_›
+
+/-- Transport the standard-model discriminant formula back to an abstract field
+identified with `Qsqrtd d`. -/
+theorem discr_formula_of_algEquiv_qsqrtd
+    {K : Type*} [Field K] [Algebra ℚ K] [NumberField K]
+    (e : K ≃ₐ[ℚ] Qsqrtd (d : ℚ)) :
+    NumberField.discr K = if d % 4 = 1 then d else 4 * d := by
+  calc
+    NumberField.discr K = NumberField.discr (Qsqrtd (d : ℚ)) :=
+      QuadraticField.discr_eq_of_algEquiv e
+    _ = if d % 4 = 1 then d else 4 * d := discr_formula d
+
+/-- Every abstract quadratic field admits a standard squarefree parameter whose
+standard discriminant formula computes the field discriminant.
+
+This is the abstract-field version of `discr_formula`: classification produces
+`K ≃ₐ[ℚ] Qsqrtd d`, the standard-model formula computes there, and
+`QuadraticField.discr_eq_of_algEquiv` transports the result back to `K`. -/
+theorem exists_discr_formula_of_quadraticField
+    (K : Type*) [Field K] [Algebra ℚ K] [QuadraticField K] :
+    ∃ d : ℤ, Squarefree d ∧ d ≠ 1 ∧
+      NumberField.discr K = if d % 4 = 1 then d else 4 * d := by
+  obtain ⟨d, hd_sf, hd_ne, ⟨e⟩⟩ := exists_ringEquiv_qsqrtd K
+  letI : Fact (Squarefree d) := ⟨hd_sf⟩
+  letI : Fact (d ≠ 1) := ⟨hd_ne⟩
+  refine ⟨d, hd_sf, hd_ne, ?_⟩
+  calc
+    NumberField.discr K = NumberField.discr (Qsqrtd (d : ℚ)) :=
+      NumberField.discr_eq_discr_of_ringEquiv K e
+    _ = if d % 4 = 1 then d else 4 * d := discr_formula d
 
 /-! ## Named Examples
 

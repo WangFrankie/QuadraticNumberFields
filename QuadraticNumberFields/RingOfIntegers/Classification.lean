@@ -8,6 +8,8 @@ import QuadraticNumberFields.RingOfIntegers.Integrality
 import QuadraticNumberFields.RingOfIntegers.ModFour
 import QuadraticNumberFields.ZOnePlusSqrtOverTwo.Basic
 import QuadraticNumberFields.Mathlib.RingTheory.DedekindDomain.Basic
+import QuadraticNumberFields.QuadraticField.Classification
+import QuadraticNumberFields.QuadraticField.Transport
 import QuadraticNumberFields.Instances
 
 /-!
@@ -150,6 +152,31 @@ theorem ringOfIntegers_classification :
   · let ex := ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one d hd4
     exact Or.inr ⟨ex.fst, ex.snd.fst.down, ⟨ex.snd.snd⟩⟩
   · exact Or.inl ⟨hd4, ⟨ringOfIntegers_equiv_zsqrtd_of_mod_four_ne_one d hd4⟩⟩
+
+/-- Transport the ring-of-integers classification from `Qsqrtd d` back to an
+abstract field ring-equivalent to it. -/
+theorem ringOfIntegers_classification_of_ringEquiv_qsqrtd
+    {K : Type*} [Field K] (e : K ≃+* Qsqrtd (d : ℚ)) :
+    (d % 4 ≠ 1 ∧ Nonempty (𝓞 K ≃+* Zsqrtd d)) ∨
+    (∃ k : ℤ, d = 1 + 4 * k ∧ Nonempty (𝓞 K ≃+* ZOnePlusSqrtOverTwo k)) := by
+  let e𝓞 : 𝓞 K ≃+* 𝓞 (Qsqrtd (d : ℚ)) :=
+    QuadraticField.ringOfIntegersEquivOfRingEquiv e
+  rcases ringOfIntegers_classification d with h | h
+  · exact Or.inl ⟨h.1, h.2.map (fun f => e𝓞.trans f)⟩
+  · rcases h with ⟨k, hk, hnonempty⟩
+    exact Or.inr ⟨k, hk, hnonempty.map (fun f => e𝓞.trans f)⟩
+
+/-- Every abstract quadratic field has a standard squarefree parameter for which
+the transported ring-of-integers classification holds. -/
+theorem exists_ringOfIntegers_classification_of_quadraticField
+    (K : Type*) [Field K] [Algebra ℚ K] [QuadraticField K] :
+    ∃ d : ℤ, Squarefree d ∧ d ≠ 1 ∧
+      ((d % 4 ≠ 1 ∧ Nonempty (𝓞 K ≃+* Zsqrtd d)) ∨
+      (∃ k : ℤ, d = 1 + 4 * k ∧ Nonempty (𝓞 K ≃+* ZOnePlusSqrtOverTwo k))) := by
+  obtain ⟨d, hd_sf, hd_ne, ⟨e⟩⟩ := exists_ringEquiv_qsqrtd K
+  letI : Fact (Squarefree d) := ⟨hd_sf⟩
+  letI : Fact (d ≠ 1) := ⟨hd_ne⟩
+  exact ⟨d, hd_sf, hd_ne, ringOfIntegers_classification_of_ringEquiv_qsqrtd d e⟩
 
 /-! ## Concrete Examples
 

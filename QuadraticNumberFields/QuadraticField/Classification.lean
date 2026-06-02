@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 import QuadraticNumberFields.QuadraticField.Parameters
+import QuadraticNumberFields.QuadraticField.Basic
 import QuadraticNumberFields.Instances
 import Mathlib.FieldTheory.PrimitiveElement
 import Mathlib.Algebra.Polynomial.Degree.IsMonicOfDegree
@@ -21,6 +22,11 @@ isomorphic to one of the explicit models `Qsqrtd (z : ℚ) = ℚ(√z)` with
 
 * `exists_squarefree_int_param_of_isQuadraticField`: every quadratic field is
   isomorphic to `Qsqrtd (z : ℚ)` for some squarefree integer `z ≠ 1`.
+* `exists_algEquiv_qsqrtd`: the same classification interface stated using the
+  project-level `[QuadraticField K]` abstraction.
+* `exists_ringEquiv_qsqrtd`: the ring-equivalence shadow of the classification
+  interface, useful for invariants that do not depend on the chosen `ℚ`-algebra
+  structure.
 * `isQuadraticField_iff_exists_squarefree_int_param`: characterization of
   quadratic fields via the normalized models `Qsqrtd (z : ℚ)`.
 
@@ -35,6 +41,11 @@ attribute [-instance] DivisionRing.toRatAlgebra
 
 open scoped QuadraticAlgebra
 open Polynomial IntermediateField
+
+/-- `d` is a normalized standard parameter for the abstract quadratic field `K`
+if it is squarefree, not equal to `1`, and `K` is isomorphic to `Qsqrtd d`. -/
+def IsStandardParameter (K : Type*) [Field K] [Algebra ℚ K] (d : ℤ) : Prop :=
+  Squarefree d ∧ d ≠ 1 ∧ Nonempty (K ≃ₐ[ℚ] Qsqrtd (d : ℚ))
 
 /-- Every quadratic field over `ℚ` is isomorphic to `ℚ(√q)` for some
 nonsquare rational parameter `q`. This is an internal intermediate step before
@@ -174,6 +185,30 @@ theorem exists_squarefree_int_param_of_isQuadraticField
     have hF : IsField (Qsqrtd (1 : ℚ)) := e.toMulEquiv.symm.isField (Field.toIsField K)
     exact Qsqrtd.one_not_isField hF
   exact ⟨z, hzsf, hz1, ⟨(eKq.trans eqn).trans enz⟩⟩
+
+/-- Every abstract quadratic field over `ℚ` is isomorphic to a standard model
+`Qsqrtd (d : ℚ)` for some squarefree integer parameter `d ≠ 1`. -/
+theorem exists_algEquiv_qsqrtd
+    (K : Type*) [Field K] [Algebra ℚ K] [QuadraticField K] :
+    ∃ d : ℤ, Squarefree d ∧ d ≠ 1 ∧ Nonempty (K ≃ₐ[ℚ] Qsqrtd (d : ℚ)) :=
+  exists_squarefree_int_param_of_isQuadraticField K
+
+/-- Every abstract quadratic field is ring-equivalent to a standard model
+`Qsqrtd (d : ℚ)` for some squarefree integer parameter `d ≠ 1`.
+
+This forgetful version is convenient for transporting invariants, such as the
+absolute discriminant, whose transport lemmas are stated for ring equivalences. -/
+theorem exists_ringEquiv_qsqrtd
+    (K : Type*) [Field K] [Algebra ℚ K] [QuadraticField K] :
+    ∃ d : ℤ, Squarefree d ∧ d ≠ 1 ∧ Nonempty (K ≃+* Qsqrtd (d : ℚ)) := by
+  obtain ⟨d, hd_sf, hd_ne, ⟨e⟩⟩ := exists_algEquiv_qsqrtd K
+  exact ⟨d, hd_sf, hd_ne, ⟨e.toRingEquiv⟩⟩
+
+/-- Every abstract quadratic field has a normalized standard parameter. -/
+theorem exists_isStandardParameter
+    (K : Type*) [Field K] [Algebra ℚ K] [QuadraticField K] :
+    ∃ d : ℤ, IsStandardParameter K d :=
+  exists_algEquiv_qsqrtd K
 
 /-- A field over `ℚ` is quadratic iff it is isomorphic to `ℚ(√z)` for some
 squarefree integer `z ≠ 1`. -/

@@ -6,10 +6,12 @@ Authors: Frankie Wang
 
 import QuadraticNumberFields.Mathlib
 import QuadraticNumberFields.Basic
+import QuadraticNumberFields.QuadraticField.Basic
 import QuadraticNumberFields.QuadraticField.Parameters
 import QuadraticNumberFields.Instances
 import QuadraticNumberFields.QuadraticField.Category
 import QuadraticNumberFields.QuadraticField.Classification
+import QuadraticNumberFields.QuadraticField.Transport
 import QuadraticNumberFields.Mathlib.RingTheory.DedekindDomain.Basic
 import QuadraticNumberFields.RingOfIntegers.ModFour
 import QuadraticNumberFields.Zsqrtd.Basic
