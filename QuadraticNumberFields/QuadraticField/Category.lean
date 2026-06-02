@@ -21,6 +21,10 @@ They instead provide a family of standard objects through `QuadraticFieldCat.ofQ
 * `QuadraticFieldCat.of`: bundle any `QuadraticField` over `ℚ`.
 * `QuadraticFieldCat.ofQsqrtd`: the standard model `ℚ(√d)` as a bundled object.
 * `QuadraticFieldCat.forgetToAlgCat`: the forgetful functor to `AlgCat ℚ`.
+* `QuadraticFieldCat.isoOfAlgEquiv`: package a `ℚ`-algebra equivalence as a
+  categorical isomorphism.
+* `QuadraticFieldCat.algEquivOfIso`: extract a `ℚ`-algebra equivalence from a
+  categorical isomorphism.
 -/
 
 open CategoryTheory
@@ -82,6 +86,30 @@ theorem forgetToAlgCat_obj (K : QuadraticFieldCat.{u}) :
 @[simp]
 theorem forgetToAlgCat_map {K L : QuadraticFieldCat.{u}} (f : K ⟶ L) :
     forgetToAlgCat.map f = AlgCat.ofHom f :=
+  rfl
+
+/-! ## Isomorphisms from Algebra Equivalences -/
+
+/-- Package a `ℚ`-algebra equivalence as a categorical isomorphism. -/
+@[simps]
+def isoOfAlgEquiv {K L : QuadraticFieldCat.{u}} (e : K ≃ₐ[ℚ] L) : K ≅ L where
+  hom := (e : K →ₐ[ℚ] L)
+  inv := (e.symm : L →ₐ[ℚ] K)
+  hom_inv_id := AlgHom.ext fun x => e.symm_apply_apply x
+  inv_hom_id := AlgHom.ext fun x => e.apply_symm_apply x
+
+/-- Extract a `ℚ`-algebra equivalence from a categorical isomorphism. -/
+def algEquivOfIso {K L : QuadraticFieldCat.{u}} (i : K ≅ L) : K ≃ₐ[ℚ] L :=
+  AlgEquiv.ofAlgHom i.hom i.inv i.inv_hom_id i.hom_inv_id
+
+@[simp]
+theorem algEquivOfIso_apply {K L : QuadraticFieldCat.{u}} (i : K ≅ L) (x : K) :
+    algEquivOfIso i x = (show K →ₐ[ℚ] L from i.hom) x :=
+  rfl
+
+@[simp]
+theorem algEquivOfIso_symm_apply {K L : QuadraticFieldCat.{u}} (i : K ≅ L) (x : L) :
+    (algEquivOfIso i).symm x = (show L →ₐ[ℚ] K from i.inv) x :=
   rfl
 
 end QuadraticFieldCat
