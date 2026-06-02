@@ -15,28 +15,58 @@ This document compares four ways of introducing a project-level
 The comparison is deliberately independent of any pre-existing
 project code; the four options are evaluated on their merits.
 
-This document **does not pick a winner**. Sections 1–4 lay out the
-options and their properties; section 5 scores each option on each
+This document **does not pick a winner**. Sections 1–4 establish the
+facts and lay out the options; section 5 scores each option on each
 axis on a 1–5 scale so the reader can apply their own weighting.
-The right choice depends on whether the project is primarily an
-abstract layer or a computational one, and that judgement is left
-to the reader.
 
-## 1. The four options
+## 0. The governing fact (verified)
 
-The reference mathlib definition is
+Everything below turns on the nature of the parent class, so it is
+stated first and was checked directly against the mathlib in this
+project (`.lake/packages/mathlib`):
 
 ```lean
-class Algebra.IsQuadraticExtension (R S : Type*) [CommSemiring R] [StrongRankCondition R]
+-- Mathlib/LinearAlgebra/FreeModule/Basic.lean:43
+class Module.Free (R M) [Semiring R] [AddCommMonoid M] [Module R M] : Prop where
+  exists_basis : Nonempty <| (I : Type v) × Basis I R M
+
+-- Mathlib/LinearAlgebra/Dimension/StrongRankCondition.lean:679
+class Algebra.IsQuadraticExtension (R S) [CommSemiring R] [StrongRankCondition R]
     [Semiring S] [Algebra R S] extends Module.Free R S where
   finrank_eq_two' : Module.finrank R S = 2
 ```
 
-`IsQuadraticExtension` extends `Module.Free`, which carries a
-`Basis`; the class is therefore **data-bearing**, not a `Prop`.
+Consequences, each confirmed by elaboration (`example : Prop := …`
+and `cases h1; cases h2; rfl`):
 
-The four candidate designs for a project-level `QuadraticField K`
-(with the canonical specialization `R = ℚ` written explicitly):
+- **`Module.Free` is a `Prop`.** It asserts the *existence* of a
+  basis (`Nonempty`), not a chosen basis. There is **no basis datum**
+  to project.
+- **`IsQuadraticExtension` is a `Prop`** (Lean infers `Prop` because
+  every field is a proposition) and a **subsingleton**: any two
+  instances are definitionally equal.
+- A basis, when needed, is produced by `Module.Free.chooseBasis`
+  (a `noncomputable def` through `Classical.choice`). This is
+  available identically under every option below; **no option puts a
+  basis "one dot away" as a field.**
+
+This invalidates the common intuition that `IsQuadraticExtension`
+"carries a non-canonical basis as data." It does not. The
+practical fallout: the data-vs-`Prop` distinction between the
+options **collapses** — all four operate at the level of a `Prop`
+subsingleton — and the supposed "basis diamond" risk that would
+separate the options **does not exist** until and unless someone
+deliberately adds a *data* field (see §6).
+
+(The separate `Algebra ℚ` diamond between `DivisionRing.toRatAlgebra`
+and a model's own algebra instance is real, but it lives in the
+concrete model `Qsqrtd d`, not in the `QuadraticField` wrapper, and
+is present identically under all four options. It is out of scope
+here.)
+
+## 1. The four options
+
+The canonical specialization is `R = ℚ`, written explicitly.
 
 ### Option A — `class extends`
 
@@ -44,13 +74,14 @@ The four candidate designs for a project-level `QuadraticField K`
 class QuadraticField (K : Type*) [Field K] [Algebra ℚ K]
     extends Algebra.IsQuadraticExtension ℚ K
 
--- Optional, to lift existing instances:
-instance [Algebra.IsQuadraticExtension ℚ K] : QuadraticField K := ⟨⟨⟩⟩
+-- Optional reverse lift, to reuse existing mathlib instances:
+instance [Algebra.IsQuadraticExtension ℚ K] : QuadraticField K := ⟨‹_›⟩
 ```
 
-The class inherits the parent fields verbatim: a `Module.Free`
-basis, the `finrank_eq_two'` proof, and the `[Field K] [Algebra ℚ K]`
-parent instances. `QuadraticField` is itself a data class.
+Because the parent is a `Prop` and no field is added, **`QuadraticField`
+is itself a `Prop` subsingleton** (verified). `extends` gives the
+forward projection `QuadraticField K → IsQuadraticExtension ℚ K`
+for free.
 
 ### Option B — `class : Prop` wrapper
 
@@ -63,9 +94,9 @@ instance (K) [Field K] [Algebra ℚ K] [QuadraticField K] :
   QuadraticField.isQuadratic
 ```
 
-`QuadraticField` is a `Prop`. The mathlib class is referenced by a
-named field, not inherited. A **one-way** out-instance promotes
-`[QuadraticField K]` to `[Algebra.IsQuadraticExtension ℚ K]`.
+`QuadraticField` is a `Prop` subsingleton. The mathlib class is held
+by a named field; a **one-way** out-instance (one line) provides the
+forward bridge that A gets automatically.
 
 ### Option C — `abbrev` rename
 
@@ -74,70 +105,72 @@ abbrev QuadraticField (K : Type*) [Field K] [Algebra ℚ K] :=
   Algebra.IsQuadraticExtension ℚ K
 ```
 
-`QuadraticField K` is **definitionally equal** to
-`Algebra.IsQuadraticExtension ℚ K`. No new class is introduced.
+`QuadraticField K` is **definitionally** the parent `Prop`. No new
+class is introduced; it is an alias, not a class.
 
 ### Option D — direct use
 
 No project-level name. Statements refer to
 `[Algebra.IsQuadraticExtension ℚ K]` directly, exactly as
-`Mathlib/FieldTheory/Galois/Basic.lean` and
-`Mathlib/NumberTheory/NumberField/CMField.lean` do.
+`Mathlib/FieldTheory/Galois/Basic.lean:678` and
+`Mathlib/NumberTheory/NumberField/CMField.lean:73` do.
 
 ## 2. Property matrix
 
 | Property | A. extends | B. Prop wrapper | C. abbrev | D. direct |
 |---|---|---|---|---|
-| Carries data | yes (basis + finrank proof) | no (data held by `isQuadratic` field) | yes (transparent) | yes |
-| Is `Prop` | no | yes | no | n/a |
-| Instance resolution cost | comparable; instance term carries the `Free` structure | comparable; thin `Prop`, marginally lighter | comparable (same term as parent) | comparable (same term as parent) |
-| Basis realized at resolution? | no — only when projected (`h.basis`) | no | no | no |
-| Basis available in proof | via `h.basis` (dot notation) | via `(h.isQuadratic).chooseBasis` or `letI` | transparent | via parent class instance |
-| Extensibility | full: any new field, data or `Prop` | `Prop` fields free; data fields force a data class | none | requires a separate class |
-| Mathlib idiom match | partial (subclassing pattern) | close analog of `NumberField` (with a twist, see §3.2) | none | exact |
-| Reusable as a parent class | yes | yes (with `Prop` constraint) | no | no |
-| Diamond risk | real (basis non-canonical) | low (`Prop` is a one-way bridge) | same as parent | same as parent |
-| Mathlib precedent | none | none — project convention | none | yes (`CMField`, `Galois.Basic`) |
-| Lines of boilerplate | 1–3 | 7 | 1 | 0 |
+| Sort | `Prop` (subsingleton) | `Prop` (subsingleton) | `Prop` (= parent) | `Prop` (parent) |
+| Carries real data | no | no | no | no |
+| Basis access | `chooseBasis` (choice) | `chooseBasis` (choice) | `chooseBasis` (choice) | `chooseBasis` (choice) |
+| Is a real class | yes | yes | no (alias) | no name |
+| Forward → `IsQuadraticExtension` | free (projection) | 1-line out-instance | defeq (free) | identity |
+| Reverse lift available | yes (creates two-way graph) | yes (kept separate) | defeq | n/a |
+| Can be a parent / `extends`-ed later | yes | yes | no | no |
+| Add `Prop` field later | in place | in place | no (replace) | sibling class |
+| Add **data** field later | in place → becomes `Type`, real diamond | in place → same; or isolate in a `structure` | no (replace) | sibling structure |
+| Instance-resolution cost | trivial (`Prop`) | trivial (`Prop`) | trivial | trivial |
+| Mathlib precedent | `extends` on `Prop` classes | `NumberField` named-field `Prop` | none | `CMField`, `Galois.Basic` |
+| Lines of boilerplate | 1 (+1 for reverse) | 3–7 | 1 | 0 |
 
 ## 3. Detailed analysis
 
 ### 3.1 Option A — `class extends`
 
-**Mathlib adaptation.** Subclassing is a standard mathlib pattern
-(`Field`, `Ring`, etc.); the `extends` keyword is the natural way
-to say "this class is a refinement of that one." A subclass
-inherits all parent projections, so `[QuadraticField K]` is a
-strictly stronger assumption than `[IsQuadraticExtension ℚ K]`.
-That said, no class in mathlib actually subclasses
-`IsQuadraticExtension` itself — the precedent is the `extends`
-mechanism in general, not its use on this specific parent.
+**Mathlib adaptation.** `extends` is the standard way to say "this
+class refines that one," and refining a `Prop` class with `extends`
+is well-formed and used in mathlib. The forward projection
+`QuadraticField K → IsQuadraticExtension ℚ K` comes for free, so
+every mathlib lemma keyed on `IsQuadraticExtension` (`normal`,
+`isGalois`, `finrank_eq_two`) is reachable with no extra wiring. The
+one caveat: the *closest* precedent for "K is a field with an extra
+property" — `NumberField` — uses named instance-implicit fields
+rather than `extends`, so A matches the general `extends` idiom but
+not that specific precedent.
 
-**Elegance.** Maximum expressiveness per character: every relevant
-piece of structure is one dot away. Proofs can write
-`h.finrank_eq_two'`, `h.basis`, `h.normal`, `h.isGalois` without
-ceremony.
+**Elegance.** `QuadraticField K` is a `Prop` (verified), so it reads
+as the fact "K is a quadratic field," not as a data record. The
+earlier worry that A "overshoots by carrying data" is unfounded:
+there is no data. Proofs reach the underlying predicate by the
+automatic coercion/projection.
 
-**Future extensibility.** The strongest of the four. One can add
-data fields (a chosen primitive generator, a distinguished
-involution, a fundamental discriminant) or `Prop` fields
-(separability, characteristic) directly to the class. The class
-grows in place; consumers see all structure as one assumption.
+**Future extensibility.** Strong. New `Prop` fields can be added in
+place. New **data** fields can also be added in place, but doing so
+turns the class from `Prop` into `Type` and introduces a genuine,
+non-defeq diamond (two instances with different chosen data are no
+longer equal). That cost is intrinsic to wanting chosen data in the
+core class and is **not** specific to A — B incurs exactly the same
+cost if data is added the same way (see §6).
 
-**Cost.** The parent is data, so the child is data. The
-`Module.Free` basis is **non-canonical** (its construction goes
-through `Classical.choice`), so two `QuadraticField K` instances
-constructed by different routes may carry different bases and
-will not be definitionally equal. For abstract field statements
-this is rarely observable, but it forces any user who needs a
-specific basis to either `change` it explicitly or work
-proof-locally. The cost is structurally the same as in mathlib
-itself; the wrapper does not improve on it.
+**Cost.** Almost none in the property-only regime. If a reverse lift
+`IsQuadraticExtension → QuadraticField` is also declared, A and the
+parent become inter-derivable (a two-way instance relationship);
+because both are `Prop` subsingletons this is harmless for defeq, but
+it is mild redundancy in the instance graph.
 
 ### 3.2 Option B — `class : Prop` wrapper
 
-**Mathlib adaptation.** This is the pattern of `NumberField` in
-mathlib (`Mathlib/NumberTheory/NumberField/Basic.lean:42`):
+**Mathlib adaptation.** This mirrors the *shape* of `NumberField`
+(`Mathlib/NumberTheory/NumberField/Basic.lean:42`):
 
 ```lean
 class NumberField (K : Type*) [Field K] : Prop where
@@ -145,201 +178,179 @@ class NumberField (K : Type*) [Field K] : Prop where
   [to_finiteDimensional : FiniteDimensional ℚ K]
 ```
 
-`NumberField` does not extend `CharZero` or `FiniteDimensional`;
-it carries them as named fields, because the natural reading of
-"`K` is a number field" is a `Prop`, not a data record. A
-`QuadraticField` wrapper follows the same shape, and pegs the new
-class to the closest mathlib precedent for "K is a field with
-extra property."
+Two differences are worth noting. `NumberField` takes only
+`[Field K]` (no `[Algebra ℚ K]` parameter — the algebra comes from
+`CharZero`), and its fields are **instance-implicit** binders
+(`[to_charZero : …]`), so they are re-exposed as instances
+automatically and it needs **no** hand-written out-instance. The
+Option B sketch uses an *explicit* field plus a manual out-instance.
+A closer port of the `NumberField` pattern would make `isQuadratic`
+an instance-implicit field and drop the explicit bridge:
 
-**A twist worth noting.** The analogy is close but not exact in
-two respects. First, `NumberField` takes only `[Field K]`; it does
-*not* take `[Algebra ℚ K]` as a parameter (the `ℚ`-algebra
-structure comes from `CharZero K`). The `QuadraticField` sketch in
-§1 carries `[Algebra ℚ K]` explicitly. Second, `NumberField`'s
-fields are **instance-implicit** binders (`[to_charZero : …]`),
-so they are re-exposed as instances automatically and `NumberField`
-needs no hand-written out-instance. The Option B sketch uses an
-*explicit* field (`isQuadratic : …`) plus a manually written
-out-instance. An "instance-implicit field" variant of B would track
-`NumberField` more faithfully and drop the explicit out-instance.
+```lean
+class QuadraticField (K : Type*) [Field K] [Algebra ℚ K] : Prop where
+  [isQuadratic : Algebra.IsQuadraticExtension ℚ K]
+```
 
-**Elegance.** `QuadraticField K` reads as a fact about `K` —
-"K is a quadratic field" — rather than as a record of
-data. Proofs in the abstract layer never need to mention a basis
-or a chosen generator; those appear only when a specific lemma
-asks for them, by `letI := h.isQuadratic` (or automatically, via
-the out-instance).
+**Elegance.** Reads as a fact about `K`. Identical mathematical
+content to A; the difference from A is purely how the underlying
+predicate is exposed (named field + explicit bridge vs. inherited
+projection).
 
-**Future extensibility.** New `Prop` fields can be added freely.
-New data fields can be added, but they convert the class from
-`Prop` to data — a one-time cost. The bridge to mathlib is
-**one-way** (`QuadraticField K → IsQuadraticExtension ℚ K`),
-which deliberately cuts the `Algebra ℚ` diamond in the same
-way that `IsQuadraticExtension`-based number-field instances do
-in mathlib.
+**Future extensibility.** Same as A for `Prop` fields. For chosen
+**data**, B has a documented discipline: rather than mutate the class
+to `Type`, isolate the datum in a separate `structure` (§6), keeping
+the class a clean `Prop`. This is a *convention* advantage, not a
+structural capability A lacks — A could follow the same discipline.
 
-**Cost.** Slightly more boilerplate than A. One out-instance to
-keep the mathlib API reachable (avoidable with the
-instance-implicit-field variant). Indirect field access
-(`h.isQuadratic.finrank_eq_two'`), partially compensated for by
-Lean 4's coercion and instance search.
+**Cost.** More boilerplate than A (the explicit field and the
+one-way out-instance), unless the instance-implicit-field variant is
+used. The forward bridge that A gets for free is one explicit line
+here — but that explicitness is also the point: the bridge direction
+is visible and deliberately one-way.
 
 ### 3.3 Option C — `abbrev` rename
 
-**Mathlib adaptation.** None. Mathlib has no analogous
-abbreviation for `IsQuadraticExtension`.
+**Mathlib adaptation.** None. Mathlib has no analogous abbreviation
+for `IsQuadraticExtension`.
 
-**Elegance.** Minimal, but deceptive: `abbrev` defines a name,
-not a class. `[QuadraticField K]` in a signature works as a
-typeclass parameter only because it unfolds to a real class;
-the `abbrev` itself is not a class. Any later move to add a field
-requires replacing the `abbrev` with a real class, breaking every
-signature that referenced the old name.
+**Elegance.** Minimal, but an `abbrev` is a name, not a class.
+`[QuadraticField K]` works as a parameter only because it unfolds to
+the real parent class; the alias itself cannot be extended or used
+as a parent.
 
-**Future extensibility.** None. The moment the project needs to
-add a primitive element witness, a `Conj` instance, or a
-fundamental discriminant, the `abbrev` must be deleted and
-replaced. There is no upgrade path.
+**Future extensibility.** None. The moment the project wants to add a
+field (even a `Prop` one), or to make `QuadraticField` the parent of
+another class, the `abbrev` must be deleted and replaced by a real
+class, rewriting every signature that used the name. There is no
+incremental upgrade path.
 
-**Cost.** Slightly cheaper than A in lines, but the upgrade cost
-is real. `Conj` (or any later class that wants
-`[QuadraticField K]` as a parent) cannot be written at all,
-because there is no class to extend.
+**Cost.** One line now; a disruptive rename later.
 
 ### 3.4 Option D — direct use
 
 **Mathlib adaptation.** Exact. `CMField.lean:73` writes
 `[is_quadratic : IsQuadraticExtension (maximalRealSubfield K) K]`;
-`Galois/Basic.lean:678` writes
-`variable ... [IsQuadraticExtension F K]`. No project-level
-indirection; every proof reads as a mathlib proof.
+`Galois/Basic.lean:678` writes `variable … [IsQuadraticExtension F K]`.
+Every proof reads as a mathlib proof.
 
 **Elegance.** Zero abstraction. The only price is verbosity:
 `[Algebra.IsQuadraticExtension ℚ K]` instead of `[QuadraticField K]`.
 
-**Future extensibility.** New structure must live in a separate
-class on top of the mathlib class. `QuadraticField` cannot be
-the name of a *concept*; it can only be a phrase. If the project
-later decides that "quadratic field" should package a primitive
-generator, a `Conj`, or a fundamental discriminant, it has to
-introduce one or more sibling classes — and the project layer
-becomes a federation of small classes, not a single named
+**Future extensibility.** New structure must live in a separate class
+on top of the mathlib class. `QuadraticField` cannot be the name of a
+*concept*, only a phrase; packaging a generator, a `Conj`, or a
+discriminant means introducing sibling classes, and the project layer
+becomes a federation of small classes rather than one named
 abstraction.
 
-**Cost.** Loss of project-level terminology. Documentation that
-says "let `K` be a quadratic field" is forced to mean
-"`Algebra.IsQuadraticExtension ℚ K`" with no project name. The
-project's own models (`Qsqrtd d`, and any future concrete
-realization) must be linked to the mathlib class directly.
+**Cost.** No project-level terminology. Documentation saying "let `K`
+be a quadratic field" must mean `Algebra.IsQuadraticExtension ℚ K`
+with no project name, and the project's own models must link to the
+mathlib class directly.
 
 ## 4. Cross-criterion summary
 
+With the governing fact in §0, the four options stop differing on
+*sort* (all `Prop`) or *data/diamond* (none until data is added).
+What remains:
+
 | Criterion | A. extends | B. Prop wrapper | C. abbrev | D. direct |
 |---|---|---|---|---|
-| Mathlib adaptation | partial | close to `NumberField` | misaligned | exact |
-| Elegance (right math object) | overshoots (data) | right level (fact) | undercuts (rename) | right (no wrapper) |
-| Future extensibility | strongest | strong (Prop fields) | none | requires sibling classes |
-| Resolution cost | comparable | comparable (marginally lighter) | comparable | comparable |
-| Diamond control | needs care | one-way bridge handles it | inherits parent | inherits parent |
+| Mathlib adaptation | idiomatic `extends` | matches `NumberField` shape | misaligned | exact |
+| Elegance | `Prop` fact, free projection | `Prop` fact, named field | alias, not a class | no wrapper, verbose |
+| Extensibility | real class, in place | real class, in place | none | sibling classes |
+| Bridge to mathlib | automatic (two-way if lifted) | explicit, one-way | defeq | identity |
+| Boilerplate | least (1) | most (3–7) | least (1) | none (0) |
+| Owns the name `QuadraticField` | yes | yes | yes | no |
+
+A and B are now **near-equivalent**; the residual difference is one
+of convention (inherited projection vs. named field + explicit
+one-way bridge) and boilerplate.
 
 ## 5. Per-dimension scores
 
 Scores are on a **1–5 scale** (5 = best on that axis). They are
 per-axis assessments only; this document deliberately provides
-**no aggregate and no recommendation**. Weight the axes according
-to the project's priorities and total them yourself.
+**no aggregate and no recommendation**. Weight the axes according to
+the project's priorities and total them yourself.
 
 ### 5.1 Score table
 
 | Dimension | A. extends | B. Prop wrapper | C. abbrev | D. direct |
 |---|:---:|:---:|:---:|:---:|
-| Mathlib adaptation | 3 | 4 | 1 | 5 |
-| Elegance (right math object) | 3 | 5 | 2 | 4 |
-| Future extensibility | 5 | 4 | 1 | 2 |
-| Resolution / inference cost | 4 | 5 | 4 | 4 |
-| Diamond control | 2 | 5 | 3 | 3 |
-| Boilerplate cost (5 = least) | 4 | 3 | 5 | 5 |
+| Mathlib adaptation | 4 | 4 | 1 | 5 |
+| Elegance (right math object) | 4 | 4 | 2 | 4 |
+| Future extensibility | 4 | 4 | 1 | 2 |
+| Bridge / instance-graph control | 4 | 5 | 4 | 5 |
+| Boilerplate (5 = least) | 5 | 3 | 5 | 5 |
 
 ### 5.2 Score justifications
 
-**Mathlib adaptation.** A (3): `extends` is idiomatic, but nothing
-in mathlib subclasses `IsQuadraticExtension`. B (4): mirrors the
-`NumberField` `Prop` pattern, docked one point for the
+**Mathlib adaptation.** A (4): idiomatic `extends`, but not the exact
+shape of the nearest precedent `NumberField`. B (4): matches the
+`NumberField` named-field `Prop` shape, docked for the
 explicit-field / `[Algebra ℚ K]`-parameter twist (§3.2). C (1): no
-mathlib analog. D (5): literally what `CMField` and `Galois.Basic`
-do.
+analog. D (5): literally `CMField` / `Galois.Basic`.
 
-**Elegance.** A (3): expresses a *data record* where the intended
-object is a *fact*. B (5): reads as "K is a quadratic field," the
-right mathematical level. C (2): a rename that pretends to be a
-class. D (4): no wrapper at all — correct, but verbose.
+**Elegance.** A, B (4 each): both are `Prop` facts with identical
+mathematical content; they tie. C (2): a rename masquerading as a
+class. D (4): no wrapper — correct but verbose.
 
-**Future extensibility.** A (5): any field, data or `Prop`, added
-in place. B (4): `Prop` fields free; the first data field forces a
-class migration. C (1): no upgrade path. D (2): every extension is
-a new sibling class.
+**Future extensibility.** A, B (4 each): both real classes; both add
+`Prop` fields in place and can be parents; both face the same
+`Type`-migration cost for chosen data. C (1): no upgrade path. D (2):
+every extension is a new sibling class.
 
-**Resolution / inference cost.** No option realizes a basis at
-instance-resolution time, so the axis barely separates them. B (5):
-a thin `Prop` is the cheapest to unify. A/C/D (4): the instance
-term carries the `Free` structure but it is not forced.
+**Bridge / instance-graph control.** A (4): forward projection is
+automatic; a reverse lift makes the relationship two-way (harmless
+for `Prop` subsingletons, but redundant). B (5): one explicit,
+deliberately one-way bridge. C (4): defeq to the parent, nothing to
+manage. D (5): no project-level instance graph to manage.
 
-**Diamond control.** A (2): the non-canonical basis is a real
-diamond hazard when an instance is built by two routes. B (5): the
-one-way `Prop` bridge cuts the `Algebra ℚ` diamond cleanly. C/D
-(3): inherit whatever the mathlib parent does, with no project-level
-control either way.
-
-**Boilerplate cost** (5 = least code). D (5): zero lines. C (5):
-one line. A (4): 1–3 lines. B (3): ~7 lines (one out-instance, one
-named field, the class).
+**Boilerplate** (5 = least). A (5): one line. C (5): one line. D (5):
+zero. B (3): class + field + out-instance (less with the
+instance-implicit variant).
 
 ### 5.3 How to read the scores
 
-- A project that is fundamentally a **computational** layer — where
-  most abstract statements manipulate a specific basis, generator,
-  or involution — should weight *extensibility* and *direct data
-  access* heavily, which favors A.
-- A project that is fundamentally an **abstract** layer — stating
-  and proving theorems about "an arbitrary quadratic field" without
-  committing to choices — should weight *elegance* and *diamond
-  control* heavily, which favors B.
-- A project that is a **thin glue layer** over mathlib, not owning
-  its own terminology, should weight *mathlib adaptation* and
-  *boilerplate* heavily, which favors D.
-- C scores low on every axis except boilerplate and has no upgrade
+- The data/`Prop` and diamond axes that dominated earlier framings
+  are **gone** (§0): all options are `Prop` subsingletons. The live
+  trade-offs are convention, boilerplate, naming, and extensibility.
+- A and B score nearly identically. Prefer **A** for the least
+  boilerplate and a free forward projection ("`QuadraticField` *is a*
+  refined `IsQuadraticExtension`"); prefer **B** for a literal
+  parallel to `NumberField` and an explicit one-way bridge direction.
+- **C** scores low everywhere except boilerplate and has no upgrade
   path; it is included for completeness.
-
-The trade-off between owning project-level terminology (A/B/C give
-you the name `QuadraticField`; D does not) and staying maximally
-faithful to mathlib (D) is the single largest swing factor, and it
-is a project-policy decision rather than a technical one.
+- **D** is strongest on mathlib fidelity and lightest of all, at the
+  cost of the project owning the name `QuadraticField`. The choice
+  between owning project terminology (A/B/C) and maximal mathlib
+  fidelity (D) is a project-policy decision, not a technical one.
 
 ## 6. Upgrade paths (extensibility detail)
 
-How each option absorbs new structure — e.g. a primitive generator
-that should be available without re-proving its existence.
+How each option absorbs new structure — e.g. a chosen primitive
+generator. Note that adding *chosen data* to a `Prop` class turns it
+into a `Type` and creates a real (non-defeq) diamond; this is true
+for A and B alike, which is why isolating data in a separate
+`structure` is the recommended discipline regardless of A vs. B.
 
-**From A.** Add the field directly to the class (data or `Prop`).
-No migration; every consumer sees it immediately.
+**From A or B (identical options).**
 
-**From B.** Three escalating moves, in increasing order of cost:
-
-1. Add a `Prop`-valued *existence* field, keeping the class a
-   `Prop`:
+1. Add a `Prop`-valued *existence* field, keeping the class a `Prop`
+   subsingleton:
 
    ```lean
    hasPrimitive : ∃ β b c, β * β = algebraMap ℚ K b * β - algebraMap ℚ K c ∧
      IntermediateField.adjoin ℚ {β} = ⊤
    ```
 
-   Extensibility is preserved; downstream proofs use
-   `obtain ⟨β, b, c, h⟩ := h.hasPrimitive`.
+   Downstream proofs use `obtain ⟨β, b, c, h⟩ := h.hasPrimitive`.
 
-2. If a **chosen** primitive generator is required (e.g. to define
-   a section of a functor to `QuadraticFieldCat`), introduce a
-   separate `structure` that bundles the field with the witness:
+2. If a **chosen** generator is required (e.g. to define a section of
+   a functor to `QuadraticFieldCat`), bundle it in a separate
+   `structure` rather than mutating the class:
 
    ```lean
    structure QuadraticFieldWithGenerator (K : Type*) [Field K] [Algebra ℚ K] where
@@ -350,38 +361,36 @@ No migration; every consumer sees it immediately.
             IntermediateField.adjoin ℚ {β} = ⊤
    ```
 
-   A structure, not a class; it appears only where a chosen
-   generator is genuinely needed, and the class is untouched.
+   This keeps the class a clean `Prop` and confines the chosen data
+   (and its diamond) to where it is genuinely needed.
 
-3. If the full data-bearing class is eventually required, introduce
-   a *new* class (`QuadraticFieldData`) and migrate data-bearing
-   uses to it, linked to the `Prop` class by a one-directional
-   instance.
+3. Only if a data-bearing *class* is unavoidable, introduce a new
+   class (`QuadraticFieldData`) linked to the `Prop` class by a
+   one-directional instance.
 
 **From C.** No upgrade path: the `abbrev` must be deleted and
-replaced by a real class, and every signature using the name
-rewritten.
+replaced by a real class, rewriting every signature using the name.
 
-**From D.** Each new piece of structure is a new sibling class on
-top of `IsQuadraticExtension`; the project layer becomes a
-federation of small classes.
+**From D.** Each new piece of structure is a new sibling class on top
+of `IsQuadraticExtension`; the project layer becomes a federation of
+small classes.
 
 ## 7. References
 
+All file/line citations verified against `.lake/packages/mathlib`.
+
+- `Mathlib/LinearAlgebra/FreeModule/Basic.lean:43` — `Module.Free`
+  is a **`Prop`** (`exists_basis : Nonempty (Σ I, Basis I R M)`).
 - `Mathlib/LinearAlgebra/Dimension/StrongRankCondition.lean:679` —
   definition of `Algebra.IsQuadraticExtension`, its
-  `extends Module.Free`, and the `finrank_eq_two'` projection
-  (verified: line 679).
+  `extends Module.Free`, and `finrank_eq_two'`. Confirmed to be a
+  `Prop` subsingleton.
 - `Mathlib/FieldTheory/Galois/Basic.lean:678` — uses
-  `[IsQuadraticExtension F K]` directly to derive Galois
-  properties (verified).
+  `[IsQuadraticExtension F K]` directly to derive Galois properties.
 - `Mathlib/FieldTheory/Normal/Basic.lean:291` —
-  `IsQuadraticExtension.normal`, illustrating how out-instances are
-  layered on top (verified).
+  `IsQuadraticExtension.normal`, an out-instance layered on top.
 - `Mathlib/NumberTheory/NumberField/CMField.lean:73` — uses
-  `IsQuadraticExtension` as a named structure field
-  (`is_quadratic`) (verified).
+  `IsQuadraticExtension` as a named structure field (`is_quadratic`).
 - `Mathlib/NumberTheory/NumberField/Basic.lean:42` —
-  `class NumberField`: the `Prop` pattern with two
-  instance-implicit fields that the design of Option B mirrors
-  (verified — note the fields are instance-implicit, see §3.2).
+  `class NumberField`, a `Prop` with two **instance-implicit** fields
+  (the shape Option B mirrors; see §3.2).
