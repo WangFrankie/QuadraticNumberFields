@@ -48,7 +48,7 @@ precisely when it equals the full ring of integers `𝓞 (ℚ(√d))`.
 - `Qsqrtd (d : ℚ) := QuadraticAlgebra ℚ d 0` — the quadratic field `ℚ(√d)`
   (`Basic.lean`)
 - Parameters: `[Fact (Squarefree d)] [Fact (d ≠ 1)]` — explicit `Fact` instances
-  (`Parameters.lean`, `RingOfIntegers/CommonInstances.lean`)
+  (`QuadraticField/Parameters.lean`, `RingOfIntegers/CommonInstances.lean`)
 - `Zsqrtd d` and `ZOnePlusSqrtOverTwo k` — the two candidate integral models
   (`RingOfIntegers/Zsqrtd.lean`, `RingOfIntegers/ZOnePlusSqrtOverTwo.lean`)
 
@@ -91,16 +91,15 @@ QuadraticNumberFields/
 ├── QuadraticNumberFields/
 │   ├── Basic.lean                    # Qsqrtd type, norm, trace, field instances
 │   ├── Instances.lean                # NumberField instance for quadratic extensions
-│   ├── Parameters.lean               # Rescaling, squarefree normalization, uniqueness
-│   ├── FieldClassification.lean      # Quadratic field ↔ squarefree parameter
-│   ├── Category/
-│   │   └── Basic.lean                # Bundled category of quadratic fields
+│   ├── QuadraticField/
+│   │   ├── Parameters.lean          # Rescaling, squarefree normalization, uniqueness
+│   │   ├── Classification.lean      # Quadratic field ↔ squarefree parameter
+│   │   └── Category.lean            # Bundled category of quadratic fields
 │   ├── Mathlib/
 │   │   ├── Algebra/
 │   │   ├── Data/
 │   │   └── RingTheory/               # Temporary material destined for mathlib
 │   ├── TotallyRealComplex.lean       # Totally real / complex / CM classification
-│   ├── RingEquiv.lean                # Compatibility re-export for migrated RingEquiv lemmas
 │   ├── Euclidean/
 │   │   └── Basic.lean                # Norm-Euclidean classification framework
 │   ├── Examples/

@@ -7,7 +7,7 @@ import QuadraticNumberFields.RingOfIntegers.HalfInt
 import QuadraticNumberFields.RingOfIntegers.ModFour
 import QuadraticNumberFields.RingOfIntegers.TraceNorm
 import QuadraticNumberFields.ZOnePlusSqrtOverTwo.Basic
-import QuadraticNumberFields.Parameters
+import QuadraticNumberFields.QuadraticField.Parameters
 
 /-!
 # Integrality Criteria for Quadratic Fields
