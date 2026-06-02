@@ -6,6 +6,8 @@ Authors: Frankie Wang
 
 import Mathlib.CategoryTheory.Discrete.Basic
 import QuadraticNumberFields.QuadraticField.Category
+import QuadraticNumberFields.QuadraticField.Classification
+import QuadraticNumberFields.QuadraticField.Parameters
 
 /-!
 # Normalized Squarefree Parameters
@@ -89,4 +91,55 @@ def SqfreeParam.stdModel : SqfreeParamCat ⥤ QuadraticFieldCat :=
 theorem SqfreeParam.stdModel_obj (p : SqfreeParam) :
     SqfreeParam.stdModel.obj ⟨p⟩ = p.toQuadraticFieldCat :=
   rfl
+
+/-! ## Isomorphism-Class Classification
+
+A squarefree parameter is determined by, and determines, the `ℚ`-algebra
+isomorphism class of its standard model.  We record this as two statements:
+
+* `stdModel_essentiallySurjective`: every quadratic field is `ℚ`-algebra
+  isomorphic to a standard model `ℚ(√d)` of some squarefree parameter.
+* `eq_of_algEquiv`: the parameter is recovered uniquely from the isomorphism
+  class.
+
+Together these say that `p ↦ ℚ(√(p.d))` induces a **bijection** between
+`SqfreeParam` and the `ℚ`-algebra-isomorphism classes of quadratic fields.
+
+This is the correct classification statement.  It is **not** a categorical
+equivalence `Discrete SqfreeParam ≌ QuadraticFieldCat`: the discrete category
+has only identities, while each quadratic field has a non-trivial conjugation
+automorphism (`Task 5`/`Task 10`).
+
+Both statements use `≃ₐ[ℚ]` with the canonical `QuadraticAlgebra` instances on
+`Qsqrtd` (made explicit with `@AlgEquiv … instAlgebra …`).  They are phrased at
+the level of `ℚ`-algebra equivalences rather than `QuadraticFieldCat`
+isomorphisms: bridging to the category layer would require identifying the
+`Algebra ℚ` instance bundled in a `QuadraticFieldCat` object with the canonical
+one on `Qsqrtd`, but those agree only up to `Subsingleton.elim` and are not
+definitionally equal (the same diamond met by
+`Qsqrtd.algEquiv_self_eq_refl_or_star`).  Pinning the canonical instances keeps
+instance resolution deterministic across import contexts. -/
+
+/-- A squarefree parameter is determined by its integer `d` (the squarefree and
+`≠ 1` fields are propositions). -/
+theorem SqfreeParam.eq_of_d_eq {p q : SqfreeParam} (h : p.d = q.d) : p = q := by
+  cases p; cases q; subst h; rfl
+
+/-- **Essential surjectivity.** Every quadratic field is `ℚ`-algebra isomorphic
+to the standard model `ℚ(√d)` of some squarefree parameter. -/
+theorem SqfreeParam.stdModel_essentiallySurjective
+    (K : Type*) [Field K] [Algebra ℚ K] [QuadraticField K] :
+    ∃ p : SqfreeParam, Nonempty (@AlgEquiv ℚ K (Qsqrtd (p.d : ℚ)) Rat.commSemiring _
+      QuadraticAlgebra.instCommSemiring.toSemiring _ QuadraticAlgebra.instAlgebra) := by
+  obtain ⟨d, hsf, hne, ⟨e⟩⟩ := exists_algEquiv_qsqrtd K
+  exact ⟨⟨d, hsf, hne⟩, ⟨e⟩⟩
+
+/-- **Uniqueness of the parameter.** If the standard models of two squarefree
+parameters are `ℚ`-algebra isomorphic, the parameters are equal. -/
+theorem SqfreeParam.eq_of_algEquiv {p q : SqfreeParam}
+    (e : @AlgEquiv ℚ (Qsqrtd (p.d : ℚ)) (Qsqrtd (q.d : ℚ)) Rat.commSemiring
+      QuadraticAlgebra.instCommSemiring.toSemiring QuadraticAlgebra.instCommSemiring.toSemiring
+      QuadraticAlgebra.instAlgebra QuadraticAlgebra.instAlgebra) : p = q :=
+  SqfreeParam.eq_of_d_eq
+    (Qsqrtd.param_unique p.d q.d e p.squarefree p.ne_one q.squarefree)
 
