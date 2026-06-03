@@ -44,16 +44,16 @@ variable (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
 
 -- TODO: ramified ↔ p | disc
 theorem isRamified_iff_dvd_disc (p : ℕ) [Fact p.Prime] :
-    (Ideal.span {(p : ℤ)}).IsRamifiedIn (𝓞 (Qsqrtd (d : ℚ)))
-      ↔ (p : ℤ) ∣ NumberField.discr (Qsqrtd (d : ℚ)) := sorry
+    1 < Ideal.ramificationIdxIn (Ideal.span {(p : ℤ)}) (𝓞 (Qsqrtd (d : ℚ))) ↔
+      (p : ℤ) ∣ NumberField.discr (Qsqrtd (d : ℚ)) := sorry
 
 -- TODO: explicit characterization of ramified primes
 -- theorem ramified_primes_odd (p : ℕ) [Fact p.Prime] (hp : p ≠ 2) :
---     (Ideal.span {(p : ℤ)}).IsRamifiedIn (𝓞 (Qsqrtd (d : ℚ)))
+--     1 < Ideal.ramificationIdxIn (Ideal.span {(p : ℤ)}) (𝓞 (Qsqrtd (d : ℚ)))
 --       ↔ (p : ℤ) ∣ d := ...
 
 -- theorem ramified_prime_two :
---     (Ideal.span {(2 : ℤ)}).IsRamifiedIn (𝓞 (Qsqrtd (d : ℚ)))
+--     1 < Ideal.ramificationIdxIn (Ideal.span {(2 : ℤ)}) (𝓞 (Qsqrtd (d : ℚ)))
 --       ↔ d % 4 ≠ 1 := ...
 
 end Splitting

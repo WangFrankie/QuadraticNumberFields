@@ -12,7 +12,8 @@ import QuadraticNumberFields.Splitting.Classification
 This file gives the first abstract-field wrappers around the splitting API.
 The explicit Legendre-symbol computations remain in
 `QuadraticNumberFields.Splitting.Classification`; the results here expose the
-same splitting predicates for an arbitrary `[QuadraticField K]`.
+same splitting conditions for an arbitrary `[QuadraticField K]`, stated directly
+with mathlib's ramification API.
 
 This module is part of the work-in-progress `Sketch` surface while the full
 Legendre-symbol classification is still incomplete.
@@ -41,13 +42,15 @@ instance ringOfIntegers_isQuadraticExtension
       exact Subsingleton.elim _ _))
 
 /-- For any abstract quadratic field and any rational prime `p`, `(p)` in
-`𝓞 K` is split, inert, or ramified. -/
-theorem isSplit_or_isInert_or_isRamified_of_quadraticField
+`𝓞 K` satisfies one of the numerical split, inert, or ramified conditions. -/
+theorem split_or_inert_or_ramified_of_quadraticField
     (K : Type*) [Field K] [Algebra ℚ K] [QuadraticField K]
     (p : ℕ) [Fact p.Prime] :
-    (Ideal.span {(p : ℤ)}).IsSplitIn (𝓞 K) ∨
-    (Ideal.span {(p : ℤ)}).IsInertIn (𝓞 K) ∨
-    (Ideal.span {(p : ℤ)}).IsRamifiedIn (𝓞 K) := by
+    (ramificationIdxIn (Ideal.span {(p : ℤ)}) (𝓞 K) = 1 ∧
+      inertiaDegIn (Ideal.span {(p : ℤ)}) (𝓞 K) = 1) ∨
+    ((primesOver (Ideal.span {(p : ℤ)}) (𝓞 K)).ncard = 1 ∧
+      ramificationIdxIn (Ideal.span {(p : ℤ)}) (𝓞 K) = 1) ∨
+    1 < ramificationIdxIn (Ideal.span {(p : ℤ)}) (𝓞 K) := by
   have hchar : ringChar ℤ ≠ 2 := by simp [ringChar.eq_zero]
   have hbot : Ideal.span {(p : ℤ)} ≠ ⊥ := by
     rw [Ne, Ideal.span_singleton_eq_bot, Nat.cast_eq_zero]
@@ -55,7 +58,7 @@ theorem isSplit_or_isInert_or_isRamified_of_quadraticField
   haveI : (Ideal.span {(p : ℤ)}).IsMaximal :=
     PrincipalIdealRing.isMaximal_of_irreducible
       ((Nat.prime_iff_prime_int.mp (Fact.out : Nat.Prime p)).irreducible)
-  exact Ideal.isSplit_or_isInert_or_isRamified _ _ hchar hbot
+  exact Ideal.split_or_inert_or_ramified _ _ hchar hbot
 
 /-- The abstract splitting trichotomy together with a chosen standard model.
 
@@ -66,12 +69,14 @@ theorem exists_standardParameter_splitting_trichotomy
     (K : Type*) [Field K] [Algebra ℚ K] [QuadraticField K]
     (p : ℕ) [Fact p.Prime] :
     ∃ d : ℤ, Squarefree d ∧ d ≠ 1 ∧ Nonempty (K ≃+* Qsqrtd (d : ℚ)) ∧
-      ((Ideal.span {(p : ℤ)}).IsSplitIn (𝓞 K) ∨
-      (Ideal.span {(p : ℤ)}).IsInertIn (𝓞 K) ∨
-      (Ideal.span {(p : ℤ)}).IsRamifiedIn (𝓞 K)) := by
+      ((ramificationIdxIn (Ideal.span {(p : ℤ)}) (𝓞 K) = 1 ∧
+        inertiaDegIn (Ideal.span {(p : ℤ)}) (𝓞 K) = 1) ∨
+      ((primesOver (Ideal.span {(p : ℤ)}) (𝓞 K)).ncard = 1 ∧
+        ramificationIdxIn (Ideal.span {(p : ℤ)}) (𝓞 K) = 1) ∨
+      1 < ramificationIdxIn (Ideal.span {(p : ℤ)}) (𝓞 K)) := by
   obtain ⟨d, hd_sf, hd_ne, hK⟩ := exists_ringEquiv_qsqrtd K
   exact ⟨d, hd_sf, hd_ne, hK,
-    isSplit_or_isInert_or_isRamified_of_quadraticField K p⟩
+    split_or_inert_or_ramified_of_quadraticField K p⟩
 
 end Splitting
 end QuadraticNumberFields

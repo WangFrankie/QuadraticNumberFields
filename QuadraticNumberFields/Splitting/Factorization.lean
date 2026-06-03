@@ -24,9 +24,9 @@ exponent equals `ramificationIdxIn p S`), via
 
 ## Main results
 
-* `Ideal.map_eq_of_isSplitIn`
-* `Ideal.map_isPrime_of_isInertIn`
-* `Ideal.map_eq_sq_of_isRamifiedIn`
+* `Ideal.map_eq_of_ramificationIdxIn_eq_one_of_inertiaDegIn_eq_one`
+* `Ideal.map_isPrime_of_ncard_primesOver_eq_one_of_ramificationIdxIn_eq_one`
+* `Ideal.map_eq_sq_of_one_lt_ramificationIdxIn`
 -/
 
 open Ideal
@@ -74,16 +74,20 @@ private theorem map_eq_prod_pow_ramificationIdxIn
   rw [Set.mem_toFinset] at hP
   exact ramificationIdx_eq_ramificationIdxIn p S hchar hP
 
-/-- In a degree-2 Dedekind extension, "split" means the ideal factors as a
-product of two distinct primes: `map p = P₁ · P₂`. -/
-theorem map_eq_of_isSplitIn [Nontrivial R] [IsDedekindDomain R] [IsDedekindDomain S]
+/-- In a degree-2 Dedekind extension, the numerical split condition
+`e = 1 ∧ f = 1` means the ideal factors as a product of two distinct primes:
+`map p = P₁ · P₂`. -/
+theorem map_eq_of_ramificationIdxIn_eq_one_of_inertiaDegIn_eq_one
+    [Nontrivial R] [IsDedekindDomain R] [IsDedekindDomain S]
     [Algebra.IsQuadraticExtension R S] [Algebra.IsIntegral R S]
     [Module.IsTorsionFree R S]
-    (hchar : ringChar R ≠ 2) (hp : p ≠ ⊥) [p.IsMaximal] (hs : p.IsSplitIn S) :
+    (hchar : ringChar R ≠ 2) (hp : p ≠ ⊥) [p.IsMaximal]
+    (hs : ramificationIdxIn p S = 1 ∧ inertiaDegIn p S = 1) :
     ∃ P₁ ∈ primesOver p S, ∃ P₂ ∈ primesOver p S, P₁ ≠ P₂ ∧
       Ideal.map (algebraMap R S) p = P₁ * P₂ := by
   classical
-  obtain ⟨_, he, _⟩ := (isSplitIn_iff_efg p S hchar hp).mp hs
+  obtain ⟨_, he, _⟩ :=
+    (ramificationIdxIn_eq_one_and_inertiaDegIn_eq_one_iff_efg p S hchar hp).mp hs
   rw [Set.ncard_eq_two] at *
   obtain ⟨P₁, P₂, hne, hset⟩ := ‹∃ _, _›
   have hP1 : P₁ ∈ primesOver p S := by rw [hset]; exact Set.mem_insert _ _
@@ -98,12 +102,14 @@ theorem map_eq_of_isSplitIn [Nontrivial R] [IsDedekindDomain R] [IsDedekindDomai
   simp only [pow_one] at hfact
   rwa [Finset.prod_pair hne] at hfact
 
-/-- In a degree-2 Dedekind extension, "inert" means the lifted ideal is
-itself prime: `(map p).IsPrime`. -/
-theorem map_isPrime_of_isInertIn [Nontrivial R] [IsDedekindDomain R] [IsDedekindDomain S]
+/-- In a degree-2 Dedekind extension, the numerical inert condition
+`g = 1 ∧ e = 1` means the lifted ideal is itself prime. -/
+theorem map_isPrime_of_ncard_primesOver_eq_one_of_ramificationIdxIn_eq_one
+    [Nontrivial R] [IsDedekindDomain R] [IsDedekindDomain S]
     [Algebra.IsQuadraticExtension R S] [Algebra.IsIntegral R S]
     [Module.IsTorsionFree R S]
-    (hchar : ringChar R ≠ 2) (hp : p ≠ ⊥) [p.IsMaximal] (hi : p.IsInertIn S) :
+    (hchar : ringChar R ≠ 2) (hp : p ≠ ⊥) [p.IsMaximal]
+    (hi : (primesOver p S).ncard = 1 ∧ ramificationIdxIn p S = 1) :
     (Ideal.map (algebraMap R S) p).IsPrime := by
   obtain ⟨hg, he⟩ := hi
   rw [Set.ncard_eq_one] at hg
@@ -117,14 +123,16 @@ theorem map_isPrime_of_isInertIn [Nontrivial R] [IsDedekindDomain R] [IsDedekind
   rw [hfact]
   exact (hPset ▸ Set.mem_singleton P : P ∈ primesOver p S).1
 
-/-- In a degree-2 Dedekind extension, "ramified" means the lifted ideal is
-the square of a prime: `map p = P²`. -/
-theorem map_eq_sq_of_isRamifiedIn [Nontrivial R] [IsDedekindDomain R] [IsDedekindDomain S]
+/-- In a degree-2 Dedekind extension, the numerical ramified condition
+`1 < e` means the lifted ideal is the square of a prime: `map p = P²`. -/
+theorem map_eq_sq_of_one_lt_ramificationIdxIn
+    [Nontrivial R] [IsDedekindDomain R] [IsDedekindDomain S]
     [Algebra.IsQuadraticExtension R S] [Algebra.IsIntegral R S]
     [Module.IsTorsionFree R S]
-    (hchar : ringChar R ≠ 2) (hp : p ≠ ⊥) [p.IsMaximal] (hr : p.IsRamifiedIn S) :
+    (hchar : ringChar R ≠ 2) (hp : p ≠ ⊥) [p.IsMaximal]
+    (hr : 1 < ramificationIdxIn p S) :
     ∃ P ∈ primesOver p S, Ideal.map (algebraMap R S) p = P ^ 2 := by
-  obtain ⟨hg, he, _⟩ := (isRamifiedIn_iff_efg p S hchar hp).mp hr
+  obtain ⟨hg, he, _⟩ := (one_lt_ramificationIdxIn_iff_efg p S hchar hp).mp hr
   rw [Set.ncard_eq_one] at hg
   obtain ⟨P, hPset⟩ := hg
   refine ⟨P, hPset ▸ Set.mem_singleton P, ?_⟩

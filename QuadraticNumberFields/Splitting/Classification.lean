@@ -244,8 +244,10 @@ instance : Algebra.IsQuadraticExtension ℤ (𝓞 (Qsqrtd (d : ℚ))) :=
       congr 1
       exact Subsingleton.elim _ _))
 
-private lemma isSplitIn_iff_primesOver_ncard_eq_two (p : ℕ) [Fact p.Prime] :
-    (Ideal.span {(p : ℤ)}).IsSplitIn (𝓞 (Qsqrtd (d : ℚ))) ↔
+private lemma ramificationIdxIn_eq_one_and_inertiaDegIn_eq_one_iff_primesOver_ncard_eq_two
+    (p : ℕ) [Fact p.Prime] :
+    ramificationIdxIn (Ideal.span {(p : ℤ)}) (𝓞 (Qsqrtd (d : ℚ))) = 1 ∧
+        inertiaDegIn (Ideal.span {(p : ℤ)}) (𝓞 (Qsqrtd (d : ℚ))) = 1 ↔
       (primesOver (Ideal.span {(p : ℤ)}) (𝓞 (Qsqrtd (d : ℚ)))).ncard = 2 := by
   have hchar : ringChar ℤ ≠ 2 := by simp [ringChar.eq_zero]
   have hbot : Ideal.span {(p : ℤ)} ≠ ⊥ := by
@@ -254,7 +256,8 @@ private lemma isSplitIn_iff_primesOver_ncard_eq_two (p : ℕ) [Fact p.Prime] :
   haveI : (Ideal.span {(p : ℤ)}).IsMaximal :=
     PrincipalIdealRing.isMaximal_of_irreducible
       ((Nat.prime_iff_prime_int.mp (Fact.out : Nat.Prime p)).irreducible)
-  rw [Ideal.isSplitIn_iff_efg (p := Ideal.span {(p : ℤ)})
+  rw [Ideal.ramificationIdxIn_eq_one_and_inertiaDegIn_eq_one_iff_efg
+    (p := Ideal.span {(p : ℤ)})
     (S := 𝓞 (Qsqrtd (d : ℚ))) hchar hbot]
   constructor
   · rintro ⟨hg, _, _⟩
@@ -277,9 +280,10 @@ private lemma primesOver_ncard_eq_monicFactorsMod_card (p : ℕ) [Fact p.Prime] 
 /-- Odd-prime split criterion in the `ℤ[√d]` branch of the ring of integers. -/
 theorem isSplit_iff_legendreSym_eq_one_of_mod_four_ne_one
     (p : ℕ) [Fact p.Prime] (hp : p ≠ 2) (hpd : ¬ (p : ℤ) ∣ d) (hd4 : d % 4 ≠ 1) :
-    (Ideal.span {(p : ℤ)}).IsSplitIn (𝓞 (Qsqrtd (d : ℚ)))
-      ↔ legendreSym p d = 1 := by
-  rw [isSplitIn_iff_primesOver_ncard_eq_two d p,
+    ramificationIdxIn (Ideal.span {(p : ℤ)}) (𝓞 (Qsqrtd (d : ℚ))) = 1 ∧
+        inertiaDegIn (Ideal.span {(p : ℤ)}) (𝓞 (Qsqrtd (d : ℚ))) = 1 ↔
+      legendreSym p d = 1 := by
+  rw [ramificationIdxIn_eq_one_and_inertiaDegIn_eq_one_iff_primesOver_ncard_eq_two d p,
     primesOver_ncard_eq_monicFactorsMod_card d p]
   have hmin :
       RingOfIntegers.monicFactorsMod (ringOfIntegersGenerator d) p =
@@ -298,9 +302,10 @@ theorem isSplit_iff_legendreSym_eq_one_of_mod_four_ne_one
 /-- Odd-prime split criterion in the `ℤ[(1+√d)/2]` branch of the ring of integers. -/
 theorem isSplit_iff_legendreSym_eq_one_of_mod_four_eq_one
     (p : ℕ) [Fact p.Prime] (hp : p ≠ 2) (hpd : ¬ (p : ℤ) ∣ d) (hd4 : d % 4 = 1) :
-    (Ideal.span {(p : ℤ)}).IsSplitIn (𝓞 (Qsqrtd (d : ℚ)))
-      ↔ legendreSym p d = 1 := by
-  rw [isSplitIn_iff_primesOver_ncard_eq_two d p,
+    ramificationIdxIn (Ideal.span {(p : ℤ)}) (𝓞 (Qsqrtd (d : ℚ))) = 1 ∧
+        inertiaDegIn (Ideal.span {(p : ℤ)}) (𝓞 (Qsqrtd (d : ℚ))) = 1 ↔
+      legendreSym p d = 1 := by
+  rw [ramificationIdxIn_eq_one_and_inertiaDegIn_eq_one_iff_primesOver_ncard_eq_two d p,
     primesOver_ncard_eq_monicFactorsMod_card d p]
   have hmin :
       RingOfIntegers.monicFactorsMod (ringOfIntegersGenerator d) p =
@@ -321,8 +326,9 @@ theorem isSplit_iff_legendreSym_eq_one_of_mod_four_eq_one
 -- TODO: split ↔ legendreSym = 1
 theorem isSplit_iff_legendreSym_eq_one
     (p : ℕ) [Fact p.Prime] (hp : p ≠ 2) (hpd : ¬ (p : ℤ) ∣ d) :
-    (Ideal.span {(p : ℤ)}).IsSplitIn (𝓞 (Qsqrtd (d : ℚ)))
-      ↔ legendreSym p d = 1 := by
+    ramificationIdxIn (Ideal.span {(p : ℤ)}) (𝓞 (Qsqrtd (d : ℚ))) = 1 ∧
+        inertiaDegIn (Ideal.span {(p : ℤ)}) (𝓞 (Qsqrtd (d : ℚ))) = 1 ↔
+      legendreSym p d = 1 := by
   by_cases hd4 : d % 4 = 1
   · exact isSplit_iff_legendreSym_eq_one_of_mod_four_eq_one d p hp hpd hd4
   · exact isSplit_iff_legendreSym_eq_one_of_mod_four_ne_one d p hp hpd hd4
@@ -330,22 +336,25 @@ theorem isSplit_iff_legendreSym_eq_one
 -- TODO: inert ↔ legendreSym = -1
 -- theorem isInert_iff_legendreSym_eq_neg_one
 --     (p : ℕ) [Fact p.Prime] (hp : p ≠ 2) (hpd : ¬ (p : ℤ) ∣ d) :
---     (Ideal.span {(p : ℤ)}).IsInertIn (𝓞 (Qsqrtd (d : ℚ)))
+--     (primesOver (Ideal.span {(p : ℤ)}) (𝓞 (Qsqrtd (d : ℚ)))).ncard = 1 ∧
+--       ramificationIdxIn (Ideal.span {(p : ℤ)}) (𝓞 (Qsqrtd (d : ℚ))) = 1
 --       ↔ legendreSym p d = -1 := ...
 
 -- TODO: p ∣ d → ramified
 -- theorem isRamified_of_dvd
 --     (p : ℕ) [Fact p.Prime] (hpd : (p : ℤ) ∣ d) :
---     (Ideal.span {(p : ℤ)}).IsRamifiedIn (𝓞 (Qsqrtd (d : ℚ))) := ...
+--     1 < ramificationIdxIn (Ideal.span {(p : ℤ)}) (𝓞 (Qsqrtd (d : ℚ))) := ...
 
 
 
-/-- For a squarefree `d ≠ 1` and any prime `p`, the ideal `(p)` in `𝓞(ℚ(√d))` is
-split, inert, or ramified. -/
-theorem isSplit_or_isInert_or_isRamified (p : ℕ) [Fact p.Prime] :
-    (Ideal.span {(p : ℤ)}).IsSplitIn (𝓞 (Qsqrtd (d : ℚ))) ∨
-    (Ideal.span {(p : ℤ)}).IsInertIn (𝓞 (Qsqrtd (d : ℚ))) ∨
-    (Ideal.span {(p : ℤ)}).IsRamifiedIn (𝓞 (Qsqrtd (d : ℚ))) := by
+/-- For a squarefree `d ≠ 1` and any prime `p`, the ideal `(p)` in `𝓞(ℚ(√d))`
+satisfies one of the numerical split, inert, or ramified conditions. -/
+theorem split_or_inert_or_ramified (p : ℕ) [Fact p.Prime] :
+    (ramificationIdxIn (Ideal.span {(p : ℤ)}) (𝓞 (Qsqrtd (d : ℚ))) = 1 ∧
+      inertiaDegIn (Ideal.span {(p : ℤ)}) (𝓞 (Qsqrtd (d : ℚ))) = 1) ∨
+    ((primesOver (Ideal.span {(p : ℤ)}) (𝓞 (Qsqrtd (d : ℚ)))).ncard = 1 ∧
+      ramificationIdxIn (Ideal.span {(p : ℤ)}) (𝓞 (Qsqrtd (d : ℚ))) = 1) ∨
+    1 < ramificationIdxIn (Ideal.span {(p : ℤ)}) (𝓞 (Qsqrtd (d : ℚ))) := by
   have hchar : ringChar ℤ ≠ 2 := by simp [ringChar.eq_zero]
   have hbot : Ideal.span {(p : ℤ)} ≠ ⊥ := by
     rw [Ne, Ideal.span_singleton_eq_bot, Nat.cast_eq_zero]
@@ -353,15 +362,20 @@ theorem isSplit_or_isInert_or_isRamified (p : ℕ) [Fact p.Prime] :
   haveI : (Ideal.span {(p : ℤ)}).IsMaximal :=
     PrincipalIdealRing.isMaximal_of_irreducible
       ((Nat.prime_iff_prime_int.mp (Fact.out : Nat.Prime p)).irreducible)
-  exact Ideal.isSplit_or_isInert_or_isRamified _ _ hchar hbot
+  exact Ideal.split_or_inert_or_ramified _ _ hchar hbot
 
 /-! ## Unified classification -/
 
 -- TODO: complete trichotomy
 -- theorem splitting_classification (p : ℕ) [Fact p.Prime] :
---     ((legendreSym p d = 1  ∧ (Ideal.span {(p : ℤ)}).IsSplitIn (𝓞 (Qsqrtd (d : ℚ)))) ∨
---      (legendreSym p d = -1 ∧ (Ideal.span {(p : ℤ)}).IsInertIn (𝓞 (Qsqrtd (d : ℚ)))) ∨
---      (legendreSym p d = 0  ∧ (Ideal.span {(p : ℤ)}).IsRamifiedIn (𝓞 (Qsqrtd (d : ℚ))))) := ...
+--     ((legendreSym p d = 1  ∧
+--        ramificationIdxIn (Ideal.span {(p : ℤ)}) (𝓞 (Qsqrtd (d : ℚ))) = 1 ∧
+--        inertiaDegIn (Ideal.span {(p : ℤ)}) (𝓞 (Qsqrtd (d : ℚ))) = 1) ∨
+--      (legendreSym p d = -1 ∧
+--        (primesOver (Ideal.span {(p : ℤ)}) (𝓞 (Qsqrtd (d : ℚ)))).ncard = 1 ∧
+--        ramificationIdxIn (Ideal.span {(p : ℤ)}) (𝓞 (Qsqrtd (d : ℚ))) = 1) ∨
+--      (legendreSym p d = 0  ∧
+--        1 < ramificationIdxIn (Ideal.span {(p : ℤ)}) (𝓞 (Qsqrtd (d : ℚ))))) := ...
 
 end Splitting
 end QuadraticNumberFields
