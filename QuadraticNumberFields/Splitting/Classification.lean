@@ -6,6 +6,7 @@ Authors: Frankie Wang
 import QuadraticNumberFields.Splitting.Defs
 import QuadraticNumberFields.Splitting.Monogenic
 import QuadraticNumberFields.Splitting.MinpolyMod
+import QuadraticNumberFields.QuadraticField.RingOfIntegers
 import Mathlib.Algebra.QuadraticDiscriminant
 
 /-!
@@ -235,14 +236,6 @@ private lemma normalizedFactors_X_sq_sub_X_sub_C_card_eq_one_of_legendre_ne_one
   · exact irreducible_X_sq_sub_X_sub_C_of_not_square_discr p hnsq
 
 /-! ## Basic trichotomy for `𝓞(ℚ(√d))` -/
-
-instance : Algebra.IsQuadraticExtension ℤ (𝓞 (Qsqrtd (d : ℚ))) :=
-  @Algebra.IsQuadraticExtension.mk ℤ _ _ _ _ _
-    (inferInstance : Module.Free ℤ (𝓞 (Qsqrtd (d : ℚ))))
-    ((NumberField.RingOfIntegers.rank (Qsqrtd (d : ℚ))).trans (by
-      convert Algebra.IsQuadraticExtension.finrank_eq_two ℚ (Qsqrtd (d : ℚ)) using 1
-      congr 1
-      exact Subsingleton.elim _ _))
 
 private lemma ramificationIdxIn_eq_one_and_inertiaDegIn_eq_one_iff_primesOver_ncard_eq_two
     (p : ℕ) [Fact p.Prime] :

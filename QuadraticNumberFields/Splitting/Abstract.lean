@@ -4,7 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 import QuadraticNumberFields.QuadraticField.Classification
-import QuadraticNumberFields.Splitting.Classification
+import QuadraticNumberFields.QuadraticField.RingOfIntegers
+import QuadraticNumberFields.Splitting.Defs
 
 /-!
 # Abstract Prime-Splitting Interface for Quadratic Fields
@@ -29,36 +30,28 @@ attribute [-instance] DivisionRing.toRatAlgebra
 namespace QuadraticNumberFields
 namespace Splitting
 
-/-- The ring of integers of an abstract quadratic field is a quadratic extension
-of `ℤ` in the sense needed by the splitting trichotomy. -/
-instance ringOfIntegers_isQuadraticExtension
-    (K : Type*) [Field K] [Algebra ℚ K] [QuadraticField K] :
-    Algebra.IsQuadraticExtension ℤ (𝓞 K) :=
-  @Algebra.IsQuadraticExtension.mk ℤ _ _ _ _ _
-    (inferInstance : Module.Free ℤ (𝓞 K))
-    ((NumberField.RingOfIntegers.rank K).trans (by
-      convert Algebra.IsQuadraticExtension.finrank_eq_two ℚ K using 1
-      congr 1
-      exact Subsingleton.elim _ _))
+section AbstractField
+
+variable (K : Type*) [Field K] [Algebra ℚ K] [QuadraticField K]
+
+local notation3 "𝔭(" p ")" => Ideal.span ({(p : ℤ)} : Set ℤ)
+local notation3 "e(" p ")" => ramificationIdxIn (𝔭(p)) (𝓞 K)
+local notation3 "f(" p ")" => inertiaDegIn (𝔭(p)) (𝓞 K)
+local notation3 "g(" p ")" => (primesOver (𝔭(p)) (𝓞 K)).ncard
 
 /-- For any abstract quadratic field and any rational prime `p`, `(p)` in
 `𝓞 K` satisfies one of the numerical split, inert, or ramified conditions. -/
 theorem split_or_inert_or_ramified_of_quadraticField
-    (K : Type*) [Field K] [Algebra ℚ K] [QuadraticField K]
     (p : ℕ) [Fact p.Prime] :
-    (ramificationIdxIn (Ideal.span {(p : ℤ)}) (𝓞 K) = 1 ∧
-      inertiaDegIn (Ideal.span {(p : ℤ)}) (𝓞 K) = 1) ∨
-    ((primesOver (Ideal.span {(p : ℤ)}) (𝓞 K)).ncard = 1 ∧
-      ramificationIdxIn (Ideal.span {(p : ℤ)}) (𝓞 K) = 1) ∨
-    1 < ramificationIdxIn (Ideal.span {(p : ℤ)}) (𝓞 K) := by
+    (e(p) = 1 ∧ f(p) = 1) ∨ (g(p) = 1 ∧ e(p) = 1) ∨ 1 < e(p) := by
   have hchar : ringChar ℤ ≠ 2 := by simp [ringChar.eq_zero]
-  have hbot : Ideal.span {(p : ℤ)} ≠ ⊥ := by
+  have hbot : 𝔭(p) ≠ ⊥ := by
     rw [Ne, Ideal.span_singleton_eq_bot, Nat.cast_eq_zero]
     exact (Fact.out : Nat.Prime p).ne_zero
-  haveI : (Ideal.span {(p : ℤ)}).IsMaximal :=
+  haveI : (𝔭(p)).IsMaximal :=
     PrincipalIdealRing.isMaximal_of_irreducible
       ((Nat.prime_iff_prime_int.mp (Fact.out : Nat.Prime p)).irreducible)
-  exact Ideal.split_or_inert_or_ramified _ _ hchar hbot
+  exact Ideal.split_or_inert_or_ramified (𝔭(p)) (𝓞 K) hchar hbot
 
 /-- The abstract splitting trichotomy together with a chosen standard model.
 
@@ -66,17 +59,14 @@ This packages the intended workflow for future explicit splitting theorems:
 choose a standard squarefree parameter, compute in `Qsqrtd d`, and state the
 splitting predicates back on the original `K`. -/
 theorem exists_standardParameter_splitting_trichotomy
-    (K : Type*) [Field K] [Algebra ℚ K] [QuadraticField K]
     (p : ℕ) [Fact p.Prime] :
     ∃ d : ℤ, Squarefree d ∧ d ≠ 1 ∧ Nonempty (K ≃+* Qsqrtd (d : ℚ)) ∧
-      ((ramificationIdxIn (Ideal.span {(p : ℤ)}) (𝓞 K) = 1 ∧
-        inertiaDegIn (Ideal.span {(p : ℤ)}) (𝓞 K) = 1) ∨
-      ((primesOver (Ideal.span {(p : ℤ)}) (𝓞 K)).ncard = 1 ∧
-        ramificationIdxIn (Ideal.span {(p : ℤ)}) (𝓞 K) = 1) ∨
-      1 < ramificationIdxIn (Ideal.span {(p : ℤ)}) (𝓞 K)) := by
+      ((e(p) = 1 ∧ f(p) = 1) ∨ (g(p) = 1 ∧ e(p) = 1) ∨ 1 < e(p)) := by
   obtain ⟨d, hd_sf, hd_ne, hK⟩ := exists_ringEquiv_qsqrtd K
   exact ⟨d, hd_sf, hd_ne, hK,
     split_or_inert_or_ramified_of_quadraticField K p⟩
+
+end AbstractField
 
 end Splitting
 end QuadraticNumberFields

@@ -15,6 +15,7 @@ import QuadraticNumberFields.QuadraticField.Conj
 import QuadraticNumberFields.Qsqrtd.Automorphism
 import QuadraticNumberFields.Qsqrtd.Galois
 import QuadraticNumberFields.QuadraticField.Transport
+import QuadraticNumberFields.QuadraticField.RingOfIntegers
 import QuadraticNumberFields.Mathlib.RingTheory.DedekindDomain.Basic
 import QuadraticNumberFields.RingOfIntegers.ModFour
 import QuadraticNumberFields.Zsqrtd.Basic
