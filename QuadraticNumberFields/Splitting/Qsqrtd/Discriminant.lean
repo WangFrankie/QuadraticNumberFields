@@ -42,10 +42,13 @@ namespace Splitting
 
 variable (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
 
+local notation3 "𝓞d" => 𝓞 (Qsqrtd (d : ℚ))
+local notation3 "𝔭(" p ")" => Ideal.span ({(p : ℤ)} : Set ℤ)
+local notation3 "disc" => NumberField.discr (Qsqrtd (d : ℚ))
+
 -- TODO: ramified ↔ p | disc
 theorem isRamified_iff_dvd_disc (p : ℕ) [Fact p.Prime] :
-    Ideal.IsRamifiedIn (Ideal.span {(p : ℤ)}) (𝓞 (Qsqrtd (d : ℚ))) ↔
-      (p : ℤ) ∣ NumberField.discr (Qsqrtd (d : ℚ)) := sorry
+    Ideal.IsRamifiedIn (𝔭(p)) 𝓞d ↔ (p : ℤ) ∣ disc := sorry
 
 -- TODO: explicit characterization of ramified primes
 -- theorem ramified_primes_odd (p : ℕ) [Fact p.Prime] (hp : p ≠ 2) :

@@ -91,11 +91,13 @@ namespace Splitting
 
 variable (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
 
+local notation3 "𝓞d" => 𝓞 (Qsqrtd (d : ℚ))
+
 /-- The generator `θ` of `𝓞(ℚ(√d))` as a ℤ-algebra.
 When `d % 4 ≠ 1`, this is the image of `√d` (= `omega` in `Zsqrtd d`).
 When `d % 4 = 1`, this is the image of `(1 + √d)/2` (= `omega` in `ZOnePlusSqrtOverTwo k`). -/
 noncomputable def ringOfIntegersGenerator :
-    𝓞 (Qsqrtd (d : ℚ)) :=
+    𝓞d :=
   if hd4 : d % 4 = 1 then
     (RingOfIntegers.ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one d hd4).symm
       QuadraticAlgebra.omega
@@ -103,9 +105,11 @@ noncomputable def ringOfIntegersGenerator :
     (RingOfIntegers.ringOfIntegers_equiv_zsqrtd_of_mod_four_ne_one d hd4).symm
       QuadraticAlgebra.omega
 
+local notation3 "θd" => ringOfIntegersGenerator d
+
 /-- The generator `θ` generates `𝓞(ℚ(√d))` as a ℤ-algebra. -/
 theorem adjoin_generator_eq_top :
-    Algebra.adjoin ℤ ({ringOfIntegersGenerator d} : Set (𝓞 (Qsqrtd (d : ℚ)))) = ⊤ := by
+    Algebra.adjoin ℤ ({θd} : Set 𝓞d) = ⊤ := by
   unfold ringOfIntegersGenerator
   split
   · next hd4 =>
@@ -119,12 +123,12 @@ theorem adjoin_generator_eq_top :
 
 /-- The exponent of the generator is `1`, i.e., `𝓞 = ℤ[θ]` exactly. -/
 theorem exponent_generator_eq_one :
-    RingOfIntegers.exponent (ringOfIntegersGenerator d) = 1 :=
+    RingOfIntegers.exponent θd = 1 :=
   RingOfIntegers.exponent_eq_one_iff.mpr (adjoin_generator_eq_top d)
 
 /-- Kummer–Dedekind applies unconditionally: no prime divides the exponent. -/
 theorem not_dvd_exponent_generator (p : ℕ) [Fact p.Prime] :
-    ¬ p ∣ RingOfIntegers.exponent (ringOfIntegersGenerator d) := by
+    ¬ p ∣ RingOfIntegers.exponent θd := by
   rw [exponent_generator_eq_one]
   intro h
   have := Nat.le_of_dvd Nat.one_pos h
@@ -229,9 +233,9 @@ theorem minpoly_omega_quadAlg_one (k : ℤ) :
 When `d % 4 ≠ 1`: `minpoly ℤ θ = X² - d`.
 When `d % 4 = 1` (with `d = 1 + 4k`): `minpoly ℤ θ = X² - X - k`. -/
 theorem minpoly_generator :
-    (d % 4 ≠ 1 → minpoly ℤ (ringOfIntegersGenerator d) = Polynomial.X ^ 2 - Polynomial.C d) ∧
+    (d % 4 ≠ 1 → minpoly ℤ θd = Polynomial.X ^ 2 - Polynomial.C d) ∧
     (∀ _ : d % 4 = 1,
-      minpoly ℤ (ringOfIntegersGenerator d) =
+      minpoly ℤ θd =
         Polynomial.X ^ 2 - Polynomial.X - Polynomial.C (d / 4)) := by
   constructor
   · intro hd4
