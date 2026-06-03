@@ -13,10 +13,10 @@ import QuadraticNumberFields.Qsqrtd.Basic
 import QuadraticNumberFields.Qsqrtd.Equiv
 import QuadraticNumberFields.Qsqrtd.TraceNorm
 import QuadraticNumberFields.Qsqrtd.TotallyRealComplex
-import QuadraticNumberFields.Splitting.Abstract
-import QuadraticNumberFields.Splitting.Classification
-import QuadraticNumberFields.Splitting.Discriminant
 import QuadraticNumberFields.Splitting.Factorization
+import QuadraticNumberFields.Splitting.Qsqrtd.Classification
+import QuadraticNumberFields.Splitting.Qsqrtd.Discriminant
+import QuadraticNumberFields.Splitting.QuadraticField.Basic
 import QuadraticNumberFields.Units
 
 /-!

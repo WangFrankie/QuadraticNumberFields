@@ -18,9 +18,9 @@ theorem for degree-2 extensions (quadratic number fields).
 
 ## Implementation notes
 
-There are intentionally no project-owned `IsSplitIn`/`IsInertIn`/`IsRamifiedIn`
-predicates here.  Statements use mathlib's `primesOver`, `ramificationIdxIn`,
-`inertiaDegIn`, `ramificationIdx`, and `inertiaDeg` directly.
+The predicates `IsSplitIn`/`IsInertIn`/`IsRamifiedIn` are numerical wrappers
+around mathlib's `primesOver`, `ramificationIdxIn`, and `inertiaDegIn` API.
+Ideal-factorization characterisations live in `Splitting.Factorization`.
 
 ## Main Theorems
 
@@ -34,6 +34,21 @@ namespace Ideal
 
 variable {R : Type*} [CommRing R]
 variable (p : Ideal R) (S : Type*) [CommRing S] [Algebra R S]
+
+/-- The ideal `p` splits in `S` in the numerical ramification-inertia sense:
+uniform ramification index and inertia degree are both one. -/
+def IsSplitIn : Prop :=
+  ramificationIdxIn p S = 1 ∧ inertiaDegIn p S = 1
+
+/-- The ideal `p` is inert in `S` in the numerical ramification-inertia sense:
+there is one prime above `p`, and the ramification index is one. -/
+def IsInertIn : Prop :=
+  (primesOver p S).ncard = 1 ∧ ramificationIdxIn p S = 1
+
+/-- The ideal `p` ramifies in `S` in the numerical ramification-inertia sense:
+the uniform ramification index is greater than one. -/
+def IsRamifiedIn : Prop :=
+  1 < ramificationIdxIn p S
 
 local notation3 "g(" p ")" => (primesOver p S).ncard
 
@@ -210,7 +225,7 @@ prime ideal is split, inert, or ramified. -/
 theorem split_or_inert_or_ramified [Nontrivial R] [IsDedekindDomain R]
     [Algebra.IsQuadraticExtension R S]
     (hchar : ringChar R ≠ 2) (hp : p ≠ ⊥) [p.IsMaximal] :
-    (e(p) = 1 ∧ f(p) = 1) ∨ (g(p) = 1 ∧ e(p) = 1) ∨ 1 < e(p) := by
+    IsSplitIn p S ∨ IsInertIn p S ∨ IsRamifiedIn p S := by
   rcases efg_trichotomy p S hchar hp with h | h | h
   · exact Or.inl ((ramificationIdxIn_eq_one_and_inertiaDegIn_eq_one_iff_efg
       p S hchar hp).mpr h)

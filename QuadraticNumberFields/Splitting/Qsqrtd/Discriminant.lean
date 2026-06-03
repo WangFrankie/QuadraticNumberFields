@@ -3,19 +3,19 @@ Copyright (c) 2026 Frankie Wang. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
-import QuadraticNumberFields.Splitting.Classification
+import QuadraticNumberFields.Splitting.Qsqrtd.Classification
 import QuadraticNumberFields.RingOfIntegers.Discriminant
-import QuadraticNumberFields.QuadraticField.Basic
 
 /-!
-# Ramification and the Discriminant
+# Ramification and the Discriminant for `Qsqrtd`
 
 This file proves that a prime `p` ramifies in `𝓞(ℚ(√d))` if and only if
 `p` divides the discriminant of `ℚ(√d)`.
 
 ## Main Results
 
-* `isRamified_iff_dvd_disc`: `(p)` ramifies in `𝓞(ℚ(√d))` ↔ `p ∣ disc(ℚ(√d))`
+* `isRamified_iff_dvd_disc`: `(p)` ramifies in `𝓞(ℚ(√d))` ↔
+  `p ∣ NumberField.discr (ℚ(√d))`
 
 Combined with the explicit discriminant formulas from `RingOfIntegers/Discriminant.lean`:
 * `disc = 4d` when `d % 4 ≠ 1`
@@ -44,7 +44,7 @@ variable (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
 
 -- TODO: ramified ↔ p | disc
 theorem isRamified_iff_dvd_disc (p : ℕ) [Fact p.Prime] :
-    1 < Ideal.ramificationIdxIn (Ideal.span {(p : ℤ)}) (𝓞 (Qsqrtd (d : ℚ))) ↔
+    Ideal.IsRamifiedIn (Ideal.span {(p : ℤ)}) (𝓞 (Qsqrtd (d : ℚ))) ↔
       (p : ℤ) ∣ NumberField.discr (Qsqrtd (d : ℚ)) := sorry
 
 -- TODO: explicit characterization of ramified primes
