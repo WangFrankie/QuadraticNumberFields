@@ -18,6 +18,8 @@ namespace Zsqrtd
 variable {d : ℤ}
 
 /-- The fundamental identity for `re + im` of a product in mathlib's `ℤ√d`. -/
+-- Repository use: `Zsqrtd/Ideals.lean` uses this in the proof that
+-- `(p, 1 - √d)` is prime.
 lemma mul_re_add_im_eq (a b : Zsqrtd d) :
     (a * b).re + (a * b).im =
       (a.re + a.im) * (b.re + b.im) + (d - 1) * a.im * b.im := by
@@ -25,6 +27,8 @@ lemma mul_re_add_im_eq (a b : Zsqrtd d) :
   ring
 
 /-- The fundamental identity for `re - im` of a product in mathlib's `ℤ√d`. -/
+-- Repository use: `Zsqrtd/Ideals.lean` uses this in the proof that
+-- `(p, 1 + √d)` is prime.
 lemma mul_re_sub_im_eq (a b : Zsqrtd d) :
     (a * b).re - (a * b).im =
       (a.re - a.im) * (b.re - b.im) + (d - 1) * a.im * b.im := by

@@ -7,9 +7,8 @@ import Mathlib.NumberTheory.RamificationInertia.Basic
 import Mathlib.NumberTheory.RamificationInertia.Galois
 import Mathlib.RingTheory.Ideal.Over
 import Mathlib.Data.Fintype.EquivFin
-import Mathlib.FieldTheory.PurelyInseparable.Basic
 import Mathlib.NumberTheory.NumberField.Basic
-import Mathlib.RingTheory.NormalClosure
+import QuadraticNumberFields.Mathlib.NumberTheory.RamificationInertia.Galois
 /-!
 # Splitting Definitions and Trichotomy
 
@@ -176,61 +175,6 @@ lemma isSplitIn_iff_isCompletelySplitIn (G : Type*) [Group G] [Finite G]
 
 
 end GalDefs
-
-
-section MissingMathlib
--- variable
-/-! ## Fraction-field bridge lemma
-
-This is a general bridge result that appears to be missing from mathlib.
--/
-
-/-- If `S` is a quadratic extension of `R`, then the fraction field of `S` is a quadratic
-extension of the fraction field of `R`. -/
-theorem _root_.Algebra.IsQuadraticExtension.fractionRing
-    {R S K L : Type*} [CommRing R] [CommRing S] [Field K] [Field L]
-    [Algebra R S] [Algebra R K] [Algebra S L] [Algebra R L] [Algebra K L]
-    [IsDomain R] [IsDomain S] [IsFractionRing R K] [IsFractionRing S L]
-    [IsScalarTower R K L] [IsScalarTower R S L] [Algebra.IsQuadraticExtension R S] :
-    Algebra.IsQuadraticExtension K L := by
-  letI : Algebra.IsAlgebraic R S := Algebra.IsAlgebraic.of_finite R S
-  refine ⟨?_⟩
-  calc
-    Module.finrank K L = Module.finrank R S := by
-      simpa using
-        (Algebra.IsAlgebraic.finrank_of_isFractionRing (R := R) (R' := K) (S := S) (S' := L))
-    _ = 2 := Algebra.IsQuadraticExtension.finrank_eq_two R S
-
-/-- If `K` is a quadratic extension of a field `F` of characteristic not equal to `2`,
-then `K/F` is separable. -/
-theorem _root_.Algebra.IsQuadraticExtension.isSeparable_of_field_of_char_ne_two
-    {F K : Type*} [Field F] [Field K] [Algebra F K] [Algebra.IsQuadraticExtension F K]
-    (hchar : ringChar F ≠ 2) : Algebra.IsSeparable F K := by
-  rw [isSeparable_iff_finInsepDegree_eq_one] -- [Field F, Field K, Algebra F K]
-  obtain ⟨n, hn⟩ := finInsepDegree_eq_pow (F := F) (E := K) (q := ringExpChar F)
-  have hdiv : Field.finInsepDegree F K ∣ 2 := by
-    refine ⟨Field.finSepDegree F K, ?_⟩
-    rw [Nat.mul_comm, Field.finSepDegree_mul_finInsepDegree,
-      Algebra.IsQuadraticExtension.finrank_eq_two F K]
-  rcases (Nat.dvd_prime Nat.prime_two).1 hdiv with h1 | h2
-  · exact h1
-  · have hexp : ringExpChar F ≠ 2 := by
-      rw [ringExpChar]
-      intro h
-      omega
-    rw [hn] at h2
-    cases n with
-    | zero => simp at h2
-    | succ n =>
-        have hq_dvd : ringExpChar F ∣ 2 := by
-          rw [pow_succ] at h2
-          exact ⟨(ringExpChar F) ^ n, by simpa [Nat.mul_comm] using h2.symm⟩
-        rcases (Nat.dvd_prime Nat.prime_two).1 hq_dvd with hq1 | hq2
-        · simp [hq1] at h2
-        · exact (hexp hq2).elim
-
-
-end MissingMathlib
 
 
 section Trichotomy

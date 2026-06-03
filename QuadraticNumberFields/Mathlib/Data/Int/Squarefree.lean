@@ -14,12 +14,15 @@ Material destined for mathlib.
 -/
 
 /-- `-1` is not a square in `ℚ`. -/
+-- Repository use: `QuadraticField/Parameters.lean` uses this to rule out the
+-- negative square-ratio case in squarefree parameter uniqueness.
 lemma not_isSquare_neg_one_rat : ¬ IsSquare (- (1 : ℚ)) := by
   rintro ⟨r, hr⟩
   have hnonneg : 0 ≤ r ^ 2 := sq_nonneg r
   nlinarith [hr, hnonneg]
 
 /-- A squarefree integer that is a perfect square (as an integer) must equal `1`. -/
+-- Repository use: internal support for `int_dvd_of_ratio_square`.
 lemma nat_eq_one_of_squarefree_intcast_of_isSquare (m : ℕ)
     (hsm : Squarefree (m : ℤ)) (hsq : IsSquare (m : ℤ)) : m = 1 := by
   have hmz : (m : ℤ) = 1 ∨ (m : ℤ) = -1 :=
@@ -34,6 +37,9 @@ This is a **general number-theoretic fact** about squarefree integers: if a
 squarefree integer divides the denominator of a reduced fraction that is a perfect
 square, then the denominator must be `1` (since its square part is constrained
 by squarefreeness). -/
+-- Repository use: `QuadraticField/Parameters.lean` uses this for uniqueness of
+-- squarefree parameters; `Qsqrtd/TraceNorm.lean` uses it in integrality
+-- denominator control.
 lemma int_dvd_of_ratio_square (d₁ d₂ : ℤ) (hd₂ : d₂ ≠ 0)
     (hsq_d₂ : Squarefree d₂) (hr : IsSquare ((d₁ : ℚ) / (d₂ : ℚ))) : d₂ ∣ d₁ := by
   -- A rational square has square numerator and denominator.

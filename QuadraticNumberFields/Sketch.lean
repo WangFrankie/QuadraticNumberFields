@@ -12,6 +12,7 @@ import QuadraticNumberFields.Qsqrtd.TotallyRealComplex
 import QuadraticNumberFields.Splitting.Abstract
 import QuadraticNumberFields.Splitting.Classification
 import QuadraticNumberFields.Splitting.Discriminant
+import QuadraticNumberFields.Splitting.Factorization
 
 /-!
 # Work-in-progress surface

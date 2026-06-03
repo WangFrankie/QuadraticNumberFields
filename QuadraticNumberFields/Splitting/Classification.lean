@@ -48,13 +48,14 @@ MinpolyMod.lean (X² - d mod p)
 legendreSym p d                      ← from mathlib
 ```
 -/
-
+attribute [-instance] DivisionRing.toRatAlgebra
 open scoped NumberField
 open Ideal
 open Polynomial
 open UniqueFactorizationMonoid
 
 namespace QuadraticNumberFields
+
 namespace Splitting
 
 variable (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
@@ -233,6 +234,16 @@ private lemma normalizedFactors_X_sq_sub_X_sub_C_card_eq_one_of_legendre_ne_one
   · simp
   · exact irreducible_X_sq_sub_X_sub_C_of_not_square_discr p hnsq
 
+/-! ## Basic trichotomy for `𝓞(ℚ(√d))` -/
+
+instance : Algebra.IsQuadraticExtension ℤ (𝓞 (Qsqrtd (d : ℚ))) :=
+  @Algebra.IsQuadraticExtension.mk ℤ _ _ _ _ _
+    (inferInstance : Module.Free ℤ (𝓞 (Qsqrtd (d : ℚ))))
+    ((NumberField.RingOfIntegers.rank (Qsqrtd (d : ℚ))).trans (by
+      convert Algebra.IsQuadraticExtension.finrank_eq_two ℚ (Qsqrtd (d : ℚ)) using 1
+      congr 1
+      exact Subsingleton.elim _ _))
+
 private lemma isSplitIn_iff_primesOver_ncard_eq_two (p : ℕ) [Fact p.Prime] :
     (Ideal.span {(p : ℤ)}).IsSplitIn (𝓞 (Qsqrtd (d : ℚ))) ↔
       (primesOver (Ideal.span {(p : ℤ)}) (𝓞 (Qsqrtd (d : ℚ)))).ncard = 2 := by
@@ -243,11 +254,6 @@ private lemma isSplitIn_iff_primesOver_ncard_eq_two (p : ℕ) [Fact p.Prime] :
   haveI : (Ideal.span {(p : ℤ)}).IsMaximal :=
     PrincipalIdealRing.isMaximal_of_irreducible
       ((Nat.prime_iff_prime_int.mp (Fact.out : Nat.Prime p)).irreducible)
-  haveI : Algebra.IsQuadraticExtension ℤ (𝓞 (Qsqrtd (d : ℚ))) :=
-    @Algebra.IsQuadraticExtension.mk ℤ _ _ _ _ _
-      (inferInstance : Module.Free ℤ (𝓞 (Qsqrtd (d : ℚ))))
-      ((NumberField.RingOfIntegers.rank (Qsqrtd (d : ℚ))).trans
-        (Algebra.IsQuadraticExtension.finrank_eq_two ℚ _))
   rw [Ideal.isSplitIn_iff_efg (p := Ideal.span {(p : ℤ)})
     (S := 𝓞 (Qsqrtd (d : ℚ))) hchar hbot]
   constructor
@@ -332,13 +338,7 @@ theorem isSplit_iff_legendreSym_eq_one
 --     (p : ℕ) [Fact p.Prime] (hpd : (p : ℤ) ∣ d) :
 --     (Ideal.span {(p : ℤ)}).IsRamifiedIn (𝓞 (Qsqrtd (d : ℚ))) := ...
 
-/-! ## Basic trichotomy for `𝓞(ℚ(√d))` -/
 
-instance : Algebra.IsQuadraticExtension ℤ (𝓞 (Qsqrtd (d : ℚ))) :=
-  @Algebra.IsQuadraticExtension.mk ℤ _ _ _ _ _
-    (inferInstance : Module.Free ℤ (𝓞 (Qsqrtd (d : ℚ))))
-    ((NumberField.RingOfIntegers.rank (Qsqrtd (d : ℚ))).trans
-      (Algebra.IsQuadraticExtension.finrank_eq_two ℚ _))
 
 /-- For a squarefree `d ≠ 1` and any prime `p`, the ideal `(p)` in `𝓞(ℚ(√d))` is
 split, inert, or ramified. -/

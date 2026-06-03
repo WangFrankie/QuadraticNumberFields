@@ -15,12 +15,14 @@ Material destined for mathlib.
 -/
 
 /-- The square of an even integer is `0 mod 4`. -/
+-- Repository use: internal support for the mod-four parity criteria below.
 lemma Int.sq_emod_four_of_even (n : ℤ) (h : 2 ∣ n) : n ^ 2 % 4 = 0 := by
   obtain ⟨k, rfl⟩ := h
   ring_nf
   omega
 
 /-- The square of an odd integer is `1 mod 4`. -/
+-- Repository use: internal support for the mod-four parity criteria below.
 lemma Int.sq_emod_four_of_odd (n : ℤ) (h : ¬ 2 ∣ n) : n ^ 2 % 4 = 1 := by
   set k := n / 2
   have hk : n = 2 * k + 1 := by omega
@@ -79,6 +81,8 @@ private lemma mod_four_eq_one_of_odd_odd_of_mod_eq_zero
   omega
 
 /-- Main mod-4 criterion for the binary quadratic form `a'² − d·b'²`. -/
+-- Repository use: internal support for the two branch-specific criteria used
+-- by `RingOfIntegers/Integrality.lean`.
 theorem dvd_four_sub_sq_iff_even_even_or_odd_odd_mod_four_one
     (d a' b' : ℤ) (hd : Squarefree d) :
     4 ∣ (a' ^ 2 - d * b' ^ 2) ↔
@@ -106,6 +110,8 @@ theorem dvd_four_sub_sq_iff_even_even_or_odd_odd_mod_four_one
       omega
 
 /-- If `d % 4 ≠ 1`, divisibility by `4` forces both numerators even. -/
+-- Repository use: internal support for
+-- `dvd_four_sub_sq_iff_even_even_of_ne_one_mod_four`.
 theorem even_even_of_dvd_four_sub_sq_of_ne_one_mod_four
     (d a' b' : ℤ) (hd : Squarefree d) (hd4 : d % 4 ≠ 1)
     (h : 4 ∣ (a' ^ 2 - d * b' ^ 2)) :
@@ -116,6 +122,8 @@ theorem even_even_of_dvd_four_sub_sq_of_ne_one_mod_four
   · exact absurd hd1 hd4
 
 /-- If `d % 4 ≠ 1`, divisibility by `4` is equivalent to both numerators even. -/
+-- Repository use: `RingOfIntegers/Integrality.lean` uses this in the
+-- `ℤ[√d]` branch of the integral-closure classification.
 theorem dvd_four_sub_sq_iff_even_even_of_ne_one_mod_four
     (d a' b' : ℤ) (hd : Squarefree d) (hd4 : d % 4 ≠ 1) :
     4 ∣ (a' ^ 2 - d * b' ^ 2) ↔ (2 ∣ a' ∧ 2 ∣ b') := by
@@ -124,6 +132,8 @@ theorem dvd_four_sub_sq_iff_even_even_of_ne_one_mod_four
   · exact fun h => (dvd_four_sub_sq_iff_even_even_or_odd_odd_mod_four_one d a' b' hd).2 (Or.inl h)
 
 /-- If `d % 4 = 1`, divisibility by `4` is equivalent to same parity. -/
+-- Repository use: `RingOfIntegers/Integrality.lean` uses this in the
+-- `ℤ[(1+√d)/2]` branch of the integral-closure classification.
 theorem dvd_four_sub_sq_iff_same_parity_of_one_mod_four
     (d a' b' : ℤ) (hd : Squarefree d) (hd4 : d % 4 = 1) :
     4 ∣ (a' ^ 2 - d * b' ^ 2) ↔ a' % 2 = b' % 2 := by

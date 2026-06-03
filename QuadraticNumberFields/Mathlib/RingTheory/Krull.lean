@@ -23,6 +23,9 @@ variable {R S : Type*} [CommRing R] [CommRing S]
 
 The proof pulls back prime ideals via `Ideal.comap`, applies `DimensionLEOne` on
 the source ring, then pushes forward via `Ideal.map`. -/
+-- Repository use: `Mathlib/RingTheory/DedekindDomain/Basic.lean` uses this
+-- inside `RingEquiv.isDedekindDomain`; the use is implicit through a local
+-- `letI : Ring.DimensionLEOne S`.
 theorem dimensionLEOne (e : R ≃+* S) [Ring.DimensionLEOne R] :
     Ring.DimensionLEOne S := by
   refine ⟨?_⟩

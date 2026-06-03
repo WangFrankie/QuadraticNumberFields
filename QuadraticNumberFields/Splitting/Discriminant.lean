@@ -5,6 +5,7 @@ Authors: Frankie Wang
 -/
 import QuadraticNumberFields.Splitting.Classification
 import QuadraticNumberFields.RingOfIntegers.Discriminant
+import QuadraticNumberFields.QuadraticField.Basic
 
 /-!
 # Ramification and the Discriminant
@@ -33,6 +34,8 @@ Backward (p ∣ disc → ramified):
 
 open scoped NumberField
 open Ideal
+
+attribute [-instance] DivisionRing.toRatAlgebra
 
 namespace QuadraticNumberFields
 namespace Splitting
