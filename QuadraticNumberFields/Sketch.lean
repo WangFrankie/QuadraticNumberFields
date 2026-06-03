@@ -3,7 +3,11 @@ Copyright (c) 2026 Frankie Wang. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
+import QuadraticNumberFields.ClassGroup
+import QuadraticNumberFields.ClassNumber
+import QuadraticNumberFields.ContinuedFraction
 import QuadraticNumberFields.Euclidean.Basic
+import QuadraticNumberFields.Families
 import QuadraticNumberFields.Qsqrtd.Automorphism
 import QuadraticNumberFields.Qsqrtd.Basic
 import QuadraticNumberFields.Qsqrtd.Equiv
@@ -13,6 +17,7 @@ import QuadraticNumberFields.Splitting.Abstract
 import QuadraticNumberFields.Splitting.Classification
 import QuadraticNumberFields.Splitting.Discriminant
 import QuadraticNumberFields.Splitting.Factorization
+import QuadraticNumberFields.Units
 
 /-!
 # Work-in-progress surface
@@ -25,6 +30,9 @@ kept out of the stable `QuadraticNumberFields` entry point so that
 Current work in progress:
 
 * `Euclidean.Basic`: imaginary-quadratic norm-Euclidean classification skeleton.
+* `Families.*`, `ContinuedFraction.*`, `Units.*`, `ClassGroup.*`, and
+  `ClassNumber.Examples`: research scaffolding for real quadratic class-number
+  problems.
 * `Splitting.*`: prime-splitting classification via the Legendre symbol.
 
 Promote a module into `QuadraticNumberFields.lean` once it is sorry-free.
