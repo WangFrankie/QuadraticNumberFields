@@ -11,6 +11,7 @@ import QuadraticNumberFields.Mathlib.Data.Int.Squarefree
 import QuadraticNumberFields.Mathlib.FieldTheory.Galois.Basic
 import QuadraticNumberFields.Mathlib.NumberTheory.RamificationInertia.Galois
 import QuadraticNumberFields.Mathlib.NumberTheory.Zsqrtd.Basic
+import QuadraticNumberFields.Mathlib.RingTheory.PrincipalIdealDomain
 import QuadraticNumberFields.Mathlib.RingTheory.Ideal.Span
 import QuadraticNumberFields.Mathlib.RingTheory.Krull
 import QuadraticNumberFields.Mathlib.RingTheory.DedekindDomain.Basic
