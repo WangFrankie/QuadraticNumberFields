@@ -30,6 +30,12 @@ Forward (ramified → p ∣ disc):
 
 Backward (p ∣ disc → ramified):
   p ∣ disc → p ∣ d (for odd p: gcd(p,4)=1; for p=2: case split) → ramified
+
+## Reference
+
+K. Ireland, M. Rosen, *A Classical Introduction to Modern Number Theory*, 2nd ed.,
+Chapter 13, §1. The discriminant formulas are Proposition 13.1.2; ramification is the
+`p ∣ δ_F` case of Propositions 13.1.3 (odd `p`) and 13.1.4 (`p = 2`).
 -/
 
 open scoped NumberField
@@ -42,14 +48,13 @@ namespace Splitting
 
 variable (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
 
-local notation3 "𝓞d" => 𝓞 (Qsqrtd (d : ℚ))
-local notation3 "𝔭(" p ")" => Ideal.span ({(p : ℤ)} : Set ℤ)
-local notation3 "disc" => NumberField.discr (Qsqrtd (d : ℚ))
+-- `𝓞(d)`, `𝔭(p)` are shared `scoped` notation from `Splitting.Qsqrtd.Monogenic`.
+/-- The discriminant of `ℚ(√d)`. -/
+scoped notation3 "disc(" d ")" => NumberField.discr (Qsqrtd (d : ℚ))
 
 -- TODO: ramified ↔ p | disc
 theorem isRamified_iff_dvd_disc (p : ℕ) [Fact p.Prime] :
-    Ideal.IsRamifiedIn (𝔭(p)) 𝓞d ↔ (p : ℤ) ∣ disc := sorry
-
+    Ideal.IsRamifiedIn 𝔭(p) 𝓞(d) ↔ (p : ℤ) ∣ disc(d) := sorry
 -- TODO: explicit characterization of ramified primes
 -- theorem ramified_primes_odd (p : ℕ) [Fact p.Prime] (hp : p ≠ 2) :
 --     1 < Ideal.ramificationIdxIn (Ideal.span {(p : ℤ)}) (𝓞 (Qsqrtd (d : ℚ)))
