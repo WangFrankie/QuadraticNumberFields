@@ -3,8 +3,8 @@ Copyright (c) 2026 Frankie Wang. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
-import QuadraticNumberFields.Splitting.Qsqrtd.Monogenic
 import Mathlib.Algebra.QuadraticDiscriminant
+import Mathlib.Algebra.Polynomial.Degree.IsMonicOfDegree
 import Mathlib.NumberTheory.LegendreSymbol.QuadraticReciprocity
 import Mathlib.Algebra.Polynomial.SpecificDegree
 

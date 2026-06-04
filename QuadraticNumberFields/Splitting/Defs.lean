@@ -30,6 +30,15 @@ Ideal-factorization characterisations live in `Splitting.Factorization`.
 
 open Ideal
 
+namespace QuadraticNumberFields
+namespace Splitting
+
+/-- The ideal `(p) = pℤ` of `ℤ`. -/
+scoped notation3 "𝔭(" p ")" => Ideal.span ({(p : ℤ)} : Set ℤ)
+
+end Splitting
+end QuadraticNumberFields
+
 namespace Ideal
 
 variable {R : Type*} [CommRing R]

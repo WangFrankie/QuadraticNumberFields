@@ -48,7 +48,8 @@ namespace Splitting
 
 variable (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
 
--- `𝓞(d)`, `𝔭(p)` are shared `scoped` notation from `Splitting.Qsqrtd.Monogenic`.
+-- `𝔭(p)` is shared from `Splitting.Defs`; `𝓞(d)` is shared from
+-- `Splitting.Qsqrtd.Monogenic`.
 /-- The discriminant of `ℚ(√d)`. -/
 scoped notation3 "disc(" d ")" => NumberField.discr (Qsqrtd (d : ℚ))
 

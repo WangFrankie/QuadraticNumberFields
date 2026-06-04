@@ -14,6 +14,9 @@ import QuadraticNumberFields.Qsqrtd.Equiv
 import QuadraticNumberFields.Qsqrtd.TraceNorm
 import QuadraticNumberFields.Qsqrtd.TotallyRealComplex
 import QuadraticNumberFields.Splitting.Factorization
+import QuadraticNumberFields.Splitting.Qsqrtd.KummerDedekind
+import QuadraticNumberFields.Splitting.Qsqrtd.OddPrime
+import QuadraticNumberFields.Splitting.Qsqrtd.Two
 import QuadraticNumberFields.Splitting.Qsqrtd.Classification
 import QuadraticNumberFields.Splitting.Qsqrtd.Discriminant
 import QuadraticNumberFields.Splitting.QuadraticField.Basic

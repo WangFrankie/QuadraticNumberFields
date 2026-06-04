@@ -98,8 +98,6 @@ namespace Splitting
 /-- The ring of integers `𝓞(ℚ(√d))`. Shared `scoped` notation for the whole
 `QuadraticNumberFields.Splitting` namespace. -/
 scoped notation3 "𝓞(" d ")" => 𝓞 (Qsqrtd (d : ℚ))
-/-- The ideal `(p) = pℤ` of `ℤ`. -/
-scoped notation3 "𝔭(" p ")" => Ideal.span ({(p : ℤ)} : Set ℤ)
 
 variable (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
 

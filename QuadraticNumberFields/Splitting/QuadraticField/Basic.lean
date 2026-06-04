@@ -34,8 +34,6 @@ section AbstractField
 
 variable (K : Type*) [Field K] [Algebra ℚ K] [QuadraticField K]
 
-local notation3 "𝔭(" p ")" => Ideal.span ({(p : ℤ)} : Set ℤ)
-
 /-- The rational prime `p` splits in the ring of integers of `K`. -/
 def IsSplitAt (K : Type*) [Field K] [Algebra ℚ K] (p : ℕ) : Prop :=
   IsSplitIn (𝔭(p)) (𝓞 K)
