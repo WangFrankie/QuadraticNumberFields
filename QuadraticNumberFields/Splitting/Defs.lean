@@ -159,8 +159,9 @@ For `[L : K] = 2`, `∑ eᵢfᵢ = 2` forces exactly three possibilities:
 * `(e, f, g) = (1, 2, 1)` — inert
 * `(e, f, g) = (2, 1, 1)` — ramified
 -/
--- Set L is List of ℕ , Σ A = p → ∀ a ∈ A, a = 1 or a = p
-lemma eq_one_or_p_if_list_prod_eq_p {p : ℕ} (hp : Nat.Prime p) {L : List ℕ}
+/-- If a list of natural numbers has prime product `p`, then every entry is `1`
+or `p`. -/
+private lemma eq_one_or_p_if_list_prod_eq_p {p : ℕ} (hp : Nat.Prime p) {L : List ℕ}
       (h : L.prod = p) : ∀ a ∈ L, a = 1 ∨ a = p := by
     intro a ha
     have hdiv : a ∣ p := by
@@ -168,7 +169,9 @@ lemma eq_one_or_p_if_list_prod_eq_p {p : ℕ} (hp : Nat.Prime p) {L : List ℕ}
       exact List.dvd_prod ha
     exact (Nat.dvd_prime hp).1 hdiv
 
-theorem foo (a b c : ℕ) (h : a * b * c = 2) :
+/-- If three natural numbers multiply to `2`, exactly one of them is `2` and the
+other two are `1`. -/
+private lemma eq_two_trichotomy_of_mul (a b c : ℕ) (h : a * b * c = 2) :
       (a = 2 ∧ b = 1 ∧ c = 1) ∨
       (a = 1 ∧ b = 1 ∧ c = 2) ∨
       (a = 1 ∧ b = 2 ∧ c = 1) := by
@@ -225,7 +228,7 @@ theorem efg_trichotomy [Nontrivial R] [IsDedekindDomain R] [Algebra.IsQuadraticE
     (g(p) = 2 ∧ e(p) = 1 ∧ f(p) = 1) ∨
     (g(p) = 1 ∧ e(p) = 1 ∧ f(p) = 2) ∨
     (g(p) = 1 ∧ e(p) = 2 ∧ f(p) = 1) :=
-  foo (g(p)) (e(p)) (f(p))
+  eq_two_trichotomy_of_mul (g(p)) (e(p)) (f(p))
     (ncard_primesOver_mul_ramificationIdxIn_mul_inertiaDegIn_eq_two p S hchar hp)
 
 /-- In a quadratic extension, the mathlib numerical split condition

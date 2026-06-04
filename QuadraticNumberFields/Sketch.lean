@@ -13,13 +13,6 @@ import QuadraticNumberFields.Qsqrtd.Basic
 import QuadraticNumberFields.Qsqrtd.Equiv
 import QuadraticNumberFields.Qsqrtd.TraceNorm
 import QuadraticNumberFields.Qsqrtd.TotallyRealComplex
-import QuadraticNumberFields.Splitting.Factorization
-import QuadraticNumberFields.Splitting.Qsqrtd.KummerDedekind
-import QuadraticNumberFields.Splitting.Qsqrtd.OddPrime
-import QuadraticNumberFields.Splitting.Qsqrtd.Two
-import QuadraticNumberFields.Splitting.Qsqrtd.Classification
-import QuadraticNumberFields.Splitting.Qsqrtd.Discriminant
-import QuadraticNumberFields.Splitting.QuadraticField.Basic
 import QuadraticNumberFields.Units
 
 /-!
@@ -36,7 +29,6 @@ Current work in progress:
 * `Families.*`, `ContinuedFraction.*`, `Units.*`, `ClassGroup.*`, and
   `ClassNumber.Examples`: research scaffolding for real quadratic class-number
   problems.
-* `Splitting.*`: prime-splitting classification via the Legendre symbol.
 
 Promote a module into `QuadraticNumberFields.lean` once it is sorry-free.
 -/

@@ -29,6 +29,7 @@ import QuadraticNumberFields.RingOfIntegers.Integrality
 import QuadraticNumberFields.RingOfIntegers.Classification
 import QuadraticNumberFields.RingOfIntegers.Norm
 import QuadraticNumberFields.RingOfIntegers.Discriminant
+import QuadraticNumberFields.Splitting
 import QuadraticNumberFields.ClassNumber.Basic
 import QuadraticNumberFields.Examples.ZsqrtdNeg5.Ideals
 import QuadraticNumberFields.Examples.ZsqrtdNeg5.RamificationInertia
@@ -50,6 +51,6 @@ including:
 
 This file is the main entry point; it re-exports the completed, sorry-free
 public modules. Work-in-progress modules (the Euclidean classification
-framework and the prime-splitting development) are collected separately in
+framework and other research scaffolding) are collected separately in
 `QuadraticNumberFields.Sketch`.
 -/

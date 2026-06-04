@@ -3,9 +3,11 @@ Copyright (c) 2026 Frankie Wang. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 
-General ideal membership, primality, and quotient results for `Zsqrtd d`.
+General ideal membership, primality, and quotient results for the project-owned
+`Zsqrtd d` (i.e., `QuadraticAlgebra ℤ d 0`).
 -/
-import QuadraticNumberFields.Zsqrtd.MathlibInstances
+import QuadraticNumberFields.Zsqrtd.Basic
+import QuadraticNumberFields.Mathlib.RingTheory.Ideal.Span
 import Mathlib.RingTheory.Ideal.Operations
 import Mathlib.RingTheory.Ideal.Norm.AbsNorm
 import Mathlib.Tactic.NormNum
@@ -13,14 +15,13 @@ import Mathlib.Tactic.Ring
 import Mathlib.Data.ZMod.Basic
 import Mathlib.Data.ZMod.QuotientRing
 import Mathlib.RingTheory.Ideal.Quotient.Operations
-import QuadraticNumberFields.Mathlib.NumberTheory.Zsqrtd.Basic
-import QuadraticNumberFields.Mathlib.RingTheory.Ideal.Span
 
 /-!
-# Ideal Theory for ℤ[√d]
+# Ideal Theory for the project `Zsqrtd d`
 
-General results about ideals in the quadratic integer ring `ℤ[√d]`, parameterised
-by an integer `d` satisfying appropriate arithmetic conditions.
+This module provides the general ideal-span results for the project-owned
+`Zsqrtd d := QuadraticAlgebra ℤ d 0`. It mirrors the corresponding mathlib
+`Zsqrtd.Ideal` API but is keyed off the project model.
 
 ## Main Results
 
@@ -45,9 +46,15 @@ The general ideal-span helper used in this file is imported from
 `QuadraticNumberFields.Mathlib.RingTheory.Ideal.Span`.
 -/
 
-open Ideal Zsqrtd
+open Ideal
 
-namespace Zsqrtd.Ideal
+open scoped QuadraticAlgebra
+
+namespace QuadraticNumberFields
+
+namespace Zsqrtd
+
+namespace Ideal
 
 variable (d : ℤ)
 
@@ -56,8 +63,6 @@ variable (d : ℤ)
 lemma map_span_int_singleton (n : ℤ) :
     Ideal.map (algebraMap ℤ (Zsqrtd d)) (Ideal.span {n}) = Ideal.span {(n : Zsqrtd d)} := by
   rw [Ideal.map_span, Set.image_singleton, algebraMap_int_coe]
-
-/-! ## General theory for any prime p with p | (d - 1) -/
 
 variable {d}
 
@@ -133,29 +138,27 @@ private lemma prime_dvd_or_dvd_of_dvd_mul_add
     exact ⟨k1 - k2, by linarith⟩
   exact (Nat.prime_iff_prime_int.mp Fact.out).dvd_or_dvd hprod
 
-/-- The ring hom `ℤ[√d] →+* ℤ/pℤ` sending `√d ↦ 1`, valid when `p ∣ (d - 1)`
+/-- The ring hom `Zsqrtd d →+* ℤ/pℤ` sending `√d ↦ 1`, valid when `p ∣ (d - 1)`
 (since `1² = 1 ≡ d (mod p)`). -/
 noncomputable def liftModP (p : ℕ) [Fact p.Prime] (hd : (p : ℤ) ∣ (d - 1)) :
     Zsqrtd d →+* ZMod p :=
-  Zsqrtd.lift ⟨(1 : ZMod p), by simp [d_cast_zmodp_eq_one p hd]⟩
+  Zsqrtd.lift (1 : ZMod p) (by simp [d_cast_zmodp_eq_one p hd])
 
 lemma liftModP_apply (p : ℕ) [Fact p.Prime] (hd : (p : ℤ) ∣ (d - 1)) (z : Zsqrtd d) :
     liftModP p hd z = (z.re + z.im : ZMod p) := by
-  rcases z with ⟨a, b⟩
-  simp [liftModP, Zsqrtd.lift, Zsqrtd.decompose]
+  simp [liftModP, Zsqrtd.lift_apply]
 
-/-- The ring hom `ℤ[√d] →+* ℤ/pℤ` sending `√d ↦ -1`, valid when `p ∣ (d - 1)`
+/-- The ring hom `Zsqrtd d →+* ℤ/pℤ` sending `√d ↦ -1`, valid when `p ∣ (d - 1)`
 (since `(-1)² = 1 ≡ d (mod p)`). -/
 noncomputable def liftModPNeg (p : ℕ) [Fact p.Prime] (hd : (p : ℤ) ∣ (d - 1)) :
     Zsqrtd d →+* ZMod p :=
-  Zsqrtd.lift ⟨(-1 : ZMod p), by simp [d_cast_zmodp_eq_one p hd]⟩
+  Zsqrtd.lift (-1 : ZMod p) (by simp [d_cast_zmodp_eq_one p hd])
 
 lemma liftModPNeg_apply (p : ℕ) [Fact p.Prime] (hd : (p : ℤ) ∣ (d - 1)) (z : Zsqrtd d) :
     liftModPNeg p hd z = (z.re - z.im : ZMod p) := by
-  rcases z with ⟨a, b⟩
-  simp [liftModPNeg, Zsqrtd.lift, Zsqrtd.decompose, sub_eq_add_neg]
+  simp [liftModPNeg, Zsqrtd.lift_apply, sub_eq_add_neg]
 
-/-- An element of `ℤ[√d]` belongs to `(p, 1-√d)` iff `p ∣ (re + im)`,
+/-- An element of `Zsqrtd d` belongs to `(p, 1-√d)` iff `p ∣ (re + im)`,
 provided `p ∣ (d - 1)` for a prime `p`. -/
 @[nolint unusedArguments]
 lemma mem_span_p_one_minus_sqrtd_iff (p : ℕ) [Fact p.Prime]
@@ -168,10 +171,11 @@ lemma mem_span_p_one_minus_sqrtd_iff (p : ℕ) [Fact p.Prime]
     intro hz
     rw [Ideal.mem_span_pair] at hz
     obtain ⟨a, b, hab⟩ := hz
-    have hre := congr_arg Zsqrtd.re hab
-    have him := congr_arg Zsqrtd.im hab
-    simp only [Zsqrtd.re_add, Zsqrtd.re_mul, Zsqrtd.im_add, Zsqrtd.im_mul,
-               Zsqrtd.sqrtd, Zsqrtd.re_natCast, Zsqrtd.im_natCast] at hre him
+    have hre := congr_arg QuadraticAlgebra.re hab
+    have him := congr_arg QuadraticAlgebra.im hab
+    simp only [QuadraticAlgebra.re_add, QuadraticAlgebra.re_mul,
+               QuadraticAlgebra.im_add, QuadraticAlgebra.im_mul,
+               sqrtd, QuadraticAlgebra.re_natCast, QuadraticAlgebra.im_natCast] at hre him
     norm_num at hre him
     -- z.re + z.im = p*(a.re + a.im) + (1-d)*b.im = p*(a.re + a.im - c*b.im)
     have hdb : d * b.im = (↑p * c + 1) * b.im := by congr 1; linarith
@@ -181,10 +185,10 @@ lemma mem_span_p_one_minus_sqrtd_iff (p : ℕ) [Fact p.Prime]
     rw [Ideal.mem_span_pair]
     refine ⟨⟨k, 0⟩, ⟨-z.im, 0⟩, ?_⟩
     ext
-    · simp [Zsqrtd.sqrtd, Zsqrtd.re_natCast, Zsqrtd.im_natCast]; linarith
-    · simp [Zsqrtd.sqrtd, Zsqrtd.re_natCast, Zsqrtd.im_natCast]
+    · simp [sqrtd, QuadraticAlgebra.re_natCast, QuadraticAlgebra.im_natCast]; linarith
+    · simp [sqrtd, QuadraticAlgebra.re_natCast, QuadraticAlgebra.im_natCast]
 
-/-- An element of `ℤ[√d]` belongs to `(p, 1+√d)` iff `p ∣ (re - im)`,
+/-- An element of `Zsqrtd d` belongs to `(p, 1+√d)` iff `p ∣ (re - im)`,
 provided `p ∣ (d - 1)` for a prime `p`. -/
 @[nolint unusedArguments]
 lemma mem_span_p_one_plus_sqrtd_iff (p : ℕ) [Fact p.Prime]
@@ -197,10 +201,11 @@ lemma mem_span_p_one_plus_sqrtd_iff (p : ℕ) [Fact p.Prime]
     intro hz
     rw [Ideal.mem_span_pair] at hz
     obtain ⟨a, b, hab⟩ := hz
-    have hre := congr_arg Zsqrtd.re hab
-    have him := congr_arg Zsqrtd.im hab
-    simp only [Zsqrtd.re_add, Zsqrtd.re_mul, Zsqrtd.im_add, Zsqrtd.im_mul,
-               Zsqrtd.sqrtd, Zsqrtd.re_natCast, Zsqrtd.im_natCast] at hre him
+    have hre := congr_arg QuadraticAlgebra.re hab
+    have him := congr_arg QuadraticAlgebra.im hab
+    simp only [QuadraticAlgebra.re_add, QuadraticAlgebra.re_mul,
+               QuadraticAlgebra.im_add, QuadraticAlgebra.im_mul,
+               sqrtd, QuadraticAlgebra.re_natCast, QuadraticAlgebra.im_natCast] at hre him
     norm_num at hre him
     -- z.re - z.im = p*(a.re - a.im) + (d-1)*b.im = p*(a.re - a.im + c*b.im)
     have hdb : d * b.im = (↑p * c + 1) * b.im := by congr 1; linarith
@@ -210,10 +215,10 @@ lemma mem_span_p_one_plus_sqrtd_iff (p : ℕ) [Fact p.Prime]
     rw [Ideal.mem_span_pair]
     refine ⟨⟨k, 0⟩, ⟨z.im, 0⟩, ?_⟩
     ext
-    · simp [Zsqrtd.sqrtd, Zsqrtd.re_natCast, Zsqrtd.im_natCast]; linarith
-    · simp [Zsqrtd.sqrtd, Zsqrtd.re_natCast, Zsqrtd.im_natCast]
+    · simp [sqrtd, QuadraticAlgebra.re_natCast, QuadraticAlgebra.im_natCast]; linarith
+    · simp [sqrtd, QuadraticAlgebra.re_natCast, QuadraticAlgebra.im_natCast]
 
-/-- The ideal `(p, 1-√d)` is prime in `ℤ[√d]` when `p ∣ (d - 1)` for a prime `p`. -/
+/-- The ideal `(p, 1-√d)` is prime in `Zsqrtd d` when `p ∣ (d - 1)` for a prime `p`. -/
 theorem isPrime_span_p_one_minus_sqrtd (p : ℕ) [Fact p.Prime] (hd : (p : ℤ) ∣ (d - 1)) :
     IsPrime (Ideal.span ({(p : Zsqrtd d), 1 - sqrtd} : Set (Zsqrtd d)) : Ideal (Zsqrtd d)) := by
   rw [Ideal.isPrime_iff]
@@ -231,7 +236,7 @@ theorem isPrime_span_p_one_minus_sqrtd (p : ℕ) [Fact p.Prime] (hd : (p : ℤ) 
       ⟨c * a.im * b.im, by rw [hc]; ring⟩
     exact prime_dvd_or_dvd_of_dvd_mul_add p hab hcorr
 
-/-- The ideal `(p, 1+√d)` is prime in `ℤ[√d]` when `p ∣ (d - 1)` for a prime `p`. -/
+/-- The ideal `(p, 1+√d)` is prime in `Zsqrtd d` when `p ∣ (d - 1)` for a prime `p`. -/
 theorem isPrime_span_p_one_plus_sqrtd (p : ℕ) [Fact p.Prime] (hd : (p : ℤ) ∣ (d - 1)) :
     IsPrime (Ideal.span ({(p : Zsqrtd d), 1 + sqrtd} : Set (Zsqrtd d)) : Ideal (Zsqrtd d)) := by
   rw [Ideal.isPrime_iff]
@@ -271,14 +276,14 @@ lemma ker_liftModPNeg (p : ℕ) [Fact p.Prime] (hd : (p : ℤ) ∣ (d - 1)) :
   · intro z
     exact mem_span_p_one_plus_sqrtd_iff p hd z
 
-/-- `ℤ[√d] ⧸ (p, 1-√d) ≃+* ℤ/pℤ` when `p ∣ (d - 1)` for a prime `p`. -/
+/-- `Zsqrtd d ⧸ (p, 1-√d) ≃+* ℤ/pℤ` when `p ∣ (d - 1)` for a prime `p`. -/
 noncomputable def quotEquivZModP (p : ℕ) [Fact p.Prime] (hd : (p : ℤ) ∣ (d - 1)) :
     (Zsqrtd d) ⧸ (Ideal.span ({(p : Zsqrtd d), 1 - sqrtd} : Set (Zsqrtd d))) ≃+* ZMod p :=
   quotEquivZModOfKerEq p (liftModP p hd)
     (Ideal.span ({(p : Zsqrtd d), 1 - sqrtd} : Set (Zsqrtd d)))
     (ker_liftModP p hd)
 
-/-- `ℤ[√d] ⧸ (p, 1+√d) ≃+* ℤ/pℤ` when `p ∣ (d - 1)` for a prime `p`. -/
+/-- `Zsqrtd d ⧸ (p, 1+√d) ≃+* ℤ/pℤ` when `p ∣ (d - 1)` for a prime `p`. -/
 noncomputable def quotEquivZModPNeg (p : ℕ) [Fact p.Prime] (hd : (p : ℤ) ∣ (d - 1)) :
     (Zsqrtd d) ⧸ (Ideal.span ({(p : Zsqrtd d), 1 + sqrtd} : Set (Zsqrtd d))) ≃+* ZMod p :=
   quotEquivZModOfKerEq p (liftModPNeg p hd)
@@ -295,7 +300,7 @@ lemma comap_span_p_one_minus_sqrtd (p : ℕ) [Fact p.Prime] (hd : (p : ℤ) ∣ 
   · intro z
     exact mem_span_p_one_minus_sqrtd_iff p hd z
   · intro z
-    simp [Zsqrtd.re_intCast, Zsqrtd.im_intCast]
+    simp [QuadraticAlgebra.re_intCast, QuadraticAlgebra.im_intCast]
 
 lemma comap_span_p_one_plus_sqrtd (p : ℕ) [Fact p.Prime] (hd : (p : ℤ) ∣ (d - 1)) :
     Ideal.comap (algebraMap ℤ (Zsqrtd d))
@@ -307,6 +312,10 @@ lemma comap_span_p_one_plus_sqrtd (p : ℕ) [Fact p.Prime] (hd : (p : ℤ) ∣ (
   · intro z
     exact mem_span_p_one_plus_sqrtd_iff p hd z
   · intro z
-    simp [Zsqrtd.re_intCast, Zsqrtd.im_intCast]
+    simp [QuadraticAlgebra.re_intCast, QuadraticAlgebra.im_intCast]
 
-end Zsqrtd.Ideal
+end Ideal
+
+end Zsqrtd
+
+end QuadraticNumberFields

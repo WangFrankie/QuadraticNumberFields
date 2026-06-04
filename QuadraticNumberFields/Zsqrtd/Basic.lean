@@ -131,6 +131,93 @@ theorem halfInt_mem_range_toQsqrtdHom_iff_even_even (d a' b' : ℤ) :
     refine ⟨⟨m, n⟩, ?_⟩
     ext <;> simp [toQsqrtdHom, halfInt, hm, hn]
 
+/-- The element `(a, b) : Zsqrtd d` decomposes as `a + b·√d`. -/
+theorem decompose {a b : ℤ} :
+    (⟨a, b⟩ : Zsqrtd d) = (a : Zsqrtd d) + sqrtd * (b : Zsqrtd d) := by
+  ext <;> simp [sqrtd, QuadraticAlgebra.re_add, QuadraticAlgebra.im_add,
+                QuadraticAlgebra.re_mul, QuadraticAlgebra.im_mul]
+
+/-- The unique ring homomorphism `Zsqrtd d →+* R` that sends `√d` to a chosen
+root `r` of `X² - d` in `R`. Built on top of the `QuadraticAlgebra.lift`
+universal property. -/
+noncomputable def lift {R : Type*} [CommRing R] (r : R) (hd : r * r = (d : R)) :
+    Zsqrtd d →+* R :=
+  (QuadraticAlgebra.lift (R := ℤ) (a := d) (b := (0 : ℤ))
+      ⟨r, hd.trans (by simp [Algebra.smul_def])⟩).toRingHom
+
+theorem lift_apply {R : Type*} [CommRing R] (r : R) (hd : r * r = (d : R))
+    (z : Zsqrtd d) :
+    lift r hd z = (z.re : R) + (z.im : R) * r := by
+  -- The `AlgHom`'s `toFun` is `fun z => z.re • (1 : R) + z.im • r`.
+  -- `simp` with `Algebra.smul_def` reduces `↑z.re` to `z.re • 1` and `↑z.im * r` to `z.im • r`.
+  change (QuadraticAlgebra.lift (R := ℤ) (a := d) (b := (0 : ℤ))
+      ⟨r, hd.trans (by simp [Algebra.smul_def])⟩ : Zsqrtd d →ₐ[ℤ] R) z
+    = (z.re : R) + (z.im : R) * r
+  simp [QuadraticAlgebra.lift, Algebra.smul_def]
+
+/-- `lift` computes on integer inputs as the obvious coercion. -/
+@[simp] theorem lift_intCast {R : Type*} [CommRing R] (r : R) (hd : r * r = (d : R))
+    (n : ℤ) :
+    lift r hd (n : Zsqrtd d) = (n : R) := by
+  rw [lift_apply]
+  simp
+
+/-- The fundamental identity for `re + im` of a product in the project `Zsqrtd`. -/
+theorem mul_re_add_im_eq (a b : Zsqrtd d) :
+    (a * b).re + (a * b).im =
+      (a.re + a.im) * (b.re + b.im) + (d - 1) * a.im * b.im := by
+  simp only [QuadraticAlgebra.re_mul, QuadraticAlgebra.im_mul]
+  ring
+
+/-- The fundamental identity for `re - im` of a product in the project `Zsqrtd`. -/
+theorem mul_re_sub_im_eq (a b : Zsqrtd d) :
+    (a * b).re - (a * b).im =
+      (a.re - a.im) * (b.re - b.im) + (d - 1) * a.im * b.im := by
+  simp only [QuadraticAlgebra.re_mul, QuadraticAlgebra.im_mul]
+  ring
+
+/-! ### Domain and no-zero-divisors for `d < 0` -/
+
+/-- Explicit formula for the norm on `Zsqrtd d`: `‖(a, b)‖ = a² - d·b²`. -/
+theorem norm_def (z : Zsqrtd d) :
+    Zsqrtd.norm z = z.re * z.re - d * z.im * z.im := by
+  change QuadraticAlgebra.norm z = z.re * z.re - d * z.im * z.im
+  rw [QuadraticAlgebra.norm_def]
+  ring
+
+/-- Multiplicativity of the norm on `Zsqrtd d`. -/
+theorem norm_mul (a b : Zsqrtd d) :
+    Zsqrtd.norm (a * b) = Zsqrtd.norm a * Zsqrtd.norm b :=
+  MonoidHom.map_mul (M := Zsqrtd d) QuadraticAlgebra.norm a b
+
+/-- For `d < 0`, the norm of `z` is zero iff `z = 0`. -/
+theorem norm_eq_zero_iff (hd : d < 0) (z : Zsqrtd d) :
+    Zsqrtd.norm z = 0 ↔ z = 0 := by
+  rw [norm_def]
+  constructor
+  · intro h
+    have hre_sq : z.re * z.re = 0 := by nlinarith [h, hd, mul_self_nonneg z.im]
+    have him_sq : z.im * z.im = 0 := by nlinarith [h, hd, mul_self_nonneg z.re]
+    have hre : z.re = 0 := eq_zero_of_mul_self_eq_zero hre_sq
+    have him : z.im = 0 := eq_zero_of_mul_self_eq_zero him_sq
+    ext <;> assumption
+  · rintro rfl
+    simp
+
+instance instNoZeroDivisors {d : ℤ} [Fact (d < 0)] : NoZeroDivisors (Zsqrtd d) where
+  eq_zero_or_eq_zero_of_mul_eq_zero := by
+    intro a b hab
+    have hnorm : Zsqrtd.norm (a * b) = 0 := by
+      simp [hab, QuadraticAlgebra.norm_zero]
+    have hmulnorm : Zsqrtd.norm a * Zsqrtd.norm b = 0 := by
+      simpa [Zsqrtd.norm_mul] using hnorm
+    rcases mul_eq_zero.mp hmulnorm with ha | hb
+    · exact Or.inl ((norm_eq_zero_iff Fact.out a).1 ha)
+    · exact Or.inr ((norm_eq_zero_iff Fact.out b).1 hb)
+
+instance instIsDomain {d : ℤ} [Fact (d < 0)] : IsDomain (Zsqrtd d) :=
+  NoZeroDivisors.to_isDomain (Zsqrtd d)
+
 end Zsqrtd
 
 /-- Candidate carrier of `ℤ[√d]` inside `Q(√d)` as a set. -/
