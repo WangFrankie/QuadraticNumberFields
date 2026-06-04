@@ -9,10 +9,11 @@ import Mathlib.NumberTheory.LegendreSymbol.QuadraticReciprocity
 import Mathlib.Algebra.Polynomial.SpecificDegree
 
 /-!
-# Minimal Polynomial mod p
+# Quadratic Polynomials mod p
 
 This file classifies the factorization of `X² - d` modulo a prime `p`
-and connects it to the Legendre symbol.
+and of `X² - X - k` via the quadratic discriminant, connecting both to the
+Legendre symbol over `ZMod p`.
 
 ## Main Results
 
@@ -31,19 +32,8 @@ and connects it to the Legendre symbol.
 * `sq_sub_irreducible_mod_iff`: `(X² - d)` irreducible mod `p`
   ↔ `legendreSym p d = -1`
 * `legendreSym_eq_zero_iff_dvd`: `legendreSym p d = 0` ↔ `p ∣ d`
-* `sq_sub_not_separable_mod`: `p ∣ d` → `(X² - d)` not separable
-  mod `p` (for odd `p`)
-
-### Minimal polynomials (TODO)
-
-* `minpoly_generator_mod_four_ne_one`: `minpoly ℤ θ = X² - d`
-  when `d % 4 ≠ 1`
-* `minpoly_generator_mod_four_eq_one`: `minpoly ℤ θ = X² - X - (d-1)/4`
-  when `d % 4 = 1`
-
-### Special case: p = 2 (TODO)
-
-* Case analysis on `d mod 4` and `d mod 8`
+* `sq_sub_not_separable_mod`: `p ∣ d` → `(X² - d)` not separable mod `p`
+  (for odd `p`)
 -/
 
 open Polynomial
@@ -317,47 +307,6 @@ theorem normalizedFactors_X_sq_sub_X_sub_C_card_eq_one_of_legendre_ne_one
   · exact irreducible_X_sq_sub_X_sub_C_of_not_square_discr p hnsq
 
 end LegendreSymbol
-
-/-! ## Minimal polynomials
-
-The minimal polynomial of the ring-of-integers generator `θ` depends
-on `d mod 4`:
-- `d % 4 ≠ 1`: `θ = √d`, minpoly = `X² - d`
-- `d % 4 = 1`: `θ = (1 + √d)/2`, minpoly = `X² - X - (d-1)/4`
-
-These are proved once `ringOfIntegersGenerator` is defined in
-`Monogenic.lean`.
--/
-
--- TODO: compute minpoly of θ in each case
--- theorem minpoly_generator_mod_four_ne_one (hd4 : d % 4 ≠ 1) :
---     minpoly ℤ (ringOfIntegersGenerator d) = X ^ 2 - C d := ...
-
--- theorem minpoly_generator_mod_four_eq_one (hd4 : d % 4 = 1) :
---     minpoly ℤ (ringOfIntegersGenerator d) =
---       X ^ 2 - X - C ((d - 1) / 4) := ...
-
-/-! ## Special case: p = 2
-
-For p = 2 the Legendre symbol is not defined (p must be odd).
-Instead we use direct case analysis on d mod 4 and d mod 8:
-
-  d ≡ 2, 3 mod 4:  X² - d ≡ X² mod 2  (double root)  → ramified
-  d ≡ 1 mod 8:     X² - X - (d-1)/4 ≡ X(X-1) mod 2   → split
-  d ≡ 5 mod 8:     X² - X - (d-1)/4 ≡ X²+X+1 mod 2   → inert
--/
-
--- TODO: case analysis for p = 2
--- theorem splitting_at_two_ramified (hd4 : d % 4 ≠ 1) :
---     ... 1 < ramificationIdxIn (Ideal.span {(2 : ℤ)}) (𝓞 (Qsqrtd (d : ℚ))) := ...
-
--- theorem splitting_at_two_split (hd8 : d % 8 = 1) :
---     ... ramificationIdxIn (Ideal.span {(2 : ℤ)}) (𝓞 (Qsqrtd (d : ℚ))) = 1 ∧
---       inertiaDegIn (Ideal.span {(2 : ℤ)}) (𝓞 (Qsqrtd (d : ℚ))) = 1 := ...
-
--- theorem splitting_at_two_inert (hd8 : d % 8 = 5) :
---     ... (primesOver (Ideal.span {(2 : ℤ)}) (𝓞 (Qsqrtd (d : ℚ)))).ncard = 1 ∧
---       ramificationIdxIn (Ideal.span {(2 : ℤ)}) (𝓞 (Qsqrtd (d : ℚ))) = 1 := ...
 
 end Splitting
 end QuadraticNumberFields
