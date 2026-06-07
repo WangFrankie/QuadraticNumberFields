@@ -238,14 +238,14 @@ theorem exists_ideal_in_class_of_norm_le
     rw [minkowskiBound, nrComplexPlaces_eq_zero_of_pos d hpos]
     simpa using hI
 
-/-- **Class number one from the Minkowski bound.** If every nonzero ideal of
+/-- **Class number one from the Minkowski bound.** If every integer ideal of
 `𝓞(ℚ(√d))` with absolute norm at most `minkowskiBound d` is principal, then
 `ℚ(√d)` has class number one. This is the general engine for class-number-one
 proofs: it reduces `classNumber = 1` to finitely many principality checks among
 the (small) ideals of bounded norm. -/
 theorem classNumber_eq_one_of_forall_isPrincipal
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
-    (h : ∀ ⦃I : nonZeroDivisors (Ideal (𝓞 (Qsqrtd (d : ℚ))))⦄,
+    (h : ∀ ⦃I : Ideal (𝓞 (Qsqrtd (d : ℚ)))⦄,
         (Ideal.absNorm (I : Ideal (𝓞 (Qsqrtd (d : ℚ)))) : ℝ) ≤ minkowskiBound d →
         Submodule.IsPrincipal (I : Ideal (𝓞 (Qsqrtd (d : ℚ))))) :
     NumberField.classNumber (Qsqrtd (d : ℚ)) = 1 := by
