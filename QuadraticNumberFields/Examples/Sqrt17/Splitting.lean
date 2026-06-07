@@ -66,4 +66,40 @@ theorem thirteen_isSplit : Ideal.IsSplitIn (𝔭(13)) 𝓞((17 : ℤ)) :=
 theorem seventeen_isRamified : Ideal.IsRamifiedIn (𝔭(17)) 𝓞((17 : ℤ)) :=
   isRamified_of_dvd (17) 17 (by decide)
 
+/-! ## Fundamental identity `∑ eᵢfᵢ = [ℚ(√17) : ℚ] = 2`
+
+For a quadratic extension the ramification-inertia data of every rational prime
+satisfies `g · e · f = 2`. -/
+
+/-- The fundamental identity `g(p) · e(p) · f(p) = 2` for every rational prime `p`
+in `ℚ(√17)`. -/
+theorem fundamental_identity (p : ℕ) [Fact p.Prime] :
+    (primesOver (𝔭(p)) 𝓞((17 : ℤ))).ncard
+      * ramificationIdxIn (𝔭(p)) 𝓞((17 : ℤ))
+      * inertiaDegIn (𝔭(p)) 𝓞((17 : ℤ)) = 2 := by
+  have hchar : ringChar ℤ ≠ 2 := by simp [ringChar.eq_zero]
+  have hbot : 𝔭(p) ≠ ⊥ := by
+    rw [Ne, Ideal.span_singleton_eq_bot, Nat.cast_eq_zero]
+    exact (Fact.out : Nat.Prime p).ne_zero
+  haveI : (𝔭(p)).IsMaximal :=
+    PrincipalIdealRing.isMaximal_of_irreducible
+      ((Nat.prime_iff_prime_int.mp (Fact.out : Nat.Prime p)).irreducible)
+  exact Ideal.ncard_primesOver_mul_ramificationIdxIn_mul_inertiaDegIn_eq_two
+    (𝔭(p)) 𝓞((17 : ℤ)) hchar hbot
+
+/-- `g·e·f = 2` for the split prime `2`. -/
+theorem fundamental_identity_two :
+    (primesOver (𝔭(2)) 𝓞((17 : ℤ))).ncard * ramificationIdxIn (𝔭(2)) 𝓞((17 : ℤ))
+      * inertiaDegIn (𝔭(2)) 𝓞((17 : ℤ)) = 2 := fundamental_identity 2
+
+/-- `g·e·f = 2` for the inert prime `3`. -/
+theorem fundamental_identity_three :
+    (primesOver (𝔭(3)) 𝓞((17 : ℤ))).ncard * ramificationIdxIn (𝔭(3)) 𝓞((17 : ℤ))
+      * inertiaDegIn (𝔭(3)) 𝓞((17 : ℤ)) = 2 := fundamental_identity 3
+
+/-- `g·e·f = 2` for the ramified prime `17`. -/
+theorem fundamental_identity_seventeen :
+    (primesOver (𝔭(17)) 𝓞((17 : ℤ))).ncard * ramificationIdxIn (𝔭(17)) 𝓞((17 : ℤ))
+      * inertiaDegIn (𝔭(17)) 𝓞((17 : ℤ)) = 2 := fundamental_identity 17
+
 end QuadraticNumberFields.Examples.Sqrt17

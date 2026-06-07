@@ -205,5 +205,38 @@ theorem exists_ideal_in_class_of_norm_le_real_of_mod_four_ne_one
   rw [sqrt_abs_four_mul_intCast]
   ring
 
+/-- The **Minkowski class-representative bound** of the quadratic field `ℚ(√d)`,
+a first-class real invariant alongside `NumberField.discr`. It specializes the
+general number-field bound `(4/π)^{r₂} · (n!/nⁿ) · √|D|` to degree `2`
+(`n!/nⁿ = 2/4 = 1/2`):
+
+* imaginary `d < 0`: `(2/π)·√|D|`;
+* real `d > 0`: `(1/2)·√|D|`. -/
+noncomputable def minkowskiBound (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] : ℝ :=
+  (4 / Real.pi) ^ NumberField.InfinitePlace.nrComplexPlaces (Qsqrtd (d : ℚ)) * (1 / 2) *
+    Real.sqrt |(NumberField.discr (Qsqrtd (d : ℚ)) : ℝ)|
+
+/-- **Minkowski's bound for `ℚ(√d)`** (unified form): every ideal class has a
+representative whose absolute norm is at most `minkowskiBound d`. -/
+theorem exists_ideal_in_class_of_norm_le
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (C : ClassGroup (𝓞 (Qsqrtd (d : ℚ)))) :
+    ∃ I : nonZeroDivisors (Ideal (𝓞 (Qsqrtd (d : ℚ)))),
+      ClassGroup.mk0 I = C ∧
+        (Ideal.absNorm (I : Ideal (𝓞 (Qsqrtd (d : ℚ)))) : ℝ) ≤ minkowskiBound d := by
+  rcases lt_trichotomy d 0 with hneg | h0 | hpos
+  · obtain ⟨I, hC, hI⟩ := exists_ideal_in_class_of_norm_le_imaginary d hneg C
+    refine ⟨I, hC, ?_⟩
+    rw [minkowskiBound, nrComplexPlaces_eq_one_of_neg d hneg]
+    calc (Ideal.absNorm _ : ℝ)
+        ≤ (2 / Real.pi) * Real.sqrt |(NumberField.discr (Qsqrtd (d : ℚ)) : ℝ)| := hI
+      _ = (4 / Real.pi) ^ 1 * (1 / 2)
+            * Real.sqrt |(NumberField.discr (Qsqrtd (d : ℚ)) : ℝ)| := by rw [pow_one]; ring
+  · exact absurd h0 (Fact.out : Squarefree d).ne_zero
+  · obtain ⟨I, hC, hI⟩ := exists_ideal_in_class_of_norm_le_real d hpos C
+    refine ⟨I, hC, ?_⟩
+    rw [minkowskiBound, nrComplexPlaces_eq_zero_of_pos d hpos]
+    simpa using hI
+
 end Qsqrtd
 end QuadraticNumberFields
