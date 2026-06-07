@@ -205,20 +205,6 @@ theorem exists_ideal_in_class_of_norm_le_real_of_mod_four_ne_one
   rw [sqrt_abs_four_mul_intCast]
   ring
 
-/-- Mathlib's general number-field Minkowski class-representative constant,
-specialized to `Qsqrtd d`. This is the formula denoted by the local notation
-`M K` in `Mathlib.NumberTheory.NumberField.ClassNumber`. -/
-noncomputable def numberFieldMinkowskiConstant
-    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] : ℝ :=
-  (4 / Real.pi) ^ NumberField.InfinitePlace.nrComplexPlaces (Qsqrtd (d : ℚ)) *
-    (((@Module.finrank ℚ (Qsqrtd (d : ℚ)) _ _
-        (@Algebra.toModule ℚ (Qsqrtd (d : ℚ)) _ _ DivisionRing.toRatAlgebra)).factorial : ℝ) /
-      ((@Module.finrank ℚ (Qsqrtd (d : ℚ)) _ _
-        (@Algebra.toModule ℚ (Qsqrtd (d : ℚ)) _ _ DivisionRing.toRatAlgebra) : ℕ) : ℝ) ^
-          @Module.finrank ℚ (Qsqrtd (d : ℚ)) _ _
-            (@Algebra.toModule ℚ (Qsqrtd (d : ℚ)) _ _ DivisionRing.toRatAlgebra) *
-        Real.sqrt |(NumberField.discr (Qsqrtd (d : ℚ)) : ℝ)|)
-
 /-- The **Minkowski class-representative bound** of the quadratic field `ℚ(√d)`,
 a first-class real invariant alongside `NumberField.discr`. It specializes the
 general number-field bound `(4/π)^{r₂} · (n!/nⁿ) · √|D|` to degree `2`
@@ -229,17 +215,6 @@ general number-field bound `(4/π)^{r₂} · (n!/nⁿ) · √|D|` to degree `2`
 noncomputable def minkowskiBound (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] : ℝ :=
   (4 / Real.pi) ^ NumberField.InfinitePlace.nrComplexPlaces (Qsqrtd (d : ℚ)) * (1 / 2) *
     Real.sqrt |(NumberField.discr (Qsqrtd (d : ℚ)) : ℝ)|
-
-/-- The project-owned quadratic Minkowski bound agrees with mathlib's general
-number-field Minkowski constant specialized to `Qsqrtd d`. -/
-theorem minkowskiBound_eq_numberField_minkowskiConstant
-    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
-    minkowskiBound d = numberFieldMinkowskiConstant d := by
-  rw [minkowskiBound, numberFieldMinkowskiConstant]
-  have hfin := finrank_defaultRatAlgebra_eq_two d
-  rw [hfin]
-  norm_num
-  ring
 
 /-- **Minkowski's bound for `ℚ(√d)`** (unified form): every ideal class has a
 representative whose absolute norm is at most `minkowskiBound d`. -/
@@ -262,24 +237,6 @@ theorem exists_ideal_in_class_of_norm_le
     refine ⟨I, hC, ?_⟩
     rw [minkowskiBound, nrComplexPlaces_eq_zero_of_pos d hpos]
     simpa using hI
-
-/-- **Class number one from the Minkowski bound.** If every integer ideal of
-`𝓞(ℚ(√d))` with absolute norm at most `minkowskiBound d` is principal, then
-`ℚ(√d)` has class number one. This is the general engine for class-number-one
-proofs: it reduces `classNumber = 1` to finitely many principality checks among
-the (small) ideals of bounded norm. -/
-theorem classNumber_eq_one_of_forall_isPrincipal
-    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
-    (h : ∀ ⦃I : Ideal (𝓞 (Qsqrtd (d : ℚ)))⦄,
-        (Ideal.absNorm (I : Ideal (𝓞 (Qsqrtd (d : ℚ)))) : ℝ) ≤ minkowskiBound d →
-        Submodule.IsPrincipal (I : Ideal (𝓞 (Qsqrtd (d : ℚ))))) :
-    NumberField.classNumber (Qsqrtd (d : ℚ)) = 1 := by
-  refine NumberField.classNumber_eq_one_iff.mpr ?_
-  refine RingOfIntegers.isPrincipalIdealRing_of_isPrincipal_of_norm_le ?_
-  intro I hI
-  refine h ?_
-  convert hI using 1
-  exact minkowskiBound_eq_numberField_minkowskiConstant d
 
 end Qsqrtd
 end QuadraticNumberFields
