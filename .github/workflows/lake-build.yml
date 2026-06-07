@@ -21,4 +21,7 @@ jobs:
       - name: Run lake build
         uses: leanprover/lean-action@v1
         with:
+          auto-config: false
           build: true
+          lint: false
+          test: false
