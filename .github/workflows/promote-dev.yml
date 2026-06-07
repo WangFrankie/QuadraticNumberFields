@@ -1,0 +1,29 @@
+name: promote-dev
+
+on:
+  workflow_dispatch:
+
+jobs:
+  promote:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Create PR dev to main
+        run: |
+          gh pr create \
+            --base main \
+            --head dev \
+            --title "Promote dev to main" \
+            --body "Manual promotion from dev to main." || true
+        env:
+          GH_REPO: ${{ github.repository }}
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Enable auto merge
+        run: |
+          gh pr merge dev --squash --auto || true
+        env:
+          GH_REPO: ${{ github.repository }}
+          GH_TOKEN: ${{ github.token }}
