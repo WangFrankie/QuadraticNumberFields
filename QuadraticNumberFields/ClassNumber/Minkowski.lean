@@ -205,6 +205,20 @@ theorem exists_ideal_in_class_of_norm_le_real_of_mod_four_ne_one
   rw [sqrt_abs_four_mul_intCast]
   ring
 
+/-- Mathlib's general number-field Minkowski class-representative constant,
+specialized to `Qsqrtd d`. This is the formula denoted by the local notation
+`M K` in `Mathlib.NumberTheory.NumberField.ClassNumber`. -/
+noncomputable def numberFieldMinkowskiConstant
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] : ℝ :=
+  (4 / Real.pi) ^ NumberField.InfinitePlace.nrComplexPlaces (Qsqrtd (d : ℚ)) *
+    (((@Module.finrank ℚ (Qsqrtd (d : ℚ)) _ _
+        (@Algebra.toModule ℚ (Qsqrtd (d : ℚ)) _ _ DivisionRing.toRatAlgebra)).factorial : ℝ) /
+      ((@Module.finrank ℚ (Qsqrtd (d : ℚ)) _ _
+        (@Algebra.toModule ℚ (Qsqrtd (d : ℚ)) _ _ DivisionRing.toRatAlgebra) : ℕ) : ℝ) ^
+          @Module.finrank ℚ (Qsqrtd (d : ℚ)) _ _
+            (@Algebra.toModule ℚ (Qsqrtd (d : ℚ)) _ _ DivisionRing.toRatAlgebra) *
+        Real.sqrt |(NumberField.discr (Qsqrtd (d : ℚ)) : ℝ)|)
+
 /-- The **Minkowski class-representative bound** of the quadratic field `ℚ(√d)`,
 a first-class real invariant alongside `NumberField.discr`. It specializes the
 general number-field bound `(4/π)^{r₂} · (n!/nⁿ) · √|D|` to degree `2`
@@ -220,16 +234,8 @@ noncomputable def minkowskiBound (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)
 number-field Minkowski constant specialized to `Qsqrtd d`. -/
 theorem minkowskiBound_eq_numberField_minkowskiConstant
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
-    minkowskiBound d =
-      (4 / Real.pi) ^ NumberField.InfinitePlace.nrComplexPlaces (Qsqrtd (d : ℚ)) *
-        (((@Module.finrank ℚ (Qsqrtd (d : ℚ)) _ _
-            (@Algebra.toModule ℚ (Qsqrtd (d : ℚ)) _ _ DivisionRing.toRatAlgebra)).factorial : ℝ) /
-          ((@Module.finrank ℚ (Qsqrtd (d : ℚ)) _ _
-            (@Algebra.toModule ℚ (Qsqrtd (d : ℚ)) _ _ DivisionRing.toRatAlgebra) : ℕ) : ℝ) ^
-              @Module.finrank ℚ (Qsqrtd (d : ℚ)) _ _
-                (@Algebra.toModule ℚ (Qsqrtd (d : ℚ)) _ _ DivisionRing.toRatAlgebra) *
-            Real.sqrt |(NumberField.discr (Qsqrtd (d : ℚ)) : ℝ)|) := by
-  rw [minkowskiBound]
+    minkowskiBound d = numberFieldMinkowskiConstant d := by
+  rw [minkowskiBound, numberFieldMinkowskiConstant]
   have hfin := finrank_defaultRatAlgebra_eq_two d
   rw [hfin]
   norm_num
