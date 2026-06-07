@@ -216,6 +216,25 @@ noncomputable def minkowskiBound (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)
   (4 / Real.pi) ^ NumberField.InfinitePlace.nrComplexPlaces (Qsqrtd (d : ℚ)) * (1 / 2) *
     Real.sqrt |(NumberField.discr (Qsqrtd (d : ℚ)) : ℝ)|
 
+/-- The project-owned quadratic Minkowski bound agrees with mathlib's general
+number-field Minkowski constant specialized to `Qsqrtd d`. -/
+theorem minkowskiBound_eq_numberField_minkowskiConstant
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
+    minkowskiBound d =
+      (4 / Real.pi) ^ NumberField.InfinitePlace.nrComplexPlaces (Qsqrtd (d : ℚ)) *
+        (((@Module.finrank ℚ (Qsqrtd (d : ℚ)) _ _
+            (@Algebra.toModule ℚ (Qsqrtd (d : ℚ)) _ _ DivisionRing.toRatAlgebra)).factorial : ℝ) /
+          ((@Module.finrank ℚ (Qsqrtd (d : ℚ)) _ _
+            (@Algebra.toModule ℚ (Qsqrtd (d : ℚ)) _ _ DivisionRing.toRatAlgebra) : ℕ) : ℝ) ^
+              @Module.finrank ℚ (Qsqrtd (d : ℚ)) _ _
+                (@Algebra.toModule ℚ (Qsqrtd (d : ℚ)) _ _ DivisionRing.toRatAlgebra) *
+            Real.sqrt |(NumberField.discr (Qsqrtd (d : ℚ)) : ℝ)|) := by
+  rw [minkowskiBound]
+  have hfin := finrank_defaultRatAlgebra_eq_two d
+  rw [hfin]
+  norm_num
+  ring
+
 /-- **Minkowski's bound for `ℚ(√d)`** (unified form): every ideal class has a
 representative whose absolute norm is at most `minkowskiBound d`. -/
 theorem exists_ideal_in_class_of_norm_le
@@ -254,11 +273,7 @@ theorem classNumber_eq_one_of_forall_isPrincipal
   intro I hI
   refine h ?_
   convert hI using 1
-  rw [minkowskiBound]
-  have hfin := finrank_defaultRatAlgebra_eq_two d
-  rw [hfin]
-  norm_num
-  ring
+  exact minkowskiBound_eq_numberField_minkowskiConstant d
 
 end Qsqrtd
 end QuadraticNumberFields
