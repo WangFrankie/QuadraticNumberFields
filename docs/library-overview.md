@@ -223,7 +223,7 @@ Key declarations:
 
 ### Concrete `ℤ[√(-5)]` Examples
 
-Files under `QuadraticNumberFields/Examples/ZsqrtdNeg5/`
+Files under `QuadraticNumberFields/Examples/SqrtNeg5/`
 
 The library includes verified computations in `ℤ[√(-5)]`, including:
 
@@ -347,7 +347,7 @@ unit, Minkowski, and real-quadratic family developments.
 │   ├── Families/                     # real-quadratic family scaffolding
 │   ├── Euclidean/                    # norm-Euclidean skeleton
 │   └── Examples/
-│       └── ZsqrtdNeg5/               # verified ℤ[√(-5)] examples
+│       └── SqrtNeg5/               # verified ℤ[√(-5)] examples
 └── docs/
     ├── design/
     ├── library-overview.md

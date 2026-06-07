@@ -30,7 +30,7 @@ open Ideal
 
 open scoped QuadraticAlgebra
 
-namespace QuadraticNumberFields.Examples.ZsqrtdNeg5
+namespace QuadraticNumberFields.Examples.SqrtNeg5
 
 /-- The working quadratic integer ring `ℤ[√-5]` used in this file. -/
 abbrev R := QuadraticNumberFields.Zsqrtd (-5)
@@ -135,4 +135,4 @@ theorem isPrime_span_three_one_minus_sqrtd :
   haveI : Fact (Nat.Prime 3) := ⟨by decide⟩
   QuadraticNumberFields.Zsqrtd.Ideal.isPrime_span_p_one_minus_sqrtd 3 neg5_dvd_three
 
-end QuadraticNumberFields.Examples.ZsqrtdNeg5
+end QuadraticNumberFields.Examples.SqrtNeg5

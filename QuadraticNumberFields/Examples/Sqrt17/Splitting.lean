@@ -14,7 +14,7 @@ This file instantiates the general splitting classification
 reading off the split / inert / ramified type of small rational primes from the
 `legendreSym` and `d mod 8` criteria.
 
-Together with `Examples.ZsqrtdNeg5.Splitting` (the imaginary field `ℚ(√-5)`),
+Together with `Examples.SqrtNeg5.Splitting` (the imaginary field `ℚ(√-5)`),
 this exercises every branch of the classification:
 
 * `p = 2` is handled by the `d mod 8` criterion; here `17 ≡ 1 (mod 8)` gives the

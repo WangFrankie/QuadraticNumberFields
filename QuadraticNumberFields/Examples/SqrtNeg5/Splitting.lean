@@ -15,8 +15,8 @@ reading off the split / inert / ramified type of small rational primes from the
 `legendreSym` and `d mod 8` criteria.
 
 It is the *abstract*, numerical-invariant counterpart of the explicit,
-ideal-level factorizations in `Examples.ZsqrtdNeg5.Ideals` and
-`Examples.ZsqrtdNeg5.RamificationInertia`, which exhibit concrete prime ideals
+ideal-level factorizations in `Examples.SqrtNeg5.Ideals` and
+`Examples.SqrtNeg5.RamificationInertia`, which exhibit concrete prime ideals
 such as `(2, 1+√-5)` and prove identities like `(2) = (2, 1+√-5)²` on the model
 ring `ℤ[√-5]`. Here we instead apply the crown-jewel theorem
 `splitting_classification` directly to `𝓞(ℚ(√-5))`.
@@ -40,7 +40,7 @@ open scoped NumberField
 open Ideal
 open QuadraticNumberFields.Splitting
 
-namespace QuadraticNumberFields.Examples.ZsqrtdNeg5
+namespace QuadraticNumberFields.Examples.SqrtNeg5
 
 /-! ## Prime `Fact` instances for the primes used below -/
 
@@ -70,4 +70,4 @@ theorem seven_isSplit : Ideal.IsSplitIn (𝔭(7)) 𝓞((-5 : ℤ)) :=
 theorem eleven_isInert : Ideal.IsInertIn (𝔭(11)) 𝓞((-5 : ℤ)) :=
   (isInert_iff_legendreSym_eq_neg_one (-5) 11 (by decide) (by decide)).mpr (by decide)
 
-end QuadraticNumberFields.Examples.ZsqrtdNeg5
+end QuadraticNumberFields.Examples.SqrtNeg5
