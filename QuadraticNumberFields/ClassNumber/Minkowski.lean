@@ -104,6 +104,13 @@ private theorem minkowskiConstant_eq_real
   rw [hfin]
   norm_num
 
+private theorem sqrt_abs_four_mul_intCast (d : ℤ) :
+    Real.sqrt |((4 * d : ℤ) : ℝ)| = 2 * Real.sqrt |(d : ℝ)| := by
+  rw [show ((4 * d : ℤ) : ℝ) = (4 : ℝ) * (d : ℝ) by norm_num]
+  rw [abs_mul, abs_of_nonneg (by norm_num : (0 : ℝ) ≤ 4)]
+  rw [Real.sqrt_mul (by norm_num : (0 : ℝ) ≤ 4)]
+  norm_num
+
 /-- In an imaginary quadratic field `ℚ(√d)`, every ideal class has a representative
 whose norm is at most `(2 / π) * √|D_K|`. -/
 theorem exists_ideal_in_class_of_norm_le_imaginary
@@ -147,18 +154,20 @@ theorem exists_ideal_in_class_of_norm_le_imaginary_of_mod_four_eq_one
   rw [RingOfIntegers.discr_of_mod_four_eq_one d hd4]
 
 /-- In an imaginary quadratic field `ℚ(√d)` with `d % 4 ≠ 1`, every ideal class has
-a representative whose norm is at most `(2 / π) * √|4d|`. -/
+a representative whose norm is at most `(4 / π) * √|d|`. -/
 theorem exists_ideal_in_class_of_norm_le_imaginary_of_mod_four_ne_one
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : d < 0) (hd4 : d % 4 ≠ 1)
     (C : ClassGroup (𝓞 (Qsqrtd (d : ℚ)))) :
     ∃ I : nonZeroDivisors (Ideal (𝓞 (Qsqrtd (d : ℚ)))),
       ClassGroup.mk0 I = C ∧
         (Ideal.absNorm (I : Ideal (𝓞 (Qsqrtd (d : ℚ)))) : ℝ) ≤
-          (2 / Real.pi) * Real.sqrt |((4 * d : ℤ) : ℝ)| := by
+          (4 / Real.pi) * Real.sqrt |(d : ℝ)| := by
   obtain ⟨I, hC, hI⟩ := exists_ideal_in_class_of_norm_le_imaginary d hd C
   refine ⟨I, hC, ?_⟩
   convert hI using 1
   rw [RingOfIntegers.discr_of_mod_four_ne_one d hd4]
+  rw [sqrt_abs_four_mul_intCast]
+  ring
 
 /-- In a real quadratic field `ℚ(√d)` with `d % 4 = 1`, every ideal class has a
 representative whose norm is at most `(1 / 2) * √|d|`. -/
@@ -175,18 +184,20 @@ theorem exists_ideal_in_class_of_norm_le_real_of_mod_four_eq_one
   rw [RingOfIntegers.discr_of_mod_four_eq_one d hd4]
 
 /-- In a real quadratic field `ℚ(√d)` with `d % 4 ≠ 1`, every ideal class has a
-representative whose norm is at most `(1 / 2) * √|4d|`. -/
+representative whose norm is at most `√|d|`. -/
 theorem exists_ideal_in_class_of_norm_le_real_of_mod_four_ne_one
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : 0 < d) (hd4 : d % 4 ≠ 1)
     (C : ClassGroup (𝓞 (Qsqrtd (d : ℚ)))) :
     ∃ I : nonZeroDivisors (Ideal (𝓞 (Qsqrtd (d : ℚ)))),
       ClassGroup.mk0 I = C ∧
         (Ideal.absNorm (I : Ideal (𝓞 (Qsqrtd (d : ℚ)))) : ℝ) ≤
-          (1 / 2) * Real.sqrt |((4 * d : ℤ) : ℝ)| := by
+          Real.sqrt |(d : ℝ)| := by
   obtain ⟨I, hC, hI⟩ := exists_ideal_in_class_of_norm_le_real d hd C
   refine ⟨I, hC, ?_⟩
   convert hI using 1
   rw [RingOfIntegers.discr_of_mod_four_ne_one d hd4]
+  rw [sqrt_abs_four_mul_intCast]
+  ring
 
 end Qsqrtd
 end QuadraticNumberFields
