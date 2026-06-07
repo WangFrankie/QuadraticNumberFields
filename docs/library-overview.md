@@ -241,16 +241,15 @@ Key declarations include `factorization_of_two`,
 
 ### Class-Number Interface
 
-File: `QuadraticNumberFields/ClassNumber/Basic.lean`
+File: `QuadraticNumberFields/ClassNumber.lean`
 
-The stable library exposes the class group and class number of `Qsqrtd d` and
-relates class number one to principality of the explicit integer-ring models:
+The stable library specializes mathlib's Minkowski ideal-class representative
+bound to `Qsqrtd d`:
 
-- `ClassNumber.QsqrtdClassGroup`
-- `ClassNumber.QsqrtdClassNumber`
-- `ClassNumber.QsqrtdClassNumber_eq_one_iff_ringOfIntegers_isPrincipalIdealRing`
-- `ClassNumber.QsqrtdClassNumber_eq_one_iff_zsqrtd_isPrincipalIdealRing`
-- `ClassNumber.QsqrtdClassNumber_eq_one_iff_zOnePlusSqrtOverTwo_isPrincipalIdealRing`
+- `Qsqrtd.minkowskiBound`
+- `Qsqrtd.exists_ideal_in_class_of_norm_le`
+- `Qsqrtd.exists_ideal_in_class_of_norm_le_imaginary`
+- `Qsqrtd.exists_ideal_in_class_of_norm_le_real`
 
 ## Core Lean Objects
 

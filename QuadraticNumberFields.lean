@@ -30,7 +30,7 @@ import QuadraticNumberFields.RingOfIntegers.Classification
 import QuadraticNumberFields.RingOfIntegers.Norm
 import QuadraticNumberFields.RingOfIntegers.Discriminant
 import QuadraticNumberFields.Splitting
-import QuadraticNumberFields.ClassNumber.Basic
+import QuadraticNumberFields.ClassNumber
 import QuadraticNumberFields.Examples.SqrtNeg5.Ideals
 import QuadraticNumberFields.Examples.SqrtNeg5.RamificationInertia
 import QuadraticNumberFields.Examples.SqrtNeg5.Splitting
