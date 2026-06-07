@@ -1,0 +1,24 @@
+name: lake-build
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  lake-build:
+    name: lake-build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run lake build
+        uses: leanprover/lean-action@v1
+        with:
+          build: true
