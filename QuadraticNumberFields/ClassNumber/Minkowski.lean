@@ -18,6 +18,12 @@ quadratic Minkowski constants: an imaginary quadratic field has one complex
 place, while a real quadratic field has none.  These constants then specialize
 mathlib's ideal-class representative theorem to the usual quadratic
 Minkowski bounds.
+
+Source alignment: the Minkowski constants follow Boxer Notes, Lectures 23.1
+and 23.2.  The explicit `d % 4` discriminant branches use the quadratic-field
+discriminant formula from Ireland-Rosen, Chapter 13, via the existing
+`RingOfIntegers.discr_of_mod_four_eq_one` and
+`RingOfIntegers.discr_of_mod_four_ne_one` theorems.
 -/
 
 namespace QuadraticNumberFields
