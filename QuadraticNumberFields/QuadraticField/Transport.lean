@@ -52,7 +52,7 @@ theorem isQuadraticExtension_of_algEquiv [QuadraticField K] (e : K ≃ₐ[ℚ] L
 them reducible lets instance search unfold them when a local transported
 instance is introduced with `letI`. -/
 
-/-- Transport the project-level `QuadraticField` class across a `ℚ`-algebra equivalence. -/
+/-- Transport the `QuadraticField` class across a `ℚ`-algebra equivalence. -/
 @[reducible]
 def transportAlong [QuadraticField K] (e : K ≃ₐ[ℚ] L) : QuadraticField L where
   isQuadratic := isQuadraticExtension_of_algEquiv e
@@ -62,14 +62,12 @@ def transportAlong [QuadraticField K] (e : K ≃ₐ[ℚ] L) : QuadraticField L w
 def transportBack [QuadraticField L] (e : K ≃ₐ[ℚ] L) : QuadraticField K :=
   transportAlong e.symm
 
-/-- Trace is invariant under a `ℚ`-algebra equivalence: this is the project-level
-wrapper of mathlib's `Algebra.trace_eq_of_algEquiv`. -/
+/-- Trace is invariant under a `ℚ`-algebra equivalence. -/
 theorem trace_eq_trace_of_algEquiv (e : K ≃ₐ[ℚ] L) (x : K) :
     Algebra.trace ℚ L (e x) = Algebra.trace ℚ K x :=
   Algebra.trace_eq_of_algEquiv e x
 
-/-- Norm is invariant under a `ℚ`-algebra equivalence: this is the project-level
-wrapper of mathlib's `Algebra.norm_eq_of_algEquiv`. -/
+/-- Norm is invariant under a `ℚ`-algebra equivalence. -/
 theorem norm_eq_norm_of_algEquiv (e : K ≃ₐ[ℚ] L) (x : K) :
     Algebra.norm ℚ (e x) = Algebra.norm ℚ x :=
   Algebra.norm_eq_of_algEquiv e x

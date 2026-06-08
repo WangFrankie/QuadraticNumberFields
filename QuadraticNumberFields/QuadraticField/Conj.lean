@@ -23,10 +23,8 @@ squarefree `d ≠ 1`.
 
 The `Conj` class is deliberately weaker than "the field has a
 non-trivial automorphism"; the `conj_ne_refl` field is here so that
-applications that require a *distinguished* non-trivial involution (such
-as the trace/norm-star identities in `Task 6` and the Galois-group
-identification in `Task 10`/`Task 11`) can assume the automorphism is
-genuinely non-trivial.
+applications that require a *distinguished* non-trivial involution can
+assume the automorphism is genuinely non-trivial.
 
 ## Main Definitions
 
@@ -48,7 +46,9 @@ genuinely non-trivial.
   of `Algebra.norm ℚ x`.
 -/
 
--- Use the canonical `QuadraticAlgebra` algebra structure for standard `Qsqrtd` models.
+-- Use the canonical `QuadraticAlgebra` algebra structure on standard `Qsqrtd`
+-- models. Otherwise `DivisionRing.toRatAlgebra` competes with it after the
+-- field instance is available.
 attribute [-instance] DivisionRing.toRatAlgebra
 
 namespace QuadraticField
@@ -58,9 +58,9 @@ non-trivial `ℚ`-algebra involution on `K`.
 
 The `conj_conj` and `conj_ne_refl` fields are here so that the
 distinguished involution is genuinely non-trivial: any involution of a
-quadratic field is automatically either `id` or the conjugation
-(`Task 5`), so the `conj_ne_refl` field is a redundant-but-cheap
-guarantee that the picked automorphism is the conjugation. -/
+quadratic field is automatically either `id` or the conjugation, so the
+`conj_ne_refl` field guarantees that the chosen automorphism is the
+conjugation. -/
 class Conj (K : Type*) [Field K] [Algebra ℚ K] [QuadraticField K] where
   /-- The distinguished involution. -/
   conj : K ≃ₐ[ℚ] K

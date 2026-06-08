@@ -10,7 +10,7 @@ import Mathlib.NumberTheory.NumberField.Basic
 /-!
 # Abstract Quadratic Fields
 
-This file defines the project-level abstraction for quadratic number fields.
+This file defines an abstraction for quadratic number fields.
 
 The concrete model `Qsqrtd d` remains the standard coordinate model for
 calculation, while `QuadraticField K` is the abstract hypothesis used by
@@ -22,17 +22,16 @@ statements that should apply to any quadratic field over `ℚ`.
   dimension over `ℚ` is two.
 -/
 
--- Resolve the diamond between `DivisionRing.toRatAlgebra` and `QuadraticAlgebra.instAlgebra`
--- for the standard model instance below.
+-- Use the canonical `QuadraticAlgebra` algebra structure on `Qsqrtd` in this file.
+-- Otherwise `DivisionRing.toRatAlgebra` competes with it once `Qsqrtd d` is a field.
 attribute [-instance] DivisionRing.toRatAlgebra
 
 /-- A quadratic field over `ℚ`.
 
-This is the project-level wrapper around mathlib's
-`Algebra.IsQuadraticExtension ℚ K`. Keeping it as a class lets application
-theorems state their abstract-field input directly as `[QuadraticField K]`,
-while the instance below exposes the underlying mathlib predicate whenever
-existing APIs need it.
+This wraps `Algebra.IsQuadraticExtension ℚ K` as a class so that theorems can
+state their abstract-field input directly as `[QuadraticField K]`, while the
+instance below exposes the underlying mathlib predicate whenever existing APIs
+need it.
 -/
 class QuadraticField (K : Type*) [Field K] [Algebra ℚ K] : Prop where
   /-- The underlying degree-two extension predicate. -/
