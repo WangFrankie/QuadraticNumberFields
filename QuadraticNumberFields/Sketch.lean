@@ -26,9 +26,8 @@ kept out of the stable `QuadraticNumberFields` entry point so that
 Current work in progress:
 
 * `Euclidean.Basic`: imaginary-quadratic norm-Euclidean classification skeleton.
-* `Families.*`, `ContinuedFraction.*`, `Units.*`, `ClassGroup.*`, and
-  `ClassNumber.Examples`: research scaffolding for real quadratic class-number
-  problems.
+* `Families.*`, `ContinuedFraction.*`, `Units.*`, and `ClassGroup.*`: research
+  scaffolding for real quadratic class-number problems.
 
 Promote a module into `QuadraticNumberFields.lean` once it is sorry-free.
 -/

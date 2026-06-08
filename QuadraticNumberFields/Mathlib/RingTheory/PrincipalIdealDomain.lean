@@ -19,16 +19,11 @@ section Semiring
 variable {R S : Type*} [Semiring R] [Semiring S]
 
 /-- Transport `IsPrincipalIdealRing` across a ring equivalence. -/
--- Repository use: `ClassNumber/Transport.lean` uses this to transport the
--- class-number-one criterion across the ring-of-integers classification
--- equivalences.
 theorem isPrincipalIdealRing (e : R ≃+* S) [IsPrincipalIdealRing R] :
     IsPrincipalIdealRing S :=
   IsPrincipalIdealRing.of_surjective e.toRingHom e.surjective
 
 /-- `IsPrincipalIdealRing` is invariant under ring equivalence. -/
--- Repository use: `ClassNumber/Transport.lean` uses this as the iff form for
--- class-number-one statements.
 theorem isPrincipalIdealRing_iff (e : R ≃+* S) :
     IsPrincipalIdealRing R ↔ IsPrincipalIdealRing S := by
   constructor

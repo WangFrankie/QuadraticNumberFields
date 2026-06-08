@@ -36,6 +36,7 @@ _site/
 .omx
 .claude
 .codex
+.agents
 AGENTS.md
 CLAUDE.md
 docs/superpowers/

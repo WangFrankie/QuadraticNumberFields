@@ -6,7 +6,7 @@ Authors: Frankie Wang
 Computing ramification index and inertia degree for primes 2 and 3 in ℤ[√-5].
 Ported from the ANT project.
 -/
-import QuadraticNumberFields.Examples.ZsqrtdNeg5.Ideals
+import QuadraticNumberFields.Examples.SqrtNeg5.Ideals
 import Mathlib.NumberTheory.RamificationInertia.Basic
 import Mathlib.LinearAlgebra.Dimension.Finrank
 
@@ -41,7 +41,7 @@ Verification: e × f × g = 2 = [ℚ(√-5) : ℚ] ✓
 
 open Ideal
 
-namespace QuadraticNumberFields.Examples.ZsqrtdNeg5
+namespace QuadraticNumberFields.Examples.SqrtNeg5
 
 local notation "sqrtd" => QuadraticNumberFields.Zsqrtd.sqrtd
 
@@ -254,7 +254,7 @@ theorem inertiaDeg_P3₂ :
         QuadraticNumberFields.Zsqrtd.Ideal.liftModP, P3₂])
   exact_mod_cast hfin.trans (by simp [Module.finrank_self])
 
-end QuadraticNumberFields.Examples.ZsqrtdNeg5
+end QuadraticNumberFields.Examples.SqrtNeg5
 
 --TODO : using Discriminant, show that 2 is the only ramified prime in ℤ[√-5],
 -- and that all other primes are either inert or split.

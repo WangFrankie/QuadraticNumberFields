@@ -5,7 +5,7 @@ Authors: Frankie Wang
 -/
 
 import QuadraticNumberFields.ClassGroup.ReducedIdeals
-import QuadraticNumberFields.ClassNumber.Minkowski
+import QuadraticNumberFields.ClassNumber
 
 /-!
 # Class Groups and Minkowski Bounds

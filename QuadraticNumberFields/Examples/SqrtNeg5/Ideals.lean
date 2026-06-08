@@ -30,7 +30,7 @@ open Ideal
 
 open scoped QuadraticAlgebra
 
-namespace QuadraticNumberFields.Examples.ZsqrtdNeg5
+namespace QuadraticNumberFields.Examples.SqrtNeg5
 
 /-- The working quadratic integer ring `ℤ[√-5]` used in this file. -/
 abbrev R := QuadraticNumberFields.Zsqrtd (-5)
@@ -57,75 +57,14 @@ by simpa [h] using hy
 /-! ## Ideal factorizations (specific to d = -5) -/
 
 theorem factorization_of_two :
-    span {(2 : R)} = (span {2, 1 + sqrtd}) ^ 2 := by
-  -- Expand ⟨2, 1+√-5⟩² into the span of the four pairwise products of generators
-  let J : Ideal R :=
-    span ({(2 : R) * (2 : R), (2 : R) * (1 + sqrtd), (1 + sqrtd) * (2 : R),
-      (1 + sqrtd) * (1 + sqrtd)} : Set R)
-  -- Key computation: (1+√-5)² = 2·(-2+√-5), since (√-5)² = -5
-  have hsq : (1 + sqrtd : R) * (1 + sqrtd) = (2 : R) * (-2 + sqrtd) := by
-    ext <;>
-      simp [QuadraticNumberFields.Zsqrtd.sqrtd, QuadraticAlgebra.re_one,
-        QuadraticAlgebra.im_one]
-  -- Rewrite the square as J using `span_pair_mul_span_pair`
-  have hpow : (span ({(2 : R), (1 + sqrtd)} : Set R) : Ideal R) ^ 2 = J := by
-    simp [J, pow_two, Ideal.span_pair_mul_span_pair]
-  apply _root_.le_antisymm
-  · -- Forward inclusion ⟨2⟩ ⊆ J: express 2 as a linear combination of generators
-    --   2 = 2·(1+√-5) - (1+√-5)² - 2·2
-    rw [Ideal.span_singleton_le_iff_mem, hpow]
-    have h21 : (2 : R) * (1 + sqrtd) ∈ J := Ideal.subset_span (by simp)
-    have h11 : (1 + sqrtd : R) * (1 + sqrtd) ∈ J := Ideal.subset_span (by simp)
-    have h22 : (2 : R) * (2 : R) ∈ J := Ideal.subset_span (by simp)
-    -- Ideals are closed under subtraction, so this combination lies in J
-    have hmem : (2 : R) * (1 + sqrtd) - (1 + sqrtd) * (1 + sqrtd) - (2 : R) * (2 : R) ∈ J :=
-      J.sub_mem (J.sub_mem h21 h11) h22
-    -- Verify the combination actually equals 2
-    have hcalc :
-        (2 : R) * (1 + sqrtd) - (1 + sqrtd) * (1 + sqrtd) - (2 : R) * (2 : R) = (2 : R) := by
-      rw [hsq]
-      ring
-    exact hcalc ▸ hmem
-  · -- Reverse inclusion J ⊆ ⟨2⟩: each of the four generators is divisible by 2
-    rw [hpow]
-    refine Ideal.span_le.2 ?_
-    intro x hx
-    rcases hx with rfl | rfl | rfl | rfl
-    · -- 2·2 is divisible by 2
-      exact Ideal.mem_span_singleton.mpr ⟨(2 : R), rfl⟩
-    · -- 2·(1+√-5) is divisible by 2
-      exact Ideal.mem_span_singleton.mpr ⟨(1 + sqrtd : R), rfl⟩
-    · -- (1+√-5)·2 = 2·(1+√-5) by commutativity
-      exact Ideal.mem_span_singleton.mpr ⟨(1 + sqrtd : R), by simp [mul_comm]⟩
-    · -- (1+√-5)² = 2·(-2+√-5) by `hsq`
-      exact Ideal.mem_span_singleton.mpr ⟨(-2 + sqrtd : R), hsq⟩
+    span {(2 : R)} = (span {2, 1 + sqrtd}) ^ 2 :=
+  -- Instance of the general ramified factorization at `p = 2` (since `-5 ≡ 3 mod 4`).
+  Zsqrtd.Ideal.span_two_eq_sq (by decide)
 
 theorem factorization_of_three :
     span {(3 : R)} = (span {3, 1 + sqrtd}) * (span {3, 1 - sqrtd}) := by
-    -- Expand the ideal product into the span of four pairwise products
-    rw [Ideal.span_pair_mul_span_pair]
-    apply _root_.le_antisymm
-    · -- Forward inclusion ⟨3⟩ ⊆ product: 3 = 3·3 - (1+√-5)(1-√-5)
-      --   since (1+√-5)(1-√-5) = 1-(-5) = 6, we get 9 - 6 = 3
-      rw [Ideal.span_singleton_le_iff_mem]
-      have three_eq: (3 : R) = 3 * 3 - (1 + sqrtd) * (1 - sqrtd) := by
-        ext <;>
-          simp [QuadraticNumberFields.Zsqrtd.sqrtd, QuadraticAlgebra.re_one,
-            QuadraticAlgebra.im_one]
-      exact in_span_of_eq three_eq
-        ((span _).sub_mem (Ideal.subset_span (by simp)) (Ideal.subset_span (by simp)))
-    · -- Reverse inclusion: each of the four generators is divisible by 3
-      apply Ideal.span_le_span_singleton_of_forall_dvd
-      intro x hx
-      rcases hx with rfl  | rfl | rfl | rfl
-      · simp  -- 3·3 is divisible by 3
-      · simp  -- 3·(1-√-5) is divisible by 3
-      · simp  -- (1+√-5)·3 is divisible by 3
-      · -- (1+√-5)(1-√-5) = 6 = 3·2
-        exact ⟨2, by
-          ext <;>
-            simp [QuadraticNumberFields.Zsqrtd.sqrtd, QuadraticAlgebra.re_one,
-              QuadraticAlgebra.im_one]⟩
+  -- Instance of the general odd-prime split factorization at `p = 3` (since `3 ∣ -5 - 1`).
+  simpa using Zsqrtd.Ideal.span_p_eq_span_mul_span 3 (by decide) neg5_dvd_three
 
 theorem factorization_of_one_plus_sqrtd :
     span {(1 + sqrtd : R)} = (span {2, 1 + sqrtd}) * (span {3, 1 + sqrtd}) := by
@@ -196,4 +135,4 @@ theorem isPrime_span_three_one_minus_sqrtd :
   haveI : Fact (Nat.Prime 3) := ⟨by decide⟩
   QuadraticNumberFields.Zsqrtd.Ideal.isPrime_span_p_one_minus_sqrtd 3 neg5_dvd_three
 
-end QuadraticNumberFields.Examples.ZsqrtdNeg5
+end QuadraticNumberFields.Examples.SqrtNeg5

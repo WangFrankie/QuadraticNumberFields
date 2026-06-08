@@ -17,6 +17,7 @@ This file provides global `Fact` instances for frequently-used quadratic field p
 - `Fact (Squarefree (-1 : ℤ))` / `Fact ((-1 : ℤ) ≠ 1)` — Gaussian integers
 - `Fact (Squarefree (-3 : ℤ))` / `Fact ((-3 : ℤ) ≠ 1)` — Eisenstein integers
 - `Fact (Squarefree (-5 : ℤ))` / `Fact ((-5 : ℤ) ≠ 1)` — ℤ[√(-5)]
+- `Fact (Squarefree (17 : ℤ))` / `Fact ((17 : ℤ) ≠ 1)` — real field ℚ(√17)
 -/
 
 namespace QuadraticNumberFields
@@ -38,5 +39,9 @@ instance : Fact (Squarefree (-5 : ℤ)) := ⟨by
   exact (Int.prime_iff_natAbs_prime.mpr (by decide) : Prime (5 : ℤ)).squarefree p (dvd_neg.mp hp)⟩
 
 instance : Fact ((-5 : ℤ) ≠ 1) := ⟨by decide⟩
+
+instance : Fact (Squarefree (17 : ℤ)) := ⟨(Int.prime_iff_natAbs_prime.mpr (by decide)).squarefree⟩
+
+instance : Fact ((17 : ℤ) ≠ 1) := ⟨by decide⟩
 
 end QuadraticNumberFields

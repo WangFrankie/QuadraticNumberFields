@@ -314,6 +314,150 @@ lemma comap_span_p_one_plus_sqrtd (p : ℕ) [Fact p.Prime] (hd : (p : ℤ) ∣ (
   · intro z
     simp [QuadraticAlgebra.re_intCast, QuadraticAlgebra.im_intCast]
 
+/-! ## Explicit factorization of rational primes -/
+
+/-- Divisibility by a rational integer in `Zsqrtd d` is coordinatewise:
+`(n : Zsqrtd d) ∣ w ↔ n ∣ w.re ∧ n ∣ w.im`. -/
+lemma intCast_dvd_iff (n : ℤ) (w : Zsqrtd d) :
+    (n : Zsqrtd d) ∣ w ↔ n ∣ w.re ∧ n ∣ w.im := by
+  constructor
+  · rintro ⟨z, rfl⟩
+    refine ⟨⟨z.re, ?_⟩, ⟨z.im, ?_⟩⟩ <;>
+      simp [QuadraticAlgebra.re_mul, QuadraticAlgebra.im_mul,
+        QuadraticAlgebra.re_intCast, QuadraticAlgebra.im_intCast]
+  · rintro ⟨⟨r, hr⟩, ⟨i, hi⟩⟩
+    exact ⟨⟨r, i⟩, by ext <;> simp [hr, hi]⟩
+
+/-- Explicit split-type factorization of an odd prime: for an odd prime `p` with
+`p ∣ (d - 1)`, the rational prime factors as
+`(p) = (p, 1 + √d) · (p, 1 - √d)` in `Zsqrtd d`.
+
+This generalizes concrete computations such as `(3) = (3, 1+√-5)(3, 1-√-5)`.
+The oddness of `p` is essential: at `p = 2` the two ideals coincide and the
+product becomes a square (see `span_two_eq_sq`). -/
+theorem span_p_eq_span_mul_span (p : ℕ) [Fact p.Prime] (hp2 : p ≠ 2)
+    (hd : (p : ℤ) ∣ (d - 1)) :
+    Ideal.span ({(p : Zsqrtd d)} : Set (Zsqrtd d)) =
+      (Ideal.span ({(p : Zsqrtd d), 1 + sqrtd} : Set (Zsqrtd d))) *
+        (Ideal.span ({(p : Zsqrtd d), 1 - sqrtd} : Set (Zsqrtd d))) := by
+  set I : Ideal (Zsqrtd d) :=
+    Ideal.span ({(p : Zsqrtd d), 1 + sqrtd} : Set (Zsqrtd d)) with hI
+  set K : Ideal (Zsqrtd d) :=
+    Ideal.span ({(p : Zsqrtd d), 1 - sqrtd} : Set (Zsqrtd d)) with hK
+  have hnp2 : ¬ (p : ℤ) ∣ 2 := by
+    intro hdvd
+    exact hp2 ((Nat.prime_dvd_prime_iff_eq Fact.out Nat.prime_two).mp (by exact_mod_cast hdvd))
+  apply le_antisymm
+  · -- `(p) ⊆ I * K`, witnessed by `p = p² · s + p(1+√d) · t + p(1-√d) · t` with `ps + 2t = 1`.
+    rw [Ideal.span_singleton_le_iff_mem]
+    have hpI : (p : Zsqrtd d) ∈ I := Ideal.subset_span (by simp)
+    have hpK : (p : Zsqrtd d) ∈ K := Ideal.subset_span (by simp)
+    have hoI : (1 + sqrtd : Zsqrtd d) ∈ I := Ideal.subset_span (by simp)
+    have hoK : (1 - sqrtd : Zsqrtd d) ∈ K := Ideal.subset_span (by simp)
+    have g1 : (p : Zsqrtd d) * (p : Zsqrtd d) ∈ I * K := Ideal.mul_mem_mul hpI hpK
+    have g2 : (1 + sqrtd : Zsqrtd d) * (p : Zsqrtd d) ∈ I * K := Ideal.mul_mem_mul hoI hpK
+    have g3 : (p : Zsqrtd d) * (1 - sqrtd) ∈ I * K := Ideal.mul_mem_mul hpI hoK
+    obtain ⟨k, hk⟩ := Nat.Prime.odd_of_ne_two Fact.out hp2
+    have hpcast : (p : Zsqrtd d) = 2 * (k : Zsqrtd d) + 1 := by
+      have h : (p : ℤ) = 2 * (k : ℤ) + 1 := by exact_mod_cast hk
+      have := congrArg (fun z : ℤ => (z : Zsqrtd d)) h
+      push_cast at this ⊢; exact this
+    have hcomb : (p : Zsqrtd d) =
+        1 * ((p : Zsqrtd d) * (p : Zsqrtd d))
+        + (-(k : Zsqrtd d)) * ((1 + sqrtd) * (p : Zsqrtd d))
+        + (-(k : Zsqrtd d)) * ((p : Zsqrtd d) * (1 - sqrtd)) := by
+      rw [hpcast]; ring
+    rw [hcomb]
+    exact add_mem (add_mem (Ideal.mul_mem_left _ _ g1) (Ideal.mul_mem_left _ _ g2))
+      (Ideal.mul_mem_left _ _ g3)
+  · -- `I * K ⊆ (p)`: any product `x * y` with `x ∈ I`, `y ∈ K` is divisible by `p`.
+    rw [Ideal.mul_le]
+    intro x hx y hy
+    rw [hI, mem_span_p_one_plus_sqrtd_iff p hd] at hx
+    rw [hK, mem_span_p_one_minus_sqrtd_iff p hd] at hy
+    rw [Ideal.mem_span_singleton]
+    have hcast : ((p : ℤ) : Zsqrtd d) = (p : Zsqrtd d) := by push_cast; ring
+    rw [← hcast, intCast_dvd_iff]
+    obtain ⟨ax, hax⟩ := hx
+    obtain ⟨bb, hbb⟩ := hy
+    obtain ⟨c, hc⟩ := hd
+    have hsub : (p : ℤ) ∣ ((x * y).re - (x * y).im) := by
+      rw [mul_re_sub_im_eq]
+      exact ⟨ax * (y.re - y.im) + c * x.im * y.im, by rw [hax, hc]; ring⟩
+    have hadd : (p : ℤ) ∣ ((x * y).re + (x * y).im) := by
+      rw [mul_re_add_im_eq]
+      exact ⟨(x.re + x.im) * bb + c * x.im * y.im, by rw [hbb, hc]; ring⟩
+    refine ⟨?_, ?_⟩
+    · have h2 : (p : ℤ) ∣ 2 * (x * y).re := by
+        have he : 2 * (x * y).re = ((x * y).re + (x * y).im) + ((x * y).re - (x * y).im) := by ring
+        rw [he]; exact dvd_add hadd hsub
+      exact ((Nat.prime_iff_prime_int.mp Fact.out).dvd_or_dvd h2).resolve_left hnp2
+    · have h2 : (p : ℤ) ∣ 2 * (x * y).im := by
+        have he : 2 * (x * y).im = ((x * y).re + (x * y).im) - ((x * y).re - (x * y).im) := by ring
+        rw [he]; exact dvd_sub hadd hsub
+      exact ((Nat.prime_iff_prime_int.mp Fact.out).dvd_or_dvd h2).resolve_left hnp2
+
+/-- Explicit ramified factorization of `2`: when `d ≡ 3 (mod 4)`, the rational
+prime `2` is the square of the prime `(2, 1 + √d)` in `Zsqrtd d`:
+`(2) = (2, 1 + √d)²`.
+
+This generalizes the concrete identity `(2) = (2, 1+√-5)²`. The congruence
+`d ≡ 3 (mod 4)` is exactly the condition for the equality: at `d ≡ 1 (mod 4)`
+the order `Zsqrtd d` is non-maximal at `2` and `(2, 1+√d)² = 2·(2, 1+√d) ⊊ (2)`. -/
+theorem span_two_eq_sq (hd4 : d % 4 = 3) :
+    Ideal.span ({(2 : Zsqrtd d)} : Set (Zsqrtd d)) =
+      (Ideal.span ({(2 : Zsqrtd d), 1 + sqrtd} : Set (Zsqrtd d))) ^ 2 := by
+  have hd2 : (2 : ℤ) ∣ (d - 1) := by omega
+  haveI : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
+  set I : Ideal (Zsqrtd d) :=
+    Ideal.span ({(2 : Zsqrtd d), 1 + sqrtd} : Set (Zsqrtd d)) with hI
+  have e2 : ((2 : ℕ) : Zsqrtd d) = (2 : Zsqrtd d) := by push_cast; ring
+  -- Membership in `I` controls `re - im` modulo `2`, via the general prime API at `p = 2`.
+  have key : ∀ z : Zsqrtd d, z ∈ I → (2 : ℤ) ∣ (z.re - z.im) := by
+    intro z hz
+    have hz' : z ∈ Ideal.span ({((2 : ℕ) : Zsqrtd d), 1 + sqrtd} : Set (Zsqrtd d)) := by rwa [e2]
+    simpa using (mem_span_p_one_plus_sqrtd_iff (2 : ℕ) hd2 z).1 hz'
+  rw [pow_two]
+  apply le_antisymm
+  · -- `(2) ⊆ I²`, witnessed by `2 = (1+√d)² − 2(1+√d) − m·4` with `d = 4m + 3`.
+    rw [Ideal.span_singleton_le_iff_mem]
+    have h2I : (2 : Zsqrtd d) ∈ I := Ideal.subset_span (by simp)
+    have hoI : (1 + sqrtd : Zsqrtd d) ∈ I := Ideal.subset_span (by simp)
+    have g1 : (2 : Zsqrtd d) * (2 : Zsqrtd d) ∈ I * I := Ideal.mul_mem_mul h2I h2I
+    have g2 : (2 : Zsqrtd d) * (1 + sqrtd) ∈ I * I := Ideal.mul_mem_mul h2I hoI
+    have g3 : (1 + sqrtd : Zsqrtd d) * (1 + sqrtd) ∈ I * I := Ideal.mul_mem_mul hoI hoI
+    obtain ⟨m, hm⟩ : ∃ m : ℤ, d = 4 * m + 3 := ⟨d / 4, by omega⟩
+    have hmc : (d : Zsqrtd d) = 4 * (m : Zsqrtd d) + 3 := by
+      have := congrArg (fun z : ℤ => (z : Zsqrtd d)) hm
+      push_cast at this ⊢; exact this
+    have hcomb : (2 : Zsqrtd d) =
+        (-(m : Zsqrtd d)) * ((2 : Zsqrtd d) * 2)
+        + (-1) * ((2 : Zsqrtd d) * (1 + sqrtd))
+        + 1 * ((1 + sqrtd) * (1 + sqrtd)) := by
+      ext <;>
+        simp [sqrtd, QuadraticAlgebra.re_mul, QuadraticAlgebra.im_mul,
+          QuadraticAlgebra.re_intCast, QuadraticAlgebra.im_intCast]
+      nlinarith [congrArg QuadraticAlgebra.re hmc, congrArg QuadraticAlgebra.im hmc]
+    rw [hcomb]
+    exact add_mem (add_mem (Ideal.mul_mem_left _ _ g1) (Ideal.mul_mem_left _ _ g2))
+      (Ideal.mul_mem_left _ _ g3)
+  · -- `I² ⊆ (2)`: both coordinates of `x * y` are even when `x, y ∈ I`.
+    rw [Ideal.mul_le]
+    intro x hx y hy
+    rw [Ideal.mem_span_singleton]
+    have hcast : ((2 : ℤ) : Zsqrtd d) = (2 : Zsqrtd d) := by push_cast; ring
+    rw [← hcast, intCast_dvd_iff]
+    obtain ⟨ax, hax⟩ := key x hx
+    obtain ⟨ay, hay⟩ := key y hy
+    obtain ⟨c, hc⟩ := hd2
+    have ex : x.re = x.im + 2 * ax := by linarith
+    have ey : y.re = y.im + 2 * ay := by linarith
+    have ed : d = 2 * c + 1 := by linarith
+    refine ⟨⟨x.im * y.im + ax * y.im + ay * x.im + 2 * ax * ay + c * x.im * y.im, ?_⟩,
+            ⟨x.im * y.im + ax * y.im + x.im * ay, ?_⟩⟩
+    · simp only [QuadraticAlgebra.re_mul]; rw [ex, ey]; linear_combination (x.im * y.im) * ed
+    · simp only [QuadraticAlgebra.im_mul]; rw [ex, ey]; ring
+
 end Ideal
 
 end Zsqrtd

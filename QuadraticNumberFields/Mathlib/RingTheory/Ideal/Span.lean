@@ -24,7 +24,7 @@ theorem span_le_span_singleton_iff_forall_dvd
   exact forall_congr' fun x => forall_congr' fun _ => mem_span_singleton
 
 /-- If `a` divides every element of `S`, then `Ideal.span S ≤ Ideal.span {a}`. -/
--- Repository use: `Examples/ZsqrtdNeg5/Ideals.lean` uses this for explicit
+-- Repository use: `Examples/SqrtNeg5/Ideals.lean` uses this for explicit
 -- ideal-factorization containments.
 theorem span_le_span_singleton_of_forall_dvd
     {α : Type*} [CommSemiring α] {a : α} {S : Set α}
