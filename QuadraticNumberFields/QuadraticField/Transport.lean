@@ -20,17 +20,14 @@ model, then transport invariant statements back along an algebra equivalence.
 
 * `QuadraticField.transportAlong`: transport the `QuadraticField` class across
   a `ℚ`-algebra equivalence.
-* `QuadraticField.discr_eq_of_algEquiv`: transport absolute discriminants.
-* `QuadraticField.ringOfIntegersEquivOfAlgEquiv`: transport rings of integers
-  along an algebra equivalence.
-* `QuadraticField.ringOfIntegersEquivOfRingEquiv`: transport rings of integers
-  along a ring equivalence.
-* `QuadraticField.isDedekindDomain_of_ringEquiv`: transport Dedekind-domain
-  structure along a ring equivalence.
-* `QuadraticField.isDedekindDomain_ringOfIntegers_of_ringEquiv`: transport
+* `NumberField.discr_eq_of_algEquiv`: transport absolute discriminants.
+* `AlgEquiv.ringOfIntegers`: transport rings of integers along an algebra
+  equivalence.
+* `RingEquiv.ringOfIntegers`: transport rings of integers along a ring equivalence.
+* `RingEquiv.isDedekindDomain_ringOfIntegers`: transport
   Dedekind-domain structure for rings of integers.
-* `QuadraticField.isTotallyReal_of_algEquiv` and
-  `QuadraticField.isTotallyComplex_of_algEquiv`: transport infinite-place
+* `NumberField.IsTotallyReal.ofAlgEquiv` and
+  `NumberField.IsTotallyComplex.ofAlgEquiv`: transport infinite-place
   classification.
 -/
 
@@ -62,89 +59,125 @@ def transportAlong [QuadraticField K] (e : K ≃ₐ[ℚ] L) : QuadraticField L w
 def transportBack [QuadraticField L] (e : K ≃ₐ[ℚ] L) : QuadraticField K :=
   transportAlong e.symm
 
-/-- Trace is invariant under a `ℚ`-algebra equivalence. -/
-theorem trace_eq_trace_of_algEquiv (e : K ≃ₐ[ℚ] L) (x : K) :
-    Algebra.trace ℚ L (e x) = Algebra.trace ℚ K x :=
-  Algebra.trace_eq_of_algEquiv e x
+end QuadraticField
 
-/-- Norm is invariant under a `ℚ`-algebra equivalence. -/
-theorem norm_eq_norm_of_algEquiv (e : K ≃ₐ[ℚ] L) (x : K) :
-    Algebra.norm ℚ (e x) = Algebra.norm ℚ x :=
-  Algebra.norm_eq_of_algEquiv e x
+namespace NumberField
 
+variable {K L : Type*} [Field K] [Algebra ℚ K] [Field L] [Algebra ℚ L]
+
+-- Upstream-location candidate:
+-- `Mathlib.NumberTheory.NumberField.Discriminant.Defs`.
+-- Kept here until a dedicated mathlib PR also moves the imports and callers.
 /-- Absolute discriminants are invariant under `ℚ`-algebra equivalence. -/
 theorem discr_eq_of_algEquiv [NumberField K] [NumberField L] (e : K ≃ₐ[ℚ] L) :
-    NumberField.discr K = NumberField.discr L :=
+    discr K = discr L :=
   NumberField.discr_eq_discr_of_ringEquiv K e.toRingEquiv
 
+end NumberField
+
+namespace AlgEquiv
+
+variable {K L : Type*} [Field K] [Algebra ℚ K] [Field L] [Algebra ℚ L]
+
+-- Upstream-location candidate:
+-- a number-field/ring-of-integers file, chosen with the eventual mathlib PR.
+-- Kept here because the local caller set is still small and import-neutral.
 /-- Transport rings of integers across a `ℚ`-algebra equivalence of number fields. -/
-noncomputable def ringOfIntegersEquivOfAlgEquiv (e : K ≃ₐ[ℚ] L) :
+noncomputable def ringOfIntegers (e : K ≃ₐ[ℚ] L) :
     𝓞 K ≃+* 𝓞 L :=
   (e.restrictScalars ℤ).mapIntegralClosure.toRingEquiv
 
 @[simp]
-theorem ringOfIntegersEquivOfAlgEquiv_apply (e : K ≃ₐ[ℚ] L) (x : 𝓞 K) :
-    (ringOfIntegersEquivOfAlgEquiv e).toFun x = (e (x : K) : L) := by
+theorem ringOfIntegers_apply (e : K ≃ₐ[ℚ] L) (x : 𝓞 K) :
+    (e.ringOfIntegers).toFun x = (e (x : K) : L) := by
   rfl
 
 @[simp]
-theorem ringOfIntegersEquivOfAlgEquiv_symm_apply (e : K ≃ₐ[ℚ] L) (y : 𝓞 L) :
-    (ringOfIntegersEquivOfAlgEquiv e).symm.toFun y = (e.symm (y : L) : K) := by
+theorem ringOfIntegers_symm_apply (e : K ≃ₐ[ℚ] L) (y : 𝓞 L) :
+    e.ringOfIntegers.symm.toFun y = (e.symm (y : L) : K) := by
   rfl
 
-/-- `ringOfIntegersEquivOfAlgEquiv` is natural: composing two equivalences
+/-- `AlgEquiv.ringOfIntegers` is natural: composing two equivalences
 gives the ring-of-integers equivalence of the composite. -/
-theorem ringOfIntegersEquivOfAlgEquiv_trans {M : Type*} [Field M] [Algebra ℚ M]
+theorem ringOfIntegers_trans {M : Type*} [Field M] [Algebra ℚ M]
     (e : K ≃ₐ[ℚ] L) (f : L ≃ₐ[ℚ] M) :
-    ringOfIntegersEquivOfAlgEquiv (e.trans f) =
-      (ringOfIntegersEquivOfAlgEquiv e).trans (ringOfIntegersEquivOfAlgEquiv f) := by
+    (e.trans f).ringOfIntegers = e.ringOfIntegers.trans f.ringOfIntegers := by
   ext x
   rfl
 
+end AlgEquiv
+
+namespace RingEquiv
+
+variable {K L : Type*} [Field K] [Algebra ℚ K] [Field L] [Algebra ℚ L]
+
+-- Upstream-location candidate:
+-- a number-field/ring-of-integers file, chosen with the eventual mathlib PR.
+-- Kept here because the local caller set is still small and import-neutral.
 /-- Transport rings of integers across a ring equivalence of fields. -/
-noncomputable def ringOfIntegersEquivOfRingEquiv (e : K ≃+* L) :
+noncomputable def ringOfIntegers (e : K ≃+* L) :
     𝓞 K ≃+* 𝓞 L :=
   (AlgEquiv.ofRingEquiv (R := ℤ) (f := e) (fun n => by
     simp only [eq_intCast, map_intCast])).mapIntegralClosure.toRingEquiv
 
-/-- Transport the Dedekind-domain property across a ring equivalence. -/
-theorem isDedekindDomain_of_ringEquiv
-    {F E : Type*} [Field F] [Field E] [IsDedekindDomain F] (e : F ≃+* E) :
-    IsDedekindDomain E :=
-  RingEquiv.isDedekindDomain e
-
 /-- Transport the Dedekind-domain property for rings of integers across a ring
 equivalence of fields. -/
-theorem isDedekindDomain_ringOfIntegers_of_ringEquiv
+theorem isDedekindDomain_ringOfIntegers
     {F E : Type*} [Field F] [Field E] [IsDedekindDomain (𝓞 F)] (e : F ≃+* E) :
     IsDedekindDomain (𝓞 E) :=
-  RingEquiv.isDedekindDomain (ringOfIntegersEquivOfRingEquiv e)
+  RingEquiv.isDedekindDomain e.ringOfIntegers
 
+end RingEquiv
+
+namespace NumberField
+
+namespace IsTotallyReal
+
+variable {K L : Type*} [Field K] [Algebra ℚ K] [Field L] [Algebra ℚ L]
+
+-- Upstream-location candidate:
+-- `Mathlib.NumberTheory.NumberField.InfinitePlace.TotallyRealComplex`.
+-- Kept here until a dedicated mathlib PR also moves the imports and callers.
 /-- Transport total reality across a `ℚ`-algebra equivalence. -/
-theorem isTotallyReal_of_algEquiv [NumberField.IsTotallyReal K] (e : K ≃ₐ[ℚ] L) :
-    NumberField.IsTotallyReal L :=
-  NumberField.IsTotallyReal.ofRingEquiv e.toRingEquiv
+theorem ofAlgEquiv [IsTotallyReal K] (e : K ≃ₐ[ℚ] L) :
+    IsTotallyReal L :=
+  ofRingEquiv e.toRingEquiv
+
+end IsTotallyReal
+
+variable {K L : Type*} [Field K] [Algebra ℚ K] [Field L] [Algebra ℚ L]
 
 /-- Total reality is invariant under a `ℚ`-algebra equivalence. -/
-theorem isTotallyReal_iff_of_algEquiv (e : K ≃ₐ[ℚ] L) :
-    NumberField.IsTotallyReal K ↔ NumberField.IsTotallyReal L :=
+theorem isTotallyReal_iff_ofAlgEquiv (e : K ≃ₐ[ℚ] L) :
+    IsTotallyReal K ↔ IsTotallyReal L :=
   NumberField.isTotallyReal_iff_ofRingEquiv e.toRingEquiv
 
+namespace IsTotallyComplex
+
+variable {K L : Type*} [Field K] [Algebra ℚ K] [Field L] [Algebra ℚ L]
+
+-- Upstream-location candidate:
+-- `Mathlib.NumberTheory.NumberField.InfinitePlace.TotallyRealComplex`.
+-- Kept here until a dedicated mathlib PR also moves the imports and callers.
 /-- Transport total complexity across a `ℚ`-algebra equivalence. -/
-theorem isTotallyComplex_of_algEquiv [NumberField.IsTotallyComplex K] (e : K ≃ₐ[ℚ] L) :
-    NumberField.IsTotallyComplex L where
+theorem ofAlgEquiv [IsTotallyComplex K] (e : K ≃ₐ[ℚ] L) :
+    IsTotallyComplex L where
   isComplex w := by
     exact NumberField.InfinitePlace.IsComplex.of_comap e.toRingHom
       (NumberField.IsTotallyComplex.isComplex (w.comap e.toRingHom))
 
+end IsTotallyComplex
+
+variable {K L : Type*} [Field K] [Algebra ℚ K] [Field L] [Algebra ℚ L]
+
 /-- Total complexity is invariant under a `ℚ`-algebra equivalence. -/
-theorem isTotallyComplex_iff_of_algEquiv (e : K ≃ₐ[ℚ] L) :
-    NumberField.IsTotallyComplex K ↔ NumberField.IsTotallyComplex L :=
+theorem isTotallyComplex_iff_ofAlgEquiv (e : K ≃ₐ[ℚ] L) :
+    IsTotallyComplex K ↔ IsTotallyComplex L :=
   ⟨fun h => by
     letI := h
-    exact isTotallyComplex_of_algEquiv e,
+    exact IsTotallyComplex.ofAlgEquiv e,
    fun h => by
     letI := h
-    exact isTotallyComplex_of_algEquiv e.symm⟩
+    exact IsTotallyComplex.ofAlgEquiv e.symm⟩
 
-end QuadraticField
+end NumberField

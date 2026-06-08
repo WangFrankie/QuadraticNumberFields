@@ -17,7 +17,7 @@ so that the Kummer–Dedekind theorem applies to **all** primes unconditionally.
 
 * `adjoin_omega_eq_top`: In any `QuadraticAlgebra ℤ a b`, the omega element
   generates the whole ring as a ℤ-algebra.
-* `adjoin_eq_top_of_ringEquiv`: Transport of monogenicity through ring equivalences.
+* `Algebra.adjoin_eq_top_of_ringEquiv`: Transport of monogenicity through ring equivalences.
 * `ringOfIntegersGenerator`: The generator `θ` of `𝓞(ℚ(√d))` as a ℤ-algebra.
 * `adjoin_generator_eq_top`: `Algebra.adjoin ℤ {θ} = ⊤`
 * `exponent_generator_eq_one`: `RingOfIntegers.exponent θ = 1`
@@ -40,6 +40,36 @@ Proposition 13.1.1: the integral basis is `{1, √d}` when `d ≡ 2, 3 (mod 4)` 
 
 open scoped NumberField
 
+namespace Algebra
+
+/-! ## Transport through ring equivalences -/
+
+-- Upstream-location candidate:
+-- `Mathlib.RingTheory.Adjoin.Singleton`.
+-- Kept here because this is currently only used by the local Kummer-Dedekind setup.
+/-- If `x` generates `B` as a ℤ-algebra and `e : A ≃+* B` is a ring equiv, then
+`e.symm x` generates `A` as a ℤ-algebra. -/
+theorem adjoin_eq_top_of_ringEquiv {A B : Type*} [CommRing A] [CommRing B]
+    (e : A ≃+* B) (x : B) (h : Algebra.adjoin ℤ ({x} : Set B) = ⊤) :
+    Algebra.adjoin ℤ ({e.symm x} : Set A) = ⊤ := by
+  let e' : A ≃ₐ[ℤ] B := AlgEquiv.ofRingEquiv (f := e) (fun _ => by simp)
+  have he_symm : (e'.symm x : A) = e.symm x := rfl
+  have key : Subalgebra.map e'.toAlgHom (Algebra.adjoin ℤ ({e'.symm x} : Set A)) =
+      Algebra.adjoin ℤ ({x} : Set B) := by
+    rw [AlgHom.map_adjoin_singleton]
+    congr 1
+    simp [e']
+  rw [← he_symm, eq_top_iff]
+  intro a
+  have hmem : e' a ∈ Subalgebra.map e'.toAlgHom (Algebra.adjoin ℤ ({e'.symm x} : Set A)) := by
+    rw [key, h]
+    exact Algebra.mem_top
+  obtain ⟨b, hb, heb⟩ := Subalgebra.mem_map.mp hmem
+  have hba : b = a := e'.injective heb
+  simpa [hba] using hb
+
+end Algebra
+
 namespace QuadraticNumberFields
 
 /-! ## Adjoin lemma for `QuadraticAlgebra` -/
@@ -60,28 +90,6 @@ theorem adjoin_omega_eq_top (a b : ℤ) :
     rw [← QuadraticAlgebra.mk_eq_add_smul_omega]
   rw [heq]
   exact add_mem hre him
-
-/-! ## Transport through ring equivalences -/
-
-/-- If `x` generates `B` as a ℤ-algebra and `e : A ≃+* B` is a ring equiv, then
-`e.symm x` generates `A` as a ℤ-algebra. -/
-theorem adjoin_eq_top_of_ringEquiv {A B : Type*} [CommRing A] [CommRing B]
-    (e : A ≃+* B) (x : B) (h : Algebra.adjoin ℤ ({x} : Set B) = ⊤) :
-    Algebra.adjoin ℤ ({e.symm x} : Set A) = ⊤ := by
-  let e' : A ≃ₐ[ℤ] B := AlgEquiv.ofRingEquiv (f := e) (fun _ => by simp)
-  have he_symm : (e'.symm x : A) = e.symm x := rfl
-  have key : Subalgebra.map e'.toAlgHom (Algebra.adjoin ℤ ({e'.symm x} : Set A)) =
-      Algebra.adjoin ℤ ({x} : Set B) := by
-    rw [AlgHom.map_adjoin_singleton]
-    congr 1
-    simp [e']
-  rw [← he_symm, eq_top_iff]
-  intro a _
-  have hmem : e' a ∈ Subalgebra.map e'.toAlgHom (Algebra.adjoin ℤ ({e'.symm x} : Set A)) := by
-    rw [key, h]
-    exact Algebra.mem_top
-  obtain ⟨b, hb, heb⟩ := Subalgebra.mem_map.mp hmem
-  rwa [show b = a from e'.injective heb] at hb
 
 private theorem minpoly_eq_of_ringEquiv {A B : Type*} [CommRing A] [CommRing B]
     (e : A ≃+* B) (x : B) :
@@ -122,11 +130,11 @@ theorem adjoin_generator_eq_top :
   unfold ringOfIntegersGenerator
   split
   · next hd4 =>
-    exact adjoin_eq_top_of_ringEquiv
+    exact Algebra.adjoin_eq_top_of_ringEquiv
       (RingOfIntegers.ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one d hd4)
       QuadraticAlgebra.omega (adjoin_omega_eq_top (d / 4) 1)
   · next hd4 =>
-    exact adjoin_eq_top_of_ringEquiv
+    exact Algebra.adjoin_eq_top_of_ringEquiv
       (RingOfIntegers.ringOfIntegers_equiv_zsqrtd_of_mod_four_ne_one d hd4)
       QuadraticAlgebra.omega (adjoin_omega_eq_top d 0)
 
