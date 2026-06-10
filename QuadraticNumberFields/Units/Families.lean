@@ -102,12 +102,11 @@ theorem HasExplicitUnitCandidate.exists_unit_ne_one {d : ℤ}
     (h : HasExplicitUnitCandidate d) :
     ∃ u : (Zsqrtd d)ˣ, u ≠ 1 ∧ u ≠ -1 := by
   obtain ⟨x, y, hy, hsol⟩ := h
-  have hu : IsUnit (⟨x, y⟩ : Zsqrtd d) := isUnit_mk_iff_isPellSolution.mpr hsol
-  refine ⟨hu.unit, fun heq => hy ?_, fun heq => hy ?_⟩
-  · simpa [im_one] using
-      congrArg (fun u : (Zsqrtd d)ˣ => (u : Zsqrtd d).im) heq
-  · simpa [im_one] using
-      congrArg (fun u : (Zsqrtd d)ˣ => (u : Zsqrtd d).im) heq
+  rcases hsol with hpos | hneg
+  · exact ⟨IsPellUnitSolution.unit hpos, IsPellUnitSolution.unit_ne_one hpos hy,
+      IsPellUnitSolution.unit_ne_neg_one hpos hy⟩
+  · exact ⟨IsPellSolution.negOneUnit hneg, IsPellSolution.negOneUnit_ne_one hneg hy,
+      IsPellSolution.negOneUnit_ne_neg_one hneg hy⟩
 
 end Units
 end QuadraticNumberFields

@@ -124,5 +124,19 @@ theorem IsPellUnitSolution.unit_ne_neg_one {d x y : ℤ} (h : IsPellUnitSolution
   apply hy
   simpa [im_one] using congrArg (fun u : (Zsqrtd d)ˣ => (u : Zsqrtd d).im) heq
 
+/-- A norm-negative-one Pell solution with `y ≠ 0` produces a unit different from `1`. -/
+theorem IsPellSolution.negOneUnit_ne_one {d x y : ℤ} (h : IsPellSolution d (-1) x y)
+    (hy : y ≠ 0) : h.negOneUnit ≠ 1 := by
+  intro heq
+  apply hy
+  simpa [im_one] using congrArg (fun u : (Zsqrtd d)ˣ => (u : Zsqrtd d).im) heq
+
+/-- A norm-negative-one Pell solution with `y ≠ 0` produces a unit different from `-1`. -/
+theorem IsPellSolution.negOneUnit_ne_neg_one {d x y : ℤ} (h : IsPellSolution d (-1) x y)
+    (hy : y ≠ 0) : h.negOneUnit ≠ -1 := by
+  intro heq
+  apply hy
+  simpa [im_one] using congrArg (fun u : (Zsqrtd d)ˣ => (u : Zsqrtd d).im) heq
+
 end Units
 end QuadraticNumberFields

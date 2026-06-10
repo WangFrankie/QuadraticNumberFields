@@ -35,15 +35,15 @@ section AbstractField
 variable (K : Type*) [Field K] [Algebra ℚ K] [QuadraticField K]
 
 /-- The rational prime `p` splits in the ring of integers of `K`. -/
-def IsSplitAt (K : Type*) [Field K] [Algebra ℚ K] (p : ℕ) : Prop :=
+def IsSplitAt (K : Type*) [Field K] (p : ℕ) : Prop :=
   IsSplitIn (𝔭(p)) (𝓞 K)
 
 /-- The rational prime `p` is inert in the ring of integers of `K`. -/
-def IsInertAt (K : Type*) [Field K] [Algebra ℚ K] (p : ℕ) : Prop :=
+def IsInertAt (K : Type*) [Field K] (p : ℕ) : Prop :=
   IsInertIn (𝔭(p)) (𝓞 K)
 
 /-- The rational prime `p` ramifies in the ring of integers of `K`. -/
-def IsRamifiedAt (K : Type*) [Field K] [Algebra ℚ K] (p : ℕ) : Prop :=
+def IsRamifiedAt (K : Type*) [Field K] (p : ℕ) : Prop :=
   IsRamifiedIn (𝔭(p)) (𝓞 K)
 
 /-- For any abstract quadratic field and any rational prime `p`, `(p)` in

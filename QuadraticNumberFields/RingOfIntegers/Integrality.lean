@@ -163,7 +163,7 @@ theorem exists_zOnePlusSqrtOverTwo_image_of_dvd_four_sub_sq_of_one_mod_four
     (hdiv : 4 ∣ (a' ^ 2 - (1 + 4 * k) * b' ^ 2)) :
     ∃ z : ZOnePlusSqrtOverTwo k,
       ZOnePlusSqrtOverTwo.toQsqrtdFun k z =
-        QuadraticNumberFields.RingOfIntegers.halfInt (1 + 4 * k) a' b' :=
+        halfInt (1 + 4 * k) a' b' :=
   (dvd_four_sub_sq_iff_exists_zOnePlusSqrtOverTwo_image_of_one_mod_four k a' b' hd).1 hdiv
 
 /-- Reverse direction in the `1 mod 4` branch. -/
@@ -171,7 +171,7 @@ theorem dvd_four_sub_sq_of_exists_zOnePlusSqrtOverTwo_image_of_one_mod_four
     (k a' b' : ℤ) (hd : Squarefree (1 + 4 * k))
     (hz : ∃ z : ZOnePlusSqrtOverTwo k,
       ZOnePlusSqrtOverTwo.toQsqrtdFun k z =
-        QuadraticNumberFields.RingOfIntegers.halfInt (1 + 4 * k) a' b') :
+        halfInt (1 + 4 * k) a' b') :
     4 ∣ (a' ^ 2 - (1 + 4 * k) * b' ^ 2) :=
   (dvd_four_sub_sq_iff_exists_zOnePlusSqrtOverTwo_image_of_one_mod_four k a' b' hd).2 hz
 

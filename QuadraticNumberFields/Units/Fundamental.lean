@@ -101,6 +101,17 @@ theorem IsFundamentalUnit.map {u : Rˣ} (e : R ≃* S) (he : ∀ x : R, e (-x) =
 
 end Monoid
 
+/-- If every unit is `±1`, then `1` is a fundamental unit. -/
+theorem isFundamentalUnit_one_of_forall_eq_one_or_neg_one
+    {R : Type*} [Monoid R] [HasDistribNeg R]
+    (h : ∀ v : Rˣ, (v : R) = 1 ∨ (v : R) = -1) :
+    IsFundamentalUnit (1 : Rˣ) := by
+  intro v
+  refine ⟨0, ?_⟩
+  rcases h v with h1 | hneg
+  · exact Or.inl (Units.ext (by simpa using h1))
+  · exact Or.inr (Units.ext (by simpa using hneg))
+
 /-- Transport a fundamental unit along a ring isomorphism. -/
 theorem IsFundamentalUnit.map_ringEquiv {R S : Type*} [Ring R] [Ring S] (e : R ≃+* S)
     {u : Rˣ} (hu : IsFundamentalUnit u) :
@@ -110,23 +121,17 @@ theorem IsFundamentalUnit.map_ringEquiv {R S : Type*} [Ring R] [Ring S] (e : R �
 /-- For `d < -1` the unit `1` is fundamental in `ℤ[√d]`: the unit group is
 `{±1}`. -/
 theorem isFundamentalUnit_one_zsqrtd {d : ℤ} (hd : d < -1) :
-    IsFundamentalUnit (1 : (Zsqrtd d)ˣ) := by
-  intro v
-  refine ⟨0, ?_⟩
-  rcases (isUnit_zsqrtd_iff_of_lt_neg_one hd (v : Zsqrtd d)).mp v.isUnit with h | h
-  · exact Or.inl (Units.ext (by simpa using h))
-  · exact Or.inr (Units.ext (by simpa using h))
+    IsFundamentalUnit (1 : (Zsqrtd d)ˣ) :=
+  isFundamentalUnit_one_of_forall_eq_one_or_neg_one fun v =>
+    (isUnit_zsqrtd_iff_of_lt_neg_one hd (v : Zsqrtd d)).mp v.isUnit
 
 /-- For `k ≤ -2` the unit `1` is fundamental in `ℤ[(1+√(1+4k))/2]`: the unit
 group is `{±1}`. -/
 theorem isFundamentalUnit_one_zOnePlusSqrtOverTwo {k : ℤ} (hk : k ≤ -2) :
-    IsFundamentalUnit (1 : (ZOnePlusSqrtOverTwo k)ˣ) := by
-  intro v
-  refine ⟨0, ?_⟩
-  rcases (isUnit_zOnePlusSqrtOverTwo_iff_of_le_neg_two hk (v : ZOnePlusSqrtOverTwo k)).mp
-      v.isUnit with h | h
-  · exact Or.inl (Units.ext (by simpa using h))
-  · exact Or.inr (Units.ext (by simpa using h))
+    IsFundamentalUnit (1 : (ZOnePlusSqrtOverTwo k)ˣ) :=
+  isFundamentalUnit_one_of_forall_eq_one_or_neg_one fun v =>
+    (isUnit_zOnePlusSqrtOverTwo_iff_of_le_neg_two hk (v : ZOnePlusSqrtOverTwo k)).mp
+      v.isUnit
 
 /-- `√-1` as a unit of the Gaussian integers `ℤ[√-1]`. -/
 def gaussianUnit : (Zsqrtd (-1))ˣ :=

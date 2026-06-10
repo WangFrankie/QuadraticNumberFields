@@ -5,9 +5,7 @@ Authors: Frankie Wang
 -/
 import QuadraticNumberFields.RingOfIntegers.CommonInstances
 import QuadraticNumberFields.RingOfIntegers.Integrality
-import QuadraticNumberFields.RingOfIntegers.ModFour
 import QuadraticNumberFields.ZOnePlusSqrtOverTwo.Basic
-import QuadraticNumberFields.Mathlib.RingTheory.DedekindDomain.Basic
 import QuadraticNumberFields.QuadraticField.Classification
 import QuadraticNumberFields.QuadraticField.Transport
 

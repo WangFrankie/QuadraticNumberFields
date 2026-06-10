@@ -60,8 +60,8 @@ theorem card_aut_eq_two :
 /-- The suborder `ℤ[√17]` is **not** a Dedekind domain: because `17 ≡ 1 (mod 4)`
 the maximal order is `ℤ[(1+√17)/2]`, strictly larger than `ℤ[√17]`. -/
 theorem zsqrtd_not_isDedekindDomain :
-    ¬ IsDedekindDomain (QuadraticNumberFields.Zsqrtd (17 : ℤ)) :=
-  QuadraticNumberFields.Zsqrtd.not_isDedekindDomain_of_mod_four_eq_one 17 (by decide)
+    ¬ IsDedekindDomain (Zsqrtd (17 : ℤ)) :=
+  Zsqrtd.not_isDedekindDomain_of_mod_four_eq_one 17 (by decide)
 
 /-- The Minkowski bound of `ℚ(√17)` is `(1/2)·√17 ≈ 2.06`, in particular `< 3`. -/
 theorem minkowskiBound_lt_three : Qsqrtd.minkowskiBound (17 : ℤ) < 3 := by

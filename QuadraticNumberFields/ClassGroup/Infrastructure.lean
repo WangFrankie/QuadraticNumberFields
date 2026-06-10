@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 
-import QuadraticNumberFields.ClassNumber
 import QuadraticNumberFields.Families.Basic
 
 /-!
@@ -12,8 +11,6 @@ import QuadraticNumberFields.Families.Basic
 
 This file will collect shared class-group infrastructure for quadratic fields.
 -/
-
-open scoped NumberField
 
 namespace QuadraticNumberFields
 namespace ClassGroup

@@ -24,8 +24,7 @@ including norm, trace, and field/number field instances.
 * `Qsqrtd.norm`: The norm `N(x) = x · x̄ = x.re² - d · x.im²`.
 
 The predicate "K is a quadratic extension of ℚ" is provided by mathlib as
-`Algebra.IsQuadraticExtension ℚ K` (the local deprecated alias
-`IsQuadraticField` is kept only as a backward-compatibility shim).
+`Algebra.IsQuadraticExtension ℚ K`.
 
 ## Main Results
 
@@ -34,11 +33,6 @@ The predicate "K is a quadratic extension of ℚ" is provided by mathlib as
 * `not_isSquare_ratCast_of_squarefree_ne_one`: squarefree integer parameters
   with `d ≠ 1` give genuine quadratic fields.
 -/
-
-/-- A field `K` is a quadratic field if it is a quadratic extension of `ℚ`. -/
-@[deprecated Algebra.IsQuadraticExtension (since := "2026-03-21")]
-abbrev IsQuadraticField (K : Type*) [Field K] [Algebra ℚ K] : Prop :=
-  Algebra.IsQuadraticExtension ℚ K
 
 /-- The quadratic field `ℚ(√d)` as a type alias for `QuadraticAlgebra ℚ d 0`. -/
 abbrev Qsqrtd (d : ℚ) : Type := QuadraticAlgebra ℚ d 0

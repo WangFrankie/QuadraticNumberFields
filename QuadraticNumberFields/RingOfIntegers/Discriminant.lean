@@ -51,7 +51,7 @@ theorem discr_zOnePlusSqrtOverTwo_basis (k : ℤ) :
   ring
 
 /-- Any ring equivalence between `ℤ`-algebras is automatically an `AlgEquiv ℤ`. -/
-def ringEquivToIntAlgEquiv
+private def ringEquivToIntAlgEquiv
     {R S : Type*} [CommRing R] [Algebra ℤ R] [CommRing S] [Algebra ℤ S]
     (e : R ≃+* S) : R ≃ₐ[ℤ] S :=
   AlgEquiv.ofRingEquiv (f := e) (fun n => by

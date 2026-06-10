@@ -50,12 +50,12 @@ them reducible lets instance search unfold them when a local transported
 instance is introduced with `letI`. -/
 
 /-- Transport the `QuadraticField` class across a `ℚ`-algebra equivalence. -/
-@[reducible]
+@[reducible, nolint defLemma]
 def transportAlong [QuadraticField K] (e : K ≃ₐ[ℚ] L) : QuadraticField L where
   isQuadratic := isQuadraticExtension_of_algEquiv e
 
 /-- Transport `QuadraticField` in the reverse direction across a `ℚ`-algebra equivalence. -/
-@[reducible]
+@[reducible, nolint defLemma]
 def transportBack [QuadraticField L] (e : K ≃ₐ[ℚ] L) : QuadraticField K :=
   transportAlong e.symm
 
@@ -89,12 +89,12 @@ noncomputable def ringOfIntegers (e : K ≃ₐ[ℚ] L) :
 
 @[simp]
 theorem ringOfIntegers_apply (e : K ≃ₐ[ℚ] L) (x : 𝓞 K) :
-    (e.ringOfIntegers).toFun x = (e (x : K) : L) := by
+    (e.ringOfIntegers x : L) = e (x : K) := by
   rfl
 
 @[simp]
 theorem ringOfIntegers_symm_apply (e : K ≃ₐ[ℚ] L) (y : 𝓞 L) :
-    e.ringOfIntegers.symm.toFun y = (e.symm (y : L) : K) := by
+    ((e.ringOfIntegers : 𝓞 K ≃+* 𝓞 L).symm y : K) = e.symm (y : L) := by
   rfl
 
 /-- `AlgEquiv.ringOfIntegers` is natural: composing two equivalences

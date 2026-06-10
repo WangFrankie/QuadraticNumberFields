@@ -156,7 +156,7 @@ theorem lift_apply {R : Type*} [CommRing R] (r : R) (hd : r * r = (d : R))
   simp [QuadraticAlgebra.lift, Algebra.smul_def]
 
 /-- `lift` computes on integer inputs as the obvious coercion. -/
-@[simp] theorem lift_intCast {R : Type*} [CommRing R] (r : R) (hd : r * r = (d : R))
+theorem lift_intCast {R : Type*} [CommRing R] (r : R) (hd : r * r = (d : R))
     (n : ℤ) :
     lift r hd (n : Zsqrtd d) = (n : R) := by
   rw [lift_apply]

@@ -5,7 +5,6 @@ Authors: Frankie Wang
 -/
 
 import QuadraticNumberFields.ClassGroup.Minkowski
-import QuadraticNumberFields.Families.RichaudDegert
 
 /-!
 # Class Groups in Explicit Families

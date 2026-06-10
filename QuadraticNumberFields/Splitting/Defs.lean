@@ -9,6 +9,7 @@ import Mathlib.RingTheory.Ideal.Over
 import Mathlib.Data.Fintype.EquivFin
 import Mathlib.NumberTheory.NumberField.Basic
 import QuadraticNumberFields.Mathlib.NumberTheory.RamificationInertia.Galois
+
 /-!
 # Splitting Definitions and Trichotomy
 
@@ -142,9 +143,7 @@ lemma ramificationIdxIn_gt_one_iff_exists_ramificationIdx_gt_one
     rw [ramificationIdxIn_eq_of_mem (p := p) (S := S) G hP]
     exact hPgt
 
-
 end GalDefs
-
 
 section Trichotomy
 
@@ -162,26 +161,26 @@ For `[L : K] = 2`, `∑ eᵢfᵢ = 2` forces exactly three possibilities:
 /-- If a list of natural numbers has prime product `p`, then every entry is `1`
 or `p`. -/
 private lemma eq_one_or_p_if_list_prod_eq_p {p : ℕ} (hp : Nat.Prime p) {L : List ℕ}
-      (h : L.prod = p) : ∀ a ∈ L, a = 1 ∨ a = p := by
-    intro a ha
-    have hdiv : a ∣ p := by
-      rw [← h]
-      exact List.dvd_prod ha
-    exact (Nat.dvd_prime hp).1 hdiv
+    (h : L.prod = p) : ∀ a ∈ L, a = 1 ∨ a = p := by
+  intro a ha
+  have hdiv : a ∣ p := by
+    rw [← h]
+    exact List.dvd_prod ha
+  exact (Nat.dvd_prime hp).1 hdiv
 
 /-- If three natural numbers multiply to `2`, exactly one of them is `2` and the
 other two are `1`. -/
 private lemma eq_two_trichotomy_of_mul (a b c : ℕ) (h : a * b * c = 2) :
-      (a = 2 ∧ b = 1 ∧ c = 1) ∨
+    (a = 2 ∧ b = 1 ∧ c = 1) ∨
       (a = 1 ∧ b = 1 ∧ c = 2) ∨
       (a = 1 ∧ b = 2 ∧ c = 1) := by
-    have hL : [a, b, c].prod = 2 := by
-      simpa [Nat.mul_assoc] using h
-    have H := eq_one_or_p_if_list_prod_eq_p Nat.prime_two hL
-    rcases H a (by simp) with (rfl | rfl)
-    <;> rcases H b (by simp) with (rfl | rfl)
-    <;> rcases H c (by simp) with (rfl | rfl)
-    <;> simp_all
+  have hL : [a, b, c].prod = 2 := by
+    simpa [Nat.mul_assoc] using h
+  have H := eq_one_or_p_if_list_prod_eq_p Nat.prime_two hL
+  rcases H a (by simp) with (rfl | rfl)
+  <;> rcases H b (by simp) with (rfl | rfl)
+  <;> rcases H c (by simp) with (rfl | rfl)
+  <;> simp_all
 
 /-- **Fundamental identity** for a degree-2 extension: `g · e · f = 2`.
 
@@ -198,8 +197,8 @@ theorem ncard_primesOver_mul_ramificationIdxIn_mul_inertiaDegIn_eq_two
     [Nontrivial R] [IsDedekindDomain R] [Algebra.IsQuadraticExtension R S]
     (hchar : ringChar R ≠ 2) (hp : p ≠ ⊥) [p.IsMaximal] :
     g(p) * e(p) * f(p) = 2 := by
-  let K:=FractionRing R
-  let L:=FractionRing S
+  let K := FractionRing R
+  let L := FractionRing S
   let := Ring.instAlgebraFractionRing
   let := IsIntegralClosure.MulSemiringAction R K L S
   have : Algebra.IsQuadraticExtension K L :=

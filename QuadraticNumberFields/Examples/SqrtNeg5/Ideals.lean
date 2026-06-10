@@ -33,9 +33,9 @@ open scoped QuadraticAlgebra
 namespace QuadraticNumberFields.Examples.SqrtNeg5
 
 /-- The working quadratic integer ring `ℤ[√-5]` used in this file. -/
-abbrev R := QuadraticNumberFields.Zsqrtd (-5)
+abbrev R := Zsqrtd (-5)
 
-local notation "sqrtd" => QuadraticNumberFields.Zsqrtd.sqrtd
+local notation "sqrtd" => Zsqrtd.sqrtd
 
 instance : Fact ((-5 : ℤ) < 0) := ⟨by decide⟩
 
@@ -85,7 +85,7 @@ theorem factorization_of_one_plus_sqrtd :
     · -- 2·3 = 6 = (1+√-5)(1-√-5), so (1+√-5) | 6
       exact ⟨1 - sqrtd, by
         ext <;>
-          simp [QuadraticNumberFields.Zsqrtd.sqrtd, QuadraticAlgebra.re_one,
+          simp [Zsqrtd.sqrtd, QuadraticAlgebra.re_one,
             QuadraticAlgebra.im_one]⟩
     · -- 2·(1+√-5) = (1+√-5)·2
       simp
@@ -112,7 +112,7 @@ theorem factorization_of_one_minus_sqrtd :
     · -- 2·3 = 6 = (1-√-5)(1+√-5), so (1-√-5) | 6
       exact ⟨1 + sqrtd, by
         ext <;>
-          simp [QuadraticNumberFields.Zsqrtd.sqrtd, QuadraticAlgebra.re_one,
+          simp [Zsqrtd.sqrtd, QuadraticAlgebra.re_one,
             QuadraticAlgebra.im_one]⟩
     · simp  -- 2·(1-√-5) = (1-√-5)·2
     · simp  -- (1-√-5)·3
@@ -123,16 +123,16 @@ theorem factorization_of_one_minus_sqrtd :
 theorem isPrime_span_two_one_plus_sqrtd :
     IsPrime (span {2, 1 + sqrtd} : Ideal R) :=
   haveI : Fact (Nat.Prime 2) := ⟨by decide⟩
-  QuadraticNumberFields.Zsqrtd.Ideal.isPrime_span_p_one_plus_sqrtd 2 neg5_dvd_two
+  Zsqrtd.Ideal.isPrime_span_p_one_plus_sqrtd 2 neg5_dvd_two
 
 theorem isPrime_span_three_one_plus_sqrtd :
     IsPrime (span {3, 1 + sqrtd} : Ideal R) :=
   haveI : Fact (Nat.Prime 3) := ⟨by decide⟩
-  QuadraticNumberFields.Zsqrtd.Ideal.isPrime_span_p_one_plus_sqrtd 3 neg5_dvd_three
+  Zsqrtd.Ideal.isPrime_span_p_one_plus_sqrtd 3 neg5_dvd_three
 
 theorem isPrime_span_three_one_minus_sqrtd :
     IsPrime (span {3, 1 - sqrtd} : Ideal R) :=
   haveI : Fact (Nat.Prime 3) := ⟨by decide⟩
-  QuadraticNumberFields.Zsqrtd.Ideal.isPrime_span_p_one_minus_sqrtd 3 neg5_dvd_three
+  Zsqrtd.Ideal.isPrime_span_p_one_minus_sqrtd 3 neg5_dvd_three
 
 end QuadraticNumberFields.Examples.SqrtNeg5

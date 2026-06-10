@@ -13,7 +13,7 @@ Material destined for mathlib.
 
 Explicit units of `QuadraticAlgebra R a b` attached to elements of norm `±1`:
 the relation `z * star z = N(z)` makes the (negated) conjugate an explicit
-inverse.
+inverse.  Over `ℤ`, this also gives the usual `norm = ±1` unit criterion.
 -/
 
 namespace QuadraticAlgebra
@@ -71,6 +71,12 @@ theorem val_inv_unitOfNormNegOne (z : QuadraticAlgebra R a b) (h : norm z = -1) 
 section Int
 
 variable {a b : ℤ}
+
+/-- Over `ℤ`, an element of a quadratic algebra is a unit iff its norm is `±1`. -/
+-- Repository use: unit criteria for the two explicit quadratic-integer models.
+theorem isUnit_iff_norm_eq_one_or_neg_one (z : QuadraticAlgebra ℤ a b) :
+    IsUnit z ↔ norm z = 1 ∨ norm z = -1 :=
+  isUnit_iff_norm_isUnit.trans Int.isUnit_iff
 
 /-- Over `ℤ`, a nonpositive discriminant `b² + 4a ≤ 0` makes the norm
 nonnegative: `4·N(z) = (2·re + b·im)² - (b² + 4a)·im²`. -/
