@@ -71,6 +71,20 @@ theorem normUnitsHom_coe (d : ℤ) (u : (ZOnePlusSqrtOverTwo d)ˣ) :
     ((normUnitsHom d u : ℤˣ) : ℤ) = QuadraticAlgebra.norm (u : ZOnePlusSqrtOverTwo d) := by
   simp [normUnitsHom, normHom]
 
+/-- The norm of `x + y·ω` in coordinates: `‖x + y·ω‖ = x² + x·y - d·y²`. -/
+@[simp]
+theorem norm_mk (d x y : ℤ) :
+    QuadraticAlgebra.norm (⟨x, y⟩ : ZOnePlusSqrtOverTwo d) = x ^ 2 + x * y - d * y ^ 2 := by
+  have h : QuadraticAlgebra.norm (⟨x, y⟩ : ZOnePlusSqrtOverTwo d) =
+      x * x + 1 * x * y - d * y * y := QuadraticAlgebra.norm_def _
+  rw [h]; ring
+
+/-- `x + y·ω` is a unit of `ℤ[(1 + √(1 + 4d))/2]` iff `x² + x·y - d·y² = ±1`. -/
+theorem isUnit_mk_iff {d x y : ℤ} :
+    IsUnit (⟨x, y⟩ : ZOnePlusSqrtOverTwo d) ↔
+      x ^ 2 + x * y - d * y ^ 2 = 1 ∨ x ^ 2 + x * y - d * y ^ 2 = -1 := by
+  rw [QuadraticAlgebra.isUnit_iff_norm_isUnit, Int.isUnit_iff, norm_mk]
+
 /-- Coordinate-level embedding candidate into `Q(√(1 + 4d))`. -/
 def toQsqrtdFun (d : ℤ) : ZOnePlusSqrtOverTwo d → Qsqrtd (qParam d) :=
   -- Send `r + sω` to `r + s * (1 + √(1 + 4d)) / 2`,

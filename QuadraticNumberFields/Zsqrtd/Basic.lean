@@ -185,6 +185,12 @@ theorem norm_def (z : Zsqrtd d) :
   rw [QuadraticAlgebra.norm_def]
   ring
 
+/-- The norm of the element `x + y·√d` in coordinates: `‖x + y√d‖ = x² - d·y²`. -/
+@[simp]
+theorem norm_mk (x y : ℤ) : Zsqrtd.norm (⟨x, y⟩ : Zsqrtd d) = x ^ 2 - d * y ^ 2 := by
+  have h : Zsqrtd.norm (⟨x, y⟩ : Zsqrtd d) = x * x - d * y * y := norm_def _
+  rw [h]; ring
+
 /-- Multiplicativity of the norm on `Zsqrtd d`. -/
 theorem norm_mul (a b : Zsqrtd d) :
     Zsqrtd.norm (a * b) = Zsqrtd.norm a * Zsqrtd.norm b :=
