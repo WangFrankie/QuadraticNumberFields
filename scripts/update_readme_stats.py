@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
 Generate code statistics and update README.md with the stats.
-This script is used by the CI to keep the README up-to-date.
+This script is run by the pre-commit hook in .githooks/ to keep the
+README up-to-date.
 """
 
 import os
@@ -59,12 +60,12 @@ def count_lean_lines(file_path: Path) -> LineCount:
     return LineCount(total=total, code=code, comment=comment, blank=blank)
 
 
-def walk_lean_files(root_dir: str, exclude_dirs: list[str] = None) -> list[Path]:
+def walk_lean_files(root_dir: str, exclude_dirs: list[str] | None = None) -> list[Path]:
     """Walk through all Lean files"""
     if exclude_dirs is None:
         exclude_dirs = ['.lake', 'node_modules', '.git']
     
-    lean_files = []
+    lean_files: list[Path] = []
     root = Path(root_dir)
     
     for dirpath, dirnames, filenames in os.walk(root):
@@ -79,7 +80,7 @@ def walk_lean_files(root_dir: str, exclude_dirs: list[str] = None) -> list[Path]
 
 def get_module_stats(files: list[Path]) -> dict[str, LineCount]:
     """Group files by module and compute stats"""
-    modules = {}
+    modules: dict[str, LineCount] = {}
     
     for f in files:
         stats = count_lean_lines(f)
@@ -88,11 +89,12 @@ def get_module_stats(files: list[Path]) -> dict[str, LineCount]:
         rel_path = f.relative_to(Path('.'))
         parts = rel_path.parts
         
-        if len(parts) >= 2 and parts[0] == 'QuadraticNumberFields':
-            if parts[1] in ['RingOfIntegers', 'Examples', 'Euclidean']:
-                module = f"QuadraticNumberFields/{parts[1]}"
-            else:
-                module = "QuadraticNumberFields"
+        if len(parts) >= 3 and parts[0] == 'QuadraticNumberFields':
+            # File in a top-level subpackage: one row per subpackage.
+            module = f"QuadraticNumberFields/{parts[1]}"
+        elif len(parts) == 2 and parts[0] == 'QuadraticNumberFields':
+            # File directly under QuadraticNumberFields/.
+            module = "QuadraticNumberFields"
         else:
             module = "Root"
         
@@ -113,10 +115,10 @@ def generate_code_stats_markdown(files: list[Path]) -> str:
     """Generate markdown for code statistics"""
     modules = get_module_stats(files)
     
-    # Calculate totals
+    # Calculate totals (column sums, so the Total row matches the table)
     total_code = sum(m.code for m in modules.values())
     total_comment = sum(m.comment for m in modules.values())
-    total_lines = total_code + total_comment
+    total_lines = sum(m.total for m in modules.values())
     
     # Sort modules by code lines (descending)
     sorted_modules = sorted(modules.items(), key=lambda x: x[1].code, reverse=True)
@@ -157,16 +159,14 @@ def update_readme(readme_path: str = "README.md") -> None:
         # Replace existing section
         new_readme = readme_content[:match.start()] + stats_markdown + readme_content[match.end():]
     else:
-        # Insert after Project Structure section
-        project_struct_pattern = r'(## Project Structure\n\n```\n.*?\n```\n)'
-        project_match = re.search(project_struct_pattern, readme_content, re.DOTALL)
-        
-        if project_match:
-            insert_pos = project_match.end()
-            new_readme = readme_content[:insert_pos] + "\n\n" + stats_markdown + readme_content[insert_pos:]
+        # Insert before the History section, or append at the end
+        history_match = re.search(r'^## History$', readme_content, re.MULTILINE)
+        if history_match:
+            insert_pos = history_match.start()
+            new_readme = (readme_content[:insert_pos] + stats_markdown + "\n"
+                          + readme_content[insert_pos:])
         else:
-            print("Could not find insertion point")
-            sys.exit(1)
+            new_readme = readme_content.rstrip('\n') + "\n\n" + stats_markdown
     
     with open(readme_path, 'w', encoding='utf-8') as f:
         f.write(new_readme)
