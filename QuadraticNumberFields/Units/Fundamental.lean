@@ -36,6 +36,8 @@ its existence (not yet formalized here).
 namespace QuadraticNumberFields
 namespace Units
 
+open QuadraticAlgebra
+
 section Monoid
 
 variable {R S : Type*} [Monoid R] [HasDistribNeg R] [Monoid S] [HasDistribNeg S]
@@ -128,7 +130,7 @@ theorem isFundamentalUnit_one_zOnePlusSqrtOverTwo {k : ℤ} (hk : k ≤ -2) :
 
 /-- `√-1` as a unit of the Gaussian integers `ℤ[√-1]`. -/
 def gaussianUnit : (Zsqrtd (-1))ˣ :=
-  QuadraticAlgebra.unitOfNormOne Zsqrtd.sqrtd (by simp)
+  unitOfNormOne Zsqrtd.sqrtd (by simp)
 
 @[simp]
 theorem val_gaussianUnit : (gaussianUnit : Zsqrtd (-1)) = Zsqrtd.sqrtd :=
@@ -139,7 +141,7 @@ theorem val_gaussianUnit : (gaussianUnit : Zsqrtd (-1)) = Zsqrtd.sqrtd :=
 theorem isFundamentalUnit_gaussianUnit : IsFundamentalUnit gaussianUnit := by
   have hsq : ((gaussianUnit ^ (2 : ℤ) : (Zsqrtd (-1))ˣ) : Zsqrtd (-1)) = -1 := by
     rw [zpow_two, Units.val_mul, val_gaussianUnit]
-    ext <;> simp [QuadraticAlgebra.re_one, QuadraticAlgebra.im_one]
+    ext <;> simp [re_one, im_one]
   intro v
   rcases (isUnit_zsqrtd_neg_one_iff (v : Zsqrtd (-1))).mp v.isUnit with h | h | h | h
   · exact ⟨0, Or.inl (Units.ext (by simpa using h))⟩
@@ -151,7 +153,7 @@ theorem isFundamentalUnit_gaussianUnit : IsFundamentalUnit gaussianUnit := by
 
 /-- `ω = (1+√-3)/2` as a unit of the Eisenstein integers `ℤ[(1+√-3)/2]`. -/
 def eisensteinUnit : (ZOnePlusSqrtOverTwo (-1))ˣ :=
-  QuadraticAlgebra.unitOfNormOne ⟨0, 1⟩ (by simp)
+  unitOfNormOne ⟨0, 1⟩ (by simp)
 
 @[simp]
 theorem val_eisensteinUnit : (eisensteinUnit : ZOnePlusSqrtOverTwo (-1)) = ⟨0, 1⟩ :=

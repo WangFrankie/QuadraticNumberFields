@@ -35,6 +35,8 @@ of `ℤ[√d]` from norm-`±1` solutions.
 namespace QuadraticNumberFields
 namespace Units
 
+open QuadraticAlgebra
+
 /-- Integer solutions to `x ^ 2 - d * y ^ 2 = n`. -/
 def IsPellSolution (d n x y : ℤ) : Prop :=
   x ^ 2 - d * y ^ 2 = n
@@ -85,7 +87,7 @@ theorem IsPellUnitSolution.mul {d x₁ y₁ x₂ y₂ : ℤ} (h₁ : IsPellUnitS
 /-- The explicit unit of `ℤ[√d]` attached to a norm-one Pell solution; the
 inverse is the conjugate `x - y√d`. -/
 def IsPellUnitSolution.unit {d x y : ℤ} (h : IsPellUnitSolution d x y) : (Zsqrtd d)ˣ :=
-  QuadraticAlgebra.unitOfNormOne ⟨x, y⟩ (isPellSolution_iff_norm_eq.mp h)
+  unitOfNormOne ⟨x, y⟩ (isPellSolution_iff_norm_eq.mp h)
 
 @[simp]
 theorem IsPellUnitSolution.val_unit {d x y : ℤ} (h : IsPellUnitSolution d x y) :
@@ -95,7 +97,7 @@ theorem IsPellUnitSolution.val_unit {d x y : ℤ} (h : IsPellUnitSolution d x y)
 /-- The explicit unit of `ℤ[√d]` attached to a norm-`-1` Pell solution; the
 inverse is the negated conjugate `-(x - y√d)`. -/
 def IsPellSolution.negOneUnit {d x y : ℤ} (h : IsPellSolution d (-1) x y) : (Zsqrtd d)ˣ :=
-  QuadraticAlgebra.unitOfNormNegOne ⟨x, y⟩ (isPellSolution_iff_norm_eq.mp h)
+  unitOfNormNegOne ⟨x, y⟩ (isPellSolution_iff_norm_eq.mp h)
 
 @[simp]
 theorem IsPellSolution.val_negOneUnit {d x y : ℤ} (h : IsPellSolution d (-1) x y) :
@@ -105,22 +107,22 @@ theorem IsPellSolution.val_negOneUnit {d x y : ℤ} (h : IsPellSolution d (-1) x
 /-- `x + y√d` is a unit of `ℤ[√d]` iff `(x, y)` solves `x² - d·y² = ±1`. -/
 theorem isUnit_mk_iff_isPellSolution {d x y : ℤ} :
     IsUnit (⟨x, y⟩ : Zsqrtd d) ↔ IsPellSolution d 1 x y ∨ IsPellSolution d (-1) x y := by
-  rw [QuadraticAlgebra.isUnit_iff_norm_isUnit, Int.isUnit_iff, isPellSolution_iff_norm_eq,
-    isPellSolution_iff_norm_eq]
+  rw [isUnit_iff_norm_isUnit, Int.isUnit_iff, isPellSolution_iff_norm_eq,
+      isPellSolution_iff_norm_eq]
 
 /-- A norm-one Pell solution with `y ≠ 0` produces a unit different from `1`. -/
 theorem IsPellUnitSolution.unit_ne_one {d x y : ℤ} (h : IsPellUnitSolution d x y)
     (hy : y ≠ 0) : h.unit ≠ 1 := by
   intro heq
   apply hy
-  simpa [QuadraticAlgebra.im_one] using congrArg (fun u : (Zsqrtd d)ˣ => (u : Zsqrtd d).im) heq
+  simpa [im_one] using congrArg (fun u : (Zsqrtd d)ˣ => (u : Zsqrtd d).im) heq
 
 /-- A norm-one Pell solution with `y ≠ 0` produces a unit different from `-1`. -/
 theorem IsPellUnitSolution.unit_ne_neg_one {d x y : ℤ} (h : IsPellUnitSolution d x y)
     (hy : y ≠ 0) : h.unit ≠ -1 := by
   intro heq
   apply hy
-  simpa [QuadraticAlgebra.im_one] using congrArg (fun u : (Zsqrtd d)ˣ => (u : Zsqrtd d).im) heq
+  simpa [im_one] using congrArg (fun u : (Zsqrtd d)ˣ => (u : Zsqrtd d).im) heq
 
 end Units
 end QuadraticNumberFields

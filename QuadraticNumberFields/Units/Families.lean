@@ -31,6 +31,8 @@ Explicit Pell-type unit candidates for the classical Richaud-Degert shapes
 namespace QuadraticNumberFields
 namespace Units
 
+open QuadraticAlgebra
+
 /-- `d` admits an explicit nontrivial solution of `x² - d·y² = ±1`, hence an
 explicit unit of `ℤ[√d]` other than `±1`. -/
 def HasExplicitUnitCandidate (d : ℤ) : Prop :=
@@ -102,9 +104,9 @@ theorem HasExplicitUnitCandidate.exists_unit_ne_one {d : ℤ}
   obtain ⟨x, y, hy, hsol⟩ := h
   have hu : IsUnit (⟨x, y⟩ : Zsqrtd d) := isUnit_mk_iff_isPellSolution.mpr hsol
   refine ⟨hu.unit, fun heq => hy ?_, fun heq => hy ?_⟩
-  · simpa [QuadraticAlgebra.im_one] using
+  · simpa [im_one] using
       congrArg (fun u : (Zsqrtd d)ˣ => (u : Zsqrtd d).im) heq
-  · simpa [QuadraticAlgebra.im_one] using
+  · simpa [im_one] using
       congrArg (fun u : (Zsqrtd d)ˣ => (u : Zsqrtd d).im) heq
 
 end Units
