@@ -51,7 +51,7 @@ theorem discr_zOnePlusSqrtOverTwo_basis (k : ℤ) :
   ring
 
 /-- Any ring equivalence between `ℤ`-algebras is automatically an `AlgEquiv ℤ`. -/
-def ringEquivToIntAlgEquiv
+private def ringEquivToIntAlgEquiv
     {R S : Type*} [CommRing R] [Algebra ℤ R] [CommRing S] [Algebra ℤ S]
     (e : R ≃+* S) : R ≃ₐ[ℤ] S :=
   AlgEquiv.ofRingEquiv (f := e) (fun n => by
@@ -116,7 +116,7 @@ theorem discr_formula_of_algEquiv_qsqrtd
     NumberField.discr K = if d % 4 = 1 then d else 4 * d := by
   calc
     NumberField.discr K = NumberField.discr (Qsqrtd (d : ℚ)) :=
-      QuadraticField.discr_eq_of_algEquiv e
+      NumberField.discr_eq_of_algEquiv e
     _ = if d % 4 = 1 then d else 4 * d := discr_formula d
 
 /-- Every abstract quadratic field admits a standard squarefree parameter whose
@@ -124,7 +124,7 @@ standard discriminant formula computes the field discriminant.
 
 This is the abstract-field version of `discr_formula`: classification produces
 `K ≃ₐ[ℚ] Qsqrtd d`, the standard-model formula computes there, and
-`QuadraticField.discr_eq_of_algEquiv` transports the result back to `K`. -/
+`NumberField.discr_eq_of_algEquiv` transports the result back to `K`. -/
 theorem exists_discr_formula_of_quadraticField
     (K : Type*) [Field K] [Algebra ℚ K] [QuadraticField K] :
     ∃ d : ℤ, Squarefree d ∧ d ≠ 1 ∧

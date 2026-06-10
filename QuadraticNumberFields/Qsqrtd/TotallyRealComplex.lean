@@ -162,14 +162,14 @@ abstract field identified with it. -/
 theorem isTotallyReal_of_algEquiv_qsqrtd
     (e : K ≃ₐ[ℚ] Qsqrtd (d : ℚ)) (hd : 0 < d) :
     NumberField.IsTotallyReal K := by
-  exact (isTotallyReal_iff_of_algEquiv e).mpr (Qsqrtd.isTotallyReal d hd)
+  exact (NumberField.isTotallyReal_iff_ofAlgEquiv e).mpr (Qsqrtd.isTotallyReal d hd)
 
 /-- Transport total complexity from the standard model `Qsqrtd d` back to an
 abstract field identified with it. -/
 theorem isTotallyComplex_of_algEquiv_qsqrtd
     (e : K ≃ₐ[ℚ] Qsqrtd (d : ℚ)) (hd : d < 0) :
     NumberField.IsTotallyComplex K := by
-  exact (isTotallyComplex_iff_of_algEquiv e).mpr (Qsqrtd.isTotallyComplex d hd)
+  exact (NumberField.isTotallyComplex_iff_ofAlgEquiv e).mpr (Qsqrtd.isTotallyComplex d hd)
 
 /-- Every abstract quadratic field is either real or imaginary after choosing
 a standard squarefree integer parameter.

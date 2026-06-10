@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 import QuadraticNumberFields.RingOfIntegers.Classification
+import QuadraticNumberFields.Mathlib.Algebra.QuadraticAlgebra.Basic
 import QuadraticNumberFields.Zsqrtd.Basic
 import QuadraticNumberFields.ZOnePlusSqrtOverTwo.Basic
 
@@ -122,32 +123,16 @@ end SquarefreeIntegerParameter
 
 /-! ## Unit Criterion -/
 
-/-- An element of `QuadraticAlgebra ℤ a b` is a unit iff its norm is `±1`. -/
-theorem isUnit_iff_norm_eq_one_or_neg_one
-    {a b : ℤ} (z : QuadraticAlgebra ℤ a b) :
-    IsUnit z ↔ QuadraticAlgebra.norm z = 1 ∨ QuadraticAlgebra.norm z = -1 := by
-  constructor
-  · intro h
-    have h_norm_unit : IsUnit (QuadraticAlgebra.norm z) :=
-      QuadraticAlgebra.isUnit_iff_norm_isUnit.mp h
-    rcases Int.isUnit_iff.mp h_norm_unit with h1 | hneg1
-    · exact Or.inl h1
-    · exact Or.inr hneg1
-  · intro h
-    rcases h with h1 | hneg1
-    · exact QuadraticAlgebra.isUnit_iff_norm_isUnit.mpr (h1 ▸ isUnit_one)
-    · exact QuadraticAlgebra.isUnit_iff_norm_isUnit.mpr (hneg1 ▸ isUnit_neg_one)
-
 /-- An element of `ℤ[√d]` is a unit iff its norm is `±1`. -/
 theorem isUnit_zsqrtd_iff_norm_eq_one_or_neg_one (d : ℤ) (z : Zsqrtd d) :
     IsUnit z ↔ Zsqrtd.norm z = 1 ∨ Zsqrtd.norm z = -1 := by
-  simpa using isUnit_iff_norm_eq_one_or_neg_one z
+  simpa using QuadraticAlgebra.isUnit_iff_norm_eq_one_or_neg_one z
 
 /-- An element of `ℤ[(1+√(1+4k))/2]` is a unit iff its norm is `±1`. -/
 theorem isUnit_zOnePlusSqrtOverTwo_iff_norm_eq_one_or_neg_one
     (k : ℤ) (z : ZOnePlusSqrtOverTwo k) :
     IsUnit z ↔ QuadraticAlgebra.norm z = 1 ∨ QuadraticAlgebra.norm z = -1 := by
-  simpa using isUnit_iff_norm_eq_one_or_neg_one z
+  simpa using QuadraticAlgebra.isUnit_iff_norm_eq_one_or_neg_one z
 
 end RingOfIntegers
 end QuadraticNumberFields

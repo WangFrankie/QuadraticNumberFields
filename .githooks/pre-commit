@@ -1,18 +1,28 @@
 #!/bin/bash
-# Pre-commit hook: Update README stats before committing on main
+# Pre-commit hook: keep the README code-statistics section up to date.
+# Runs on the day-to-day branches (dev, main), skipped during rebases.
 
 current_branch=$(git rev-parse --abbrev-ref HEAD)
 
-# Only run on main branch (and not during rebase)
-if [ "$current_branch" = "main" ] && [ ! -d "$(git rev-parse --git-dir)/rebase-merge" ]; then
-    echo "📊 Updating README stats..."
-    python3 scripts/update_readme_stats.py
+case "$current_branch" in
+    main|dev) ;;
+    *) exit 0 ;;
+esac
 
-    # If README changed, stage it so it's included in the current commit
-    if ! git diff --quiet README.md; then
-        git add README.md
-        echo "📝 README stats updated and staged"
-    else
-        echo "✅ README is up to date"
-    fi
+if [ -d "$(git rev-parse --git-dir)/rebase-merge" ]; then
+    exit 0
+fi
+
+echo "Updating README stats..."
+if ! python3 scripts/update_readme_stats.py; then
+    echo "pre-commit: scripts/update_readme_stats.py failed" >&2
+    exit 1
+fi
+
+# If README changed, stage it so it's included in the current commit
+if ! git diff --quiet README.md; then
+    git add README.md
+    echo "README stats updated and staged"
+else
+    echo "README is up to date"
 fi

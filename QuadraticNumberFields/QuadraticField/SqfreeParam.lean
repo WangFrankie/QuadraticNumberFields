@@ -108,7 +108,7 @@ Together these say that `p ↦ ℚ(√(p.d))` induces a **bijection** between
 This is the correct classification statement.  It is **not** a categorical
 equivalence `Discrete SqfreeParam ≌ QuadraticFieldCat`: the discrete category
 has only identities, while each quadratic field has a non-trivial conjugation
-automorphism (`Task 5`/`Task 10`).
+automorphism.
 
 Both statements use `≃ₐ[ℚ]` with the canonical `QuadraticAlgebra` instances on
 `Qsqrtd` (made explicit with `@AlgEquiv … instAlgebra …`).  They are phrased at
@@ -142,4 +142,3 @@ theorem SqfreeParam.eq_of_algEquiv {p q : SqfreeParam}
       QuadraticAlgebra.instAlgebra QuadraticAlgebra.instAlgebra) : p = q :=
   SqfreeParam.eq_of_d_eq
     (Qsqrtd.param_unique p.d q.d e p.squarefree p.ne_one q.squarefree)
-

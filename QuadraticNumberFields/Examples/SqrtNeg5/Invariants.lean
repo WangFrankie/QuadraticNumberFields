@@ -36,7 +36,7 @@ namespace QuadraticNumberFields.Examples.SqrtNeg5
 
 /-- The ring of integers of `ℚ(√-5)` is `ℤ[√-5]` (since `-5 ≡ 3 mod 4`). -/
 noncomputable def ringOfIntegersEquiv :
-    𝓞 (Qsqrtd ((-5 : ℤ) : ℚ)) ≃+* QuadraticNumberFields.Zsqrtd (-5 : ℤ) :=
+    𝓞 (Qsqrtd ((-5 : ℤ) : ℚ)) ≃+* Zsqrtd (-5 : ℤ) :=
   RingOfIntegers.ringOfIntegers_equiv_zsqrtd_of_mod_four_ne_one (-5) (by decide)
 
 /-- The field discriminant of `ℚ(√-5)` is `-20`. -/
@@ -64,8 +64,8 @@ theorem card_aut_eq_two :
 /-- The order `ℤ[√-5]` **is** a Dedekind domain: since `-5 ≡ 3 (mod 4)` it is the
 maximal order, equal to the ring of integers. -/
 theorem zsqrtd_isDedekindDomain :
-    IsDedekindDomain (QuadraticNumberFields.Zsqrtd (-5 : ℤ)) :=
-  QuadraticNumberFields.Zsqrtd.isDedekindDomain_of_mod_four_ne_one (-5) (by decide)
+    IsDedekindDomain (Zsqrtd (-5 : ℤ)) :=
+  Zsqrtd.isDedekindDomain_of_mod_four_ne_one (-5) (by decide)
 
 /-- The Minkowski bound of `ℚ(√-5)` is `(2/π)·√20 ≈ 2.85`, in particular `< 3`.
 (Strictness comes from `9 < 3π`, i.e. `π > 3`, not from the `√` estimate.) -/

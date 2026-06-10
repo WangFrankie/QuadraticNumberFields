@@ -5,6 +5,7 @@ Authors: Frankie Wang
 -/
 
 import QuadraticNumberFields.Mathlib.Algebra.Squarefree.Basic
+import QuadraticNumberFields.Mathlib.Algebra.QuadraticAlgebra.Basic
 import QuadraticNumberFields.Mathlib.Algebra.QuadraticAlgebra.Defs
 import QuadraticNumberFields.Mathlib.Data.Int.ModFour
 import QuadraticNumberFields.Mathlib.Data.Int.Squarefree

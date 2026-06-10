@@ -13,7 +13,6 @@ import QuadraticNumberFields.Qsqrtd.Basic
 import QuadraticNumberFields.Qsqrtd.Equiv
 import QuadraticNumberFields.Qsqrtd.TraceNorm
 import QuadraticNumberFields.Qsqrtd.TotallyRealComplex
-import QuadraticNumberFields.Units
 
 /-!
 # Work-in-progress surface
@@ -26,7 +25,7 @@ kept out of the stable `QuadraticNumberFields` entry point so that
 Current work in progress:
 
 * `Euclidean.Basic`: imaginary-quadratic norm-Euclidean classification skeleton.
-* `Families.*`, `ContinuedFraction.*`, `Units.*`, and `ClassGroup.*`: research
+* `Families.*`, `ContinuedFraction.*`, and `ClassGroup.*`: research
   scaffolding for real quadratic class-number problems.
 
 Promote a module into `QuadraticNumberFields.lean` once it is sorry-free.

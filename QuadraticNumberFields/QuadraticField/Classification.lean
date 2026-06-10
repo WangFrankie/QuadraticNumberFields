@@ -22,18 +22,18 @@ isomorphic to one of the explicit models `Qsqrtd (z : ℚ) = ℚ(√z)` with
 * `exists_squarefree_int_param_of_isQuadraticField`: every quadratic field is
   isomorphic to `Qsqrtd (z : ℚ)` for some squarefree integer `z ≠ 1`.
 * `exists_algEquiv_qsqrtd`: the same classification interface stated using the
-  project-level `[QuadraticField K]` abstraction.
+  `[QuadraticField K]` abstraction.
 * `exists_ringEquiv_qsqrtd`: the ring-equivalence shadow of the classification
   interface, useful for invariants that do not depend on the chosen `ℚ`-algebra
   structure.
 * `isQuadraticField_iff_exists_squarefree_int_param`: characterization of
   quadratic fields via the normalized models `Qsqrtd (z : ℚ)`.
 
-## Implementation Note
+## Implementation note
 
-To avoid the `ℚ`-algebra diamond on `Qsqrtd q`, this file disables the
-instance `DivisionRing.toRatAlgebra` locally, following the same pattern as
-`TotallyRealComplex.lean`.
+The standard-model declarations use the canonical `QuadraticAlgebra` algebra
+structure on `Qsqrtd`, avoiding the `ℚ`-algebra diamond with
+`DivisionRing.toRatAlgebra`.
 -/
 
 attribute [-instance] DivisionRing.toRatAlgebra

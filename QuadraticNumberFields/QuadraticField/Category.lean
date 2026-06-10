@@ -29,7 +29,8 @@ They instead provide a family of standard objects through `QuadraticFieldCat.ofQ
 
 open CategoryTheory
 
--- Use the canonical `QuadraticAlgebra` algebra structure for standard `Qsqrtd` models.
+-- Use the canonical `QuadraticAlgebra` algebra structure for standard `Qsqrtd` objects.
+-- Otherwise `DivisionRing.toRatAlgebra` competes with the bundled algebra structure.
 attribute [-instance] DivisionRing.toRatAlgebra
 
 universe u

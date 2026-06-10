@@ -66,6 +66,27 @@ lake build
   Use `QuadraticNumberFields/Zsqrtd/MathlibBridge.lean` only when an interface
   with mathlib's model is genuinely required.
 
+## Code Statistics
+
+| Module | Code Lines | Comment Lines | Total Lines |
+|--------|------------|---------------|-------------|
+| `QuadraticNumberFields/Splitting` | 1358 | 408 | 2006 |
+| `QuadraticNumberFields/Zsqrtd` | 661 | 212 | 1016 |
+| `QuadraticNumberFields/QuadraticField` | 586 | 397 | 1183 |
+| `QuadraticNumberFields/RingOfIntegers` | 489 | 301 | 977 |
+| `QuadraticNumberFields/Qsqrtd` | 488 | 264 | 903 |
+| `QuadraticNumberFields/Mathlib` | 445 | 248 | 822 |
+| `QuadraticNumberFields/Examples` | 392 | 232 | 775 |
+| `QuadraticNumberFields/Units` | 303 | 148 | 546 |
+| `QuadraticNumberFields` | 152 | 113 | 310 |
+| `QuadraticNumberFields/ZOnePlusSqrtOverTwo` | 103 | 50 | 183 |
+| `QuadraticNumberFields/Counterexamples` | 82 | 24 | 130 |
+| `QuadraticNumberFields/Euclidean` | 52 | 25 | 93 |
+| `QuadraticNumberFields/ClassGroup` | 49 | 75 | 166 |
+| `QuadraticNumberFields/Families` | 38 | 49 | 116 |
+| `QuadraticNumberFields/ContinuedFraction` | 21 | 36 | 75 |
+| **Total** | **5219** | **2582** | **9301** |
+
 ## History
 
 This project was originally developed at

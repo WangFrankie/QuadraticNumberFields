@@ -45,6 +45,8 @@ lemma omega_mem_Zomega (k : ℤ) : omega k ∈ Zomega k :=
 
 end Qsqrtd
 
+open QuadraticNumberFields
+
 /-- Algebraic model of `ℤ[(1 + √(1 + 4d))/2]` via `ω^2 = ω + d`.
 In `QuadraticAlgebra R a b`, one has `ω^2 = a + b * ω`, so this is
 `QuadraticAlgebra ℤ d 1` (not `QuadraticAlgebra ℤ 1 d`). -/
@@ -70,6 +72,20 @@ abbrev normUnitsHom (d : ℤ) : (ZOnePlusSqrtOverTwo d)ˣ →* ℤˣ :=
 theorem normUnitsHom_coe (d : ℤ) (u : (ZOnePlusSqrtOverTwo d)ˣ) :
     ((normUnitsHom d u : ℤˣ) : ℤ) = QuadraticAlgebra.norm (u : ZOnePlusSqrtOverTwo d) := by
   simp [normUnitsHom, normHom]
+
+/-- The norm of `x + y·ω` in coordinates: `‖x + y·ω‖ = x² + x·y - d·y²`. -/
+@[simp]
+theorem norm_mk (d x y : ℤ) :
+    QuadraticAlgebra.norm (⟨x, y⟩ : ZOnePlusSqrtOverTwo d) = x ^ 2 + x * y - d * y ^ 2 := by
+  have h : QuadraticAlgebra.norm (⟨x, y⟩ : ZOnePlusSqrtOverTwo d) =
+      x * x + 1 * x * y - d * y * y := QuadraticAlgebra.norm_def _
+  rw [h]; ring
+
+/-- `x + y·ω` is a unit of `ℤ[(1 + √(1 + 4d))/2]` iff `x² + x·y - d·y² = ±1`. -/
+theorem isUnit_mk_iff {d x y : ℤ} :
+    IsUnit (⟨x, y⟩ : ZOnePlusSqrtOverTwo d) ↔
+      x ^ 2 + x * y - d * y ^ 2 = 1 ∨ x ^ 2 + x * y - d * y ^ 2 = -1 := by
+  rw [QuadraticAlgebra.isUnit_iff_norm_isUnit, Int.isUnit_iff, norm_mk]
 
 /-- Coordinate-level embedding candidate into `Q(√(1 + 4d))`. -/
 def toQsqrtdFun (d : ℤ) : ZOnePlusSqrtOverTwo d → Qsqrtd (qParam d) :=
@@ -123,19 +139,19 @@ def carrierSet (d : ℤ) : Set (Qsqrtd (qParam d)) := Set.range (toQsqrtdFun d)
 numerators have the same parity. -/
 theorem halfInt_mem_carrierSet_iff_same_parity (k a' b' : ℤ) :
     (∃ z : ZOnePlusSqrtOverTwo k,
-      toQsqrtdFun k z = QuadraticNumberFields.RingOfIntegers.halfInt (1 + 4 * k) a' b') ↔
+      toQsqrtdFun k z = RingOfIntegers.halfInt (1 + 4 * k) a' b') ↔
       a' % 2 = b' % 2 := by
   constructor
   · rintro ⟨z, hz⟩
     -- If `(a' + b'√d)/2 = r + sω`, then necessarily `s = b'`
     -- and `a' = 2r + b'`, so `a'` and `b'` have the same parity.
     have him : z.im / 2 = (b' : ℚ) / 2 := by
-      simpa [toQsqrtdFun, QuadraticNumberFields.RingOfIntegers.halfInt] using
+      simpa [toQsqrtdFun, RingOfIntegers.halfInt] using
         congrArg QuadraticAlgebra.im hz
     have hbq : z.im = (b' : ℚ) := by
       nlinarith [him]
     have hreq : z.re + z.im / 2 = (a' : ℚ) / 2 := by
-      simpa [toQsqrtdFun, QuadraticNumberFields.RingOfIntegers.halfInt] using
+      simpa [toQsqrtdFun, RingOfIntegers.halfInt] using
         congrArg QuadraticAlgebra.re hz
     have haq : 2 * z.re + z.im = (a' : ℚ) := by
       nlinarith [hreq]
@@ -154,13 +170,13 @@ theorem halfInt_mem_carrierSet_iff_same_parity (k a' b' : ℤ) :
       omega
     refine ⟨⟨t, b'⟩, ?_⟩
     ext
-    · simp [toQsqrtdFun, QuadraticNumberFields.RingOfIntegers.halfInt, hrepr]
+    · simp [toQsqrtdFun, RingOfIntegers.halfInt, hrepr]
       ring
-    · simp [toQsqrtdFun, QuadraticNumberFields.RingOfIntegers.halfInt]
+    · simp [toQsqrtdFun, RingOfIntegers.halfInt]
 
 /-- Equivalent set-membership form of `halfInt_mem_carrierSet_iff_same_parity`. -/
 theorem halfInt_mem_carrierSet_iff_same_parity_set (k a' b' : ℤ) :
-    QuadraticNumberFields.RingOfIntegers.halfInt (1 + 4 * k) a' b' ∈ carrierSet k ↔
+    RingOfIntegers.halfInt (1 + 4 * k) a' b' ∈ carrierSet k ↔
       a' % 2 = b' % 2 :=
   by simpa [carrierSet] using (halfInt_mem_carrierSet_iff_same_parity k a' b')
 

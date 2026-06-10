@@ -156,7 +156,7 @@ theorem lift_apply {R : Type*} [CommRing R] (r : R) (hd : r * r = (d : R))
   simp [QuadraticAlgebra.lift, Algebra.smul_def]
 
 /-- `lift` computes on integer inputs as the obvious coercion. -/
-@[simp] theorem lift_intCast {R : Type*} [CommRing R] (r : R) (hd : r * r = (d : R))
+theorem lift_intCast {R : Type*} [CommRing R] (r : R) (hd : r * r = (d : R))
     (n : ℤ) :
     lift r hd (n : Zsqrtd d) = (n : R) := by
   rw [lift_apply]
@@ -184,6 +184,12 @@ theorem norm_def (z : Zsqrtd d) :
   change QuadraticAlgebra.norm z = z.re * z.re - d * z.im * z.im
   rw [QuadraticAlgebra.norm_def]
   ring
+
+/-- The norm of the element `x + y·√d` in coordinates: `‖x + y√d‖ = x² - d·y²`. -/
+@[simp]
+theorem norm_mk (x y : ℤ) : Zsqrtd.norm (⟨x, y⟩ : Zsqrtd d) = x ^ 2 - d * y ^ 2 := by
+  have h : Zsqrtd.norm (⟨x, y⟩ : Zsqrtd d) = x * x - d * y * y := norm_def _
+  rw [h]; ring
 
 /-- Multiplicativity of the norm on `Zsqrtd d`. -/
 theorem norm_mul (a b : Zsqrtd d) :

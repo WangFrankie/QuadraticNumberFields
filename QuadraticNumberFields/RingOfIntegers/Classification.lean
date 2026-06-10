@@ -5,9 +5,7 @@ Authors: Frankie Wang
 -/
 import QuadraticNumberFields.RingOfIntegers.CommonInstances
 import QuadraticNumberFields.RingOfIntegers.Integrality
-import QuadraticNumberFields.RingOfIntegers.ModFour
 import QuadraticNumberFields.ZOnePlusSqrtOverTwo.Basic
-import QuadraticNumberFields.Mathlib.RingTheory.DedekindDomain.Basic
 import QuadraticNumberFields.QuadraticField.Classification
 import QuadraticNumberFields.QuadraticField.Transport
 
@@ -159,7 +157,7 @@ theorem ringOfIntegers_classification_of_ringEquiv_qsqrtd
     (d % 4 ≠ 1 ∧ Nonempty (𝓞 K ≃+* Zsqrtd d)) ∨
     (∃ k : ℤ, d = 1 + 4 * k ∧ Nonempty (𝓞 K ≃+* ZOnePlusSqrtOverTwo k)) := by
   let e𝓞 : 𝓞 K ≃+* 𝓞 (Qsqrtd (d : ℚ)) :=
-    QuadraticField.ringOfIntegersEquivOfRingEquiv e
+    e.ringOfIntegers
   rcases ringOfIntegers_classification d with h | h
   · exact Or.inl ⟨h.1, h.2.map (fun f => e𝓞.trans f)⟩
   · rcases h with ⟨k, hk, hnonempty⟩

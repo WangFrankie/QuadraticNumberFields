@@ -5,8 +5,6 @@ Authors: Frankie Wang
 -/
 
 import QuadraticNumberFields.ContinuedFraction.Periodic
-import QuadraticNumberFields.Families.RichaudDegert
-import QuadraticNumberFields.Families.Yokoi
 
 /-!
 # Continued Fractions for Parameter Families

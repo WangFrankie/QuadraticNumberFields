@@ -16,7 +16,6 @@ import QuadraticNumberFields.Qsqrtd.Automorphism
 import QuadraticNumberFields.Qsqrtd.Galois
 import QuadraticNumberFields.QuadraticField.Transport
 import QuadraticNumberFields.QuadraticField.RingOfIntegers
-import QuadraticNumberFields.Mathlib.RingTheory.DedekindDomain.Basic
 import QuadraticNumberFields.RingOfIntegers.ModFour
 import QuadraticNumberFields.Zsqrtd.Basic
 import QuadraticNumberFields.Zsqrtd.Dedekind
@@ -38,6 +37,10 @@ import QuadraticNumberFields.Examples.SqrtNeg5.Invariants
 import QuadraticNumberFields.Examples.Sqrt17.Splitting
 import QuadraticNumberFields.Examples.Sqrt17.Invariants
 import QuadraticNumberFields.Qsqrtd.TotallyRealComplex
+import QuadraticNumberFields.Units.Pell
+import QuadraticNumberFields.Units.Imaginary
+import QuadraticNumberFields.Units.Fundamental
+import QuadraticNumberFields.Units.Families
 
 /-!
 # Quadratic Number Fields
@@ -50,6 +53,8 @@ including:
 * Ring of integers classification (`ℤ[√d]` vs `ℤ[(1+√d)/2]`)
 * Discriminant formulas
 * Totally real/complex classification
+* Unit groups: Pell-type units, torsion classification in the imaginary case,
+  fundamental units, and explicit Richaud-Degert unit candidates
 
 ## Main Import
 
