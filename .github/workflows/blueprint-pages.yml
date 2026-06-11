@@ -1,0 +1,76 @@
+name: Publish blueprint to GitHub Pages
+
+# Two triggers:
+#   - push to blueprint-verso: auto-publish whatever is on that branch.
+#   - workflow_dispatch:       manual "rebuild and republish" button.
+#
+# The "update blueprint-verso with the latest dev" step is intentionally
+# NOT in this workflow — do that on the GitHub web by merging
+# `dev` -> `blueprint-verso` (one PR, one click). The push from that
+# merge then auto-triggers this workflow.
+#
+# The full setup is in docs/blueprint-vps-deploy.md.
+
+on:
+  push:
+    branches:
+      - blueprint-verso
+  workflow_dispatch:
+
+permissions:
+  pages: write
+  id-token: write
+  contents: read
+
+# Only one Pages deploy at a time; newer runs cancel older ones.
+concurrency:
+  group: blueprint-pages
+  cancel-in-progress: true
+
+jobs:
+  publish:
+    name: Build and publish
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Lean (root package)
+        uses: leanprover/lean-action@v1
+        with:
+          auto-config: false
+          build: false
+          lint: false
+          test: false
+
+      - name: Lake update (nested blueprint package)
+        working-directory: blueprint-verso
+        run: lake update
+
+      - name: Lake cache get (nested blueprint package)
+        working-directory: blueprint-verso
+        run: lake exe cache get || true
+
+      - name: Render blueprint
+        working-directory: blueprint-verso
+        run: ./scripts/ci-pages.sh
+
+      - name: Verify build output
+        working-directory: blueprint-verso
+        run: |
+          test -f _out/site/html-multi/index.html
+          test -f _out/site/html-multi/-verso-data/blueprint-manifest.json
+          test -f _out/site/html-multi/-verso-data/blueprint-html-cache.json
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: blueprint-verso/_out/site/html-multi
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

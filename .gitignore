@@ -43,3 +43,9 @@ docs/superpowers/
 
 #Local Files
 docs/local/
+
+# Local env files (real deploy secrets live in .env.local, never
+# committed). The .env.example template is committed on purpose.
+.env
+.env.*
+!.env.example

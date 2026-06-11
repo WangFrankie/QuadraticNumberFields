@@ -1,0 +1,1 @@
+window.docContents[177].resolve({"/Dependency-Graph/#Quadratic-Number-Fields-Blueprint--Dependency-Graph":{"contents":"\n\n","context":"Quadratic Number Fields Blueprint","header":"Dependency Graph","id":"/Dependency-Graph/#Quadratic-Number-Fields-Blueprint--Dependency-Graph"}});

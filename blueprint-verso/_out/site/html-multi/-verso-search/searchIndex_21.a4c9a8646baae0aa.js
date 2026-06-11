@@ -1,0 +1,1 @@
+window.docContents[21].resolve({"/Blueprint-Summary/#Quadratic-Number-Fields-Blueprint--Blueprint-Summary":{"contents":"\n\n","context":"Quadratic Number Fields Blueprint","header":"Blueprint Summary","id":"/Blueprint-Summary/#Quadratic-Number-Fields-Blueprint--Blueprint-Summary"}});

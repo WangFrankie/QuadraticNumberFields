@@ -1,0 +1,30 @@
+# The QNF Verso blueprint is a self-contained Lake package nested in the
+# QuadraticNumberFields repository. It deliberately does not touch the root
+# `lakefile.toml`.
+
+name = "QNFBlueprint"
+precompileModules = false
+defaultTargets = ["QNFBlueprint"]
+
+[leanOptions]
+experimental.module = true
+verso.blueprint.foldCodeBlocks = true
+
+# Dependency resolution note: keep the parent project after VersoBlueprint so
+# the root project's mathlib/repl pins win when Lake reconciles dependencies.
+
+[[require]]
+name = "VersoBlueprint"
+git = "https://github.com/leanprover/verso-blueprint"
+rev = "af54e3eedd11e4a7604544712e70d447b6dc55aa"
+
+[[require]]
+name = "QuadraticNumberFields"
+path = ".."
+
+[[lean_lib]]
+name = "QNFBlueprint"
+
+[[lean_exe]]
+name = "blueprint-gen"
+root = "QNFBlueprintMain"

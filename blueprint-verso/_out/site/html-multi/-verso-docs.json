@@ -1,0 +1,337 @@
+{"99":
+ "<code>Nat : Type</code><span class=\"sep\"></span><code class=\"docstring\">The natural numbers, starting at zero.\n\nThis type is special-cased by both the kernel and the compiler, and overridden with an efficient\nimplementation. Both use a fast arbitrary-precision arithmetic library (usually\n[GMP](https://gmplib.org/)); at runtime, `Nat` values that are sufficiently small are unboxed.\n</code>",
+ "98": "<code>ℕ</code>",
+ "97":
+ "<code>QuadraticNumberFields.Zsqrtd.Ideal.mem_span_p_one_minus_sqrtd_iff {d : ℤ} (p : ℕ) [Fact (Nat.Prime p)] (hd : ↑p ∣ d - 1)\n  (z : QuadraticNumberFields.Zsqrtd d) : z ∈ Ideal.span {↑p, 1 - QuadraticNumberFields.Zsqrtd.sqrtd} ↔ ↑p ∣ z.re + z.im</code><span class=\"sep\"></span><code class=\"docstring\">An element of `Zsqrtd d` belongs to `(p, 1-√d)` iff `p ∣ (re + im)`,\nprovided `p ∣ (d - 1)` for a prime `p`. </code>",
+ "96":
+ "<code>QuadraticNumberFields.RingOfIntegers.discr_Qsqrtd_neg_five : NumberField.discr (ℚ√↑(-5)) = -20</code><span class=\"sep\"></span><code class=\"docstring\">**Q(√(-5))**: `disc(Q(√(-5))) = -20`. </code>",
+ "95":
+ "<code>QuadraticNumberFields.RingOfIntegers.discr_eisenstein : NumberField.discr (ℚ√↑(-3)) = -3</code><span class=\"sep\"></span><code class=\"docstring\">**Eisenstein integers**: `disc(Q(√(-3))) = -3`. </code>",
+ "94":
+ "<code>QuadraticNumberFields.RingOfIntegers.discr_gaussian : NumberField.discr (ℚ√↑(-1)) = -4</code><span class=\"sep\"></span><code class=\"docstring\">**Gaussian integers**: `disc(Q(√(-1))) = -4`. </code>",
+ "93":
+ "<code>IsDedekindDomain.{u_2} (A : Type u_2) [CommRing A] : Prop</code><span class=\"sep\"></span><code class=\"docstring\">A Dedekind domain is an integral domain that is Noetherian, integrally closed, and\nhas Krull dimension at most one.\n\nThis is definition 3.2 of [Neukirch1992].\n\nThis is exactly `IsDedekindRing` plus the `IsDomain` hypothesis.\n\nThe integral closure condition is independent of the choice of field of fractions:\nuse `isDedekindDomain_iff` to prove `IsDedekindDomain` for a given `fraction_map`.\n\nThis is the default implementation, but there are equivalent definitions,\n`IsDedekindDomainDvr` and `IsDedekindDomainInv`.\n</code>",
+ "92":
+ "<code>QuadraticNumberFields.Zsqrtd.isDedekindDomain_iff_mod_four_ne_one (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :\n  IsDedekindDomain (QuadraticNumberFields.Zsqrtd d) ↔ d % 4 ≠ 1</code><span class=\"sep\"></span><code class=\"docstring\">For a squarefree `d ≠ 1`, `ℤ[√d]` is a Dedekind domain if and only if\n`d ≢ 1 (mod 4)` — equivalently, if and only if `ℤ[√d]` is the full ring of\nintegers of `ℚ(√d)`.\n\nThis characterizes exactly when the order `ℤ[√d]` coincides with the maximal\norder `𝓞(ℚ(√d))`.\n\n**mathlib target: `Mathlib.NumberTheory.Zsqrtd.DedekindDomain`** </code>",
+ "91":
+ "<code>QuadraticNumberFields.RingOfIntegers.exists_discr_formula_of_quadraticField.{u_1} (K : Type u_1) [Field K] [Algebra ℚ K]\n  [QuadraticField K] : ∃ d, Squarefree d ∧ d ≠ 1 ∧ NumberField.discr K = if d % 4 = 1 then d else 4 * d</code><span class=\"sep\"></span><code class=\"docstring\">Every abstract quadratic field admits a standard squarefree parameter whose\nstandard discriminant formula computes the field discriminant.\n\nThis is the abstract-field version of `discr_formula`: classification produces\n`K ≃ₐ[ℚ] Qsqrtd d`, the standard-model formula computes there, and\n`NumberField.discr_eq_of_algEquiv` transports the result back to `K`. </code>",
+ "90": "<code>K ≃ₐ[ℚ] ℚ√↑d</code>",
+ "9":
+ "<code>Algebra.{u, v} (R : Type u) (A : Type v) [CommSemiring R] [Semiring A] : Type (max u v)</code><span class=\"sep\"></span><code class=\"docstring\">An associative unital `R`-algebra is a semiring `A` equipped with a map into its center `R → A`.\n\nSee the implementation notes in this file for discussion of the details of this definition.\n</code>",
+ "89":
+ "<code>NumberField.{u_1} (K : Type u_1) [Field K] : Prop</code><span class=\"sep\"></span><code class=\"docstring\">A number field is a field which has characteristic zero and is finite\ndimensional over ℚ. </code>",
+ "88":
+ "<code>QuadraticNumberFields.RingOfIntegers.discr_formula_of_algEquiv_qsqrtd.{u_1} (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]\n  {K : Type u_1} [Field K] [Algebra ℚ K] [NumberField K] (e : K ≃ₐ[ℚ] ℚ√↑d) :\n  NumberField.discr K = if d % 4 = 1 then d else 4 * d</code><span class=\"sep\"></span><code class=\"docstring\">Transport the standard-model discriminant formula back to an abstract field\nidentified with `Qsqrtd d`. </code>",
+ "87":
+ "<code>ite.{u} {α : Sort u} (c : Prop) [h : Decidable c] (t e : α) : α</code><span class=\"sep\"></span><code class=\"docstring\">`if c then t else e` is notation for `ite c t e`, \"if-then-else\", which decides to\nreturn `t` or `e` depending on whether `c` is true or false. The explicit argument\n`c : Prop` does not have any actual computational content, but there is an additional\n`[Decidable c]` argument synthesized by typeclass inference which actually\ndetermines how to evaluate `c` to true or false. Write `if h : c then t else e`\ninstead for a \"dependent if-then-else\" `dite`, which allows `t`/`e` to use the fact\nthat `c` is true/false.\n</code>",
+ "86":
+ "<code>NumberField.discr.{u_1} (K : Type u_1) [Field K] [NumberField K] : ℤ</code><span class=\"sep\"></span><code class=\"docstring\">The absolute discriminant of a number field. </code>",
+ "85":
+ "<code>QuadraticNumberFields.RingOfIntegers.discr_formula (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :\n  NumberField.discr (ℚ√↑d) = if d % 4 = 1 then d else 4 * d</code><span class=\"sep\"></span><code class=\"docstring\">**Unified discriminant formula for `Q(√d)`.**\n\nFor squarefree `d ≠ 1`:\n* `disc(Q(√d)) = d`   if `d ≡ 1 (mod 4)`\n* `disc(Q(√d)) = 4d`  if `d ≢ 1 (mod 4)` </code>",
+ "84":
+ "<code>QuadraticNumberFields.RingOfIntegers.discr_zOnePlusSqrtOverTwo_basis (k : ℤ) :\n  Algebra.discr ℤ ⇑(QuadraticAlgebra.basis k 1) = 1 + 4 * k</code><span class=\"sep\"></span><code class=\"docstring\">The discriminant of the standard basis of `ℤ[(1+√(1+4k))/2]` is `1 + 4 * k`. </code>",
+ "83":
+ "<code>QuadraticAlgebra.basis.{u_1} {R : Type u_1} (a b : R) [Semiring R] : Module.Basis (Fin 2) R (QuadraticAlgebra R a b)</code><span class=\"sep\"></span><code class=\"docstring\">`QuadraticAlgebra R a b` has a basis over `R` given by `1` and `i` </code>",
+ "82":
+ "<code>Algebra.discr.{u, v, w} {ι : Type w} [DecidableEq ι] (A : Type u) {B : Type v} [CommRing A] [CommRing B] [Algebra A B]\n  [Fintype ι] (b : ι → B) : A</code><span class=\"sep\"></span><code class=\"docstring\">Given an `A`-algebra `B` and `b`, an `ι`-indexed family of elements of `B`, we define\n`discr A ι b` as the determinant of `traceMatrix A ι b`. </code>",
+ "81":
+ "<code>QuadraticNumberFields.RingOfIntegers.discr_zsqrtd_basis (d : ℤ) : Algebra.discr ℤ ⇑(QuadraticAlgebra.basis d 0) = 4 * d</code><span class=\"sep\"></span><code class=\"docstring\">The discriminant of the standard basis of `ℤ[√d]` is `4 * d`. </code>",
+ "80":
+ "<code>QuadraticAlgebra.norm.{u_1} {R : Type u_1} {a b : R} [CommRing R] : QuadraticAlgebra R a b →* R</code><span class=\"sep\"></span><code class=\"docstring\">the norm in a quadratic algebra, as a `MonoidHom`. </code>",
+ "8":
+ "<code>Field.{u} (K : Type u) : Type u</code><span class=\"sep\"></span><code class=\"docstring\">A `Field` is a `CommRing` with multiplicative inverses for nonzero elements.\n\nAn instance of `Field K` includes maps `ratCast : ℚ → K` and `qsmul : ℚ → K → K`.\nThose two fields are needed to implement the `DivisionRing K → Algebra ℚ K` instance since we need\nto control the specific definitions for some special cases of `K` (in particular `K = ℚ` itself).\nSee also note [forgetful inheritance].\n\nIf the field has positive characteristic `p`, our division by zero convention forces\n`ratCast (1 / p) = 1 / 0 = 0`. </code>",
+ "79":
+ "<code>QuadraticNumberFields.RingOfIntegers.isUnit_zOnePlusSqrtOverTwo_iff_norm_eq_one_or_neg_one (k : ℤ)\n  (z : ZOnePlusSqrtOverTwo k) : IsUnit z ↔ QuadraticAlgebra.norm z = 1 ∨ QuadraticAlgebra.norm z = -1</code><span class=\"sep\"></span><code class=\"docstring\">An element of `ℤ[(1+√(1+4k))/2]` is a unit iff its norm is `±1`. </code>",
+ "78":
+ "<code>QuadraticNumberFields.Zsqrtd.norm {d : ℤ} (z : QuadraticNumberFields.Zsqrtd d) : ℤ</code><span class=\"sep\"></span><code class=\"docstring\">Norm API on `Zsqrtd`. </code>",
+ "77":
+ "<code>IsUnit.{u_1} {M : Type u_1} [Monoid M] (a : M) : Prop</code><span class=\"sep\"></span><code class=\"docstring\">An element `a : M` of a `Monoid` is a unit if it has a two-sided inverse.\nThe actual definition says that `a` is equal to some `u : Mˣ`, where\n`Mˣ` is a bundled version of `IsUnit`. </code>",
+ "76":
+ "<code>QuadraticNumberFields.RingOfIntegers.isUnit_zsqrtd_iff_norm_eq_one_or_neg_one (d : ℤ)\n  (z : QuadraticNumberFields.Zsqrtd d) : IsUnit z ↔ z.norm = 1 ∨ z.norm = -1</code><span class=\"sep\"></span><code class=\"docstring\">An element of `ℤ[√d]` is a unit iff its norm is `±1`. </code>",
+ "75":
+ "<code>QuadraticNumberFields.RingOfIntegers.exists_ringOfIntegers_classification_of_quadraticField.{u_1} (K : Type u_1)\n  [Field K] [Algebra ℚ K] [QuadraticField K] :\n  ∃ d,\n    Squarefree d ∧\n      d ≠ 1 ∧\n        (d % 4 ≠ 1 ∧ Nonempty (NumberField.RingOfIntegers K ≃+* QuadraticNumberFields.Zsqrtd d) ∨\n          ∃ k, d = 1 + 4 * k ∧ Nonempty (NumberField.RingOfIntegers K ≃+* ZOnePlusSqrtOverTwo k))</code><span class=\"sep\"></span><code class=\"docstring\">Every abstract quadratic field has a standard squarefree parameter for which\nthe transported ring-of-integers classification holds. </code>",
+ "74":
+ "<code>ZOnePlusSqrtOverTwo.toQsqrtdHom (d : ℤ) : ZOnePlusSqrtOverTwo d →+* ℚ√ZOnePlusSqrtOverTwo.qParam d</code><span class=\"sep\"></span><code class=\"docstring\">Coordinate-level embedding as a ring hom into `Q(√(1 + 4d))`. </code>",
+ "73": "<code>ZOnePlusSqrtOverTwo k</code>",
+ "72": "<code>ℚ√↑(1 + 4 * k)</code>",
+ "71": "<code>1 + 4 * k ≠ 1</code>",
+ "70": "<code>Squarefree (1 + 4 * k)</code>",
+ "7":
+ "<code>QuadraticField.{u_1} (K : Type u_1) [Field K] [Algebra ℚ K] : Prop</code><span class=\"sep\"></span><code class=\"docstring\">A quadratic field over `ℚ`.\n\nThis wraps `Algebra.IsQuadraticExtension ℚ K` as a class so that theorems can\nstate their abstract-field input directly as `[QuadraticField K]`, while the\ninstance below exposes the underlying mathlib predicate whenever existing APIs\nneed it.\n</code>",
+ "69":
+ "<code>QuadraticNumberFields.RingOfIntegers.exists_zOnePlusSqrtOverTwo_of_isIntegral_of_one_mod_four (k : ℤ)\n  (hd_sf : Squarefree (1 + 4 * k)) (hd_ne : 1 + 4 * k ≠ 1) {x : ℚ√↑(1 + 4 * k)} (hx : IsIntegral ℤ x) :\n  ∃ z, (ZOnePlusSqrtOverTwo.toQsqrtdHom k) z = x</code><span class=\"sep\"></span><code class=\"docstring\">Integrality classification in the `1 mod 4` branch model (`d = 1 + 4k`):\nintegral elements of `Q(√(1 + 4k))` lie in the image of `ZOnePlusSqrtOverTwo k`. </code>",
+ "68":
+ "<code>QuadraticNumberFields.Zsqrtd.toQsqrtdHom (d : ℤ) : QuadraticNumberFields.Zsqrtd d →+* ℚ√↑d</code><span class=\"sep\"></span><code class=\"docstring\">Rational embedding into `Q(√d)` as a ring hom. </code>",
+ "67": "<code>QuadraticNumberFields.Zsqrtd d</code>",
+ "66":
+ "<code>IsIntegral.{u_1, u_3} (R : Type u_1) {A : Type u_3} [CommRing R] [Ring A] [Algebra R A] (x : A) : Prop</code><span class=\"sep\"></span><code class=\"docstring\">An element `x` of an algebra `A` over a commutative ring `R` is said to be *integral*,\nif it is a root of some monic polynomial `p : R[X]`.\nEquivalently, the element is integral over `R` with respect to the induced `algebraMap` </code>",
+ "65": "<code>IsIntegral ℤ x</code>",
+ "64": "<code>ℚ√↑d</code>",
+ "63": "<code>d ≠ 1</code>",
+ "62": "<code>Squarefree d</code>",
+ "61":
+ "<code>QuadraticNumberFields.RingOfIntegers.exists_zsqrtd_of_isIntegral_of_ne_one_mod_four (d : ℤ) (hd_sf : Squarefree d)\n  (hd_ne : d ≠ 1) (hd4 : d % 4 ≠ 1) {x : ℚ√↑d} (hx : IsIntegral ℤ x) :\n  ∃ z, (QuadraticNumberFields.Zsqrtd.toQsqrtdHom d) z = x</code><span class=\"sep\"></span><code class=\"docstring\">Integrality classification in the `d % 4 ≠ 1` branch: integral elements of `Q(√d)`\nlie in the image of `Zsqrtd d`. </code>",
+ "60":
+ "<code>HDiv.hDiv.{u, v, w} {α : Type u} {β : Type v} {γ : outParam (Type w)} [self : HDiv α β γ] : α → β → γ</code><span class=\"sep\"></span><code class=\"docstring\">`a / b` computes the result of dividing `a` by `b`.\nThe meaning of this notation is type-dependent.\n* For most types like `Nat`, `Int`, `Rat`, `Real`, `a / 0` is defined to be `0`.\n* For `Nat`, `a / b` rounds downwards.\n* For `Int`, `a / b` rounds downwards if `b` is positive or upwards if `b` is negative.\n  It is implemented as `Int.ediv`, the unique function satisfying\n  `a % b + b * (a / b) = a` and `0 ≤ a % b &lt; natAbs b` for `b ≠ 0`.\n  Other rounding conventions are available using the functions\n  `Int.fdiv` (floor rounding) and `Int.tdiv` (truncation rounding).\n* For `Float`, `a / 0` follows the IEEE 754 semantics for division,\n  usually resulting in `inf` or `nan`. \n\nConventions for notations in identifiers:\n\n * The recommended spelling of `/` in identifiers is `div`.</code>",
+ "6": "<code>Type u_1</code>",
+ "59": "<code>d % 4 = 1</code>",
+ "58":
+ "<code>QuadraticNumberFields.RingOfIntegers.ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one (d : ℤ)\n  [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd4 : d % 4 = 1) :\n  NumberField.RingOfIntegers (ℚ√↑d) ≃+* ZOnePlusSqrtOverTwo (d / 4)</code><span class=\"sep\"></span><code class=\"docstring\">If `d % 4 = 1`, then `𝓞(ℚ(√d)) ≃+* ℤ[(1+√d)/2]`, using the canonical witness\n`k := d / 4` (so `d = 1 + 4 * (d / 4)`).  This is a thin wrapper over the\nexplicit-parameter `ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_eq`.\n\n**mathlib target: `Mathlib.NumberTheory.QuadraticField.RingOfIntegers`** </code>",
+ "57": "<code>d % 4 ≠ 1</code>",
+ "56":
+ "<code>QuadraticNumberFields.RingOfIntegers.ringOfIntegers_equiv_zsqrtd_of_mod_four_ne_one (d : ℤ) [Fact (Squarefree d)]\n  [Fact (d ≠ 1)] (hd4 : d % 4 ≠ 1) : NumberField.RingOfIntegers (ℚ√↑d) ≃+* QuadraticNumberFields.Zsqrtd d</code><span class=\"sep\"></span><code class=\"docstring\">If `d % 4 ≠ 1`, then `𝓞(ℚ(√d)) ≃+* ℤ[√d]`.\n\n**mathlib target: `Mathlib.NumberTheory.QuadraticField.RingOfIntegers`** </code>",
+ "55":
+ "<code>QuadraticField.conjAut.{u_1} (K : Type u_1) [Field K] [Algebra ℚ K] [QuadraticField K] [QuadraticField.Conj K] :\n  Gal(K/ℚ)</code><span class=\"sep\"></span><code class=\"docstring\">The distinguished `ℚ`-algebra involution associated to a `Conj`\ninstance. </code>",
+ "54":
+ "<code>Insert.insert.{u, v} {α : outParam (Type u)} {γ : Type v} [self : Insert α γ] : α → γ → γ</code><span class=\"sep\"></span><code class=\"docstring\">`insert x xs` inserts the element `x` into the collection `xs`. </code>",
+ "53":
+ "<code>Finset.univ.{u_1} {α : Type u_1} [Fintype α] : Finset α</code><span class=\"sep\"></span><code class=\"docstring\">`univ` is the universal finite set of type `Finset α` implied from\nthe assumption `Fintype α`. </code>",
+ "52":
+ "<code>DecidableEq.{u} (α : Sort u) : Sort (max 1 u)</code><span class=\"sep\"></span><code class=\"docstring\">Propositional equality is `Decidable` for all elements of a type.\n\nIn other words, an instance of `DecidableEq α` is a means of deciding the proposition `a = b` is\nfor all `a b : α`.\n</code>",
+ "51":
+ "<code>QuadraticField.Conj.{u_1} (K : Type u_1) [Field K] [Algebra ℚ K] [QuadraticField K] : Type u_1</code><span class=\"sep\"></span><code class=\"docstring\">A `Conj` structure on a quadratic field `K` is a distinguished\nnon-trivial `ℚ`-algebra involution on `K`.\n\nThe `conj_conj` and `conj_ne_refl` fields are here so that the\ndistinguished involution is genuinely non-trivial: any involution of a\nquadratic field is automatically either `id` or the conjugation, so the\n`conj_ne_refl` field guarantees that the chosen automorphism is the\nconjugation. </code>",
+ "50":
+ "<code>QuadraticField.univ_aut_eq_pair.{u_1} {K : Type u_1} [Field K] [Algebra ℚ K] [QuadraticField K] [QuadraticField.Conj K]\n  [DecidableEq Gal(K/ℚ)] : Finset.univ = {AlgEquiv.refl, QuadraticField.conjAut K}</code><span class=\"sep\"></span><code class=\"docstring\">The `ℚ`-automorphism group of a quadratic field is exactly the pair\n`{AlgEquiv.refl, conjAut K}`. </code>",
+ "5":
+ "<code>Algebra.IsQuadraticExtension.{u_2, u_3} (R : Type u_2) (S : Type u_3) [CommSemiring R] [StrongRankCondition R]\n  [Semiring S] [Algebra R S] : Prop</code><span class=\"sep\"></span><code class=\"docstring\">An extension of rings `R ⊆ S` is quadratic if `S` is a free `R`-algebra of rank `2`.\n</code>",
+ "49":
+ "<code>Qsqrtd.starAlgEquiv (d : ℚ) [Fact ¬IsSquare d] : Gal(ℚ√d/ℚ)</code><span class=\"sep\"></span><code class=\"docstring\">The conjugation on `Q(√d)` as a `ℚ`-algebra equivalence.  The\n`[Fact (¬ IsSquare d)]` constraint ensures the `Field` instance on\n`Qsqrtd d` is available, which fixes the `Semiring`/`Algebra` instances\nto match the ones used by the `Conj` class. </code>",
+ "48":
+ "<code>AlgEquiv.refl.{uR, uA₁} {R : Type uR} {A₁ : Type uA₁} [CommSemiring R] [Semiring A₁] [Algebra R A₁] : A₁ ≃ₐ[R] A₁</code><span class=\"sep\"></span><code class=\"docstring\">Algebra equivalences are reflexive. </code>",
+ "47": "<code>Gal(ℚ√↑d/ℚ)</code>",
+ "46":
+ "<code>Qsqrtd.algEquiv_self_eq_refl_or_star (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (σ : Gal(ℚ√↑d/ℚ)) :\n  σ = AlgEquiv.refl ∨ σ = Qsqrtd.starAlgEquiv ↑d</code><span class=\"sep\"></span><code class=\"docstring\">For squarefree `d ≠ 1`, the `ℚ`-algebra automorphism group of\n`Q(√d)` has exactly two elements: `AlgEquiv.refl` and\n`Qsqrtd.starAlgEquiv`. </code>",
+ "45":
+ "<code>Qsqrtd.norm {d : ℚ} (x : ℚ√d) : ℚ</code><span class=\"sep\"></span><code class=\"docstring\">The norm of an element `x : Q(√d)`, defined as `N(x) = x · x̄ = x.re² - d · x.im²`. </code>",
+ "44":
+ "<code>Qsqrtd.normHom (d : ℚ) : (ℚ√d) →* ℚ</code><span class=\"sep\"></span><code class=\"docstring\">The norm on `Q(√d)` as a `MonoidHom` to `ℚ`. </code>",
+ "43":
+ "<code>Qsqrtd.normHom_apply (d : ℚ) (x : ℚ√d) : (Qsqrtd.normHom d) x = x.norm</code>",
+ "42":
+ "<code>QuadraticAlgebra.re.{u} {R : Type u} {a b : R} (self : QuadraticAlgebra R a b) : R</code><span class=\"sep\"></span><code class=\"docstring\">Real part of an element in quadratic algebra </code>",
+ "41":
+ "<code>Algebra.trace.{u_1, u_2} (R : Type u_1) (S : Type u_2) [CommRing R] [CommRing S] [Algebra R S] : S →ₗ[R] R</code><span class=\"sep\"></span><code class=\"docstring\">The trace of an element `s` of an `R`-algebra is the trace of `(s * ·)`,\nas an `R`-linear map. </code>",
+ "40": "<code>ℚ√d</code>",
+ "4":
+ "<code>Algebra.IsQuadraticExtension ℚ K</code><span class=\"sep\"></span><code class=\"docstring\">The underlying degree-two extension predicate. </code>",
+ "39":
+ "<code>Qsqrtd.trace_eq_two_re {d : ℚ} (x : ℚ√d) : (Algebra.trace ℚ (ℚ√d)) x = 2 * x.re</code><span class=\"sep\"></span><code class=\"docstring\">In the model `Q(√d) = QuadraticAlgebra ℚ d 0`, the trace is `2 * re`. </code>",
+ "38": "<code>Squarefree d₂</code>",
+ "37": "<code>d₁ ≠ 1</code>",
+ "36": "<code>Squarefree d₁</code>",
+ "35": "<code>(ℚ√↑d₁) ≃ₐ[ℚ] ℚ√↑d₂</code>",
+ "34":
+ "<code>Qsqrtd.param_unique (d₁ d₂ : ℤ) (φ : (ℚ√↑d₁) ≃ₐ[ℚ] ℚ√↑d₂) (hsf₁ : Squarefree d₁) (h1₁ : d₁ ≠ 1) (hsf₂ : Squarefree d₂) :\n  d₁ = d₂</code><span class=\"sep\"></span><code class=\"docstring\">The squarefree integer parameter of a quadratic field is unique:\n`ℚ(√d₁) ≃ₐ[ℚ] ℚ(√d₂)` with both squarefree and `≠ 1` implies `d₁ = d₂`. </code>",
+ "33":
+ "<code>Iff (a b : Prop) : Prop</code><span class=\"sep\"></span><code class=\"docstring\">If and only if, or logical bi-implication. `a ↔ b` means that `a` implies `b` and vice versa.\nBy `propext`, this implies that `a` and `b` are equal and hence any expression involving `a`\nis equivalent to the corresponding expression with `b` instead.\n\n\nConventions for notations in identifiers:\n\n * The recommended spelling of `↔` in identifiers is `iff`.\n\n * The recommended spelling of `&lt;-&gt;` in identifiers is `iff` (prefer `↔` over `&lt;-&gt;`).</code>",
+ "32":
+ "<code>isQuadraticField_iff_exists_squarefree_int_param.{u_1} (K : Type u_1) [Field K] [Algebra ℚ K] :\n  Algebra.IsQuadraticExtension ℚ K ↔ ∃ z, Squarefree z ∧ z ≠ 1 ∧ Nonempty (K ≃ₐ[ℚ] ℚ√↑z)</code><span class=\"sep\"></span><code class=\"docstring\">A field over `ℚ` is quadratic iff it is isomorphic to `ℚ(√z)` for some\nsquarefree integer `z ≠ 1`. </code>",
+ "31":
+ "<code>exists_ringEquiv_qsqrtd.{u_1} (K : Type u_1) [Field K] [Algebra ℚ K] [QuadraticField K] :\n  ∃ d, Squarefree d ∧ d ≠ 1 ∧ Nonempty (K ≃+* ℚ√↑d)</code><span class=\"sep\"></span><code class=\"docstring\">Every abstract quadratic field is ring-equivalent to a standard model\n`Qsqrtd (d : ℚ)` for some squarefree integer parameter `d ≠ 1`.\n\nThis forgetful version is convenient for transporting invariants, such as the\nabsolute discriminant, whose transport lemmas are stated for ring equivalences. </code>",
+ "30":
+ "<code>AlgEquiv.{u, v, w} (R : Type u) (A : Type v) (B : Type w) [CommSemiring R] [Semiring A] [Semiring B] [Algebra R A]\n  [Algebra R B] : Type (max v w)</code><span class=\"sep\"></span><code class=\"docstring\">An equivalence of algebras (denoted as `A ≃ₐ[R] B`)\nis an equivalence of rings commuting with the actions of scalars. </code>",
+ "3":
+ "<code class=\"docstring\">A type universe. `Type ≡ Type 0`, `Type u ≡ Sort (u + 1)`. </code>",
+ "29":
+ "<code>exists_algEquiv_qsqrtd.{u_1} (K : Type u_1) [Field K] [Algebra ℚ K] [QuadraticField K] :\n  ∃ d, Squarefree d ∧ d ≠ 1 ∧ Nonempty (K ≃ₐ[ℚ] ℚ√↑d)</code><span class=\"sep\"></span><code class=\"docstring\">Every abstract quadratic field over `ℚ` is isomorphic to a standard model\n`Qsqrtd (d : ℚ)` for some squarefree integer parameter `d ≠ 1`. </code>",
+ "28":
+ "<code>IsStandardParameter.{u_1} (K : Type u_1) [Field K] [Algebra ℚ K] (d : ℤ) : Prop</code><span class=\"sep\"></span><code class=\"docstring\">`d` is a normalized standard parameter for the abstract quadratic field `K`\nif it is squarefree, not equal to `1`, and `K` is isomorphic to `Qsqrtd d`. </code>",
+ "27":
+ "<code>ZOnePlusSqrtOverTwo (d : ℤ) : Type</code><span class=\"sep\"></span><code class=\"docstring\">Algebraic model of `ℤ[(1 + √(1 + 4d))/2]` via `ω^2 = ω + d`.\nIn `QuadraticAlgebra R a b`, one has `ω^2 = a + b * ω`, so this is\n`QuadraticAlgebra ℤ d 1` (not `QuadraticAlgebra ℤ 1 d`). </code>",
+ "26":
+ "<code>HMul.hMul.{u, v, w} {α : Type u} {β : Type v} {γ : outParam (Type w)} [self : HMul α β γ] : α → β → γ</code><span class=\"sep\"></span><code class=\"docstring\">`a * b` computes the product of `a` and `b`.\nThe meaning of this notation is type-dependent. \n\nConventions for notations in identifiers:\n\n * The recommended spelling of `*` in identifiers is `mul`.</code>",
+ "25":
+ "<code>HAdd.hAdd.{u, v, w} {α : Type u} {β : Type v} {γ : outParam (Type w)} [self : HAdd α β γ] : α → β → γ</code><span class=\"sep\"></span><code class=\"docstring\">`a + b` computes the sum of `a` and `b`.\nThe meaning of this notation is type-dependent. \n\nConventions for notations in identifiers:\n\n * The recommended spelling of `+` in identifiers is `add`.</code>",
+ "24":
+ "<code>Eq.{u_1} {α : Sort u_1} : α → α → Prop</code><span class=\"sep\"></span><code class=\"docstring\">The equality relation. It has one introduction rule, `Eq.refl`.\nWe use `a = b` as notation for `Eq a b`.\nA fundamental property of equality is that it is an equivalence relation.\n```\nvariable (α : Type) (a b c d : α)\nvariable (hab : a = b) (hcb : c = b) (hcd : c = d)\n\nexample : a = d :=\n  Eq.trans (Eq.trans hab (Eq.symm hcb)) hcd\n```\nEquality is much more than an equivalence relation, however. It has the important property that every assertion\nrespects the equivalence, in the sense that we can substitute equal expressions without changing the truth value.\nThat is, given `h1 : a = b` and `h2 : p a`, we can construct a proof for `p b` using substitution: `Eq.subst h1 h2`.\nExample:\n```\nexample (α : Type) (a b : α) (p : α → Prop)\n        (h1 : a = b) (h2 : p a) : p b :=\n  Eq.subst h1 h2\n\nexample (α : Type) (a b : α) (p : α → Prop)\n    (h1 : a = b) (h2 : p a) : p b :=\n  h1 ▸ h2\n```\nThe triangle in the second presentation is a macro built on top of `Eq.subst` and `Eq.symm`, and you can enter it by typing `\\t`.\nFor more information: [Equality](https://lean-lang.org/theorem_proving_in_lean4/quantifiers_and_equality.html#equality)\n\n\nConventions for notations in identifiers:\n\n * The recommended spelling of `=` in identifiers is `eq`.</code>",
+ "23":
+ "<code>Or (a b : Prop) : Prop</code><span class=\"sep\"></span><code class=\"docstring\">`Or a b`, or `a ∨ b`, is the disjunction of propositions. There are two\nconstructors for `Or`, called `Or.inl : a → a ∨ b` and `Or.inr : b → a ∨ b`,\nand you can use `match` or `cases` to destruct an `Or` assumption into the\ntwo cases.\n\n\nConventions for notations in identifiers:\n\n * The recommended spelling of `∨` in identifiers is `or`.</code>",
+ "22":
+ "<code>QuadraticNumberFields.Zsqrtd (d : ℤ) : Type</code><span class=\"sep\"></span><code class=\"docstring\">QA base model of `ℤ[√d]` reusing `QuadraticAlgebra`. </code>",
+ "21":
+ "<code>NumberField.RingOfIntegers.{u_1} (K : Type u_1) [Field K] : Type u_1</code><span class=\"sep\"></span><code class=\"docstring\">The ring of integers (or number ring) corresponding to a number field\nis the integral closure of ℤ in the number field.\n\nThis is defined as its own type, rather than a `Subalgebra`, for performance reasons:\nlooking for instances of the form `SMul (RingOfIntegers _) (RingOfIntegers _)` makes\nmuch more effective use of the discrimination tree than instances of the form\n`SMul (Subtype _) (Subtype _)`.\nThe drawback is we have to copy over instances manually.\n</code>",
+ "20":
+ "<code>RingEquiv.{u_7, u_8} (R : Type u_7) (S : Type u_8) [Mul R] [Mul S] [Add R] [Add S] : Type (max u_7 u_8)</code><span class=\"sep\"></span><code class=\"docstring\">An equivalence between two (non-unital non-associative semi)rings that preserves the\nalgebraic structure. </code>",
+ "2":
+ "<code>Rat : Type</code><span class=\"sep\"></span><code class=\"docstring\">Rational numbers, implemented as a pair of integers `num / den` such that the\ndenominator is positive and the numerator and denominator are coprime.\n</code>",
+ "19":
+ "<code>Nonempty.{u} (α : Sort u) : Prop</code><span class=\"sep\"></span><code class=\"docstring\">`Nonempty α` is a typeclass that says that `α` is not an empty type,\nthat is, there exists an element in the type. It differs from `Inhabited α`\nin that `Nonempty α` is a `Prop`, which means that it does not actually carry\nan element of `α`, only a proof that *there exists* such an element.\nGiven `Nonempty α`, you can construct an element of `α` *nonconstructively*\nusing `Classical.choice`.\n</code>",
+ "189": "<code>F ≃+* E</code>",
+ "188": "<code>Type u_4</code>",
+ "187": "<code>Type u_3</code>",
+ "186":
+ "<code>RingEquiv.isDedekindDomain_ringOfIntegers.{u_3, u_4} {F : Type u_3} {E : Type u_4} [Field F] [Field E]\n  [IsDedekindDomain (NumberField.RingOfIntegers F)] (e : F ≃+* E) : IsDedekindDomain (NumberField.RingOfIntegers E)</code><span class=\"sep\"></span><code class=\"docstring\">Transport the Dedekind-domain property for rings of integers across a ring\nequivalence of fields. </code>",
+ "185":
+ "<code>AlgEquiv.ringOfIntegers.{u_1, u_2} {K : Type u_1} {L : Type u_2} [Field K] [Algebra ℚ K] [Field L] [Algebra ℚ L]\n  (e : K ≃ₐ[ℚ] L) : NumberField.RingOfIntegers K ≃+* NumberField.RingOfIntegers L</code><span class=\"sep\"></span><code class=\"docstring\">Transport rings of integers across a `ℚ`-algebra equivalence of number fields. </code>",
+ "184": "<code>K ≃ₐ[ℚ] L</code>",
+ "183":
+ "<code>NumberField.discr_eq_of_algEquiv.{u_1, u_2} {K : Type u_1} {L : Type u_2} [Field K] [Algebra ℚ K] [Field L]\n  [Algebra ℚ L] [NumberField K] [NumberField L] (e : K ≃ₐ[ℚ] L) : NumberField.discr K = NumberField.discr L</code><span class=\"sep\"></span><code class=\"docstring\">Absolute discriminants are invariant under `ℚ`-algebra equivalence. </code>",
+ "182":
+ "<code>↥(nonZeroDivisors (Ideal (NumberField.RingOfIntegers (ℚ√↑(-5)))))</code>",
+ "181": "<code>ClassGroup (NumberField.RingOfIntegers (ℚ√↑(-5)))</code>",
+ "180":
+ "<code>QuadraticNumberFields.Examples.SqrtNeg5.exists_ideal_in_class_of_norm_le\n  (C : ClassGroup (NumberField.RingOfIntegers (ℚ√↑(-5)))) : ∃ I, ClassGroup.mk0 I = C ∧ Ideal.absNorm ↑I &lt; 3</code><span class=\"sep\"></span><code class=\"docstring\">**Minkowski bound for `ℚ(√-5)`, integer form.** Every ideal class has a\nrepresentative whose absolute norm is `&lt; 3` (equivalently `≤ 2`), obtained from\nthe unified `Qsqrtd.exists_ideal_in_class_of_norm_le` and `minkowskiBound_lt_three`. </code>",
+ "18":
+ "<code>And (a b : Prop) : Prop</code><span class=\"sep\"></span><code class=\"docstring\">`And a b`, or `a ∧ b`, is the conjunction of propositions. It can be\nconstructed and destructed like a pair: if `ha : a` and `hb : b` then\n`⟨ha, hb⟩ : a ∧ b`, and if `h : a ∧ b` then `h.left : a` and `h.right : b`.\n\n\nConventions for notations in identifiers:\n\n * The recommended spelling of `∧` in identifiers is `and`.</code>",
+ "179":
+ "<code>QuadraticNumberFields.Examples.SqrtNeg5.minkowskiBound_lt_three : QuadraticNumberFields.Qsqrtd.minkowskiBound (-5) &lt; 3</code><span class=\"sep\"></span><code class=\"docstring\">The Minkowski bound of `ℚ(√-5)` is `(2/π)·√20 ≈ 2.85`, in particular `&lt; 3`.\n(Strictness comes from `9 &lt; 3π`, i.e. `π &gt; 3`, not from the `√` estimate.) </code>",
+ "178": "<code>0 &lt; d</code>",
+ "177":
+ "<code>QuadraticNumberFields.Qsqrtd.exists_ideal_in_class_of_norm_le_real (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]\n  (hd : 0 &lt; d) (C : ClassGroup (NumberField.RingOfIntegers (ℚ√↑d))) :\n  ∃ I, ClassGroup.mk0 I = C ∧ ↑(Ideal.absNorm ↑I) ≤ 1 / 2 * √|↑(NumberField.discr (ℚ√↑d))|</code><span class=\"sep\"></span><code class=\"docstring\">In a real quadratic field `ℚ(√d)`, every ideal class has a representative whose\nnorm is at most `(1 / 2) * √|D_K|`. </code>",
+ "176":
+ "<code>abs.{u_1} {α : Type u_1} [Lattice α] [AddGroup α] (a : α) : α</code><span class=\"sep\"></span><code class=\"docstring\">`abs a`, denoted `|a|`, is the absolute value of `a` </code>",
+ "175":
+ "<code>Real.sqrt (x : ℝ) : ℝ</code><span class=\"sep\"></span><code class=\"docstring\">The square root of a real number. This returns 0 for negative inputs.\n\nThis has notation `√x`. Note that `√x⁻¹` is parsed as `√(x⁻¹)`. </code>",
+ "174":
+ "<code>Real.pi : ℝ</code><span class=\"sep\"></span><code class=\"docstring\">The number π = 3.14159265... Defined here using choice as twice a zero of cos in [1,2],\nfrom which one can derive all its properties. For explicit bounds on π,\nsee `Mathlib/Analysis/Real/Pi/Bounds.lean`.\n\nDenoted `π`, once the `Real` namespace is opened. </code>",
+ "173": "<code>d &lt; 0</code>",
+ "172":
+ "<code>QuadraticNumberFields.Qsqrtd.exists_ideal_in_class_of_norm_le_imaginary (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]\n  (hd : d &lt; 0) (C : ClassGroup (NumberField.RingOfIntegers (ℚ√↑d))) :\n  ∃ I, ClassGroup.mk0 I = C ∧ ↑(Ideal.absNorm ↑I) ≤ 2 / Real.pi * √|↑(NumberField.discr (ℚ√↑d))|</code><span class=\"sep\"></span><code class=\"docstring\">In an imaginary quadratic field `ℚ(√d)`, every ideal class has a representative\nwhose norm is at most `(2 / π) * √|D_K|`. </code>",
+ "171":
+ "<code>Ideal.absNorm.{u_1} {S : Type u_1} [CommRing S] [Nontrivial S] [IsDedekindDomain S] [Module.Free ℤ S] : Ideal S →*₀ ℕ</code><span class=\"sep\"></span><code class=\"docstring\">The absolute norm of the ideal `I : Ideal R` is the cardinality of the quotient `R ⧸ I`. </code>",
+ "170":
+ "<code>ClassGroup.mk0.{u_1} {R : Type u_1} [CommRing R] [IsDomain R] [IsDedekindDomain R] :\n  ↥(nonZeroDivisors (Ideal R)) →* ClassGroup R</code><span class=\"sep\"></span><code class=\"docstring\">Send a nonzero ideal to the corresponding class in the class group. </code>",
+ "17":
+ "<code>HMod.hMod.{u, v, w} {α : Type u} {β : Type v} {γ : outParam (Type w)} [self : HMod α β γ] : α → β → γ</code><span class=\"sep\"></span><code class=\"docstring\">`a % b` computes the remainder upon dividing `a` by `b`.\nThe meaning of this notation is type-dependent.\n* For `Nat` and `Int` it satisfies `a % b + b * (a / b) = a`,\n  and `a % 0` is defined to be `a`. \n\nConventions for notations in identifiers:\n\n * The recommended spelling of `%` in identifiers is `mod`.</code>",
+ "169":
+ "<code>↥(nonZeroDivisors (Ideal (NumberField.RingOfIntegers (ℚ√↑d))))</code>",
+ "168":
+ "<code>ClassGroup.{u_1} (R : Type u_1) [CommRing R] [IsDomain R] : Type u_1</code><span class=\"sep\"></span><code class=\"docstring\">The ideal class group of `R` is the group of invertible fractional ideals\nmodulo the principal ideals. </code>",
+ "167": "<code>ClassGroup (NumberField.RingOfIntegers (ℚ√↑d))</code>",
+ "166":
+ "<code>QuadraticNumberFields.Qsqrtd.exists_ideal_in_class_of_norm_le (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]\n  (C : ClassGroup (NumberField.RingOfIntegers (ℚ√↑d))) :\n  ∃ I, ClassGroup.mk0 I = C ∧ ↑(Ideal.absNorm ↑I) ≤ QuadraticNumberFields.Qsqrtd.minkowskiBound d</code><span class=\"sep\"></span><code class=\"docstring\">Minkowski's bound for `ℚ(√d)` (unified form): every ideal class has a\nrepresentative whose absolute norm is at most `minkowskiBound d`. </code>",
+ "165":
+ "<code>Real : Type</code><span class=\"sep\"></span><code class=\"docstring\">The type `ℝ` of real numbers constructed as equivalence classes of Cauchy sequences of rational\nnumbers. </code>",
+ "164":
+ "<code>QuadraticNumberFields.Qsqrtd.minkowskiBound (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] : ℝ</code><span class=\"sep\"></span><code class=\"docstring\">The **Minkowski class-representative bound** of the quadratic field `ℚ(√d)`,\na first-class real invariant alongside `discr`. It specializes the general\nnumber-field bound `(4/π)^{r₂} · (n!/nⁿ) · √|D|` to degree `2`\n(`n!/nⁿ = 2/4 = 1/2`):\n\n* imaginary `d &lt; 0`: `(2/π)·√|D|`;\n* real `d &gt; 0`: `(1/2)·√|D|`. </code>",
+ "163":
+ "<code>Units.mapEquiv.{u_3, u_4} {M : Type u_3} {N : Type u_4} [Monoid M] [Monoid N] (h : M ≃* N) : Mˣ ≃* Nˣ</code><span class=\"sep\"></span><code class=\"docstring\">A multiplicative equivalence of monoids defines a multiplicative equivalence\nof their groups of units. </code>",
+ "162": "<code>QuadraticNumberFields.Units.IsFundamentalUnit u</code>",
+ "161": "<code>R ≃+* S</code>",
+ "160":
+ "<code>Ring.{u} (R : Type u) : Type u</code><span class=\"sep\"></span><code class=\"docstring\">A `Ring` is a `Semiring` with negation making it an additive group. </code>",
+ "16":
+ "<code>Ne.{u} {α : Sort u} (a b : α) : Prop</code><span class=\"sep\"></span><code class=\"docstring\">`a ≠ b`, or `Ne a b` is defined as `¬ (a = b)` or `a = b → False`,\nand asserts that `a` and `b` are not equal.\n\n\nConventions for notations in identifiers:\n\n * The recommended spelling of `≠` in identifiers is `ne`.</code>",
+ "159": "<code>Type u_2</code>",
+ "158":
+ "<code>QuadraticNumberFields.Units.IsFundamentalUnit.map_ringEquiv.{u_1, u_2} {R : Type u_1} {S : Type u_2} [Ring R] [Ring S]\n  (e : R ≃+* S) {u : Rˣ} (hu : QuadraticNumberFields.Units.IsFundamentalUnit u) :\n  QuadraticNumberFields.Units.IsFundamentalUnit ((Units.mapEquiv ↑e) u)</code><span class=\"sep\"></span><code class=\"docstring\">Transport a fundamental unit along a ring isomorphism. </code>",
+ "157":
+ "<code>Units.{u} (α : Type u) [Monoid α] : Type u</code><span class=\"sep\"></span><code class=\"docstring\">Units of a `Monoid`, bundled version. Notation: `αˣ`.\n\nAn element of a `Monoid` is a unit if it has a two-sided inverse.\nThis version bundles the inverse element so that it can be computed.\nFor a predicate see `IsUnit`. </code>",
+ "156": "<code>Rˣ</code>",
+ "155":
+ "<code>HasDistribNeg.{u_1} (α : Type u_1) [Mul α] : Type u_1</code><span class=\"sep\"></span><code class=\"docstring\">Typeclass for a negation operator that distributes across multiplication.\n\nThis is useful for dealing with submonoids of a ring that contain `-1` without having to duplicate\nlemmas. </code>",
+ "154":
+ "<code>Monoid.{u} (M : Type u) : Type u</code><span class=\"sep\"></span><code class=\"docstring\">A `Monoid` is a `Semigroup` with an element `1` such that `1 * a = a * 1 = a`. </code>",
+ "153":
+ "<code>QuadraticNumberFields.Units.IsFundamentalUnit.{u_1} {R : Type u_1} [Monoid R] [HasDistribNeg R] (u : Rˣ) : Prop</code><span class=\"sep\"></span><code class=\"docstring\">A unit `u` is *fundamental* if every unit is, up to sign, an integer power\nof `u`. </code>",
+ "152":
+ "<code>LE.le.{u} {α : Type u} [self : LE α] : α → α → Prop</code><span class=\"sep\"></span><code class=\"docstring\">The less-equal relation: `x ≤ y` \n\nConventions for notations in identifiers:\n\n * The recommended spelling of `≤` in identifiers is `le`.</code>",
+ "151": "<code>k ≤ -2</code>",
+ "150":
+ "<code>QuadraticNumberFields.Units.isUnit_zOnePlusSqrtOverTwo_iff_of_le_neg_two {k : ℤ} (hk : k ≤ -2)\n  (z : ZOnePlusSqrtOverTwo k) : IsUnit z ↔ z = 1 ∨ z = -1</code><span class=\"sep\"></span><code class=\"docstring\">For `k ≤ -2` (so `d = 1 + 4k ≤ -7`) the only units of `ℤ[(1+√(1+4k))/2]`\nare `±1`. </code>",
+ "15":
+ "<code>Squarefree.{u_1} {R : Type u_1} [Monoid R] (r : R) : Prop</code><span class=\"sep\"></span><code class=\"docstring\">An element of a monoid is squarefree if the only squares that\ndivide it are the squares of units. </code>",
+ "149": "<code>d &lt; -1</code>",
+ "148":
+ "<code>QuadraticNumberFields.Units.isUnit_zsqrtd_iff_of_lt_neg_one {d : ℤ} (hd : d &lt; -1) (z : QuadraticNumberFields.Zsqrtd d) :\n  IsUnit z ↔ z = 1 ∨ z = -1</code><span class=\"sep\"></span><code class=\"docstring\">For `d &lt; -1` the only units of `ℤ[√d]` are `±1`. </code>",
+ "147":
+ "<code>ℤ</code><span class=\"sep\"></span><code class=\"docstring\">Imaginary part of an element in quadratic algebra </code>",
+ "146":
+ "<code>ℤ</code><span class=\"sep\"></span><code class=\"docstring\">Real part of an element in quadratic algebra </code>",
+ "145":
+ "<code>QuadraticAlgebra.mk.{u} {R : Type u} {a b : R} (re im : R) : QuadraticAlgebra R a b</code>",
+ "144":
+ "<code>QuadraticNumberFields.Units.isUnit_mk_iff_isPellSolution {d x y : ℤ} :\n  IsUnit { re := x, im := y } ↔\n    QuadraticNumberFields.Units.IsPellSolution d 1 x y ∨ QuadraticNumberFields.Units.IsPellSolution d (-1) x y</code><span class=\"sep\"></span><code class=\"docstring\">`x + y√d` is a unit of `ℤ[√d]` iff `(x, y)` solves `x² - d·y² = ±1`. </code>",
+ "143": "<code>QuadraticNumberFields.Units.IsPellSolution d n x₂ y₂</code>",
+ "142": "<code>QuadraticNumberFields.Units.IsPellSolution d m x₁ y₁</code>",
+ "141":
+ "<code>QuadraticNumberFields.Units.IsPellSolution.mul {d m n x₁ y₁ x₂ y₂ : ℤ}\n  (h₁ : QuadraticNumberFields.Units.IsPellSolution d m x₁ y₁)\n  (h₂ : QuadraticNumberFields.Units.IsPellSolution d n x₂ y₂) :\n  QuadraticNumberFields.Units.IsPellSolution d (m * n) (x₁ * x₂ + d * y₁ * y₂) (x₁ * y₂ + y₁ * x₂)</code><span class=\"sep\"></span><code class=\"docstring\">Brahmagupta composition: a solution for `m` and a solution for `n` compose\nto a solution for `m * n`, with the coordinates of the product\n`(x₁ + y₁√d)(x₂ + y₂√d)` in `ℤ[√d]`. </code>",
+ "140":
+ "<code>QuadraticNumberFields.Units.IsPellSolution (d n x y : ℤ) : Prop</code><span class=\"sep\"></span><code class=\"docstring\">Integer solutions to `x ^ 2 - d * y ^ 2 = n`. </code>",
+ "14":
+ "<code>Fact (p : Prop) : Prop</code><span class=\"sep\"></span><code class=\"docstring\">Wrapper for adding elementary propositions to the type class systems.\nWarning: this can easily be abused. See the rest of this docstring for details.\n\nCertain propositions should not be treated as a class globally,\nbut sometimes it is very convenient to be able to use the type class system\nin specific circumstances.\n\nFor example, `ZMod p` is a field if and only if `p` is a prime number.\nIn order to be able to find this field instance automatically by type class search,\nwe have to turn `p.prime` into an instance implicit assumption.\n\nOn the other hand, making `Nat.prime` a class would require a major refactoring of the library,\nand it is questionable whether making `Nat.prime` a class is desirable at all.\nThe compromise is to add the assumption `[Fact p.prime]` to `ZMod.field`.\n\nIn particular, this class is not intended for turning the type class system\ninto an automated theorem prover for first-order logic. </code>",
+ "139":
+ "<code>QuadraticNumberFields.Examples.SqrtNeg5.factorization_of_three :\n  Ideal.span {3} =\n    Ideal.span {3, 1 + QuadraticNumberFields.Zsqrtd.sqrtd} * Ideal.span {3, 1 - QuadraticNumberFields.Zsqrtd.sqrtd}</code>",
+ "138":
+ "<code>HPow.hPow.{u, v, w} {α : Type u} {β : Type v} {γ : outParam (Type w)} [self : HPow α β γ] : α → β → γ</code><span class=\"sep\"></span><code class=\"docstring\">`a ^ b` computes `a` to the power of `b`.\nThe meaning of this notation is type-dependent. \n\nConventions for notations in identifiers:\n\n * The recommended spelling of `^` in identifiers is `pow`.</code>",
+ "137":
+ "<code>QuadraticNumberFields.Examples.SqrtNeg5.factorization_of_two :\n  Ideal.span {2} = Ideal.span {2, 1 + QuadraticNumberFields.Zsqrtd.sqrtd} ^ 2</code>",
+ "136":
+ "<code>Ideal.IsRamifiedIn.{u_1, u_2} {R : Type u_1} [CommRing R] (p : Ideal R) (S : Type u_2) [CommRing S] [Algebra R S] : Prop</code><span class=\"sep\"></span><code class=\"docstring\">The ideal `p` ramifies in `S` in the numerical ramification-inertia sense:\nthe uniform ramification index is greater than one. </code>",
+ "135":
+ "<code>QuadraticNumberFields.Splitting.isRamified_two_of_mod_four_ne_one (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]\n  (hd4 : d % 4 ≠ 1) : (Ideal.span {2}).IsRamifiedIn (NumberField.RingOfIntegers (ℚ√↑d))</code><span class=\"sep\"></span><code class=\"docstring\">`(2)` ramifies in `𝓞(ℚ(√d))` when `d ≢ 1 (mod 4)`. </code>",
+ "134": "<code>d % 8 = 5</code>",
+ "133":
+ "<code>QuadraticNumberFields.Splitting.isInert_two_of_mod_eight_eq_five (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]\n  (hd8 : d % 8 = 5) : (Ideal.span {2}).IsInertIn (NumberField.RingOfIntegers (ℚ√↑d))</code><span class=\"sep\"></span><code class=\"docstring\">`(2)` is inert in `𝓞(ℚ(√d))` when `d ≡ 5 (mod 8)`. </code>",
+ "132": "<code>d % 8 = 1</code>",
+ "131":
+ "<code>QuadraticNumberFields.Splitting.isSplit_two_of_mod_eight_eq_one (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]\n  (hd8 : d % 8 = 1) : (Ideal.span {2}).IsSplitIn (NumberField.RingOfIntegers (ℚ√↑d))</code><span class=\"sep\"></span><code class=\"docstring\">`(2)` splits in `𝓞(ℚ(√d))` when `d ≡ 1 (mod 8)`. </code>",
+ "130":
+ "<code>Ideal.IsInertIn.{u_1, u_2} {R : Type u_1} [CommRing R] (p : Ideal R) (S : Type u_2) [CommRing S] [Algebra R S] : Prop</code><span class=\"sep\"></span><code class=\"docstring\">The ideal `p` is inert in `S` in the numerical ramification-inertia sense:\nthere is one prime above `p`, and the ramification index is one. </code>",
+ "13":
+ "<code>Int : Type</code><span class=\"sep\"></span><code class=\"docstring\">The integers.\n\nThis type is special-cased by the compiler and overridden with an efficient implementation. The\nruntime has a special representation for `Int` that stores “small” signed numbers directly, while\nlarger numbers use a fast arbitrary-precision arithmetic library (usually\n[GMP](https://gmplib.org/)). A “small number” is an integer that can be encoded with one fewer bits\nthan the platform's pointer size (i.e. 63 bits on 64-bit architectures and 31 bits on 32-bit\narchitectures).\n</code>",
+ "129":
+ "<code>QuadraticNumberFields.Splitting.isInert_iff_legendreSym_eq_neg_one (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (p : ℕ)\n  [Fact (Nat.Prime p)] (hp : p ≠ 2) (hpd : ¬↑p ∣ d) :\n  (Ideal.span {↑p}).IsInertIn (NumberField.RingOfIntegers (ℚ√↑d)) ↔ legendreSym p d = -1</code>",
+ "128":
+ "<code>Ideal.IsSplitIn.{u_1, u_2} {R : Type u_1} [CommRing R] (p : Ideal R) (S : Type u_2) [CommRing S] [Algebra R S] : Prop</code><span class=\"sep\"></span><code class=\"docstring\">The ideal `p` splits in `S` in the numerical ramification-inertia sense:\nuniform ramification index and inertia degree are both one. </code>",
+ "127": "<code>¬↑p ∣ d</code>",
+ "126": "<code>p ≠ 2</code>",
+ "125":
+ "<code>QuadraticNumberFields.Splitting.isSplit_iff_legendreSym_eq_one (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (p : ℕ)\n  [Fact (Nat.Prime p)] (hp : p ≠ 2) (hpd : ¬↑p ∣ d) :\n  (Ideal.span {↑p}).IsSplitIn (NumberField.RingOfIntegers (ℚ√↑d)) ↔ legendreSym p d = 1</code>",
+ "124":
+ "<code>LT.lt.{u} {α : Type u} [self : LT α] : α → α → Prop</code><span class=\"sep\"></span><code class=\"docstring\">The less-than relation: `x &lt; y` \n\nConventions for notations in identifiers:\n\n * The recommended spelling of `&lt;` in identifiers is `lt`.</code>",
+ "123":
+ "<code>Set.ncard.{u_1} {α : Type u_1} (s : Set α) : ℕ</code><span class=\"sep\"></span><code class=\"docstring\">The cardinality of `s : Set α` . Has the junk value `0` if `s` is infinite </code>",
+ "122":
+ "<code>Ideal.primesOver.{u_2, u_3} {A : Type u_2} [CommSemiring A] (p : Ideal A) (B : Type u_3) [Semiring B] [Algebra A B] :\n  Set (Ideal B)</code><span class=\"sep\"></span><code class=\"docstring\">The set of all prime ideals in `B` that lie over an ideal `p` of `A`. </code>",
+ "121":
+ "<code>Ideal.inertiaDegIn.{u_1, u_2} {A : Type u_1} [CommRing A] (p : Ideal A) (B : Type u_2) [CommRing B] [Algebra A B] : ℕ</code><span class=\"sep\"></span><code class=\"docstring\">If `L / K` is a Galois extension, it can be seen from\nthe theorem `Ideal.inertiaDeg_eq_of_isGaloisGroup` that all `Ideal.inertiaDeg` over a fixed\nmaximal ideal `p` of `A` are the same, which we define as `Ideal.inertiaDegIn`. </code>",
+ "120":
+ "<code>Ideal.ramificationIdxIn.{u_1, u_2} {A : Type u_1} [CommRing A] (p : Ideal A) (B : Type u_2) [CommRing B] [Algebra A B] :\n  ℕ</code><span class=\"sep\"></span><code class=\"docstring\">If `L / K` is a Galois extension, it can be seen from the theorem\n`Ideal.ramificationIdx_eq_of_isGaloisGroup` that all `Ideal.ramificationIdx` over a fixed\nmaximal ideal `p` of `A` are the same, which we define as `Ideal.ramificationIdxIn`. </code>",
+ "12": "<code>ℤ</code>",
+ "119":
+ "<code>Singleton.singleton.{u, v} {α : outParam (Type u)} {β : Type v} [self : Singleton α β] : α → β</code><span class=\"sep\"></span><code class=\"docstring\">`singleton x` is a collection with the single element `x` (notation: `{x}`). \n\nConventions for notations in identifiers:\n\n * The recommended spelling of `{x}` in identifiers is `singleton`.</code>",
+ "118":
+ "<code>legendreSym (p : ℕ) [Fact (Nat.Prime p)] (a : ℤ) : ℤ</code><span class=\"sep\"></span><code class=\"docstring\">The Legendre symbol of `a : ℤ` and a prime `p`, `legendreSym p a`,\nis an integer defined as\n\n* `0` if `a` is `0` modulo `p`;\n* `1` if `a` is a nonzero square modulo `p`\n* `-1` otherwise.\n\nNote the order of the arguments! The advantage of the order chosen here is\nthat `legendreSym p` is a multiplicative function `ℤ → ℤ`.\n</code>",
+ "117":
+ "<code>Not (a : Prop) : Prop</code><span class=\"sep\"></span><code class=\"docstring\">`Not p`, or `¬p`, is the negation of `p`. It is defined to be `p → False`,\nso if your goal is `¬p` you can use `intro h` to turn the goal into\n`h : p ⊢ False`, and if you have `hn : ¬p` and `h : p` then `hn h : False`\nand `(hn h).elim` will prove anything.\nFor more information: [Propositional Logic](https://lean-lang.org/theorem_proving_in_lean4/propositions_and_proofs.html#propositional-logic)\n\n\nConventions for notations in identifiers:\n\n * The recommended spelling of `¬` in identifiers is `not`.</code>",
+ "116":
+ "<code>QuadraticNumberFields.Splitting.splitting_classification (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (p : ℕ)\n  [Fact (Nat.Prime p)] :\n  (p = 2 ∧ d % 8 = 1 ∨ p ≠ 2 ∧ ¬↑p ∣ d ∧ legendreSym p d = 1) ∧\n      (Ideal.span {↑p}).ramificationIdxIn (NumberField.RingOfIntegers (ℚ√↑d)) = 1 ∧\n        (Ideal.span {↑p}).inertiaDegIn (NumberField.RingOfIntegers (ℚ√↑d)) = 1 ∨\n    (p = 2 ∧ d % 8 = 5 ∨ p ≠ 2 ∧ ¬↑p ∣ d ∧ legendreSym p d = -1) ∧\n        ((Ideal.span {↑p}).primesOver (NumberField.RingOfIntegers (ℚ√↑d))).ncard = 1 ∧\n          (Ideal.span {↑p}).ramificationIdxIn (NumberField.RingOfIntegers (ℚ√↑d)) = 1 ∨\n      (p = 2 ∧ d % 4 ≠ 1 ∨ p ≠ 2 ∧ ↑p ∣ d) ∧ 1 &lt; (Ideal.span {↑p}).ramificationIdxIn (NumberField.RingOfIntegers (ℚ√↑d))</code><span class=\"sep\"></span><code class=\"docstring\">Complete splitting classification for `𝓞(ℚ(√d))`.\n\nFor odd primes this is the Legendre-symbol classification. At `p = 2`, the Legendre\nsymbol does not distinguish the two unramified odd congruence classes, so the statement\nuses the standard `d mod 8` conditions. </code>",
+ "115":
+ "<code>QuadraticNumberFields.Zsqrtd.Ideal.isPrime_span_p_one_plus_sqrtd {d : ℤ} (p : ℕ) [Fact (Nat.Prime p)]\n  (hd : ↑p ∣ d - 1) : (Ideal.span {↑p, 1 + QuadraticNumberFields.Zsqrtd.sqrtd}).IsPrime</code><span class=\"sep\"></span><code class=\"docstring\">The ideal `(p, 1+√d)` is prime in `Zsqrtd d` when `p ∣ (d - 1)` for a prime `p`. </code>",
+ "114":
+ "<code>Ideal.IsPrime.{u} {α : Type u} [Semiring α] (I : Ideal α) : Prop</code><span class=\"sep\"></span><code class=\"docstring\">An ideal `P` of a ring `R` is prime if `P ≠ R` and `xy ∈ P → x ∈ P ∨ y ∈ P` </code>",
+ "113":
+ "<code>QuadraticNumberFields.Zsqrtd.Ideal.isPrime_span_p_one_minus_sqrtd {d : ℤ} (p : ℕ) [Fact (Nat.Prime p)]\n  (hd : ↑p ∣ d - 1) : (Ideal.span {↑p, 1 - QuadraticNumberFields.Zsqrtd.sqrtd}).IsPrime</code><span class=\"sep\"></span><code class=\"docstring\">The ideal `(p, 1-√d)` is prime in `Zsqrtd d` when `p ∣ (d - 1)` for a prime `p`. </code>",
+ "112":
+ "<code>QuadraticNumberFields.Zsqrtd.Ideal.quotEquivZModPNeg {d : ℤ} (p : ℕ) [Fact (Nat.Prime p)] (hd : ↑p ∣ d - 1) :\n  QuadraticNumberFields.Zsqrtd d ⧸ Ideal.span {↑p, 1 + QuadraticNumberFields.Zsqrtd.sqrtd} ≃+* ZMod p</code><span class=\"sep\"></span><code class=\"docstring\">`Zsqrtd d ⧸ (p, 1+√d) ≃+* ℤ/pℤ` when `p ∣ (d - 1)` for a prime `p`. </code>",
+ "111":
+ "<code>ZMod : ℕ → Type</code><span class=\"sep\"></span><code class=\"docstring\">The integers modulo `n : ℕ`. </code>",
+ "110":
+ "<code>HasQuotient.Quotient.{u, v} (A : outParam (Type u)) {B : Type v} [self : HasQuotient A B] : B → Type (max u v)</code><span class=\"sep\"></span><code class=\"docstring\">`HasQuotient.Quotient A b` (denoted as `A ⧸ b`) is the quotient of the type `A` by `b`. </code>",
+ "11":
+ "<code>QuadraticNumberFields.RingOfIntegers.ringOfIntegers_classification (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :\n  d % 4 ≠ 1 ∧ Nonempty (NumberField.RingOfIntegers (ℚ√↑d) ≃+* QuadraticNumberFields.Zsqrtd d) ∨\n    ∃ k, d = 1 + 4 * k ∧ Nonempty (NumberField.RingOfIntegers (ℚ√↑d) ≃+* ZOnePlusSqrtOverTwo k)</code><span class=\"sep\"></span><code class=\"docstring\">**Classification of the ring of integers of `ℚ(√d)`.**\n\nFor squarefree `d ≠ 1`, exactly one of the following holds:\n* If `d ≢ 1 (mod 4)`, then `𝓞(ℚ(√d)) ≃+* ℤ[√d]`.\n* If `d ≡ 1 (mod 4)`, then writing `d = 1 + 4k`, `𝓞(ℚ(√d)) ≃+* ℤ[(1+√d)/2]`. </code>",
+ "109":
+ "<code>QuadraticNumberFields.Zsqrtd.Ideal.quotEquivZModP {d : ℤ} (p : ℕ) [Fact (Nat.Prime p)] (hd : ↑p ∣ d - 1) :\n  QuadraticNumberFields.Zsqrtd d ⧸ Ideal.span {↑p, 1 - QuadraticNumberFields.Zsqrtd.sqrtd} ≃+* ZMod p</code><span class=\"sep\"></span><code class=\"docstring\">`Zsqrtd d ⧸ (p, 1-√d) ≃+* ℤ/pℤ` when `p ∣ (d - 1)` for a prime `p`. </code>",
+ "108":
+ "<code>QuadraticNumberFields.Zsqrtd.Ideal.mem_span_p_one_plus_sqrtd_iff {d : ℤ} (p : ℕ) [Fact (Nat.Prime p)] (hd : ↑p ∣ d - 1)\n  (z : QuadraticNumberFields.Zsqrtd d) : z ∈ Ideal.span {↑p, 1 + QuadraticNumberFields.Zsqrtd.sqrtd} ↔ ↑p ∣ z.re - z.im</code><span class=\"sep\"></span><code class=\"docstring\">An element of `Zsqrtd d` belongs to `(p, 1+√d)` iff `p ∣ (re - im)`,\nprovided `p ∣ (d - 1)` for a prime `p`. </code>",
+ "107":
+ "<code>QuadraticAlgebra.im.{u} {R : Type u} {a b : R} (self : QuadraticAlgebra R a b) : R</code><span class=\"sep\"></span><code class=\"docstring\">Imaginary part of an element in quadratic algebra </code>",
+ "106":
+ "<code>QuadraticNumberFields.Zsqrtd.sqrtd {d : ℤ} : QuadraticNumberFields.Zsqrtd d</code><span class=\"sep\"></span><code class=\"docstring\">The distinguished square-root element `√d`. </code>",
+ "105":
+ "<code>Ideal.span.{u} {α : Type u} [Semiring α] (s : Set α) : Ideal α</code><span class=\"sep\"></span><code class=\"docstring\">The ideal generated by a subset of a ring </code>",
+ "104":
+ "<code>Membership.mem.{u, v} {α : outParam (Type u)} {γ : Type v} [self : Membership α γ] : γ → α → Prop</code><span class=\"sep\"></span><code class=\"docstring\">The membership relation `a ∈ s : Prop` where `a : α`, `s : γ`. \n\nConventions for notations in identifiers:\n\n * The recommended spelling of `∈` in identifiers is `mem`.</code>",
+ "103":
+ "<code>HSub.hSub.{u, v, w} {α : Type u} {β : Type v} {γ : outParam (Type w)} [self : HSub α β γ] : α → β → γ</code><span class=\"sep\"></span><code class=\"docstring\">`a - b` computes the difference of `a` and `b`.\nThe meaning of this notation is type-dependent.\n* For natural numbers, this operator saturates at 0: `a - b = 0` when `a ≤ b`. \n\nConventions for notations in identifiers:\n\n * The recommended spelling of `-` in identifiers is `sub` (when used as a binary operator).</code>",
+ "102":
+ "<code>Dvd.dvd.{u_1} {α : Type u_1} [self : Dvd α] : α → α → Prop</code><span class=\"sep\"></span><code class=\"docstring\">Divisibility. `a ∣ b` (typed as `\\|`) means that there is some `c` such that `b = a * c`. \n\nConventions for notations in identifiers:\n\n * The recommended spelling of `∣` in identifiers is `dvd`.</code>",
+ "101": "<code>↑p ∣ d - 1</code>",
+ "100":
+ "<code>Nat.Prime (p : ℕ) : Prop</code><span class=\"sep\"></span><code class=\"docstring\">`Nat.Prime p` means that `p` is a prime number, that is, a natural number\nat least 2 whose only divisors are `p` and `1`.\nThe theorem `Nat.prime_def` witnesses this description of a prime number. </code>",
+ "10":
+ "<code class=\"docstring\">The universe of propositions. `Prop ≡ Sort 0`.\n\nEvery proposition is propositionally equal to either `True` or `False`. </code>",
+ "1": "<code>ℚ</code>",
+ "0":
+ "<code>Qsqrtd (d : ℚ) : Type</code><span class=\"sep\"></span><code class=\"docstring\">The quadratic field `ℚ(√d)` as a type alias for `QuadraticAlgebra ℚ d 0`. </code>"}
