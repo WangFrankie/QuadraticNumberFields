@@ -31,6 +31,8 @@ import QuadraticNumberFields.Sketch
 
 ## Documentation
 
+- [Blueprint](https://numbertheory.cc/QuadraticNumberFields/) (fallback:
+  [GitHub Pages](https://wangfrankie.github.io/QuadraticNumberFields-blueprint))
 - [Library overview and main results](docs/library-overview.md)
 - [Quadratic-field architecture](docs/design/quadratic-field-architecture.md)
 - [Mathlib patch rules](docs/mathlib-patch-rules.md)
