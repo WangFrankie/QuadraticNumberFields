@@ -8,6 +8,7 @@ import QuadraticNumberFields.ClassNumber
 import QuadraticNumberFields.ContinuedFraction
 import QuadraticNumberFields.Euclidean.Basic
 import QuadraticNumberFields.Families
+import QuadraticNumberFields.Heegner.StarkHeegner
 import QuadraticNumberFields.Qsqrtd.Automorphism
 import QuadraticNumberFields.Qsqrtd.Basic
 import QuadraticNumberFields.Qsqrtd.Equiv
@@ -25,6 +26,8 @@ kept out of the stable `QuadraticNumberFields` entry point so that
 Current work in progress:
 
 * `Euclidean.Basic`: imaginary-quadratic norm-Euclidean classification skeleton.
+* `Heegner.StarkHeegner`: full Baker–Heegner–Stark statement; the deep
+  direction (completeness of the nine Heegner numbers) is still `sorry`.
 * `Families.*`, `ContinuedFraction.*`, and `ClassGroup.*`: research
   scaffolding for real quadratic class-number problems.
 
