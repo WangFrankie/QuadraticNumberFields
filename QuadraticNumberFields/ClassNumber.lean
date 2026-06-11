@@ -5,8 +5,12 @@ Authors: Frankie Wang
 -/
 
 import Mathlib.NumberTheory.NumberField.ClassNumber
+import QuadraticNumberFields.Mathlib.RingTheory.DedekindDomain.Ideal
 import QuadraticNumberFields.Qsqrtd.TotallyRealComplex
+import QuadraticNumberFields.QuadraticField.RingOfIntegers
 import QuadraticNumberFields.RingOfIntegers.Discriminant
+import QuadraticNumberFields.Splitting.Factorization
+import QuadraticNumberFields.Splitting.Qsqrtd.Monogenic
 
 /-!
 # Class Numbers of Quadratic Number Fields
@@ -151,6 +155,169 @@ theorem exists_ideal_in_class_of_norm_le
     rw [minkowskiBound, nrComplexPlaces_eq_zero_of_pos d hpos]
     ring_nf at hI ⊢
     exact hI
+
+/-! ## Class number one via inert primes below the Minkowski bound -/
+
+section ClassNumberOne
+
+open scoped QuadraticNumberFields.Splitting
+
+/-- Numeric estimate for the Minkowski bound of an imaginary quadratic field:
+if `4 · |D| < 9 · n²` then `(2/π) · √|D| < n`. The factor `9` lets the proof
+run on the crude estimate `π > 3`, which is sharp enough for all nine Heegner
+numbers. -/
+theorem minkowskiBound_lt_of_neg (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (hd : d < 0) {n : ℕ}
+    (hn : 4 * |NumberField.discr (Qsqrtd (d : ℚ))| < 9 * (n : ℤ) ^ 2) :
+    minkowskiBound d < n := by
+  set D : ℤ := NumberField.discr (Qsqrtd (d : ℚ)) with hD
+  have hn0 : (0 : ℝ) < n := by
+    have habs : 0 ≤ |D| := abs_nonneg D
+    have : 0 < n := by by_contra h0; interval_cases n; simp at hn; omega
+    exact_mod_cast this
+  rw [minkowskiBound, nrComplexPlaces_eq_one_of_neg d hd, pow_one, ← hD]
+  have hpi : (3 : ℝ) < π := Real.pi_gt_three
+  have h9 : 4 * |(D : ℝ)| < 9 * (n : ℝ) ^ 2 := by
+    rw [← Int.cast_abs]
+    exact_mod_cast hn
+  have hsq : √|(D : ℝ)| < 3 * n / 2 := by
+    refine (Real.sqrt_lt' (by linarith)).mpr ?_
+    nlinarith
+  rw [div_mul_eq_mul_div, div_mul_eq_mul_div, div_lt_iff₀ (by positivity)]
+  nlinarith [Real.sqrt_nonneg |(D : ℝ)|]
+
+private lemma exists_nat_prime_comap_eq_p_and_dvd_absNorm
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    {P : Ideal (𝓞 (Qsqrtd (d : ℚ)))}
+    (hP : P.IsPrime) (hP0 : P ≠ ⊥) :
+    ∃ p : ℕ, p.Prime ∧
+      Ideal.comap (algebraMap ℤ (𝓞 (Qsqrtd (d : ℚ)))) P = 𝔭(p) ∧
+        p ∣ Ideal.absNorm P := by
+  have habs0 : Ideal.absNorm P ≠ 0 := by
+    rwa [Ne, Ideal.absNorm_eq_zero_iff]
+  obtain ⟨q, hq⟩ := (IsPrincipalIdealRing.principal
+    (Ideal.comap (algebraMap ℤ (𝓞 (Qsqrtd (d : ℚ)))) P)).principal
+  rw [Ideal.submodule_span_eq] at hq
+  have hmem : ((Ideal.absNorm P : ℤ)) ∈
+      Ideal.comap (algebraMap ℤ (𝓞 (Qsqrtd (d : ℚ)))) P := by
+    simpa using Ideal.absNorm_mem P
+  have hq0 : q ≠ 0 := by
+    rintro rfl
+    rw [hq, Ideal.span_singleton_eq_bot.mpr rfl, Ideal.mem_bot,
+      Nat.cast_eq_zero] at hmem
+    exact habs0 hmem
+  have hqprime : Prime q := by
+    rw [← Ideal.span_singleton_prime hq0, ← hq]
+    exact hP.comap _
+  have hp : q.natAbs.Prime := Int.prime_iff_natAbs_prime.mp hqprime
+  have hspan : (𝔭(q.natAbs)) = Ideal.span ({q} : Set ℤ) :=
+    Ideal.span_singleton_eq_span_singleton.mpr (Int.associated_natAbs q).symm
+  have hpP : (q.natAbs : ℤ) ∣ (Ideal.absNorm P : ℤ) := by
+    rw [← Ideal.mem_span_singleton, hspan, ← hq]
+    exact hmem
+  exact ⟨q.natAbs, hp, hq.trans hspan.symm, by exact_mod_cast hpP⟩
+
+private lemma isPrincipal_of_isInertIn_of_comap_eq_p
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    {P : Ideal (𝓞 (Qsqrtd (d : ℚ)))}
+    (hP : P.IsPrime) {p : ℕ} (hp : p.Prime)
+    (hcomap : Ideal.comap (algebraMap ℤ (𝓞 (Qsqrtd (d : ℚ)))) P = 𝔭(p))
+    (hinert : Ideal.IsInertIn (𝔭(p)) 𝓞(d)) :
+    P.IsPrincipal := by
+  have hchar : ringChar ℤ ≠ 2 := by simp [ringChar.eq_zero]
+  have hpbot : (𝔭(p)) ≠ (⊥ : Ideal ℤ) := by
+    rw [Ne, Ideal.span_singleton_eq_bot, Nat.cast_eq_zero]
+    exact hp.ne_zero
+  haveI : (𝔭(p)).IsMaximal :=
+    PrincipalIdealRing.isMaximal_of_irreducible
+      ((Nat.prime_iff_prime_int.mp hp).irreducible)
+  have hQprime : (Ideal.map (algebraMap ℤ (𝓞 (Qsqrtd (d : ℚ)))) (𝔭(p))).IsPrime :=
+    Ideal.map_isPrime_of_isInertIn (𝔭(p)) (𝓞 (Qsqrtd (d : ℚ))) hchar hpbot hinert
+  have hQle : Ideal.map (algebraMap ℤ (𝓞 (Qsqrtd (d : ℚ)))) (𝔭(p)) ≤ P := by
+    rw [← hcomap]
+    exact Ideal.map_comap_le
+  have hQbot : Ideal.map (algebraMap ℤ (𝓞 (Qsqrtd (d : ℚ)))) (𝔭(p)) ≠ ⊥ := by
+    rw [Ideal.map_span, Set.image_singleton, Ne, Ideal.span_singleton_eq_bot]
+    simp only [map_natCast, Nat.cast_eq_zero]
+    exact hp.ne_zero
+  have hPQ : Ideal.map (algebraMap ℤ (𝓞 (Qsqrtd (d : ℚ)))) (𝔭(p)) = P :=
+    (hQprime.isMaximal hQbot).eq_of_le hP.ne_top hQle
+  rw [← hPQ, Ideal.map_span, Set.image_singleton]
+  exact ⟨_, rfl⟩
+
+private lemma isPrincipal_of_isPrime_dvd_of_forall_le_minkowskiBound_isInertIn
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (h : ∀ p : ℕ, p.Prime → (p : ℝ) ≤ minkowskiBound d →
+      Ideal.IsInertIn (𝔭(p)) 𝓞(d))
+    {I : nonZeroDivisors (Ideal (𝓞 (Qsqrtd (d : ℚ))))}
+    {P : Ideal (𝓞 (Qsqrtd (d : ℚ)))}
+    (hP : P.IsPrime) (hPI : P ∣ (I : Ideal (𝓞 (Qsqrtd (d : ℚ)))))
+    (hnorm : (Ideal.absNorm (I : Ideal (𝓞 (Qsqrtd (d : ℚ)))) : ℝ) ≤
+      minkowskiBound d) :
+    P.IsPrincipal := by
+  have hI0 : (I : Ideal (𝓞 (Qsqrtd (d : ℚ)))) ≠ 0 := nonZeroDivisors.coe_ne_zero I
+  have hP0 : P ≠ ⊥ := by
+    rintro rfl
+    rw [← Ideal.zero_eq_bot, zero_dvd_iff] at hPI
+    exact hI0 hPI
+  obtain ⟨p, hp, hcomap, hpdiv⟩ :=
+    exists_nat_prime_comap_eq_p_and_dvd_absNorm d hP hP0
+  have habs0 : Ideal.absNorm P ≠ 0 := by
+    rwa [Ne, Ideal.absNorm_eq_zero_iff]
+  have hIabs0 : Ideal.absNorm (I : Ideal (𝓞 (Qsqrtd (d : ℚ)))) ≠ 0 := by
+    rwa [Ne, Ideal.absNorm_eq_zero_iff]
+  have hPle : Ideal.absNorm P ≤ Ideal.absNorm (I : Ideal (𝓞 (Qsqrtd (d : ℚ)))) :=
+    Nat.le_of_dvd (Nat.pos_of_ne_zero hIabs0)
+      (Ideal.absNorm_dvd_absNorm_of_le (Ideal.le_of_dvd hPI))
+  have hpabs : p ≤ Ideal.absNorm P :=
+    Nat.le_of_dvd (Nat.pos_of_ne_zero habs0) hpdiv
+  have hple : (p : ℝ) ≤ minkowskiBound d :=
+    le_trans (by exact_mod_cast le_trans hpabs hPle) hnorm
+  exact isPrincipal_of_isInertIn_of_comap_eq_p d hP hp hcomap (h p hp hple)
+
+private lemma isPrincipal_of_absNorm_le_minkowskiBound_of_forall_isInertIn
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (h : ∀ p : ℕ, p.Prime → (p : ℝ) ≤ minkowskiBound d →
+      Ideal.IsInertIn (𝔭(p)) 𝓞(d))
+    (I : nonZeroDivisors (Ideal (𝓞 (Qsqrtd (d : ℚ)))))
+    (hnorm : (Ideal.absNorm (I : Ideal (𝓞 (Qsqrtd (d : ℚ)))) : ℝ) ≤
+      minkowskiBound d) :
+    (I : Ideal (𝓞 (Qsqrtd (d : ℚ)))).IsPrincipal := by
+  refine Ideal.isPrincipal_of_forall_isPrime_dvd_isPrincipal fun P hP hPI => ?_
+  exact isPrincipal_of_isPrime_dvd_of_forall_le_minkowskiBound_isInertIn
+    d h hP hPI hnorm
+
+/-- Class-group form of the inert-prime criterion: under the Minkowski-bound
+inertness hypothesis, every ideal class of `𝓞(ℚ(√d))` is trivial. -/
+theorem classGroup_eq_one_of_forall_le_minkowskiBound_isInertIn
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (h : ∀ p : ℕ, p.Prime → (p : ℝ) ≤ minkowskiBound d →
+      Ideal.IsInertIn (𝔭(p)) 𝓞(d))
+    (C : ClassGroup (𝓞 (Qsqrtd (d : ℚ)))) :
+    C = 1 := by
+  obtain ⟨I, hmk, hnorm⟩ := exists_ideal_in_class_of_norm_le d C
+  rw [← hmk, ClassGroup.mk0_eq_one_iff]
+  exact isPrincipal_of_absNorm_le_minkowskiBound_of_forall_isInertIn d h I hnorm
+
+/-- **Class number one via inert primes.** If every rational prime `p` below
+the Minkowski bound of `ℚ(√d)` is inert in `𝓞(ℚ(√d))`, then `ℚ(√d)` has class
+number one.
+
+Every ideal class contains an ideal `I` with `absNorm I ≤ minkowskiBound d`.
+Each prime ideal `P ∣ I` lies over a rational prime `p ≤ absNorm P ≤ absNorm I`,
+which is inert by hypothesis, so `P = (p)` is principal; hence `I` is principal
+and the class group is trivial. -/
+theorem classNumber_eq_one_of_forall_le_minkowskiBound_isInertIn
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (h : ∀ p : ℕ, p.Prime → (p : ℝ) ≤ minkowskiBound d →
+      Ideal.IsInertIn (𝔭(p)) 𝓞(d)) :
+    NumberField.classNumber (Qsqrtd (d : ℚ)) = 1 := by
+  have htriv := classGroup_eq_one_of_forall_le_minkowskiBound_isInertIn d h
+  haveI : Unique (ClassGroup (𝓞 (Qsqrtd (d : ℚ)))) := ⟨⟨1⟩, htriv⟩
+  simpa only [NumberField.classNumber] using
+    Fintype.card_unique (α := ClassGroup (𝓞 (Qsqrtd (d : ℚ))))
+
+end ClassNumberOne
 
 end Qsqrtd
 end QuadraticNumberFields

@@ -16,6 +16,7 @@ import QuadraticNumberFields.Mathlib.RingTheory.PrincipalIdealDomain
 import QuadraticNumberFields.Mathlib.RingTheory.Ideal.Span
 import QuadraticNumberFields.Mathlib.RingTheory.Krull
 import QuadraticNumberFields.Mathlib.RingTheory.DedekindDomain.Basic
+import QuadraticNumberFields.Mathlib.RingTheory.DedekindDomain.Ideal
 
 /-!
 # Temporary Mathlib Material
