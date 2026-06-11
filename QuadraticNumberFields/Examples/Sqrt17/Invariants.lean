@@ -87,9 +87,10 @@ theorem exists_ideal_in_class_of_norm_le
   obtain ⟨I, hC, hI⟩ := Qsqrtd.exists_ideal_in_class_of_norm_le 17 C
   exact ⟨I, hC, by exact_mod_cast lt_of_le_of_lt hI minkowskiBound_lt_three⟩
 
-/- TODO (class number): upgrade the bound above to
-`NumberField.classNumber (Qsqrtd ((17 : ℤ) : ℚ)) = 1`. Since `(1/2)·√17 ≈ 2.06`,
-this requires showing every prime ideal of norm `≤ 2` is principal (2 splits, so
-norm-2 primes exist). Deferred until the class-number development is complete. -/
+/-! `ℚ(√17)` has class number one.  The bound above (minkowski `< 3`) already
+shows that every class has a representative of absolute norm `< 3`; upgrading
+to `NumberField.classNumber (Qsqrtd ((17 : ℤ) : ℚ)) = 1` requires showing every
+prime ideal of norm `≤ 2` is principal (2 splits, so norm-2 primes exist).
+Deferred until the class-number development is complete. -/
 
 end QuadraticNumberFields.Examples.Sqrt17

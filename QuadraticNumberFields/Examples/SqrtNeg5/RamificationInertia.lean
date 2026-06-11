@@ -256,9 +256,8 @@ theorem inertiaDeg_P3₂ :
 
 end QuadraticNumberFields.Examples.SqrtNeg5
 
---TODO : using Discriminant, show that 2 is the only ramified prime in ℤ[√-5],
--- and that all other primes are either inert or split.
-
--- Discriminant of ℤ[√d] is 4d if d ≡ 2,3 mod 4, and d if d ≡ 1 mod 4. For d = -5,
--- we have 4d = -20, which is divisible by 2 but not by any other prime,
--- so 2 is the only ramified prime.
+-- TODO (RamificationInertia, ℤ[√-5]): show that `2` is the only ramified
+-- prime in `ℤ[√-5]`, by `Discriminant` of `-5` (i.e. `-20`) being divisible
+-- by 2 and by no other prime.  All other primes are either inert or split.
+-- This is a one-line application of the discriminant's prime factorisation
+-- once `RingOfIntegers.Discriminant` is imported.

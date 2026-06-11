@@ -91,10 +91,10 @@ theorem exists_ideal_in_class_of_norm_le
   obtain ⟨I, hC, hI⟩ := Qsqrtd.exists_ideal_in_class_of_norm_le (-5) C
   exact ⟨I, hC, by exact_mod_cast lt_of_le_of_lt hI minkowskiBound_lt_three⟩
 
-/- TODO (class number): `ℚ(√-5)` has class number two — the classic non-UFD
-example. A full `classNumber = 2` proof awaits the class-number development; a
-first milestone is `¬ IsPrincipalIdealRing (ℤ[√-5])` (hence `classNumber ≠ 1`),
-witnessed by the non-principal ideal `(2, 1+√-5)` already constructed in
+/-! `ℚ(√-5)` has class number two — the classic non-UFD example.  A full
+`classNumber = 2` proof awaits the class-number development; a first milestone
+is `¬ IsPrincipalIdealRing (ℤ[√-5])` (hence `classNumber ≠ 1`), witnessed by
+the non-principal ideal `(2, 1+√-5)` already constructed in
 `Examples.SqrtNeg5.Ideals`. -/
 
 end QuadraticNumberFields.Examples.SqrtNeg5
