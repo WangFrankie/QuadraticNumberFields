@@ -74,8 +74,8 @@ lake build
 |--------|------------|---------------|-------------|
 | `QuadraticNumberFields/Splitting` | 1480 | 450 | 2194 |
 | `QuadraticNumberFields/Zsqrtd` | 661 | 212 | 1016 |
+| `QuadraticNumberFields/Mathlib` | 586 | 333 | 1082 |
 | `QuadraticNumberFields/QuadraticField` | 586 | 397 | 1183 |
-| `QuadraticNumberFields/Mathlib` | 521 | 329 | 1012 |
 | `QuadraticNumberFields/RingOfIntegers` | 511 | 304 | 1017 |
 | `QuadraticNumberFields/Qsqrtd` | 488 | 264 | 903 |
 | `QuadraticNumberFields/Examples` | 410 | 233 | 793 |
@@ -89,7 +89,7 @@ lake build
 | `QuadraticNumberFields/Families` | 38 | 49 | 116 |
 | `QuadraticNumberFields/ContinuedFraction` | 21 | 36 | 75 |
 | `QuadraticNumberFields/Sketch` | 7 | 27 | 43 |
-| **Total** | **5743** | **2776** | **10131** |
+| **Total** | **5808** | **2780** | **10201** |
 
 ## History
 
