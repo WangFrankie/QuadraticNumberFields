@@ -12,8 +12,9 @@ import QuadraticNumberFields.Splitting.Qsqrtd.Discriminant
 This file repackages the prime splitting classification for `𝓞(ℚ(√d))` using the
 Kronecker value of the field discriminant `NumberField.discr (ℚ(√d))`: the ideal
 `(p)` splits, is inert, or ramifies according as `kroneckerSymNat (disc(d)) p`
-is `1`, `-1`, or `0`. The closed discriminant formula is used only internally
-through `RingOfIntegers.discr_formula`.
+is `1`, `-1`, or `0`. The closed discriminant formula is owned by
+`RingOfIntegers.Discriminant` and used here through `RingOfIntegers.discrFormula`
+and `RingOfIntegers.discr_formula`.
 
 ## Main Results
 
@@ -49,7 +50,8 @@ local notation3 "g(" p ")" => (primesOver (𝔭(p)) 𝓞(d)).ncard
 omit [Fact (Squarefree d)] [Fact (d ≠ 1)] in
 private lemma legendreSym_discFormula_eq_legendreSym_param_of_ne_two
     {p : ℕ} [Fact p.Prime] (hp2 : p ≠ 2) :
-    legendreSym p (if d % 4 = 1 then d else 4 * d) = legendreSym p d := by
+    legendreSym p (RingOfIntegers.discrFormula d) = legendreSym p d := by
+  unfold RingOfIntegers.discrFormula
   by_cases hd4 : d % 4 = 1
   · rw [if_pos hd4]
   · have h2 : ((2 : ℤ) : ZMod p) ≠ 0 := by
@@ -60,37 +62,46 @@ private lemma legendreSym_discFormula_eq_legendreSym_param_of_ne_two
 omit [Fact (Squarefree d)] [Fact (d ≠ 1)] in
 private lemma kroneckerSymNat_discFormula_eq_legendreSym_param_of_ne_two
     {p : ℕ} [Fact p.Prime] (hp2 : p ≠ 2) :
-    kroneckerSymNat (if d % 4 = 1 then d else 4 * d) p = legendreSym p d := by
+    kroneckerSymNat (RingOfIntegers.discrFormula d) p = legendreSym p d := by
   rw [kroneckerSymNat_eq_legendreSym_of_ne_two _ hp2,
     legendreSym_discFormula_eq_legendreSym_param_of_ne_two d hp2]
 
 /-! ## Private combined Kronecker classification -/
 
 private theorem splitting_classification_kronecker_formula (p : ℕ) [Fact p.Prime] :
-    (kroneckerSymNat (if d % 4 = 1 then d else 4 * d) p = 1 ∧
+    (kroneckerSymNat (RingOfIntegers.discrFormula d) p = 1 ∧
       e(p) = 1 ∧ f(p) = 1) ∨
-    (kroneckerSymNat (if d % 4 = 1 then d else 4 * d) p = -1 ∧
+    (kroneckerSymNat (RingOfIntegers.discrFormula d) p = -1 ∧
       g(p) = 1 ∧ e(p) = 1) ∨
-    (kroneckerSymNat (if d % 4 = 1 then d else 4 * d) p = 0 ∧ 1 < e(p)) := by
+    (kroneckerSymNat (RingOfIntegers.discrFormula d) p = 0 ∧ 1 < e(p)) := by
   rcases splitting_classification d p with ⟨hcond, hef⟩ | ⟨hcond, hge⟩ | ⟨hcond, he⟩
   · refine Or.inl ⟨?_, hef⟩
     rcases hcond with ⟨rfl, hd8⟩ | ⟨hp2, -, hleg⟩
     · have hd4 : d % 4 = 1 := by omega
-      rw [if_pos hd4, kroneckerSymNat_two]
-      exact (kroneckerTwo_eq_one_iff d).mpr (Or.inl hd8)
+      have hD8 : RingOfIntegers.discrFormula d % 8 = 1 := by
+        simp [RingOfIntegers.discrFormula, hd4, hd8]
+      rw [kroneckerSymNat_two]
+      exact (kroneckerTwo_eq_one_iff (RingOfIntegers.discrFormula d)).mpr (Or.inl hD8)
     · rw [kroneckerSymNat_discFormula_eq_legendreSym_param_of_ne_two d hp2]
       exact hleg
   · refine Or.inr (Or.inl ⟨?_, hge⟩)
     rcases hcond with ⟨rfl, hd8⟩ | ⟨hp2, -, hleg⟩
     · have hd4 : d % 4 = 1 := by omega
-      rw [if_pos hd4, kroneckerSymNat_two]
-      exact (kroneckerTwo_eq_neg_one_iff d).mpr (Or.inr hd8)
+      have hD8 : RingOfIntegers.discrFormula d % 8 = 5 := by
+        simp [RingOfIntegers.discrFormula, hd4, hd8]
+      rw [kroneckerSymNat_two]
+      exact (kroneckerTwo_eq_neg_one_iff (RingOfIntegers.discrFormula d)).mpr
+        (Or.inr hD8)
     · rw [kroneckerSymNat_discFormula_eq_legendreSym_param_of_ne_two d hp2]
       exact hleg
   · refine Or.inr (Or.inr ⟨?_, he⟩)
     rcases hcond with ⟨rfl, hd4⟩ | ⟨hp2, hpd⟩
-    · rw [if_neg hd4, kroneckerSymNat_two]
-      exact (kroneckerTwo_eq_zero_iff (4 * d)).mpr (by omega)
+    · have hD2 : RingOfIntegers.discrFormula d % 2 = 0 := by
+        unfold RingOfIntegers.discrFormula
+        rw [if_neg hd4]
+        omega
+      rw [kroneckerSymNat_two]
+      exact (kroneckerTwo_eq_zero_iff (RingOfIntegers.discrFormula d)).mpr hD2
     · rw [kroneckerSymNat_discFormula_eq_legendreSym_param_of_ne_two d hp2]
       exact (legendreSym.eq_zero_iff p d).mpr ((ZMod.intCast_zmod_eq_zero_iff_dvd d p).mpr hpd)
 
