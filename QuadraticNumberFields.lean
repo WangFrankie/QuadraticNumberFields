@@ -33,6 +33,7 @@ import QuadraticNumberFields.Splitting.Factorization
 import QuadraticNumberFields.Splitting.MinpolyMod
 import QuadraticNumberFields.Splitting.Qsqrtd.Classification
 import QuadraticNumberFields.Splitting.Qsqrtd.Discriminant
+import QuadraticNumberFields.Splitting.Qsqrtd.Kronecker
 import QuadraticNumberFields.Splitting.Qsqrtd.KummerDedekind
 import QuadraticNumberFields.Splitting.Qsqrtd.Monogenic
 import QuadraticNumberFields.Splitting.Qsqrtd.OddPrime
