@@ -43,6 +43,20 @@ namespace QuadraticNumberFields
 def kroneckerCharacterFun (D : ℤ) (x : ZMod D.natAbs) : ℤ :=
   kroneckerSymNat D x.val
 
+private lemma kroneckerSymNat_add_natAbs_mul_eq (D : ℤ)
+    [Fact (D % 4 = 0 ∨ D % 4 = 1)] (n k : ℕ) :
+    kroneckerSymNat D (n + D.natAbs * k) = kroneckerSymNat D n := by
+  induction k with
+  | zero => simp
+  | succ k ih =>
+      rw [Nat.mul_succ, ← Nat.add_assoc, kroneckerSymNat_add_natAbs_eq D, ih]
+
+private lemma kroneckerSymNat_mod_natAbs_eq (D : ℤ)
+    [Fact (D % 4 = 0 ∨ D % 4 = 1)] (n : ℕ) :
+    kroneckerSymNat D (n % D.natAbs) = kroneckerSymNat D n := by
+  conv_rhs => rw [← Nat.mod_add_div n D.natAbs]
+  exact (kroneckerSymNat_add_natAbs_mul_eq D (n % D.natAbs) (n / D.natAbs)).symm
+
 /-- `kroneckerSymNat D 1 = 1` for every `D : ℤ`. -/
 private lemma kroneckerCharacterFun_one (D : ℤ) [Fact (D % 4 = 0 ∨ D % 4 = 1)] :
     kroneckerCharacterFun D 1 = 1 := by
@@ -71,7 +85,28 @@ private lemma kroneckerCharacterFun_mul (D : ℤ) [Fact (D % 4 = 0 ∨ D % 4 = 1
     kroneckerCharacterFun D (x * y) =
       kroneckerCharacterFun D x * kroneckerCharacterFun D y := by
   unfold kroneckerCharacterFun
-  sorry
+  rw [ZMod.val_mul, kroneckerSymNat_mod_natAbs_eq]
+  by_cases hx0 : x.val = 0
+  · rw [hx0, zero_mul]
+    by_cases hD1 : D.natAbs = 1
+    · haveI : NeZero D.natAbs := ⟨by omega⟩
+      have hyval : y.val = 0 := by
+        have hylt := ZMod.val_lt y
+        omega
+      rw [hyval]
+      simp [kroneckerSymNat, hD1]
+    · simp [kroneckerSymNat, hD1]
+  by_cases hy0 : y.val = 0
+  · rw [hy0, mul_zero]
+    by_cases hD1 : D.natAbs = 1
+    · haveI : NeZero D.natAbs := ⟨by omega⟩
+      have hxval : x.val = 0 := by
+        have hxlt := ZMod.val_lt x
+        omega
+      rw [hxval]
+      simp [kroneckerSymNat, hD1]
+    · simp [kroneckerSymNat, hD1]
+  exact kroneckerSymNat_mul D hx0 hy0
 
 /-- Nonunits of `ZMod D.natAbs` share a factor with `D.natAbs`, so the Kronecker
 value is `0`. -/
@@ -81,9 +116,23 @@ private lemma kroneckerCharacterFun_nonunit (D : ℤ) [Fact (D % 4 = 0 ∨ D % 4
   rcases eq_or_ne D.natAbs 0 with hD0 | hD0
   · -- D = 0: ZMod 0 = ℤ; nonunit ⇔ x.natAbs ≠ 1 ⇔ x.val ≠ 1 (val = Int.natAbs on ZMod 0).
     -- Then `gcd x.val 0 = x.val ≠ 1`, so Shim C closes the goal.
-    -- TODO(focused-followup): unify with the D.natAbs > 0 branch through a single
-    -- IsUnit-vs-coprime bridge that covers both `NeZero` and `ZMod 0 = ℤ`.
-    sorry
+    have hxval : x.val ≠ 1 := by
+      intro hxval
+      apply hx
+      have hunit0 : IsUnit ((ZMod.ringEquivCongr hD0) x) := by
+        apply (ZMod.val_unit').mpr
+        rw [ZMod.ringEquivCongr_val, hxval]
+      have hunit := hunit0.map (ZMod.ringEquivCongr hD0).symm.toRingHom
+      simpa using hunit
+    have hcop : Nat.gcd x.val D.natAbs ≠ 1 := by
+      have hgcd : Nat.gcd x.val D.natAbs = x.val := by
+        conv_lhs =>
+          congr
+          · rfl
+          · rw [hD0]
+        rw [Nat.gcd_zero_right]
+      rwa [hgcd]
+    exact kroneckerSymNat_eq_zero_of_not_coprime D hcop
   · have : NeZero D.natAbs := ⟨hD0⟩
     have hcop : ¬ Nat.Coprime x.val D.natAbs := by
       rw [Nat.Coprime]
@@ -108,13 +157,98 @@ noncomputable def kroneckerCharacter (D : ℤ) [Fact (D % 4 = 0 ∨ D % 4 = 1)] 
 @[simp] theorem kroneckerCharacter_apply_natCast (D : ℤ) [Fact (D % 4 = 0 ∨ D % 4 = 1)]
     (n : ℕ) :
     kroneckerCharacter D ((n : ℕ) : ZMod D.natAbs) = kroneckerSymNat D n := by
-  sorry
+  change kroneckerCharacterFun D ((n : ℕ) : ZMod D.natAbs) = kroneckerSymNat D n
+  unfold kroneckerCharacterFun
+  rw [ZMod.val_natCast]
+  exact kroneckerSymNat_mod_natAbs_eq D n
+
+private lemma kroneckerCharacter_neg_one (D : ℤ) [Fact (D % 4 = 0 ∨ D % 4 = 1)] :
+    kroneckerCharacter D (-1 : ZMod D.natAbs) = if D < 0 then -1 else 1 := by
+  rcases eq_or_ne D.natAbs 0 with hD0 | hD0
+  · have hD : D = 0 := by omega
+    subst D
+    change kroneckerCharacterFun 0 (-1 : ZMod 0) = 1
+    simp [kroneckerCharacterFun, kroneckerSymNat]
+  · have hval : (-1 : ZMod D.natAbs).val = D.natAbs - 1 := by
+      cases hN : D.natAbs with
+      | zero => exact False.elim (hD0 hN)
+      | succ N =>
+          simp
+    change kroneckerCharacterFun D (-1 : ZMod D.natAbs) = if D < 0 then -1 else 1
+    unfold kroneckerCharacterFun
+    rw [hval]
+    exact QuadraticNumberFields.kroneckerSymNat_natAbs_sub_one_eq_sign D hD0
 
 /-- Evaluation of the Kronecker character at an integer representative reproduces
 `kroneckerSym D n`. -/
 @[simp] theorem kroneckerCharacter_apply_intCast (D : ℤ) [Fact (D % 4 = 0 ∨ D % 4 = 1)]
     (n : ℤ) :
     kroneckerCharacter D ((n : ℤ) : ZMod D.natAbs) = kroneckerSym D n := by
-  sorry
+  rcases Int.eq_nat_or_neg n with ⟨m, rfl | rfl⟩
+  · simp [kroneckerSym_natCast]
+  · rcases eq_or_ne m 0 with rfl | hm0
+    · simpa [kroneckerSym_natCast] using kroneckerCharacter_apply_natCast D 0
+    · have hcast : (((-(m : ℤ) : ℤ) : ZMod D.natAbs) =
+          (-1 : ZMod D.natAbs) * ((m : ℕ) : ZMod D.natAbs)) := by
+        norm_num [Int.cast_neg]
+      rw [hcast, map_mul, kroneckerCharacter_neg_one D, kroneckerCharacter_apply_natCast]
+      have hne : (-(m : ℤ) : ℤ) ≠ 0 := neg_ne_zero.mpr (by exact_mod_cast hm0)
+      have hlt : (-(m : ℤ) : ℤ) < 0 := neg_neg_of_pos (by exact_mod_cast Nat.pos_of_ne_zero hm0)
+      rw [kroneckerSym, if_neg hne, if_pos hlt, Int.natAbs_neg, Int.natAbs_natCast]
+
+/-! ## Examples -/
+
+section Examples
+
+local instance : Fact ((-3 : ℤ) % 4 = 0 ∨ (-3 : ℤ) % 4 = 1) := ⟨by norm_num⟩
+local instance : Fact ((-4 : ℤ) % 4 = 0 ∨ (-4 : ℤ) % 4 = 1) := ⟨by norm_num⟩
+local instance : Fact ((-8 : ℤ) % 4 = 0 ∨ (-8 : ℤ) % 4 = 1) := ⟨by norm_num⟩
+local instance : Fact ((5 : ℤ) % 4 = 0 ∨ (5 : ℤ) % 4 = 1) := ⟨by norm_num⟩
+local instance : Fact ((8 : ℤ) % 4 = 0 ∨ (8 : ℤ) % 4 = 1) := ⟨by norm_num⟩
+local instance : Fact ((12 : ℤ) % 4 = 0 ∨ (12 : ℤ) % 4 = 1) := ⟨by norm_num⟩
+local instance : Fact (Nat.Prime 3) := ⟨by decide⟩
+local instance : Fact (Nat.Prime 5) := ⟨by decide⟩
+
+example : kroneckerCharacter (-3) ((2 : ℕ) : ZMod ((-3 : ℤ).natAbs)) = -1 := by
+  rw [kroneckerCharacter_apply_natCast]
+  simp [kroneckerSymNat_two, kroneckerTwo]
+
+example : kroneckerCharacter (-4) ((3 : ℕ) : ZMod ((-4 : ℤ).natAbs)) = -1 := by
+  rw [kroneckerCharacter_apply_natCast]
+  rw [kroneckerSymNat_eq_legendreSym_of_ne_two]
+  · rw [legendreSym.mod]
+    change legendreSym 3 2 = -1
+    rw [legendreSym.at_two] <;> norm_num
+  · norm_num
+
+example : kroneckerCharacter (-8) ((5 : ℕ) : ZMod ((-8 : ℤ).natAbs)) = -1 := by
+  rw [kroneckerCharacter_apply_natCast]
+  rw [kroneckerSymNat_eq_legendreSym_of_ne_two]
+  · rw [legendreSym.mod]
+    change legendreSym 5 2 = -1
+    rw [legendreSym.at_two] <;> norm_num
+  · norm_num
+
+example : kroneckerCharacter 5 ((2 : ℕ) : ZMod ((5 : ℤ).natAbs)) = -1 := by
+  rw [kroneckerCharacter_apply_natCast]
+  simp [kroneckerSymNat_two, kroneckerTwo]
+
+example : kroneckerCharacter 8 ((3 : ℕ) : ZMod ((8 : ℤ).natAbs)) = -1 := by
+  rw [kroneckerCharacter_apply_natCast]
+  rw [kroneckerSymNat_eq_legendreSym_of_ne_two]
+  · rw [legendreSym.mod]
+    change legendreSym 3 2 = -1
+    rw [legendreSym.at_two] <;> norm_num
+  · norm_num
+
+example : kroneckerCharacter 12 ((5 : ℕ) : ZMod ((12 : ℤ).natAbs)) = -1 := by
+  rw [kroneckerCharacter_apply_natCast]
+  rw [kroneckerSymNat_eq_legendreSym_of_ne_two]
+  · rw [legendreSym.mod]
+    change legendreSym 5 2 = -1
+    rw [legendreSym.at_two] <;> norm_num
+  · norm_num
+
+end Examples
 
 end QuadraticNumberFields
