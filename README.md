@@ -72,15 +72,15 @@ lake build
 
 | Module | Code Lines | Comment Lines | Total Lines |
 |--------|------------|---------------|-------------|
-| `QuadraticNumberFields/Splitting` | 1358 | 408 | 2006 |
+| `QuadraticNumberFields/Splitting` | 1478 | 450 | 2192 |
 | `QuadraticNumberFields/Zsqrtd` | 661 | 212 | 1016 |
 | `QuadraticNumberFields/QuadraticField` | 586 | 397 | 1183 |
 | `QuadraticNumberFields/RingOfIntegers` | 511 | 304 | 1017 |
+| `QuadraticNumberFields/Mathlib` | 501 | 303 | 957 |
 | `QuadraticNumberFields/Qsqrtd` | 488 | 264 | 903 |
-| `QuadraticNumberFields/Mathlib` | 461 | 265 | 862 |
 | `QuadraticNumberFields/Examples` | 410 | 233 | 793 |
 | `QuadraticNumberFields/Units` | 303 | 148 | 546 |
-| `QuadraticNumberFields` | 281 | 75 | 397 |
+| `QuadraticNumberFields` | 282 | 75 | 398 |
 | `QuadraticNumberFields/Heegner` | 148 | 76 | 260 |
 | `QuadraticNumberFields/ZOnePlusSqrtdOverTwo` | 103 | 50 | 183 |
 | `QuadraticNumberFields/Counterexamples` | 82 | 24 | 130 |
@@ -88,7 +88,7 @@ lake build
 | `QuadraticNumberFields/ClassGroup` | 49 | 75 | 166 |
 | `QuadraticNumberFields/Families` | 38 | 49 | 116 |
 | `QuadraticNumberFields/ContinuedFraction` | 21 | 36 | 75 |
-| **Total** | **5552** | **2641** | **9746** |
+| **Total** | **5713** | **2721** | **10028** |
 
 ## History
 
