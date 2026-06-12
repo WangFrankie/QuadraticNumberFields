@@ -5,7 +5,7 @@ Authors: Frankie Wang
 -/
 import QuadraticNumberFields.RingOfIntegers.CommonInstances
 import QuadraticNumberFields.RingOfIntegers.Integrality
-import QuadraticNumberFields.ZOnePlusSqrtOverTwo.Basic
+import QuadraticNumberFields.ZOnePlusSqrtdOverTwo.Basic
 import QuadraticNumberFields.QuadraticField.Classification
 import QuadraticNumberFields.QuadraticField.Transport
 
@@ -101,7 +101,7 @@ When `d ≡ 1 (mod 4)`, the half-integer `ω = (1 + √d)/2` satisfies
 enlarging the integral closure from `ℤ[√d]` to `ℤ[ω]`.
 
 The ring `ℤ[ω]` is modeled as `QuadraticAlgebra ℤ k 1` (the relation `ω² = ω + k`),
-which we call `ZOnePlusSqrtOverTwo k`. -/
+which we call `ZOnePlusSqrtdOverTwo k`. -/
 
 /-- Data-level equivalence in the `d = 1 + 4k` branch, with the parameter `k`
 supplied explicitly.
@@ -111,15 +111,15 @@ This is the actual workhorse of the `d % 4 = 1` branch:
 that picks `k := d / 4`. -/
 noncomputable def ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_eq
     (k : ℤ) (hk : d = 1 + 4 * k) :
-    𝓞 (Qsqrtd (d : ℚ)) ≃+* ZOnePlusSqrtOverTwo k := by
+    𝓞 (Qsqrtd (d : ℚ)) ≃+* ZOnePlusSqrtdOverTwo k := by
   have hd_sf : Squarefree d := Fact.out
   have hd_ne : d ≠ 1 := Fact.out
   subst hk
   have hd_ne' : (1 + 4 * k) ≠ 1 := hd_ne
   exact ringOfIntegers_equiv_of_embedding
-    (Qsqrtd (((1 + 4 * k : ℤ) : ℚ))) (ZOnePlusSqrtOverTwo k)
-    (_root_.ZOnePlusSqrtOverTwo.toQsqrtdHom k)
-    (_root_.ZOnePlusSqrtOverTwo.toQsqrtdHom_injective k)
+    (Qsqrtd (((1 + 4 * k : ℤ) : ℚ))) (ZOnePlusSqrtdOverTwo k)
+    (_root_.ZOnePlusSqrtdOverTwo.toQsqrtdHom k)
+    (_root_.ZOnePlusSqrtdOverTwo.toQsqrtdHom_injective k)
     (fun _ hx => exists_zOnePlusSqrtOverTwo_of_isIntegral_of_one_mod_four k hd_sf hd_ne' hx)
     (fun z => isIntegral_toQsqrtd_of_zOnePlusSqrtOverTwo k z)
 
@@ -130,7 +130,7 @@ explicit-parameter `ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_eq`.
 **mathlib target: `Mathlib.NumberTheory.QuadraticField.RingOfIntegers`** -/
 noncomputable def ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one
     (hd4 : d % 4 = 1) :
-    𝓞 (Qsqrtd (d : ℚ)) ≃+* ZOnePlusSqrtOverTwo (d / 4) :=
+    𝓞 (Qsqrtd (d : ℚ)) ≃+* ZOnePlusSqrtdOverTwo (d / 4) :=
   ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_eq d (d / 4) (by omega)
 
 /-! ## Combined Classification -/
@@ -144,7 +144,7 @@ theorem ringOfIntegers_classification :
     (d % 4 ≠ 1 ∧
       Nonempty (𝓞 (Qsqrtd (d : ℚ)) ≃+* Zsqrtd d)) ∨
     (∃ k : ℤ, d = 1 + 4 * k ∧
-      Nonempty (𝓞 (Qsqrtd (d : ℚ)) ≃+* ZOnePlusSqrtOverTwo k)) := by
+      Nonempty (𝓞 (Qsqrtd (d : ℚ)) ≃+* ZOnePlusSqrtdOverTwo k)) := by
   by_cases hd4 : d % 4 = 1
   · exact Or.inr ⟨d / 4, by omega,
       ⟨ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one d hd4⟩⟩
@@ -155,7 +155,7 @@ abstract field ring-equivalent to it. -/
 theorem ringOfIntegers_classification_of_ringEquiv_qsqrtd
     {K : Type*} [Field K] (e : K ≃+* Qsqrtd (d : ℚ)) :
     (d % 4 ≠ 1 ∧ Nonempty (𝓞 K ≃+* Zsqrtd d)) ∨
-    (∃ k : ℤ, d = 1 + 4 * k ∧ Nonempty (𝓞 K ≃+* ZOnePlusSqrtOverTwo k)) := by
+    (∃ k : ℤ, d = 1 + 4 * k ∧ Nonempty (𝓞 K ≃+* ZOnePlusSqrtdOverTwo k)) := by
   let e𝓞 : 𝓞 K ≃+* 𝓞 (Qsqrtd (d : ℚ)) :=
     e.ringOfIntegers
   rcases ringOfIntegers_classification d with h | h
@@ -169,7 +169,7 @@ theorem exists_ringOfIntegers_classification_of_quadraticField
     (K : Type*) [Field K] [Algebra ℚ K] [QuadraticField K] :
     ∃ d : ℤ, Squarefree d ∧ d ≠ 1 ∧
       ((d % 4 ≠ 1 ∧ Nonempty (𝓞 K ≃+* Zsqrtd d)) ∨
-      (∃ k : ℤ, d = 1 + 4 * k ∧ Nonempty (𝓞 K ≃+* ZOnePlusSqrtOverTwo k))) := by
+      (∃ k : ℤ, d = 1 + 4 * k ∧ Nonempty (𝓞 K ≃+* ZOnePlusSqrtdOverTwo k))) := by
   obtain ⟨d, hd_sf, hd_ne, ⟨e⟩⟩ := exists_ringEquiv_qsqrtd K
   letI : Fact (Squarefree d) := ⟨hd_sf⟩
   letI : Fact (d ≠ 1) := ⟨hd_ne⟩
@@ -194,7 +194,7 @@ noncomputable example : 𝓞 (Qsqrtd ((-1 : ℤ) : ℚ)) ≃+* Zsqrtd (-1) :=
 
 Since `-3 ≡ 1 (mod 4)`, the ring of integers is `ℤ[ω]` where `ω = (1+√(-3))/2`
 is a primitive cube root of unity. Here `-3 = 1 + 4 * (-1)`, so `k = -1`. -/
-noncomputable example : 𝓞 (Qsqrtd ((-3 : ℤ) : ℚ)) ≃+* ZOnePlusSqrtOverTwo (-1) :=
+noncomputable example : 𝓞 (Qsqrtd ((-3 : ℤ) : ℚ)) ≃+* ZOnePlusSqrtdOverTwo (-1) :=
   ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_eq (-3) (-1) (by decide)
 
 end SquarefreeIntegerParameter

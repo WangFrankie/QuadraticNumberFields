@@ -128,9 +128,9 @@ theorem isFundamentalUnit_one_zsqrtd {d : ℤ} (hd : d < -1) :
 /-- For `k ≤ -2` the unit `1` is fundamental in `ℤ[(1+√(1+4k))/2]`: the unit
 group is `{±1}`. -/
 theorem isFundamentalUnit_one_zOnePlusSqrtOverTwo {k : ℤ} (hk : k ≤ -2) :
-    IsFundamentalUnit (1 : (ZOnePlusSqrtOverTwo k)ˣ) :=
+    IsFundamentalUnit (1 : (ZOnePlusSqrtdOverTwo k)ˣ) :=
   isFundamentalUnit_one_of_forall_eq_one_or_neg_one fun v =>
-    (isUnit_zOnePlusSqrtOverTwo_iff_of_le_neg_two hk (v : ZOnePlusSqrtOverTwo k)).mp
+    (isUnit_zOnePlusSqrtOverTwo_iff_of_le_neg_two hk (v : ZOnePlusSqrtdOverTwo k)).mp
       v.isUnit
 
 /-- `√-1` as a unit of the Gaussian integers `ℤ[√-1]`. -/
@@ -157,22 +157,22 @@ theorem isFundamentalUnit_gaussianUnit : IsFundamentalUnit gaussianUnit := by
   · exact ⟨1, Or.inr (Units.ext (by simpa using h))⟩
 
 /-- `ω = (1+√-3)/2` as a unit of the Eisenstein integers `ℤ[(1+√-3)/2]`. -/
-def eisensteinUnit : (ZOnePlusSqrtOverTwo (-1))ˣ :=
+def eisensteinUnit : (ZOnePlusSqrtdOverTwo (-1))ˣ :=
   unitOfNormOne ⟨0, 1⟩ (by simp)
 
 @[simp]
-theorem val_eisensteinUnit : (eisensteinUnit : ZOnePlusSqrtOverTwo (-1)) = ⟨0, 1⟩ :=
+theorem val_eisensteinUnit : (eisensteinUnit : ZOnePlusSqrtdOverTwo (-1)) = ⟨0, 1⟩ :=
   rfl
 
 /-- `ω` is a fundamental unit of the Eisenstein integers: every unit of
 `ℤ[(1+√-3)/2]` is, up to sign, an integer power of `ω = (1+√-3)/2`. -/
 theorem isFundamentalUnit_eisensteinUnit : IsFundamentalUnit eisensteinUnit := by
-  have hsq : ((eisensteinUnit ^ (2 : ℤ) : (ZOnePlusSqrtOverTwo (-1))ˣ) :
-      ZOnePlusSqrtOverTwo (-1)) = ⟨-1, 1⟩ := by
+  have hsq : ((eisensteinUnit ^ (2 : ℤ) : (ZOnePlusSqrtdOverTwo (-1))ˣ) :
+      ZOnePlusSqrtdOverTwo (-1)) = ⟨-1, 1⟩ := by
     rw [zpow_two, Units.val_mul, val_eisensteinUnit]
     ext <;> simp
   intro v
-  rcases (isUnit_zOnePlusSqrtOverTwo_neg_one_iff (v : ZOnePlusSqrtOverTwo (-1))).mp v.isUnit
+  rcases (isUnit_zOnePlusSqrtOverTwo_neg_one_iff (v : ZOnePlusSqrtdOverTwo (-1))).mp v.isUnit
     with h | h | h | h | h | h
   · exact ⟨0, Or.inl (Units.ext (by simpa using h))⟩
   · exact ⟨0, Or.inr (Units.ext (by simpa using h))⟩

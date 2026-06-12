@@ -22,7 +22,7 @@ import QuadraticNumberFields.Zsqrtd.Dedekind
 import QuadraticNumberFields.Zsqrtd.MathlibInstances
 import QuadraticNumberFields.Zsqrtd.Ideals
 import QuadraticNumberFields.RingOfIntegers.HalfInt
-import QuadraticNumberFields.ZOnePlusSqrtOverTwo.Basic
+import QuadraticNumberFields.ZOnePlusSqrtdOverTwo.Basic
 import QuadraticNumberFields.Qsqrtd.TraceNorm
 import QuadraticNumberFields.RingOfIntegers.Integrality
 import QuadraticNumberFields.RingOfIntegers.Classification

@@ -5,7 +5,7 @@ Authors: Frankie Wang
 -/
 
 import QuadraticNumberFields.Units.Pell
-import QuadraticNumberFields.ZOnePlusSqrtOverTwo.Basic
+import QuadraticNumberFields.ZOnePlusSqrtdOverTwo.Basic
 
 /-!
 # Units of Imaginary Quadratic Orders
@@ -64,25 +64,25 @@ theorem isUnit_zsqrtd_neg_one_iff (z : Zsqrtd (-1)) :
 
 end Zsqrtd
 
-section ZOnePlusSqrtOverTwo
+section ZOnePlusSqrtdOverTwo
 
 /-- For `k ≤ -2` (so `d = 1 + 4k ≤ -7`) the only units of `ℤ[(1+√(1+4k))/2]`
 are `±1`. -/
 theorem isUnit_zOnePlusSqrtOverTwo_iff_of_le_neg_two {k : ℤ} (hk : k ≤ -2)
-    (z : ZOnePlusSqrtOverTwo k) : IsUnit z ↔ z = 1 ∨ z = -1 := by
+    (z : ZOnePlusSqrtdOverTwo k) : IsUnit z ↔ z = 1 ∨ z = -1 := by
   exact isUnit_iff_eq_one_or_neg_one_of_discr_lt_neg_four (a := k) (b := 1)
     (by nlinarith) z
 
 /-- The Eisenstein integers `ℤ[(1+√-3)/2]` (parameter `k = -1`) have exactly
 six units: `±1`, `±ω`, and `±(1 - ω)`, where `ω = (1+√-3)/2` is the
 generator `⟨0, 1⟩`. -/
-theorem isUnit_zOnePlusSqrtOverTwo_neg_one_iff (z : ZOnePlusSqrtOverTwo (-1)) :
+theorem isUnit_zOnePlusSqrtOverTwo_neg_one_iff (z : ZOnePlusSqrtdOverTwo (-1)) :
     IsUnit z ↔
       z = 1 ∨ z = -1 ∨ z = ⟨0, 1⟩ ∨ z = ⟨0, -1⟩ ∨ z = ⟨1, -1⟩ ∨ z = ⟨-1, 1⟩ := by
   constructor
   · intro hz
     obtain ⟨a, b⟩ := z
-    rw [ZOnePlusSqrtOverTwo.isUnit_mk_iff] at hz
+    rw [ZOnePlusSqrtdOverTwo.isUnit_mk_iff] at hz
     have h : a * a + a * b + b * b = 1 := by
       rcases hz with h | h
       · nlinarith
@@ -94,10 +94,10 @@ theorem isUnit_zOnePlusSqrtOverTwo_neg_one_iff (z : ZOnePlusSqrtOverTwo (-1)) :
     interval_cases a <;> interval_cases b <;>
       simp_all [QuadraticAlgebra.ext_iff]
   · rintro (rfl | rfl | rfl | rfl | rfl | rfl) <;>
-    · rw [ZOnePlusSqrtOverTwo.isUnit_mk_iff]
+    · rw [ZOnePlusSqrtdOverTwo.isUnit_mk_iff]
       simp
 
-end ZOnePlusSqrtOverTwo
+end ZOnePlusSqrtdOverTwo
 
 end Units
 end QuadraticNumberFields

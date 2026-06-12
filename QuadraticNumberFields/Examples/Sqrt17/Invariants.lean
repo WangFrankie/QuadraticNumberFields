@@ -36,7 +36,7 @@ namespace QuadraticNumberFields.Examples.Sqrt17
 
 /-- The ring of integers of `ℚ(√17)` is `ℤ[(1+√17)/2]` (since `17 ≡ 1 mod 4`). -/
 noncomputable def ringOfIntegersEquiv :
-    𝓞 (Qsqrtd ((17 : ℤ) : ℚ)) ≃+* ZOnePlusSqrtOverTwo (17 / 4) :=
+    𝓞 (Qsqrtd ((17 : ℤ) : ℚ)) ≃+* ZOnePlusSqrtdOverTwo (17 / 4) :=
   RingOfIntegers.ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one 17 (by decide)
 
 /-- The field discriminant of `ℚ(√17)` is `17`. -/

@@ -82,7 +82,7 @@ lake build
 | `QuadraticNumberFields/Units` | 303 | 148 | 546 |
 | `QuadraticNumberFields` | 281 | 75 | 397 |
 | `QuadraticNumberFields/Heegner` | 148 | 76 | 260 |
-| `QuadraticNumberFields/ZOnePlusSqrtOverTwo` | 103 | 50 | 183 |
+| `QuadraticNumberFields/ZOnePlusSqrtdOverTwo` | 103 | 50 | 183 |
 | `QuadraticNumberFields/Counterexamples` | 82 | 24 | 130 |
 | `QuadraticNumberFields/Euclidean` | 52 | 25 | 93 |
 | `QuadraticNumberFields/ClassGroup` | 49 | 75 | 166 |

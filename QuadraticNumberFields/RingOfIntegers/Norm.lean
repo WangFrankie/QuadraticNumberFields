@@ -6,7 +6,7 @@ Authors: Frankie Wang
 import QuadraticNumberFields.RingOfIntegers.Classification
 import QuadraticNumberFields.Mathlib.Algebra.QuadraticAlgebra.Basic
 import QuadraticNumberFields.Zsqrtd.Basic
-import QuadraticNumberFields.ZOnePlusSqrtOverTwo.Basic
+import QuadraticNumberFields.ZOnePlusSqrtdOverTwo.Basic
 
 /-!
 # Norm Multiplicativity
@@ -60,34 +60,34 @@ theorem norm_mem_zsqrtd (d : ℤ) (z : Zsqrtd d) :
     ∃ n : ℤ, Qsqrtd.norm (Zsqrtd.toQsqrtd z) = n := by
   exact ⟨Zsqrtd.norm z, norm_zsqrtd_toQsqrtd d z⟩
 
-/-- The norm on `ZOnePlusSqrtOverTwo k` is multiplicative. -/
-theorem norm_mul_zOnePlusSqrtOverTwo (k : ℤ) (x y : ZOnePlusSqrtOverTwo k) :
+/-- The norm on `ZOnePlusSqrtdOverTwo k` is multiplicative. -/
+theorem norm_mul_zOnePlusSqrtOverTwo (k : ℤ) (x y : ZOnePlusSqrtdOverTwo k) :
     QuadraticAlgebra.norm (x * y) =
       QuadraticAlgebra.norm x * QuadraticAlgebra.norm y :=
-  (ZOnePlusSqrtOverTwo.normHom k).map_mul x y
+  (ZOnePlusSqrtdOverTwo.normHom k).map_mul x y
 
-/-- The norm of an element of `ZOnePlusSqrtOverTwo k` is `a² + a·b - k·b²`. -/
-theorem norm_zOnePlusSqrtOverTwo (k : ℤ) (z : ZOnePlusSqrtOverTwo k) :
+/-- The norm of an element of `ZOnePlusSqrtdOverTwo k` is `a² + a·b - k·b²`. -/
+theorem norm_zOnePlusSqrtOverTwo (k : ℤ) (z : ZOnePlusSqrtdOverTwo k) :
     QuadraticAlgebra.norm z = z.re ^ 2 + z.re * z.im - k * z.im ^ 2 := by
   unfold QuadraticAlgebra.norm
   simp only [MonoidHom.coe_mk, OneHom.coe_mk]
   ring
 
 /-- The norm of `a + b·ω` embeds correctly to `ℚ`. -/
-theorem norm_zOnePlusSqrtOverTwo_toQsqrtd (k : ℤ) (z : ZOnePlusSqrtOverTwo k) :
-    Qsqrtd.norm (ZOnePlusSqrtOverTwo.toQsqrtdHom k z) =
+theorem norm_zOnePlusSqrtOverTwo_toQsqrtd (k : ℤ) (z : ZOnePlusSqrtdOverTwo k) :
+    Qsqrtd.norm (ZOnePlusSqrtdOverTwo.toQsqrtdHom k z) =
       ((QuadraticAlgebra.norm z : ℤ) : ℚ) := by
-  have h1 : (ZOnePlusSqrtOverTwo.toQsqrtdHom k z).re = (z.re : ℚ) + (z.im : ℚ) / 2 := rfl
-  have h2 : (ZOnePlusSqrtOverTwo.toQsqrtdHom k z).im = (z.im : ℚ) / 2 := rfl
+  have h1 : (ZOnePlusSqrtdOverTwo.toQsqrtdHom k z).re = (z.re : ℚ) + (z.im : ℚ) / 2 := rfl
+  have h2 : (ZOnePlusSqrtdOverTwo.toQsqrtdHom k z).im = (z.im : ℚ) / 2 := rfl
   simp only [Qsqrtd.norm, QuadraticAlgebra.norm, MonoidHom.coe_mk, OneHom.coe_mk]
   rw [h1, h2]
-  simp only [ZOnePlusSqrtOverTwo.qParam]
+  simp only [ZOnePlusSqrtdOverTwo.qParam]
   push_cast
   ring
 
 /-- For `d % 4 = 1`, elements of `ℤ[(1+√d)/2]` have integer norm after embedding. -/
-theorem norm_mem_zOnePlusSqrtOverTwo (k : ℤ) (z : ZOnePlusSqrtOverTwo k) :
-    ∃ n : ℤ, Qsqrtd.norm (ZOnePlusSqrtOverTwo.toQsqrtdHom k z) = n := by
+theorem norm_mem_zOnePlusSqrtOverTwo (k : ℤ) (z : ZOnePlusSqrtdOverTwo k) :
+    ∃ n : ℤ, Qsqrtd.norm (ZOnePlusSqrtdOverTwo.toQsqrtdHom k z) = n := by
   exact ⟨QuadraticAlgebra.norm z, norm_zOnePlusSqrtOverTwo_toQsqrtd k z⟩
 
 section SquarefreeIntegerParameter
@@ -108,8 +108,8 @@ theorem norm_mem_ringOfIntegers (α : 𝓞 (Qsqrtd (d : ℚ))) :
     subst hk
     have hd_ne' : (1 + 4 * k : ℤ) ≠ 1 := hd_ne
     have happly := ringOfIntegers_equiv_of_embedding_apply
-      (_root_.ZOnePlusSqrtOverTwo.toQsqrtdHom k)
-      (_root_.ZOnePlusSqrtOverTwo.toQsqrtdHom_injective k)
+      (_root_.ZOnePlusSqrtdOverTwo.toQsqrtdHom k)
+      (_root_.ZOnePlusSqrtdOverTwo.toQsqrtdHom_injective k)
       (fun _ hx => exists_zOnePlusSqrtOverTwo_of_isIntegral_of_one_mod_four k
         hd_sf hd_ne' hx)
       (fun z => isIntegral_toQsqrtd_of_zOnePlusSqrtOverTwo k z) α
@@ -130,7 +130,7 @@ theorem isUnit_zsqrtd_iff_norm_eq_one_or_neg_one (d : ℤ) (z : Zsqrtd d) :
 
 /-- An element of `ℤ[(1+√(1+4k))/2]` is a unit iff its norm is `±1`. -/
 theorem isUnit_zOnePlusSqrtOverTwo_iff_norm_eq_one_or_neg_one
-    (k : ℤ) (z : ZOnePlusSqrtOverTwo k) :
+    (k : ℤ) (z : ZOnePlusSqrtdOverTwo k) :
     IsUnit z ↔ QuadraticAlgebra.norm z = 1 ∨ QuadraticAlgebra.norm z = -1 := by
   simpa using QuadraticAlgebra.isUnit_iff_norm_eq_one_or_neg_one z
 

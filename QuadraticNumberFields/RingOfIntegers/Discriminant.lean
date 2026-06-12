@@ -46,7 +46,7 @@ theorem discr_zsqrtd_basis (d : ℤ) :
 /-- The discriminant of the standard basis of `ℤ[(1+√(1+4k))/2]` is `1 + 4 * k`. -/
 theorem discr_zOnePlusSqrtOverTwo_basis (k : ℤ) :
     Algebra.discr ℤ (QuadraticAlgebra.basis k 1 :
-      Module.Basis (Fin 2) ℤ (ZOnePlusSqrtOverTwo k)) = 1 + 4 * k := by
+      Module.Basis (Fin 2) ℤ (ZOnePlusSqrtdOverTwo k)) = 1 + 4 * k := by
   rw [QuadraticAlgebra.discr_basis_int]
   ring
 
@@ -88,7 +88,7 @@ theorem discr_of_mod_four_eq_one (hd4 : d % 4 = 1) :
   obtain ⟨k, hk⟩ := exists_k_of_mod_four_eq_one hd4
   subst hk
   let e := ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_eq (1 + 4 * k) k rfl
-  let f : ZOnePlusSqrtOverTwo k ≃ₐ[ℤ] 𝓞 (Qsqrtd (((1 + 4 * k : ℤ) : ℚ))) :=
+  let f : ZOnePlusSqrtdOverTwo k ≃ₐ[ℤ] 𝓞 (Qsqrtd (((1 + 4 * k : ℤ) : ℚ))) :=
     ringEquivToIntAlgEquiv e.symm
   let b' : Module.Basis (Fin 2) ℤ (𝓞 (Qsqrtd (((1 + 4 * k : ℤ) : ℚ)))) :=
     (QuadraticAlgebra.basis k 1).map f.toLinearEquiv

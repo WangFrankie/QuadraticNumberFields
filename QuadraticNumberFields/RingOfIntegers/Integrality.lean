@@ -6,7 +6,7 @@ Authors: Frankie Wang
 import QuadraticNumberFields.RingOfIntegers.HalfInt
 import QuadraticNumberFields.RingOfIntegers.ModFour
 import QuadraticNumberFields.Qsqrtd.TraceNorm
-import QuadraticNumberFields.ZOnePlusSqrtOverTwo.Basic
+import QuadraticNumberFields.ZOnePlusSqrtdOverTwo.Basic
 import QuadraticNumberFields.QuadraticField.Parameters
 
 /-!
@@ -27,7 +27,7 @@ and proves that integral elements have specific normal forms.
 
 ### `1 mod 4` Branch
 * `exists_zOnePlusSqrtOverTwo_of_isIntegral_of_one_mod_four`: If `d = 1 + 4k`,
-  integral elements lie in the image of `ZOnePlusSqrtOverTwo k`.
+  integral elements lie in the image of `ZOnePlusSqrtdOverTwo k`.
 
 ## Supporting Lemmas
 
@@ -143,34 +143,34 @@ theorem dvd_four_sub_sq_of_exists_zsqrtd_image_of_ne_one_mod_four
   (dvd_four_sub_sq_iff_exists_zsqrtd_image_of_ne_one_mod_four d a' b' hd hd4).2 hz
 
 /-- In the `1 mod 4` branch (`d = 1 + 4k`), divisibility by `4` is equivalent to
-representability in the image of `ZOnePlusSqrtOverTwo k`. -/
+representability in the image of `ZOnePlusSqrtdOverTwo k`. -/
 theorem dvd_four_sub_sq_iff_exists_zOnePlusSqrtOverTwo_image_of_one_mod_four
     (k a' b' : ℤ) (hd : Squarefree (1 + 4 * k)) :
     4 ∣ (a' ^ 2 - (1 + 4 * k) * b' ^ 2) ↔
-      ∃ z : ZOnePlusSqrtOverTwo k,
-        ZOnePlusSqrtOverTwo.toQsqrtdFun k z =
+      ∃ z : ZOnePlusSqrtdOverTwo k,
+        ZOnePlusSqrtdOverTwo.toQsqrtdFun k z =
           halfInt (1 + 4 * k) a' b' := by
   -- In the `1 mod 4` case, integrality is controlled by parity agreement
   -- of the two numerator coordinates, matching the carrier of `ℤ[(1 + √d)/2]`.
   have hd4 : (1 + 4 * k) % 4 = 1 :=
     mod_four_eq_one_of_exists_k (d := 1 + 4 * k) ⟨k, by ring⟩
   rw [dvd_four_sub_sq_iff_same_parity_of_one_mod_four (d := 1 + 4 * k) a' b' hd hd4,
-    (ZOnePlusSqrtOverTwo.halfInt_mem_carrierSet_iff_same_parity k a' b').symm]
+    (ZOnePlusSqrtdOverTwo.halfInt_mem_carrierSet_iff_same_parity k a' b').symm]
 
 /-- Forward direction in the `1 mod 4` branch. -/
 theorem exists_zOnePlusSqrtOverTwo_image_of_dvd_four_sub_sq_of_one_mod_four
     (k a' b' : ℤ) (hd : Squarefree (1 + 4 * k))
     (hdiv : 4 ∣ (a' ^ 2 - (1 + 4 * k) * b' ^ 2)) :
-    ∃ z : ZOnePlusSqrtOverTwo k,
-      ZOnePlusSqrtOverTwo.toQsqrtdFun k z =
+    ∃ z : ZOnePlusSqrtdOverTwo k,
+      ZOnePlusSqrtdOverTwo.toQsqrtdFun k z =
         halfInt (1 + 4 * k) a' b' :=
   (dvd_four_sub_sq_iff_exists_zOnePlusSqrtOverTwo_image_of_one_mod_four k a' b' hd).1 hdiv
 
 /-- Reverse direction in the `1 mod 4` branch. -/
 theorem dvd_four_sub_sq_of_exists_zOnePlusSqrtOverTwo_image_of_one_mod_four
     (k a' b' : ℤ) (hd : Squarefree (1 + 4 * k))
-    (hz : ∃ z : ZOnePlusSqrtOverTwo k,
-      ZOnePlusSqrtOverTwo.toQsqrtdFun k z =
+    (hz : ∃ z : ZOnePlusSqrtdOverTwo k,
+      ZOnePlusSqrtdOverTwo.toQsqrtdFun k z =
         halfInt (1 + 4 * k) a' b') :
     4 ∣ (a' ^ 2 - (1 + 4 * k) * b' ^ 2) :=
   (dvd_four_sub_sq_iff_exists_zOnePlusSqrtOverTwo_image_of_one_mod_four k a' b' hd).2 hz
@@ -189,12 +189,12 @@ lemma isIntegral_toQsqrtd (d : ℤ) (z : Zsqrtd d) :
     IsIntegral ℤ (Zsqrtd.toQsqrtdHom d z) :=
   isIntegral_of_intModel_image (Zsqrtd d) (Qsqrtd (d : ℚ)) (Zsqrtd.toQsqrtdHom d) z
 
-/-- Every element in the image of `ZOnePlusSqrtOverTwo k → Q(√(1 + 4k))` is
+/-- Every element in the image of `ZOnePlusSqrtdOverTwo k → Q(√(1 + 4k))` is
 integral over `ℤ`. -/
-lemma isIntegral_toQsqrtd_of_zOnePlusSqrtOverTwo (k : ℤ) (z : ZOnePlusSqrtOverTwo k) :
-    IsIntegral ℤ (_root_.ZOnePlusSqrtOverTwo.toQsqrtdHom k z) :=
-  isIntegral_of_intModel_image (ZOnePlusSqrtOverTwo k) (Qsqrtd ((1 + 4 * k : ℤ) : ℚ))
-    (_root_.ZOnePlusSqrtOverTwo.toQsqrtdHom k) z
+lemma isIntegral_toQsqrtd_of_zOnePlusSqrtOverTwo (k : ℤ) (z : ZOnePlusSqrtdOverTwo k) :
+    IsIntegral ℤ (_root_.ZOnePlusSqrtdOverTwo.toQsqrtdHom k z) :=
+  isIntegral_of_intModel_image (ZOnePlusSqrtdOverTwo k) (Qsqrtd ((1 + 4 * k : ℤ) : ℚ))
+    (_root_.ZOnePlusSqrtdOverTwo.toQsqrtdHom k) z
 
 /-! ## Half-Integer Normal Form -/
 
@@ -272,13 +272,13 @@ lemma exists_zsqrtd_of_isIntegral_of_ne_one_mod_four
       exists_zsqrtd_image_of_dvd_four_sub_sq_of_ne_one_mod_four d a' b' hd_sf hd4 hdiv)
     hx
 /-- Integrality classification in the `1 mod 4` branch model (`d = 1 + 4k`):
-integral elements of `Q(√(1 + 4k))` lie in the image of `ZOnePlusSqrtOverTwo k`. -/
+integral elements of `Q(√(1 + 4k))` lie in the image of `ZOnePlusSqrtdOverTwo k`. -/
 lemma exists_zOnePlusSqrtOverTwo_of_isIntegral_of_one_mod_four
     (k : ℤ) (hd_sf : Squarefree (1 + 4 * k)) (hd_ne : (1 + 4 * k) ≠ 1)
     {x : Qsqrtd (((1 + 4 * k : ℤ) : ℚ))} (hx : IsIntegral ℤ x) :
-    ∃ z : ZOnePlusSqrtOverTwo k, _root_.ZOnePlusSqrtOverTwo.toQsqrtdHom k z = x :=
-  exists_intModel_of_isIntegral (1 + 4 * k) hd_sf hd_ne (ZOnePlusSqrtOverTwo k)
-    (_root_.ZOnePlusSqrtOverTwo.toQsqrtdHom k)
+    ∃ z : ZOnePlusSqrtdOverTwo k, _root_.ZOnePlusSqrtdOverTwo.toQsqrtdHom k z = x :=
+  exists_intModel_of_isIntegral (1 + 4 * k) hd_sf hd_ne (ZOnePlusSqrtdOverTwo k)
+    (_root_.ZOnePlusSqrtdOverTwo.toQsqrtdHom k)
     (fun a' b' hdiv =>
       exists_zOnePlusSqrtOverTwo_image_of_dvd_four_sub_sq_of_one_mod_four k a' b' hd_sf hdiv)
     hx

@@ -8,23 +8,23 @@ import QuadraticNumberFields.RingOfIntegers.HalfInt
 /-!
 # The Ring `ℤ[(1 + √(1 + 4k)) / 2]`
 
-This file defines and studies the ring `ZOnePlusSqrtOverTwo k`, which is the
+This file defines and studies the ring `ZOnePlusSqrtdOverTwo k`, which is the
 candidate ring of integers for quadratic fields with `d ≡ 1 (mod 4)`.
 When `d = 1 + 4k`, we have `𝓞(Q(√d)) ≅ ℤ[(1+√d)/2]`.
 
 ## Main Definitions
 
-* `ZOnePlusSqrtOverTwo k`: The ring `ℤ[(1 + √(1+4k))/2]` modeled as
+* `ZOnePlusSqrtdOverTwo k`: The ring `ℤ[(1 + √(1+4k))/2]` modeled as
   `QuadraticAlgebra ℤ k 1` (satisfying `ω² = ω + k`).
 * `Qsqrtd.omega k`: The generator `ω = (1 + √(1+4k))/2` in `Q(√(1+4k))`.
 * `Qsqrtd.Zomega k`: The subalgebra `ℤ[ω]` as a `Subalgebra`.
-* `ZOnePlusSqrtOverTwo.toQsqrtdHom`: Ring hom embedding into `Q(√(1+4k))`.
-* `ZOnePlusSqrtOverTwo.carrierSet`: The image as a set.
+* `ZOnePlusSqrtdOverTwo.toQsqrtdHom`: Ring hom embedding into `Q(√(1+4k))`.
+* `ZOnePlusSqrtdOverTwo.carrierSet`: The image as a set.
 
 ## Main Theorems
 
-* `ZOnePlusSqrtOverTwo.toQsqrtdHom_injective`: The embedding is injective.
-* `ZOnePlusSqrtOverTwo.halfInt_mem_carrierSet_iff_same_parity`:
+* `ZOnePlusSqrtdOverTwo.toQsqrtdHom_injective`: The embedding is injective.
+* `ZOnePlusSqrtdOverTwo.halfInt_mem_carrierSet_iff_same_parity`:
   A half-integer is in the carrier iff its coordinates have the same parity.
 -/
 
@@ -50,51 +50,51 @@ open QuadraticNumberFields
 /-- Algebraic model of `ℤ[(1 + √(1 + 4d))/2]` via `ω^2 = ω + d`.
 In `QuadraticAlgebra R a b`, one has `ω^2 = a + b * ω`, so this is
 `QuadraticAlgebra ℤ d 1` (not `QuadraticAlgebra ℤ 1 d`). -/
-abbrev ZOnePlusSqrtOverTwo (d : ℤ) : Type := QuadraticAlgebra ℤ d 1
+abbrev ZOnePlusSqrtdOverTwo (d : ℤ) : Type := QuadraticAlgebra ℤ d 1
 
-namespace ZOnePlusSqrtOverTwo
+namespace ZOnePlusSqrtdOverTwo
 
 /-- Ambient parameter in `ℚ`: `1 + 4d`. -/
 abbrev qParam (d : ℤ) : ℚ := Qsqrtd.d_of_k d
 
 /-- The norm on `ℤ[(1 + √(1 + 4d))/2]` as a `MonoidHom` to `ℤ`. -/
-abbrev normHom (d : ℤ) : ZOnePlusSqrtOverTwo d →* ℤ :=
+abbrev normHom (d : ℤ) : ZOnePlusSqrtdOverTwo d →* ℤ :=
   QuadraticAlgebra.norm
 
-theorem normHom_apply (d : ℤ) (z : ZOnePlusSqrtOverTwo d) :
+theorem normHom_apply (d : ℤ) (z : ZOnePlusSqrtdOverTwo d) :
     normHom d z = QuadraticAlgebra.norm z :=
   rfl
 
 /-- The norm on the unit group of `ℤ[(1 + √(1 + 4d))/2]`, as a `MonoidHom` to `ℤˣ`. -/
-abbrev normUnitsHom (d : ℤ) : (ZOnePlusSqrtOverTwo d)ˣ →* ℤˣ :=
+abbrev normUnitsHom (d : ℤ) : (ZOnePlusSqrtdOverTwo d)ˣ →* ℤˣ :=
   Units.map (normHom d)
 
-theorem normUnitsHom_coe (d : ℤ) (u : (ZOnePlusSqrtOverTwo d)ˣ) :
-    ((normUnitsHom d u : ℤˣ) : ℤ) = QuadraticAlgebra.norm (u : ZOnePlusSqrtOverTwo d) := by
+theorem normUnitsHom_coe (d : ℤ) (u : (ZOnePlusSqrtdOverTwo d)ˣ) :
+    ((normUnitsHom d u : ℤˣ) : ℤ) = QuadraticAlgebra.norm (u : ZOnePlusSqrtdOverTwo d) := by
   simp [normUnitsHom, normHom]
 
 /-- The norm of `x + y·ω` in coordinates: `‖x + y·ω‖ = x² + x·y - d·y²`. -/
 @[simp]
 theorem norm_mk (d x y : ℤ) :
-    QuadraticAlgebra.norm (⟨x, y⟩ : ZOnePlusSqrtOverTwo d) = x ^ 2 + x * y - d * y ^ 2 := by
-  have h : QuadraticAlgebra.norm (⟨x, y⟩ : ZOnePlusSqrtOverTwo d) =
+    QuadraticAlgebra.norm (⟨x, y⟩ : ZOnePlusSqrtdOverTwo d) = x ^ 2 + x * y - d * y ^ 2 := by
+  have h : QuadraticAlgebra.norm (⟨x, y⟩ : ZOnePlusSqrtdOverTwo d) =
       x * x + 1 * x * y - d * y * y := QuadraticAlgebra.norm_def _
   rw [h]; ring
 
 /-- `x + y·ω` is a unit of `ℤ[(1 + √(1 + 4d))/2]` iff `x² + x·y - d·y² = ±1`. -/
 theorem isUnit_mk_iff {d x y : ℤ} :
-    IsUnit (⟨x, y⟩ : ZOnePlusSqrtOverTwo d) ↔
+    IsUnit (⟨x, y⟩ : ZOnePlusSqrtdOverTwo d) ↔
       x ^ 2 + x * y - d * y ^ 2 = 1 ∨ x ^ 2 + x * y - d * y ^ 2 = -1 := by
   rw [QuadraticAlgebra.isUnit_iff_norm_isUnit, Int.isUnit_iff, norm_mk]
 
 /-- Coordinate-level embedding candidate into `Q(√(1 + 4d))`. -/
-def toQsqrtdFun (d : ℤ) : ZOnePlusSqrtOverTwo d → Qsqrtd (qParam d) :=
+def toQsqrtdFun (d : ℤ) : ZOnePlusSqrtdOverTwo d → Qsqrtd (qParam d) :=
   -- Send `r + sω` to `r + s * (1 + √(1 + 4d)) / 2`,
   -- so the real coordinate is `r + s/2` and the `√d`-coordinate is `s/2`.
   fun x => ⟨(x.re : ℚ) + (x.im : ℚ) / 2, (x.im : ℚ) / 2⟩
 
 /-- Coordinate-level embedding as a ring hom into `Q(√(1 + 4d))`. -/
-def toQsqrtdHom (d : ℤ) : ZOnePlusSqrtOverTwo d →+* Qsqrtd (qParam d) where
+def toQsqrtdHom (d : ℤ) : ZOnePlusSqrtdOverTwo d →+* Qsqrtd (qParam d) where
   toFun := toQsqrtdFun d
   map_one' := by
     ext <;> simp [toQsqrtdFun, QuadraticAlgebra.re_one, QuadraticAlgebra.im_one]
@@ -112,7 +112,7 @@ def toQsqrtdHom (d : ℤ) : ZOnePlusSqrtOverTwo d →+* Qsqrtd (qParam d) where
     intro x y
     ext <;> simp [toQsqrtdFun, QuadraticAlgebra.re_add, QuadraticAlgebra.im_add] <;> ring
 
-@[simp] theorem toQsqrtdHom_apply (d : ℤ) (z : ZOnePlusSqrtOverTwo d) :
+@[simp] theorem toQsqrtdHom_apply (d : ℤ) (z : ZOnePlusSqrtdOverTwo d) :
     toQsqrtdHom d z = toQsqrtdFun d z := rfl
 
 /-- The canonical map `toQsqrtdHom` is injective. -/
@@ -138,7 +138,7 @@ def carrierSet (d : ℤ) : Set (Qsqrtd (qParam d)) := Set.range (toQsqrtdFun d)
 /-- A half-integer element belongs to the `ℤ[(1 + √(1+4k))/2]` carrier iff the two
 numerators have the same parity. -/
 theorem halfInt_mem_carrierSet_iff_same_parity (k a' b' : ℤ) :
-    (∃ z : ZOnePlusSqrtOverTwo k,
+    (∃ z : ZOnePlusSqrtdOverTwo k,
       toQsqrtdFun k z = RingOfIntegers.halfInt (1 + 4 * k) a' b') ↔
       a' % 2 = b' % 2 := by
   constructor
@@ -180,4 +180,4 @@ theorem halfInt_mem_carrierSet_iff_same_parity_set (k a' b' : ℤ) :
       a' % 2 = b' % 2 :=
   by simpa [carrierSet] using (halfInt_mem_carrierSet_iff_same_parity k a' b')
 
-end ZOnePlusSqrtOverTwo
+end ZOnePlusSqrtdOverTwo

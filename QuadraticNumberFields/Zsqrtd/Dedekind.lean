@@ -113,12 +113,12 @@ theorem not_isDedekindDomain_of_mod_four_eq_one
   let x : Qsqrtd (((1 + 4 * k : ℤ) : ℚ)) := RingOfIntegers.halfInt (1 + 4 * k) 1 1
   -- Show `ω` is integral: it lies in `ℤ[(1+√d)/2]`, which is an integral extension.
   have hx_def :
-      x = _root_.ZOnePlusSqrtOverTwo.toQsqrtdFun k (⟨0, 1⟩ : _root_.ZOnePlusSqrtOverTwo k) := by
-    ext <;> simp [x, RingOfIntegers.halfInt, _root_.ZOnePlusSqrtOverTwo.toQsqrtdFun]
+      x = _root_.ZOnePlusSqrtdOverTwo.toQsqrtdFun k (⟨0, 1⟩ : _root_.ZOnePlusSqrtdOverTwo k) := by
+    ext <;> simp [x, RingOfIntegers.halfInt, _root_.ZOnePlusSqrtdOverTwo.toQsqrtdFun]
   have hx_integral_Z : IsIntegral ℤ x := by
     rw [hx_def]
     exact RingOfIntegers.isIntegral_toQsqrtd_of_zOnePlusSqrtOverTwo k
-      (z := (⟨0, 1⟩ : _root_.ZOnePlusSqrtOverTwo k))
+      (z := (⟨0, 1⟩ : _root_.ZOnePlusSqrtdOverTwo k))
   have hx_integral : IsIntegral (Zsqrtd (1 + 4 * k)) x := hx_integral_Z.tower_top
   rcases (isIntegrallyClosed_iff (Qsqrtd (((1 + 4 * k : ℤ) : ℚ)))).mp
       IsDedekindRing.toIsIntegralClosure hx_integral with
