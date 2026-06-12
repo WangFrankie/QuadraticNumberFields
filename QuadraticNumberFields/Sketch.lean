@@ -20,12 +20,14 @@ import QuadraticNumberFields.Families.Chowla
 import QuadraticNumberFields.Families.RichaudDegert
 import QuadraticNumberFields.Families.Yokoi
 import QuadraticNumberFields.Heegner.StarkHeegner
+import QuadraticNumberFields.Mathlib.NumberTheory.DirichletCharacter.Kronecker
+import QuadraticNumberFields.Mathlib.NumberTheory.LegendreSymbol.KroneckerSymbolPeriodicity
 import QuadraticNumberFields.Qsqrtd.Automorphism
 import QuadraticNumberFields.Qsqrtd.Basic
 import QuadraticNumberFields.Qsqrtd.Equiv
 import QuadraticNumberFields.Qsqrtd.TraceNorm
 import QuadraticNumberFields.Qsqrtd.TotallyRealComplex
-import QuadraticNumberFields.Sketch.KroneckerCharacter
+import QuadraticNumberFields.Splitting.Qsqrtd.KroneckerCharacter
 
 /-!
 # Work-in-progress surface
@@ -38,8 +40,15 @@ kept out of the stable `QuadraticNumberFields` entry point so that
 Current work in progress:
 
 * `Euclidean.Basic`: imaginary-quadratic norm-Euclidean classification skeleton.
-* `Sketch.KroneckerCharacter`: `DirichletCharacter` packaging of the Kronecker
-  symbol; the `MulChar` obligations are still `sorry`.
+* `Mathlib.NumberTheory.LegendreSymbol.KroneckerSymbolPeriodicity`: the
+  conditional periodicity lemma `kroneckerSymNat_add_natAbs_eq` (Shim A) is the
+  single remaining `sorry`; Shims B and C are proved.
+* `Mathlib.NumberTheory.DirichletCharacter.Kronecker`: `kroneckerCharacter`
+  packaging built on the three shims; `map_mul'`, `map_nonunit'` (D = 0 case),
+  and the two evaluation lemmas inherit the Shim A `sorry` transitively.
+* `Splitting.Qsqrtd.KroneckerCharacter`: character-form splitting iff theorems;
+  the proofs are wrappers around `kroneckerCharacter_apply_intCast`, so they
+  inherit the same Shim A dependence until that shim lands.
 * `Heegner.StarkHeegner`: full Baker–Heegner–Stark statement; the deep
   direction (completeness of the nine Heegner numbers) is still `sorry`.
 * `Families.*`, `ContinuedFraction.*`, and `ClassGroup.*`: research

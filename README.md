@@ -80,7 +80,7 @@ lake build
 | `QuadraticNumberFields/Qsqrtd` | 488 | 264 | 903 |
 | `QuadraticNumberFields/Examples` | 410 | 233 | 793 |
 | `QuadraticNumberFields/Units` | 303 | 148 | 546 |
-| `QuadraticNumberFields` | 285 | 77 | 403 |
+| `QuadraticNumberFields` | 285 | 84 | 410 |
 | `QuadraticNumberFields/Heegner` | 148 | 76 | 260 |
 | `QuadraticNumberFields/ZOnePlusSqrtdOverTwo` | 103 | 50 | 183 |
 | `QuadraticNumberFields/Counterexamples` | 82 | 24 | 130 |
@@ -88,8 +88,7 @@ lake build
 | `QuadraticNumberFields/ClassGroup` | 49 | 75 | 166 |
 | `QuadraticNumberFields/Families` | 38 | 49 | 116 |
 | `QuadraticNumberFields/ContinuedFraction` | 21 | 36 | 75 |
-| `QuadraticNumberFields/Sketch` | 7 | 27 | 43 |
-| **Total** | **5929** | **2865** | **10447** |
+| **Total** | **5922** | **2845** | **10411** |
 
 ## History
 
