@@ -18,17 +18,18 @@ as a `MulChar` on `ZMod D.natAbs`:
 
 * `kroneckerSymNat_add_natAbs_eq` (Shim A): periodicity modulo `|D|`, conditional
   on `D % 4 ∈ {0, 1}`.
+* `kroneckerSymNat_mod_natAbs_eq`: reduction of the denominator modulo `|D|`.
 * `kroneckerSymNat_mul` (Shim B): full multiplicativity in the lower argument
   for nonzero inputs.
 * `kroneckerSymNat_eq_zero_of_not_coprime` (Shim C): the symbol vanishes whenever
   the lower argument shares a prime factor with `D.natAbs`.
+* `kroneckerSymNat_natAbs_sub_one_eq_sign`: the value at the representative of
+  `-1` in `ZMod D.natAbs`.
 
 All three shims depend only on
 `QuadraticNumberFields.Mathlib.NumberTheory.LegendreSymbol.KroneckerSymbol` and
 mathlib; they are project-quadratic-field-independent.
 -/
-
-namespace QuadraticNumberFields
 
 /-- A nonzero natural number split into its 2-adic valuation and odd part evaluates
 under `kroneckerSymNat` as the product of the supplementary value at `2` (raised to
@@ -208,6 +209,25 @@ theorem kroneckerSymNat_add_natAbs_eq (D : ℤ) [Fact (D % 4 = 0 ∨ D % 4 = 1)]
     rw [Nat.cast_add]
     simpa using (Int.add_mul_emod_self_left (n : ℤ) (D.natAbs : ℤ) 1)
 
+/-- Iterated periodicity of the Kronecker symbol modulo `|D|`. -/
+theorem kroneckerSymNat_add_natAbs_mul_eq (D : ℤ)
+    [Fact (D % 4 = 0 ∨ D % 4 = 1)] (n k : ℕ) :
+    kroneckerSymNat D (n + D.natAbs * k) = kroneckerSymNat D n := by
+  induction k with
+  | zero => simp
+  | succ k ih =>
+      rw [Nat.mul_succ, ← Nat.add_assoc, kroneckerSymNat_add_natAbs_eq D, ih]
+
+/-- Reducing the lower argument modulo `|D|` preserves the Kronecker symbol. -/
+theorem kroneckerSymNat_mod_natAbs_eq (D : ℤ)
+    [Fact (D % 4 = 0 ∨ D % 4 = 1)] (n : ℕ) :
+    kroneckerSymNat D (n % D.natAbs) = kroneckerSymNat D n := by
+  conv_rhs => rw [← Nat.mod_add_div n D.natAbs]
+  exact (kroneckerSymNat_add_natAbs_mul_eq D (n % D.natAbs) (n / D.natAbs)).symm
+
+/-- Auxiliary computation for the canonical `-1` representative: the denominator
+`4 * A - 1` is congruent to `-1` modulo `A`, so it is the natural representative
+of `-1` after reducing modulo `4 * A`. -/
 private lemma jacobiSym_nat_four_mul_sub_one (A : ℕ) (hA : A ≠ 0) :
     jacobiSym (A : ℤ) (4 * A - 1) = 1 := by
   obtain ⟨k, m, hm, hAeq⟩ := Nat.exists_eq_two_pow_mul_odd hA
@@ -369,5 +389,3 @@ theorem kroneckerSymNat_mul (D : ℤ) {m n : ℕ} (hm : m ≠ 0) (hn : n ≠ 0) 
     kroneckerSymNat_two_pow_mul_odd D kn hn',
     jacobiSym.mul_right' _ hm'0 hn'0, pow_add]
   ring
-
-end QuadraticNumberFields
