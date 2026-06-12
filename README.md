@@ -72,23 +72,23 @@ lake build
 
 | Module | Code Lines | Comment Lines | Total Lines |
 |--------|------------|---------------|-------------|
-| `QuadraticNumberFields/Splitting` | 1525 | 474 | 2276 |
-| `QuadraticNumberFields/Mathlib` | 1010 | 390 | 1600 |
-| `QuadraticNumberFields/Zsqrtd` | 661 | 212 | 1016 |
-| `QuadraticNumberFields/QuadraticField` | 586 | 397 | 1183 |
-| `QuadraticNumberFields/RingOfIntegers` | 511 | 304 | 1017 |
-| `QuadraticNumberFields/Qsqrtd` | 488 | 264 | 903 |
-| `QuadraticNumberFields/Examples` | 410 | 233 | 793 |
-| `QuadraticNumberFields/Units` | 303 | 148 | 546 |
-| `QuadraticNumberFields` | 284 | 75 | 400 |
-| `QuadraticNumberFields/Heegner` | 148 | 76 | 260 |
-| `QuadraticNumberFields/ZOnePlusSqrtdOverTwo` | 103 | 50 | 183 |
-| `QuadraticNumberFields/Counterexamples` | 82 | 24 | 130 |
-| `QuadraticNumberFields/Euclidean` | 52 | 25 | 93 |
-| `QuadraticNumberFields/ClassGroup` | 49 | 75 | 166 |
-| `QuadraticNumberFields/Families` | 38 | 49 | 116 |
-| `QuadraticNumberFields/ContinuedFraction` | 21 | 36 | 75 |
-| **Total** | **6271** | **2832** | **10757** |
+| `QuadraticNumberFields/Splitting` | 1525 | 474 | 1999 |
+| `QuadraticNumberFields/Mathlib` | 1010 | 390 | 1400 |
+| `QuadraticNumberFields/Zsqrtd` | 661 | 212 | 873 |
+| `QuadraticNumberFields/QuadraticField` | 586 | 397 | 983 |
+| `QuadraticNumberFields/RingOfIntegers` | 511 | 304 | 815 |
+| `QuadraticNumberFields/Qsqrtd` | 488 | 264 | 752 |
+| `QuadraticNumberFields/Examples` | 410 | 233 | 643 |
+| `QuadraticNumberFields/Units` | 303 | 148 | 451 |
+| `QuadraticNumberFields` | 284 | 75 | 359 |
+| `QuadraticNumberFields/Heegner` | 148 | 76 | 224 |
+| `QuadraticNumberFields/ZOnePlusSqrtdOverTwo` | 103 | 50 | 153 |
+| `QuadraticNumberFields/Counterexamples` | 82 | 24 | 106 |
+| `QuadraticNumberFields/Euclidean` | 52 | 25 | 77 |
+| `QuadraticNumberFields/ClassGroup` | 49 | 75 | 124 |
+| `QuadraticNumberFields/Families` | 38 | 49 | 87 |
+| `QuadraticNumberFields/ContinuedFraction` | 21 | 36 | 57 |
+| **Total** | **6271** | **2832** | **9103** |
 
 ## History
 

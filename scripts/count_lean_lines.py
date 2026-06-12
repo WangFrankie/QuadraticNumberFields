@@ -20,7 +20,6 @@ def count_lean_lines(file_path: Path) -> LineCount:
     with open(file_path, 'r', encoding='utf-8') as f:
         lines = f.readlines()
     
-    total = len(lines)
     blank = 0
     comment = 0
     code = 0
@@ -59,7 +58,7 @@ def count_lean_lines(file_path: Path) -> LineCount:
         # Code line
         code += 1
     
-    return LineCount(total=total, code=code, comment=comment, blank=blank)
+    return LineCount(total=code + comment, code=code, comment=comment, blank=blank)
 
 
 def walk_lean_files(root_dir: str, exclude_dirs: list[str] = None) -> list[Path]:
@@ -143,13 +142,14 @@ def main():
     print("=" * 60)
     print(f"{'Category':<20} {'Lines':>10} {'Percent':>10}")
     print("-" * 60)
+    physical_lines = total_lines + total_blank
     print(f"{'Total lines':<20} {total_lines:>10}")
     print(f"{'Code lines':<20} {total_code:>10} {total_code/total_lines*100:>9.1f}%")
     print(f"{'Comment lines':<20} {total_comment:>10} {total_comment/total_lines*100:>9.1f}%")
-    print(f"{'Blank lines':<20} {total_blank:>10} {total_blank/total_lines*100:>9.1f}%")
+    print(f"{'Blank lines':<20} {total_blank:>10} {total_blank/physical_lines*100:>9.1f}%")
     print("=" * 60)
     print(f"\nCode lines (excluding comments): {total_code}")
-    print(f"Total lines (including comments): {total_code + total_comment}")
+    print(f"Total non-blank lines (code + comments): {total_lines}")
 
 
 if __name__ == '__main__':
