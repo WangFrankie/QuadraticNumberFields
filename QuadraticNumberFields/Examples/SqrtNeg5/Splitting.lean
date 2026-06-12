@@ -3,7 +3,16 @@ Copyright (c) 2026 Frankie Wang. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
-import QuadraticNumberFields.Splitting
+import QuadraticNumberFields.Splitting.Defs
+import QuadraticNumberFields.Splitting.Factorization
+import QuadraticNumberFields.Splitting.MinpolyMod
+import QuadraticNumberFields.Splitting.Qsqrtd.Classification
+import QuadraticNumberFields.Splitting.Qsqrtd.Discriminant
+import QuadraticNumberFields.Splitting.Qsqrtd.KummerDedekind
+import QuadraticNumberFields.Splitting.Qsqrtd.Monogenic
+import QuadraticNumberFields.Splitting.Qsqrtd.OddPrime
+import QuadraticNumberFields.Splitting.Qsqrtd.Two
+import QuadraticNumberFields.Splitting.QuadraticField.Basic
 import QuadraticNumberFields.RingOfIntegers.CommonInstances
 
 /-!

@@ -28,7 +28,16 @@ import QuadraticNumberFields.RingOfIntegers.Integrality
 import QuadraticNumberFields.RingOfIntegers.Classification
 import QuadraticNumberFields.RingOfIntegers.Norm
 import QuadraticNumberFields.RingOfIntegers.Discriminant
-import QuadraticNumberFields.Splitting
+import QuadraticNumberFields.Splitting.Defs
+import QuadraticNumberFields.Splitting.Factorization
+import QuadraticNumberFields.Splitting.MinpolyMod
+import QuadraticNumberFields.Splitting.Qsqrtd.Classification
+import QuadraticNumberFields.Splitting.Qsqrtd.Discriminant
+import QuadraticNumberFields.Splitting.Qsqrtd.KummerDedekind
+import QuadraticNumberFields.Splitting.Qsqrtd.Monogenic
+import QuadraticNumberFields.Splitting.Qsqrtd.OddPrime
+import QuadraticNumberFields.Splitting.Qsqrtd.Two
+import QuadraticNumberFields.Splitting.QuadraticField.Basic
 import QuadraticNumberFields.ClassNumber
 import QuadraticNumberFields.Examples.SqrtNeg5.Ideals
 import QuadraticNumberFields.Examples.SqrtNeg5.RamificationInertia
