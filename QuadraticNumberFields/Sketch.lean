@@ -25,6 +25,7 @@ import QuadraticNumberFields.Qsqrtd.Basic
 import QuadraticNumberFields.Qsqrtd.Equiv
 import QuadraticNumberFields.Qsqrtd.TraceNorm
 import QuadraticNumberFields.Qsqrtd.TotallyRealComplex
+import QuadraticNumberFields.Sketch.KroneckerCharacter
 
 /-!
 # Work-in-progress surface
@@ -37,6 +38,8 @@ kept out of the stable `QuadraticNumberFields` entry point so that
 Current work in progress:
 
 * `Euclidean.Basic`: imaginary-quadratic norm-Euclidean classification skeleton.
+* `Sketch.KroneckerCharacter`: `DirichletCharacter` packaging of the Kronecker
+  symbol; the `MulChar` obligations are still `sorry`.
 * `Heegner.StarkHeegner`: full Baker–Heegner–Stark statement; the deep
   direction (completeness of the nine Heegner numbers) is still `sorry`.
 * `Families.*`, `ContinuedFraction.*`, and `ClassGroup.*`: research
