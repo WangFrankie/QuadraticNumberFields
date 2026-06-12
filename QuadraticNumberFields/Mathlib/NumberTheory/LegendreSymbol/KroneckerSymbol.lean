@@ -19,23 +19,19 @@ sign convention at `-1` and `0`.
 
 ## Main definitions
 
-* `QuadraticNumberFields.kroneckerTwo`: the supplementary Kronecker value `(D / 2)`.
-* `QuadraticNumberFields.kroneckerSymNat`: the Kronecker symbol `(D / n)` with
-  natural denominator `n`.
-* `QuadraticNumberFields.kroneckerSym`: the Kronecker symbol `(D / n)` with
-  integer denominator `n`.
+* `kroneckerTwo`: the supplementary Kronecker value `(D / 2)`.
+* `kroneckerSymNat`: the Kronecker symbol `(D / n)` with natural denominator `n`.
+* `kroneckerSym`: the Kronecker symbol `(D / n)` with integer denominator `n`.
 
 ## Main results
 
-* `QuadraticNumberFields.kroneckerSymNat_two`: `(D / 2)` is the supplementary value.
-* `QuadraticNumberFields.kroneckerTwo_eq_zero_iff`,
-  `QuadraticNumberFields.kroneckerTwo_eq_one_iff`,
-  `QuadraticNumberFields.kroneckerTwo_eq_neg_one_iff`: the mod-8 supplementary law.
-* `QuadraticNumberFields.kroneckerSymNat_of_prime_ne_two`: for an odd prime `p`,
-  `(D / p)` is the Legendre symbol `legendreSym p D`.
+* `kroneckerSymNat_two`: `(D / 2)` is the supplementary value.
+* `kroneckerTwo_eq_zero_iff`, `kroneckerTwo_eq_one_iff`,
+  `kroneckerTwo_eq_neg_one_iff`: the mod-8 supplementary law.
+* `kroneckerSym_natCast`: at natural denominators the two interfaces agree.
+* `kroneckerSymNat_eq_legendreSym_of_ne_two`: for an odd prime `p`, `(D / p)` is
+  the Legendre symbol `legendreSym p D`.
 -/
-
-namespace QuadraticNumberFields
 
 /-- The supplementary Kronecker value `(D / 2)`: zero for even `D`, and otherwise
 determined by `D % 8` (`1` for `D ≡ ±1 [ZMOD 8]`, `-1` for `D ≡ ±3 [ZMOD 8]`). -/
@@ -83,13 +79,21 @@ theorem kroneckerTwo_eq_neg_one_iff (D : ℤ) :
   unfold kroneckerTwo
   split_ifs <;> simp_all <;> omega
 
+/-- At a natural denominator, the integer-denominator Kronecker symbol agrees with
+the natural-denominator interface. -/
+@[simp] theorem kroneckerSym_natCast (D : ℤ) (n : ℕ) :
+    kroneckerSym D n = kroneckerSymNat D n := by
+  rcases Nat.eq_zero_or_pos n with rfl | hn
+  · simp [kroneckerSym, kroneckerSymNat]
+  · have h0 : (n : ℤ) ≠ 0 := by exact_mod_cast hn.ne'
+    have hneg : ¬((n : ℤ) < 0) := by omega
+    rw [kroneckerSym, if_neg h0, if_neg hneg, Int.natAbs_natCast]
+
 /-- For an odd prime `p`, the Kronecker symbol `(D / p)` is the Legendre symbol. -/
-theorem kroneckerSymNat_of_prime_ne_two (D : ℤ) {p : ℕ} [hp : Fact p.Prime] (hp2 : p ≠ 2) :
-    kroneckerSymNat D p = legendreSym p D := by
+theorem kroneckerSymNat_eq_legendreSym_of_ne_two (D : ℤ) {p : ℕ} [hp : Fact p.Prime]
+    (hp2 : p ≠ 2) : kroneckerSymNat D p = legendreSym p D := by
   have h2 : p.factorization 2 = 0 :=
     Nat.factorization_eq_zero_of_not_dvd fun hdvd =>
       hp2 ((Nat.prime_dvd_prime_iff_eq Nat.prime_two hp.out).mp hdvd).symm
   rw [kroneckerSymNat, if_neg hp.out.ne_zero, h2, pow_zero, one_mul, pow_zero, Nat.div_one,
     jacobiSym.legendreSym.to_jacobiSym]
-
-end QuadraticNumberFields

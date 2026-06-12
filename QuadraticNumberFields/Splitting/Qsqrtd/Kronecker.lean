@@ -62,7 +62,7 @@ omit [Fact (Squarefree d)] [Fact (d ≠ 1)] in
 private lemma kroneckerSymNat_disc_eq_legendreSym_param_of_ne_two
     {p : ℕ} [Fact p.Prime] (hp2 : p ≠ 2) :
     kroneckerSymNat (D(d)) p = legendreSym p d := by
-  rw [kroneckerSymNat_of_prime_ne_two _ hp2,
+  rw [kroneckerSymNat_eq_legendreSym_of_ne_two _ hp2,
     legendreSym_disc_eq_legendreSym_param_of_ne_two d hp2]
 
 /-! ## The combined Kronecker classification -/
