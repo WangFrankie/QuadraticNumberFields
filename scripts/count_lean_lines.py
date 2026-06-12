@@ -98,6 +98,13 @@ def print_file_stats(files: list[Path], verbose: bool = False):
     return all_stats
 
 
+def percentage(part: int, whole: int) -> float:
+    """Return ``part`` as a percentage of ``whole``, treating empty inputs as 0%."""
+    if whole == 0:
+        return 0.0
+    return part / whole * 100
+
+
 def main():
     import argparse
     
@@ -144,9 +151,9 @@ def main():
     print("-" * 60)
     physical_lines = total_lines + total_blank
     print(f"{'Total lines':<20} {total_lines:>10}")
-    print(f"{'Code lines':<20} {total_code:>10} {total_code/total_lines*100:>9.1f}%")
-    print(f"{'Comment lines':<20} {total_comment:>10} {total_comment/total_lines*100:>9.1f}%")
-    print(f"{'Blank lines':<20} {total_blank:>10} {total_blank/physical_lines*100:>9.1f}%")
+    print(f"{'Code lines':<20} {total_code:>10} {percentage(total_code, physical_lines):>9.1f}%")
+    print(f"{'Comment lines':<20} {total_comment:>10} {percentage(total_comment, physical_lines):>9.1f}%")
+    print(f"{'Blank lines':<20} {total_blank:>10} {percentage(total_blank, physical_lines):>9.1f}%")
     print("=" * 60)
     print(f"\nCode lines (excluding comments): {total_code}")
     print(f"Total non-blank lines (code + comments): {total_lines}")
