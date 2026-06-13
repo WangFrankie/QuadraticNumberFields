@@ -30,6 +30,12 @@ deriving DecidableEq, Repr
 
 namespace BinaryQuadraticForm
 
+@[ext] theorem ext {Q R : BinaryQuadraticForm}
+    (ha : Q.a = R.a) (hb : Q.b = R.b) (hc : Q.c = R.c) : Q = R := by
+  cases Q
+  cases R
+  simp_all
+
 /-- The discriminant `b² - 4ac` of a binary quadratic form. -/
 def disc (Q : BinaryQuadraticForm) : ℤ :=
   Q.b ^ 2 - 4 * Q.a * Q.c
