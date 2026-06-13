@@ -20,7 +20,6 @@ def count_lean_lines(file_path: Path) -> LineCount:
     with open(file_path, 'r', encoding='utf-8') as f:
         lines = f.readlines()
     
-    total = len(lines)
     blank = 0
     comment = 0
     code = 0
@@ -59,7 +58,7 @@ def count_lean_lines(file_path: Path) -> LineCount:
         # Code line
         code += 1
     
-    return LineCount(total=total, code=code, comment=comment, blank=blank)
+    return LineCount(total=code + comment, code=code, comment=comment, blank=blank)
 
 
 def walk_lean_files(root_dir: str, exclude_dirs: list[str] = None) -> list[Path]:
@@ -94,19 +93,49 @@ def print_file_stats(files: list[Path], verbose: bool = False):
                 rel_path = f.relative_to(Path.cwd())
             except ValueError:
                 rel_path = f
-            print(f"{rel_path}: {stats.total:4d} total, {stats.code:4d} code, {stats.comment:4d} comment, {stats.blank:4d} blank")
+            print(
+                f"{rel_path}: {stats.total:4d} non-blank, {stats.code:4d} code, "
+                f"{stats.comment:4d} comment, {stats.blank:4d} blank"
+            )
     
     return all_stats
+
+
+def percentage(part: int, whole: int) -> float:
+    """Return ``part`` as a percentage of ``whole``, treating empty inputs as 0%."""
+    if whole == 0:
+        return 0.0
+    return part / whole * 100
 
 
 def main():
     import argparse
     
     parser = argparse.ArgumentParser(description='Count lines in Lean code files')
-    parser.add_argument('path', nargs='?', default='QuadraticNumberFields', help='Directory to analyze (default: QuadraticNumberFields)')
-    parser.add_argument('-v', '--verbose', action='store_true', help='Show detailed stats for each file')
-    parser.add_argument('-e', '--exclude', nargs='*', default=[], help='Additional directories to exclude')
-    parser.add_argument('--no-exclude-lake', action='store_true', help='Do not exclude .lake directory')
+    parser.add_argument(
+        'path',
+        nargs='?',
+        default='QuadraticNumberFields',
+        help='Directory to analyze (default: QuadraticNumberFields)',
+    )
+    parser.add_argument(
+        '-v',
+        '--verbose',
+        action='store_true',
+        help='Show detailed stats for each file',
+    )
+    parser.add_argument(
+        '-e',
+        '--exclude',
+        nargs='*',
+        default=[],
+        help='Additional directories to exclude',
+    )
+    parser.add_argument(
+        '--no-exclude-lake',
+        action='store_true',
+        help='Do not exclude .lake directory',
+    )
     
     args = parser.parse_args()
     
@@ -143,13 +172,17 @@ def main():
     print("=" * 60)
     print(f"{'Category':<20} {'Lines':>10} {'Percent':>10}")
     print("-" * 60)
-    print(f"{'Total lines':<20} {total_lines:>10}")
-    print(f"{'Code lines':<20} {total_code:>10} {total_code/total_lines*100:>9.1f}%")
-    print(f"{'Comment lines':<20} {total_comment:>10} {total_comment/total_lines*100:>9.1f}%")
-    print(f"{'Blank lines':<20} {total_blank:>10} {total_blank/total_lines*100:>9.1f}%")
+    physical_lines = total_lines + total_blank
+    print(f"{'Non-blank lines':<20} {total_lines:>10}")
+    print(f"{'Code lines':<20} {total_code:>10} {percentage(total_code, physical_lines):>9.1f}%")
+    print(
+        f"{'Comment lines':<20} {total_comment:>10} "
+        f"{percentage(total_comment, physical_lines):>9.1f}%"
+    )
+    print(f"{'Blank lines':<20} {total_blank:>10} {percentage(total_blank, physical_lines):>9.1f}%")
     print("=" * 60)
     print(f"\nCode lines (excluding comments): {total_code}")
-    print(f"Total lines (including comments): {total_code + total_comment}")
+    print(f"Non-blank lines (code + comments): {total_lines}")
 
 
 if __name__ == '__main__':

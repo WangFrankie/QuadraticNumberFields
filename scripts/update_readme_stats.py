@@ -24,7 +24,6 @@ def count_lean_lines(file_path: Path) -> LineCount:
     with open(file_path, 'r', encoding='utf-8') as f:
         lines = f.readlines()
     
-    total = len(lines)
     blank = 0
     comment = 0
     code = 0
@@ -57,7 +56,7 @@ def count_lean_lines(file_path: Path) -> LineCount:
         
         code += 1
     
-    return LineCount(total=total, code=code, comment=comment, blank=blank)
+    return LineCount(total=code + comment, code=code, comment=comment, blank=blank)
 
 
 def walk_lean_files(root_dir: str, exclude_dirs: list[str] | None = None) -> list[Path]:

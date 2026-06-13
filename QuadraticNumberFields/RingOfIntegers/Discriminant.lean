@@ -23,6 +23,7 @@ This file proves the explicit discriminant formula for `Qsqrtd (d : ℚ)`:
   when `d % 4 ≠ 1`.
 * `discr_of_mod_four_eq_one`: `NumberField.discr (Qsqrtd (d : ℚ)) = d`
   when `d % 4 = 1`.
+* `discrFormula`: The closed-form discriminant expression.
 * `discr_formula`: Unified discriminant formula combining both cases.
 -/
 
@@ -62,6 +63,31 @@ private def ringEquivToIntAlgEquiv
 section SquarefreeIntegerParameter
 
 variable (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+
+/-- The closed-form discriminant expression for the standard quadratic field
+`ℚ(√d)`. -/
+def discrFormula (d : ℤ) : ℤ :=
+  if d % 4 = 1 then d else 4 * d
+
+/-- If `d % 4 = 1`, the closed-form discriminant expression is `d`. -/
+theorem discrFormula_of_mod_four_eq_one {d : ℤ} (hd : d % 4 = 1) :
+    discrFormula d = d := by
+  simp [discrFormula, hd]
+
+/-- If `d % 4 ≠ 1`, the closed-form discriminant expression is `4 * d`. -/
+theorem discrFormula_of_mod_four_ne_one {d : ℤ} (hd : d % 4 ≠ 1) :
+    discrFormula d = 4 * d := by
+  simp [discrFormula, hd]
+
+/-- The closed quadratic discriminant formula is always `0` or `1` modulo `4`. -/
+theorem discrFormula_emod_four_eq_zero_or_one (d : ℤ) :
+    discrFormula d % 4 = 0 ∨ discrFormula d % 4 = 1 := by
+  by_cases h : d % 4 = 1
+  · right
+    rw [discrFormula_of_mod_four_eq_one h]
+    exact h
+  · left
+    rw [discrFormula_of_mod_four_ne_one h, Int.mul_emod_right]
 
 /-- **Discriminant of `Q(√d)` when `d % 4 ≠ 1`.**
 
@@ -103,7 +129,8 @@ For squarefree `d ≠ 1`:
 * `disc(Q(√d)) = d`   if `d ≡ 1 (mod 4)`
 * `disc(Q(√d)) = 4d`  if `d ≢ 1 (mod 4)` -/
 theorem discr_formula :
-    NumberField.discr (Qsqrtd (d : ℚ)) = if d % 4 = 1 then d else 4 * d := by
+    NumberField.discr (Qsqrtd (d : ℚ)) = discrFormula d := by
+  unfold discrFormula
   split
   · exact discr_of_mod_four_eq_one d ‹_›
   · exact discr_of_mod_four_ne_one d ‹_›
@@ -113,11 +140,11 @@ identified with `Qsqrtd d`. -/
 theorem discr_formula_of_algEquiv_qsqrtd
     {K : Type*} [Field K] [Algebra ℚ K] [NumberField K]
     (e : K ≃ₐ[ℚ] Qsqrtd (d : ℚ)) :
-    NumberField.discr K = if d % 4 = 1 then d else 4 * d := by
+    NumberField.discr K = discrFormula d := by
   calc
     NumberField.discr K = NumberField.discr (Qsqrtd (d : ℚ)) :=
       NumberField.discr_eq_of_algEquiv e
-    _ = if d % 4 = 1 then d else 4 * d := discr_formula d
+    _ = discrFormula d := discr_formula d
 
 /-- Every abstract quadratic field admits a standard squarefree parameter whose
 standard discriminant formula computes the field discriminant.
@@ -128,7 +155,7 @@ This is the abstract-field version of `discr_formula`: classification produces
 theorem exists_discr_formula_of_quadraticField
     (K : Type*) [Field K] [Algebra ℚ K] [QuadraticField K] :
     ∃ d : ℤ, Squarefree d ∧ d ≠ 1 ∧
-      NumberField.discr K = if d % 4 = 1 then d else 4 * d := by
+      NumberField.discr K = discrFormula d := by
   obtain ⟨d, hd_sf, hd_ne, ⟨e⟩⟩ := exists_ringEquiv_qsqrtd K
   letI : Fact (Squarefree d) := ⟨hd_sf⟩
   letI : Fact (d ≠ 1) := ⟨hd_ne⟩
@@ -136,7 +163,7 @@ theorem exists_discr_formula_of_quadraticField
   calc
     NumberField.discr K = NumberField.discr (Qsqrtd (d : ℚ)) :=
       NumberField.discr_eq_discr_of_ringEquiv K e
-    _ = if d % 4 = 1 then d else 4 * d := discr_formula d
+    _ = discrFormula d := discr_formula d
 
 /-! ## Named Examples
 
