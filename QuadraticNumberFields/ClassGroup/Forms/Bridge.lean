@@ -1133,6 +1133,35 @@ private theorem cox_zomega_lam_ne_zero {k A p q r s u : ℤ}
   rw [hp, hr] at hdet
   norm_num at hdet
 
+private theorem cox_zsqrtd_basis_norm_eval {D A B C u x y : ℤ}
+    (hdisc : B ^ 2 - 4 * A * C = 4 * D) (hu : 2 * u = -B) :
+    QuadraticAlgebra.norm
+      (((A * x : ℤ) : Zsqrtd D) - (y : Zsqrtd D) * (⟨u, 1⟩ : Zsqrtd D)) =
+      A * (BinaryQuadraticForm.mk A B C).eval x y := by
+  have hB : B = -2 * u := by omega
+  have hD : D = u ^ 2 - A * C := by
+    have hdisc' := hdisc
+    rw [hB] at hdisc'
+    nlinarith
+  rw [hB, hD]
+  simp [BinaryQuadraticForm.eval, QuadraticAlgebra.norm_def]
+  ring
+
+private theorem cox_zomega_basis_norm_eval {k A B C u x y : ℤ}
+    (hdisc : B ^ 2 - 4 * A * C = 1 + 4 * k) (hu : 2 * u = -(B + 1)) :
+    QuadraticAlgebra.norm
+      (((A * x : ℤ) : ZOnePlusSqrtdOverTwo k) -
+        (y : ZOnePlusSqrtdOverTwo k) * (⟨u, 1⟩ : ZOnePlusSqrtdOverTwo k)) =
+      A * (BinaryQuadraticForm.mk A B C).eval x y := by
+  have hB : B = -2 * u - 1 := by omega
+  have hk : k = u ^ 2 + u - A * C := by
+    have hdisc' := hdisc
+    rw [hB] at hdisc'
+    nlinarith
+  rw [hB, hk]
+  simp [BinaryQuadraticForm.eval, QuadraticAlgebra.norm_def]
+  ring
+
 /-- The Cox ideal `(a, (-b + √D) / 2)` in the `d % 4 ≠ 1` branch, transported
 from the `Zsqrtd d` model back to the ring of integers of `Qsqrtd d`.
 
