@@ -407,6 +407,25 @@ forms of discriminant `D`. -/
 def FormClass (D : ℤ) : Type :=
   Quotient (primitivePositiveDefiniteFormSetoid D)
 
+/-- Every form class has a reduced primitive positive definite representative. -/
+theorem exists_isReduced_mk_eq_formClass {D : ℤ} (C : FormClass D) :
+    ∃ R : PrimitivePositiveDefiniteForm D, R.1.IsReduced ∧
+      Quotient.mk (primitivePositiveDefiniteFormSetoid D) R = C := by
+  induction C using Quotient.inductionOn with
+  | h Q =>
+      obtain ⟨R, hRred, hQR⟩ :=
+        exists_isReduced_primitivePositiveDefiniteForm_properEquivalent Q
+      exact ⟨R, hRred, (Quotient.sound hQR).symm⟩
+
+/-- Reduced representatives of the same form class are equal. -/
+theorem eq_of_isReduced_of_mk_eq_mk {D : ℤ} {Q R : PrimitivePositiveDefiniteForm D}
+    (hQred : Q.1.IsReduced) (hRred : R.1.IsReduced)
+    (hclass : Quotient.mk (primitivePositiveDefiniteFormSetoid D) Q =
+      Quotient.mk (primitivePositiveDefiniteFormSetoid D) R) :
+    Q = R :=
+  eq_of_isReduced_primitivePositiveDefiniteForm_of_properEquivalent hQred hRred
+    (Quotient.exact hclass)
+
 /-- The field discriminant attached to a squarefree `Qsqrtd d` parameter. -/
 def fieldDiscriminant (d : ℤ) : ℤ :=
   if d % 4 = 1 then d else 4 * d
