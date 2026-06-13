@@ -25,9 +25,6 @@ Dirichlet character on `ZMod 0 = ℤ` (only `±1` are units; both map to `1`).
 
 ## Main definitions
 
-* `kroneckerCharacterFun`: the underlying value map `ZMod D.natAbs → ℤ`,
-  `x ↦ kroneckerSymNat D x.val`. It is exposed so that proofs can unfold the
-  value map without unfolding the full `DirichletCharacter` structure.
 * `kroneckerCharacter`: the `DirichletCharacter` packaging.
 
 ## Main results
@@ -40,8 +37,7 @@ Dirichlet character on `ZMod 0 = ℤ` (only `±1` are units; both map to `1`).
   `kroneckerSym D n`.
 -/
 
-/-- The value map of the Kronecker Dirichlet character: `x ↦ kroneckerSymNat D x.val`. -/
-def kroneckerCharacterFun (D : ℤ) (x : ZMod D.natAbs) : ℤ :=
+private def kroneckerCharacterFun (D : ℤ) (x : ZMod D.natAbs) : ℤ :=
   kroneckerSymNat D x.val
 
 /-- `kroneckerSymNat D 1 = 1` for every `D : ℤ`. -/

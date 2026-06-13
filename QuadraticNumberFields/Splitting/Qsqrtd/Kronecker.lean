@@ -51,13 +51,13 @@ omit [Fact (Squarefree d)] [Fact (d ≠ 1)] in
 private lemma legendreSym_discFormula_eq_legendreSym_param_of_ne_two
     {p : ℕ} [Fact p.Prime] (hp2 : p ≠ 2) :
     legendreSym p (RingOfIntegers.discrFormula d) = legendreSym p d := by
-  unfold RingOfIntegers.discrFormula
   by_cases hd4 : d % 4 = 1
-  · rw [if_pos hd4]
+  · rw [RingOfIntegers.discrFormula_of_mod_four_eq_one hd4]
   · have h2 : ((2 : ℤ) : ZMod p) ≠ 0 := by
       simpa using zmod_two_ne_zero_of_prime_ne_two p hp2
-    rw [if_neg hd4, show (4 : ℤ) * d = 2 ^ 2 * d by ring, legendreSym.mul,
-      legendreSym.sq_one' p h2, one_mul]
+    rw [RingOfIntegers.discrFormula_of_mod_four_ne_one hd4,
+      show (4 : ℤ) * d = 2 ^ 2 * d by ring, legendreSym.mul, legendreSym.sq_one' p h2,
+      one_mul]
 
 omit [Fact (Squarefree d)] [Fact (d ≠ 1)] in
 private lemma kroneckerSymNat_discFormula_eq_legendreSym_param_of_ne_two
@@ -79,7 +79,8 @@ private theorem splitting_classification_kronecker_formula (p : ℕ) [Fact p.Pri
     rcases hcond with ⟨rfl, hd8⟩ | ⟨hp2, -, hleg⟩
     · have hd4 : d % 4 = 1 := by omega
       have hD8 : RingOfIntegers.discrFormula d % 8 = 1 := by
-        simp [RingOfIntegers.discrFormula, hd4, hd8]
+        rw [RingOfIntegers.discrFormula_of_mod_four_eq_one hd4]
+        exact hd8
       rw [kroneckerSymNat_two]
       exact (kroneckerTwo_eq_one_iff (RingOfIntegers.discrFormula d)).mpr (Or.inl hD8)
     · rw [kroneckerSymNat_discFormula_eq_legendreSym_param_of_ne_two d hp2]
@@ -88,7 +89,8 @@ private theorem splitting_classification_kronecker_formula (p : ℕ) [Fact p.Pri
     rcases hcond with ⟨rfl, hd8⟩ | ⟨hp2, -, hleg⟩
     · have hd4 : d % 4 = 1 := by omega
       have hD8 : RingOfIntegers.discrFormula d % 8 = 5 := by
-        simp [RingOfIntegers.discrFormula, hd4, hd8]
+        rw [RingOfIntegers.discrFormula_of_mod_four_eq_one hd4]
+        exact hd8
       rw [kroneckerSymNat_two]
       exact (kroneckerTwo_eq_neg_one_iff (RingOfIntegers.discrFormula d)).mpr
         (Or.inr hD8)
@@ -97,8 +99,7 @@ private theorem splitting_classification_kronecker_formula (p : ℕ) [Fact p.Pri
   · refine Or.inr (Or.inr ⟨?_, he⟩)
     rcases hcond with ⟨rfl, hd4⟩ | ⟨hp2, hpd⟩
     · have hD2 : RingOfIntegers.discrFormula d % 2 = 0 := by
-        unfold RingOfIntegers.discrFormula
-        rw [if_neg hd4]
+        rw [RingOfIntegers.discrFormula_of_mod_four_ne_one hd4]
         omega
       rw [kroneckerSymNat_two]
       exact (kroneckerTwo_eq_zero_iff (RingOfIntegers.discrFormula d)).mpr hD2

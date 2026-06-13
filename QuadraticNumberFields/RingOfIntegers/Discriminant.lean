@@ -69,23 +69,25 @@ variable (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
 def discrFormula (d : ℤ) : ℤ :=
   if d % 4 = 1 then d else 4 * d
 
+/-- If `d % 4 = 1`, the closed-form discriminant expression is `d`. -/
+theorem discrFormula_of_mod_four_eq_one {d : ℤ} (hd : d % 4 = 1) :
+    discrFormula d = d := by
+  simp [discrFormula, hd]
+
+/-- If `d % 4 ≠ 1`, the closed-form discriminant expression is `4 * d`. -/
+theorem discrFormula_of_mod_four_ne_one {d : ℤ} (hd : d % 4 ≠ 1) :
+    discrFormula d = 4 * d := by
+  simp [discrFormula, hd]
+
 /-- The closed quadratic discriminant formula is always `0` or `1` modulo `4`. -/
 theorem discrFormula_emod_four_eq_zero_or_one (d : ℤ) :
     discrFormula d % 4 = 0 ∨ discrFormula d % 4 = 1 := by
   by_cases h : d % 4 = 1
   · right
-    simp [discrFormula, h]
+    rw [discrFormula_of_mod_four_eq_one h]
+    exact h
   · left
-    simp [discrFormula, h, Int.mul_emod_right]
-
-example {d : ℤ} (hd : d % 4 = 1) : discrFormula d = d := by
-  simp [discrFormula, hd]
-
-example {d : ℤ} (hd : d % 4 ≠ 1) : discrFormula d = 4 * d := by
-  simp [discrFormula, hd]
-
-example (d : ℤ) : discrFormula d % 4 = 0 ∨ discrFormula d % 4 = 1 :=
-  discrFormula_emod_four_eq_zero_or_one d
+    rw [discrFormula_of_mod_four_ne_one h, Int.mul_emod_right]
 
 /-- **Discriminant of `Q(√d)` when `d % 4 ≠ 1`.**
 
