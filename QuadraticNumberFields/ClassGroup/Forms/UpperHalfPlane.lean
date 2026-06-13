@@ -68,5 +68,57 @@ theorem normSq_tauOfForm (Q : BinaryQuadraticForm) (hQ : Q.IsPositiveDefinite) :
   field_simp
   ring
 
+/-- The upper half-plane point as an explicit complex number. -/
+theorem tauOfForm_coe (Q : BinaryQuadraticForm) (hQ : Q.IsPositiveDefinite) :
+    (tauOfForm Q hQ : ℂ) =
+      (-(Q.b : ℂ) + (Real.sqrt (4 * (Q.a : ℝ) * Q.c - (Q.b : ℝ) ^ 2) : ℝ) * Complex.I) /
+        (2 * (Q.a : ℂ)) := by
+  have ha : (Q.a : ℂ) ≠ 0 := by exact_mod_cast (ne_of_gt hQ.1)
+  have haR : (Q.a : ℝ) ≠ 0 := by exact_mod_cast (ne_of_gt hQ.1)
+  rw [eq_div_iff (mul_ne_zero two_ne_zero ha)]
+  apply Complex.ext <;>
+    simp [tauOfForm, Complex.mul_re, Complex.mul_im] <;>
+    field_simp
+
+/-- The defining property: the form's quadratic `a X² + b X + c` vanishes at its
+upper half-plane point. -/
+theorem tauOfForm_root (Q : BinaryQuadraticForm) (hQ : Q.IsPositiveDefinite) :
+    (Q.a : ℂ) * (tauOfForm Q hQ : ℂ) ^ 2 + (Q.b : ℂ) * (tauOfForm Q hQ : ℂ) + (Q.c : ℂ) = 0 := by
+  have ha : (Q.a : ℂ) ≠ 0 := by exact_mod_cast (ne_of_gt hQ.1)
+  have hge : (0 : ℝ) ≤ 4 * (Q.a : ℝ) * Q.c - (Q.b : ℝ) ^ 2 := by
+    have h := hQ.2
+    unfold disc at h
+    have h' : (Q.b : ℝ) ^ 2 - 4 * (Q.a : ℝ) * Q.c < 0 := by exact_mod_cast h
+    linarith
+  have hwI : ((Real.sqrt (4 * (Q.a : ℝ) * Q.c - (Q.b : ℝ) ^ 2) : ℝ) : ℂ) ^ 2 * Complex.I ^ 2 =
+      (Q.b : ℂ) ^ 2 - 4 * Q.a * Q.c := by
+    rw [Complex.I_sq, ← Complex.ofReal_pow, Real.sq_sqrt hge]
+    push_cast
+    ring
+  rw [tauOfForm_coe]
+  field_simp
+  linear_combination hwI
+
+/-- **Uniqueness of the root in `ℍ`.** A positive definite form has exactly one
+root in the upper half-plane: the conjugate root has negative imaginary part. -/
+theorem eq_tauOfForm_of_root (Q : BinaryQuadraticForm) (hQ : Q.IsPositiveDefinite)
+    (z : UpperHalfPlane)
+    (hz : (Q.a : ℂ) * (z : ℂ) ^ 2 + (Q.b : ℂ) * (z : ℂ) + (Q.c : ℂ) = 0) :
+    z = tauOfForm Q hQ := by
+  have hroot := tauOfForm_root Q hQ
+  have hfactor : ((z : ℂ) - (tauOfForm Q hQ : ℂ)) *
+      ((Q.a : ℂ) * ((z : ℂ) + (tauOfForm Q hQ : ℂ)) + (Q.b : ℂ)) = 0 := by
+    linear_combination hz - hroot
+  rcases mul_eq_zero.mp hfactor with h | h
+  · exact UpperHalfPlane.ext (sub_eq_zero.mp h)
+  · exfalso
+    have hzi : 0 < (z : ℂ).im := z.2
+    have hτi : 0 < (tauOfForm Q hQ : ℂ).im := (tauOfForm Q hQ).2
+    have ha_pos : 0 < (Q.a : ℝ) := by exact_mod_cast hQ.1
+    have him := congrArg Complex.im h
+    simp only [Complex.add_im, Complex.mul_im, Complex.intCast_im, Complex.intCast_re,
+      Complex.zero_im, zero_mul, add_zero] at him
+    nlinarith [him, hzi, hτi, ha_pos]
+
 end BinaryQuadraticForm
 end QuadraticNumberFields
