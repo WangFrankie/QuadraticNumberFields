@@ -194,5 +194,81 @@ theorem tauOfForm_transform (Q : BinaryQuadraticForm) (hQ : Q.IsPositiveDefinite
     _ = 0 := by
       rw [hroot, mul_zero]
 
+private theorem one_le_div_iff_int {a c : ℤ} (ha : 0 < a) :
+    (1 : ℝ) ≤ (c : ℝ) / (a : ℝ) ↔ a ≤ c := by
+  have haR : 0 < (a : ℝ) := by exact_mod_cast ha
+  constructor
+  · intro h
+    rw [le_div_iff₀ haR] at h
+    have hR : (a : ℝ) ≤ c := by nlinarith
+    exact_mod_cast hR
+  · intro h
+    have hR : (a : ℝ) ≤ c := by exact_mod_cast h
+    rw [le_div_iff₀ haR]
+    nlinarith
+
+private theorem one_lt_div_iff_int {a c : ℤ} (ha : 0 < a) :
+    (1 : ℝ) < (c : ℝ) / (a : ℝ) ↔ a < c := by
+  have haR : 0 < (a : ℝ) := by exact_mod_cast ha
+  constructor
+  · intro h
+    rw [lt_div_iff₀ haR] at h
+    have hR : (a : ℝ) < c := by nlinarith
+    exact_mod_cast hR
+  · intro h
+    have hR : (a : ℝ) < c := by exact_mod_cast h
+    rw [lt_div_iff₀ haR]
+    nlinarith
+
+private theorem abs_re_le_half_iff {a b : ℤ} (ha : 0 < a) :
+    |-(b : ℝ) / (2 * (a : ℝ))| ≤ (1 : ℝ) / 2 ↔ |b| ≤ a := by
+  have haR : 0 < (a : ℝ) := by exact_mod_cast ha
+  have hden : 0 < 2 * (a : ℝ) := by positivity
+  constructor
+  · intro h
+    rw [abs_div, abs_neg, abs_of_pos hden] at h
+    rw [div_le_iff₀ hden] at h
+    have hR : |(b : ℝ)| ≤ (a : ℝ) := by nlinarith
+    exact_mod_cast hR
+  · intro h
+    have hR : |(b : ℝ)| ≤ (a : ℝ) := by exact_mod_cast h
+    rw [abs_div, abs_neg, abs_of_pos hden]
+    rw [div_le_iff₀ hden]
+    nlinarith
+
+private theorem abs_re_lt_half_iff {a b : ℤ} (ha : 0 < a) :
+    |-(b : ℝ) / (2 * (a : ℝ))| < (1 : ℝ) / 2 ↔ |b| < a := by
+  have haR : 0 < (a : ℝ) := by exact_mod_cast ha
+  have hden : 0 < 2 * (a : ℝ) := by positivity
+  constructor
+  · intro h
+    rw [abs_div, abs_neg, abs_of_pos hden] at h
+    rw [div_lt_iff₀ hden] at h
+    have hR : |(b : ℝ)| < (a : ℝ) := by nlinarith
+    exact_mod_cast hR
+  · intro h
+    have hR : |(b : ℝ)| < (a : ℝ) := by exact_mod_cast h
+    rw [abs_div, abs_neg, abs_of_pos hden]
+    rw [div_lt_iff₀ hden]
+    nlinarith
+
+/-- Membership of `tauOfForm` in the closed modular fundamental domain is the pair of
+weak reduced-form inequalities. -/
+theorem tauOfForm_mem_fd_iff (Q : BinaryQuadraticForm) (hQ : Q.IsPositiveDefinite) :
+    tauOfForm Q hQ ∈ ModularGroup.fd ↔ |Q.b| ≤ Q.a ∧ Q.a ≤ Q.c := by
+  rw [ModularGroup.fd]
+  simp only [Set.mem_setOf_eq, normSq_tauOfForm, tauOfForm_re]
+  rw [one_le_div_iff_int hQ.1, abs_re_le_half_iff hQ.1]
+  exact and_comm
+
+/-- Membership of `tauOfForm` in the open modular fundamental domain is the pair of
+strict reduced-form inequalities. -/
+theorem tauOfForm_mem_fdo_iff (Q : BinaryQuadraticForm) (hQ : Q.IsPositiveDefinite) :
+    tauOfForm Q hQ ∈ ModularGroup.fdo ↔ |Q.b| < Q.a ∧ Q.a < Q.c := by
+  rw [ModularGroup.fdo]
+  simp only [Set.mem_setOf_eq, normSq_tauOfForm, tauOfForm_re]
+  rw [one_lt_div_iff_int hQ.1, abs_re_lt_half_iff hQ.1]
+  exact and_comm
+
 end BinaryQuadraticForm
 end QuadraticNumberFields
