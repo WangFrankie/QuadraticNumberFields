@@ -270,5 +270,73 @@ theorem tauOfForm_mem_fdo_iff (Q : BinaryQuadraticForm) (hQ : Q.IsPositiveDefini
   rw [one_lt_div_iff_int hQ.1, abs_re_lt_half_iff hQ.1]
   exact and_comm
 
+private theorem isReduced_transform_T_of_neg_abs_eq_a (Q : BinaryQuadraticForm)
+    (hQ : Q.IsPositiveDefinite) (hweak : |Q.b| ≤ Q.a ∧ Q.a ≤ Q.c)
+    (hbabs : |Q.b| = Q.a) (hbneg : Q.b < 0) :
+    (transform Q ModularGroup.T).IsReduced := by
+  rcases Q with ⟨a, b, c⟩
+  simp only at hQ hweak hbabs hbneg
+  have ha_pos : 0 < a := hQ.1
+  have hb_eq : b = -a := by
+    have hbabs' : -b = a := by simpa [abs_of_neg hbneg] using hbabs
+    linarith
+  have hT : transform (BinaryQuadraticForm.mk a b c) ModularGroup.T =
+      BinaryQuadraticForm.mk a (2 * a + b) (a + b + c) := by
+    ext <;> simp [ModularGroup.coe_T]
+  rw [hT, isReduced_mk_iff, hb_eq]
+  refine ⟨?_, ?_, ?_, ?_⟩
+  · have h : |2 * a + -a| = a := by
+      rw [show 2 * a + -a = a by ring, abs_of_nonneg ha_pos.le]
+    exact h.le
+  · nlinarith [hweak.2]
+  · intro _
+    nlinarith [ha_pos]
+  · intro _
+    nlinarith [ha_pos]
+
+private theorem isReduced_transform_S_of_neg_a_eq_c (Q : BinaryQuadraticForm)
+    (hQ : Q.IsPositiveDefinite) (hweak : |Q.b| ≤ Q.a ∧ Q.a ≤ Q.c)
+    (hac : Q.a = Q.c) (hbneg : Q.b < 0) :
+    (transform Q ModularGroup.S).IsReduced := by
+  rcases Q with ⟨a, b, c⟩
+  simp only at hQ hweak hac hbneg
+  have ha_pos : 0 < a := hQ.1
+  have hneg_nonneg : 0 ≤ -b := by linarith
+  have hb_abs_le : |b| ≤ a := hweak.1
+  have hS : transform (BinaryQuadraticForm.mk a b c) ModularGroup.S =
+      BinaryQuadraticForm.mk c (-b) a := by
+    ext <;> simp [ModularGroup.coe_S]
+  rw [hS, isReduced_mk_iff]
+  refine ⟨?_, ?_, ?_, ?_⟩
+  · simpa [← hac] using hb_abs_le
+  · rw [← hac]
+  · intro _
+    exact hneg_nonneg
+  · intro _
+    exact hneg_nonneg
+
+/-- A point of a positive definite form in the closed modular fundamental domain can be
+boundary-normalized by one of the standard generators. -/
+theorem exists_isReduced_transform_of_mem_fd (Q : BinaryQuadraticForm)
+    (hQ : Q.IsPositiveDefinite) (hfd : tauOfForm Q hQ ∈ ModularGroup.fd) :
+    ∃ g : SL2Z, (transform Q g).IsReduced := by
+  have hweak : |Q.b| ≤ Q.a ∧ Q.a ≤ Q.c := (tauOfForm_mem_fd_iff Q hQ).mp hfd
+  by_cases hbadAbs : |Q.b| = Q.a ∧ Q.b < 0
+  · exact ⟨ModularGroup.T,
+      isReduced_transform_T_of_neg_abs_eq_a Q hQ hweak hbadAbs.1 hbadAbs.2⟩
+  · by_cases hbadC : Q.a = Q.c ∧ Q.b < 0
+    · exact ⟨ModularGroup.S,
+        isReduced_transform_S_of_neg_a_eq_c Q hQ hweak hbadC.1 hbadC.2⟩
+    · refine ⟨1, ?_⟩
+      have hred : Q.IsReduced := by
+        refine ⟨hweak.1, hweak.2, ?_, ?_⟩
+        · intro hbabs
+          by_contra hbnonneg
+          exact hbadAbs ⟨hbabs, lt_of_not_ge hbnonneg⟩
+        · intro hac
+          by_contra hbnonneg
+          exact hbadC ⟨hac, lt_of_not_ge hbnonneg⟩
+      simpa using hred
+
 end BinaryQuadraticForm
 end QuadraticNumberFields
