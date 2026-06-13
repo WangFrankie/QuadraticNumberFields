@@ -6,7 +6,8 @@ Authors: Frankie Wang
 
 import QuadraticNumberFields.ClassGroup.Forms.Basic
 import Mathlib.LinearAlgebra.Matrix.SpecialLinearGroup
-import Mathlib.Tactic
+import Mathlib.Tactic.NormNum
+import Mathlib.Tactic.Ring
 
 /-!
 # Proper Equivalence of Binary Quadratic Forms

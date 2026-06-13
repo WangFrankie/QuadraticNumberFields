@@ -7,7 +7,6 @@ Authors: Frankie Wang
 import Mathlib.Data.Int.Basic
 import Mathlib.Data.Int.GCD
 import Mathlib.Tactic.NormNum
-import Mathlib.Tactic.Ring
 
 /-!
 # Binary Quadratic Forms
