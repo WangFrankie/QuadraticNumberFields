@@ -942,13 +942,62 @@ noncomputable def idealClassOfForm_of_mod_four_eq_one
     ClassGroup (𝓞 (Qsqrtd (d : ℚ))) :=
   ClassGroup.mk0 (nonzeroIdealOfForm_of_mod_four_eq_one d hd4 Q)
 
+private theorem idealClassOfForm_of_mod_four_ne_one_eq_of_transform
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd4 : d % 4 ≠ 1)
+    (Q R : PrimitivePositiveDefiniteForm (fieldDiscriminant d)) (g : SL2Z)
+    (hR : R.1 = transform Q.1 g) :
+    idealClassOfForm_of_mod_four_ne_one d hd4 Q =
+      idealClassOfForm_of_mod_four_ne_one d hd4 R := by
+  let e := RingOfIntegers.ringOfIntegers_equiv_zsqrtd_of_mod_four_ne_one d hd4
+  let lam : Zsqrtd d :=
+    ((g 0 0 * Q.1.a : ℤ) : Zsqrtd d) -
+      (g 1 0 : Zsqrtd d) * (⟨(-Q.1.b) / 2, 1⟩ : Zsqrtd d)
+  let x : 𝓞 (Qsqrtd (d : ℚ)) := e.symm (((R.1.a : ℤ) : Zsqrtd d))
+  let y : 𝓞 (Qsqrtd (d : ℚ)) := e.symm lam
+  have hx : x ≠ 0 := by
+    intro hx0
+    have hxZ : (((R.1.a : ℤ) : Zsqrtd d)) = 0 := by
+      have := congrArg e hx0
+      simpa [x, e] using this
+    have ha0 : R.1.a = 0 := by
+      exact_mod_cast congrArg QuadraticAlgebra.re hxZ
+    exact (ne_of_gt R.2.2.2.1) ha0
+  have hdet : g 0 0 * g 1 1 - g 0 1 * g 1 0 = 1 := by
+    have h := g.2
+    rw [Matrix.det_fin_two] at h
+    simpa using h
+  have hlam : lam ≠ 0 :=
+    cox_zsqrtd_lam_ne_zero (D := d) (A := Q.1.a) (p := g 0 0)
+      (q := g 0 1) (r := g 1 0) (s := g 1 1) (u := (-Q.1.b) / 2)
+      (ne_of_gt Q.2.2.2.1) hdet
+  have hy : y ≠ 0 := by
+    intro hy0
+    apply hlam
+    have := congrArg e hy0
+    simpa [y, e] using this
+  have hideal :=
+    cox_ringOfIntegers_ideal_relation_transform_of_mod_four_ne_one d hd4 Q R g hR
+  unfold idealClassOfForm_of_mod_four_ne_one
+  rw [ClassGroup.mk0_eq_mk0_iff]
+  refine ⟨x, y, hx, hy, ?_⟩
+  simpa [x, y, lam, nonzeroIdealOfForm_of_mod_four_ne_one] using hideal
+
+private theorem idealClassOfForm_of_mod_four_ne_one_eq_of_properEquivalent
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd4 : d % 4 ≠ 1)
+    (Q R : PrimitivePositiveDefiniteForm (fieldDiscriminant d))
+    (hQR : PrimitivePositiveDefiniteForm.ProperEquivalent Q R) :
+    idealClassOfForm_of_mod_four_ne_one d hd4 Q =
+      idealClassOfForm_of_mod_four_ne_one d hd4 R := by
+  rcases hQR with ⟨g, hg⟩
+  exact idealClassOfForm_of_mod_four_ne_one_eq_of_transform d hd4 Q R g hg.symm
+
 /-- WIP map from form classes to ideal classes in the `d % 4 ≠ 1` branch. -/
 noncomputable def formClassToClassGroup_of_mod_four_ne_one
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd4 : d % 4 ≠ 1) :
     FormClass (fieldDiscriminant d) → ClassGroup (𝓞 (Qsqrtd (d : ℚ))) := by
-  intro Q
   classical
-  sorry
+  exact Quotient.lift (idealClassOfForm_of_mod_four_ne_one d hd4)
+    (idealClassOfForm_of_mod_four_ne_one_eq_of_properEquivalent d hd4)
 
 /-- WIP map from form classes to ideal classes in the `d % 4 = 1` branch. -/
 noncomputable def formClassToClassGroup_of_mod_four_eq_one
