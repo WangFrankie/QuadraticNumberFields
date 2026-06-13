@@ -409,6 +409,43 @@ def FormClass (D : ℤ) : Type :=
 def fieldDiscriminant (d : ℤ) : ℤ :=
   if d % 4 = 1 then d else 4 * d
 
+/-- In the `d % 4 ≠ 1` Cox branch, a form of field discriminant has even
+middle coefficient. This justifies the `-b / 2` coordinate in the `Zsqrtd`
+ideal generator. -/
+theorem even_b_of_hasDiscriminant_fieldDiscriminant_of_mod_four_ne_one
+    {d : ℤ} (hd4 : d % 4 ≠ 1) {Q : BinaryQuadraticForm}
+    (hdisc : Q.HasDiscriminant (fieldDiscriminant d)) : Even Q.b := by
+  have hdisc' : Q.b ^ 2 - 4 * Q.a * Q.c = 4 * d := by
+    simpa [HasDiscriminant, disc, fieldDiscriminant, hd4] using hdisc
+  by_contra hb_even
+  have hb_not_dvd : ¬ (2 : ℤ) ∣ Q.b := by simpa [Int.even_iff] using hb_even
+  have hb2dvd : (4 : ℤ) ∣ Q.b ^ 2 := by
+    refine ⟨Q.a * Q.c + d, ?_⟩
+    nlinarith
+  have hb2mod0 : Q.b ^ 2 % 4 = 0 := (Int.dvd_iff_emod_eq_zero).mp hb2dvd
+  have hb2mod1 : Q.b ^ 2 % 4 = 1 := Int.sq_emod_four_of_odd Q.b hb_not_dvd
+  omega
+
+/-- In the `d % 4 = 1` Cox branch, a form of field discriminant has odd
+middle coefficient. This justifies the `-(b + 1) / 2` coordinate in the
+`ZOnePlusSqrtdOverTwo` ideal generator. -/
+theorem odd_b_of_hasDiscriminant_fieldDiscriminant_of_mod_four_eq_one
+    {d : ℤ} (hd4 : d % 4 = 1) {Q : BinaryQuadraticForm}
+    (hdisc : Q.HasDiscriminant (fieldDiscriminant d)) : Odd Q.b := by
+  rw [← Int.not_even_iff_odd]
+  intro hb_even
+  have hdisc' : Q.b ^ 2 - 4 * Q.a * Q.c = d := by
+    simpa [HasDiscriminant, disc, fieldDiscriminant, hd4] using hdisc
+  have hb_dvd : (2 : ℤ) ∣ Q.b := by simpa [Int.even_iff] using hb_even
+  have hb2mod0 : Q.b ^ 2 % 4 = 0 := Int.sq_emod_four_of_even Q.b hb_dvd
+  have hb2mod1 : Q.b ^ 2 % 4 = 1 := by
+    have hmod : Q.b ^ 2 % 4 = d % 4 := by
+      have hb2_eq : Q.b ^ 2 = 4 * Q.a * Q.c + d := by nlinarith
+      rw [hb2_eq, show 4 * Q.a * Q.c + d = d + 4 * (Q.a * Q.c) by ring,
+        Int.add_mul_emod_self_left]
+    simpa [hd4] using hmod
+  omega
+
 /-- The Cox ideal `(a, (-b + √D) / 2)` in the `d % 4 ≠ 1` branch, transported
 from the `Zsqrtd d` model back to the ring of integers of `Qsqrtd d`.
 
