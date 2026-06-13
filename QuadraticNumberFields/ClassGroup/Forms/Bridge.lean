@@ -52,6 +52,32 @@ def ProperEquivalent {D : ℤ}
 
 end PrimitivePositiveDefiniteForm
 
+/-! ## Restricted Gauss reduction interface -/
+
+/-- Every primitive positive definite form has a properly equivalent reduced
+representative inside the same restricted carrier. -/
+theorem exists_isReduced_primitivePositiveDefiniteForm_properEquivalent
+    {D : ℤ} (Q : PrimitivePositiveDefiniteForm D) :
+    ∃ R : PrimitivePositiveDefiniteForm D, R.1.IsReduced ∧
+      PrimitivePositiveDefiniteForm.ProperEquivalent Q R := by
+  obtain ⟨R, hRred, hQR⟩ := exists_isReduced_properEquivalent Q.1 Q.2.2.2
+  rcases hQR with ⟨g, rfl⟩
+  refine ⟨⟨transform Q.1 g, ?_⟩, hRred, ⟨g, rfl⟩⟩
+  constructor
+  · exact (disc_transform Q.1 g).trans Q.2.1
+  · constructor
+    · exact isPrimitive_transform Q.1 Q.2.2.1 g
+    · exact isPositiveDefinite_transform Q.1 Q.2.2.2 g
+
+/-- Boundary-normalized reduced representatives are unique within the
+restricted primitive positive definite carrier. -/
+theorem eq_of_isReduced_primitivePositiveDefiniteForm_of_properEquivalent
+    {D : ℤ} {Q R : PrimitivePositiveDefiniteForm D}
+    (hQred : Q.1.IsReduced) (hRred : R.1.IsReduced)
+    (h : PrimitivePositiveDefiniteForm.ProperEquivalent Q R) : Q = R := by
+  apply Subtype.ext
+  exact eq_of_isReduced_of_properEquivalent Q.2.2.2 hQred hRred h
+
 /-- Setoid on primitive positive definite forms given by proper equivalence. -/
 instance primitivePositiveDefiniteFormSetoid (D : ℤ) :
     Setoid (PrimitivePositiveDefiniteForm D) where

@@ -73,6 +73,35 @@ theorem ProperEquivalent.trans {Q R S : BinaryQuadraticForm}
   rcases hRS with ⟨h, rfl⟩
   exact ⟨g * h, (transform_mul Q g h).symm⟩
 
+/-- A positive definite form evaluates positively on every nonzero vector. -/
+theorem eval_pos_of_isPositiveDefinite (Q : BinaryQuadraticForm)
+    (hQ : Q.IsPositiveDefinite) {x y : ℤ} (hxy : x ≠ 0 ∨ y ≠ 0) :
+    0 < Q.eval x y := by
+  rcases Q with ⟨a, b, c⟩
+  rcases hQ with ⟨ha, hdisc⟩
+  simp only [disc_mk] at hdisc
+  simp only [eval_mk]
+  have hcoef : 0 < 4 * a * c - b ^ 2 := by nlinarith
+  have hmain : 0 < (2 * a * x + b * y) ^ 2 + (4 * a * c - b ^ 2) * y ^ 2 := by
+    by_cases hy : y = 0
+    · rcases hxy with hx | hy'
+      · have hnonzero : 2 * a * x ≠ 0 :=
+          mul_ne_zero (mul_ne_zero (by norm_num) (ne_of_gt ha)) hx
+        have hs : 0 < (2 * a * x + b * y) ^ 2 := by
+          rw [hy, mul_zero, add_zero]
+          exact sq_pos_of_ne_zero hnonzero
+        nlinarith
+      · contradiction
+    · have hy2 : 0 < y ^ 2 := sq_pos_of_ne_zero hy
+      nlinarith [sq_nonneg (2 * a * x + b * y)]
+  have hident :
+      (2 * a * x + b * y) ^ 2 + (4 * a * c - b ^ 2) * y ^ 2 =
+        4 * a * (a * x ^ 2 + b * x * y + c * y ^ 2) := by
+    ring
+  have hprod : 0 < 4 * a * (a * x ^ 2 + b * x * y + c * y ^ 2) := by
+    rwa [hident] at hmain
+  nlinarith
+
 private theorem disc_transform_aux (a b c p q r s : ℤ) (hdet : p * s - q * r = 1) :
     (2 * a * p * q + b * (p * s + q * r) + 2 * c * r * s) ^ 2 -
         4 * (a * p ^ 2 + b * p * r + c * r ^ 2) *
@@ -100,6 +129,74 @@ theorem disc_transform (Q : BinaryQuadraticForm) (g : SL2Z) :
     simpa [p, q, r, s, m00, m01, m10, m11] using h
   rcases Q with ⟨A, B, C⟩
   simpa [transform, disc, p, q, r, s] using disc_transform_aux A B C p q r s hdet
+
+/-- Properly equivalent forms have equal discriminants. -/
+theorem disc_eq_of_properEquivalent {Q R : BinaryQuadraticForm}
+    (hQR : ProperEquivalent Q R) : Q.disc = R.disc := by
+  rcases hQR with ⟨g, rfl⟩
+  exact (disc_transform Q g).symm
+
+/-- The `SL₂(ℤ)` coordinate transform preserves positive definiteness. -/
+theorem isPositiveDefinite_transform (Q : BinaryQuadraticForm)
+    (hQ : Q.IsPositiveDefinite) (g : SL2Z) : (transform Q g).IsPositiveDefinite := by
+  constructor
+  · rw [show (transform Q g).a = Q.eval (m00 g) (m10 g) by rfl]
+    apply eval_pos_of_isPositiveDefinite Q hQ
+    by_contra hzero
+    push Not at hzero
+    have hdet := g.2
+    rw [Matrix.det_fin_two] at hdet
+    simp [hzero.1, hzero.2] at hdet
+  · rw [disc_transform]
+    exact hQ.2
+
+private theorem dvd_coefficients_of_dvd_transform_coefficients
+    (Q : BinaryQuadraticForm) (g : SL2Z) {n : ℕ}
+    (ha : (n : ℤ) ∣ (transform Q g).a) (hb : (n : ℤ) ∣ (transform Q g).b)
+    (hc : (n : ℤ) ∣ (transform Q g).c) :
+    (n : ℤ) ∣ Q.a ∧ (n : ℤ) ∣ Q.b ∧ (n : ℤ) ∣ Q.c := by
+  have hback : transform (transform Q g) g⁻¹ = Q := by
+    rw [transform_mul, mul_inv_cancel, transform_one]
+  constructor
+  · rw [← congrArg BinaryQuadraticForm.a hback]
+    convert
+      dvd_add (dvd_add (dvd_mul_of_dvd_left ha (m00 g⁻¹ ^ 2))
+        (dvd_mul_of_dvd_left hb (m00 g⁻¹ * m10 g⁻¹)))
+        (dvd_mul_of_dvd_left hc (m10 g⁻¹ ^ 2)) using 1
+    · simp [transform]
+      ring_nf
+  · constructor
+    · rw [← congrArg BinaryQuadraticForm.b hback]
+      convert
+        dvd_add (dvd_add (dvd_mul_of_dvd_left ha (2 * m00 g⁻¹ * m01 g⁻¹))
+          (dvd_mul_of_dvd_left hb (m00 g⁻¹ * m11 g⁻¹ + m01 g⁻¹ * m10 g⁻¹)))
+          (dvd_mul_of_dvd_left hc (2 * m10 g⁻¹ * m11 g⁻¹)) using 1
+      · simp [transform]
+        ring_nf
+    · rw [← congrArg BinaryQuadraticForm.c hback]
+      convert
+        dvd_add (dvd_add (dvd_mul_of_dvd_left ha (m01 g⁻¹ ^ 2))
+          (dvd_mul_of_dvd_left hb (m01 g⁻¹ * m11 g⁻¹)))
+          (dvd_mul_of_dvd_left hc (m11 g⁻¹ ^ 2)) using 1
+      · simp [transform]
+        ring_nf
+
+/-- The `SL₂(ℤ)` coordinate transform preserves primitivity. -/
+theorem isPrimitive_transform (Q : BinaryQuadraticForm)
+    (hQ : Q.IsPrimitive) (g : SL2Z) : (transform Q g).IsPrimitive := by
+  unfold IsPrimitive at hQ ⊢
+  let P := transform Q g
+  let n : ℕ := Int.gcd P.a (Int.gcd P.b P.c)
+  have haP : (n : ℤ) ∣ P.a := Int.gcd_dvd_left _ _
+  have hbcP : (n : ℤ) ∣ Int.gcd P.b P.c := Int.gcd_dvd_right _ _
+  have hbP : (n : ℤ) ∣ P.b := dvd_trans hbcP (Int.gcd_dvd_left _ _)
+  have hcP : (n : ℤ) ∣ P.c := dvd_trans hbcP (Int.gcd_dvd_right _ _)
+  have hQdvd := dvd_coefficients_of_dvd_transform_coefficients Q g haP hbP hcP
+  have hngcd_bc : n ∣ Int.gcd Q.b Q.c := Int.dvd_gcd hQdvd.2.1 hQdvd.2.2
+  have hngcd : n ∣ Int.gcd Q.a (Int.gcd Q.b Q.c) :=
+    Int.dvd_gcd hQdvd.1 (by exact_mod_cast hngcd_bc)
+  rw [hQ] at hngcd
+  exact Nat.dvd_one.mp hngcd
 
 end BinaryQuadraticForm
 end QuadraticNumberFields
