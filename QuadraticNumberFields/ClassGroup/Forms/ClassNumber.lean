@@ -33,6 +33,8 @@ same signature.
 
 open scoped NumberField
 
+open Ideal
+
 attribute [-instance] DivisionRing.toRatAlgebra
 
 namespace QuadraticNumberFields
@@ -41,6 +43,55 @@ namespace QuadraticNumberFields
 squarefree integer parameter `d`. Thin alias of `NumberField.classNumber`. -/
 noncomputable def classNumberQsqrtd (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] : ℕ :=
   NumberField.classNumber (Qsqrtd (d : ℚ))
+
+/-! ## Small-norm class-group closure lemmas -/
+
+/-- The natural number `2` is irreducible, as a convenience for absolute-norm
+arguments. -/
+theorem irreducible_two_nat : Irreducible (2 : ℕ) :=
+  (Nat.irreducible_iff_prime.mp Nat.prime_two).irreducible
+
+/-- An ideal of absolute norm `2` is prime. -/
+theorem Ideal.isPrime_of_absNorm_eq_two {R : Type*} [CommRing R] [Nontrivial R]
+    [IsDedekindDomain R] [Module.Free ℤ R] {I : Ideal R} (hI : Ideal.absNorm I = 2) :
+    I.IsPrime :=
+  Ideal.isPrime_of_irreducible_absNorm
+    (by rw [hI]; exact irreducible_two_nat)
+
+/-- If every ideal class has a representative of absolute norm `< 3`, and all
+norm-`2` ideals are principal, then every ideal class is trivial. -/
+theorem classGroup_eq_one_of_exists_ideal_norm_lt_three
+    {K : Type*} [Field K] [NumberField K]
+    (hexists : ∀ C : ClassGroup (𝓞 K),
+      ∃ I : nonZeroDivisors (Ideal (𝓞 K)),
+        ClassGroup.mk0 I = C ∧ Ideal.absNorm (I : Ideal (𝓞 K)) < 3)
+    (hprincipal_two : ∀ {I : Ideal (𝓞 K)}, Ideal.absNorm I = 2 → I.IsPrincipal)
+    (C : ClassGroup (𝓞 K)) :
+    C = 1 := by
+  obtain ⟨I, hmk, hnorm⟩ := hexists C
+  rw [← hmk, ClassGroup.mk0_eq_one_iff]
+  have hIne : (I : Ideal (𝓞 K)) ≠ 0 :=
+    mem_nonZeroDivisors_iff_ne_zero.mp I.2
+  have h0 : Ideal.absNorm (I : Ideal (𝓞 K)) ≠ 0 := by
+    rw [Ne, Ideal.absNorm_eq_zero_iff]
+    simpa using hIne
+  have hcase : Ideal.absNorm (I : Ideal (𝓞 K)) = 1 ∨
+      Ideal.absNorm (I : Ideal (𝓞 K)) = 2 := by omega
+  rcases hcase with h1 | h2
+  · rw [Ideal.absNorm_eq_one_iff] at h1
+    rw [h1]
+    exact ⟨1, Ideal.span_singleton_one.symm⟩
+  · exact hprincipal_two h2
+
+/-- If every ideal class of a number field is trivial, then the class number is
+one. -/
+theorem NumberField.classNumber_eq_one_of_forall_classGroup_eq_one
+    {K : Type*} [Field K] [NumberField K]
+    (h : ∀ C : ClassGroup (𝓞 K), C = 1) :
+    NumberField.classNumber K = 1 := by
+  haveI : Unique (ClassGroup (𝓞 K)) := ⟨⟨1⟩, h⟩
+  simpa only [NumberField.classNumber] using
+    Fintype.card_unique (α := ClassGroup (𝓞 K))
 
 /-! ## The nine Heegner fields have class number one -/
 

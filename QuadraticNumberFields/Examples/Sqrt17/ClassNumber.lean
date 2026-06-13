@@ -44,34 +44,6 @@ attribute [-instance] DivisionRing.toRatAlgebra
 
 namespace QuadraticNumberFields.Examples.Sqrt17
 
-/-! ## The field norm agrees with the coordinate norm
-
-`Algebra.norm ℚ` (the field-theoretic norm used by mathlib's `Algebra.norm ℤ`
-and `Ideal.absNorm`) coincides with the coordinate norm `Qsqrtd.norm`. The two
-`Algebra ℚ (Qsqrtd 17)` instances in play — mathlib's canonical
-`DivisionRing.toRatAlgebra` and the project's `QuadraticAlgebra.instAlgebra` —
-agree (they are `Subsingleton`), so it suffices to prove the identity for the
-project instance, where `conjAut` is the coordinate conjugation `star`. -/
-
-/-- For the project's `Algebra ℚ` structure, the field norm equals the
-coordinate norm `Qsqrtd.norm`. -/
-private theorem algebraNorm_eq_qsqrtdNorm (y : Qsqrtd ((17 : ℤ) : ℚ)) :
-    Algebra.norm ℚ y = Qsqrtd.norm y := by
-  have hmul := QuadraticField.mul_conj_eq_norm_image y
-  have hstar := RingOfIntegers.TraceNorm.Qsqrtd.norm_image_eq_mul_star y
-  have hconj : QuadraticField.conjAut (Qsqrtd ((17 : ℤ) : ℚ)) y = star y := rfl
-  apply (algebraMap ℚ (Qsqrtd ((17 : ℤ) : ℚ))).injective
-  rw [← hmul, hstar, hconj]
-
-/-- For mathlib's canonical `Algebra ℚ` structure (the one used by
-`Algebra.coe_norm_int`), the field norm equals the coordinate norm. -/
-private theorem algebraNorm_ratAlgebra_eq_qsqrtdNorm (y : Qsqrtd ((17 : ℤ) : ℚ)) :
-    @Algebra.norm ℚ _ _ _ DivisionRing.toRatAlgebra y = Qsqrtd.norm y := by
-  rw [show (@Algebra.norm ℚ (Qsqrtd ((17 : ℤ) : ℚ)) _ _ DivisionRing.toRatAlgebra)
-        = @Algebra.norm ℚ _ _ _ QuadraticAlgebra.instAlgebra from by
-        congr 1; exact Subsingleton.elim _ _]
-  exact algebraNorm_eq_qsqrtdNorm y
-
 /-! ## The norm-2 elements `x = (5 + √17)/2` and `x̄ = (5 - √17)/2`
 
 In `ZOnePlusSqrtdOverTwo 4` (with `ω = (1 + √17)/2` satisfying `ω² = ω + 4`):
@@ -129,7 +101,7 @@ The integer norm `Algebra.norm ℤ` equals the integer lift of the field norm
 theorem norm_x_eq_two : Algebra.norm ℤ x = 2 := by
   apply Int.cast_injective (α := ℚ)
   rw [Algebra.coe_norm_int (K := Qsqrtd ((17 : ℤ) : ℚ)),
-    algebraNorm_ratAlgebra_eq_qsqrtdNorm]
+    Qsqrtd.algebraNorm_ratAlgebra_eq_qsqrtdNorm]
   change Qsqrtd.norm (ZOnePlusSqrtdOverTwo.toQsqrtdHom 4 xZ) = ((2 : ℤ) : ℚ)
   rw [RingOfIntegers.norm_zOnePlusSqrtOverTwo_toQsqrtd, ← ZOnePlusSqrtdOverTwo.normHom_apply,
     norm_xZ]
@@ -138,7 +110,7 @@ theorem norm_x_eq_two : Algebra.norm ℤ x = 2 := by
 theorem norm_xConj_eq_two : Algebra.norm ℤ xConj = 2 := by
   apply Int.cast_injective (α := ℚ)
   rw [Algebra.coe_norm_int (K := Qsqrtd ((17 : ℤ) : ℚ)),
-    algebraNorm_ratAlgebra_eq_qsqrtdNorm]
+    Qsqrtd.algebraNorm_ratAlgebra_eq_qsqrtdNorm]
   change Qsqrtd.norm (ZOnePlusSqrtdOverTwo.toQsqrtdHom 4 xConjZ) = ((2 : ℤ) : ℚ)
   rw [RingOfIntegers.norm_zOnePlusSqrtOverTwo_toQsqrtd, ← ZOnePlusSqrtdOverTwo.normHom_apply,
     norm_xConjZ]
@@ -173,10 +145,6 @@ theorem absNorm_span_xConj :
   rw [Ideal.absNorm_span_singleton, norm_xConj_eq_two]
   rfl
 
-/-- The natural number `2` is irreducible (it is a prime). -/
-private theorem irreducible_two_nat : Irreducible (2 : ℕ) :=
-  (Nat.irreducible_iff_prime.mp Nat.prime_two).irreducible
-
 /-- `(x)` is a prime ideal: it has irreducible absolute norm `2`. -/
 theorem isPrime_span_x :
     (Ideal.span {x} : Ideal (𝓞 (Qsqrtd ((17 : ℤ) : ℚ)))).IsPrime :=
@@ -201,9 +169,7 @@ dividing `(2) = (x)(x̄)`, hence equals the maximal ideal `(x)` or `(x̄)`. -/
 theorem isPrincipal_of_absNorm_eq_two
     {I : Ideal (𝓞 (Qsqrtd ((17 : ℤ) : ℚ)))} (hI : Ideal.absNorm I = 2) :
     I.IsPrincipal := by
-  have hIprime : I.IsPrime :=
-    Ideal.isPrime_of_irreducible_absNorm
-      (by rw [hI]; exact irreducible_two_nat)
+  have hIprime : I.IsPrime := Ideal.isPrime_of_absNorm_eq_two hI
   have hIbot : I ≠ ⊥ := by rw [Ne, ← Ideal.absNorm_eq_zero_iff, hI]; norm_num
   have hItop : I ≠ ⊤ := by intro h; rw [h, Ideal.absNorm_top] at hI; norm_num at hI
   have h2mem : (2 : 𝓞 (Qsqrtd ((17 : ℤ) : ℚ))) ∈ I := by
@@ -226,25 +192,13 @@ theorem isPrincipal_of_absNorm_eq_two
 
 /-- Every ideal class of `ℚ(√17)` is trivial. -/
 theorem classGroup_eq_one (C : ClassGroup (𝓞 (Qsqrtd ((17 : ℤ) : ℚ)))) : C = 1 := by
-  obtain ⟨I, hmk, hnorm⟩ := exists_ideal_in_class_of_norm_le C
-  rw [← hmk, ClassGroup.mk0_eq_one_iff]
-  have hIne : (I : Ideal (𝓞 (Qsqrtd ((17 : ℤ) : ℚ)))) ≠ 0 :=
-    mem_nonZeroDivisors_iff_ne_zero.mp I.2
-  have h0 : Ideal.absNorm (I : Ideal (𝓞 (Qsqrtd ((17 : ℤ) : ℚ)))) ≠ 0 := by
-    rw [Ne, Ideal.absNorm_eq_zero_iff]; simpa using hIne
-  have hcase : Ideal.absNorm (I : Ideal (𝓞 (Qsqrtd ((17 : ℤ) : ℚ)))) = 1 ∨
-      Ideal.absNorm (I : Ideal (𝓞 (Qsqrtd ((17 : ℤ) : ℚ)))) = 2 := by omega
-  rcases hcase with h1 | h2
-  · rw [Ideal.absNorm_eq_one_iff] at h1
-    rw [h1]; exact ⟨1, Ideal.span_singleton_one.symm⟩
-  · exact isPrincipal_of_absNorm_eq_two h2
+  exact classGroup_eq_one_of_exists_ideal_norm_lt_three
+    exists_ideal_in_class_of_norm_le (fun hI => isPrincipal_of_absNorm_eq_two hI) C
 
 /-- **`ℚ(√17)` has class number one.** -/
 theorem classNumber_eq_one :
     NumberField.classNumber (Qsqrtd ((17 : ℤ) : ℚ)) = 1 := by
-  haveI : Unique (ClassGroup (𝓞 (Qsqrtd ((17 : ℤ) : ℚ)))) := ⟨⟨1⟩, classGroup_eq_one⟩
-  simpa only [NumberField.classNumber] using
-    Fintype.card_unique (α := ClassGroup (𝓞 (Qsqrtd ((17 : ℤ) : ℚ))))
+  exact NumberField.classNumber_eq_one_of_forall_classGroup_eq_one classGroup_eq_one
 
 /-- `classNumberQsqrtd 17 = 1`, the unified-interface form. -/
 theorem classNumberQsqrtd_seventeen : classNumberQsqrtd 17 = 1 :=
