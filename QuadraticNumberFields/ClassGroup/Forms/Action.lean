@@ -42,9 +42,36 @@ def transform (Q : BinaryQuadraticForm) (g : SL2Z) : BinaryQuadraticForm where
   cases Q
   ext <;> norm_num [transform, m00, m01, m10, m11]
 
+/-- The coordinate transform is compatible with multiplication in `SL₂(ℤ)`. -/
+theorem transform_mul (Q : BinaryQuadraticForm) (g h : SL2Z) :
+    transform (transform Q g) h = transform Q (g * h) := by
+  rcases Q with ⟨A, B, C⟩
+  ext <;>
+    simp [transform, m00, m01, m10, m11, Matrix.mul_apply, Fin.sum_univ_two] <;>
+    ring_nf
+
 /-- Proper equivalence: forms lie in the same `SL₂(ℤ)` orbit. -/
 def ProperEquivalent (Q R : BinaryQuadraticForm) : Prop :=
   ∃ g : SL2Z, transform Q g = R
+
+/-- Proper equivalence is reflexive. -/
+theorem ProperEquivalent.refl (Q : BinaryQuadraticForm) : ProperEquivalent Q Q :=
+  ⟨1, transform_one Q⟩
+
+/-- Proper equivalence is symmetric. -/
+theorem ProperEquivalent.symm {Q R : BinaryQuadraticForm}
+    (hQR : ProperEquivalent Q R) : ProperEquivalent R Q := by
+  rcases hQR with ⟨g, rfl⟩
+  refine ⟨g⁻¹, ?_⟩
+  rw [transform_mul, mul_inv_cancel, transform_one]
+
+/-- Proper equivalence is transitive. -/
+theorem ProperEquivalent.trans {Q R S : BinaryQuadraticForm}
+    (hQR : ProperEquivalent Q R) (hRS : ProperEquivalent R S) :
+    ProperEquivalent Q S := by
+  rcases hQR with ⟨g, rfl⟩
+  rcases hRS with ⟨h, rfl⟩
+  exact ⟨g * h, (transform_mul Q g h).symm⟩
 
 private theorem disc_transform_aux (a b c p q r s : ℤ) (hdet : p * s - q * r = 1) :
     (2 * a * p * q + b * (p * s + q * r) + 2 * c * r * s) ^ 2 -
