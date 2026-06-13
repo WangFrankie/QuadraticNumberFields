@@ -120,5 +120,79 @@ theorem eq_tauOfForm_of_root (Q : BinaryQuadraticForm) (hQ : Q.IsPositiveDefinit
       Complex.zero_im, zero_mul, add_zero] at him
     nlinarith [him, hzi, hτi, ha_pos]
 
+/-- The `a`-coefficient of a transformed binary quadratic form. -/
+@[simp] theorem transform_a (Q : BinaryQuadraticForm) (g : SL2Z) :
+    (transform Q g).a = Q.a * g 0 0 ^ 2 + Q.b * g 0 0 * g 1 0 + Q.c * g 1 0 ^ 2 :=
+  rfl
+
+/-- The `b`-coefficient of a transformed binary quadratic form. -/
+@[simp] theorem transform_b (Q : BinaryQuadraticForm) (g : SL2Z) :
+    (transform Q g).b = 2 * Q.a * g 0 0 * g 0 1 +
+      Q.b * (g 0 0 * g 1 1 + g 0 1 * g 1 0) + 2 * Q.c * g 1 0 * g 1 1 :=
+  rfl
+
+/-- The `c`-coefficient of a transformed binary quadratic form. -/
+@[simp] theorem transform_c (Q : BinaryQuadraticForm) (g : SL2Z) :
+    (transform Q g).c = Q.a * g 0 1 ^ 2 + Q.b * g 0 1 * g 1 1 + Q.c * g 1 1 ^ 2 :=
+  rfl
+
+private theorem denom_ne_zero_sl2z (g : SL2Z) (z : UpperHalfPlane) :
+    ((g 1 0 : ℂ) * (z : ℂ) + (g 1 1 : ℂ)) ≠ 0 := by
+  have hrow : (fun j : Fin 2 => (g 1 j : ℝ)) ≠ 0 := by
+    intro h
+    have hrowZ : g 1 = 0 := by
+      funext j
+      have hj0 : (g 1 j : ℝ) = 0 := by simpa using congrFun h j
+      exact_mod_cast hj0
+    exact Matrix.SpecialLinearGroup.row_ne_zero g 1 hrowZ
+  simpa using UpperHalfPlane.linear_ne_zero z hrow
+
+private theorem transform_polynomial_eq_eval (Q : BinaryQuadraticForm) (g : SL2Z) (z : ℂ) :
+    ((transform Q g).a : ℂ) * z ^ 2 + ((transform Q g).b : ℂ) * z + (transform Q g).c =
+      (Q.a : ℂ) * ((g 0 0 : ℂ) * z + (g 0 1 : ℂ)) ^ 2 +
+        (Q.b : ℂ) * ((g 0 0 : ℂ) * z + (g 0 1 : ℂ)) *
+          ((g 1 0 : ℂ) * z + (g 1 1 : ℂ)) +
+        (Q.c : ℂ) * ((g 1 0 : ℂ) * z + (g 1 1 : ℂ)) ^ 2 := by
+  simp [transform]
+  ring
+
+/-- The upper half-plane point is contravariant for the form coordinate transform. -/
+theorem tauOfForm_transform (Q : BinaryQuadraticForm) (hQ : Q.IsPositiveDefinite)
+    (g : SL2Z) (hQg : (transform Q g).IsPositiveDefinite) :
+    tauOfForm (transform Q g) hQg = g⁻¹ • tauOfForm Q hQ := by
+  let τH := tauOfForm Q hQ
+  let zH := g⁻¹ • τH
+  refine (eq_tauOfForm_of_root (transform Q g) hQg zH ?_).symm
+  let τ : ℂ := τH
+  let z : ℂ := zH
+  have hroot : (Q.a : ℂ) * τ ^ 2 + (Q.b : ℂ) * τ + (Q.c : ℂ) = 0 := by
+    simpa [τ, τH] using tauOfForm_root Q hQ
+  have hgz : g • zH = τH := by
+    simp [zH, τH]
+  have hmob :
+      ((g 0 0 : ℂ) * z + (g 0 1 : ℂ)) /
+        ((g 1 0 : ℂ) * z + (g 1 1 : ℂ)) = τ := by
+    have hcoe := congrArg ((↑) : UpperHalfPlane → ℂ) hgz
+    rw [UpperHalfPlane.coe_specialLinearGroup_apply] at hcoe
+    simpa [z, τ] using hcoe
+  have hden : ((g 1 0 : ℂ) * z + (g 1 1 : ℂ)) ≠ 0 := by
+    simpa [z, zH] using denom_ne_zero_sl2z g zH
+  have hlin :
+      (g 0 0 : ℂ) * z + (g 0 1 : ℂ) =
+        τ * ((g 1 0 : ℂ) * z + (g 1 1 : ℂ)) := by
+    rwa [div_eq_iff hden] at hmob
+  rw [transform_polynomial_eq_eval Q g z]
+  rw [hlin]
+  calc
+    (Q.a : ℂ) * (τ * ((g 1 0 : ℂ) * z + (g 1 1 : ℂ))) ^ 2 +
+          (Q.b : ℂ) * (τ * ((g 1 0 : ℂ) * z + (g 1 1 : ℂ))) *
+            ((g 1 0 : ℂ) * z + (g 1 1 : ℂ)) +
+        (Q.c : ℂ) * ((g 1 0 : ℂ) * z + (g 1 1 : ℂ)) ^ 2 =
+        ((g 1 0 : ℂ) * z + (g 1 1 : ℂ)) ^ 2 *
+          ((Q.a : ℂ) * τ ^ 2 + (Q.b : ℂ) * τ + (Q.c : ℂ)) := by
+      ring
+    _ = 0 := by
+      rw [hroot, mul_zero]
+
 end BinaryQuadraticForm
 end QuadraticNumberFields
