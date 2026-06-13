@@ -13,6 +13,7 @@ import QuadraticNumberFields.Mathlib.FieldTheory.Galois.Basic
 import QuadraticNumberFields.Mathlib.NumberTheory.DirichletCharacter.Kronecker
 import QuadraticNumberFields.Mathlib.NumberTheory.LegendreSymbol.KroneckerSymbol
 import QuadraticNumberFields.Mathlib.NumberTheory.LegendreSymbol.KroneckerSymbolPeriodicity
+import QuadraticNumberFields.Mathlib.NumberTheory.NumberField.ClassNumber
 import QuadraticNumberFields.Mathlib.NumberTheory.RamificationInertia.Galois
 import QuadraticNumberFields.Mathlib.NumberTheory.Zsqrtd.Basic
 import QuadraticNumberFields.Mathlib.RingTheory.PrincipalIdealDomain
