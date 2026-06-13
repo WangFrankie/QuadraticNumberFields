@@ -19,6 +19,8 @@ proofs close.
 
 open scoped NumberField
 
+attribute [-instance] DivisionRing.toRatAlgebra
+
 namespace QuadraticNumberFields
 namespace BinaryQuadraticForm
 
@@ -480,6 +482,94 @@ noncomputable def idealOfForm_of_mod_four_eq_one
       ({((Q.1.a : ℤ) : ZOnePlusSqrtdOverTwo (d / 4)),
         (⟨-(Q.1.b + 1) / 2, 1⟩ : ZOnePlusSqrtdOverTwo (d / 4))} :
         Set (ZOnePlusSqrtdOverTwo (d / 4))))
+
+/-- The Cox ideal in the `d % 4 ≠ 1` branch is nonzero, because it contains the
+nonzero positive integer coefficient `a`. -/
+theorem idealOfForm_of_mod_four_ne_one_ne_zero
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd4 : d % 4 ≠ 1)
+    (Q : PrimitivePositiveDefiniteForm (fieldDiscriminant d)) :
+    idealOfForm_of_mod_four_ne_one d hd4 Q ≠ 0 := by
+  let e := RingOfIntegers.ringOfIntegers_equiv_zsqrtd_of_mod_four_ne_one d hd4
+  let x : 𝓞 (Qsqrtd (d : ℚ)) := e.symm ((Q.1.a : Zsqrtd d))
+  have hxmem : x ∈ idealOfForm_of_mod_four_ne_one d hd4 Q := by
+    change e x ∈ Ideal.span
+      ({((Q.1.a : ℤ) : Zsqrtd d), (⟨(-Q.1.b) / 2, 1⟩ : Zsqrtd d)} :
+        Set (Zsqrtd d))
+    rw [show e x = ((Q.1.a : ℤ) : Zsqrtd d) by simp [x, e]]
+    exact Ideal.subset_span (by simp)
+  intro hI
+  have hxzero : x = 0 := by
+    have hxmem0 : x ∈ (0 : Ideal (𝓞 (Qsqrtd (d : ℚ)))) := by
+      simpa [hI] using hxmem
+    simpa using hxmem0
+  have haZ : ((Q.1.a : ℤ) : Zsqrtd d) = 0 := by
+    have := congrArg e hxzero
+    simpa [x, e] using this
+  have ha0 : Q.1.a = 0 := by
+    exact_mod_cast congrArg QuadraticAlgebra.re haZ
+  exact (ne_of_gt Q.2.2.2.1) ha0
+
+/-- The Cox ideal in the `d % 4 = 1` branch is nonzero, because it contains the
+nonzero positive integer coefficient `a`. -/
+theorem idealOfForm_of_mod_four_eq_one_ne_zero
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd4 : d % 4 = 1)
+    (Q : PrimitivePositiveDefiniteForm (fieldDiscriminant d)) :
+    idealOfForm_of_mod_four_eq_one d hd4 Q ≠ 0 := by
+  let e := RingOfIntegers.ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one d hd4
+  let x : 𝓞 (Qsqrtd (d : ℚ)) :=
+    e.symm ((Q.1.a : ZOnePlusSqrtdOverTwo (d / 4)))
+  have hxmem : x ∈ idealOfForm_of_mod_four_eq_one d hd4 Q := by
+    change e x ∈ Ideal.span
+      ({((Q.1.a : ℤ) : ZOnePlusSqrtdOverTwo (d / 4)),
+        (⟨-(Q.1.b + 1) / 2, 1⟩ : ZOnePlusSqrtdOverTwo (d / 4))} :
+        Set (ZOnePlusSqrtdOverTwo (d / 4)))
+    rw [show e x = ((Q.1.a : ℤ) : ZOnePlusSqrtdOverTwo (d / 4)) by simp [x, e]]
+    exact Ideal.subset_span (by simp)
+  intro hI
+  have hxzero : x = 0 := by
+    have hxmem0 : x ∈ (0 : Ideal (𝓞 (Qsqrtd (d : ℚ)))) := by
+      simpa [hI] using hxmem
+    simpa using hxmem0
+  have haZ : ((Q.1.a : ℤ) : ZOnePlusSqrtdOverTwo (d / 4)) = 0 := by
+    have := congrArg e hxzero
+    simpa [x, e] using this
+  have ha0 : Q.1.a = 0 := by
+    exact_mod_cast congrArg QuadraticAlgebra.re haZ
+  exact (ne_of_gt Q.2.2.2.1) ha0
+
+/-- The Cox ideal in the `d % 4 ≠ 1` branch as a nonzero ideal. -/
+noncomputable def nonzeroIdealOfForm_of_mod_four_ne_one
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd4 : d % 4 ≠ 1)
+    (Q : PrimitivePositiveDefiniteForm (fieldDiscriminant d)) :
+    nonZeroDivisors (Ideal (𝓞 (Qsqrtd (d : ℚ)))) :=
+  ⟨idealOfForm_of_mod_four_ne_one d hd4 Q,
+    mem_nonZeroDivisors_iff_ne_zero.mpr
+      (idealOfForm_of_mod_four_ne_one_ne_zero d hd4 Q)⟩
+
+/-- The Cox ideal in the `d % 4 = 1` branch as a nonzero ideal. -/
+noncomputable def nonzeroIdealOfForm_of_mod_four_eq_one
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd4 : d % 4 = 1)
+    (Q : PrimitivePositiveDefiniteForm (fieldDiscriminant d)) :
+    nonZeroDivisors (Ideal (𝓞 (Qsqrtd (d : ℚ)))) :=
+  ⟨idealOfForm_of_mod_four_eq_one d hd4 Q,
+    mem_nonZeroDivisors_iff_ne_zero.mpr
+      (idealOfForm_of_mod_four_eq_one_ne_zero d hd4 Q)⟩
+
+/-- The ideal class attached to a single primitive positive definite form in the
+`d % 4 ≠ 1` branch. This has not yet been descended to `FormClass`. -/
+noncomputable def idealClassOfForm_of_mod_four_ne_one
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd4 : d % 4 ≠ 1)
+    (Q : PrimitivePositiveDefiniteForm (fieldDiscriminant d)) :
+    ClassGroup (𝓞 (Qsqrtd (d : ℚ))) :=
+  ClassGroup.mk0 (nonzeroIdealOfForm_of_mod_four_ne_one d hd4 Q)
+
+/-- The ideal class attached to a single primitive positive definite form in the
+`d % 4 = 1` branch. This has not yet been descended to `FormClass`. -/
+noncomputable def idealClassOfForm_of_mod_four_eq_one
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd4 : d % 4 = 1)
+    (Q : PrimitivePositiveDefiniteForm (fieldDiscriminant d)) :
+    ClassGroup (𝓞 (Qsqrtd (d : ℚ))) :=
+  ClassGroup.mk0 (nonzeroIdealOfForm_of_mod_four_eq_one d hd4 Q)
 
 /-- WIP map from form classes to ideal classes in the `d % 4 ≠ 1` branch. -/
 noncomputable def formClassToClassGroup_of_mod_four_ne_one
