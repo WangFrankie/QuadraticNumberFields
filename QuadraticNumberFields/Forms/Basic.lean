@@ -27,6 +27,10 @@ structure BinaryQuadraticForm where
   c : ℤ
 deriving DecidableEq, Repr
 
+-- The `prec` argument of the derived `Repr` instance is unused for a plain
+-- product structure; this is inherent to the `Repr.reprPrec` signature.
+attribute [nolint unusedArguments] instReprBinaryQuadraticForm.repr
+
 namespace BinaryQuadraticForm
 
 @[ext] theorem ext {Q R : BinaryQuadraticForm}
