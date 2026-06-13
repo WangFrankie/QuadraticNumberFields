@@ -126,4 +126,64 @@ theorem not_isPrincipal_P : ¬ P.IsPrincipal := by
     nlinarith [sq_nonneg (z.re + 2)]
   interval_cases z.re <;> norm_num at hre_sq
 
+/-- The ramified prime `P` is nonzero. -/
+theorem P_ne_bot : P ≠ ⊥ := by
+  rw [Ne, ← Ideal.absNorm_eq_zero_iff, absNorm_P]
+  norm_num
+
+/-- The ramified prime `P`, bundled as a non-zero ideal. -/
+noncomputable def P0 : nonZeroDivisors (Ideal O) :=
+  ⟨P, mem_nonZeroDivisors_iff_ne_zero.mpr P_ne_bot⟩
+
+/-- The nontrivial ideal class `[P]` of `ℚ(√-5)`. -/
+noncomputable def classP : ClassGroup O :=
+  ClassGroup.mk0 P0
+
+/-- The ideal class `[P]` is nontrivial. -/
+theorem classP_ne_one : classP ≠ 1 := by
+  intro h
+  apply not_isPrincipal_P
+  rw [classP, ClassGroup.mk0_eq_one_iff] at h
+  exact h
+
+/-- Every ideal of absolute norm `2` in `𝓞(ℚ(√-5))` is the ramified prime `P`. -/
+theorem eq_P_of_absNorm_eq_two {I : Ideal O} (hI : Ideal.absNorm I = 2) : I = P := by
+  have hIprime : I.IsPrime := Ideal.isPrime_of_absNorm_eq_two hI
+  have hIbot : I ≠ ⊥ := by rw [Ne, ← Ideal.absNorm_eq_zero_iff, hI]; norm_num
+  have hItop : I ≠ ⊤ := by intro h; rw [h, Ideal.absNorm_top] at hI; norm_num at hI
+  have h2mem : (2 : O) ∈ I := by
+    have hm := Ideal.absNorm_mem I
+    rw [hI] at hm
+    exact_mod_cast hm
+  have hdvd2 : I ∣ Ideal.span ({(2 : O)} : Set O) := by
+    rw [Ideal.dvd_iff_le, Ideal.span_singleton_le_iff_mem]
+    exact h2mem
+  rw [span_two_eq_P_sq] at hdvd2
+  have hIprimeElem : Prime I := (Ideal.prime_iff_isPrime hIbot).mpr hIprime
+  have hdvdP : I ∣ P := hIprimeElem.dvd_of_dvd_pow hdvd2
+  have hmax : P.IsMaximal := isPrime_P.isMaximal P_ne_bot
+  exact (hmax.eq_of_le hItop (Ideal.le_of_dvd hdvdP)).symm
+
+/-- Every norm-`2` ideal class is `[P]`. -/
+theorem class_eq_classP_of_absNorm_eq_two
+    (I : nonZeroDivisors (Ideal O)) (hI : Ideal.absNorm (I : Ideal O) = 2) :
+    ClassGroup.mk0 I = classP := by
+  change ClassGroup.mk0 I = ClassGroup.mk0 P0
+  congr 1
+  exact Subtype.ext (eq_P_of_absNorm_eq_two hI)
+
+/-- Every ideal class of `ℚ(√-5)` is trivial or equal to `[P]`. -/
+theorem classGroup_eq_one_or_classP (C : ClassGroup O) : C = 1 ∨ C = classP :=
+  classGroup_eq_one_or_of_exists_ideal_norm_lt_three classP
+    exists_ideal_in_class_of_norm_le class_eq_classP_of_absNorm_eq_two C
+
+/-- **`ℚ(√-5)` has class number two** — the classic non-UFD example. -/
+theorem classNumber_eq_two :
+    NumberField.classNumber (Qsqrtd ((-5 : ℤ) : ℚ)) = 2 :=
+  NumberField.classNumber_eq_two_of_forall_eq_one_or classP_ne_one classGroup_eq_one_or_classP
+
+/-- `classNumberQsqrtd (-5) = 2`, the unified-interface form. -/
+theorem classNumberQsqrtd_neg5 : classNumberQsqrtd (-5) = 2 :=
+  classNumber_eq_two
+
 end QuadraticNumberFields.Examples.SqrtNeg5

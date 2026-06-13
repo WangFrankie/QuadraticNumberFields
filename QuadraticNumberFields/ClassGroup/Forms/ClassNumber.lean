@@ -83,6 +83,36 @@ theorem classGroup_eq_one_of_exists_ideal_norm_lt_three
     exact ⟨1, Ideal.span_singleton_one.symm⟩
   · exact hprincipal_two h2
 
+/-- If every ideal class has a representative of absolute norm `< 3`, and all
+norm-`2` representatives have class `P`, then every ideal class is trivial or
+equal to `P`. -/
+theorem classGroup_eq_one_or_of_exists_ideal_norm_lt_three
+    {K : Type*} [Field K] [NumberField K] (P : ClassGroup (𝓞 K))
+    (hexists : ∀ C : ClassGroup (𝓞 K),
+      ∃ I : nonZeroDivisors (Ideal (𝓞 K)),
+        ClassGroup.mk0 I = C ∧ Ideal.absNorm (I : Ideal (𝓞 K)) < 3)
+    (hclass_two : ∀ I : nonZeroDivisors (Ideal (𝓞 K)),
+      Ideal.absNorm (I : Ideal (𝓞 K)) = 2 → ClassGroup.mk0 I = P)
+    (C : ClassGroup (𝓞 K)) :
+    C = 1 ∨ C = P := by
+  obtain ⟨I, hmk, hnorm⟩ := hexists C
+  rw [← hmk]
+  have hIne : (I : Ideal (𝓞 K)) ≠ 0 :=
+    mem_nonZeroDivisors_iff_ne_zero.mp I.2
+  have h0 : Ideal.absNorm (I : Ideal (𝓞 K)) ≠ 0 := by
+    rw [Ne, Ideal.absNorm_eq_zero_iff]
+    simpa using hIne
+  have hcase : Ideal.absNorm (I : Ideal (𝓞 K)) = 1 ∨
+      Ideal.absNorm (I : Ideal (𝓞 K)) = 2 := by omega
+  rcases hcase with h1 | h2
+  · left
+    rw [ClassGroup.mk0_eq_one_iff]
+    rw [Ideal.absNorm_eq_one_iff] at h1
+    rw [h1]
+    exact ⟨1, Ideal.span_singleton_one.symm⟩
+  · right
+    exact hclass_two I h2
+
 /-- If every ideal class of a number field is trivial, then the class number is
 one. -/
 theorem NumberField.classNumber_eq_one_of_forall_classGroup_eq_one
