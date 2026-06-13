@@ -5,7 +5,7 @@ Authors: Frankie Wang
 -/
 
 import QuadraticNumberFields.ClassGroup.Forms.ClassNumber
-import QuadraticNumberFields.ClassGroup.Forms.Reduction
+import QuadraticNumberFields.ClassGroup.Forms.UpperHalfPlane
 import QuadraticNumberFields.RingOfIntegers.Classification
 
 /-!
@@ -26,7 +26,17 @@ namespace BinaryQuadraticForm
 /-- WIP Gauss reduction existence statement for positive definite forms. -/
 theorem exists_isReduced_properEquivalent (Q : BinaryQuadraticForm)
     (hQ : Q.IsPositiveDefinite) : ∃ R, R.IsReduced ∧ ProperEquivalent Q R := by
-  sorry
+  obtain ⟨g, hgfd⟩ := ModularGroup.exists_smul_mem_fd (tauOfForm Q hQ)
+  let P := transform Q g⁻¹
+  have hPpos : P.IsPositiveDefinite := isPositiveDefinite_transform Q hQ g⁻¹
+  have hτP : tauOfForm P hPpos = g • tauOfForm Q hQ := by
+    simpa [P] using tauOfForm_transform Q hQ g⁻¹ hPpos
+  have hPfd : tauOfForm P hPpos ∈ ModularGroup.fd := by
+    simpa [hτP] using hgfd
+  obtain ⟨n, hnred⟩ := exists_isReduced_transform_of_mem_fd P hPpos hPfd
+  refine ⟨transform P n, hnred, ?_⟩
+  refine ⟨g⁻¹ * n, ?_⟩
+  simpa [P] using (transform_mul Q g⁻¹ n).symm
 
 /-- WIP uniqueness statement for boundary-normalized reduced representatives. -/
 theorem eq_of_isReduced_of_properEquivalent {Q R : BinaryQuadraticForm}
