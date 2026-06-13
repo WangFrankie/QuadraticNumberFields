@@ -194,6 +194,73 @@ theorem tauOfForm_transform (Q : BinaryQuadraticForm) (hQ : Q.IsPositiveDefinite
     _ = 0 := by
       rw [hroot, mul_zero]
 
+/-- For positive definite forms of the same discriminant, the upper half-plane point
+determines the form. -/
+theorem eq_of_tauOfForm_eq_of_disc_eq (Q R : BinaryQuadraticForm)
+    (hQ : Q.IsPositiveDefinite) (hR : R.IsPositiveDefinite) (hdisc : Q.disc = R.disc)
+    (htau : tauOfForm Q hQ = tauOfForm R hR) : Q = R := by
+  rcases Q with ⟨a, b, c⟩
+  rcases R with ⟨A, B, C⟩
+  change 0 < a ∧ b ^ 2 - 4 * a * c < 0 at hQ
+  change 0 < A ∧ B ^ 2 - 4 * A * C < 0 at hR
+  change b ^ 2 - 4 * a * c = B ^ 2 - 4 * A * C at hdisc
+  have ha : (a : ℝ) ≠ 0 := by exact_mod_cast (ne_of_gt hQ.1)
+  have hA : (A : ℝ) ≠ 0 := by exact_mod_cast (ne_of_gt hR.1)
+  have ha_pos : 0 < (a : ℝ) := by exact_mod_cast hQ.1
+  have hA_pos : 0 < (A : ℝ) := by exact_mod_cast hR.1
+  have hdR : (b : ℝ) ^ 2 - 4 * (a : ℝ) * c < 0 := by
+    have h := hQ.2
+    unfold disc at h
+    exact_mod_cast h
+  have hre0 := congrArg UpperHalfPlane.re htau
+  have hre : (b : ℝ) * A = (B : ℝ) * a := by
+    simp only [tauOfForm_re] at hre0
+    field_simp [ha, hA] at hre0
+    linarith
+  have hnorm0 : (c : ℝ) / a = (C : ℝ) / A := by
+    rw [← normSq_tauOfForm (BinaryQuadraticForm.mk a b c) hQ]
+    rw [htau]
+    rw [normSq_tauOfForm]
+  have hnorm : (c : ℝ) * A = (C : ℝ) * a := by
+    field_simp [ha, hA] at hnorm0
+    linarith
+  have hdiscR : (b : ℝ) ^ 2 - 4 * (a : ℝ) * c = (B : ℝ) ^ 2 - 4 * (A : ℝ) * C := by
+    exact_mod_cast hdisc
+  have haA : (a : ℝ) = A := by
+    have hscaled : (A : ℝ) ^ 2 * ((b : ℝ) ^ 2 - 4 * (a : ℝ) * c) =
+        (a : ℝ) ^ 2 * ((B : ℝ) ^ 2 - 4 * (A : ℝ) * C) := by
+      calc
+        (A : ℝ) ^ 2 * ((b : ℝ) ^ 2 - 4 * (a : ℝ) * c)
+            = ((b : ℝ) * A) ^ 2 - 4 * (a : ℝ) * ((c : ℝ) * A) * A := by
+          ring
+        _ = ((B : ℝ) * a) ^ 2 - 4 * (a : ℝ) * ((C : ℝ) * a) * A := by
+          rw [hre, hnorm]
+        _ = (a : ℝ) ^ 2 * ((B : ℝ) ^ 2 - 4 * (A : ℝ) * C) := by
+          ring
+    have hmul :
+        ((A : ℝ) ^ 2 - (a : ℝ) ^ 2) * ((b : ℝ) ^ 2 - 4 * (a : ℝ) * c) = 0 := by
+      nlinarith [hscaled, hdiscR]
+    have hsquares : (A : ℝ) ^ 2 = (a : ℝ) ^ 2 := by
+      have hDne : (b : ℝ) ^ 2 - 4 * (a : ℝ) * c ≠ 0 := by nlinarith [hdR]
+      have hzero : (A : ℝ) ^ 2 - (a : ℝ) ^ 2 = 0 :=
+        (mul_eq_zero.mp hmul).resolve_right hDne
+      linarith
+    rcases sq_eq_sq_iff_eq_or_eq_neg.mp hsquares with h | h
+    · linarith
+    · nlinarith [h, ha_pos, hA_pos]
+  have hbB : (b : ℝ) = B := by
+    have hre' : (b : ℝ) * (a : ℝ) = (B : ℝ) * (a : ℝ) := by
+      simpa [← haA] using hre
+    exact mul_right_cancel₀ ha hre'
+  have hcC : (c : ℝ) = C := by
+    have hnorm' : (c : ℝ) * (a : ℝ) = (C : ℝ) * (a : ℝ) := by
+      simpa [← haA] using hnorm
+    exact mul_right_cancel₀ ha hnorm'
+  have haA_int : a = A := by exact_mod_cast haA
+  have hbB_int : b = B := by exact_mod_cast hbB
+  have hcC_int : c = C := by exact_mod_cast hcC
+  simp [haA_int, hbB_int, hcC_int]
+
 private theorem one_le_div_iff_int {a c : ℤ} (ha : 0 < a) :
     (1 : ℝ) ≤ (c : ℝ) / (a : ℝ) ↔ a ≤ c := by
   have haR : 0 < (a : ℝ) := by exact_mod_cast ha
@@ -260,6 +327,13 @@ theorem tauOfForm_mem_fd_iff (Q : BinaryQuadraticForm) (hQ : Q.IsPositiveDefinit
   simp only [Set.mem_setOf_eq, normSq_tauOfForm, tauOfForm_re]
   rw [one_le_div_iff_int hQ.1, abs_re_le_half_iff hQ.1]
   exact and_comm
+
+/-- A reduced positive definite form has its upper half-plane point in the closed
+modular fundamental domain. -/
+theorem tauOfForm_mem_fd_of_isReduced (Q : BinaryQuadraticForm)
+    (hQ : Q.IsPositiveDefinite) (hred : Q.IsReduced) :
+    tauOfForm Q hQ ∈ ModularGroup.fd :=
+  (tauOfForm_mem_fd_iff Q hQ).2 ⟨hred.1, hred.2.1⟩
 
 /-- Membership of `tauOfForm` in the open modular fundamental domain is the pair of
 strict reduced-form inequalities. -/
