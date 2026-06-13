@@ -65,6 +65,28 @@ def enumPrimitiveReducedFormsList (D : ℤ) : List BinaryQuadraticForm :=
 def enumPrimitiveReducedForms (D : ℤ) : Finset BinaryQuadraticForm :=
   (enumPrimitiveReducedFormsList D).toFinset
 
+/-- Membership in the finset view is membership in the underlying list modulo
+`List.toFinset`. -/
+theorem mem_enumPrimitiveReducedForms_iff (D : ℤ) (Q : BinaryQuadraticForm) :
+    Q ∈ enumPrimitiveReducedForms D ↔
+      Q ∈ (enumPrimitiveReducedFormsList D).toFinset := Iff.rfl
+
+/-- Every list-enumerated form satisfies the filter predicates. -/
+theorem of_mem_enumPrimitiveReducedFormsList {D : ℤ} {Q : BinaryQuadraticForm}
+    (hQ : Q ∈ enumPrimitiveReducedFormsList D) :
+    Q.HasDiscriminant D ∧ Q.IsPositiveDefinite ∧ Q.IsReduced ∧ Q.IsPrimitive := by
+  have hfilter : Q ∈ candidateForms D ∧
+      Q.HasDiscriminant D ∧ Q.IsPositiveDefinite ∧ Q.IsReduced ∧ Q.IsPrimitive := by
+    simpa [enumPrimitiveReducedFormsList] using hQ
+  exact hfilter.2
+
+/-- Every finset-enumerated form satisfies the filter predicates. -/
+theorem of_mem_enumPrimitiveReducedForms {D : ℤ} {Q : BinaryQuadraticForm}
+    (hQ : Q ∈ enumPrimitiveReducedForms D) :
+    Q.HasDiscriminant D ∧ Q.IsPositiveDefinite ∧ Q.IsReduced ∧ Q.IsPrimitive := by
+  apply of_mem_enumPrimitiveReducedFormsList
+  simpa [enumPrimitiveReducedForms] using hQ
+
 example : bCandidates 1 = [-1, 0, 1] := by
   decide
 
