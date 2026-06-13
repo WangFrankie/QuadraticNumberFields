@@ -36,11 +36,35 @@ theorem eq_of_isReduced_of_properEquivalent {Q R : BinaryQuadraticForm}
 
 /-! ## WIP Cox 7.7 class-group bridge -/
 
-/-- Form classes of discriminant `D`, represented as primitive forms with that
-discriminant. The final quotient implementation belongs to the completed Cox
-bridge. -/
+/-- Primitive positive definite forms of discriminant `D`. This is the
+imaginary-side carrier used by Cox 7.7; negative definite forms of the same
+negative discriminant are not part of this class-number bridge. -/
+def PrimitivePositiveDefiniteForm (D : ℤ) : Type :=
+  { Q : BinaryQuadraticForm //
+    Q.HasDiscriminant D ∧ Q.IsPrimitive ∧ Q.IsPositiveDefinite }
+
+namespace PrimitivePositiveDefiniteForm
+
+/-- Proper equivalence restricted to primitive positive definite forms. -/
+def ProperEquivalent {D : ℤ}
+    (Q R : PrimitivePositiveDefiniteForm D) : Prop :=
+  BinaryQuadraticForm.ProperEquivalent Q.1 R.1
+
+end PrimitivePositiveDefiniteForm
+
+/-- Setoid on primitive positive definite forms given by proper equivalence. -/
+instance primitivePositiveDefiniteFormSetoid (D : ℤ) :
+    Setoid (PrimitivePositiveDefiniteForm D) where
+  r := PrimitivePositiveDefiniteForm.ProperEquivalent
+  iseqv := ⟨
+    fun Q => BinaryQuadraticForm.ProperEquivalent.refl Q.1,
+    fun h => BinaryQuadraticForm.ProperEquivalent.symm h,
+    fun hQR hRS => BinaryQuadraticForm.ProperEquivalent.trans hQR hRS⟩
+
+/-- Proper equivalence classes of primitive positive definite binary quadratic
+forms of discriminant `D`. -/
 def FormClass (D : ℤ) : Type :=
-  { Q : BinaryQuadraticForm // Q.HasDiscriminant D ∧ Q.IsPrimitive }
+  Quotient (primitivePositiveDefiniteFormSetoid D)
 
 /-- The field discriminant attached to a squarefree `Qsqrtd d` parameter. -/
 def fieldDiscriminant (d : ℤ) : ℤ :=
