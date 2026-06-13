@@ -42,6 +42,16 @@ instance decidableIsPrimitive (Q : BinaryQuadraticForm) :
 def searchBound (D : ℤ) : ℕ :=
   Nat.sqrt D.natAbs + 1
 
+/-- A reduced positive definite form has its `a` coefficient within the
+enumeration search bound. -/
+theorem a_natAbs_le_searchBound (Q : BinaryQuadraticForm)
+    (hpos : Q.IsPositiveDefinite) (hred : Q.IsReduced) :
+    Q.a.natAbs ≤ searchBound Q.disc := by
+  have hbound := three_mul_a_natAbs_sq_le_disc_natAbs Q hpos hred
+  have hsq : Q.a.natAbs ^ 2 ≤ Q.disc.natAbs := by
+    nlinarith
+  exact (Nat.le_sqrt'.mpr hsq).trans (Nat.le_succ _)
+
 /-- Positive `a` candidates up to the search bound. -/
 def aCandidates (D : ℤ) : List ℕ :=
   (List.range (searchBound D + 1)).filter fun a => 0 < a
