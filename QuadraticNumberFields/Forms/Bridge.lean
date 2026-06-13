@@ -4,12 +4,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 
-import QuadraticNumberFields.Forms.ClassNumber
 import QuadraticNumberFields.Forms.CoxIdealRelation
 import QuadraticNumberFields.Forms.ReducedUniqueness
 import QuadraticNumberFields.Forms.UpperHalfPlane
 import QuadraticNumberFields.RingOfIntegers.Classification
 import Mathlib.LinearAlgebra.Matrix.SpecialLinearGroup
+import Mathlib.RingTheory.ClassGroup
 
 /-!
 # Cox 7.7 Bridge from Forms to Ideal Classes
