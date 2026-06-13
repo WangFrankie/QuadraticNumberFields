@@ -40,6 +40,9 @@ import QuadraticNumberFields.Splitting.Qsqrtd.Monogenic
 import QuadraticNumberFields.Splitting.Qsqrtd.OddPrime
 import QuadraticNumberFields.Splitting.Qsqrtd.Two
 import QuadraticNumberFields.Splitting.QuadraticField.Basic
+import QuadraticNumberFields.ClassGroup.Forms.Basic
+import QuadraticNumberFields.ClassGroup.Forms.Action
+import QuadraticNumberFields.ClassGroup.Forms.Reduction
 import QuadraticNumberFields.ClassGroup.Forms.ClassNumber
 import QuadraticNumberFields.ClassNumber
 import QuadraticNumberFields.Examples.SqrtNeg5.Ideals
