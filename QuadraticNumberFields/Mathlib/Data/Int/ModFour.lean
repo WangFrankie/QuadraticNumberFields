@@ -5,7 +5,7 @@ Authors: Frankie Wang
 -/
 
 import Mathlib.Data.Int.Basic
-import Mathlib.Tactic
+import Mathlib.Tactic.Ring
 import QuadraticNumberFields.Mathlib.Algebra.Squarefree.Basic
 
 /-!
