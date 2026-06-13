@@ -4,8 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 
-import QuadraticNumberFields.ClassGroup.Forms.ClassNumber
-import QuadraticNumberFields.ClassGroup.Forms.UpperHalfPlane
+import QuadraticNumberFields.Forms.ClassNumber
+import QuadraticNumberFields.Forms.UpperHalfPlane
 import QuadraticNumberFields.RingOfIntegers.Classification
 import Mathlib.LinearAlgebra.Matrix.SpecialLinearGroup
 

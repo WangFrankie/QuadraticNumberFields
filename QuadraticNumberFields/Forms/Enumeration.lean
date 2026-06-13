@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 
-import QuadraticNumberFields.ClassGroup.Forms.Reduction
+import QuadraticNumberFields.Forms.Reduction
 import Mathlib.Data.Nat.Sqrt
 import Mathlib.Tactic
 

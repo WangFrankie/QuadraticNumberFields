@@ -3,7 +3,7 @@ Copyright (c) 2026 Frankie Wang. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
-import QuadraticNumberFields.ClassGroup.Forms.ClassNumber
+import QuadraticNumberFields.Forms.ClassNumber
 import QuadraticNumberFields.Examples.Sqrt17.Invariants
 import QuadraticNumberFields.RingOfIntegers.Norm
 

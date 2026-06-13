@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 
-import QuadraticNumberFields.ClassGroup.Forms.Action
+import QuadraticNumberFields.Forms.Action
 import Mathlib.Data.Int.Order.Basic
 import Mathlib.Tactic.NormNum
 
