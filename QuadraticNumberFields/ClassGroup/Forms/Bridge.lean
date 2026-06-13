@@ -637,6 +637,10 @@ private theorem span_singleton_mul_span_pair_le {R : Type*} [CommRing R]
   | smul r y _ hy =>
       simpa [mul_assoc, mul_comm, mul_left_comm] using K.mul_mem_left r hy
 
+private theorem two_mul_neg_div_two_of_even {b : ℤ} (hb : Even b) : 2 * ((-b) / 2) = -b := by
+  rcases hb with ⟨k, hk⟩
+  omega
+
 private theorem cox_zsqrtd_ideal_relation {D A B C p q r s u v : ℤ}
     (hdet : p * s - q * r = 1) (hdisc : B ^ 2 - 4 * A * C = 4 * D)
     (hu : 2 * u = -B)
@@ -708,6 +712,45 @@ private theorem cox_zsqrtd_ideal_relation {D A B C p q r s u v : ℤ}
       simpa [mul_comm] using hα_mem_left
     · rw [hroot]
       exact Ideal.mul_mem_mul (Ideal.subset_span (by simp [α])) hsβ_sub_qA_mem_I
+
+private theorem cox_zsqrtd_ideal_relation_transform_of_mod_four_ne_one
+    {d : ℤ} (hd4 : d % 4 ≠ 1)
+    (Q : PrimitivePositiveDefiniteForm (fieldDiscriminant d)) (g : SL2Z) :
+    Ideal.span ({(((transform Q.1 g).a : ℤ) : Zsqrtd d)} : Set (Zsqrtd d)) *
+      Ideal.span
+        ({((Q.1.a : ℤ) : Zsqrtd d), (⟨(-Q.1.b) / 2, 1⟩ : Zsqrtd d)} :
+          Set (Zsqrtd d)) =
+    Ideal.span
+        ({(((g 0 0 * Q.1.a : ℤ) : Zsqrtd d) -
+          (g 1 0 : Zsqrtd d) * (⟨(-Q.1.b) / 2, 1⟩ : Zsqrtd d))} :
+          Set (Zsqrtd d)) *
+      Ideal.span
+        ({(((transform Q.1 g).a : ℤ) : Zsqrtd d),
+          (⟨(-(transform Q.1 g).b) / 2, 1⟩ : Zsqrtd d)} :
+          Set (Zsqrtd d)) := by
+  have hdet : g 0 0 * g 1 1 - g 0 1 * g 1 0 = 1 := by
+    have h := g.2
+    rw [Matrix.det_fin_two] at h
+    simpa using h
+  have hdisc : Q.1.b ^ 2 - 4 * Q.1.a * Q.1.c = 4 * d := by
+    simpa [HasDiscriminant, disc, fieldDiscriminant, hd4] using Q.2.1
+  have hb_even : Even Q.1.b :=
+    even_b_of_hasDiscriminant_fieldDiscriminant_of_mod_four_ne_one hd4 Q.2.1
+  have hdisc_transform : (transform Q.1 g).HasDiscriminant (fieldDiscriminant d) := by
+    simpa [HasDiscriminant, disc_transform] using Q.2.1
+  have hb_transform_even : Even (transform Q.1 g).b :=
+    even_b_of_hasDiscriminant_fieldDiscriminant_of_mod_four_ne_one hd4 hdisc_transform
+  have hu : 2 * ((-Q.1.b) / 2) = -Q.1.b :=
+    two_mul_neg_div_two_of_even hb_even
+  have hv : 2 * ((-(transform Q.1 g).b) / 2) =
+      -(2 * Q.1.a * g 0 0 * g 0 1 +
+        Q.1.b * (g 0 0 * g 1 1 + g 0 1 * g 1 0) + 2 * Q.1.c * g 1 0 * g 1 1) := by
+    simpa [transform_b] using two_mul_neg_div_two_of_even hb_transform_even
+  simpa [transform_a] using
+    cox_zsqrtd_ideal_relation (D := d) (A := Q.1.a) (B := Q.1.b) (C := Q.1.c)
+      (p := g 0 0) (q := g 0 1) (r := g 1 0) (s := g 1 1)
+      (u := (-Q.1.b) / 2) (v := (-(transform Q.1 g).b) / 2)
+      hdet hdisc hu hv
 
 /-- The Cox ideal `(a, (-b + √D) / 2)` in the `d % 4 ≠ 1` branch, transported
 from the `Zsqrtd d` model back to the ring of integers of `Qsqrtd d`.
