@@ -660,6 +660,11 @@ private theorem two_mul_neg_div_two_of_even {b : ℤ} (hb : Even b) : 2 * ((-b) 
   rcases hb with ⟨k, hk⟩
   omega
 
+private theorem two_mul_neg_succ_div_two_of_odd {b : ℤ} (hb : Odd b) :
+    2 * (-(b + 1) / 2) = -(b + 1) := by
+  rcases hb with ⟨k, hk⟩
+  omega
+
 private theorem cox_zsqrtd_lam_ne_zero {D A p q r s u : ℤ}
     (hA : A ≠ 0) (hdet : p * s - q * r = 1) :
     (((p * A : ℤ) : Zsqrtd D) - (r : Zsqrtd D) * (⟨u, 1⟩ : Zsqrtd D)) ≠ 0 := by
@@ -792,6 +797,342 @@ private theorem cox_zsqrtd_ideal_relation_transform_of_mod_four_ne_one
       (u := (-Q.1.b) / 2) (v := (-(transform Q.1 g).b) / 2)
       hdet hdisc hu hv
 
+private theorem cox_zomega_v_def {A B C p q r s u v : ℤ}
+    (hdet : p * s - q * r = 1) (hu : 2 * u = -(B + 1))
+    (hv : 2 * v = -(2 * A * p * q + B * (p * s + q * r) + 2 * C * r * s + 1)) :
+    v = -A * p * q + u * (p * s + q * r) + q * r - C * r * s := by
+  have hB : B = -2 * u - 1 := by omega
+  have hv' := hv
+  rw [hB] at hv'
+  ring_nf at hv' ⊢
+  omega
+
+private theorem cox_zomega_linear_relation {A B C p q r s u v : ℤ}
+    (hdet : p * s - q * r = 1) (hu : 2 * u = -(B + 1))
+    (hv : 2 * v = -(2 * A * p * q + B * (p * s + q * r) + 2 * C * r * s + 1)) :
+    p * A - r * u - r = s * (A * p ^ 2 + B * p * r + C * r ^ 2) + r * v := by
+  have hB : B = -2 * u - 1 := by omega
+  have hv_def : v = -A * p * q + u * (p * s + q * r) + q * r - C * r * s :=
+    cox_zomega_v_def hdet hu hv
+  rw [hB, hv_def]
+  calc
+    p * A - r * u - r = A * p * (p * s - q * r) - (u + 1) * r * (p * s - q * r) := by
+      rw [hdet]
+      ring
+    _ = s * (A * p ^ 2 + (-2 * u - 1) * p * r + C * r ^ 2) +
+        r * (-A * p * q + u * (p * s + q * r) + q * r - C * r * s) := by
+      ring
+
+private theorem cox_zomega_k_def {k A B C u : ℤ}
+    (hdisc : B ^ 2 - 4 * A * C = 1 + 4 * k) (hu : 2 * u = -(B + 1)) :
+    k = u ^ 2 + u - A * C := by
+  have hB : B = -2 * u - 1 := by omega
+  rw [hB] at hdisc
+  nlinarith
+
+private theorem cox_zomega_root_relation_re {k A B C p q r s u v : ℤ}
+    (hdet : p * s - q * r = 1) (hdisc : B ^ 2 - 4 * A * C = 1 + 4 * k)
+    (hu : 2 * u = -(B + 1))
+    (hv : 2 * v = -(2 * A * p * q + B * (p * s + q * r) + 2 * C * r * s + 1)) :
+    (p * A - r * u) * v - k * r =
+      (A * p ^ 2 + B * p * r + C * r ^ 2) * (s * u - q * A) := by
+  have hB : B = -2 * u - 1 := by omega
+  have hv_def : v = -A * p * q + u * (p * s + q * r) + q * r - C * r * s :=
+    cox_zomega_v_def hdet hu hv
+  have hk : k = u ^ 2 + u - A * C := cox_zomega_k_def hdisc hu
+  rw [hB, hv_def, hk]
+  have hzero :
+      ((p * A - r * u) * (-A * p * q + u * (p * s + q * r) + q * r - C * r * s) -
+          (u ^ 2 + u - A * C) * r) -
+        ((A * p ^ 2 + (-2 * u - 1) * p * r + C * r ^ 2) * (s * u - q * A)) =
+          0 := by
+    calc
+      ((p * A - r * u) * (-A * p * q + u * (p * s + q * r) + q * r -
+            C * r * s) - (u ^ 2 + u - A * C) * r) -
+          ((A * p ^ 2 + (-2 * u - 1) * p * r + C * r ^ 2) * (s * u - q * A))
+          = r * (u ^ 2 + u - A * C) * (p * s - q * r - 1) := by
+            ring
+      _ = 0 := by
+        rw [hdet]
+        ring
+  nlinarith
+
+private theorem cox_zomega_norm_relation {k A B C p r u : ℤ}
+    (hdisc : B ^ 2 - 4 * A * C = 1 + 4 * k) (hu : 2 * u = -(B + 1)) :
+    (p * A - r * u) * (p * A - r * u - r) - k * r ^ 2 =
+      A * (A * p ^ 2 + B * p * r + C * r ^ 2) := by
+  have hB : B = -2 * u - 1 := by omega
+  have hk : k = u ^ 2 + u - A * C := cox_zomega_k_def hdisc hu
+  rw [hB, hk]
+  ring
+
+private theorem cox_zomega_root_relation {k A B C p q r s u v : ℤ}
+    (hdet : p * s - q * r = 1) (hdisc : B ^ 2 - 4 * A * C = 1 + 4 * k)
+    (hu : 2 * u = -(B + 1))
+    (hv : 2 * v = -(2 * A * p * q + B * (p * s + q * r) + 2 * C * r * s + 1)) :
+    (((p * A : ℤ) : ZOnePlusSqrtdOverTwo k) -
+          (r : ZOnePlusSqrtdOverTwo k) * (⟨u, 1⟩ : ZOnePlusSqrtdOverTwo k)) *
+        (⟨v, 1⟩ : ZOnePlusSqrtdOverTwo k) =
+      ((A * p ^ 2 + B * p * r + C * r ^ 2 : ℤ) : ZOnePlusSqrtdOverTwo k) *
+        ((s : ZOnePlusSqrtdOverTwo k) * (⟨u, 1⟩ : ZOnePlusSqrtdOverTwo k) -
+          (q : ZOnePlusSqrtdOverTwo k) * (A : ZOnePlusSqrtdOverTwo k)) := by
+  have hlin1 : p * A - r * u - r =
+      s * (A * p ^ 2 + B * p * r + C * r ^ 2) + r * v :=
+    cox_zomega_linear_relation hdet hu hv
+  ext <;>
+    simp only [QuadraticAlgebra.re_sub, QuadraticAlgebra.re_mul, QuadraticAlgebra.re_intCast,
+      QuadraticAlgebra.im_sub, QuadraticAlgebra.im_mul, QuadraticAlgebra.im_intCast, zero_mul,
+      mul_zero, add_zero, one_mul, mul_one]
+  · simpa [mul_comm, mul_assoc, mul_left_comm] using
+      cox_zomega_root_relation_re hdet hdisc hu hv
+  · have htarget : p * A - r * u - r * v - r =
+        s * (A * p ^ 2 + B * p * r + C * r ^ 2) := by
+      calc
+        p * A - r * u - r * v - r =
+            (s * (A * p ^ 2 + B * p * r + C * r ^ 2) + r * v) - r * v := by
+          rw [← hlin1]
+          ring
+        _ = s * (A * p ^ 2 + B * p * r + C * r ^ 2) := by
+          ring
+    simpa [mul_comm, mul_assoc, mul_left_comm, sub_eq_add_neg] using htarget
+
+private theorem cox_zomega_conj_relation {k A B C p q r s u v : ℤ}
+    (hdet : p * s - q * r = 1) (hdisc : B ^ 2 - 4 * A * C = 1 + 4 * k)
+    (hu : 2 * u = -(B + 1))
+    (hv : 2 * v = -(2 * A * p * q + B * (p * s + q * r) + 2 * C * r * s + 1)) :
+    (((p * A : ℤ) : ZOnePlusSqrtdOverTwo k) -
+          (r : ZOnePlusSqrtdOverTwo k) * (⟨u, 1⟩ : ZOnePlusSqrtdOverTwo k)) *
+        (((s * (A * p ^ 2 + B * p * r + C * r ^ 2) : ℤ) : ZOnePlusSqrtdOverTwo k) +
+          (r : ZOnePlusSqrtdOverTwo k) * (⟨v, 1⟩ : ZOnePlusSqrtdOverTwo k)) =
+      ((A * p ^ 2 + B * p * r + C * r ^ 2 : ℤ) : ZOnePlusSqrtdOverTwo k) *
+        (A : ZOnePlusSqrtdOverTwo k) := by
+  have hlin1 : p * A - r * u - r =
+      s * (A * p ^ 2 + B * p * r + C * r ^ 2) + r * v :=
+    cox_zomega_linear_relation hdet hu hv
+  have hnorm :=
+    cox_zomega_norm_relation (k := k) (A := A) (B := B) (C := C) (p := p)
+      (r := r) (u := u) hdisc hu
+  ext <;>
+    simp only [QuadraticAlgebra.re_add, QuadraticAlgebra.im_add,
+      QuadraticAlgebra.re_sub, QuadraticAlgebra.re_mul, QuadraticAlgebra.re_intCast,
+      QuadraticAlgebra.im_sub, QuadraticAlgebra.im_mul, QuadraticAlgebra.im_intCast, zero_mul,
+      mul_zero, add_zero, zero_add, one_mul, mul_one]
+  · norm_num
+    rw [← hlin1]
+    nlinarith [hnorm]
+  · norm_num
+    rw [← hlin1]
+    ring
+
+private theorem cox_zomega_beta_relation {k A B C p q r s u v : ℤ}
+    (hdet : p * s - q * r = 1) (hdisc : B ^ 2 - 4 * A * C = 1 + 4 * k)
+    (hu : 2 * u = -(B + 1))
+    (hv : 2 * v = -(2 * A * p * q + B * (p * s + q * r) + 2 * C * r * s + 1)) :
+    (((p * A : ℤ) : ZOnePlusSqrtdOverTwo k) -
+          (r : ZOnePlusSqrtdOverTwo k) * (⟨u, 1⟩ : ZOnePlusSqrtdOverTwo k)) *
+        ((p : ZOnePlusSqrtdOverTwo k) * (⟨v, 1⟩ : ZOnePlusSqrtdOverTwo k) +
+          (q : ZOnePlusSqrtdOverTwo k) *
+            ((A * p ^ 2 + B * p * r + C * r ^ 2 : ℤ) : ZOnePlusSqrtdOverTwo k)) =
+      ((A * p ^ 2 + B * p * r + C * r ^ 2 : ℤ) : ZOnePlusSqrtdOverTwo k) *
+        (⟨u, 1⟩ : ZOnePlusSqrtdOverTwo k) := by
+  have hlin1 : p * A - r * u - r =
+      s * (A * p ^ 2 + B * p * r + C * r ^ 2) + r * v :=
+    cox_zomega_linear_relation hdet hu hv
+  have hroot_re :=
+    cox_zomega_root_relation_re (k := k) (A := A) (B := B) (C := C)
+      (p := p) (q := q) (r := r) (s := s) (u := u) (v := v) hdet hdisc hu hv
+  ext <;>
+    simp only [QuadraticAlgebra.re_add, QuadraticAlgebra.im_add,
+      QuadraticAlgebra.re_sub, QuadraticAlgebra.re_mul, QuadraticAlgebra.re_intCast,
+      QuadraticAlgebra.im_sub, QuadraticAlgebra.im_mul, QuadraticAlgebra.im_intCast, zero_mul,
+      mul_zero, add_zero, one_mul, mul_one]
+  · norm_num
+    calc
+      (p * A - r * u) * (p * v + q * (A * p ^ 2 + B * p * r + C * r ^ 2)) +
+          -(k * r * p) =
+          p * ((p * A - r * u) * v - k * r) +
+            q * (A * p ^ 2 + B * p * r + C * r ^ 2) * (p * A - r * u) := by
+        ring
+      _ = p * ((A * p ^ 2 + B * p * r + C * r ^ 2) * (s * u - q * A)) +
+            q * (A * p ^ 2 + B * p * r + C * r ^ 2) * (p * A - r * u) := by
+        rw [hroot_re]
+      _ = (A * p ^ 2 + B * p * r + C * r ^ 2) * u := by
+        calc
+          p * ((A * p ^ 2 + B * p * r + C * r ^ 2) * (s * u - q * A)) +
+              q * (A * p ^ 2 + B * p * r + C * r ^ 2) * (p * A - r * u)
+              =
+            (A * p ^ 2 + B * p * r + C * r ^ 2) * (u * (p * s - q * r)) := by
+            ring
+          _ = (A * p ^ 2 + B * p * r + C * r ^ 2) * u := by
+            rw [hdet]
+            ring
+  · norm_num
+    calc
+      (p * A - r * u) * p +
+          -(r * (p * v + q * (A * p ^ 2 + B * p * r + C * r ^ 2))) + -(r * p) =
+          p * (p * A - r * u - r) -
+            r * (p * v + q * (A * p ^ 2 + B * p * r + C * r ^ 2)) := by
+        ring
+      _ = (p * s - q * r) * (A * p ^ 2 + B * p * r + C * r ^ 2) := by
+        rw [hlin1]
+        ring
+      _ = A * p ^ 2 + B * p * r + C * r ^ 2 := by
+        rw [hdet]
+        ring
+
+private theorem cox_zomega_ideal_relation {k A B C p q r s u v : ℤ}
+    (hdet : p * s - q * r = 1) (hdisc : B ^ 2 - 4 * A * C = 1 + 4 * k)
+    (hu : 2 * u = -(B + 1))
+    (hv : 2 * v = -(2 * A * p * q + B * (p * s + q * r) + 2 * C * r * s + 1)) :
+    Ideal.span
+        ({((A * p ^ 2 + B * p * r + C * r ^ 2 : ℤ) : ZOnePlusSqrtdOverTwo k)} :
+          Set (ZOnePlusSqrtdOverTwo k)) *
+      Ideal.span
+        ({(A : ZOnePlusSqrtdOverTwo k), (⟨u, 1⟩ : ZOnePlusSqrtdOverTwo k)} :
+          Set (ZOnePlusSqrtdOverTwo k)) =
+    Ideal.span
+        ({(((p * A : ℤ) : ZOnePlusSqrtdOverTwo k) -
+          (r : ZOnePlusSqrtdOverTwo k) * (⟨u, 1⟩ : ZOnePlusSqrtdOverTwo k))} :
+          Set (ZOnePlusSqrtdOverTwo k)) *
+      Ideal.span
+        ({((A * p ^ 2 + B * p * r + C * r ^ 2 : ℤ) : ZOnePlusSqrtdOverTwo k),
+          (⟨v, 1⟩ : ZOnePlusSqrtdOverTwo k)} : Set (ZOnePlusSqrtdOverTwo k)) := by
+  let A' : ℤ := A * p ^ 2 + B * p * r + C * r ^ 2
+  let α : ZOnePlusSqrtdOverTwo k := (A' : ZOnePlusSqrtdOverTwo k)
+  let β : ZOnePlusSqrtdOverTwo k := ⟨u, 1⟩
+  let β' : ZOnePlusSqrtdOverTwo k := ⟨v, 1⟩
+  let lam : ZOnePlusSqrtdOverTwo k :=
+    ((p * A : ℤ) : ZOnePlusSqrtdOverTwo k) - (r : ZOnePlusSqrtdOverTwo k) * β
+  let I : Ideal (ZOnePlusSqrtdOverTwo k) :=
+    Ideal.span ({(A : ZOnePlusSqrtdOverTwo k), β} : Set (ZOnePlusSqrtdOverTwo k))
+  let J : Ideal (ZOnePlusSqrtdOverTwo k) :=
+    Ideal.span ({α, β'} : Set (ZOnePlusSqrtdOverTwo k))
+  change Ideal.span ({α} : Set (ZOnePlusSqrtdOverTwo k)) * I =
+    Ideal.span ({lam} : Set (ZOnePlusSqrtdOverTwo k)) * J
+  have hroot : lam * β' =
+      α * ((s : ZOnePlusSqrtdOverTwo k) * β - (q : ZOnePlusSqrtdOverTwo k) *
+        (A : ZOnePlusSqrtdOverTwo k)) := by
+    simpa [A', α, β, β', lam] using
+      cox_zomega_root_relation (k := k) (A := A) (B := B) (C := C)
+        (p := p) (q := q) (r := r) (s := s) (u := u) (v := v) hdet hdisc hu hv
+  have hconj :
+      lam * (((s * A' : ℤ) : ZOnePlusSqrtdOverTwo k) +
+          (r : ZOnePlusSqrtdOverTwo k) * β') =
+        α * (A : ZOnePlusSqrtdOverTwo k) := by
+    simpa [A', α, β, β', lam] using
+      cox_zomega_conj_relation (k := k) (A := A) (B := B) (C := C)
+        (p := p) (q := q) (r := r) (s := s) (u := u) (v := v) hdet hdisc hu hv
+  have hbeta :
+      lam * ((p : ZOnePlusSqrtdOverTwo k) * β' + (q : ZOnePlusSqrtdOverTwo k) * α) =
+        α * β := by
+    simpa [A', α, β, β', lam] using
+      cox_zomega_beta_relation (k := k) (A := A) (B := B) (C := C)
+        (p := p) (q := q) (r := r) (s := s) (u := u) (v := v) hdet hdisc hu hv
+  have hA_mem_I : (A : ZOnePlusSqrtdOverTwo k) ∈ I := Ideal.subset_span (by simp)
+  have hβ_mem_I : β ∈ I := Ideal.subset_span (by simp)
+  have hα_mem_J : α ∈ J := Ideal.subset_span (by simp)
+  have hβ'_mem_J : β' ∈ J := Ideal.subset_span (by simp)
+  have hlam_mem_I : lam ∈ I := by
+    have hpA_mem_I : ((p * A : ℤ) : ZOnePlusSqrtdOverTwo k) ∈ I := by
+      simpa using I.mul_mem_left (p : ZOnePlusSqrtdOverTwo k) hA_mem_I
+    exact I.sub_mem hpA_mem_I (I.mul_mem_left (r : ZOnePlusSqrtdOverTwo k) hβ_mem_I)
+  have hsα_add_rβ'_mem_J :
+      ((s * A' : ℤ) : ZOnePlusSqrtdOverTwo k) +
+          (r : ZOnePlusSqrtdOverTwo k) * β' ∈ J := by
+    have hsα_mem_J : ((s * A' : ℤ) : ZOnePlusSqrtdOverTwo k) ∈ J := by
+      simpa [A', α] using J.mul_mem_left (s : ZOnePlusSqrtdOverTwo k) hα_mem_J
+    exact J.add_mem hsα_mem_J (J.mul_mem_left (r : ZOnePlusSqrtdOverTwo k) hβ'_mem_J)
+  have hpβ'_add_qα_mem_J :
+      (p : ZOnePlusSqrtdOverTwo k) * β' + (q : ZOnePlusSqrtdOverTwo k) * α ∈ J :=
+    J.add_mem (J.mul_mem_left (p : ZOnePlusSqrtdOverTwo k) hβ'_mem_J)
+      (J.mul_mem_left (q : ZOnePlusSqrtdOverTwo k) hα_mem_J)
+  have hsβ_sub_qA_mem_I :
+      (s : ZOnePlusSqrtdOverTwo k) * β - (q : ZOnePlusSqrtdOverTwo k) *
+          (A : ZOnePlusSqrtdOverTwo k) ∈ I :=
+    I.sub_mem (I.mul_mem_left (s : ZOnePlusSqrtdOverTwo k) hβ_mem_I)
+      (I.mul_mem_left (q : ZOnePlusSqrtdOverTwo k) hA_mem_I)
+  apply le_antisymm
+  · apply span_singleton_mul_span_pair_le
+    · rw [← hconj]
+      exact Ideal.mul_mem_mul (Ideal.subset_span (by simp [lam])) hsα_add_rβ'_mem_J
+    · rw [← hbeta]
+      exact Ideal.mul_mem_mul (Ideal.subset_span (by simp [lam])) hpβ'_add_qα_mem_J
+  · apply span_singleton_mul_span_pair_le
+    · have hα_mem_left : α * lam ∈ Ideal.span ({α} : Set (ZOnePlusSqrtdOverTwo k)) * I :=
+        Ideal.mul_mem_mul (Ideal.subset_span (by simp [α])) hlam_mem_I
+      simpa [mul_comm] using hα_mem_left
+    · rw [hroot]
+      exact Ideal.mul_mem_mul (Ideal.subset_span (by simp [α])) hsβ_sub_qA_mem_I
+
+private theorem cox_zomega_ideal_relation_transform_of_mod_four_eq_one
+    {d : ℤ} (hd4 : d % 4 = 1)
+    (Q : PrimitivePositiveDefiniteForm (fieldDiscriminant d)) (g : SL2Z) :
+    Ideal.span
+        ({(((transform Q.1 g).a : ℤ) : ZOnePlusSqrtdOverTwo (d / 4))} :
+          Set (ZOnePlusSqrtdOverTwo (d / 4))) *
+      Ideal.span
+        ({((Q.1.a : ℤ) : ZOnePlusSqrtdOverTwo (d / 4)),
+          (⟨-(Q.1.b + 1) / 2, 1⟩ : ZOnePlusSqrtdOverTwo (d / 4))} :
+          Set (ZOnePlusSqrtdOverTwo (d / 4))) =
+    Ideal.span
+        ({(((g 0 0 * Q.1.a : ℤ) : ZOnePlusSqrtdOverTwo (d / 4)) -
+          (g 1 0 : ZOnePlusSqrtdOverTwo (d / 4)) *
+            (⟨-(Q.1.b + 1) / 2, 1⟩ : ZOnePlusSqrtdOverTwo (d / 4)))} :
+          Set (ZOnePlusSqrtdOverTwo (d / 4))) *
+      Ideal.span
+        ({(((transform Q.1 g).a : ℤ) : ZOnePlusSqrtdOverTwo (d / 4)),
+          (⟨-((transform Q.1 g).b + 1) / 2, 1⟩ : ZOnePlusSqrtdOverTwo (d / 4))} :
+          Set (ZOnePlusSqrtdOverTwo (d / 4))) := by
+  have hdet : g 0 0 * g 1 1 - g 0 1 * g 1 0 = 1 := by
+    have h := g.2
+    rw [Matrix.det_fin_two] at h
+    simpa using h
+  have hdisc_d : Q.1.b ^ 2 - 4 * Q.1.a * Q.1.c = d := by
+    simpa [HasDiscriminant, disc, fieldDiscriminant, hd4] using Q.2.1
+  have hd_eq : d = 1 + 4 * (d / 4) := by omega
+  have hdisc : Q.1.b ^ 2 - 4 * Q.1.a * Q.1.c = 1 + 4 * (d / 4) :=
+    hdisc_d.trans hd_eq
+  have hb_odd : Odd Q.1.b :=
+    odd_b_of_hasDiscriminant_fieldDiscriminant_of_mod_four_eq_one hd4 Q.2.1
+  have hdisc_transform : (transform Q.1 g).HasDiscriminant (fieldDiscriminant d) := by
+    simpa [HasDiscriminant, disc_transform] using Q.2.1
+  have hb_transform_odd : Odd (transform Q.1 g).b :=
+    odd_b_of_hasDiscriminant_fieldDiscriminant_of_mod_four_eq_one hd4 hdisc_transform
+  have hu : 2 * (-(Q.1.b + 1) / 2) = -(Q.1.b + 1) :=
+    two_mul_neg_succ_div_two_of_odd hb_odd
+  have hv : 2 * (-((transform Q.1 g).b + 1) / 2) =
+      -(2 * Q.1.a * g 0 0 * g 0 1 +
+        Q.1.b * (g 0 0 * g 1 1 + g 0 1 * g 1 0) + 2 * Q.1.c * g 1 0 * g 1 1 +
+          1) := by
+    simpa [transform_b] using two_mul_neg_succ_div_two_of_odd hb_transform_odd
+  simpa [transform_a] using
+    cox_zomega_ideal_relation (k := d / 4) (A := Q.1.a) (B := Q.1.b) (C := Q.1.c)
+      (p := g 0 0) (q := g 0 1) (r := g 1 0) (s := g 1 1)
+      (u := -(Q.1.b + 1) / 2) (v := -((transform Q.1 g).b + 1) / 2)
+      hdet hdisc hu hv
+
+private theorem cox_zomega_lam_ne_zero {k A p q r s u : ℤ}
+    (hA : A ≠ 0) (hdet : p * s - q * r = 1) :
+    (((p * A : ℤ) : ZOnePlusSqrtdOverTwo k) -
+      (r : ZOnePlusSqrtdOverTwo k) * (⟨u, 1⟩ : ZOnePlusSqrtdOverTwo k)) ≠ 0 := by
+  intro hzero
+  have him := congrArg QuadraticAlgebra.im hzero
+  simp only [QuadraticAlgebra.im_sub, QuadraticAlgebra.im_intCast, QuadraticAlgebra.im_mul,
+    QuadraticAlgebra.re_intCast, zero_mul, mul_one, one_mul] at him
+  norm_num at him
+  have hr : r = 0 := by omega
+  have hre := congrArg QuadraticAlgebra.re hzero
+  simp only [QuadraticAlgebra.re_sub, QuadraticAlgebra.re_intCast, QuadraticAlgebra.re_mul,
+    QuadraticAlgebra.im_intCast, zero_mul, mul_zero] at hre
+  norm_num at hre
+  have hpA : p * A = 0 := by
+    rw [hr] at hre
+    simpa using hre
+  have hp : p = 0 := by
+    exact (Int.mul_eq_zero.mp hpA).resolve_right hA
+  rw [hp, hr] at hdet
+  norm_num at hdet
+
 /-- The Cox ideal `(a, (-b + √D) / 2)` in the `d % 4 ≠ 1` branch, transported
 from the `Zsqrtd d` model back to the ring of integers of `Qsqrtd d`.
 
@@ -853,6 +1194,37 @@ noncomputable def idealOfForm_of_mod_four_eq_one
       ({((Q.1.a : ℤ) : ZOnePlusSqrtdOverTwo (d / 4)),
         (⟨-(Q.1.b + 1) / 2, 1⟩ : ZOnePlusSqrtdOverTwo (d / 4))} :
         Set (ZOnePlusSqrtdOverTwo (d / 4))))
+
+private theorem cox_ringOfIntegers_ideal_relation_transform_of_mod_four_eq_one
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd4 : d % 4 = 1)
+    (Q R : PrimitivePositiveDefiniteForm (fieldDiscriminant d)) (g : SL2Z)
+    (hR : R.1 = transform Q.1 g) :
+    let e := RingOfIntegers.ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one d hd4
+    let lam : ZOnePlusSqrtdOverTwo (d / 4) :=
+      ((g 0 0 * Q.1.a : ℤ) : ZOnePlusSqrtdOverTwo (d / 4)) -
+        (g 1 0 : ZOnePlusSqrtdOverTwo (d / 4)) *
+          (⟨-(Q.1.b + 1) / 2, 1⟩ : ZOnePlusSqrtdOverTwo (d / 4))
+    Ideal.span ({e.symm (((R.1.a : ℤ) : ZOnePlusSqrtdOverTwo (d / 4)))} :
+        Set (𝓞 (Qsqrtd (d : ℚ)))) *
+      idealOfForm_of_mod_four_eq_one d hd4 Q =
+    Ideal.span ({e.symm lam} : Set (𝓞 (Qsqrtd (d : ℚ)))) *
+      idealOfForm_of_mod_four_eq_one d hd4 R := by
+  intro e lam
+  have hcoord := cox_zomega_ideal_relation_transform_of_mod_four_eq_one hd4 Q g
+  have hcomap := congrArg
+    (Ideal.comap (e : 𝓞 (Qsqrtd (d : ℚ)) →+* ZOnePlusSqrtdOverTwo (d / 4))) hcoord
+  rw [comap_span_singleton_mul_of_ringEquiv e
+      (((transform Q.1 g).a : ℤ) : ZOnePlusSqrtdOverTwo (d / 4))
+      (Ideal.span
+        ({((Q.1.a : ℤ) : ZOnePlusSqrtdOverTwo (d / 4)),
+          (⟨-(Q.1.b + 1) / 2, 1⟩ : ZOnePlusSqrtdOverTwo (d / 4))} :
+          Set (ZOnePlusSqrtdOverTwo (d / 4))))] at hcomap
+  rw [comap_span_singleton_mul_of_ringEquiv e lam
+      (Ideal.span
+        ({(((transform Q.1 g).a : ℤ) : ZOnePlusSqrtdOverTwo (d / 4)),
+          (⟨-((transform Q.1 g).b + 1) / 2, 1⟩ :
+            ZOnePlusSqrtdOverTwo (d / 4))} : Set (ZOnePlusSqrtdOverTwo (d / 4))))] at hcomap
+  simpa [idealOfForm_of_mod_four_eq_one, hR] using hcomap
 
 /-- The Cox ideal in the `d % 4 ≠ 1` branch is nonzero, because it contains the
 nonzero positive integer coefficient `a`. -/
@@ -991,6 +1363,57 @@ private theorem idealClassOfForm_of_mod_four_ne_one_eq_of_properEquivalent
   rcases hQR with ⟨g, hg⟩
   exact idealClassOfForm_of_mod_four_ne_one_eq_of_transform d hd4 Q R g hg.symm
 
+private theorem idealClassOfForm_of_mod_four_eq_one_eq_of_transform
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd4 : d % 4 = 1)
+    (Q R : PrimitivePositiveDefiniteForm (fieldDiscriminant d)) (g : SL2Z)
+    (hR : R.1 = transform Q.1 g) :
+    idealClassOfForm_of_mod_four_eq_one d hd4 Q =
+      idealClassOfForm_of_mod_four_eq_one d hd4 R := by
+  let e := RingOfIntegers.ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one d hd4
+  let lam : ZOnePlusSqrtdOverTwo (d / 4) :=
+    ((g 0 0 * Q.1.a : ℤ) : ZOnePlusSqrtdOverTwo (d / 4)) -
+      (g 1 0 : ZOnePlusSqrtdOverTwo (d / 4)) *
+        (⟨-(Q.1.b + 1) / 2, 1⟩ : ZOnePlusSqrtdOverTwo (d / 4))
+  let x : 𝓞 (Qsqrtd (d : ℚ)) :=
+    e.symm (((R.1.a : ℤ) : ZOnePlusSqrtdOverTwo (d / 4)))
+  let y : 𝓞 (Qsqrtd (d : ℚ)) := e.symm lam
+  have hx : x ≠ 0 := by
+    intro hx0
+    have hxZ : (((R.1.a : ℤ) : ZOnePlusSqrtdOverTwo (d / 4))) = 0 := by
+      have := congrArg e hx0
+      simpa [x, e] using this
+    have ha0 : R.1.a = 0 := by
+      exact_mod_cast congrArg QuadraticAlgebra.re hxZ
+    exact (ne_of_gt R.2.2.2.1) ha0
+  have hdet : g 0 0 * g 1 1 - g 0 1 * g 1 0 = 1 := by
+    have h := g.2
+    rw [Matrix.det_fin_two] at h
+    simpa using h
+  have hlam : lam ≠ 0 :=
+    cox_zomega_lam_ne_zero (k := d / 4) (A := Q.1.a) (p := g 0 0)
+      (q := g 0 1) (r := g 1 0) (s := g 1 1) (u := -(Q.1.b + 1) / 2)
+      (ne_of_gt Q.2.2.2.1) hdet
+  have hy : y ≠ 0 := by
+    intro hy0
+    apply hlam
+    have := congrArg e hy0
+    simpa [y, e] using this
+  have hideal :=
+    cox_ringOfIntegers_ideal_relation_transform_of_mod_four_eq_one d hd4 Q R g hR
+  unfold idealClassOfForm_of_mod_four_eq_one
+  rw [ClassGroup.mk0_eq_mk0_iff]
+  refine ⟨x, y, hx, hy, ?_⟩
+  simpa [x, y, lam, nonzeroIdealOfForm_of_mod_four_eq_one] using hideal
+
+private theorem idealClassOfForm_of_mod_four_eq_one_eq_of_properEquivalent
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd4 : d % 4 = 1)
+    (Q R : PrimitivePositiveDefiniteForm (fieldDiscriminant d))
+    (hQR : PrimitivePositiveDefiniteForm.ProperEquivalent Q R) :
+    idealClassOfForm_of_mod_four_eq_one d hd4 Q =
+      idealClassOfForm_of_mod_four_eq_one d hd4 R := by
+  rcases hQR with ⟨g, hg⟩
+  exact idealClassOfForm_of_mod_four_eq_one_eq_of_transform d hd4 Q R g hg.symm
+
 /-- WIP map from form classes to ideal classes in the `d % 4 ≠ 1` branch. -/
 noncomputable def formClassToClassGroup_of_mod_four_ne_one
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd4 : d % 4 ≠ 1) :
@@ -1003,9 +1426,9 @@ noncomputable def formClassToClassGroup_of_mod_four_ne_one
 noncomputable def formClassToClassGroup_of_mod_four_eq_one
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd4 : d % 4 = 1) :
     FormClass (fieldDiscriminant d) → ClassGroup (𝓞 (Qsqrtd (d : ℚ))) := by
-  intro Q
   classical
-  sorry
+  exact Quotient.lift (idealClassOfForm_of_mod_four_eq_one d hd4)
+    (idealClassOfForm_of_mod_four_eq_one_eq_of_properEquivalent d hd4)
 
 /-- WIP Cox 7.7 bijection for imaginary quadratic fields. -/
 noncomputable def formClassEquivClassGroup
