@@ -40,13 +40,16 @@ import QuadraticNumberFields.Splitting.Qsqrtd.Monogenic
 import QuadraticNumberFields.Splitting.Qsqrtd.OddPrime
 import QuadraticNumberFields.Splitting.Qsqrtd.Two
 import QuadraticNumberFields.Splitting.QuadraticField.Basic
+import QuadraticNumberFields.ClassGroup.Forms.ClassNumber
 import QuadraticNumberFields.ClassNumber
 import QuadraticNumberFields.Examples.SqrtNeg5.Ideals
 import QuadraticNumberFields.Examples.SqrtNeg5.RamificationInertia
 import QuadraticNumberFields.Examples.SqrtNeg5.Splitting
 import QuadraticNumberFields.Examples.SqrtNeg5.Invariants
+import QuadraticNumberFields.Examples.SqrtNeg5.ClassNumber
 import QuadraticNumberFields.Examples.Sqrt17.Splitting
 import QuadraticNumberFields.Examples.Sqrt17.Invariants
+import QuadraticNumberFields.Examples.Sqrt17.ClassNumber
 import QuadraticNumberFields.Qsqrtd.TotallyRealComplex
 import QuadraticNumberFields.Units.Pell
 import QuadraticNumberFields.Units.Imaginary
