@@ -470,6 +470,245 @@ private theorem cox_zsqrtd_linear_relation {A B C p q r s u v : ℤ}
       rw [show r * v = v * r by ring, hvr]
       ring
 
+private theorem cox_zsqrtd_root_relation_re {D A B C p q r s u v : ℤ}
+    (hdet : p * s - q * r = 1) (hdisc : B ^ 2 - 4 * A * C = 4 * D)
+    (hu : 2 * u = -B)
+    (hv : 2 * v = -(2 * A * p * q + B * (p * s + q * r) + 2 * C * r * s)) :
+    (p * A - r * u) * v - D * r =
+      (A * p ^ 2 + B * p * r + C * r ^ 2) * (s * u - q * A) := by
+  have hB : B = -2 * u := by omega
+  have hv_def : v = -A * p * q + u * (p * s + q * r) - C * r * s := by
+    have hv' := hv
+    rw [hB] at hv'
+    ring_nf at hv' ⊢
+    omega
+  have hD : D = u ^ 2 - A * C := by
+    have hdisc' := hdisc
+    rw [hB] at hdisc'
+    nlinarith
+  rw [hB, hv_def, hD]
+  have hzero :
+      ((p * A - r * u) * (-A * p * q + u * (p * s + q * r) - C * r * s) -
+          (u ^ 2 - A * C) * r) -
+        ((A * p ^ 2 + (-2 * u) * p * r + C * r ^ 2) * (s * u - q * A)) = 0 := by
+    calc
+      ((p * A - r * u) * (-A * p * q + u * (p * s + q * r) - C * r * s) -
+          (u ^ 2 - A * C) * r) -
+        ((A * p ^ 2 + (-2 * u) * p * r + C * r ^ 2) * (s * u - q * A))
+          = r * (u ^ 2 - A * C) * (p * s - q * r - 1) := by
+            ring
+      _ = 0 := by
+        rw [hdet]
+        ring
+  nlinarith
+
+private theorem cox_zsqrtd_norm_relation {D A B C p r u : ℤ}
+    (hdisc : B ^ 2 - 4 * A * C = 4 * D) (hu : 2 * u = -B) :
+    (p * A - r * u) ^ 2 - D * r ^ 2 =
+      A * (A * p ^ 2 + B * p * r + C * r ^ 2) := by
+  have hB : B = -2 * u := by omega
+  have hD : D = u ^ 2 - A * C := by
+    have hdisc' := hdisc
+    rw [hB] at hdisc'
+    nlinarith
+  rw [hB, hD]
+  ring
+
+private theorem cox_zsqrtd_root_relation {D A B C p q r s u v : ℤ}
+    (hdet : p * s - q * r = 1) (hdisc : B ^ 2 - 4 * A * C = 4 * D)
+    (hu : 2 * u = -B)
+    (hv : 2 * v = -(2 * A * p * q + B * (p * s + q * r) + 2 * C * r * s)) :
+    (((p * A : ℤ) : Zsqrtd D) - (r : Zsqrtd D) * (⟨u, 1⟩ : Zsqrtd D)) *
+        (⟨v, 1⟩ : Zsqrtd D) =
+      ((A * p ^ 2 + B * p * r + C * r ^ 2 : ℤ) : Zsqrtd D) *
+        ((s : Zsqrtd D) * (⟨u, 1⟩ : Zsqrtd D) -
+          (q : Zsqrtd D) * (A : Zsqrtd D)) := by
+  have hlin1 : p * A - r * u =
+      s * (A * p ^ 2 + B * p * r + C * r ^ 2) + r * v :=
+    cox_zsqrtd_linear_relation hdet hu hv
+  ext <;>
+    simp only [QuadraticAlgebra.re_sub, QuadraticAlgebra.re_mul, QuadraticAlgebra.re_intCast,
+      QuadraticAlgebra.im_sub, QuadraticAlgebra.im_mul, QuadraticAlgebra.im_intCast, zero_mul,
+      mul_zero, add_zero]
+  · simpa [mul_comm, mul_assoc, mul_left_comm] using
+      cox_zsqrtd_root_relation_re hdet hdisc hu hv
+  · have htarget : p * A - r * u - r * v =
+        s * (A * p ^ 2 + B * p * r + C * r ^ 2) := by
+      calc
+        p * A - r * u - r * v =
+            (s * (A * p ^ 2 + B * p * r + C * r ^ 2) + r * v) - r * v := by
+          rw [hlin1]
+        _ = s * (A * p ^ 2 + B * p * r + C * r ^ 2) := by
+          ring
+    simpa [mul_comm, mul_assoc, mul_left_comm, sub_eq_add_neg] using htarget
+
+private theorem cox_zsqrtd_conj_relation {D A B C p q r s u v : ℤ}
+    (hdet : p * s - q * r = 1) (hdisc : B ^ 2 - 4 * A * C = 4 * D)
+    (hu : 2 * u = -B)
+    (hv : 2 * v = -(2 * A * p * q + B * (p * s + q * r) + 2 * C * r * s)) :
+    (((p * A : ℤ) : Zsqrtd D) - (r : Zsqrtd D) * (⟨u, 1⟩ : Zsqrtd D)) *
+        (((s * (A * p ^ 2 + B * p * r + C * r ^ 2) : ℤ) : Zsqrtd D) +
+          (r : Zsqrtd D) * (⟨v, 1⟩ : Zsqrtd D)) =
+      ((A * p ^ 2 + B * p * r + C * r ^ 2 : ℤ) : Zsqrtd D) *
+        (A : Zsqrtd D) := by
+  have hlin1 : p * A - r * u =
+      s * (A * p ^ 2 + B * p * r + C * r ^ 2) + r * v :=
+    cox_zsqrtd_linear_relation hdet hu hv
+  have hnorm :=
+    cox_zsqrtd_norm_relation (D := D) (A := A) (B := B) (C := C) (p := p)
+      (r := r) (u := u) hdisc hu
+  ext <;>
+    simp only [QuadraticAlgebra.re_add, QuadraticAlgebra.im_add,
+      QuadraticAlgebra.re_sub, QuadraticAlgebra.re_mul, QuadraticAlgebra.re_intCast,
+      QuadraticAlgebra.im_sub, QuadraticAlgebra.im_mul, QuadraticAlgebra.im_intCast, zero_mul,
+      mul_zero, add_zero, zero_add]
+  · norm_num
+    rw [← hlin1]
+    nlinarith [hnorm]
+  · norm_num
+    rw [← hlin1]
+    ring
+
+private theorem cox_zsqrtd_beta_relation {D A B C p q r s u v : ℤ}
+    (hdet : p * s - q * r = 1) (hdisc : B ^ 2 - 4 * A * C = 4 * D)
+    (hu : 2 * u = -B)
+    (hv : 2 * v = -(2 * A * p * q + B * (p * s + q * r) + 2 * C * r * s)) :
+    (((p * A : ℤ) : Zsqrtd D) - (r : Zsqrtd D) * (⟨u, 1⟩ : Zsqrtd D)) *
+        ((p : Zsqrtd D) * (⟨v, 1⟩ : Zsqrtd D) +
+          (q : Zsqrtd D) *
+            ((A * p ^ 2 + B * p * r + C * r ^ 2 : ℤ) : Zsqrtd D)) =
+      ((A * p ^ 2 + B * p * r + C * r ^ 2 : ℤ) : Zsqrtd D) *
+        (⟨u, 1⟩ : Zsqrtd D) := by
+  have hlin1 : p * A - r * u =
+      s * (A * p ^ 2 + B * p * r + C * r ^ 2) + r * v :=
+    cox_zsqrtd_linear_relation hdet hu hv
+  have hroot_re :=
+    cox_zsqrtd_root_relation_re (D := D) (A := A) (B := B) (C := C)
+      (p := p) (q := q) (r := r) (s := s) (u := u) (v := v)
+      hdet hdisc hu hv
+  ext <;>
+    simp only [QuadraticAlgebra.re_add, QuadraticAlgebra.im_add,
+      QuadraticAlgebra.re_sub, QuadraticAlgebra.re_mul, QuadraticAlgebra.re_intCast,
+      QuadraticAlgebra.im_sub, QuadraticAlgebra.im_mul, QuadraticAlgebra.im_intCast, zero_mul,
+      mul_zero, add_zero]
+  · norm_num
+    calc
+      (p * A - r * u) * (p * v + q * (A * p ^ 2 + B * p * r + C * r ^ 2)) +
+          -(D * r * p) =
+          p * ((p * A - r * u) * v - D * r) +
+            q * (A * p ^ 2 + B * p * r + C * r ^ 2) * (p * A - r * u) := by
+        ring
+      _ = p * ((A * p ^ 2 + B * p * r + C * r ^ 2) * (s * u - q * A)) +
+            q * (A * p ^ 2 + B * p * r + C * r ^ 2) * (p * A - r * u) := by
+        rw [hroot_re]
+      _ = (A * p ^ 2 + B * p * r + C * r ^ 2) * u := by
+        calc
+          p * ((A * p ^ 2 + B * p * r + C * r ^ 2) * (s * u - q * A)) +
+              q * (A * p ^ 2 + B * p * r + C * r ^ 2) * (p * A - r * u)
+              =
+            (A * p ^ 2 + B * p * r + C * r ^ 2) * (u * (p * s - q * r)) := by
+            ring
+          _ = (A * p ^ 2 + B * p * r + C * r ^ 2) * u := by
+            rw [hdet]
+            ring
+  · norm_num
+    calc
+      (p * A - r * u) * p +
+          -(r * (p * v + q * (A * p ^ 2 + B * p * r + C * r ^ 2))) =
+          (p * s - q * r) * (A * p ^ 2 + B * p * r + C * r ^ 2) := by
+        rw [hlin1]
+        ring
+      _ = A * p ^ 2 + B * p * r + C * r ^ 2 := by
+        rw [hdet]
+        ring
+
+private theorem span_singleton_mul_span_pair_le {R : Type*} [CommRing R]
+    {x a b : R} {K : Ideal R} (ha : x * a ∈ K) (hb : x * b ∈ K) :
+    Ideal.span ({x} : Set R) * Ideal.span ({a, b} : Set R) ≤ K := by
+  rw [Ideal.span_singleton_mul_le_iff]
+  intro z hz
+  induction hz using Submodule.span_induction with
+  | mem y hy =>
+      rcases hy with rfl | rfl
+      · exact ha
+      · exact hb
+  | zero => simp
+  | add y z _ _ hy hz => simpa [mul_add] using K.add_mem hy hz
+  | smul r y _ hy =>
+      simpa [mul_assoc, mul_comm, mul_left_comm] using K.mul_mem_left r hy
+
+private theorem cox_zsqrtd_ideal_relation {D A B C p q r s u v : ℤ}
+    (hdet : p * s - q * r = 1) (hdisc : B ^ 2 - 4 * A * C = 4 * D)
+    (hu : 2 * u = -B)
+    (hv : 2 * v = -(2 * A * p * q + B * (p * s + q * r) + 2 * C * r * s)) :
+    Ideal.span
+        ({((A * p ^ 2 + B * p * r + C * r ^ 2 : ℤ) : Zsqrtd D)} :
+          Set (Zsqrtd D)) *
+      Ideal.span ({(A : Zsqrtd D), (⟨u, 1⟩ : Zsqrtd D)} : Set (Zsqrtd D)) =
+    Ideal.span
+        ({(((p * A : ℤ) : Zsqrtd D) - (r : Zsqrtd D) * (⟨u, 1⟩ : Zsqrtd D))} :
+          Set (Zsqrtd D)) *
+      Ideal.span
+        ({((A * p ^ 2 + B * p * r + C * r ^ 2 : ℤ) : Zsqrtd D),
+          (⟨v, 1⟩ : Zsqrtd D)} : Set (Zsqrtd D)) := by
+  let A' : ℤ := A * p ^ 2 + B * p * r + C * r ^ 2
+  let α : Zsqrtd D := (A' : Zsqrtd D)
+  let β : Zsqrtd D := ⟨u, 1⟩
+  let β' : Zsqrtd D := ⟨v, 1⟩
+  let lam : Zsqrtd D := ((p * A : ℤ) : Zsqrtd D) - (r : Zsqrtd D) * β
+  let I : Ideal (Zsqrtd D) := Ideal.span ({(A : Zsqrtd D), β} : Set (Zsqrtd D))
+  let J : Ideal (Zsqrtd D) := Ideal.span ({α, β'} : Set (Zsqrtd D))
+  change Ideal.span ({α} : Set (Zsqrtd D)) * I =
+    Ideal.span ({lam} : Set (Zsqrtd D)) * J
+  have hroot : lam * β' = α * ((s : Zsqrtd D) * β - (q : Zsqrtd D) * (A : Zsqrtd D)) := by
+    simpa [A', α, β, β', lam] using
+      cox_zsqrtd_root_relation (D := D) (A := A) (B := B) (C := C)
+        (p := p) (q := q) (r := r) (s := s) (u := u) (v := v)
+        hdet hdisc hu hv
+  have hconj :
+      lam * (((s * A' : ℤ) : Zsqrtd D) + (r : Zsqrtd D) * β') =
+        α * (A : Zsqrtd D) := by
+    simpa [A', α, β, β', lam] using
+      cox_zsqrtd_conj_relation (D := D) (A := A) (B := B) (C := C)
+        (p := p) (q := q) (r := r) (s := s) (u := u) (v := v)
+        hdet hdisc hu hv
+  have hbeta : lam * ((p : Zsqrtd D) * β' + (q : Zsqrtd D) * α) = α * β := by
+    simpa [A', α, β, β', lam] using
+      cox_zsqrtd_beta_relation (D := D) (A := A) (B := B) (C := C)
+        (p := p) (q := q) (r := r) (s := s) (u := u) (v := v)
+        hdet hdisc hu hv
+  have hA_mem_I : (A : Zsqrtd D) ∈ I := Ideal.subset_span (by simp)
+  have hβ_mem_I : β ∈ I := Ideal.subset_span (by simp)
+  have hα_mem_J : α ∈ J := Ideal.subset_span (by simp)
+  have hβ'_mem_J : β' ∈ J := Ideal.subset_span (by simp)
+  have hlam_mem_I : lam ∈ I := by
+    have hpA_mem_I : ((p * A : ℤ) : Zsqrtd D) ∈ I := by
+      simpa using I.mul_mem_left (p : Zsqrtd D) hA_mem_I
+    exact I.sub_mem hpA_mem_I (I.mul_mem_left (r : Zsqrtd D) hβ_mem_I)
+  have hsα_add_rβ'_mem_J :
+      ((s * A' : ℤ) : Zsqrtd D) + (r : Zsqrtd D) * β' ∈ J := by
+    have hsα_mem_J : ((s * A' : ℤ) : Zsqrtd D) ∈ J := by
+      simpa [A', α] using J.mul_mem_left (s : Zsqrtd D) hα_mem_J
+    exact J.add_mem hsα_mem_J (J.mul_mem_left (r : Zsqrtd D) hβ'_mem_J)
+  have hpβ'_add_qα_mem_J : (p : Zsqrtd D) * β' + (q : Zsqrtd D) * α ∈ J :=
+    J.add_mem (J.mul_mem_left (p : Zsqrtd D) hβ'_mem_J)
+      (J.mul_mem_left (q : Zsqrtd D) hα_mem_J)
+  have hsβ_sub_qA_mem_I : (s : Zsqrtd D) * β - (q : Zsqrtd D) * (A : Zsqrtd D) ∈ I :=
+    I.sub_mem (I.mul_mem_left (s : Zsqrtd D) hβ_mem_I)
+      (I.mul_mem_left (q : Zsqrtd D) hA_mem_I)
+  apply le_antisymm
+  · apply span_singleton_mul_span_pair_le
+    · rw [← hconj]
+      exact Ideal.mul_mem_mul (Ideal.subset_span (by simp [lam])) hsα_add_rβ'_mem_J
+    · rw [← hbeta]
+      exact Ideal.mul_mem_mul (Ideal.subset_span (by simp [lam])) hpβ'_add_qα_mem_J
+  · apply span_singleton_mul_span_pair_le
+    · have hα_mem_left : α * lam ∈ Ideal.span ({α} : Set (Zsqrtd D)) * I :=
+        Ideal.mul_mem_mul (Ideal.subset_span (by simp [α])) hlam_mem_I
+      simpa [mul_comm] using hα_mem_left
+    · rw [hroot]
+      exact Ideal.mul_mem_mul (Ideal.subset_span (by simp [α])) hsβ_sub_qA_mem_I
+
 /-- The Cox ideal `(a, (-b + √D) / 2)` in the `d % 4 ≠ 1` branch, transported
 from the `Zsqrtd d` model back to the ring of integers of `Qsqrtd d`.
 
