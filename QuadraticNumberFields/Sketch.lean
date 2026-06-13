@@ -5,6 +5,7 @@ Authors: Frankie Wang
 -/
 import QuadraticNumberFields.ClassGroup.Divisibility
 import QuadraticNumberFields.ClassGroup.Families
+import QuadraticNumberFields.ClassGroup.Forms.Bridge
 import QuadraticNumberFields.ClassGroup.GenusTheory
 import QuadraticNumberFields.ClassGroup.Infrastructure
 import QuadraticNumberFields.ClassGroup.Minkowski
