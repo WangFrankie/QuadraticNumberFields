@@ -1459,6 +1459,27 @@ noncomputable def formClassToClassGroup_of_mod_four_eq_one
   exact Quotient.lift (idealClassOfForm_of_mod_four_eq_one d hd4)
     (idealClassOfForm_of_mod_four_eq_one_eq_of_properEquivalent d hd4)
 
+/-- WIP Cox map from primitive positive definite form classes to ideal classes,
+dispatching between the two integer-ring models by the field discriminant
+congruence. -/
+noncomputable def formClassToClassGroup
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
+    FormClass (fieldDiscriminant d) → ClassGroup (𝓞 (Qsqrtd (d : ℚ))) := by
+  classical
+  by_cases hd4 : d % 4 = 1
+  · exact formClassToClassGroup_of_mod_four_eq_one d hd4
+  · exact formClassToClassGroup_of_mod_four_ne_one d hd4
+
+theorem formClassToClassGroup_eq_of_mod_four_eq_one
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd4 : d % 4 = 1) :
+    formClassToClassGroup d = formClassToClassGroup_of_mod_four_eq_one d hd4 := by
+  simp [formClassToClassGroup, hd4]
+
+theorem formClassToClassGroup_eq_of_mod_four_ne_one
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd4 : d % 4 ≠ 1) :
+    formClassToClassGroup d = formClassToClassGroup_of_mod_four_ne_one d hd4 := by
+  simp [formClassToClassGroup, hd4]
+
 /-- WIP Cox 7.7 bijection for imaginary quadratic fields. -/
 noncomputable def formClassEquivClassGroup
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hdneg : d < 0) :
