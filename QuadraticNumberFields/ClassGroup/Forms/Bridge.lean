@@ -448,6 +448,28 @@ theorem odd_b_of_hasDiscriminant_fieldDiscriminant_of_mod_four_eq_one
     simpa [hd4] using hmod
   omega
 
+private theorem cox_zsqrtd_linear_relation {A B C p q r s u v : ℤ}
+    (hdet : p * s - q * r = 1) (hu : 2 * u = -B)
+    (hv : 2 * v = -(2 * A * p * q + B * (p * s + q * r) + 2 * C * r * s)) :
+    p * A - r * u = s * (A * p ^ 2 + B * p * r + C * r ^ 2) + r * v := by
+  have hB : B = -2 * u := by omega
+  have hv' := hv
+  rw [hB] at hv'
+  rw [hB]
+  have hvr2 : 2 * (v * r) =
+      2 * (-A * p * q * r + p * u * s * r + q * u * r * r - C * s * r * r) := by
+    linear_combination r * hv'
+  have hvr : v * r =
+      -A * p * q * r + p * u * s * r + q * u * r * r - C * s * r * r := by
+    omega
+  calc
+    p * A - r * u = A * p * (p * s - q * r) - u * r * (p * s - q * r) := by
+      rw [hdet]
+      ring
+    _ = s * (A * p ^ 2 + (-2 * u) * p * r + C * r ^ 2) + r * v := by
+      rw [show r * v = v * r by ring, hvr]
+      ring
+
 /-- The Cox ideal `(a, (-b + √D) / 2)` in the `d % 4 ≠ 1` branch, transported
 from the `Zsqrtd d` model back to the ring of integers of `Qsqrtd d`.
 
