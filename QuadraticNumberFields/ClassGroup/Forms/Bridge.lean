@@ -409,6 +409,41 @@ def FormClass (D : ℤ) : Type :=
 def fieldDiscriminant (d : ℤ) : ℤ :=
   if d % 4 = 1 then d else 4 * d
 
+/-- The Cox ideal `(a, (-b + √D) / 2)` in the `d % 4 ≠ 1` branch, transported
+from the `Zsqrtd d` model back to the ring of integers of `Qsqrtd d`.
+
+For forms of discriminant `fieldDiscriminant d = 4 * d`, the second generator is
+represented in `Zsqrtd d` by `(-b / 2) + √d`. The divisibility-by-two fact is a
+property of the discriminant hypotheses and is intentionally left to later Cox
+bridge lemmas rather than baked into this definition. -/
+noncomputable def idealOfForm_of_mod_four_ne_one
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd4 : d % 4 ≠ 1)
+    (Q : PrimitivePositiveDefiniteForm (fieldDiscriminant d)) :
+    Ideal (𝓞 (Qsqrtd (d : ℚ))) :=
+  Ideal.comap
+    (RingOfIntegers.ringOfIntegers_equiv_zsqrtd_of_mod_four_ne_one d hd4).toRingHom
+    (Ideal.span
+      ({((Q.1.a : ℤ) : Zsqrtd d), (⟨(-Q.1.b) / 2, 1⟩ : Zsqrtd d)} :
+        Set (Zsqrtd d)))
+
+/-- The Cox ideal `(a, (-b + √d) / 2)` in the `d % 4 = 1` branch, transported
+from the `ZOnePlusSqrtdOverTwo (d / 4)` model back to the ring of integers of
+`Qsqrtd d`.
+
+In the basis `1, ω` with `ω = (1 + √d) / 2`, the second generator has coordinates
+`(-(b + 1) / 2, 1)`. The oddness of `b` follows from the discriminant hypotheses
+and is left as a later Cox bridge lemma. -/
+noncomputable def idealOfForm_of_mod_four_eq_one
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd4 : d % 4 = 1)
+    (Q : PrimitivePositiveDefiniteForm (fieldDiscriminant d)) :
+    Ideal (𝓞 (Qsqrtd (d : ℚ))) :=
+  Ideal.comap
+    (RingOfIntegers.ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one d hd4).toRingHom
+    (Ideal.span
+      ({((Q.1.a : ℤ) : ZOnePlusSqrtdOverTwo (d / 4)),
+        (⟨-(Q.1.b + 1) / 2, 1⟩ : ZOnePlusSqrtdOverTwo (d / 4))} :
+        Set (ZOnePlusSqrtdOverTwo (d / 4))))
+
 /-- WIP map from form classes to ideal classes in the `d % 4 ≠ 1` branch. -/
 noncomputable def formClassToClassGroup_of_mod_four_ne_one
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd4 : d % 4 ≠ 1) :

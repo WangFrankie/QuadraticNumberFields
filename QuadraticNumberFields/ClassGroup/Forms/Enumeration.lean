@@ -56,15 +56,61 @@ theorem a_natAbs_le_searchBound (Q : BinaryQuadraticForm)
 def aCandidates (D : ℤ) : List ℕ :=
   (List.range (searchBound D + 1)).filter fun a => 0 < a
 
+/-- The `a`-candidate list has no duplicates. -/
+theorem aCandidates_nodup (D : ℤ) : (aCandidates D).Nodup :=
+  List.Nodup.filter _ List.nodup_range
+
 /-- Integer `b` candidates in `[-a, a]`, generated computably from naturals. -/
 def bCandidates (a : ℕ) : List ℤ :=
   (List.range (2 * a + 1)).map fun k : ℕ => (k : ℤ) - (a : ℤ)
 
+/-- The `b`-candidate list has no duplicates. -/
+theorem bCandidates_nodup (a : ℕ) : (bCandidates a).Nodup := by
+  refine List.Nodup.map ?_ List.nodup_range
+  intro k l hkl
+  change (k : ℤ) - (a : ℤ) = (l : ℤ) - (a : ℤ) at hkl
+  have h : (k : ℤ) = l := by omega
+  exact_mod_cast h
+
+private def candidateFormsForA (D : ℤ) (a : ℕ) : List BinaryQuadraticForm :=
+  (bCandidates a).map fun b : ℤ =>
+    BinaryQuadraticForm.mk (a : ℤ) b ((b ^ 2 - D) / (4 * (a : ℤ)))
+
 /-- Candidate triples before the reduced/primitive filters. -/
 def candidateForms (D : ℤ) : List BinaryQuadraticForm :=
-  (aCandidates D).flatMap fun a : ℕ =>
-    (bCandidates a).map fun b : ℤ =>
-      BinaryQuadraticForm.mk (a : ℤ) b ((b ^ 2 - D) / (4 * (a : ℤ)))
+  (aCandidates D).flatMap (candidateFormsForA D)
+
+private theorem candidateFormsForA_nodup (D : ℤ) (a : ℕ) :
+    (candidateFormsForA D a).Nodup := by
+  unfold candidateFormsForA
+  refine List.Nodup.map ?_ (bCandidates_nodup a)
+  intro b c hbc
+  exact congrArg BinaryQuadraticForm.b hbc
+
+private theorem candidateFormsForA_disjoint_of_ne {D : ℤ} {a b : ℕ} (hab : a ≠ b) :
+    List.Disjoint (candidateFormsForA D a) (candidateFormsForA D b) := by
+  rw [List.disjoint_iff_ne]
+  intro Q hQ R hR hQR
+  unfold candidateFormsForA at hQ hR
+  rw [List.mem_map] at hQ hR
+  rcases hQ with ⟨m, _hm, hQeq⟩
+  rcases hR with ⟨n, _hn, hReq⟩
+  have hab' : (a : ℤ) = b := by
+    simpa [← hQeq, ← hReq] using congrArg BinaryQuadraticForm.a hQR
+  exact hab (by exact_mod_cast hab')
+
+private theorem aCandidates_pairwise_candidateFormsForA_disjoint (D : ℤ) :
+    List.Pairwise (Function.onFun List.Disjoint (candidateFormsForA D)) (aCandidates D) := by
+  change List.Pairwise (fun a b => List.Disjoint (candidateFormsForA D a)
+    (candidateFormsForA D b)) (aCandidates D)
+  exact List.Pairwise.imp (fun hab => candidateFormsForA_disjoint_of_ne hab)
+    (aCandidates_nodup D)
+
+/-- Raw candidate triples are generated without duplicates. -/
+theorem candidateForms_nodup (D : ℤ) : (candidateForms D).Nodup := by
+  rw [candidateForms, List.nodup_flatMap]
+  exact ⟨fun a _ha => candidateFormsForA_nodup D a,
+    aCandidates_pairwise_candidateFormsForA_disjoint D⟩
 
 /-- Primitive reduced positive definite forms of discriminant `D`. -/
 def enumPrimitiveReducedFormsList (D : ℤ) : List BinaryQuadraticForm :=
@@ -74,12 +120,6 @@ def enumPrimitiveReducedFormsList (D : ℤ) : List BinaryQuadraticForm :=
 /-- Finset view of primitive reduced positive definite forms of discriminant `D`. -/
 def enumPrimitiveReducedForms (D : ℤ) : Finset BinaryQuadraticForm :=
   (enumPrimitiveReducedFormsList D).toFinset
-
-/-- Membership in the finset view is membership in the underlying list modulo
-`List.toFinset`. -/
-theorem mem_enumPrimitiveReducedForms_iff (D : ℤ) (Q : BinaryQuadraticForm) :
-    Q ∈ enumPrimitiveReducedForms D ↔
-      Q ∈ (enumPrimitiveReducedFormsList D).toFinset := Iff.rfl
 
 /-- Every list-enumerated form satisfies the filter predicates. -/
 theorem of_mem_enumPrimitiveReducedFormsList {D : ℤ} {Q : BinaryQuadraticForm}
@@ -150,6 +190,30 @@ theorem mem_enumPrimitiveReducedForms_of_reduced {D : ℤ} {Q : BinaryQuadraticF
   simp only [enumPrimitiveReducedForms, List.mem_toFinset, enumPrimitiveReducedFormsList,
     List.mem_filter, decide_eq_true_eq]
   exact ⟨mem_candidateForms_of_reduced hdisc hpos hred, hdisc, hpos, hred, hprim⟩
+
+/-- Membership in the finset enumeration is exactly the conjunction of the
+filtered reduced-form predicates. -/
+theorem mem_enumPrimitiveReducedForms_iff {D : ℤ} {Q : BinaryQuadraticForm} :
+    Q ∈ enumPrimitiveReducedForms D ↔
+      Q.HasDiscriminant D ∧ Q.IsPositiveDefinite ∧ Q.IsReduced ∧ Q.IsPrimitive := by
+  constructor
+  · exact of_mem_enumPrimitiveReducedForms
+  · intro hQ
+    exact mem_enumPrimitiveReducedForms_of_reduced hQ.1 hQ.2.1 hQ.2.2.1 hQ.2.2.2
+
+/-- The list view of the reduced-form enumeration has no duplicates. -/
+theorem enumPrimitiveReducedFormsList_nodup (D : ℤ) :
+    (enumPrimitiveReducedFormsList D).Nodup := by
+  simpa [enumPrimitiveReducedFormsList] using
+    (candidateForms_nodup D).filter (fun Q =>
+      Q.HasDiscriminant D ∧ Q.IsPositiveDefinite ∧ Q.IsReduced ∧ Q.IsPrimitive)
+
+/-- The finset cardinality agrees with the list length because the list
+enumerator is duplicate-free. -/
+theorem enumPrimitiveReducedForms_card_eq_length (D : ℤ) :
+    (enumPrimitiveReducedForms D).card = (enumPrimitiveReducedFormsList D).length := by
+  simpa [enumPrimitiveReducedForms] using
+    List.toFinset_card_of_nodup (enumPrimitiveReducedFormsList_nodup D)
 
 example : bCandidates 1 = [-1, 0, 1] := by
   decide
