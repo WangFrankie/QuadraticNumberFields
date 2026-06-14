@@ -529,6 +529,28 @@ theorem OrientedBasis.det_sq_pos {I : Ideal 𝓞K} (b : OrientedBasis I) :
   rw [pow_two]
   exact mul_pos_of_neg_of_neg b.det_neg b.det_neg
 
+/-- If an integral determinant has absolute value `N(I)` and casts to
+`detCoord`, then the non-half-integral determinant square formula follows. -/
+theorem OrientedBasis.detCoord_sq_eq_absNorm_sq_of_int_det {I : Ideal 𝓞K}
+    (b : OrientedBasis I) {z : ℤ} (hzabs : z.natAbs = Ideal.absNorm I)
+    (hz : (z : ℚ) = b.detCoord) :
+    b.detCoord ^ 2 = (Ideal.absNorm I : ℚ) ^ 2 := by
+  have hzsq : (z : ℚ) ^ 2 = (z.natAbs : ℚ) ^ 2 := by
+    norm_num [sq, Int.natAbs_mul_self]
+  rw [hz, hzabs] at hzsq
+  exact hzsq
+
+/-- If an integral determinant has absolute value `N(I)` and casts to
+`2 * detCoord`, then the half-integral determinant square formula follows. -/
+theorem OrientedBasis.four_detCoord_sq_eq_absNorm_sq_of_int_det {I : Ideal 𝓞K}
+    (b : OrientedBasis I) {z : ℤ} (hzabs : z.natAbs = Ideal.absNorm I)
+    (hz : (z : ℚ) = 2 * b.detCoord) :
+    4 * b.detCoord ^ 2 = (Ideal.absNorm I : ℚ) ^ 2 := by
+  have hzsq : (z : ℚ) ^ 2 = (z.natAbs : ℚ) ^ 2 := by
+    norm_num [sq, Int.natAbs_mul_self]
+  rw [hz, hzabs] at hzsq
+  nlinarith
+
 /-- To prove that `normFormOfBasis` has the field discriminant, it is enough to
 identify the square of the coordinate determinant with the ideal norm. -/
 theorem normFormOfBasis_hasDiscriminant_of_det_sq {I : Ideal 𝓞K} (hI : I ≠ 0)
