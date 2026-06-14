@@ -482,6 +482,12 @@ theorem normFormOfBasis_disc_mul_absNorm_sq {I : Ideal 𝓞K} (hI : I ≠ 0)
   rw [← hb, ← ha, ← hc]
   ring
 
+/-- The determinant of an oriented ideal basis in the coordinate basis
+`(1, √d)`. -/
+noncomputable def OrientedBasis.detCoord {I : Ideal 𝓞K} (b : OrientedBasis I) : ℚ :=
+  ((b.basis 0 : 𝓞K) : K).re * ((b.basis 1 : 𝓞K) : K).im -
+    ((b.basis 0 : 𝓞K) : K).im * ((b.basis 1 : 𝓞K) : K).re
+
 /-- The polarized discriminant of the two norm values is `4 * d` times the
 square of the coordinate determinant of the basis vectors. -/
 theorem normFormOfBasis_polarized_disc_eq_det_sq {I : Ideal 𝓞K} (b : OrientedBasis I) :
@@ -489,20 +495,19 @@ theorem normFormOfBasis_polarized_disc_eq_det_sq {I : Ideal 𝓞K} (b : Oriented
         Algebra.norm ℤ (b.basis 0 : 𝓞K) - Algebra.norm ℤ (b.basis 1 : 𝓞K)) ^ 2 -
         4 * Algebra.norm ℤ (b.basis 0 : 𝓞K) *
           Algebra.norm ℤ (b.basis 1 : 𝓞K) : ℚ) =
-      4 * (d : ℚ) * (((b.basis 0 : 𝓞K) : K).re * ((b.basis 1 : 𝓞K) : K).im -
-        ((b.basis 0 : 𝓞K) : K).im * ((b.basis 1 : 𝓞K) : K).re) ^ 2 := by
+      4 * (d : ℚ) * b.detCoord ^ 2 := by
   have hcoe : (((b.basis 0 : 𝓞K) + (b.basis 1 : 𝓞K) : 𝓞K) : K) =
       ((b.basis 0 : 𝓞K) : K) + ((b.basis 1 : 𝓞K) : K) := by
     push_cast
     ring
   simp only [fieldNorm_int_eq, hcoe, QuadraticAlgebra.re_add, QuadraticAlgebra.im_add]
+  unfold OrientedBasis.detCoord
   ring
 
 /-- The orientation condition says that the coordinate determinant
 `α.re * β.im - α.im * β.re` is negative. -/
 theorem OrientedBasis.det_neg {I : Ideal 𝓞K} (b : OrientedBasis I) :
-    ((b.basis 0 : 𝓞K) : K).re * ((b.basis 1 : 𝓞K) : K).im -
-      ((b.basis 0 : 𝓞K) : K).im * ((b.basis 1 : 𝓞K) : K).re < 0 := by
+    b.detCoord < 0 := by
   have him0 : (((b.basis 0 : 𝓞K) : K) * star ((b.basis 1 : 𝓞K) : K)).im =
       ((b.basis 0 : 𝓞K) : K).re * (-((b.basis 1 : 𝓞K) : K).im) +
         ((b.basis 0 : 𝓞K) : K).im * ((b.basis 1 : 𝓞K) : K).re := by
@@ -515,12 +520,12 @@ theorem OrientedBasis.det_neg {I : Ideal 𝓞K} (b : OrientedBasis I) :
     simp [QuadraticAlgebra.re_star, QuadraticAlgebra.im_star]
   have ho := b.oriented
   rw [imPartRatio_eq_im, QuadraticAlgebra.im_sub, him0, him1] at ho
+  unfold OrientedBasis.detCoord
   nlinarith [ho]
 
 /-- The coordinate determinant of an oriented basis has positive square. -/
 theorem OrientedBasis.det_sq_pos {I : Ideal 𝓞K} (b : OrientedBasis I) :
-    0 < (((b.basis 0 : 𝓞K) : K).re * ((b.basis 1 : 𝓞K) : K).im -
-      ((b.basis 0 : 𝓞K) : K).im * ((b.basis 1 : 𝓞K) : K).re) ^ 2 := by
+    0 < b.detCoord ^ 2 := by
   rw [pow_two]
   exact mul_pos_of_neg_of_neg b.det_neg b.det_neg
 
@@ -528,9 +533,7 @@ theorem OrientedBasis.det_sq_pos {I : Ideal 𝓞K} (b : OrientedBasis I) :
 identify the square of the coordinate determinant with the ideal norm. -/
 theorem normFormOfBasis_hasDiscriminant_of_det_sq {I : Ideal 𝓞K} (hI : I ≠ 0)
     (b : OrientedBasis I)
-    (hdet : 4 * (d : ℚ) *
-        (((b.basis 0 : 𝓞K) : K).re * ((b.basis 1 : 𝓞K) : K).im -
-          ((b.basis 0 : 𝓞K) : K).im * ((b.basis 1 : 𝓞K) : K).re) ^ 2 =
+    (hdet : 4 * (d : ℚ) * b.detCoord ^ 2 =
       (fieldDiscriminant d : ℚ) * (Ideal.absNorm I : ℚ) ^ 2) :
     (normFormOfBasis hI b).HasDiscriminant (fieldDiscriminant d) := by
   have hdiscN := normFormOfBasis_disc_mul_absNorm_sq hI b
