@@ -468,7 +468,7 @@ theorem coxIdealBasisOK_K_re_im (hd4 : d % 4 ≠ 1) (hdneg : d < 0)
   have hk_ℚ : (Q.1.b : ℚ) / 2 = (k : ℚ) := by
     rw [show Q.1.b = (2 * k : ℤ) by omega]
     push_cast; ring
-  simp [e_equiv, coxBetaZ_re, coxBetaZ_im, Zsqrtd.toQsqrtdHom, Zsqrtd.toQsqrtd,
+  simp [e_equiv, coxBetaZ_re, coxBetaZ_im, Zsqrtd.toQsqrtdHom, 
     RingEquiv.apply_symm_apply, hk_ℚ]
   omega
 theorem classGroupToFormClass_idealClassOfForm_leftInverse_of_mod_four_ne_one
@@ -640,7 +640,7 @@ noncomputable def coxIdealBasisOKEqOne (hd4 : d % 4 = 1) (hdneg : d < 0)
     dsimp [B] at *
     rw [hk] at hdisc_val
     have hd_eq : d = 4 * (d / 4) + 1 := by
-      have := Int.ediv_add_emod d 4
+      have := Int.mul_ediv_add_emod d 4
       rw [hd4] at this
       omega
     dsimp [A, B, C, DD, bb]
