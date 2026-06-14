@@ -84,6 +84,19 @@ theorem eq_imPartRatio_smul_sqrt_of_star_neg {x : K} (hx : star x = -x) :
     simp [imPartRatio, QuadraticAlgebra.basis]
   simpa [hre, him] using (QuadraticAlgebra.mk_eta x).symm
 
+/-- If `x : K` is fixed by conjugation, then it is the rational scalar `x.re`,
+viewed in `K` via `x.re • (1 : K)`. This is the conjugation-fixed (real) analogue
+of `eq_imPartRatio_smul_sqrt_of_star_neg`. -/
+theorem eq_re_smul_one_of_star_self {x : K} (hx : star x = x) :
+    x = (x.re : ℚ) • (1 : K) := by
+  have him : x.im = 0 := by
+    have him_star : (star x).im = -x.im := by simp [QuadraticAlgebra.im_star]
+    rw [hx] at him_star
+    linarith
+  apply QuadraticAlgebra.ext
+  · simp [QuadraticAlgebra.re_one]
+  · simp [him, QuadraticAlgebra.im_one]
+
 /-- For a nonzero integral ideal `I` of `𝓞K`, an oriented `ℤ`-basis is a basis
 `(α, β)` whose orientation ratio `(α β' - α' β) / √d` is positive. This picks a
 proper-equivalence class of binary quadratic forms. -/
@@ -125,6 +138,23 @@ noncomputable def idealFin2Basis' (I : Ideal 𝓞K) (hI : I ≠ 0) : Basis (Fin 
   exact (Module.Free.chooseBasis ℤ (Submodule.restrictScalars ℤ I)).reindex
     (Fintype.equivFinOfCardEq hcard)
 
+/-- The images in `K` of a `ℤ`-basis of a nonzero ideal are `ℚ`-linearly
+independent: a `ℤ`-basis of a full-rank submodule stays independent after
+extending scalars to the fraction field `ℚ`. -/
+theorem linearIndependent_coeK {I : Ideal 𝓞K}
+    (b : Basis (Fin 2) ℤ (Submodule.restrictScalars ℤ I)) :
+    LinearIndependent ℚ (fun i => ((b i : 𝓞K) : K)) := by
+  set f : (Submodule.restrictScalars ℤ I) →ₗ[ℤ] K :=
+    (Algebra.linearMap 𝓞K K).restrictScalars ℤ ∘ₗ
+      (Submodule.restrictScalars ℤ I).subtype with hf
+  have hker : LinearMap.ker f = ⊥ := by
+    rw [LinearMap.ker_eq_bot]
+    intro x y hxy
+    exact Subtype.ext (IsFractionRing.injective 𝓞K K hxy)
+  have hLIz : LinearIndependent ℤ (fun i => ((b i : 𝓞K) : K)) :=
+    b.linearIndependent.map' f hker
+  exact hLIz.localization ℚ (nonZeroDivisors ℤ)
+
 /-- Every nonzero integral ideal admits an oriented `ℤ`-basis. -/
 noncomputable def orientedBasisOfNeZero (I : Ideal 𝓞K) (hI : I ≠ 0) :
     OrientedBasis I := by
@@ -148,12 +178,64 @@ noncomputable def orientedBasisOfNeZero (I : Ideal 𝓞K) (hI : I ≠ 0) :
         have h1 : (b' 1 : 𝓞K) = (b 0 : 𝓞K) := by
           dsimp [b']; rw [Basis.reindex_apply, hindex1]
         unfold orient
-        simp [h0, h1, himPartRatio_sub, himPartRatio_neg]
+        simp [h0, h1, himPartRatio_sub]
       rw [hswap]
       have hle : orient b ≤ 0 := le_of_not_gt horiented
       have hlt : orient b < 0 := by
         by_cases hzero : orient b = 0
-        · sorry
+        · exfalso
+          -- The element `α·star β - β·star α` is anti-self-conjugate, so
+          -- (via `eq_imPartRatio_smul_sqrt_of_star_neg`) it equals
+          -- `(imPartRatio (α·star β - β·star α)) • √dK = 0 • √dK = 0`.
+          have hstar :
+              star ((b 0 : 𝓞K) * star ((b 1 : 𝓞K) : K) -
+                (b 1 : 𝓞K) * star ((b 0 : 𝓞K) : K)) =
+                -((b 0 : 𝓞K) * star ((b 1 : 𝓞K) : K) -
+                  (b 1 : 𝓞K) * star ((b 0 : 𝓞K) : K)) := by
+            have hkey (x y : K) :
+                star (x * star y - y * star x) = -(x * star y - y * star x) := by
+              rw [sub_eq_add_neg, star_add, star_neg, star_mul, star_mul,
+                star_star, star_star]
+              ring
+            exact hkey _ _
+          have hx :
+              (b 0 : 𝓞K) * star ((b 1 : 𝓞K) : K) -
+                (b 1 : 𝓞K) * star ((b 0 : 𝓞K) : K) = 0 := by
+            rw [eq_imPartRatio_smul_sqrt_of_star_neg hstar]
+            change orient b • √dK = 0
+            rw [hzero, zero_smul]
+          -- `hx` says `α · star β = β · star α`, i.e. `α / β` is fixed by
+          -- conjugation, hence a rational scalar. So `α` and `β = (b 0, b 1 : K)`
+          -- are `ℚ`-linearly dependent, contradicting `linearIndependent_coeK`.
+          -- Concretely, `g 0 • α + g 1 • β = 0` with `g 0 = N(β) ≠ 0`, where
+          -- `N(β) = (β · star β).re` and `g 1 = -(α · star β).re`.
+          set α := ((b 0 : 𝓞K) : K) with hαdef
+          set β := ((b 1 : 𝓞K) : K) with hβdef
+          have hLI := linearIndependent_coeK b
+          have hβ_ne : β ≠ 0 := hLI.ne_zero 1
+          have hxsymm : α * star β = β * star α := sub_eq_zero.mp hx
+          have hββ : β * star β = ((β * star β).re : ℚ) • (1 : K) :=
+            eq_re_smul_one_of_star_self (by rw [star_mul, star_star])
+          have hαβ' : α * star β = ((α * star β).re : ℚ) • (1 : K) :=
+            eq_re_smul_one_of_star_self (by rw [star_mul, star_star]; exact hxsymm.symm)
+          have e0 : β * star β * α = (β * star β).re • α := by
+            conv_lhs => rw [hββ]
+            rw [smul_one_mul]
+          have e1 : α * star β * β = (α * star β).re • β := by
+            conv_lhs => rw [hαβ']
+            rw [smul_one_mul]
+          set g : Fin 2 → ℚ := ![(β * star β).re, -(α * star β).re] with hgdef
+          have hsum : ∑ i, g i • ((b i : 𝓞K) : K) = 0 := by
+            rw [Fin.sum_univ_two]
+            change (β * star β).re • α + (-(α * star β).re) • β = 0
+            rw [neg_smul, ← e0, ← e1]; ring
+          have hg0 : g 0 = 0 := Fintype.linearIndependent_iff.mp hLI g hsum 0
+          have hg0_ne : g 0 ≠ 0 := by
+            change (β * star β).re ≠ 0
+            intro hc
+            have hz : β * star β = 0 := by rw [hββ, hc]; simp
+            exact mul_ne_zero hβ_ne (star_ne_zero.mpr hβ_ne) hz
+          exact hg0_ne hg0
         · exact lt_of_le_of_ne hle hzero
       linarith
     exact ⟨b', horiented'⟩
@@ -187,18 +269,19 @@ theorem absNorm_dvd_fieldNorm_of_mem {I : Ideal 𝓞K} {x : 𝓞K} (hx : x ∈ I
     (Ideal.absNorm_dvd_norm_of_mem hx)
 
 /-- The norm form attached to an oriented basis `(α, β)` of a nonzero ideal `I`:
-`Q(x, y) = N(x α + y β) / N(I)`. -/
+`Q(x, y) = N(x α + y β) / N(I)`. Expanding the norm gives integer coefficients
+`a = N(α)/N(I)`, `b = Tr(α β̄)/N(I)`, `c = N(β)/N(I)`. The middle coefficient is
+expressed through the polarization identity `Tr(α β̄) = N(α + β) − N(α) − N(β)`,
+which keeps every coefficient a difference of integer norms of elements of `𝓞K`
+and avoids needing a conjugation on `𝓞K`. -/
 noncomputable def normFormOfBasis {I : Ideal 𝓞K} (hI : I ≠ 0) (b : OrientedBasis I) :
     BinaryQuadraticForm :=
   let α := (b.basis 0 : 𝓞K)
   let β := (b.basis 1 : 𝓞K)
-  let αK := (α : K)
-  let βK := (β : K)
-  let N := Ideal.absNorm I
-  let aQ := fieldNormOfInteger α / N
-  let bQ := Algebra.trace ℚ K (αK * star βK) / N
-  let cQ := fieldNormOfInteger β / N
-  sorry
+  let N : ℤ := Ideal.absNorm I
+  { a := Algebra.norm ℤ α / N
+    b := (Algebra.norm ℤ (α + β) - Algebra.norm ℤ α - Algebra.norm ℤ β) / N
+    c := Algebra.norm ℤ β / N }
 
 end InverseCox
 end BinaryQuadraticForm
