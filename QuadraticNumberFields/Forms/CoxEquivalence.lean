@@ -4,7 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 
+import Mathlib.LinearAlgebra.FreeModule.PID
 import QuadraticNumberFields.Forms.InverseCox
+import QuadraticNumberFields.Forms.NormFormBasisChange
 import QuadraticNumberFields.RingOfIntegers.Norm
 import QuadraticNumberFields.Zsqrtd.Basic
 
@@ -31,6 +33,7 @@ that the Cox ideal `(a, ⟨-b/2, 1⟩)` in `Zsqrtd d` is spanned as a ℤ-module
 -/
 
 open scoped NumberField nonZeroDivisors
+open Module
 
 attribute [-instance] DivisionRing.toRatAlgebra
 
@@ -260,31 +263,122 @@ theorem mem_span_coxBetaZ_of_mem_ideal {d a b c : ℤ} (hb : Even b)
     (Submodule.smul_mem _ _ (Submodule.subset_span (by simp)))
     (Submodule.smul_mem _ _ (Submodule.subset_span (by simp)))
 
-/-! ### Left inverse round-trip (blocked)
+/-! ### Cox ℤ-basis and left inverse round-trip -/
 
-The remaining steps require `Basis` (not accessible from this import chain)
-and the norm form equality (which follows from the spanning lemma once a
-basis is constructed). The spanning lemma above is the core algebraic work.
--/
+/-- The Cox ideal `J = (a, ⟨-b/2, 1⟩)` in `Zsqrtd d`. -/
+def coxIdeal (d a b : ℤ) : Ideal (Zsqrtd d) :=
+  Ideal.span ({((a : Zsqrtd d)), (⟨-b / 2, 1⟩ : Zsqrtd d)} : Set (Zsqrtd d))
 
-/-- **Left inverse round-trip** for `d % 4 ≠ 1` — `sorry` pending `Basis` resolution.
+/-- Helper lemma: `coxBetaZ d b = -⟨-b/2, 1⟩` when `b` is even. -/
+theorem coxBetaZ_eq_neg_of_even {d b : ℤ} (hb : Even b) : coxBetaZ d b = -(⟨-b / 2, 1⟩ : Zsqrtd d) := by
+  obtain ⟨k, hk⟩ := hb
+  have hk' : b / 2 = k := by rw [hk]; omega
+  ext
+  · simp [coxBetaZ_re, hk']
+    calc
+      k = -(-k) := by ring
+      _ = -((-b : ℤ) / 2) := by rw [hk]; omega
+  · simp [coxBetaZ_im]
 
-Once the oriented Cox basis is constructed from the spanning lemma above,
-the proof chain is:
-  classGroupToFormClass hdneg (idealClassOfForm Q)
-    = formClassOfNonzeroIdeal hdneg (nonzeroIdealOfForm Q)  [by formClassOfNonzeroIdeal_eq_of_mk0_eq]
-    = ⟦normFormOfBasis hI b⟧  [formClassOfNonzeroIdeal_eq_mk]
-    = ⟦Q.1⟧  [norm form equality]
-    = ⟦Q⟧
+/-- The ℤ-basis `{a, coxBetaZ d b}` of the Cox ideal. -/
+noncomputable def coxIdealBasis {d a b c : ℤ} (ha : a ≠ 0) (hb : Even b)
+    (h_disc : 4 * a * c = b ^ 2 - 4 * d) :
+    Basis (Fin 2) ℤ (coxIdeal d a b) := by
+  have ha_mem : (a : Zsqrtd d) ∈ coxIdeal d a b := by
+    dsimp [coxIdeal]; exact Ideal.subset_span (by simp)
+  have hbeta_mem : coxBetaZ d b ∈ coxIdeal d a b := by
+    dsimp [coxIdeal]
+    rw [coxBetaZ_eq_neg_of_even hb]
+    exact Submodule.neg_mem _ (Ideal.subset_span (by simp))
+  let v0 : coxIdeal d a b := ⟨(a : Zsqrtd d), ha_mem⟩
+  let v1 : coxIdeal d a b := ⟨coxBetaZ d b, hbeta_mem⟩
+  refine Basis.mk (v := ![v0, v1]) ?_ ?_
+  · -- Linear independence
+    rw [Fintype.linearIndependent_iff]
+    intro g hsum
+    have hzero : g 0 • ((a : Zsqrtd d)) + g 1 • coxBetaZ d b = 0 := by
+      have hsum' := congrArg Subtype.val hsum
+      simpa [v0, v1] using hsum'
+    have him : (g 0 • ((a : Zsqrtd d)) + g 1 • coxBetaZ d b).im = 0 := by rw [hzero]; rfl
+    simp [coxBetaZ_re, coxBetaZ_im] at him
+    have hg1 : g 1 = 0 := by linarith
+    have hre : (g 0 • ((a : Zsqrtd d)) + g 1 • coxBetaZ d b).re = 0 := by rw [hzero]; rfl
+    rw [hg1] at hre; simp at hre
+    have hg0 : g 0 = 0 := by
+      rcases hre with (h | h)
+      · exact h
+      · exact absurd h ha
+    intro i; fin_cases i <;> assumption
+  · -- Spanning: lift base-module span to submodule via Submodule.mem_span_insert
+    intro x hx
+    have hx_val : (x : Zsqrtd d) ∈ coxIdeal d a b := x.2
+    dsimp [coxIdeal] at hx_val
+    have h_span := mem_span_coxBetaZ_of_mem_ideal hb h_disc (x : Zsqrtd d) hx_val
+    -- h_span: x.val ∈ Submodule.span ℤ {a, coxBetaZ d b}
+    -- Use Submodule.mem_span_insert to extract coefficients
+    rcases Submodule.mem_span_insert.mp h_span with ⟨m, z, hz, hz_eq⟩
+    -- hz_eq: x.val = m • a + z, hz: z ∈ Submodule.span ℤ {coxBetaZ d b}
+    rcases Submodule.mem_span_singleton.mp hz with ⟨n, hn⟩
+    -- hn: n • coxBetaZ d b = z
+    -- So x.val = m • a + n • coxBetaZ d b in Zsqrtd d
+    have h_val : (x : Zsqrtd d) = m • ((a : Zsqrtd d)) + n • coxBetaZ d b := by
+      rw [hz_eq, hn]
+    -- The same combination in the submodule
+    have h_sub_val : (m • v0 + n • v1 : coxIdeal d a b).val = (x : Zsqrtd d) := by
+      simp [v0, v1, h_val]
+    have h_eq : m • v0 + n • v1 = x := Subtype.ext h_sub_val
+    rw [← h_eq]
+    apply Submodule.add_mem _
+      (Submodule.smul_mem _ _ (Submodule.subset_span (by simp)))
+      (Submodule.smul_mem _ _ (Submodule.subset_span (by simp)))
 
-Constraint: `Basis` type not accessible from this file's import context.
-Tested: spanning lemma `mem_span_coxBetaZ_of_mem_ideal` compiles clean. -/
+/-- **Left inverse round-trip** for `d % 4 ≠ 1`:
+`classGroupToFormClass hdneg (idealClassOfForm_of_mod_four_ne_one d hd4 Q) = ⟦Q⟧`.
+
+Proof chain:
+1. `idealClassOfForm Q` = `ClassGroup.mk0 I` where `I = nonzeroIdealOfForm Q`
+2. `classGroupToFormClass hdneg (ClassGroup.mk0 I)`
+   = `formClassOfNonzeroIdeal hdneg I`  [by L3: formClassOfNonzeroIdeal_eq_of_mk0_eq]
+3. = `⟦primitivePositiveDefiniteNormFormOfBasis hdneg hI b⟧`  [formClassOfNonzeroIdeal_eq_mk]
+4. = `⟦Q⟧`  [by normFormOfBasis_cox_eq — TODO] -/
 theorem classGroupToFormClass_idealClassOfForm_leftInverse_of_mod_four_ne_one
     (hdneg : d < 0) (hd4 : d % 4 ≠ 1)
     (Q : PrimitivePositiveDefiniteForm (fieldDiscriminant d)) :
     classGroupToFormClass hdneg
       (idealClassOfForm_of_mod_four_ne_one d hd4 Q) =
       Quotient.mk (primitivePositiveDefiniteFormSetoid _) Q := by
+  -- Let I be the Cox ideal as a nonzero-ideal
+  let I : (Ideal 𝓞K)⁰ := ⟨idealOfForm_of_mod_four_ne_one d hd4 Q,
+    mem_nonZeroDivisors_iff_ne_zero.mpr (idealOfForm_of_mod_four_ne_one_ne_zero d hd4 Q)⟩
+  have hI_ne_zero : (I : Ideal 𝓞K) ≠ 0 := mem_nonZeroDivisors_iff_ne_zero.mp I.2
+  -- Step 1: idealClassOfForm Q = ClassGroup.mk0 I
+  have h_idealClass : idealClassOfForm_of_mod_four_ne_one d hd4 Q = ClassGroup.mk0 I := rfl
+  rw [h_idealClass]
+  -- Step 2: classGroupToFormClass hdneg (ClassGroup.mk0 I)
+  -- = formClassOfNonzeroIdeal hdneg (Classical.choose (mk0_surjective (ClassGroup.mk0 I)))
+  -- = formClassOfNonzeroIdeal hdneg I  [by L3]
+  -- Let K := Classical.choose (ClassGroup.mk0_surjective (ClassGroup.mk0 I))
+  -- Then ClassGroup.mk0 K = ClassGroup.mk0 I, so by L3:
+  -- formClassOfNonzeroIdeal hdneg K = formClassOfNonzeroIdeal hdneg I
+  -- Therefore classGroupToFormClass hdneg (ClassGroup.mk0 I) = formClassOfNonzeroIdeal hdneg I
+  have h_class_eq : classGroupToFormClass hdneg (ClassGroup.mk0 I) =
+      formClassOfNonzeroIdeal hdneg I := by
+    -- classGroupToFormClass C = formClassOfNonzeroIdeal hdneg (choose (mk0_surjective C))
+    -- choose_spec gives: ClassGroup.mk0 (choose ...) = C
+    -- So by formClassOfNonzeroIdeal_eq_of_mk0_eq, we can swap the representative
+    dsimp [classGroupToFormClass]
+    let J := Classical.choose (ClassGroup.mk0_surjective (ClassGroup.mk0 I))
+    have hJ_mk0 : ClassGroup.mk0 J = ClassGroup.mk0 I :=
+      Classical.choose_spec (ClassGroup.mk0_surjective (ClassGroup.mk0 I))
+    -- Apply the descent-core lemma L3
+    exact formClassOfNonzeroIdeal_eq_of_mk0_eq hdneg J I hJ_mk0
+  rw [h_class_eq]
+  -- Step 3: formClassOfNonzeroIdeal hdneg I = ⟦primitivePositiveDefiniteNormFormOfBasis ... b⟧
+  rw [formClassOfNonzeroIdeal_eq_mk hdneg I (b := orientedBasisOfNeZero (I : Ideal 𝓞K) hI_ne_zero)]
+  -- Step 4: ⟦norm form⟧ = ⟦Q⟧
+  -- The norm form of any oriented basis of idealOfForm Q is properly equivalent to Q.1.
+  -- This requires the explicit Cox basis + norm form computation (TODO).
+  -- Blocked on: transport coxIdealBasis to 𝓞K + orientation + normFormOfBasis_cox_eq
   sorry
 
 end CoxLeftInverse
