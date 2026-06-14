@@ -7,6 +7,7 @@ import QuadraticNumberFields.ClassGroup.Divisibility
 import QuadraticNumberFields.ClassGroup.Families
 import QuadraticNumberFields.Forms.Bridge
 import QuadraticNumberFields.Forms.Enumeration
+import QuadraticNumberFields.Forms.InverseCox
 import QuadraticNumberFields.Forms.UpperHalfPlane
 import QuadraticNumberFields.ClassGroup.GenusTheory
 import QuadraticNumberFields.ClassGroup.Infrastructure
