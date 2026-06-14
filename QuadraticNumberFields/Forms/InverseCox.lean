@@ -7,6 +7,7 @@ Authors: Frankie Wang
 import QuadraticNumberFields.Forms.Bridge
 import QuadraticNumberFields.Qsqrtd.TraceNorm
 import QuadraticNumberFields.RingOfIntegers.Discriminant
+import QuadraticNumberFields.RingOfIntegers.Norm
 import Mathlib.LinearAlgebra.FreeModule.Finite.Quotient
 import Mathlib.LinearAlgebra.FreeModule.PID
 import Mathlib.NumberTheory.NumberField.Norm
@@ -68,6 +69,10 @@ private def ringEquivToIntAlgEquiv {R S : Type*} [CommRing R] [Algebra ℤ R]
 rational number. This extracts the "imaginary part" of `x`. -/
 noncomputable def imPartRatio (x : K) : ℚ :=
   (QuadraticAlgebra.basis (d : ℚ) 0).repr x (1 : Fin 2)
+
+/-- `imPartRatio` is exactly the `im` coordinate. -/
+theorem imPartRatio_eq_im (x : K) : imPartRatio x = x.im := by
+  simp [imPartRatio, QuadraticAlgebra.basis]
 
 /-- If `x : K` is negated by conjugation, then it is a rational multiple of `√d`,
 and that multiple is exactly `imPartRatio x`. -/
@@ -310,6 +315,117 @@ theorem normFormOfBasis_b_mul_absNorm {I : Ideal 𝓞K} (hI : I ≠ 0) (b : Orie
     Ideal.add_mem I (b.basis 0).2 (b.basis 1).2
   exact dvd_sub (dvd_sub (absNorm_dvd_norm_of_mem_ideal hsum) (absNorm_dvd_norm_basis b 0))
     (absNorm_dvd_norm_basis b 1)
+
+/-- The integral norm of `x : 𝓞K`, viewed in `ℚ`, is the quadratic form
+`re² − d · im²` of its coordinates in `K`. This bridges `Algebra.norm ℤ` to the
+explicit `Qsqrtd` norm formula, threading past the `Algebra ℚ K` diamond exactly
+as in `RingOfIntegers.algebraNorm_eq_zsqrtd_norm_of_mod_four_ne_one`. -/
+theorem fieldNorm_int_eq (x : 𝓞K) :
+    (Algebra.norm ℤ x : ℚ) = ((x : K).re) ^ 2 - (d : ℚ) * ((x : K).im) ^ 2 := by
+  rw [Algebra.coe_norm_int, Qsqrtd.algebraNorm_ratAlgebra_eq_qsqrtdNorm,
+    RingOfIntegers.TraceNorm.norm_eq_sqr_minus_d_sqr]
+
+/-- For an imaginary field (`d < 0`), the integral norm of a nonzero algebraic
+integer is strictly positive: `N(x) = re² + |d|·im² > 0`. -/
+theorem norm_int_pos (hdneg : d < 0) {x : 𝓞K} (hx : x ≠ 0) :
+    0 < Algebra.norm ℤ x := by
+  have hxK : (x : K) ≠ 0 :=
+    (map_ne_zero_iff (algebraMap 𝓞K K) (IsFractionRing.injective 𝓞K K)).mpr hx
+  have hcoord : (x : K).re ≠ 0 ∨ (x : K).im ≠ 0 := by
+    by_contra h
+    simp only [not_or, not_ne_iff] at h
+    exact hxK (QuadraticAlgebra.ext h.1 (by simp [h.2]))
+  have hd' : (d : ℚ) < 0 := by exact_mod_cast hdneg
+  have hpos : (0 : ℚ) < (Algebra.norm ℤ x : ℚ) := by
+    rw [fieldNorm_int_eq]
+    rcases hcoord with hre | him
+    · have : 0 < ((x : K).re) ^ 2 := by positivity
+      nlinarith [mul_nonneg (neg_nonneg.mpr hd'.le) (sq_nonneg ((x : K).im))]
+    · have : 0 < ((x : K).im) ^ 2 := by positivity
+      nlinarith [sq_nonneg ((x : K).re), mul_pos (neg_pos.mpr hd') this]
+  exact_mod_cast hpos
+
+/-- The ideal norm of a nonzero ideal is a strictly positive integer. -/
+theorem absNorm_pos {I : Ideal 𝓞K} (hI : I ≠ 0) : 0 < (Ideal.absNorm I : ℤ) := by
+  have h0 : Ideal.absNorm I ≠ 0 :=
+    Ideal.absNorm_ne_zero_of_nonZeroDivisors ⟨I, mem_nonZeroDivisors_iff_ne_zero.mpr hI⟩
+  exact_mod_cast Nat.pos_of_ne_zero h0
+
+/-- The leading coefficient of `normFormOfBasis` is positive when `d < 0`: it is
+`N(α)/N(I)` with both norms positive. -/
+theorem normFormOfBasis_a_pos (hdneg : d < 0) {I : Ideal 𝓞K} (hI : I ≠ 0)
+    (b : OrientedBasis I) : 0 < (normFormOfBasis hI b).a := by
+  have hN : 0 < (Ideal.absNorm I : ℤ) := absNorm_pos hI
+  have hα0 : (b.basis 0 : 𝓞K) ≠ 0 := by
+    simpa using b.basis.ne_zero 0
+  have hnorm : 0 < Algebra.norm ℤ (b.basis 0 : 𝓞K) := norm_int_pos hdneg hα0
+  have heq := normFormOfBasis_a_mul_absNorm hI b
+  nlinarith [heq, hN, hnorm]
+
+/-- The discriminant of `normFormOfBasis` is negative when `d < 0`. The key
+identity is `disc(Q) · N(I)² = 4 d · (α.re·β.im − α.im·β.re)²`, whose sign is
+forced by `d < 0` and the orientation `α.re·β.im − α.im·β.re < 0`. -/
+theorem normFormOfBasis_disc_neg (hdneg : d < 0) {I : Ideal 𝓞K} (hI : I ≠ 0)
+    (b : OrientedBasis I) : (normFormOfBasis hI b).disc < 0 := by
+  have hd' : (d : ℚ) < 0 := by exact_mod_cast hdneg
+  -- The orientation forces the coordinate determinant to be negative.
+  have him0 : (((b.basis 0 : 𝓞K) : K) * star ((b.basis 1 : 𝓞K) : K)).im =
+      ((b.basis 0 : 𝓞K) : K).re * (-((b.basis 1 : 𝓞K) : K).im) +
+        ((b.basis 0 : 𝓞K) : K).im * ((b.basis 1 : 𝓞K) : K).re := by
+    rw [QuadraticAlgebra.im_mul]; simp [QuadraticAlgebra.re_star, QuadraticAlgebra.im_star]
+  have him1 : (((b.basis 1 : 𝓞K) : K) * star ((b.basis 0 : 𝓞K) : K)).im =
+      ((b.basis 1 : 𝓞K) : K).re * (-((b.basis 0 : 𝓞K) : K).im) +
+        ((b.basis 1 : 𝓞K) : K).im * ((b.basis 0 : 𝓞K) : K).re := by
+    rw [QuadraticAlgebra.im_mul]; simp [QuadraticAlgebra.re_star, QuadraticAlgebra.im_star]
+  have hdet_neg :
+      ((b.basis 0 : 𝓞K) : K).re * ((b.basis 1 : 𝓞K) : K).im -
+        ((b.basis 0 : 𝓞K) : K).im * ((b.basis 1 : 𝓞K) : K).re < 0 := by
+    have ho := b.oriented
+    rw [imPartRatio_eq_im, QuadraticAlgebra.im_sub, him0, him1] at ho
+    nlinarith [ho]
+  have hdet_sq_pos : 0 < (((b.basis 0 : 𝓞K) : K).re * ((b.basis 1 : 𝓞K) : K).im -
+      ((b.basis 0 : 𝓞K) : K).im * ((b.basis 1 : 𝓞K) : K).re) ^ 2 := by
+    rw [pow_two]; exact mul_pos_of_neg_of_neg hdet_neg hdet_neg
+  -- The image in `K` of the sum splits additively.
+  have hcoe : (((b.basis 0 : 𝓞K) + (b.basis 1 : 𝓞K) : 𝓞K) : K) =
+      ((b.basis 0 : 𝓞K) : K) + ((b.basis 1 : 𝓞K) : K) := by push_cast; ring
+  -- Cast the polarized integer discriminant to `4 d · det²`.
+  have key : ((Algebra.norm ℤ ((b.basis 0 : 𝓞K) + (b.basis 1 : 𝓞K)) -
+        Algebra.norm ℤ (b.basis 0 : 𝓞K) - Algebra.norm ℤ (b.basis 1 : 𝓞K)) ^ 2 -
+        4 * Algebra.norm ℤ (b.basis 0 : 𝓞K) * Algebra.norm ℤ (b.basis 1 : 𝓞K) : ℚ) =
+      4 * (d : ℚ) * (((b.basis 0 : 𝓞K) : K).re * ((b.basis 1 : 𝓞K) : K).im -
+        ((b.basis 0 : 𝓞K) : K).im * ((b.basis 1 : 𝓞K) : K).re) ^ 2 := by
+    simp only [fieldNorm_int_eq, hcoe, QuadraticAlgebra.re_add, QuadraticAlgebra.im_add]
+    ring
+  -- Relate the integer discriminant to the polarized form via `N(I)²`.
+  have hdiscN : (normFormOfBasis hI b).disc * (Ideal.absNorm I : ℤ) ^ 2 =
+      (Algebra.norm ℤ ((b.basis 0 : 𝓞K) + (b.basis 1 : 𝓞K)) -
+        Algebra.norm ℤ (b.basis 0 : 𝓞K) - Algebra.norm ℤ (b.basis 1 : 𝓞K)) ^ 2 -
+        4 * Algebra.norm ℤ (b.basis 0 : 𝓞K) * Algebra.norm ℤ (b.basis 1 : 𝓞K) := by
+    have ha := normFormOfBasis_a_mul_absNorm hI b
+    have hb := normFormOfBasis_b_mul_absNorm hI b
+    have hc := normFormOfBasis_c_mul_absNorm hI b
+    simp only [BinaryQuadraticForm.disc]
+    rw [← hb, ← ha, ← hc]; ring
+  -- The polarized integer discriminant is negative.
+  have hpol_neg : (Algebra.norm ℤ ((b.basis 0 : 𝓞K) + (b.basis 1 : 𝓞K)) -
+        Algebra.norm ℤ (b.basis 0 : 𝓞K) - Algebra.norm ℤ (b.basis 1 : 𝓞K)) ^ 2 -
+        4 * Algebra.norm ℤ (b.basis 0 : 𝓞K) * Algebra.norm ℤ (b.basis 1 : 𝓞K) < 0 := by
+    have hq : (((Algebra.norm ℤ ((b.basis 0 : 𝓞K) + (b.basis 1 : 𝓞K)) -
+          Algebra.norm ℤ (b.basis 0 : 𝓞K) - Algebra.norm ℤ (b.basis 1 : 𝓞K)) ^ 2 -
+          4 * Algebra.norm ℤ (b.basis 0 : 𝓞K) * Algebra.norm ℤ (b.basis 1 : 𝓞K) : ℤ) : ℚ) < 0 := by
+      push_cast
+      rw [key]; nlinarith [hdet_sq_pos, hd']
+    exact_mod_cast hq
+  have hNsq : 0 < (Ideal.absNorm I : ℤ) ^ 2 := by have := absNorm_pos hI; positivity
+  nlinarith [hdiscN, hpol_neg, hNsq]
+
+/-- For an imaginary field (`d < 0`), the norm form of an oriented ideal basis is
+positive definite: it has positive leading coefficient and negative
+discriminant. -/
+theorem normFormOfBasis_isPositiveDefinite (hdneg : d < 0) {I : Ideal 𝓞K} (hI : I ≠ 0)
+    (b : OrientedBasis I) : (normFormOfBasis hI b).IsPositiveDefinite :=
+  ⟨normFormOfBasis_a_pos hdneg hI b, normFormOfBasis_disc_neg hdneg hI b⟩
 
 end InverseCox
 end BinaryQuadraticForm
