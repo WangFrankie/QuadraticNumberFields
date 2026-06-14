@@ -400,6 +400,30 @@ theorem absNorm_pos {I : Ideal 𝓞K} (hI : I ≠ 0) : 0 < (Ideal.absNorm I : �
     Ideal.absNorm_ne_zero_of_nonZeroDivisors ⟨I, mem_nonZeroDivisors_iff_ne_zero.mpr hI⟩
   exact_mod_cast Nat.pos_of_ne_zero h0
 
+/-- For an imaginary field, the norm form attached to an oriented ideal basis is
+strictly positive on nonzero integer coordinate vectors. -/
+theorem normFormOfBasis_eval_pos_of_ne_zero (hdneg : d < 0) {I : Ideal 𝓞K} (hI : I ≠ 0)
+    (b : OrientedBasis I) {x y : ℤ} (hxy : x ≠ 0 ∨ y ≠ 0) :
+    0 < (normFormOfBasis hI b).eval x y := by
+  have hlin : x • (b.basis 0 : 𝓞K) + y • (b.basis 1 : 𝓞K) ≠ 0 := by
+    intro hzero
+    have hsumI : x • b.basis 0 + y • b.basis 1 = 0 := by
+      apply Subtype.ext
+      simpa using hzero
+    have hLI := b.basis.linearIndependent
+    let coeff : Fin 2 → ℤ := ![x, y]
+    have hsum : ∑ i : Fin 2, coeff i • b.basis i = 0 := by
+      simp [coeff, Fin.sum_univ_two, hsumI]
+    have hcoeff := Fintype.linearIndependent_iff.mp hLI coeff hsum
+    have hx0 : x = 0 := by simpa [coeff] using hcoeff 0
+    have hy0 : y = 0 := by simpa [coeff] using hcoeff 1
+    exact hxy.elim (fun hx => hx hx0) (fun hy => hy hy0)
+  have heval := normFormOfBasis_eval_mul_absNorm hI b x y
+  have hN : 0 < (Ideal.absNorm I : ℤ) := absNorm_pos hI
+  have hnorm : 0 < Algebra.norm ℤ (x • (b.basis 0 : 𝓞K) + y • (b.basis 1 : 𝓞K)) :=
+    norm_int_pos hdneg hlin
+  nlinarith
+
 /-- The leading coefficient of `normFormOfBasis` is positive when `d < 0`: it is
 `N(α)/N(I)` with both norms positive. -/
 theorem normFormOfBasis_a_pos (hdneg : d < 0) {I : Ideal 𝓞K} (hI : I ≠ 0)
