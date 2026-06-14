@@ -498,6 +498,25 @@ theorem normFormOfBasis_polarized_disc_eq_det_sq {I : Ideal 𝓞K} (b : Oriented
   simp only [fieldNorm_int_eq, hcoe, QuadraticAlgebra.re_add, QuadraticAlgebra.im_add]
   ring
 
+/-- The orientation condition says that the coordinate determinant
+`α.re * β.im - α.im * β.re` is negative. -/
+theorem OrientedBasis.det_neg {I : Ideal 𝓞K} (b : OrientedBasis I) :
+    ((b.basis 0 : 𝓞K) : K).re * ((b.basis 1 : 𝓞K) : K).im -
+      ((b.basis 0 : 𝓞K) : K).im * ((b.basis 1 : 𝓞K) : K).re < 0 := by
+  have him0 : (((b.basis 0 : 𝓞K) : K) * star ((b.basis 1 : 𝓞K) : K)).im =
+      ((b.basis 0 : 𝓞K) : K).re * (-((b.basis 1 : 𝓞K) : K).im) +
+        ((b.basis 0 : 𝓞K) : K).im * ((b.basis 1 : 𝓞K) : K).re := by
+    rw [QuadraticAlgebra.im_mul]
+    simp [QuadraticAlgebra.re_star, QuadraticAlgebra.im_star]
+  have him1 : (((b.basis 1 : 𝓞K) : K) * star ((b.basis 0 : 𝓞K) : K)).im =
+      ((b.basis 1 : 𝓞K) : K).re * (-((b.basis 0 : 𝓞K) : K).im) +
+        ((b.basis 1 : 𝓞K) : K).im * ((b.basis 0 : 𝓞K) : K).re := by
+    rw [QuadraticAlgebra.im_mul]
+    simp [QuadraticAlgebra.re_star, QuadraticAlgebra.im_star]
+  have ho := b.oriented
+  rw [imPartRatio_eq_im, QuadraticAlgebra.im_sub, him0, him1] at ho
+  nlinarith [ho]
+
 /-- The discriminant of `normFormOfBasis` is negative when `d < 0`. The key
 identity is `disc(Q) · N(I)² = 4 d · (α.re·β.im − α.im·β.re)²`, whose sign is
 forced by `d < 0` and the orientation `α.re·β.im − α.im·β.re < 0`. -/
@@ -505,20 +524,7 @@ theorem normFormOfBasis_disc_neg (hdneg : d < 0) {I : Ideal 𝓞K} (hI : I ≠ 0
     (b : OrientedBasis I) : (normFormOfBasis hI b).disc < 0 := by
   have hd' : (d : ℚ) < 0 := by exact_mod_cast hdneg
   -- The orientation forces the coordinate determinant to be negative.
-  have him0 : (((b.basis 0 : 𝓞K) : K) * star ((b.basis 1 : 𝓞K) : K)).im =
-      ((b.basis 0 : 𝓞K) : K).re * (-((b.basis 1 : 𝓞K) : K).im) +
-        ((b.basis 0 : 𝓞K) : K).im * ((b.basis 1 : 𝓞K) : K).re := by
-    rw [QuadraticAlgebra.im_mul]; simp [QuadraticAlgebra.re_star, QuadraticAlgebra.im_star]
-  have him1 : (((b.basis 1 : 𝓞K) : K) * star ((b.basis 0 : 𝓞K) : K)).im =
-      ((b.basis 1 : 𝓞K) : K).re * (-((b.basis 0 : 𝓞K) : K).im) +
-        ((b.basis 1 : 𝓞K) : K).im * ((b.basis 0 : 𝓞K) : K).re := by
-    rw [QuadraticAlgebra.im_mul]; simp [QuadraticAlgebra.re_star, QuadraticAlgebra.im_star]
-  have hdet_neg :
-      ((b.basis 0 : 𝓞K) : K).re * ((b.basis 1 : 𝓞K) : K).im -
-        ((b.basis 0 : 𝓞K) : K).im * ((b.basis 1 : 𝓞K) : K).re < 0 := by
-    have ho := b.oriented
-    rw [imPartRatio_eq_im, QuadraticAlgebra.im_sub, him0, him1] at ho
-    nlinarith [ho]
+  have hdet_neg := b.det_neg
   have hdet_sq_pos : 0 < (((b.basis 0 : 𝓞K) : K).re * ((b.basis 1 : 𝓞K) : K).im -
       ((b.basis 0 : 𝓞K) : K).im * ((b.basis 1 : 𝓞K) : K).re) ^ 2 := by
     rw [pow_two]; exact mul_pos_of_neg_of_neg hdet_neg hdet_neg
