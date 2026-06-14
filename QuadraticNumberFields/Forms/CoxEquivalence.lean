@@ -511,9 +511,34 @@ theorem classGroupToFormClass_idealClassOfForm_leftInverse_of_mod_four_ne_one
   -- Step 3: formClassOfNonzeroIdeal hdneg I = ⟦primitivePositiveDefiniteNormFormOfBasis ... b⟧
   rw [formClassOfNonzeroIdeal_eq_mk hdneg I (b := orientedBasisOfNeZero (I : Ideal 𝓞K) hI_ne_zero)]
   -- Step 4: ⟦normFormOfBasis hI b⟧ = ⟦Q⟧
-  -- The wedge computation + norm form equality (TODO: finish the algebraic coefficient matching)
-  -- Once normFormOfBasis hI b_cox = Q.1, normFormOfBasis_properEquivalent gives the result.
-  sorry
+  rcases coxIdealBasisOK_K_re_im hd4 hdneg Q with ⟨h0_re, h0_im, h1_re, h1_im⟩
+  let b_cox := coxIdealBasisOK hd4 hdneg Q
+  set α := ((b_cox 0 : 𝓞K) : K) with hα
+  set β := ((b_cox 1 : 𝓞K) : K) with hβ
+  -- Wedge: im = 2a > 0 → positive imPartRatio
+  have h_wedge_im : (α * star β - β * star α).im = (Q.1.a : ℚ) * 2 := by
+    simp [α, β, QuadraticAlgebra.im_sub, QuadraticAlgebra.im_mul,
+      h0_re, h0_im, h1_re, h1_im, QuadraticAlgebra.re_star, QuadraticAlgebra.im_star]
+    ring
+  have ha_pos : 0 < (Q.1.a : ℚ) := by exact_mod_cast Q.2.2.2.1
+  have hpos : imPartRatio (d := d) (α * star β - β * star α) > 0 := by
+    rw [imPartRatio_eq_im, h_wedge_im]; nlinarith
+  let b_oriented : OrientedBasis (I : Ideal 𝓞K) :=
+    { basis := b_cox, oriented := hpos }
+  -- normFormOfBasis hI b_oriented = Q.1 (coefficient matching: TODO)
+  have h_normform_eq : normFormOfBasis hI_ne_zero b_oriented = Q.1 := by
+    sorry
+  -- proper equivalence → equal classes
+  have h_equiv : (normFormOfBasis hI_ne_zero
+      (orientedBasisOfNeZero (I : Ideal 𝓞K) hI_ne_zero)).ProperEquivalent
+      (normFormOfBasis hI_ne_zero b_oriented) :=
+    (normFormOfBasis_properEquivalent hI_ne_zero _ _).symm
+  have h_target : (normFormOfBasis hI_ne_zero
+      (orientedBasisOfNeZero (I : Ideal 𝓞K) hI_ne_zero)).ProperEquivalent Q.1 :=
+    h_equiv.trans (by rw [h_normform_eq]; exact BinaryQuadraticForm.ProperEquivalent.refl Q.1)
+  dsimp [primitivePositiveDefiniteNormFormOfBasis]
+  apply Quotient.sound
+  simpa using h_target
 
 end CoxLeftInverse
 end BinaryQuadraticForm
