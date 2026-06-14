@@ -467,6 +467,21 @@ theorem normFormOfBasis_a_pos (hdneg : d < 0) {I : Ideal 𝓞K} (hI : I ≠ 0)
   have heq := normFormOfBasis_a_mul_absNorm hI b
   nlinarith [heq, hN, hnorm]
 
+/-- Multiplying the discriminant of `normFormOfBasis` by `N(I)^2` recovers the
+polarized discriminant of the two basis vectors. -/
+theorem normFormOfBasis_disc_mul_absNorm_sq {I : Ideal 𝓞K} (hI : I ≠ 0)
+    (b : OrientedBasis I) :
+    (normFormOfBasis hI b).disc * (Ideal.absNorm I : ℤ) ^ 2 =
+      (Algebra.norm ℤ ((b.basis 0 : 𝓞K) + (b.basis 1 : 𝓞K)) -
+        Algebra.norm ℤ (b.basis 0 : 𝓞K) - Algebra.norm ℤ (b.basis 1 : 𝓞K)) ^ 2 -
+        4 * Algebra.norm ℤ (b.basis 0 : 𝓞K) * Algebra.norm ℤ (b.basis 1 : 𝓞K) := by
+  have ha := normFormOfBasis_a_mul_absNorm hI b
+  have hb := normFormOfBasis_b_mul_absNorm hI b
+  have hc := normFormOfBasis_c_mul_absNorm hI b
+  simp only [BinaryQuadraticForm.disc]
+  rw [← hb, ← ha, ← hc]
+  ring
+
 /-- The discriminant of `normFormOfBasis` is negative when `d < 0`. The key
 identity is `disc(Q) · N(I)² = 4 d · (α.re·β.im − α.im·β.re)²`, whose sign is
 forced by `d < 0` and the orientation `α.re·β.im − α.im·β.re < 0`. -/
@@ -503,15 +518,7 @@ theorem normFormOfBasis_disc_neg (hdneg : d < 0) {I : Ideal 𝓞K} (hI : I ≠ 0
     simp only [fieldNorm_int_eq, hcoe, QuadraticAlgebra.re_add, QuadraticAlgebra.im_add]
     ring
   -- Relate the integer discriminant to the polarized form via `N(I)²`.
-  have hdiscN : (normFormOfBasis hI b).disc * (Ideal.absNorm I : ℤ) ^ 2 =
-      (Algebra.norm ℤ ((b.basis 0 : 𝓞K) + (b.basis 1 : 𝓞K)) -
-        Algebra.norm ℤ (b.basis 0 : 𝓞K) - Algebra.norm ℤ (b.basis 1 : 𝓞K)) ^ 2 -
-        4 * Algebra.norm ℤ (b.basis 0 : 𝓞K) * Algebra.norm ℤ (b.basis 1 : 𝓞K) := by
-    have ha := normFormOfBasis_a_mul_absNorm hI b
-    have hb := normFormOfBasis_b_mul_absNorm hI b
-    have hc := normFormOfBasis_c_mul_absNorm hI b
-    simp only [BinaryQuadraticForm.disc]
-    rw [← hb, ← ha, ← hc]; ring
+  have hdiscN := normFormOfBasis_disc_mul_absNorm_sq hI b
   -- The polarized integer discriminant is negative.
   have hpol_neg : (Algebra.norm ℤ ((b.basis 0 : 𝓞K) + (b.basis 1 : 𝓞K)) -
         Algebra.norm ℤ (b.basis 0 : 𝓞K) - Algebra.norm ℤ (b.basis 1 : 𝓞K)) ^ 2 -
