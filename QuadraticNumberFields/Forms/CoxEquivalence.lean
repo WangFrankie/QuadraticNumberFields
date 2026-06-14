@@ -332,6 +332,98 @@ noncomputable def coxIdealBasis {d a b c : ℤ} (ha : a ≠ 0) (hb : Even b)
       (Submodule.smul_mem _ _ (Submodule.subset_span (by simp)))
       (Submodule.smul_mem _ _ (Submodule.subset_span (by simp)))
 
+/-! ### Transport the Cox basis to `𝓞K` -/
+
+/-- The ℤ-algebra equivalence `Zsqrtd d ≃ₐ[ℤ] 𝓞K` (inverse of the ring equivalence). -/
+noncomputable def toRingOfIntegersAlgEquiv (hd4 : d % 4 ≠ 1) : Zsqrtd d ≃ₐ[ℤ] 𝓞K :=
+  AlgEquiv.ofRingEquiv
+    (f := (RingOfIntegers.ringOfIntegers_equiv_zsqrtd_of_mod_four_ne_one d hd4).symm)
+    fun n => by simp
+
+/-- The Cox basis transported to `𝓞K` via the ring equivalence. -/
+noncomputable def coxIdealBasisOK (hd4 : d % 4 ≠ 1) (hdneg : d < 0)
+    (Q : PrimitivePositiveDefiniteForm (fieldDiscriminant d)) :
+    Basis (Fin 2) ℤ (idealOfForm_of_mod_four_ne_one d hd4 Q) := by
+  let J := coxIdeal d Q.1.a Q.1.b
+  have hb_even : Even Q.1.b :=
+    even_b_of_hasDiscriminant_fieldDiscriminant_of_mod_four_ne_one hd4 Q.2.1
+  have h_disc_eq : 4 * Q.1.a * Q.1.c = Q.1.b ^ 2 - 4 * d := by
+    have hdisc_val : Q.1.disc = 4 * d :=
+      calc
+        Q.1.disc = fieldDiscriminant d := Q.2.1
+        _ = 4 * d := fieldDiscriminant_of_mod_four_ne_one hd4
+    unfold BinaryQuadraticForm.disc at hdisc_val
+    linarith
+  let b_J : Basis (Fin 2) ℤ J := coxIdealBasis (ne_of_gt Q.2.2.2.1) hb_even h_disc_eq
+  -- Transport: J ≃ₗ[ℤ] idealOfForm Q via Submodule.equivMapOfInjective
+  let f_alg : Zsqrtd d ≃ₐ[ℤ] 𝓞K := toRingOfIntegersAlgEquiv hd4
+  let f_lin : Zsqrtd d →ₗ[ℤ] 𝓞K := f_alg.toLinearMap
+  have h_inj : Function.Injective f_lin := f_alg.injective
+  -- View J as ℤ-submodule
+  let J_ℤ : Submodule ℤ (Zsqrtd d) :=
+    Submodule.restrictScalars ℤ (J : Submodule (Zsqrtd d) (Zsqrtd d))
+  -- The equiv we need: J_ℤ ≃ₗ[ℤ] Submodule.map f_lin J_ℤ
+  let f_sub : J_ℤ ≃ₗ[ℤ] (Submodule.map f_lin J_ℤ) :=
+    Submodule.equivMapOfInjective f_lin h_inj J_ℤ
+  -- But we need the codomain to be idealOfForm Q.
+  -- We prove: Submodule.map f_lin J_ℤ = idealOfForm Q as ℤ-submodules
+  -- (Actually they differ by Submodule.restrictScalars, so we convert)
+  let I_ℤ : Submodule ℤ 𝓞K := Submodule.restrictScalars ℤ
+    (idealOfForm_of_mod_four_ne_one d hd4 Q)
+  have h_map_sets : (Submodule.map f_lin J_ℤ : Set 𝓞K) = (I_ℤ : Set 𝓞K) := by
+    ext x; constructor
+    · intro hx
+      rcases Submodule.mem_map.mp hx with ⟨y, hy, hy_eq⟩
+      rw [← hy_eq]
+      have hy_J : (y : Zsqrtd d) ∈ J := hy
+      have hmem : f_lin y ∈ idealOfForm_of_mod_four_ne_one d hd4 Q := by
+        rw [idealOfForm_of_mod_four_ne_one, Ideal.mem_comap]
+        dsimp [f_lin, f_alg, toRingOfIntegersAlgEquiv]
+        simpa using hy_J
+      -- membership in restrictScalars = membership in original
+      simpa [I_ℤ] using hmem
+    · intro hx
+      have hx_ideal : (x : 𝓞K) ∈ idealOfForm_of_mod_four_ne_one d hd4 Q := hx
+      rw [idealOfForm_of_mod_four_ne_one, Ideal.mem_comap] at hx_ideal
+      -- hx_ideal : e x ∈ J
+      apply Submodule.mem_map.mpr
+      let y_val : Zsqrtd d :=
+        (RingOfIntegers.ringOfIntegers_equiv_zsqrtd_of_mod_four_ne_one d hd4) x
+      have hy_J : y_val ∈ J := hx_ideal
+      -- Construct y ∈ J_ℤ
+      have hy_ℤ : y_val ∈ J_ℤ := hy_J
+      let y : J_ℤ := ⟨y_val, hy_ℤ⟩
+      -- Goal: ∃ y ∈ J_ℤ, f_lin y = x → refined to y ∈ J_ℤ ∧ f_lin y = x
+      refine ⟨y, y.2, ?_⟩
+      dsimp [y, y_val, f_lin, f_alg, toRingOfIntegersAlgEquiv]
+      simp
+  -- From set equality, deduce submodule equality
+  have h_map : Submodule.map f_lin J_ℤ = I_ℤ :=
+    Submodule.ext fun x => by
+      rw [Set.ext_iff] at h_map_sets
+      simpa using h_map_sets x
+  -- Final equiv: J_ℤ ≃ₗ[ℤ] I_ℤ
+  let f_final : J_ℤ ≃ₗ[ℤ] I_ℤ := f_sub.trans (LinearEquiv.ofEq _ _ h_map)
+  -- Convert to idealOfForm Q (as ℤ-module)
+  let id_tgt : I_ℤ ≃ₗ[ℤ] idealOfForm_of_mod_four_ne_one d hd4 Q :=
+    { toFun := fun x => ⟨x.1, x.2⟩
+      map_add' := fun x y => rfl
+      map_smul' := fun r x => rfl
+      invFun := fun x => ⟨x.1, x.2⟩
+      left_inv := fun _ => rfl
+      right_inv := fun _ => rfl }
+  -- Convert b_J (Basis ℤ J) → Basis ℤ J_ℤ
+  let id_src : J ≃ₗ[ℤ] J_ℤ :=
+    { toFun := fun x => ⟨x.1, x.2⟩
+      map_add' := fun x y => rfl
+      map_smul' := fun r x => rfl
+      invFun := fun x => ⟨x.1, x.2⟩
+      left_inv := fun _ => rfl
+      right_inv := fun _ => rfl }
+  let b_J_ℤ : Basis (Fin 2) ℤ J_ℤ := b_J.map id_src
+  let b_I_ℤ : Basis (Fin 2) ℤ I_ℤ := b_J_ℤ.map f_final
+  exact b_I_ℤ.map id_tgt
+
 /-- **Left inverse round-trip** for `d % 4 ≠ 1`:
 `classGroupToFormClass hdneg (idealClassOfForm_of_mod_four_ne_one d hd4 Q) = ⟦Q⟧`.
 
