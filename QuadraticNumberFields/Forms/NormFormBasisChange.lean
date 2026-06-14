@@ -200,6 +200,123 @@ theorem formClassOfNonzeroIdeal_eq_mk (hdneg : d < 0) (I : (Ideal 𝓞K)⁰)
   Quotient.sound
     (normFormOfBasis_properEquivalent (mem_nonZeroDivisors_iff_ne_zero.mp I.2) _ b)
 
+/-! ## Principal scaling invariance -/
+
+omit [Fact (Squarefree d)] [Fact (d ≠ 1)] in
+/-- Multiplying both wedge arguments by `x` scales the wedge by the field norm
+`x.re² − d·x.im²` of `x`. -/
+theorem imPartRatio_wedge_mul_left (x u v : K) :
+    imPartRatio (x * u * star (x * v) - x * v * star (x * u)) =
+      ((x.re : ℚ) ^ 2 - (d : ℚ) * x.im ^ 2) * imPartRatio (u * star v - v * star u) := by
+  rw [imPartRatio_wedge, imPartRatio_wedge]
+  simp only [QuadraticAlgebra.re_mul, QuadraticAlgebra.im_mul]
+  ring
+
+/-- The ideal norm of a principal scaling `span{x} · I` factors through the field
+norm of `x`. -/
+theorem absNorm_span_singleton_mul (x : 𝓞K) (I : Ideal 𝓞K) :
+    Ideal.absNorm (Ideal.span {x} * I) = (Algebra.norm ℤ x).natAbs * Ideal.absNorm I := by
+  rw [map_mul, Ideal.absNorm_span_singleton]
+
+/-- As `ℤ`-submodules, the image of `I` under multiplication by `x` is the
+principal scaling `span{x} * I`. -/
+theorem map_mulLeft_restrictScalars (x : 𝓞K) (I : Ideal 𝓞K) :
+    (Submodule.restrictScalars ℤ I).map (LinearMap.mulLeft ℤ x) =
+      Submodule.restrictScalars ℤ (Ideal.span {x} * I) := by
+  ext m
+  simp only [Submodule.mem_map, Submodule.restrictScalars_mem, LinearMap.mulLeft_apply,
+    Ideal.mem_span_singleton_mul]
+
+/-- A `ℤ`-basis of `I`, scaled by a nonzero `x`, as a `ℤ`-basis of `span{x} * I`
+(via the multiplication-by-`x` isomorphism). -/
+noncomputable def scaledBasis (x : 𝓞K) (hx : x ≠ 0) {I : Ideal 𝓞K}
+    (b : Basis (Fin 2) ℤ I) : Basis (Fin 2) ℤ (Ideal.span {x} * I : Ideal 𝓞K) :=
+  b.map ((Submodule.equivMapOfInjective (LinearMap.mulLeft ℤ x)
+      (mul_right_injective₀ hx) (Submodule.restrictScalars ℤ I)).trans
+    (LinearEquiv.ofEq _ _ (map_mulLeft_restrictScalars x I)))
+
+@[simp] theorem scaledBasis_coe (x : 𝓞K) (hx : x ≠ 0) {I : Ideal 𝓞K}
+    (b : Basis (Fin 2) ℤ I) (i : Fin 2) :
+    (scaledBasis x hx b i : 𝓞K) = x * (b i : 𝓞K) := by
+  simp only [scaledBasis, Basis.map_apply]
+  rfl
+
+/-- An oriented basis of `I`, scaled by a nonzero `x`, as an oriented basis of
+`span{x} * I` (orientation is preserved because the field norm of `x` is positive
+for `d < 0`). -/
+noncomputable def scaledOrientedBasis (hdneg : d < 0) {x : 𝓞K} (hx : x ≠ 0)
+    {I : Ideal 𝓞K} (b : OrientedBasis I) : OrientedBasis (Ideal.span {x} * I) where
+  basis := scaledBasis x hx b.basis
+  oriented := by
+    have hcoe : ∀ i : Fin 2,
+        ((scaledBasis x hx b.basis i : 𝓞K) : K) = (x : K) * ((b.basis i : 𝓞K) : K) := by
+      intro i
+      rw [scaledBasis_coe]
+      push_cast
+      ring
+    rw [hcoe, hcoe, imPartRatio_wedge_mul_left, ← fieldNorm_int_eq]
+    exact mul_pos (by exact_mod_cast norm_int_pos hdneg hx) b.oriented
+
+/-- Scaling an ideal by a nonzero principal factor (and the basis by the same
+factor) leaves the Cox norm form unchanged: the `N(x)` factor cancels between the
+basis-vector norms and the ideal norm. -/
+theorem normFormOfBasis_scaledOrientedBasis (hdneg : d < 0) {x : 𝓞K} (hx : x ≠ 0)
+    {I : Ideal 𝓞K} (hI : I ≠ 0) (b : OrientedBasis I)
+    (hM : Ideal.span {x} * I ≠ 0) :
+    normFormOfBasis hM (scaledOrientedBasis hdneg hx b) = normFormOfBasis hI b := by
+  apply eq_of_eval_eq
+  intro p q
+  rw [normFormOfBasis_eval_eq_norm_ediv_absNorm hM, normFormOfBasis_eval_eq_norm_ediv_absNorm hI]
+  have helt : p • ((scaledOrientedBasis hdneg hx b).basis 0 : 𝓞K) +
+        q • ((scaledOrientedBasis hdneg hx b).basis 1 : 𝓞K) =
+      x * (p • (b.basis 0 : 𝓞K) + q • (b.basis 1 : 𝓞K)) := by
+    change p • (scaledBasis x hx b.basis 0 : 𝓞K) + q • (scaledBasis x hx b.basis 1 : 𝓞K) = _
+    simp only [scaledBasis_coe, mul_add, mul_smul_comm]
+  rw [helt, map_mul]
+  have hMnorm : (Ideal.absNorm (Ideal.span {x} * I) : ℤ) =
+      Algebra.norm ℤ x * (Ideal.absNorm I : ℤ) := by
+    rw [absNorm_span_singleton_mul]
+    push_cast
+    rw [abs_of_nonneg (le_of_lt (norm_int_pos hdneg hx))]
+  rw [hMnorm, Int.mul_ediv_mul_of_pos _ _ (norm_int_pos hdneg hx)]
+
+/-- A principal scaling of a nonzero ideal is again a non-zero-divisor ideal. -/
+theorem span_singleton_mul_mem_nonZeroDivisors {x : 𝓞K} (hx : x ≠ 0) (I : (Ideal 𝓞K)⁰) :
+    Ideal.span {x} * (I : Ideal 𝓞K) ∈ nonZeroDivisors (Ideal 𝓞K) := by
+  rw [mem_nonZeroDivisors_iff_ne_zero]
+  exact mul_ne_zero (fun hc => hx (Ideal.span_singleton_eq_bot.mp hc))
+    (mem_nonZeroDivisors_iff_ne_zero.mp I.2)
+
+/-- Multiplying an ideal by a nonzero principal factor does not change its Cox
+form class. -/
+theorem formClassOfNonzeroIdeal_span_singleton_mul (hdneg : d < 0) {x : 𝓞K} (hx : x ≠ 0)
+    (I : (Ideal 𝓞K)⁰)
+    (hM : Ideal.span {x} * (I : Ideal 𝓞K) ∈ nonZeroDivisors (Ideal 𝓞K)) :
+    formClassOfNonzeroIdeal hdneg ⟨Ideal.span {x} * (I : Ideal 𝓞K), hM⟩ =
+      formClassOfNonzeroIdeal hdneg I := by
+  have hI : (I : Ideal 𝓞K) ≠ 0 := mem_nonZeroDivisors_iff_ne_zero.mp I.2
+  have hM' : Ideal.span {x} * (I : Ideal 𝓞K) ≠ 0 := mem_nonZeroDivisors_iff_ne_zero.mp hM
+  rw [formClassOfNonzeroIdeal_eq_mk hdneg ⟨Ideal.span {x} * (I : Ideal 𝓞K), hM⟩
+        (scaledOrientedBasis hdneg hx (orientedBasisOfNeZero (I : Ideal 𝓞K) hI)),
+      formClassOfNonzeroIdeal_eq_mk hdneg I (orientedBasisOfNeZero (I : Ideal 𝓞K) hI)]
+  exact congrArg (Quotient.mk _)
+    (Subtype.ext (normFormOfBasis_scaledOrientedBasis hdneg hx hI
+      (orientedBasisOfNeZero (I : Ideal 𝓞K) hI) hM'))
+
+/-- **The descent core.** `formClassOfNonzeroIdeal` is a genuine ideal-class
+function: properly equivalent (same-class) ideals yield the same Cox form class.
+This is the well-definedness fact both Cox round-trip laws rely on. -/
+theorem formClassOfNonzeroIdeal_eq_of_mk0_eq (hdneg : d < 0) (I J : (Ideal 𝓞K)⁰)
+    (h : ClassGroup.mk0 I = ClassGroup.mk0 J) :
+    formClassOfNonzeroIdeal hdneg I = formClassOfNonzeroIdeal hdneg J := by
+  rw [ClassGroup.mk0_eq_mk0_iff] at h
+  obtain ⟨x, y, hx, hy, hxy⟩ := h
+  rw [← formClassOfNonzeroIdeal_span_singleton_mul hdneg hx I
+        (span_singleton_mul_mem_nonZeroDivisors hx I),
+      ← formClassOfNonzeroIdeal_span_singleton_mul hdneg hy J
+        (span_singleton_mul_mem_nonZeroDivisors hy J)]
+  exact congrArg (formClassOfNonzeroIdeal hdneg) (Subtype.ext hxy)
+
 end BasisChange
 
 end BinaryQuadraticForm
