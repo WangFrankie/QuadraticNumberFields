@@ -430,15 +430,52 @@ noncomputable def coxIdealBasisOK (hd4 : d % 4 ≠ 1) (hdneg : d < 0)
   let b_I_ℤ : Basis (Fin 2) ℤ I_ℤ := b_J_ℤ.map f_final
   exact b_I_ℤ.map id_tgt
 
-/-- **Left inverse round-trip** for `d % 4 ≠ 1`:
-`classGroupToFormClass hdneg (idealClassOfForm_of_mod_four_ne_one d hd4 Q) = ⟦Q⟧`.
+/-- The first Cox basis element in `𝓞K` is `e.symm(Q.a)`. -/
+theorem coxIdealBasisOK_val_0 (hd4 : d % 4 ≠ 1) (hdneg : d < 0)
+    (Q : PrimitivePositiveDefiniteForm (fieldDiscriminant d)) :
+    ((coxIdealBasisOK hd4 hdneg Q) 0 : 𝓞K) =
+    (RingOfIntegers.ringOfIntegers_equiv_zsqrtd_of_mod_four_ne_one d hd4).symm
+      (Q.1.a : Zsqrtd d) := by
+  dsimp [coxIdealBasisOK]
+  simp [coxIdealBasis, Basis.coe_mk, Basis.map_apply, toRingOfIntegersAlgEquiv]
 
-Proof chain:
-1. `idealClassOfForm Q` = `ClassGroup.mk0 I` where `I = nonzeroIdealOfForm Q`
-2. `classGroupToFormClass hdneg (ClassGroup.mk0 I)`
-   = `formClassOfNonzeroIdeal hdneg I`  [by L3: formClassOfNonzeroIdeal_eq_of_mk0_eq]
-3. = `⟦primitivePositiveDefiniteNormFormOfBasis hdneg hI b⟧`  [formClassOfNonzeroIdeal_eq_mk]
-4. = `⟦Q⟧`  [by normFormOfBasis_cox_eq — TODO] -/
+/-- The second Cox basis element in `𝓞K` is `e.symm(coxBetaZ d Q.b)`. -/
+theorem coxIdealBasisOK_val_1 (hd4 : d % 4 ≠ 1) (hdneg : d < 0)
+    (Q : PrimitivePositiveDefiniteForm (fieldDiscriminant d)) :
+    ((coxIdealBasisOK hd4 hdneg Q) 1 : 𝓞K) =
+    (RingOfIntegers.ringOfIntegers_equiv_zsqrtd_of_mod_four_ne_one d hd4).symm
+      (coxBetaZ d Q.1.b) := by
+  dsimp [coxIdealBasisOK]
+  simp [coxIdealBasis, Basis.coe_mk, Basis.map_apply, toRingOfIntegersAlgEquiv]
+
+/-- The K-coordinates of the Cox basis elements (via the ring embedding). -/
+theorem coxIdealBasisOK_K_re_im (hd4 : d % 4 ≠ 1) (hdneg : d < 0)
+    (Q : PrimitivePositiveDefiniteForm (fieldDiscriminant d)) :
+    (((coxIdealBasisOK hd4 hdneg Q) 0 : 𝓞K) : K).re = (Q.1.a : ℚ) ∧
+    (((coxIdealBasisOK hd4 hdneg Q) 0 : 𝓞K) : K).im = 0 ∧
+    (((coxIdealBasisOK hd4 hdneg Q) 1 : 𝓞K) : K).re = (Q.1.b / 2 : ℚ) ∧
+    (((coxIdealBasisOK hd4 hdneg Q) 1 : 𝓞K) : K).im = (-1 : ℚ) := by
+  have h0 := coxIdealBasisOK_val_0 hd4 hdneg Q
+  have h1 := coxIdealBasisOK_val_1 hd4 hdneg Q
+  -- h0 : b0 = e.symm(a), h1 : b1 = e.symm(coxBetaZ d Q.1.b)
+  -- Ring embedding: (e.symm(z) : K) = Zsqrtd.toQsqrtdHom d z
+  -- Coordinates: (a,0) and (b/2,-1)
+  let e_equiv := RingOfIntegers.ringOfIntegers_equiv_zsqrtd_of_mod_four_ne_one d hd4
+  have h_embed (x : 𝓞K) : ((x : 𝓞K) : K) = Zsqrtd.toQsqrtdHom d (e_equiv x) := by
+    simpa [e_equiv] using
+      (RingOfIntegers.ringOfIntegers_equiv_zsqrtd_of_mod_four_ne_one_apply d hd4 x).symm
+  rw [h0, h1, h_embed, h_embed]
+  -- Need: Zsqrtd.toQsqrtdHom d a = (a:ℚ, 0) and Zsqrtd.toQsqrtdHom d coxBetaZ = (b/2, -1)
+  -- b is even because d % 4 ≠ 1, so b/2 in ℤ equals b/2 in ℚ
+  have hb_even : Even Q.1.b :=
+    even_b_of_hasDiscriminant_fieldDiscriminant_of_mod_four_ne_one hd4 Q.2.1
+  obtain ⟨k, hk⟩ := hb_even
+  have hk_ℚ : (Q.1.b : ℚ) / 2 = (k : ℚ) := by
+    rw [show Q.1.b = (2 * k : ℤ) by omega]
+    push_cast; ring
+  simp [e_equiv, coxBetaZ_re, coxBetaZ_im, Zsqrtd.toQsqrtdHom, Zsqrtd.toQsqrtd,
+    RingEquiv.apply_symm_apply, hk_ℚ]
+  omega
 theorem classGroupToFormClass_idealClassOfForm_leftInverse_of_mod_four_ne_one
     (hdneg : d < 0) (hd4 : d % 4 ≠ 1)
     (Q : PrimitivePositiveDefiniteForm (fieldDiscriminant d)) :
@@ -473,10 +510,9 @@ theorem classGroupToFormClass_idealClassOfForm_leftInverse_of_mod_four_ne_one
   rw [h_class_eq]
   -- Step 3: formClassOfNonzeroIdeal hdneg I = ⟦primitivePositiveDefiniteNormFormOfBasis ... b⟧
   rw [formClassOfNonzeroIdeal_eq_mk hdneg I (b := orientedBasisOfNeZero (I : Ideal 𝓞K) hI_ne_zero)]
-  -- Step 4: ⟦norm form⟧ = ⟦Q⟧
-  -- The norm form of any oriented basis of idealOfForm Q is properly equivalent to Q.1.
-  -- This requires the explicit Cox basis + norm form computation (TODO).
-  -- Blocked on: transport coxIdealBasis to 𝓞K + orientation + normFormOfBasis_cox_eq
+  -- Step 4: ⟦normFormOfBasis hI b⟧ = ⟦Q⟧
+  -- The wedge computation + norm form equality (TODO: finish the algebraic coefficient matching)
+  -- Once normFormOfBasis hI b_cox = Q.1, normFormOfBasis_properEquivalent gives the result.
   sorry
 
 end CoxLeftInverse
