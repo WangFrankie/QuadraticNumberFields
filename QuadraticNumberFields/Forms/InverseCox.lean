@@ -81,6 +81,28 @@ noncomputable def ringOfIntegersBasisOfModFourEqOne (hd4 : d % 4 = 1) :
   let f : ZOnePlusSqrtdOverTwo (d / 4) ≃ₐ[ℤ] 𝓞K := ringEquivToIntAlgEquiv e.symm
   exact (QuadraticAlgebra.basis (d / 4) 1).map f.toLinearEquiv
 
+/-- In the `d % 4 ≠ 1` branch, the first coordinate in the transported integral
+basis is the `re` coordinate in `Qsqrtd`. -/
+theorem ringOfIntegersBasisOfModFourNeOne_repr_zero (hd4 : d % 4 ≠ 1) (x : 𝓞K) :
+    ((ringOfIntegersBasisOfModFourNeOne hd4).repr x 0 : ℚ) = (x : K).re := by
+  let e := RingOfIntegers.ringOfIntegers_equiv_zsqrtd_of_mod_four_ne_one d hd4
+  have h := RingOfIntegers.ringOfIntegers_equiv_zsqrtd_of_mod_four_ne_one_apply d hd4 x
+  have hre : ((e x).re : ℚ) = (x : K).re := by
+    simpa [Zsqrtd.toQsqrtdHom, Zsqrtd.toQsqrtd] using congrArg QuadraticAlgebra.re h
+  change (((QuadraticAlgebra.basis d 0).repr (e x) 0 : ℤ) : ℚ) = (x : K).re
+  simpa [QuadraticAlgebra.basis] using hre
+
+/-- In the `d % 4 ≠ 1` branch, the second coordinate in the transported integral
+basis is the `im` coordinate in `Qsqrtd`. -/
+theorem ringOfIntegersBasisOfModFourNeOne_repr_one (hd4 : d % 4 ≠ 1) (x : 𝓞K) :
+    ((ringOfIntegersBasisOfModFourNeOne hd4).repr x 1 : ℚ) = (x : K).im := by
+  let e := RingOfIntegers.ringOfIntegers_equiv_zsqrtd_of_mod_four_ne_one d hd4
+  have h := RingOfIntegers.ringOfIntegers_equiv_zsqrtd_of_mod_four_ne_one_apply d hd4 x
+  have him : ((e x).im : ℚ) = (x : K).im := by
+    simpa [Zsqrtd.toQsqrtdHom, Zsqrtd.toQsqrtd] using congrArg QuadraticAlgebra.im h
+  change (((QuadraticAlgebra.basis d 0).repr (e x) 1 : ℤ) : ℚ) = (x : K).im
+  simpa [QuadraticAlgebra.basis] using him
+
 /-- The coefficient of the canonical generator `√d` in `x : K`, viewed as a
 rational number. This extracts the "imaginary part" of `x`. -/
 noncomputable def imPartRatio (x : K) : ℚ :=
@@ -520,6 +542,22 @@ noncomputable def OrientedBasis.detCoord {I : Ideal 𝓞K} (b : OrientedBasis I)
   ((b.basis 0 : 𝓞K) : K).re * ((b.basis 1 : 𝓞K) : K).im -
     ((b.basis 0 : 𝓞K) : K).im * ((b.basis 1 : 𝓞K) : K).re
 
+/-- In the `d % 4 ≠ 1` branch, the determinant relative to the transported
+integral basis is the coordinate determinant. -/
+theorem OrientedBasis.det_ne_one_cast_eq_detCoord {I : Ideal 𝓞K}
+    (hd4 : d % 4 ≠ 1) (b : OrientedBasis I) :
+    (((ringOfIntegersBasisOfModFourNeOne hd4).det ((↑) ∘ b.basis) : ℤ) : ℚ) =
+      b.detCoord := by
+  rw [Basis.det_apply, Matrix.det_fin_two]
+  simp only [Basis.toMatrix_apply, Function.comp_apply]
+  push_cast
+  rw [ringOfIntegersBasisOfModFourNeOne_repr_zero hd4 (b.basis 0 : 𝓞K),
+    ringOfIntegersBasisOfModFourNeOne_repr_one hd4 (b.basis 1 : 𝓞K),
+    ringOfIntegersBasisOfModFourNeOne_repr_zero hd4 (b.basis 1 : 𝓞K),
+    ringOfIntegersBasisOfModFourNeOne_repr_one hd4 (b.basis 0 : 𝓞K)]
+  unfold OrientedBasis.detCoord
+  ring
+
 /-- The polarized discriminant of the two norm values is `4 * d` times the
 square of the coordinate determinant of the basis vectors. -/
 theorem normFormOfBasis_polarized_disc_eq_det_sq {I : Ideal 𝓞K} (b : OrientedBasis I) :
@@ -572,6 +610,13 @@ theorem OrientedBasis.detCoord_sq_eq_absNorm_sq_of_int_det {I : Ideal 𝓞K}
   rw [hz, hzabs] at hzsq
   exact hzsq
 
+/-- In the `d % 4 ≠ 1` branch, the coordinate determinant has square `N(I)^2`. -/
+theorem OrientedBasis.detCoord_sq_eq_absNorm_sq_of_mod_four_ne_one {I : Ideal 𝓞K}
+    (hd4 : d % 4 ≠ 1) (b : OrientedBasis I) :
+    b.detCoord ^ 2 = (Ideal.absNorm I : ℚ) ^ 2 :=
+  b.detCoord_sq_eq_absNorm_sq_of_int_det (b.det_ne_one_natAbs_eq_absNorm hd4)
+    (b.det_ne_one_cast_eq_detCoord hd4)
+
 /-- If an integral determinant has absolute value `N(I)` and casts to
 `2 * detCoord`, then the half-integral determinant square formula follows. -/
 theorem OrientedBasis.four_detCoord_sq_eq_absNorm_sq_of_int_det {I : Ideal 𝓞K}
@@ -614,6 +659,14 @@ theorem normFormOfBasis_hasDiscriminant_of_det_sq_mod_four_ne_one {I : Ideal �
   rw [fieldDiscriminant_of_mod_four_ne_one hd4]
   push_cast
   rw [hdet]
+
+/-- In the `d % 4 ≠ 1` branch, `normFormOfBasis` has discriminant
+`fieldDiscriminant d`. -/
+theorem normFormOfBasis_hasDiscriminant_mod_four_ne_one {I : Ideal 𝓞K}
+    (hI : I ≠ 0) (b : OrientedBasis I) (hd4 : d % 4 ≠ 1) :
+    (normFormOfBasis hI b).HasDiscriminant (fieldDiscriminant d) :=
+  normFormOfBasis_hasDiscriminant_of_det_sq_mod_four_ne_one hI b hd4
+    (b.detCoord_sq_eq_absNorm_sq_of_mod_four_ne_one hd4)
 
 /-- In the `d % 4 = 1` branch, the coordinate determinant is half the determinant
 relative to the integral basis, so the exact discriminant follows from
