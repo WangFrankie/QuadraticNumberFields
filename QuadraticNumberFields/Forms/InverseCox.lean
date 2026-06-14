@@ -836,6 +836,31 @@ noncomputable def primitivePositiveDefiniteNormFormOfBasis (hdneg : d < 0)
     normFormOfBasis_hasDiscriminant hI b, normFormOfBasis_isPrimitive hI b,
     normFormOfBasis_isPositiveDefinite hdneg hI b⟩
 
+/-- The form class attached to a nonzero integral ideal, using an arbitrary
+oriented basis of that ideal. -/
+noncomputable def formClassOfNonzeroIdeal (hdneg : d < 0) (I : (Ideal 𝓞K)⁰) :
+    FormClass (fieldDiscriminant d) := by
+  let hI : (I : Ideal 𝓞K) ≠ 0 := mem_nonZeroDivisors_iff_ne_zero.mp I.2
+  let b : OrientedBasis (I : Ideal 𝓞K) := orientedBasisOfNeZero (I : Ideal 𝓞K) hI
+  exact Quotient.mk (primitivePositiveDefiniteFormSetoid (fieldDiscriminant d))
+    (primitivePositiveDefiniteNormFormOfBasis hdneg hI b)
+
+/-- The inverse-direction map from ideal classes to form classes, choosing a
+nonzero integral ideal representative through `ClassGroup.mk0_surjective`. -/
+noncomputable def classGroupToFormClass (hdneg : d < 0) :
+    ClassGroup 𝓞K → FormClass (fieldDiscriminant d) := fun C =>
+  formClassOfNonzeroIdeal hdneg (Classical.choose (ClassGroup.mk0_surjective C))
+
+/-- The chosen inverse map is represented by a nonzero integral ideal in the
+given ideal class. -/
+theorem exists_mk0_eq_formClassOfNonzeroIdeal (hdneg : d < 0)
+    (C : ClassGroup 𝓞K) :
+    ∃ I : (Ideal 𝓞K)⁰,
+      ClassGroup.mk0 I = C ∧ formClassOfNonzeroIdeal hdneg I = classGroupToFormClass hdneg C := by
+  refine ⟨Classical.choose (ClassGroup.mk0_surjective C), ?_, ?_⟩
+  · exact Classical.choose_spec (ClassGroup.mk0_surjective C)
+  · rfl
+
 end InverseCox
 end BinaryQuadraticForm
 end QuadraticNumberFields
