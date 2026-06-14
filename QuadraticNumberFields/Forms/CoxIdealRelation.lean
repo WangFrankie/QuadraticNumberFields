@@ -365,16 +365,16 @@ noncomputable def coxIdealBasis {DD bb A B C u : ℤ} (hA : A ≠ 0)
       simpa [v0, v1] using hsum'
     have him : (g 0 • (A : QuadraticAlgebra ℤ DD bb) + g 1 • coxBeta DD bb u).im = 0 := by
       rw [hzero]; rfl
-    simp [coxBeta] at him
+    have him_eq : -g 1 = 0 := by
+      simpa [coxBeta] using him
     have hg1 : g 1 = 0 := by linarith
     have hre : (g 0 • (A : QuadraticAlgebra ℤ DD bb) + g 1 • coxBeta DD bb u).re = 0 := by
       rw [hzero]; rfl
     rw [hg1] at hre
-    simp at hre
+    have hmul : g 0 * A = 0 := by
+      simpa using hre
     have hg0 : g 0 = 0 := by
-      rcases hre with h | h
-      · exact h
-      · exact absurd h hA
+      exact Or.resolve_right (Int.eq_zero_or_eq_zero_of_mul_eq_zero hmul) hA
     intro i; fin_cases i <;> assumption
   · intro x _
     have h_span := mem_span_coxBeta_of_mem_coxIdeal hu hdisc x.2
@@ -383,7 +383,9 @@ noncomputable def coxIdealBasis {DD bb A B C u : ℤ} (hA : A ≠ 0)
     have h_val : (x : QuadraticAlgebra ℤ DD bb) =
         m • (A : QuadraticAlgebra ℤ DD bb) + n • coxBeta DD bb u := by
       rw [hz_eq, hn]
-    have h_sub_val : (m • v0 + n • v1 : coxIdeal DD bb A u).val = (x : QuadraticAlgebra ℤ DD bb) := by
+    have h_sub_val :
+        (m • v0 + n • v1 : coxIdeal DD bb A u).val =
+          (x : QuadraticAlgebra ℤ DD bb) := by
       simp [v0, v1, h_val]
     have h_eq : m • v0 + n • v1 = x := Subtype.ext h_sub_val
     rw [← h_eq]

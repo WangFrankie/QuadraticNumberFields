@@ -521,6 +521,22 @@ theorem OrientedBasis.det_eq_cast_eq_two_detCoord {I : Ideal 𝓞K}
   unfold OrientedBasis.detCoord
   ring
 
+/-- In the `d % 4 = 1` branch, the determinant relative to the transported
+integral basis is twice the coordinate determinant. -/
+theorem OrientedBasis.det_eq_one_cast_eq_two_detCoord {I : Ideal 𝓞K}
+    (hd4 : d % 4 = 1) (b : OrientedBasis I) :
+    (((RingOfIntegers.ringOfIntegersBasisOfModFourEqOne hd4).det ((↑) ∘ b.basis) : ℤ) : ℚ) =
+      2 * b.detCoord := by
+  rw [Basis.det_apply, Matrix.det_fin_two]
+  simp only [Basis.toMatrix_apply, Function.comp_apply]
+  push_cast
+  rw [RingOfIntegers.ringOfIntegersBasisOfModFourEqOne_repr_zero hd4 (b.basis 0 : 𝓞K),
+    RingOfIntegers.ringOfIntegersBasisOfModFourEqOne_repr_one hd4 (b.basis 1 : 𝓞K),
+    RingOfIntegers.ringOfIntegersBasisOfModFourEqOne_repr_zero hd4 (b.basis 1 : 𝓞K),
+    RingOfIntegers.ringOfIntegersBasisOfModFourEqOne_repr_one hd4 (b.basis 0 : 𝓞K)]
+  unfold OrientedBasis.detCoord
+  ring
+
 /-- The polarized discriminant of the two norm values is `4 * d` times the
 square of the coordinate determinant of the basis vectors. -/
 theorem normFormOfBasis_polarized_disc_eq_det_sq {I : Ideal 𝓞K} (b : OrientedBasis I) :

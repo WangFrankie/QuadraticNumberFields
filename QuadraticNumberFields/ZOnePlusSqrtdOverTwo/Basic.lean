@@ -115,6 +115,36 @@ def toQsqrtdHom (d : ℤ) : ZOnePlusSqrtdOverTwo d →+* Qsqrtd (qParam d) where
 @[simp] theorem toQsqrtdHom_apply (d : ℤ) (z : ZOnePlusSqrtdOverTwo d) :
     toQsqrtdHom d z = toQsqrtdFun d z := rfl
 
+@[simp]
+theorem toQsqrtdFun_re (d : ℤ) (z : ZOnePlusSqrtdOverTwo d) :
+    (toQsqrtdFun d z).re = (z.re : ℚ) + (z.im : ℚ) / 2 :=
+  rfl
+
+@[simp]
+theorem toQsqrtdFun_im (d : ℤ) (z : ZOnePlusSqrtdOverTwo d) :
+    (toQsqrtdFun d z).im = (z.im : ℚ) / 2 :=
+  rfl
+
+@[simp]
+theorem toQsqrtdHom_re (d : ℤ) (z : ZOnePlusSqrtdOverTwo d) :
+    (toQsqrtdHom d z).re = (z.re : ℚ) + (z.im : ℚ) / 2 :=
+  rfl
+
+@[simp]
+theorem toQsqrtdHom_im (d : ℤ) (z : ZOnePlusSqrtdOverTwo d) :
+    (toQsqrtdHom d z).im = (z.im : ℚ) / 2 :=
+  rfl
+
+@[simp]
+theorem toQsqrtdHom_mk_re (d x y : ℤ) :
+    (toQsqrtdHom d (⟨x, y⟩ : ZOnePlusSqrtdOverTwo d)).re = (x : ℚ) + (y : ℚ) / 2 :=
+  rfl
+
+@[simp]
+theorem toQsqrtdHom_mk_im (d x y : ℤ) :
+    (toQsqrtdHom d (⟨x, y⟩ : ZOnePlusSqrtdOverTwo d)).im = (y : ℚ) / 2 :=
+  rfl
+
 /-- The canonical map `toQsqrtdHom` is injective. -/
 theorem toQsqrtdHom_injective (d : ℤ) : Function.Injective (toQsqrtdHom d) := by
   intro x y hxy

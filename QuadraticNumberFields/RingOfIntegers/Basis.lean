@@ -139,6 +139,31 @@ theorem ringOfIntegersBasisOfEq_repr_one (k : ℤ) (hk : d = 1 + 4 * k) (x : �
     2 * (x : Qsqrtd (((1 + 4 * k : ℤ) : ℚ))).im
   simpa [QuadraticAlgebra.basis] using hcoord
 
+/-- In the `d % 4 = 1` branch, the first coordinate in the transported integral
+basis is `re - im` in `Qsqrtd`. -/
+theorem ringOfIntegersBasisOfModFourEqOne_repr_zero (hd4 : d % 4 = 1) (x : 𝓞K) :
+    ((ringOfIntegersBasisOfModFourEqOne hd4).repr x 0 : ℚ) = (x : K).re - (x : K).im := by
+  let e := RingOfIntegers.ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one d hd4
+  have hre := ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one_re d hd4 x
+  have him := ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one_im d hd4 x
+  have hcoord : ((e x).re : ℚ) = (x : K).re - (x : K).im := by
+    dsimp [e] at hre him
+    nlinarith
+  change ((e x).re : ℚ) = (x : K).re - (x : K).im
+  exact hcoord
+
+/-- In the `d % 4 = 1` branch, the second coordinate in the transported integral
+basis is `2 * im` in `Qsqrtd`. -/
+theorem ringOfIntegersBasisOfModFourEqOne_repr_one (hd4 : d % 4 = 1) (x : 𝓞K) :
+    ((ringOfIntegersBasisOfModFourEqOne hd4).repr x 1 : ℚ) = 2 * (x : K).im := by
+  let e := RingOfIntegers.ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one d hd4
+  have him := ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one_im d hd4 x
+  have hcoord : ((e x).im : ℚ) = 2 * (x : K).im := by
+    dsimp [e] at him
+    nlinarith
+  change ((e x).im : ℚ) = 2 * (x : K).im
+  exact hcoord
+
 end Repr
 
 end QuadraticNumberFields.RingOfIntegers

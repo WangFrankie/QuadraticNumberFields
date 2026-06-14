@@ -23,20 +23,12 @@ equivalence belongs here rather than in `Forms.Bridge`.
 ## Status
 
 The scaffold lemmas in the `CoxEquivalence` section reduce the equivalence to
-four branch hypotheses (two for `d % 4 ≠ 1`, two for `d % 4 = 1`).
+representative-level left and right inverse laws.  The `CoxLeftInverse` and
+`CoxLeftInverseEqOne` sections prove the two forward-then-inverse branch laws.
 
-The `CoxLeftInverse` section contains the core algebraic work for the
-`d % 4 ≠ 1` branch:
-
-- `mem_span_coxBetaZ_of_mem_ideal` — spanning lemma (the Cox ideal in Zsqrtd d
-  is ℤ-spanned by {a, (b/2)-√d})
-- `coxIdealBasis` — ℤ-basis of the Cox ideal in Zsqrtd d
-- `coxIdealBasisOK` — transported to 𝓞K via Submodule.equivMapOfInjective
-- Main theorem steps 1-3 — chained through descent-core lemmas
-
-Remaining (step 4): coordinate lemmas for the transported basis elements,
-orientation (imPartRatio = 2a > 0 via imPartRatio_eq_im), and norm form
-equality (three coefficient comparison via the ring isomorphism).
+The full assembled Cox equivalence still needs the two right-inverse branch
+laws, which identify the Cox ideal class of a norm form attached to an oriented
+ideal basis with the original ideal class.
 -/
 
 open scoped NumberField nonZeroDivisors
@@ -262,20 +254,26 @@ theorem mem_span_coxBetaZ_of_mem_ideal {d a b c : ℤ} (hb : Even b)
       (⟨v₁, v₂⟩ : Zsqrtd d) * (⟨-b / 2, 1⟩ : Zsqrtd d) := by
     ext
     · -- real part
-      simp [m, n, coxBetaZ_re, coxBetaZ_im]
+      simp only [m, n, zsmul_eq_mul, QuadraticAlgebra.re_add, QuadraticAlgebra.re_mul,
+        QuadraticAlgebra.re_intCast, Int.cast_eq, QuadraticAlgebra.im_intCast, mul_zero,
+        add_zero, coxBetaZ_re, coxBetaZ_im, Int.reduceNeg, mul_neg, mul_one, neg_zero,
+        QuadraticAlgebra.mk_mul_mk, zero_mul]
       rw [hk']
       have hneg : (-b : ℤ) / 2 = -k := by
         rw [show (-b : ℤ) / 2 = -(b / 2) by omega, hk']
       rw [hneg]
       calc
-        (u₁ + u₂ * k - v₂ * c) * a + (-(u₂ * a) - v₁ + v₂ * k) * k
+        (u₁ + u₂ * k - v₂ * c) * a + (-u₂ * a - v₁ + v₂ * k) * k
             = u₁ * a - v₁ * k + v₂ * (k * k - c * a) := by ring
         _ = u₁ * a - v₁ * k + v₂ * (k ^ 2 - a * c) := by
           rw [mul_comm c a]; ring
         _ = u₁ * a - v₁ * k + v₂ * d := by rw [h_ac]; ring
         _ = u₁ * a + (v₁ * (-k) + d * v₂) := by ring
     · -- imaginary part
-      simp [m, n, coxBetaZ_re, coxBetaZ_im]
+      simp only [m, n, zsmul_eq_mul, QuadraticAlgebra.im_add, QuadraticAlgebra.im_mul,
+        QuadraticAlgebra.re_intCast, Int.cast_eq, QuadraticAlgebra.im_intCast, mul_zero,
+        zero_mul, add_zero, coxBetaZ_im, Int.reduceNeg, mul_neg, mul_one, coxBetaZ_re,
+        neg_zero, zero_add, QuadraticAlgebra.mk_mul_mk]
       have hneg' : v₂ * ((-b : ℤ) / 2) = -(v₂ * k) := by
         rw [show (-b : ℤ) / 2 = -(b / 2) by omega, hk']
         ring
@@ -308,14 +306,15 @@ noncomputable def coxIdealBasis {d a b c : ℤ} (ha : a ≠ 0) (hb : Even b)
       have hsum' := congrArg Subtype.val hsum
       simpa [v0, v1] using hsum'
     have him : (g 0 • ((a : Zsqrtd d)) + g 1 • coxBetaZ d b).im = 0 := by rw [hzero]; rfl
-    simp [coxBetaZ_re, coxBetaZ_im] at him
+    have him_eq : -g 1 = 0 := by
+      simpa [coxBetaZ_re, coxBetaZ_im] using him
     have hg1 : g 1 = 0 := by linarith
     have hre : (g 0 • ((a : Zsqrtd d)) + g 1 • coxBetaZ d b).re = 0 := by rw [hzero]; rfl
-    rw [hg1] at hre; simp at hre
+    rw [hg1] at hre
+    have hmul : g 0 * a = 0 := by
+      simpa using hre
     have hg0 : g 0 = 0 := by
-      rcases hre with (h | h)
-      · exact h
-      · exact absurd h ha
+      exact Or.resolve_right (Int.eq_zero_or_eq_zero_of_mul_eq_zero hmul) ha
     intro i; fin_cases i <;> assumption
   · -- Spanning (delegated to the refactored local lemma)
     intro x hx
@@ -505,7 +504,8 @@ theorem classGroupToFormClass_idealClassOfForm_leftInverse_of_mod_four_ne_one
     exact formClassOfNonzeroIdeal_eq_of_mk0_eq hdneg J I hJ_mk0
   rw [h_class_eq]
   -- Step 3: formClassOfNonzeroIdeal hdneg I = ⟦primitivePositiveDefiniteNormFormOfBasis ... b⟧
-  rw [formClassOfNonzeroIdeal_eq_mk hdneg I (b := orientedBasisOfNeZero (I : Ideal 𝓞K) hI_ne_zero)]
+  rw [formClassOfNonzeroIdeal_eq_mk hdneg I
+    (b := orientedBasisOfNeZero (I : Ideal 𝓞K) hI_ne_zero)]
   -- Step 4: ⟦normFormOfBasis hI b⟧ = ⟦Q⟧
   rcases coxIdealBasisOK_K_re_im hd4 hdneg Q with ⟨h0_re, h0_im, h1_re, h1_im⟩
   let b_cox := coxIdealBasisOK hd4 hdneg Q
@@ -710,6 +710,25 @@ noncomputable def coxIdealBasisOKEqOne (hd4 : d % 4 = 1) (_hdneg : d < 0)
   let b_I_ℤ : Basis (Fin 2) ℤ I_ℤ := b_J_ℤ.map f_final
   exact b_I_ℤ.map id_tgt
 
+/-- The first Cox basis element in the `d % 4 = 1` branch is the transported scalar `a`. -/
+theorem coxIdealBasisOKEqOne_val_0 (hd4 : d % 4 = 1) (hdneg : d < 0)
+    (Q : PrimitivePositiveDefiniteForm (fieldDiscriminant d)) :
+    ((coxIdealBasisOKEqOne hd4 hdneg Q) 0 : 𝓞K) =
+    (RingOfIntegers.ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one d hd4).symm
+      (Q.1.a : ZOnePlusSqrtdOverTwo (d / 4)) := by
+  dsimp [coxIdealBasisOKEqOne]
+  simp [CoxIdealRelation.coxIdealBasis, Basis.coe_mk, toRingOfIntegersAlgEquivEqOne]
+
+/-- The second Cox basis element in the `d % 4 = 1` branch is the transported
+generic Cox beta. -/
+theorem coxIdealBasisOKEqOne_val_1 (hd4 : d % 4 = 1) (hdneg : d < 0)
+    (Q : PrimitivePositiveDefiniteForm (fieldDiscriminant d)) :
+    ((coxIdealBasisOKEqOne hd4 hdneg Q) 1 : 𝓞K) =
+    (RingOfIntegers.ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one d hd4).symm
+      (CoxIdealRelation.coxBeta (d / 4) 1 ((-1 + -Q.1.b) / 2)) := by
+  dsimp [coxIdealBasisOKEqOne]
+  simp [CoxIdealRelation.coxIdealBasis, Basis.coe_mk, toRingOfIntegersAlgEquivEqOne]
+
 /-- The K-coordinates of the transported Cox basis elements (`d % 4 = 1` branch). -/
 theorem coxIdealBasisOKEqOne_K_re_im (hd4 : d % 4 = 1) (hdneg : d < 0)
     (Q : PrimitivePositiveDefiniteForm (fieldDiscriminant d)) :
@@ -717,7 +736,53 @@ theorem coxIdealBasisOKEqOne_K_re_im (hd4 : d % 4 = 1) (hdneg : d < 0)
     (((coxIdealBasisOKEqOne hd4 hdneg Q) 0 : 𝓞K) : K).im = 0 ∧
     (((coxIdealBasisOKEqOne hd4 hdneg Q) 1 : 𝓞K) : K).re = (Q.1.b / 2 : ℚ) ∧
     (((coxIdealBasisOKEqOne hd4 hdneg Q) 1 : 𝓞K) : K).im = (-(1 : ℚ) / 2) := by
-  sorry
+  let e := RingOfIntegers.ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one d hd4
+  let x0 : 𝓞K := (coxIdealBasisOKEqOne hd4 hdneg Q) 0
+  let x1 : 𝓞K := (coxIdealBasisOKEqOne hd4 hdneg Q) 1
+  have hx0 := coxIdealBasisOKEqOne_val_0 hd4 hdneg Q
+  have hx1 := coxIdealBasisOKEqOne_val_1 hd4 hdneg Q
+  have hex0 : e x0 = (Q.1.a : ZOnePlusSqrtdOverTwo (d / 4)) := by
+    dsimp [x0] at hx0 ⊢
+    rw [hx0, RingEquiv.apply_symm_apply]
+  have hex1 : e x1 = CoxIdealRelation.coxBeta (d / 4) 1 ((-1 + -Q.1.b) / 2) := by
+    dsimp [x1] at hx1 ⊢
+    rw [hx1, RingEquiv.apply_symm_apply]
+  have h0_re_eq :=
+    RingOfIntegers.ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one_re
+      d hd4 x0
+  have h0_im_eq :=
+    RingOfIntegers.ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one_im
+      d hd4 x0
+  have h1_re_eq :=
+    RingOfIntegers.ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one_re
+      d hd4 x1
+  have h1_im_eq :=
+    RingOfIntegers.ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one_im
+      d hd4 x1
+  dsimp at h0_re_eq h0_im_eq h1_re_eq h1_im_eq
+  rw [hex0] at h0_re_eq h0_im_eq
+  rw [hex1] at h1_re_eq h1_im_eq
+  have h0_re : (x0 : K).re = (Q.1.a : ℚ) := by
+    simpa [x0] using h0_re_eq.symm
+  have h0_im : (x0 : K).im = 0 := by
+    simpa [x0] using h0_im_eq.symm
+  have h1_im : (x1 : K).im = (-(1 : ℚ) / 2) := by
+    simpa [x1, CoxIdealRelation.coxBeta] using h1_im_eq.symm
+  have hodd : Odd Q.1.b :=
+    odd_b_of_hasDiscriminant_fieldDiscriminant_of_mod_four_eq_one hd4 Q.2.1
+  obtain ⟨k, hk⟩ := hodd
+  have hdiv : ((-1 + -Q.1.b) / 2 : ℤ) = -1 - k := by
+    rw [hk]
+    omega
+  have h1_re : (x1 : K).re = (Q.1.b / 2 : ℚ) := by
+    rw [← h1_re_eq]
+    simp only [CoxIdealRelation.coxBeta_re, CoxIdealRelation.coxBeta_im,
+      Int.cast_neg, Int.cast_one]
+    rw [hdiv, hk]
+    norm_num
+    ring
+  exact ⟨by simpa [x0] using h0_re, by simpa [x0] using h0_im,
+    by simpa [x1] using h1_re, by simpa [x1] using h1_im⟩
 
 /-- Left-inverse law for the `d % 4 = 1` branch. -/
 theorem classGroupToFormClass_idealClassOfForm_leftInverse_of_mod_four_eq_one
@@ -726,7 +791,106 @@ theorem classGroupToFormClass_idealClassOfForm_leftInverse_of_mod_four_eq_one
     classGroupToFormClass hdneg
       (idealClassOfForm_of_mod_four_eq_one d hd4 Q) =
       Quotient.mk (primitivePositiveDefiniteFormSetoid _) Q := by
-  sorry
+  let I : (Ideal 𝓞K)⁰ := ⟨idealOfForm_of_mod_four_eq_one d hd4 Q,
+    mem_nonZeroDivisors_iff_ne_zero.mpr (idealOfForm_of_mod_four_eq_one_ne_zero d hd4 Q)⟩
+  have hI_ne_zero : (I : Ideal 𝓞K) ≠ 0 := mem_nonZeroDivisors_iff_ne_zero.mp I.2
+  have h_idealClass : idealClassOfForm_of_mod_four_eq_one d hd4 Q = ClassGroup.mk0 I := rfl
+  rw [h_idealClass]
+  have h_class_eq : classGroupToFormClass hdneg (ClassGroup.mk0 I) =
+      formClassOfNonzeroIdeal hdneg I := by
+    dsimp [classGroupToFormClass]
+    let J := Classical.choose (ClassGroup.mk0_surjective (ClassGroup.mk0 I))
+    have hJ_mk0 : ClassGroup.mk0 J = ClassGroup.mk0 I :=
+      Classical.choose_spec (ClassGroup.mk0_surjective (ClassGroup.mk0 I))
+    exact formClassOfNonzeroIdeal_eq_of_mk0_eq hdneg J I hJ_mk0
+  rw [h_class_eq]
+  rw [formClassOfNonzeroIdeal_eq_mk hdneg I
+    (b := orientedBasisOfNeZero (I : Ideal 𝓞K) hI_ne_zero)]
+  rcases coxIdealBasisOKEqOne_K_re_im hd4 hdneg Q with ⟨h0_re, h0_im, h1_re, h1_im⟩
+  let b_cox := coxIdealBasisOKEqOne hd4 hdneg Q
+  set α := ((b_cox 0 : 𝓞K) : K) with hα
+  set β := ((b_cox 1 : 𝓞K) : K) with hβ
+  have h_wedge_im : (α * star β - β * star α).im = (Q.1.a : ℚ) := by
+    simp [α, β, QuadraticAlgebra.im_sub, QuadraticAlgebra.im_mul,
+      h0_re, h0_im, h1_re, h1_im, QuadraticAlgebra.re_star, QuadraticAlgebra.im_star]
+    ring
+  have ha_pos : 0 < (Q.1.a : ℚ) := by exact_mod_cast Q.2.2.2.1
+  have hpos : imPartRatio (d := d) (α * star β - β * star α) > 0 := by
+    rw [imPartRatio_eq_im, h_wedge_im]
+    exact ha_pos
+  let b_oriented : OrientedBasis (I : Ideal 𝓞K) :=
+    { basis := b_cox, oriented := hpos }
+  have h_normform_eq : normFormOfBasis hI_ne_zero b_oriented = Q.1 := by
+    have hb0 : ((b_oriented.basis 0 : 𝓞K) : K) = α := hα.symm
+    have hb1 : ((b_oriented.basis 1 : 𝓞K) : K) = β := hβ.symm
+    have ha_pos_int : 0 < Q.1.a := Q.2.2.2.1
+    have hane : Q.1.a ≠ 0 := ne_of_gt ha_pos_int
+    have hdetCoord : b_oriented.detCoord = -(Q.1.a : ℚ) / 2 := by
+      unfold OrientedBasis.detCoord
+      rw [hb0, hb1, h0_re, h0_im, h1_re, h1_im]
+      ring
+    have hz_eq : ((RingOfIntegers.ringOfIntegersBasisOfModFourEqOne hd4).det
+        ((↑) ∘ b_oriented.basis) : ℤ) = -Q.1.a := by
+      have hz_cast : (((RingOfIntegers.ringOfIntegersBasisOfModFourEqOne hd4).det
+          ((↑) ∘ b_oriented.basis) : ℤ) : ℚ) = -(Q.1.a : ℚ) := by
+        rw [b_oriented.det_eq_one_cast_eq_two_detCoord hd4, hdetCoord]
+        ring
+      exact_mod_cast hz_cast
+    have hN_eq : (Ideal.absNorm (I : Ideal 𝓞K) : ℤ) = Q.1.a := by
+      have hz_abs := b_oriented.det_eq_one_natAbs_eq_absNorm hd4
+      rw [hz_eq] at hz_abs
+      simp only [Int.natAbs_neg] at hz_abs
+      omega
+    have hdiscQ : (Q.1.b : ℚ) ^ 2 - 4 * (Q.1.a : ℚ) * (Q.1.c : ℚ) = (d : ℚ) := by
+      have hz : Q.1.disc = d :=
+        calc Q.1.disc = fieldDiscriminant d := Q.2.1
+          _ = d := fieldDiscriminant_of_mod_four_eq_one hd4
+      unfold BinaryQuadraticForm.disc at hz
+      exact_mod_cast hz
+    have hnorm0 : Algebra.norm ℤ (b_oriented.basis 0 : 𝓞K) = Q.1.a ^ 2 := by
+      have h : (Algebra.norm ℤ (b_oriented.basis 0 : 𝓞K) : ℚ) = (Q.1.a : ℚ) ^ 2 := by
+        rw [fieldNorm_int_eq, hb0, h0_re, h0_im]
+        ring
+      exact_mod_cast h
+    have hnorm1 : Algebra.norm ℤ (b_oriented.basis 1 : 𝓞K) = Q.1.a * Q.1.c := by
+      have h : (Algebra.norm ℤ (b_oriented.basis 1 : 𝓞K) : ℚ) =
+          (Q.1.a : ℚ) * (Q.1.c : ℚ) := by
+        rw [fieldNorm_int_eq, hb1, h1_re, h1_im]
+        linear_combination (1 / 4 : ℚ) * hdiscQ
+      exact_mod_cast h
+    have hnormsum :
+        Algebra.norm ℤ ((b_oriented.basis 0 : 𝓞K) + (b_oriented.basis 1 : 𝓞K)) =
+          Q.1.a ^ 2 + Q.1.a * Q.1.b + Q.1.a * Q.1.c := by
+      have hsum_coe :
+          (((b_oriented.basis 0 : 𝓞K) + (b_oriented.basis 1 : 𝓞K) : 𝓞K) : K) =
+            α + β := by
+        have hpc :
+            (((b_oriented.basis 0 : 𝓞K) + (b_oriented.basis 1 : 𝓞K) : 𝓞K) : K) =
+              ((b_oriented.basis 0 : 𝓞K) : K) + ((b_oriented.basis 1 : 𝓞K) : K) := by
+          push_cast
+          ring
+        rw [hpc, hb0, hb1]
+      have h :
+          (Algebra.norm ℤ
+            ((b_oriented.basis 0 : 𝓞K) + (b_oriented.basis 1 : 𝓞K)) : ℚ) =
+            (Q.1.a : ℚ) ^ 2 +
+              (Q.1.a : ℚ) * (Q.1.b : ℚ) + (Q.1.a : ℚ) * (Q.1.c : ℚ) := by
+        rw [fieldNorm_int_eq, hsum_coe]
+        simp only [QuadraticAlgebra.re_add, QuadraticAlgebra.im_add,
+          h0_re, h0_im, h1_re, h1_im]
+        linear_combination (1 / 4 : ℚ) * hdiscQ
+      exact_mod_cast h
+    exact normFormOfBasis_eq_of_norms hI_ne_zero b_oriented hane hN_eq hnorm0 hnorm1 hnormsum
+  have h_equiv : (normFormOfBasis hI_ne_zero
+      (orientedBasisOfNeZero (I : Ideal 𝓞K) hI_ne_zero)).ProperEquivalent
+      (normFormOfBasis hI_ne_zero b_oriented) :=
+    (normFormOfBasis_properEquivalent hI_ne_zero _ _).symm
+  have h_target : (normFormOfBasis hI_ne_zero
+      (orientedBasisOfNeZero (I : Ideal 𝓞K) hI_ne_zero)).ProperEquivalent Q.1 :=
+    h_equiv.trans (by rw [h_normform_eq]; exact BinaryQuadraticForm.ProperEquivalent.refl Q.1)
+  dsimp [primitivePositiveDefiniteNormFormOfBasis]
+  apply Quotient.sound
+  simpa using h_target
 
 end CoxLeftInverseEqOne
 end BinaryQuadraticForm
