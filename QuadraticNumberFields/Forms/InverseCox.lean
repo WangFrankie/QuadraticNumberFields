@@ -822,6 +822,16 @@ theorem normFormOfBasis_isPositiveDefinite (hdneg : d < 0) {I : Ideal 𝓞K} (hI
     (b : OrientedBasis I) : (normFormOfBasis hI b).IsPositiveDefinite :=
   ⟨normFormOfBasis_a_pos hdneg hI b, normFormOfBasis_disc_neg hdneg hI b⟩
 
+/-- The primitive positive definite form attached to an oriented ideal basis,
+assuming the remaining primitivity input. -/
+noncomputable def primitivePositiveDefiniteNormFormOfBasis (hdneg : d < 0)
+    {I : Ideal 𝓞K} (hI : I ≠ 0) (b : OrientedBasis I)
+    (hprim : (normFormOfBasis hI b).IsPrimitive) :
+    PrimitivePositiveDefiniteForm (fieldDiscriminant d) :=
+  ⟨normFormOfBasis hI b,
+    normFormOfBasis_hasDiscriminant hI b, hprim,
+    normFormOfBasis_isPositiveDefinite hdneg hI b⟩
+
 end InverseCox
 end BinaryQuadraticForm
 end QuadraticNumberFields
