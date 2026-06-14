@@ -65,6 +65,22 @@ private def ringEquivToIntAlgEquiv {R S : Type*} [CommRing R] [Algebra ℤ R]
   AlgEquiv.ofRingEquiv (f := e) fun n => by
     simp only [eq_intCast, map_intCast]
 
+/-- The standard integral basis of `𝓞 (Qsqrtd d)` in the `d % 4 ≠ 1` branch,
+transported from the project-owned `ℤ[√d]` model. -/
+noncomputable def ringOfIntegersBasisOfModFourNeOne (hd4 : d % 4 ≠ 1) :
+    Basis (Fin 2) ℤ 𝓞K := by
+  let e := RingOfIntegers.ringOfIntegers_equiv_zsqrtd_of_mod_four_ne_one d hd4
+  let f : Zsqrtd d ≃ₐ[ℤ] 𝓞K := ringEquivToIntAlgEquiv e.symm
+  exact (QuadraticAlgebra.basis d 0).map f.toLinearEquiv
+
+/-- The standard integral basis of `𝓞 (Qsqrtd d)` in the `d % 4 = 1` branch,
+transported from the project-owned `ℤ[(1+√d)/2]` model. -/
+noncomputable def ringOfIntegersBasisOfModFourEqOne (hd4 : d % 4 = 1) :
+    Basis (Fin 2) ℤ 𝓞K := by
+  let e := RingOfIntegers.ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one d hd4
+  let f : ZOnePlusSqrtdOverTwo (d / 4) ≃ₐ[ℤ] 𝓞K := ringEquivToIntAlgEquiv e.symm
+  exact (QuadraticAlgebra.basis (d / 4) 1).map f.toLinearEquiv
+
 /-- The coefficient of the canonical generator `√d` in `x : K`, viewed as a
 rational number. This extracts the "imaginary part" of `x`. -/
 noncomputable def imPartRatio (x : K) : ℚ :=
@@ -112,6 +128,22 @@ structure OrientedBasis (I : Ideal 𝓞K) where
   basis : Basis (Fin 2) ℤ I
   oriented : imPartRatio (((basis 0 : 𝓞K) : K) * star ((basis 1 : 𝓞K) : K) -
     ((basis 1 : 𝓞K) : K) * star ((basis 0 : 𝓞K) : K)) > 0
+
+/-- The determinant of an oriented ideal basis relative to the `d % 4 ≠ 1`
+standard integral basis has absolute value `N(I)`. -/
+theorem OrientedBasis.det_ne_one_natAbs_eq_absNorm {I : Ideal 𝓞K}
+    (hd4 : d % 4 ≠ 1) (b : OrientedBasis I) :
+    ((ringOfIntegersBasisOfModFourNeOne hd4).det ((↑) ∘ b.basis)).natAbs =
+      Ideal.absNorm I :=
+  Ideal.natAbs_det_basis_change (ringOfIntegersBasisOfModFourNeOne hd4) I b.basis
+
+/-- The determinant of an oriented ideal basis relative to the `d % 4 = 1`
+standard integral basis has absolute value `N(I)`. -/
+theorem OrientedBasis.det_eq_one_natAbs_eq_absNorm {I : Ideal 𝓞K}
+    (hd4 : d % 4 = 1) (b : OrientedBasis I) :
+    ((ringOfIntegersBasisOfModFourEqOne hd4).det ((↑) ∘ b.basis)).natAbs =
+      Ideal.absNorm I :=
+  Ideal.natAbs_det_basis_change (ringOfIntegersBasisOfModFourEqOne hd4) I b.basis
 
 /-- Nonzero ideals of `𝓞K` are free `ℤ`-modules of rank 2, so they admit bases. -/
 noncomputable instance (I : Ideal 𝓞K) (_hI : I ≠ 0) : Module.Free ℤ I := by
