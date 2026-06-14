@@ -109,6 +109,25 @@ theorem eq_of_isReduced_of_mk_eq_mk {D : ℤ} {Q R : PrimitivePositiveDefiniteFo
 def fieldDiscriminant (d : ℤ) : ℤ :=
   if d % 4 = 1 then d else 4 * d
 
+/-- In the `d % 4 = 1` branch, the field discriminant is `d`. -/
+theorem fieldDiscriminant_of_mod_four_eq_one {d : ℤ} (hd4 : d % 4 = 1) :
+    fieldDiscriminant d = d := by
+  simp [fieldDiscriminant, hd4]
+
+/-- In the `d % 4 ≠ 1` branch, the field discriminant is `4 * d`. -/
+theorem fieldDiscriminant_of_mod_four_ne_one {d : ℤ} (hd4 : d % 4 ≠ 1) :
+    fieldDiscriminant d = 4 * d := by
+  simp [fieldDiscriminant, hd4]
+
+/-- Imaginary squarefree parameters have negative field discriminant. -/
+theorem fieldDiscriminant_neg {d : ℤ} (hdneg : d < 0) :
+    fieldDiscriminant d < 0 := by
+  by_cases hd4 : d % 4 = 1
+  · rw [fieldDiscriminant_of_mod_four_eq_one hd4]
+    exact hdneg
+  · rw [fieldDiscriminant_of_mod_four_ne_one hd4]
+    nlinarith
+
 /-- In the `d % 4 ≠ 1` Cox branch, a form of field discriminant has even
 middle coefficient. This justifies the `-b / 2` coordinate in the `Zsqrtd`
 ideal generator. -/
