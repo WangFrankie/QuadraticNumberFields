@@ -283,6 +283,34 @@ noncomputable def normFormOfBasis {I : Ideal 𝓞K} (hI : I ≠ 0) (b : Oriented
     b := (Algebra.norm ℤ (α + β) - Algebra.norm ℤ α - Algebra.norm ℤ β) / N
     c := Algebra.norm ℤ β / N }
 
+/-- The ideal norm divides the integral norm of each basis vector and of their
+sum, so every coefficient of `normFormOfBasis` is an exact integer quotient. -/
+theorem absNorm_dvd_norm_basis {I : Ideal 𝓞K} (b : OrientedBasis I) (i : Fin 2) :
+    (Ideal.absNorm I : ℤ) ∣ Algebra.norm ℤ (b.basis i : 𝓞K) :=
+  absNorm_dvd_norm_of_mem_ideal (b.basis i).2
+
+/-- `N(I)` times the leading coefficient of `normFormOfBasis` recovers `N(α)`. -/
+theorem normFormOfBasis_a_mul_absNorm {I : Ideal 𝓞K} (hI : I ≠ 0) (b : OrientedBasis I) :
+    (normFormOfBasis hI b).a * (Ideal.absNorm I : ℤ) = Algebra.norm ℤ (b.basis 0 : 𝓞K) :=
+  Int.ediv_mul_cancel (absNorm_dvd_norm_basis b 0)
+
+/-- `N(I)` times the last coefficient of `normFormOfBasis` recovers `N(β)`. -/
+theorem normFormOfBasis_c_mul_absNorm {I : Ideal 𝓞K} (hI : I ≠ 0) (b : OrientedBasis I) :
+    (normFormOfBasis hI b).c * (Ideal.absNorm I : ℤ) = Algebra.norm ℤ (b.basis 1 : 𝓞K) :=
+  Int.ediv_mul_cancel (absNorm_dvd_norm_basis b 1)
+
+/-- `N(I)` times the middle coefficient of `normFormOfBasis` recovers the
+polarized norm `N(α + β) - N(α) - N(β) = Tr(α · conj β)`. -/
+theorem normFormOfBasis_b_mul_absNorm {I : Ideal 𝓞K} (hI : I ≠ 0) (b : OrientedBasis I) :
+    (normFormOfBasis hI b).b * (Ideal.absNorm I : ℤ) =
+      Algebra.norm ℤ ((b.basis 0 : 𝓞K) + (b.basis 1 : 𝓞K)) -
+        Algebra.norm ℤ (b.basis 0 : 𝓞K) - Algebra.norm ℤ (b.basis 1 : 𝓞K) := by
+  refine Int.ediv_mul_cancel ?_
+  have hsum : ((b.basis 0 : 𝓞K) + (b.basis 1 : 𝓞K)) ∈ I :=
+    Ideal.add_mem I (b.basis 0).2 (b.basis 1).2
+  exact dvd_sub (dvd_sub (absNorm_dvd_norm_of_mem_ideal hsum) (absNorm_dvd_norm_basis b 0))
+    (absNorm_dvd_norm_basis b 1)
+
 end InverseCox
 end BinaryQuadraticForm
 end QuadraticNumberFields
