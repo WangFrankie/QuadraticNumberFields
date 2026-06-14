@@ -782,6 +782,15 @@ theorem normFormOfBasis_hasDiscriminant_mod_four_eq_one {I : Ideal 𝓞K}
   normFormOfBasis_hasDiscriminant_of_det_sq_mod_four_eq_one hI b hd4
     (b.four_detCoord_sq_eq_absNorm_sq_of_mod_four_eq_one hd4)
 
+/-- The norm form attached to an oriented ideal basis has discriminant equal to
+the field discriminant. -/
+theorem normFormOfBasis_hasDiscriminant {I : Ideal 𝓞K} (hI : I ≠ 0)
+    (b : OrientedBasis I) :
+    (normFormOfBasis hI b).HasDiscriminant (fieldDiscriminant d) := by
+  by_cases hd4 : d % 4 = 1
+  · exact normFormOfBasis_hasDiscriminant_mod_four_eq_one hI b hd4
+  · exact normFormOfBasis_hasDiscriminant_mod_four_ne_one hI b hd4
+
 /-- The discriminant of `normFormOfBasis` is negative when `d < 0`. The key
 identity is `disc(Q) · N(I)² = 4 d · (α.re·β.im − α.im·β.re)²`, whose sign is
 forced by `d < 0` and the orientation `α.re·β.im − α.im·β.re < 0`. -/
