@@ -219,11 +219,12 @@ def coxIdeal (d a b : ℤ) : Ideal (Zsqrtd d) :=
   Ideal.span ({((a : Zsqrtd d)), (⟨-b / 2, 1⟩ : Zsqrtd d)} : Set (Zsqrtd d))
 
 /-- Helper lemma: `coxBetaZ d b = -⟨-b/2, 1⟩` when `b` is even. -/
-theorem coxBetaZ_eq_neg_of_even {d b : ℤ} (hb : Even b) : coxBetaZ d b = -(⟨-b / 2, 1⟩ : Zsqrtd d) := by
+theorem coxBetaZ_eq_neg_of_even {d b : ℤ} (hb : Even b) :
+    coxBetaZ d b = -(⟨-b / 2, 1⟩ : Zsqrtd d) := by
   obtain ⟨k, hk⟩ := hb
   have hk' : b / 2 = k := by rw [hk]; omega
   ext
-  · simp [coxBetaZ_re, hk']
+  · simp only [coxBetaZ_re, hk']
     calc
       k = -(-k) := by ring
       _ = -((-b : ℤ) / 2) := by rw [hk]; omega
@@ -342,7 +343,7 @@ noncomputable def toRingOfIntegersAlgEquiv (hd4 : d % 4 ≠ 1) : Zsqrtd d ≃ₐ
     fun n => by simp
 
 /-- The Cox basis transported to `𝓞K` via the ring equivalence. -/
-noncomputable def coxIdealBasisOK (hd4 : d % 4 ≠ 1) (hdneg : d < 0)
+noncomputable def coxIdealBasisOK (hd4 : d % 4 ≠ 1) (_hdneg : d < 0)
     (Q : PrimitivePositiveDefiniteForm (fieldDiscriminant d)) :
     Basis (Fin 2) ℤ (idealOfForm_of_mod_four_ne_one d hd4 Q) := by
   let J := coxIdeal d Q.1.a Q.1.b
@@ -468,7 +469,7 @@ theorem coxIdealBasisOK_K_re_im (hd4 : d % 4 ≠ 1) (hdneg : d < 0)
   have hk_ℚ : (Q.1.b : ℚ) / 2 = (k : ℚ) := by
     rw [show Q.1.b = (2 * k : ℤ) by omega]
     push_cast; ring
-  simp [e_equiv, coxBetaZ_re, coxBetaZ_im, Zsqrtd.toQsqrtdHom, 
+  simp [e_equiv, coxBetaZ_re, coxBetaZ_im, Zsqrtd.toQsqrtdHom,
     RingEquiv.apply_symm_apply, hk_ℚ]
   omega
 theorem classGroupToFormClass_idealClassOfForm_leftInverse_of_mod_four_ne_one
@@ -615,7 +616,7 @@ noncomputable def toRingOfIntegersAlgEquivEqOne (hd4 : d % 4 = 1) :
   AlgEquiv.ofRingEquiv (f := e.symm) fun _ => by simp
 
 /-- The Cox basis transported to `𝓞K` via the `d % 4 = 1` ring equivalence. -/
-noncomputable def coxIdealBasisOKEqOne (hd4 : d % 4 = 1) (hdneg : d < 0)
+noncomputable def coxIdealBasisOKEqOne (hd4 : d % 4 = 1) (_hdneg : d < 0)
     (Q : PrimitivePositiveDefiniteForm (fieldDiscriminant d)) :
     Basis (Fin 2) ℤ (idealOfForm_of_mod_four_eq_one d hd4 Q) := by
   let e := RingOfIntegers.ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one d hd4
