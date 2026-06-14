@@ -159,46 +159,6 @@ theorem ringOfIntegersBasisOfEq_repr_one (k : ℤ) (hk : d = 1 + 4 * k) (x : �
     2 * (x : Qsqrtd (((1 + 4 * k : ℤ) : ℚ))).im
   simpa [QuadraticAlgebra.basis] using hcoord
 
-/-- The coefficient of the canonical generator `√d` in `x : K`, viewed as a
-rational number. This extracts the "imaginary part" of `x`. -/
-noncomputable def imPartRatio (x : K) : ℚ :=
-  (QuadraticAlgebra.basis (d : ℚ) 0).repr x (1 : Fin 2)
-
-omit [Fact (Squarefree d)] [Fact (d ≠ 1)] in
-/-- `imPartRatio` is exactly the `im` coordinate. -/
-theorem imPartRatio_eq_im (x : K) : imPartRatio x = x.im := by
-  simp [imPartRatio, QuadraticAlgebra.basis]
-
-omit [Fact (Squarefree d)] [Fact (d ≠ 1)] in
-/-- If `x : K` is negated by conjugation, then it is a rational multiple of `√d`,
-and that multiple is exactly `imPartRatio x`. -/
-theorem eq_imPartRatio_smul_sqrt_of_star_neg {x : K} (hx : star x = -x) :
-    x = (imPartRatio x : ℚ) • √dK := by
-  have hre : x.re = 0 := by
-    have hre_star : (star x).re = x.re := by
-      simp [QuadraticAlgebra.re_star]
-    have hre_neg : (-x).re = -x.re := by simp
-    rw [hx] at hre_star
-    rw [hre_neg] at hre_star
-    linarith
-  have him : (imPartRatio x : ℚ) = x.im := by
-    simp [imPartRatio, QuadraticAlgebra.basis]
-  simpa [hre, him] using (QuadraticAlgebra.mk_eta x).symm
-
-omit [Fact (Squarefree d)] [Fact (d ≠ 1)] in
-/-- If `x : K` is fixed by conjugation, then it is the rational scalar `x.re`,
-viewed in `K` via `x.re • (1 : K)`. This is the conjugation-fixed (real) analogue
-of `eq_imPartRatio_smul_sqrt_of_star_neg`. -/
-theorem eq_re_smul_one_of_star_self {x : K} (hx : star x = x) :
-    x = (x.re : ℚ) • (1 : K) := by
-  have him : x.im = 0 := by
-    have him_star : (star x).im = -x.im := by simp [QuadraticAlgebra.im_star]
-    rw [hx] at him_star
-    linarith
-  apply QuadraticAlgebra.ext
-  · simp [QuadraticAlgebra.re_one]
-  · simp [him, QuadraticAlgebra.im_one]
-
 /-- For a nonzero integral ideal `I` of `𝓞K`, an oriented `ℤ`-basis is a basis
 `(α, β)` whose orientation ratio `(α β' - α' β) / √d` is positive. This picks a
 proper-equivalence class of binary quadratic forms. -/

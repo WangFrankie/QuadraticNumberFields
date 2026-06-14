@@ -205,3 +205,43 @@ instance instFact_not_isSquare_ratCast_of_squarefree_ne_one
     Fact (¬ IsSquare ((d : ℤ) : ℚ)) :=
   ⟨not_isSquare_ratCast_of_squarefree_ne_one
     (d := d) (Fact.out : Squarefree d) (Fact.out : d ≠ 1)⟩
+
+/-! ### Coordinate lemmas
+
+The coefficient of the canonical generator `√d` in `x : Qsqrtd (d : ℚ)`, and
+companion lemmas for conjugation-fixed / conjugation-negated elements. -/
+
+variable {d : ℤ}
+
+/-- The coefficient of `√d` in `x : Qsqrtd (d : ℚ)`, extracted via the standard basis. -/
+noncomputable def imPartRatio (x : Qsqrtd (d : ℚ)) : ℚ :=
+  (QuadraticAlgebra.basis (d : ℚ) 0).repr x (1 : Fin 2)
+
+/-- `imPartRatio` is exactly the `im` coordinate. -/
+theorem imPartRatio_eq_im (x : Qsqrtd (d : ℚ)) : imPartRatio x = x.im := by
+  simp [imPartRatio, QuadraticAlgebra.basis]
+
+/-- If `x` is negated by conjugation, then it is a rational multiple of `√d`,
+and that multiple is exactly `imPartRatio x`. -/
+theorem eq_imPartRatio_smul_sqrt_of_star_neg {x : Qsqrtd (d : ℚ)} (hx : star x = -x) :
+    x = (imPartRatio x : ℚ) • (⟨0, 1⟩ : Qsqrtd (d : ℚ)) := by
+  have hre : x.re = 0 := by
+    have hre_star : (star x).re = x.re := by simp [QuadraticAlgebra.re_star]
+    have hre_neg : (-x).re = -x.re := by simp
+    rw [hx] at hre_star
+    rw [hre_neg] at hre_star
+    linarith
+  have him : (imPartRatio x : ℚ) = x.im := by simp [imPartRatio, QuadraticAlgebra.basis]
+  simpa [hre, him] using (QuadraticAlgebra.mk_eta x).symm
+
+/-- If `x` is fixed by conjugation, then it is the rational scalar `x.re`,
+viewed in `K` via `x.re • (1 : Qsqrtd (d : ℚ))`. -/
+theorem eq_re_smul_one_of_star_self {x : Qsqrtd (d : ℚ)} (hx : star x = x) :
+    x = (x.re : ℚ) • (1 : Qsqrtd (d : ℚ)) := by
+  have him : x.im = 0 := by
+    have him_star : (star x).im = -x.im := by simp [QuadraticAlgebra.im_star]
+    rw [hx] at him_star
+    linarith
+  apply QuadraticAlgebra.ext
+  · simp [QuadraticAlgebra.re_one]
+  · simp [him, QuadraticAlgebra.im_one]
