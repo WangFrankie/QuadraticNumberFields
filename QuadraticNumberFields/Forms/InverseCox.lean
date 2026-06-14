@@ -482,6 +482,22 @@ theorem normFormOfBasis_disc_mul_absNorm_sq {I : Ideal 𝓞K} (hI : I ≠ 0)
   rw [← hb, ← ha, ← hc]
   ring
 
+/-- The polarized discriminant of the two norm values is `4 * d` times the
+square of the coordinate determinant of the basis vectors. -/
+theorem normFormOfBasis_polarized_disc_eq_det_sq {I : Ideal 𝓞K} (b : OrientedBasis I) :
+    ((Algebra.norm ℤ ((b.basis 0 : 𝓞K) + (b.basis 1 : 𝓞K)) -
+        Algebra.norm ℤ (b.basis 0 : 𝓞K) - Algebra.norm ℤ (b.basis 1 : 𝓞K)) ^ 2 -
+        4 * Algebra.norm ℤ (b.basis 0 : 𝓞K) *
+          Algebra.norm ℤ (b.basis 1 : 𝓞K) : ℚ) =
+      4 * (d : ℚ) * (((b.basis 0 : 𝓞K) : K).re * ((b.basis 1 : 𝓞K) : K).im -
+        ((b.basis 0 : 𝓞K) : K).im * ((b.basis 1 : 𝓞K) : K).re) ^ 2 := by
+  have hcoe : (((b.basis 0 : 𝓞K) + (b.basis 1 : 𝓞K) : 𝓞K) : K) =
+      ((b.basis 0 : 𝓞K) : K) + ((b.basis 1 : 𝓞K) : K) := by
+    push_cast
+    ring
+  simp only [fieldNorm_int_eq, hcoe, QuadraticAlgebra.re_add, QuadraticAlgebra.im_add]
+  ring
+
 /-- The discriminant of `normFormOfBasis` is negative when `d < 0`. The key
 identity is `disc(Q) · N(I)² = 4 d · (α.re·β.im − α.im·β.re)²`, whose sign is
 forced by `d < 0` and the orientation `α.re·β.im − α.im·β.re < 0`. -/
@@ -506,17 +522,8 @@ theorem normFormOfBasis_disc_neg (hdneg : d < 0) {I : Ideal 𝓞K} (hI : I ≠ 0
   have hdet_sq_pos : 0 < (((b.basis 0 : 𝓞K) : K).re * ((b.basis 1 : 𝓞K) : K).im -
       ((b.basis 0 : 𝓞K) : K).im * ((b.basis 1 : 𝓞K) : K).re) ^ 2 := by
     rw [pow_two]; exact mul_pos_of_neg_of_neg hdet_neg hdet_neg
-  -- The image in `K` of the sum splits additively.
-  have hcoe : (((b.basis 0 : 𝓞K) + (b.basis 1 : 𝓞K) : 𝓞K) : K) =
-      ((b.basis 0 : 𝓞K) : K) + ((b.basis 1 : 𝓞K) : K) := by push_cast; ring
   -- Cast the polarized integer discriminant to `4 d · det²`.
-  have key : ((Algebra.norm ℤ ((b.basis 0 : 𝓞K) + (b.basis 1 : 𝓞K)) -
-        Algebra.norm ℤ (b.basis 0 : 𝓞K) - Algebra.norm ℤ (b.basis 1 : 𝓞K)) ^ 2 -
-        4 * Algebra.norm ℤ (b.basis 0 : 𝓞K) * Algebra.norm ℤ (b.basis 1 : 𝓞K) : ℚ) =
-      4 * (d : ℚ) * (((b.basis 0 : 𝓞K) : K).re * ((b.basis 1 : 𝓞K) : K).im -
-        ((b.basis 0 : 𝓞K) : K).im * ((b.basis 1 : 𝓞K) : K).re) ^ 2 := by
-    simp only [fieldNorm_int_eq, hcoe, QuadraticAlgebra.re_add, QuadraticAlgebra.im_add]
-    ring
+  have key := normFormOfBasis_polarized_disc_eq_det_sq b
   -- Relate the integer discriminant to the polarized form via `N(I)²`.
   have hdiscN := normFormOfBasis_disc_mul_absNorm_sq hI b
   -- The polarized integer discriminant is negative.
