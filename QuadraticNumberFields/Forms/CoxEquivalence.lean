@@ -25,11 +25,17 @@ The scaffold lemmas in the `CoxEquivalence` section reduce the equivalence to
 four branch hypotheses (two for `d % 4 ≠ 1`, two for `d % 4 = 1`).
 
 The `CoxLeftInverse` section contains the core algebraic work for the
-`d % 4 ≠ 1` branch: the spanning lemma `mem_span_coxBetaZ_of_mem_ideal` proves
-that the Cox ideal `(a, ⟨-b/2, 1⟩)` in `Zsqrtd d` is spanned as a ℤ-module by
-`{a, (b/2) - √d}`.  The left round-trip theorem is blocked on two issues:
-1. `Basis` type not accessible from this file's import chain
-2. The `b/2 = -((-b)/2)` identity for general integers (resolved for even `b`)
+`d % 4 ≠ 1` branch:
+
+- `mem_span_coxBetaZ_of_mem_ideal` — spanning lemma (the Cox ideal in Zsqrtd d
+  is ℤ-spanned by {a, (b/2)-√d})
+- `coxIdealBasis` — ℤ-basis of the Cox ideal in Zsqrtd d
+- `coxIdealBasisOK` — transported to 𝓞K via Submodule.equivMapOfInjective
+- Main theorem steps 1-3 — chained through descent-core lemmas
+
+Remaining (step 4): coordinate lemmas for the transported basis elements,
+orientation (imPartRatio = 2a > 0 via imPartRatio_eq_im), and norm form
+equality (three coefficient comparison via the ring isomorphism).
 -/
 
 open scoped NumberField nonZeroDivisors
