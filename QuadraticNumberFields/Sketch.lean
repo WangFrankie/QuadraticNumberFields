@@ -6,6 +6,7 @@ Authors: Frankie Wang
 import QuadraticNumberFields.ClassGroup.Divisibility
 import QuadraticNumberFields.ClassGroup.Families
 import QuadraticNumberFields.Forms.Bridge
+import QuadraticNumberFields.Forms.CoxEquivalence
 import QuadraticNumberFields.Forms.Enumeration
 import QuadraticNumberFields.Forms.InverseCox
 import QuadraticNumberFields.Forms.UpperHalfPlane
