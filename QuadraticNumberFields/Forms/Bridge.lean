@@ -765,5 +765,25 @@ theorem formClassToClassGroup_eq_of_mod_four_ne_one
     formClassToClassGroup d = formClassToClassGroup_of_mod_four_ne_one d hd4 := by
   simp [formClassToClassGroup, hd4]
 
+/-- On a form representative, the branch-independent Cox map computes to the
+explicit Cox ideal class in the `d % 4 ≠ 1` branch. -/
+theorem formClassToClassGroup_mk_eq_of_mod_four_ne_one
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd4 : d % 4 ≠ 1)
+    (Q : PrimitivePositiveDefiniteForm (fieldDiscriminant d)) :
+    formClassToClassGroup d (Quotient.mk (primitivePositiveDefiniteFormSetoid _) Q) =
+      idealClassOfForm_of_mod_four_ne_one d hd4 Q := by
+  rw [formClassToClassGroup_eq_of_mod_four_ne_one d hd4]
+  rfl
+
+/-- On a form representative, the branch-independent Cox map computes to the
+explicit Cox ideal class in the `d % 4 = 1` branch. -/
+theorem formClassToClassGroup_mk_eq_of_mod_four_eq_one
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd4 : d % 4 = 1)
+    (Q : PrimitivePositiveDefiniteForm (fieldDiscriminant d)) :
+    formClassToClassGroup d (Quotient.mk (primitivePositiveDefiniteFormSetoid _) Q) =
+      idealClassOfForm_of_mod_four_eq_one d hd4 Q := by
+  rw [formClassToClassGroup_eq_of_mod_four_eq_one d hd4]
+  rfl
+
 end BinaryQuadraticForm
 end QuadraticNumberFields
