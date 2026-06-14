@@ -70,10 +70,12 @@ rational number. This extracts the "imaginary part" of `x`. -/
 noncomputable def imPartRatio (x : K) : ℚ :=
   (QuadraticAlgebra.basis (d : ℚ) 0).repr x (1 : Fin 2)
 
+omit [Fact (Squarefree d)] [Fact (d ≠ 1)] in
 /-- `imPartRatio` is exactly the `im` coordinate. -/
 theorem imPartRatio_eq_im (x : K) : imPartRatio x = x.im := by
   simp [imPartRatio, QuadraticAlgebra.basis]
 
+omit [Fact (Squarefree d)] [Fact (d ≠ 1)] in
 /-- If `x : K` is negated by conjugation, then it is a rational multiple of `√d`,
 and that multiple is exactly `imPartRatio x`. -/
 theorem eq_imPartRatio_smul_sqrt_of_star_neg {x : K} (hx : star x = -x) :
@@ -89,6 +91,7 @@ theorem eq_imPartRatio_smul_sqrt_of_star_neg {x : K} (hx : star x = -x) :
     simp [imPartRatio, QuadraticAlgebra.basis]
   simpa [hre, him] using (QuadraticAlgebra.mk_eta x).symm
 
+omit [Fact (Squarefree d)] [Fact (d ≠ 1)] in
 /-- If `x : K` is fixed by conjugation, then it is the rational scalar `x.re`,
 viewed in `K` via `x.re • (1 : K)`. This is the conjugation-fixed (real) analogue
 of `eq_imPartRatio_smul_sqrt_of_star_neg`. -/
@@ -111,7 +114,7 @@ structure OrientedBasis (I : Ideal 𝓞K) where
     ((basis 1 : 𝓞K) : K) * star ((basis 0 : 𝓞K) : K)) > 0
 
 /-- Nonzero ideals of `𝓞K` are free `ℤ`-modules of rank 2, so they admit bases. -/
-noncomputable instance (I : Ideal 𝓞K) (hI : I ≠ 0) : Module.Free ℤ I := by
+noncomputable instance (I : Ideal 𝓞K) (_hI : I ≠ 0) : Module.Free ℤ I := by
   have hfin : Module.Finite ℤ I := inferInstance
   have htors : IsTorsionFree ℤ I := inferInstance
   exact Module.free_of_finite_type_torsion_free' (R := ℤ) (M := I)
@@ -279,7 +282,7 @@ theorem absNorm_dvd_fieldNorm_of_mem {I : Ideal 𝓞K} {x : 𝓞K} (hx : x ∈ I
 expressed through the polarization identity `Tr(α β̄) = N(α + β) − N(α) − N(β)`,
 which keeps every coefficient a difference of integer norms of elements of `𝓞K`
 and avoids needing a conjugation on `𝓞K`. -/
-noncomputable def normFormOfBasis {I : Ideal 𝓞K} (hI : I ≠ 0) (b : OrientedBasis I) :
+noncomputable def normFormOfBasis {I : Ideal 𝓞K} (_hI : I ≠ 0) (b : OrientedBasis I) :
     BinaryQuadraticForm :=
   let α := (b.basis 0 : 𝓞K)
   let β := (b.basis 1 : 𝓞K)
