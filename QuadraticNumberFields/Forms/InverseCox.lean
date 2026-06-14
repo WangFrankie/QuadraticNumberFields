@@ -374,6 +374,19 @@ theorem normFormOfBasis_eval_mul_absNorm {I : Ideal 𝓞K} (hI : I ≠ 0)
     ring
   exact_mod_cast hcast
 
+/-- The norm form evaluates to the exact integer quotient
+`N(xα + yβ) / N(I)`. -/
+theorem normFormOfBasis_eval_eq_norm_ediv_absNorm {I : Ideal 𝓞K} (hI : I ≠ 0)
+    (b : OrientedBasis I) (x y : ℤ) :
+    (normFormOfBasis hI b).eval x y =
+      Algebra.norm ℤ (x • (b.basis 0 : 𝓞K) + y • (b.basis 1 : 𝓞K)) /
+        (Ideal.absNorm I : ℤ) := by
+  have hN : (Ideal.absNorm I : ℤ) ≠ 0 := by
+    exact_mod_cast Ideal.absNorm_ne_zero_of_nonZeroDivisors
+      ⟨I, mem_nonZeroDivisors_iff_ne_zero.mpr hI⟩
+  rw [← normFormOfBasis_eval_mul_absNorm hI b x y]
+  exact (Int.mul_ediv_cancel ((normFormOfBasis hI b).eval x y) hN).symm
+
 /-- For an imaginary field (`d < 0`), the integral norm of a nonzero algebraic
 integer is strictly positive: `N(x) = re² + |d|·im² > 0`. -/
 theorem norm_int_pos (hdneg : d < 0) {x : 𝓞K} (hx : x ≠ 0) :
