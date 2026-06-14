@@ -517,17 +517,20 @@ theorem OrientedBasis.det_neg {I : Ideal 𝓞K} (b : OrientedBasis I) :
   rw [imPartRatio_eq_im, QuadraticAlgebra.im_sub, him0, him1] at ho
   nlinarith [ho]
 
+/-- The coordinate determinant of an oriented basis has positive square. -/
+theorem OrientedBasis.det_sq_pos {I : Ideal 𝓞K} (b : OrientedBasis I) :
+    0 < (((b.basis 0 : 𝓞K) : K).re * ((b.basis 1 : 𝓞K) : K).im -
+      ((b.basis 0 : 𝓞K) : K).im * ((b.basis 1 : 𝓞K) : K).re) ^ 2 := by
+  rw [pow_two]
+  exact mul_pos_of_neg_of_neg b.det_neg b.det_neg
+
 /-- The discriminant of `normFormOfBasis` is negative when `d < 0`. The key
 identity is `disc(Q) · N(I)² = 4 d · (α.re·β.im − α.im·β.re)²`, whose sign is
 forced by `d < 0` and the orientation `α.re·β.im − α.im·β.re < 0`. -/
 theorem normFormOfBasis_disc_neg (hdneg : d < 0) {I : Ideal 𝓞K} (hI : I ≠ 0)
     (b : OrientedBasis I) : (normFormOfBasis hI b).disc < 0 := by
   have hd' : (d : ℚ) < 0 := by exact_mod_cast hdneg
-  -- The orientation forces the coordinate determinant to be negative.
-  have hdet_neg := b.det_neg
-  have hdet_sq_pos : 0 < (((b.basis 0 : 𝓞K) : K).re * ((b.basis 1 : 𝓞K) : K).im -
-      ((b.basis 0 : 𝓞K) : K).im * ((b.basis 1 : 𝓞K) : K).re) ^ 2 := by
-    rw [pow_two]; exact mul_pos_of_neg_of_neg hdet_neg hdet_neg
+  have hdet_sq_pos := b.det_sq_pos
   -- Cast the polarized integer discriminant to `4 d · det²`.
   have key := normFormOfBasis_polarized_disc_eq_det_sq b
   -- Relate the integer discriminant to the polarized form via `N(I)²`.
