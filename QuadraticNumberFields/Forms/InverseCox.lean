@@ -120,7 +120,8 @@ noncomputable instance (I : Ideal 𝓞K) (_hI : I ≠ 0) : Module.Free ℤ I := 
   exact Module.free_of_finite_type_torsion_free' (R := ℤ) (M := I)
 
 /-- Every nonzero integral ideal admits an oriented `ℤ`-basis. -/
-noncomputable def idealFin2Basis' (I : Ideal 𝓞K) (hI : I ≠ 0) : Basis (Fin 2) ℤ (Submodule.restrictScalars ℤ I) := by
+noncomputable def idealFin2Basis' (I : Ideal 𝓞K) (hI : I ≠ 0) :
+    Basis (Fin 2) ℤ (Submodule.restrictScalars ℤ I) := by
   have hfinrank_OK : Module.finrank ℤ 𝓞K = 2 := by
     by_cases hd4 : d % 4 = 1
     · obtain ⟨k, hk⟩ := RingOfIntegers.exists_k_of_mod_four_eq_one hd4
@@ -140,7 +141,8 @@ noncomputable def idealFin2Basis' (I : Ideal 𝓞K) (hI : I ≠ 0) : Basis (Fin 
     apply (Submodule.finiteQuotient_iff (M := 𝓞K) (N := Submodule.restrictScalars ℤ I)).mp
     exact (Ideal.absNorm_ne_zero_iff (I : Ideal 𝓞K)).mp
       (Ideal.absNorm_ne_zero_of_nonZeroDivisors ⟨I, mem_nonZeroDivisors_iff_ne_zero.mpr hI⟩)
-  have hcard : Fintype.card (Module.Free.ChooseBasisIndex ℤ (Submodule.restrictScalars ℤ I)) = 2 := by
+  have hcard :
+      Fintype.card (Module.Free.ChooseBasisIndex ℤ (Submodule.restrictScalars ℤ I)) = 2 := by
     rw [← Module.finrank_eq_card_basis (Module.Free.chooseBasis ℤ (Submodule.restrictScalars ℤ I))]
     exact hfinrank
   exact (Module.Free.chooseBasis ℤ (Submodule.restrictScalars ℤ I)).reindex
@@ -327,6 +329,50 @@ theorem fieldNorm_int_eq (x : 𝓞K) :
     (Algebra.norm ℤ x : ℚ) = ((x : K).re) ^ 2 - (d : ℚ) * ((x : K).im) ^ 2 := by
   rw [Algebra.coe_norm_int, Qsqrtd.algebraNorm_ratAlgebra_eq_qsqrtdNorm,
     RingOfIntegers.TraceNorm.norm_eq_sqr_minus_d_sqr]
+
+/-- Evaluating `normFormOfBasis` at an integral linear combination of the
+oriented basis recovers the field norm after multiplying by the ideal norm. -/
+theorem normFormOfBasis_eval_mul_absNorm {I : Ideal 𝓞K} (hI : I ≠ 0)
+    (b : OrientedBasis I) (x y : ℤ) :
+    (normFormOfBasis hI b).eval x y * (Ideal.absNorm I : ℤ) =
+      Algebra.norm ℤ (x • (b.basis 0 : 𝓞K) + y • (b.basis 1 : 𝓞K)) := by
+  let α : 𝓞K := b.basis 0
+  let β : 𝓞K := b.basis 1
+  have ha := normFormOfBasis_a_mul_absNorm (d := d) hI b
+  have hb := normFormOfBasis_b_mul_absNorm (d := d) hI b
+  have hc := normFormOfBasis_c_mul_absNorm (d := d) hI b
+  have haQ :
+      ((normFormOfBasis hI b).a * (Ideal.absNorm I : ℤ) : ℚ) =
+        (Algebra.norm ℤ α : ℚ) := by
+    simpa [α] using congrArg (fun z : ℤ => (z : ℚ)) ha
+  have hbQ :
+      ((normFormOfBasis hI b).b * (Ideal.absNorm I : ℤ) : ℚ) =
+        (Algebra.norm ℤ (α + β) : ℚ) - Algebra.norm ℤ α - Algebra.norm ℤ β := by
+    simpa [α, β] using congrArg (fun z : ℤ => (z : ℚ)) hb
+  have hcQ :
+      ((normFormOfBasis hI b).c * (Ideal.absNorm I : ℤ) : ℚ) =
+        (Algebra.norm ℤ β : ℚ) := by
+    simpa [β] using congrArg (fun z : ℤ => (z : ℚ)) hc
+  have hnorm_quad :
+      (Algebra.norm ℤ (x • α + y • β) : ℚ) =
+        (x : ℚ) ^ 2 * (Algebra.norm ℤ α : ℚ) +
+          (x : ℚ) * (y : ℚ) *
+            ((Algebra.norm ℤ (α + β) : ℚ) - Algebra.norm ℤ α - Algebra.norm ℤ β) +
+          (y : ℚ) ^ 2 * (Algebra.norm ℤ β : ℚ) := by
+    simp only [fieldNorm_int_eq]
+    push_cast
+    simp only [QuadraticAlgebra.re_add, QuadraticAlgebra.im_add]
+    simp
+    ring
+  have hcast :
+      ((normFormOfBasis hI b).eval x y * (Ideal.absNorm I : ℤ) : ℚ) =
+        (Algebra.norm ℤ (x • (b.basis 0 : 𝓞K) + y • (b.basis 1 : 𝓞K)) : ℚ) := by
+    rw [hnorm_quad]
+    simp only [α, β]
+    rw [← hbQ, ← haQ, ← hcQ]
+    simp [BinaryQuadraticForm.eval]
+    ring
+  exact_mod_cast hcast
 
 /-- For an imaginary field (`d < 0`), the integral norm of a nonzero algebraic
 integer is strictly positive: `N(x) = re² + |d|·im² > 0`. -/
