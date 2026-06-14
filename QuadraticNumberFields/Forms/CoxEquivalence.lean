@@ -531,9 +531,9 @@ theorem classGroupToFormClass_idealClassOfForm_leftInverse_of_mod_four_ne_one
     have hdetCoord : b_oriented.detCoord = -(Q.1.a : ℚ) := by
       unfold OrientedBasis.detCoord
       rw [hb0, hb1, h0_re, h0_im, h1_re, h1_im]; ring
-    have hz_eq : ((ringOfIntegersBasisOfModFourNeOne hd4).det
+    have hz_eq : ((RingOfIntegers.ringOfIntegersBasisOfModFourNeOne hd4).det
         ((↑) ∘ b_oriented.basis) : ℤ) = -Q.1.a := by
-      have hz_cast : (((ringOfIntegersBasisOfModFourNeOne hd4).det
+      have hz_cast : (((RingOfIntegers.ringOfIntegersBasisOfModFourNeOne hd4).det
           ((↑) ∘ b_oriented.basis) : ℤ) : ℚ) = -(Q.1.a : ℚ) := by
         rw [b_oriented.det_ne_one_cast_eq_detCoord hd4, hdetCoord]
       exact_mod_cast hz_cast

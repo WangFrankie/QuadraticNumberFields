@@ -25,6 +25,7 @@ import QuadraticNumberFields.RingOfIntegers.HalfInt
 import QuadraticNumberFields.ZOnePlusSqrtdOverTwo.Basic
 import QuadraticNumberFields.Qsqrtd.TraceNorm
 import QuadraticNumberFields.RingOfIntegers.Integrality
+import QuadraticNumberFields.RingOfIntegers.Basis
 import QuadraticNumberFields.RingOfIntegers.Classification
 import QuadraticNumberFields.RingOfIntegers.Norm
 import QuadraticNumberFields.RingOfIntegers.Discriminant
