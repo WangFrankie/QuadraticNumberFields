@@ -81,6 +81,17 @@ noncomputable def ringOfIntegersBasisOfModFourEqOne (hd4 : d % 4 = 1) :
   let f : ZOnePlusSqrtdOverTwo (d / 4) ≃ₐ[ℤ] 𝓞K := ringEquivToIntAlgEquiv e.symm
   exact (QuadraticAlgebra.basis (d / 4) 1).map f.toLinearEquiv
 
+/-- The standard integral basis of `𝓞 (Qsqrtd d)` when an explicit witness
+`d = 1 + 4k` is available. -/
+noncomputable def ringOfIntegersBasisOfEq (k : ℤ) (hk : d = 1 + 4 * k) :
+    Basis (Fin 2) ℤ 𝓞K := by
+  subst hk
+  let e := RingOfIntegers.ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_eq
+    (1 + 4 * k) k rfl
+  let f : ZOnePlusSqrtdOverTwo k ≃ₐ[ℤ] 𝓞 (Qsqrtd (((1 + 4 * k : ℤ) : ℚ))) :=
+    ringEquivToIntAlgEquiv e.symm
+  exact (QuadraticAlgebra.basis k 1).map f.toLinearEquiv
+
 /-- In the `d % 4 ≠ 1` branch, the first coordinate in the transported integral
 basis is the `re` coordinate in `Qsqrtd`. -/
 theorem ringOfIntegersBasisOfModFourNeOne_repr_zero (hd4 : d % 4 ≠ 1) (x : 𝓞K) :
@@ -102,6 +113,51 @@ theorem ringOfIntegersBasisOfModFourNeOne_repr_one (hd4 : d % 4 ≠ 1) (x : 𝓞
     simpa [Zsqrtd.toQsqrtdHom, Zsqrtd.toQsqrtd] using congrArg QuadraticAlgebra.im h
   change (((QuadraticAlgebra.basis d 0).repr (e x) 1 : ℤ) : ℚ) = (x : K).im
   simpa [QuadraticAlgebra.basis] using him
+
+/-- In the `d = 1 + 4k` branch, the first coordinate in the transported integral
+basis is `re - im` in `Qsqrtd`. -/
+theorem ringOfIntegersBasisOfEq_repr_zero (k : ℤ) (hk : d = 1 + 4 * k) (x : 𝓞K) :
+    ((ringOfIntegersBasisOfEq k hk).repr x 0 : ℚ) = (x : K).re - (x : K).im := by
+  subst hk
+  let e := RingOfIntegers.ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_eq
+    (1 + 4 * k) k rfl
+  have h := RingOfIntegers.ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_eq_apply k x
+  have hre :
+      ((e x).re : ℚ) + ((e x).im : ℚ) / 2 =
+        (x : Qsqrtd (((1 + 4 * k : ℤ) : ℚ))).re := by
+    simpa [e, ZOnePlusSqrtdOverTwo.toQsqrtdHom, ZOnePlusSqrtdOverTwo.toQsqrtdFun]
+      using congrArg QuadraticAlgebra.re h
+  have him :
+      ((e x).im : ℚ) / 2 = (x : Qsqrtd (((1 + 4 * k : ℤ) : ℚ))).im := by
+    simpa [e, ZOnePlusSqrtdOverTwo.toQsqrtdHom, ZOnePlusSqrtdOverTwo.toQsqrtdFun]
+      using congrArg QuadraticAlgebra.im h
+  have hcoord : ((e x).re : ℚ) =
+      (x : Qsqrtd (((1 + 4 * k : ℤ) : ℚ))).re -
+        (x : Qsqrtd (((1 + 4 * k : ℤ) : ℚ))).im := by
+    nlinarith
+  change (((QuadraticAlgebra.basis k 1).repr (e x) 0 : ℤ) : ℚ) =
+    (x : Qsqrtd (((1 + 4 * k : ℤ) : ℚ))).re -
+      (x : Qsqrtd (((1 + 4 * k : ℤ) : ℚ))).im
+  simpa [QuadraticAlgebra.basis] using hcoord
+
+/-- In the `d = 1 + 4k` branch, the second coordinate in the transported integral
+basis is `2 * im` in `Qsqrtd`. -/
+theorem ringOfIntegersBasisOfEq_repr_one (k : ℤ) (hk : d = 1 + 4 * k) (x : 𝓞K) :
+    ((ringOfIntegersBasisOfEq k hk).repr x 1 : ℚ) = 2 * (x : K).im := by
+  subst hk
+  let e := RingOfIntegers.ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_eq
+    (1 + 4 * k) k rfl
+  have h := RingOfIntegers.ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_eq_apply k x
+  have him :
+      ((e x).im : ℚ) / 2 = (x : Qsqrtd (((1 + 4 * k : ℤ) : ℚ))).im := by
+    simpa [e, ZOnePlusSqrtdOverTwo.toQsqrtdHom, ZOnePlusSqrtdOverTwo.toQsqrtdFun]
+      using congrArg QuadraticAlgebra.im h
+  have hcoord : ((e x).im : ℚ) =
+      2 * (x : Qsqrtd (((1 + 4 * k : ℤ) : ℚ))).im := by
+    nlinarith
+  change (((QuadraticAlgebra.basis k 1).repr (e x) 1 : ℤ) : ℚ) =
+    2 * (x : Qsqrtd (((1 + 4 * k : ℤ) : ℚ))).im
+  simpa [QuadraticAlgebra.basis] using hcoord
 
 /-- The coefficient of the canonical generator `√d` in `x : K`, viewed as a
 rational number. This extracts the "imaginary part" of `x`. -/
@@ -166,6 +222,13 @@ theorem OrientedBasis.det_eq_one_natAbs_eq_absNorm {I : Ideal 𝓞K}
     ((ringOfIntegersBasisOfModFourEqOne hd4).det ((↑) ∘ b.basis)).natAbs =
       Ideal.absNorm I :=
   Ideal.natAbs_det_basis_change (ringOfIntegersBasisOfModFourEqOne hd4) I b.basis
+
+/-- The determinant of an oriented ideal basis relative to the explicit
+`d = 1 + 4k` integral basis has absolute value `N(I)`. -/
+theorem OrientedBasis.det_eq_natAbs_eq_absNorm {I : Ideal 𝓞K}
+    (k : ℤ) (hk : d = 1 + 4 * k) (b : OrientedBasis I) :
+    ((ringOfIntegersBasisOfEq k hk).det ((↑) ∘ b.basis)).natAbs = Ideal.absNorm I :=
+  Ideal.natAbs_det_basis_change (ringOfIntegersBasisOfEq k hk) I b.basis
 
 /-- Nonzero ideals of `𝓞K` are free `ℤ`-modules of rank 2, so they admit bases. -/
 noncomputable instance (I : Ideal 𝓞K) (_hI : I ≠ 0) : Module.Free ℤ I := by
@@ -558,6 +621,22 @@ theorem OrientedBasis.det_ne_one_cast_eq_detCoord {I : Ideal 𝓞K}
   unfold OrientedBasis.detCoord
   ring
 
+/-- In the `d = 1 + 4k` branch, the determinant relative to the transported
+integral basis is twice the coordinate determinant. -/
+theorem OrientedBasis.det_eq_cast_eq_two_detCoord {I : Ideal 𝓞K}
+    (k : ℤ) (hk : d = 1 + 4 * k) (b : OrientedBasis I) :
+    (((ringOfIntegersBasisOfEq k hk).det ((↑) ∘ b.basis) : ℤ) : ℚ) =
+      2 * b.detCoord := by
+  rw [Basis.det_apply, Matrix.det_fin_two]
+  simp only [Basis.toMatrix_apply, Function.comp_apply]
+  push_cast
+  rw [ringOfIntegersBasisOfEq_repr_zero k hk (b.basis 0 : 𝓞K),
+    ringOfIntegersBasisOfEq_repr_one k hk (b.basis 1 : 𝓞K),
+    ringOfIntegersBasisOfEq_repr_zero k hk (b.basis 1 : 𝓞K),
+    ringOfIntegersBasisOfEq_repr_one k hk (b.basis 0 : 𝓞K)]
+  unfold OrientedBasis.detCoord
+  ring
+
 /-- The polarized discriminant of the two norm values is `4 * d` times the
 square of the coordinate determinant of the basis vectors. -/
 theorem normFormOfBasis_polarized_disc_eq_det_sq {I : Ideal 𝓞K} (b : OrientedBasis I) :
@@ -628,6 +707,20 @@ theorem OrientedBasis.four_detCoord_sq_eq_absNorm_sq_of_int_det {I : Ideal 𝓞K
   rw [hz, hzabs] at hzsq
   nlinarith
 
+/-- In the `d = 1 + 4k` branch, `4 * detCoord^2 = N(I)^2`. -/
+theorem OrientedBasis.four_detCoord_sq_eq_absNorm_sq_of_eq {I : Ideal 𝓞K}
+    (k : ℤ) (hk : d = 1 + 4 * k) (b : OrientedBasis I) :
+    4 * b.detCoord ^ 2 = (Ideal.absNorm I : ℚ) ^ 2 :=
+  b.four_detCoord_sq_eq_absNorm_sq_of_int_det (b.det_eq_natAbs_eq_absNorm k hk)
+    (b.det_eq_cast_eq_two_detCoord k hk)
+
+/-- In the `d % 4 = 1` branch, `4 * detCoord^2 = N(I)^2`. -/
+theorem OrientedBasis.four_detCoord_sq_eq_absNorm_sq_of_mod_four_eq_one {I : Ideal 𝓞K}
+    (hd4 : d % 4 = 1) (b : OrientedBasis I) :
+    4 * b.detCoord ^ 2 = (Ideal.absNorm I : ℚ) ^ 2 := by
+  obtain ⟨k, hk⟩ := RingOfIntegers.exists_k_of_mod_four_eq_one hd4
+  exact b.four_detCoord_sq_eq_absNorm_sq_of_eq k hk
+
 /-- To prove that `normFormOfBasis` has the field discriminant, it is enough to
 identify the square of the coordinate determinant with the ideal norm. -/
 theorem normFormOfBasis_hasDiscriminant_of_det_sq {I : Ideal 𝓞K} (hI : I ≠ 0)
@@ -680,6 +773,14 @@ theorem normFormOfBasis_hasDiscriminant_of_det_sq_mod_four_eq_one {I : Ideal �
   calc
     4 * (d : ℚ) * b.detCoord ^ 2 = (d : ℚ) * (4 * b.detCoord ^ 2) := by ring
     _ = (d : ℚ) * (Ideal.absNorm I : ℚ) ^ 2 := by rw [hdet]
+
+/-- In the `d % 4 = 1` branch, `normFormOfBasis` has discriminant
+`fieldDiscriminant d`. -/
+theorem normFormOfBasis_hasDiscriminant_mod_four_eq_one {I : Ideal 𝓞K}
+    (hI : I ≠ 0) (b : OrientedBasis I) (hd4 : d % 4 = 1) :
+    (normFormOfBasis hI b).HasDiscriminant (fieldDiscriminant d) :=
+  normFormOfBasis_hasDiscriminant_of_det_sq_mod_four_eq_one hI b hd4
+    (b.four_detCoord_sq_eq_absNorm_sq_of_mod_four_eq_one hd4)
 
 /-- The discriminant of `normFormOfBasis` is negative when `d < 0`. The key
 identity is `disc(Q) · N(I)² = 4 d · (α.re·β.im − α.im·β.re)²`, whose sign is

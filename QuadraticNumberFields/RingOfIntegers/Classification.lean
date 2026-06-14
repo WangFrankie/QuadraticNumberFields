@@ -123,6 +123,18 @@ noncomputable def ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_eq
     (fun _ hx => exists_zOnePlusSqrtOverTwo_of_isIntegral_of_one_mod_four k hd_sf hd_ne' hx)
     (fun z => isIntegral_toQsqrtd_of_zOnePlusSqrtOverTwo k z)
 
+/-- `ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_eq` commutes with the embedding
+back into `ℚ(√(1 + 4k))`: applied to `e α`, the embedding recovers
+`(α : ℚ(√(1 + 4k)))`. -/
+lemma ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_eq_apply
+    (k : ℤ) [Fact (Squarefree (1 + 4 * k))] [Fact ((1 + 4 * k) ≠ 1)]
+    (α : 𝓞 (Qsqrtd (((1 + 4 * k : ℤ) : ℚ)))) :
+    ZOnePlusSqrtdOverTwo.toQsqrtdHom k
+        (ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_eq (1 + 4 * k) k rfl α) =
+      (α : Qsqrtd (((1 + 4 * k : ℤ) : ℚ))) := by
+  unfold ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_eq
+  rw [ringOfIntegers_equiv_of_embedding_apply]
+
 /-- If `d % 4 = 1`, then `𝓞(ℚ(√d)) ≃+* ℤ[(1+√d)/2]`, using the canonical witness
 `k := d / 4` (so `d = 1 + 4 * (d / 4)`).  This is a thin wrapper over the
 explicit-parameter `ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_eq`.
