@@ -550,6 +550,30 @@ theorem normFormOfBasis_hasDiscriminant_of_det_sq {I : Ideal 𝓞K} (hI : I ≠ 
   unfold HasDiscriminant
   exact_mod_cast hdiscQ
 
+/-- In the `d % 4 ≠ 1` branch, the exact discriminant follows once the coordinate
+determinant has square `N(I)^2`. -/
+theorem normFormOfBasis_hasDiscriminant_of_det_sq_mod_four_ne_one {I : Ideal 𝓞K}
+    (hI : I ≠ 0) (b : OrientedBasis I) (hd4 : d % 4 ≠ 1)
+    (hdet : b.detCoord ^ 2 = (Ideal.absNorm I : ℚ) ^ 2) :
+    (normFormOfBasis hI b).HasDiscriminant (fieldDiscriminant d) := by
+  apply normFormOfBasis_hasDiscriminant_of_det_sq hI b
+  rw [fieldDiscriminant_of_mod_four_ne_one hd4]
+  push_cast
+  rw [hdet]
+
+/-- In the `d % 4 = 1` branch, the coordinate determinant is half the determinant
+relative to the integral basis, so the exact discriminant follows from
+`4 * detCoord^2 = N(I)^2`. -/
+theorem normFormOfBasis_hasDiscriminant_of_det_sq_mod_four_eq_one {I : Ideal 𝓞K}
+    (hI : I ≠ 0) (b : OrientedBasis I) (hd4 : d % 4 = 1)
+    (hdet : 4 * b.detCoord ^ 2 = (Ideal.absNorm I : ℚ) ^ 2) :
+    (normFormOfBasis hI b).HasDiscriminant (fieldDiscriminant d) := by
+  apply normFormOfBasis_hasDiscriminant_of_det_sq hI b
+  rw [fieldDiscriminant_of_mod_four_eq_one hd4]
+  calc
+    4 * (d : ℚ) * b.detCoord ^ 2 = (d : ℚ) * (4 * b.detCoord ^ 2) := by ring
+    _ = (d : ℚ) * (Ideal.absNorm I : ℚ) ^ 2 := by rw [hdet]
+
 /-- The discriminant of `normFormOfBasis` is negative when `d < 0`. The key
 identity is `disc(Q) · N(I)² = 4 d · (α.re·β.im − α.im·β.re)²`, whose sign is
 forced by `d < 0` and the orientation `α.re·β.im − α.im·β.re < 0`. -/
