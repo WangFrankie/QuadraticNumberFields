@@ -5,6 +5,7 @@ Authors: Frankie Wang
 -/
 
 import Mathlib.Algebra.QuadraticAlgebra.Basic
+import Mathlib.LinearAlgebra.FreeModule.PID
 import Mathlib.RingTheory.Ideal.Operations
 import Mathlib.Tactic.LinearCombination
 import Mathlib.Tactic.Linarith
@@ -36,6 +37,7 @@ mathlib.
 -/
 
 open QuadraticAlgebra
+open Module
 
 namespace QuadraticNumberFields.CoxIdealRelation
 
@@ -270,5 +272,137 @@ theorem ideal_relation (hdet : p * s - q * r = 1)
       simpa [mul_comm] using hα_mem_left
     · rw [hroot]
       exact Ideal.mul_mem_mul (Ideal.subset_span (by simp [α])) hsβ_sub_qA_mem_I
+
+/-! ## Generic Cox ℤ-basis
+
+The Cox ideal `(A, ⟨u, 1⟩)` is a free `ℤ`-module of rank `2` with basis
+`{A, coxBeta}`, where `coxBeta = ⟨-u, -1⟩ = -⟨u, 1⟩`.  This is the integral
+backbone of the left-inverse round-trip, shared by the `bb = 0` (`Zsqrtd`) and
+`bb = 1` (`ZOnePlusSqrtdOverTwo`) specialisations: each branch transports this
+basis to `𝓞K` and reads off its `K`-coordinates. -/
+
+/-- The second Cox `ℤ`-basis generator, the negated quadratic generator `-⟨u, 1⟩`. -/
+def coxBeta (DD bb u : ℤ) : QuadraticAlgebra ℤ DD bb := ⟨-u, -1⟩
+
+@[simp] theorem coxBeta_re (DD bb u : ℤ) : (coxBeta DD bb u).re = -u := rfl
+
+@[simp] theorem coxBeta_im (DD bb u : ℤ) : (coxBeta DD bb u).im = -1 := rfl
+
+theorem coxBeta_eq_neg (DD bb u : ℤ) :
+    coxBeta DD bb u = -(⟨u, 1⟩ : QuadraticAlgebra ℤ DD bb) := by
+  apply QuadraticAlgebra.ext <;> simp [coxBeta]
+
+/-- The Cox ideal `(A, ⟨u, 1⟩)` of `QuadraticAlgebra ℤ DD bb`. -/
+def coxIdeal (DD bb A u : ℤ) : Ideal (QuadraticAlgebra ℤ DD bb) :=
+  Ideal.span ({(A : QuadraticAlgebra ℤ DD bb), (⟨u, 1⟩ : QuadraticAlgebra ℤ DD bb)} :
+    Set (QuadraticAlgebra ℤ DD bb))
+
+theorem self_mem_coxIdeal (DD bb A u : ℤ) :
+    (A : QuadraticAlgebra ℤ DD bb) ∈ coxIdeal DD bb A u :=
+  Ideal.subset_span (by simp)
+
+theorem coxBeta_mem_coxIdeal (DD bb A u : ℤ) :
+    coxBeta DD bb u ∈ coxIdeal DD bb A u := by
+  rw [coxBeta_eq_neg]
+  exact Submodule.neg_mem _ (Ideal.subset_span (by simp))
+
+/-- Every element of the Cox ideal `(A, ⟨u, 1⟩)` is a `ℤ`-linear combination of
+`{A, coxBeta}`, provided the discriminant normalisation `B² - 4AC = bb² + 4DD`
+and the root relation `2u = -(B + bb)` hold.  The integer coefficients are
+`m = x₁ - u·x₂ - C·y₂` and `n = -(x₂·A + y₁ + y₂·u + bb·y₂)`, where
+`x = ⟨x₁, x₂⟩`, `y = ⟨y₁, y₂⟩` express the ideal membership `z = x·A + y·⟨u,1⟩`;
+integrality of the leading coefficient uses `DD = u² + bb·u - A·C`. -/
+theorem mem_span_coxBeta_of_mem_coxIdeal {DD bb A B C u : ℤ}
+    (hu : 2 * u = -(B + bb)) (hdisc : B ^ 2 - 4 * A * C = bb ^ 2 + 4 * DD)
+    {z : QuadraticAlgebra ℤ DD bb} (hz : z ∈ coxIdeal DD bb A u) :
+    z ∈ Submodule.span ℤ ({(A : QuadraticAlgebra ℤ DD bb), coxBeta DD bb u} :
+      Set (QuadraticAlgebra ℤ DD bb)) := by
+  have hDD : DD = u ^ 2 + bb * u - A * C := by
+    have hB : B = -2 * u - bb := by omega
+    rw [hB] at hdisc; nlinarith
+  rcases (Ideal.mem_span_pair).mp hz with ⟨x, y, hz⟩
+  rw [← hz]
+  set x₁ := x.re with hx₁
+  set x₂ := x.im with hx₂
+  set y₁ := y.re with hy₁
+  set y₂ := y.im with hy₂
+  have hx : x = (⟨x₁, x₂⟩ : QuadraticAlgebra ℤ DD bb) := by apply QuadraticAlgebra.ext <;> rfl
+  have hy : y = (⟨y₁, y₂⟩ : QuadraticAlgebra ℤ DD bb) := by apply QuadraticAlgebra.ext <;> rfl
+  rw [hx, hy]
+  set m : ℤ := x₁ - u * x₂ - C * y₂ with hm
+  set n : ℤ := -(x₂ * A + y₁ + y₂ * u + bb * y₂) with hn
+  have hsum : (m • (A : QuadraticAlgebra ℤ DD bb) + n • coxBeta DD bb u) =
+      (⟨x₁, x₂⟩ : QuadraticAlgebra ℤ DD bb) * (A : QuadraticAlgebra ℤ DD bb) +
+      (⟨y₁, y₂⟩ : QuadraticAlgebra ℤ DD bb) * (⟨u, 1⟩ : QuadraticAlgebra ℤ DD bb) := by
+    rw [hm, hn]
+    apply QuadraticAlgebra.ext
+    · simp only [zsmul_eq_mul, QuadraticAlgebra.re_add, QuadraticAlgebra.re_mul,
+        QuadraticAlgebra.re_intCast, QuadraticAlgebra.im_intCast, QuadraticAlgebra.mk_mul_mk,
+        coxBeta_re, coxBeta_im, mul_zero, mul_one, zero_mul, add_zero]
+      push_cast
+      linear_combination (-y₂) * hDD
+    · simp only [zsmul_eq_mul, QuadraticAlgebra.im_add, QuadraticAlgebra.im_mul,
+        QuadraticAlgebra.re_intCast, QuadraticAlgebra.im_intCast, QuadraticAlgebra.mk_mul_mk,
+        coxBeta_re, coxBeta_im, mul_zero, mul_one, zero_mul, add_zero, zero_add]
+      push_cast
+      ring
+  rw [← hsum]
+  exact Submodule.add_mem _
+    (Submodule.smul_mem _ _ (Submodule.subset_span (by simp)))
+    (Submodule.smul_mem _ _ (Submodule.subset_span (by simp)))
+
+/-- The `ℤ`-basis `{A, coxBeta}` of the Cox ideal `(A, ⟨u, 1⟩)`. -/
+noncomputable def coxIdealBasis {DD bb A B C u : ℤ} (hA : A ≠ 0)
+    (hu : 2 * u = -(B + bb)) (hdisc : B ^ 2 - 4 * A * C = bb ^ 2 + 4 * DD) :
+    Basis (Fin 2) ℤ (coxIdeal DD bb A u) := by
+  let v0 : coxIdeal DD bb A u := ⟨(A : QuadraticAlgebra ℤ DD bb), self_mem_coxIdeal DD bb A u⟩
+  let v1 : coxIdeal DD bb A u := ⟨coxBeta DD bb u, coxBeta_mem_coxIdeal DD bb A u⟩
+  refine Basis.mk (v := ![v0, v1]) ?_ ?_
+  · rw [Fintype.linearIndependent_iff]
+    intro g hsum
+    have hzero : g 0 • (A : QuadraticAlgebra ℤ DD bb) + g 1 • coxBeta DD bb u = 0 := by
+      have hsum' := congrArg Subtype.val hsum
+      simpa [v0, v1] using hsum'
+    have him : (g 0 • (A : QuadraticAlgebra ℤ DD bb) + g 1 • coxBeta DD bb u).im = 0 := by
+      rw [hzero]; rfl
+    simp [coxBeta] at him
+    have hg1 : g 1 = 0 := by linarith
+    have hre : (g 0 • (A : QuadraticAlgebra ℤ DD bb) + g 1 • coxBeta DD bb u).re = 0 := by
+      rw [hzero]; rfl
+    rw [hg1] at hre
+    simp at hre
+    have hg0 : g 0 = 0 := by
+      rcases hre with h | h
+      · exact h
+      · exact absurd h hA
+    intro i; fin_cases i <;> assumption
+  · intro x _
+    have h_span := mem_span_coxBeta_of_mem_coxIdeal hu hdisc x.2
+    rcases Submodule.mem_span_insert.mp h_span with ⟨m, z, hz, hz_eq⟩
+    rcases Submodule.mem_span_singleton.mp hz with ⟨n, hn⟩
+    have h_val : (x : QuadraticAlgebra ℤ DD bb) =
+        m • (A : QuadraticAlgebra ℤ DD bb) + n • coxBeta DD bb u := by
+      rw [hz_eq, hn]
+    have h_sub_val : (m • v0 + n • v1 : coxIdeal DD bb A u).val = (x : QuadraticAlgebra ℤ DD bb) := by
+      simp [v0, v1, h_val]
+    have h_eq : m • v0 + n • v1 = x := Subtype.ext h_sub_val
+    rw [← h_eq]
+    exact Submodule.add_mem _
+      (Submodule.smul_mem _ _ (Submodule.subset_span (by simp)))
+      (Submodule.smul_mem _ _ (Submodule.subset_span (by simp)))
+
+/-- The value of the generic Cox basis at index 0 is the scalar `A`. -/
+theorem coxIdealBasis_val_0 {DD bb A B C u : ℤ} (hA : A ≠ 0)
+    (hu : 2 * u = -(B + bb)) (hdisc : B ^ 2 - 4 * A * C = bb ^ 2 + 4 * DD) :
+    ((coxIdealBasis hA hu hdisc) 0 : QuadraticAlgebra ℤ DD bb) =
+      (A : QuadraticAlgebra ℤ DD bb) := by
+  unfold coxIdealBasis; simp
+
+/-- The value of the generic Cox basis at index 1 is `coxBeta`. -/
+theorem coxIdealBasis_val_1 {DD bb A B C u : ℤ} (hA : A ≠ 0)
+    (hu : 2 * u = -(B + bb)) (hdisc : B ^ 2 - 4 * A * C = bb ^ 2 + 4 * DD) :
+    ((coxIdealBasis hA hu hdisc) 1 : QuadraticAlgebra ℤ DD bb) =
+      coxBeta DD bb u := by
+  unfold coxIdealBasis; simp
 
 end QuadraticNumberFields.CoxIdealRelation

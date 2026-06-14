@@ -213,6 +213,21 @@ def coxBetaZ (d b : ℤ) : Zsqrtd d :=
 theorem zsqrtd_norm_coxBetaZ (d b : ℤ) : Zsqrtd.norm (coxBetaZ d b) = (b / 2) ^ 2 - d := by
   rw [Zsqrtd.norm_def]; simp; ring
 
+/-- The Cox ideal `J = (a, ⟨-b/2, 1⟩)` in `Zsqrtd d`. -/
+def coxIdeal (d a b : ℤ) : Ideal (Zsqrtd d) :=
+  Ideal.span ({((a : Zsqrtd d)), (⟨-b / 2, 1⟩ : Zsqrtd d)} : Set (Zsqrtd d))
+
+/-- Helper lemma: `coxBetaZ d b = -⟨-b/2, 1⟩` when `b` is even. -/
+theorem coxBetaZ_eq_neg_of_even {d b : ℤ} (hb : Even b) : coxBetaZ d b = -(⟨-b / 2, 1⟩ : Zsqrtd d) := by
+  obtain ⟨k, hk⟩ := hb
+  have hk' : b / 2 = k := by rw [hk]; omega
+  ext
+  · simp [coxBetaZ_re, hk']
+    calc
+      k = -(-k) := by ring
+      _ = -((-b : ℤ) / 2) := by rw [hk]; omega
+  · simp [coxBetaZ_im]
+
 /-! ### The spanning lemma for the Cox ideal -/
 
 /-- Every element of the Cox ideal `(a, ⟨-b/2, 1⟩)` in `Zsqrtd d` is a ℤ-linear
@@ -271,21 +286,6 @@ theorem mem_span_coxBetaZ_of_mem_ideal {d a b c : ℤ} (hb : Even b)
 
 /-! ### Cox ℤ-basis and left inverse round-trip -/
 
-/-- The Cox ideal `J = (a, ⟨-b/2, 1⟩)` in `Zsqrtd d`. -/
-def coxIdeal (d a b : ℤ) : Ideal (Zsqrtd d) :=
-  Ideal.span ({((a : Zsqrtd d)), (⟨-b / 2, 1⟩ : Zsqrtd d)} : Set (Zsqrtd d))
-
-/-- Helper lemma: `coxBetaZ d b = -⟨-b/2, 1⟩` when `b` is even. -/
-theorem coxBetaZ_eq_neg_of_even {d b : ℤ} (hb : Even b) : coxBetaZ d b = -(⟨-b / 2, 1⟩ : Zsqrtd d) := by
-  obtain ⟨k, hk⟩ := hb
-  have hk' : b / 2 = k := by rw [hk]; omega
-  ext
-  · simp [coxBetaZ_re, hk']
-    calc
-      k = -(-k) := by ring
-      _ = -((-b : ℤ) / 2) := by rw [hk]; omega
-  · simp [coxBetaZ_im]
-
 /-- The ℤ-basis `{a, coxBetaZ d b}` of the Cox ideal. -/
 noncomputable def coxIdealBasis {d a b c : ℤ} (ha : a ≠ 0) (hb : Even b)
     (h_disc : 4 * a * c = b ^ 2 - 4 * d) :
@@ -299,7 +299,7 @@ noncomputable def coxIdealBasis {d a b c : ℤ} (ha : a ≠ 0) (hb : Even b)
   let v0 : coxIdeal d a b := ⟨(a : Zsqrtd d), ha_mem⟩
   let v1 : coxIdeal d a b := ⟨coxBetaZ d b, hbeta_mem⟩
   refine Basis.mk (v := ![v0, v1]) ?_ ?_
-  · -- Linear independence
+  · -- Linear independence (delegated to the generic core)
     rw [Fintype.linearIndependent_iff]
     intro g hsum
     have hzero : g 0 • ((a : Zsqrtd d)) + g 1 • coxBetaZ d b = 0 := by
@@ -315,21 +315,15 @@ noncomputable def coxIdealBasis {d a b c : ℤ} (ha : a ≠ 0) (hb : Even b)
       · exact h
       · exact absurd h ha
     intro i; fin_cases i <;> assumption
-  · -- Spanning: lift base-module span to submodule via Submodule.mem_span_insert
+  · -- Spanning (delegated to the refactored local lemma)
     intro x hx
     have hx_val : (x : Zsqrtd d) ∈ coxIdeal d a b := x.2
     dsimp [coxIdeal] at hx_val
     have h_span := mem_span_coxBetaZ_of_mem_ideal hb h_disc (x : Zsqrtd d) hx_val
-    -- h_span: x.val ∈ Submodule.span ℤ {a, coxBetaZ d b}
-    -- Use Submodule.mem_span_insert to extract coefficients
     rcases Submodule.mem_span_insert.mp h_span with ⟨m, z, hz, hz_eq⟩
-    -- hz_eq: x.val = m • a + z, hz: z ∈ Submodule.span ℤ {coxBetaZ d b}
     rcases Submodule.mem_span_singleton.mp hz with ⟨n, hn⟩
-    -- hn: n • coxBetaZ d b = z
-    -- So x.val = m • a + n • coxBetaZ d b in Zsqrtd d
     have h_val : (x : Zsqrtd d) = m • ((a : Zsqrtd d)) + n • coxBetaZ d b := by
       rw [hz_eq, hn]
-    -- The same combination in the submodule
     have h_sub_val : (m • v0 + n • v1 : coxIdeal d a b).val = (x : Zsqrtd d) := by
       simp [v0, v1, h_val]
     have h_eq : m • v0 + n • v1 = x := Subtype.ext h_sub_val
