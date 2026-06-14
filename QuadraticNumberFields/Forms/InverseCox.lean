@@ -437,6 +437,25 @@ theorem normFormOfBasis_eval_pos_of_ne_zero (hdneg : d < 0) {I : Ideal 𝓞K} (h
     norm_int_pos hdneg hlin
   nlinarith
 
+/-- In an imaginary field, the norm form attached to an oriented ideal basis
+vanishes only at the zero coordinate vector. -/
+theorem normFormOfBasis_eval_eq_zero_iff (hdneg : d < 0) {I : Ideal 𝓞K} (hI : I ≠ 0)
+    (b : OrientedBasis I) (x y : ℤ) :
+    (normFormOfBasis hI b).eval x y = 0 ↔ x = 0 ∧ y = 0 := by
+  constructor
+  · intro h
+    by_contra hxy0
+    have hxy : x ≠ 0 ∨ y ≠ 0 := by
+      by_cases hx : x = 0
+      · right
+        intro hy
+        exact hxy0 ⟨hx, hy⟩
+      · exact Or.inl hx
+    have hpos := normFormOfBasis_eval_pos_of_ne_zero hdneg hI b hxy
+    omega
+  · rintro ⟨rfl, rfl⟩
+    simp [BinaryQuadraticForm.eval]
+
 /-- The leading coefficient of `normFormOfBasis` is positive when `d < 0`: it is
 `N(α)/N(I)` with both norms positive. -/
 theorem normFormOfBasis_a_pos (hdneg : d < 0) {I : Ideal 𝓞K} (hI : I ≠ 0)
