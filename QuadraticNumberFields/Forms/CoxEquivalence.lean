@@ -579,23 +579,8 @@ theorem classGroupToFormClass_idealClassOfForm_leftInverse_of_mod_four_ne_one
           h0_re, h0_im, h1_re, h1_im]
         linear_combination (1 / 4 : ℚ) * hdiscQ
       exact_mod_cast h
-    -- Match coefficients, cancelling the positive `a = N(I)`.
-    ext
-    · have h := normFormOfBasis_a_mul_absNorm hI_ne_zero b_oriented
-      rw [hN_eq, hnorm0] at h
-      have hcancel : (normFormOfBasis hI_ne_zero b_oriented).a * Q.1.a = Q.1.a * Q.1.a := by
-        rw [h]; ring
-      exact mul_right_cancel₀ hane hcancel
-    · have h := normFormOfBasis_b_mul_absNorm hI_ne_zero b_oriented
-      rw [hN_eq, hnormsum, hnorm0, hnorm1] at h
-      have hcancel : (normFormOfBasis hI_ne_zero b_oriented).b * Q.1.a = Q.1.b * Q.1.a := by
-        rw [h]; ring
-      exact mul_right_cancel₀ hane hcancel
-    · have h := normFormOfBasis_c_mul_absNorm hI_ne_zero b_oriented
-      rw [hN_eq, hnorm1] at h
-      have hcancel : (normFormOfBasis hI_ne_zero b_oriented).c * Q.1.a = Q.1.c * Q.1.a := by
-        rw [h]; ring
-      exact mul_right_cancel₀ hane hcancel
+    -- The shared, branch-independent criterion finishes the three comparisons.
+    exact normFormOfBasis_eq_of_norms hI_ne_zero b_oriented hane hN_eq hnorm0 hnorm1 hnormsum
   -- proper equivalence → equal classes
   have h_equiv : (normFormOfBasis hI_ne_zero
       (orientedBasisOfNeZero (I : Ideal 𝓞K) hI_ne_zero)).ProperEquivalent

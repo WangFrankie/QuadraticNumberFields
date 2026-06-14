@@ -438,6 +438,38 @@ theorem normFormOfBasis_b_mul_absNorm {I : Ideal 𝓞K} (hI : I ≠ 0) (b : Orie
   exact dvd_sub (dvd_sub (absNorm_dvd_norm_of_mem_ideal hsum) (absNorm_dvd_norm_basis b 0))
     (absNorm_dvd_norm_basis b 1)
 
+/-- Coefficient-matching criterion for the norm form, independent of the `d % 4`
+branch.  If the ideal norm equals the nonzero target leading coefficient `Q.a`,
+and the integral norms of the two basis vectors and of their sum match `Q.a²`,
+`Q.a · Q.c`, and `Q.a² + Q.a·Q.b + Q.a·Q.c`, then the norm form attached to the
+oriented basis is exactly `Q`.
+
+Each branch supplies these four integer identities from its own Cox basis (the
+`α = (a, 0)`, `β = (b/2, -1)` coordinates for `d % 4 ≠ 1`; the
+`β = (b/2, -1/2)` coordinates for `d % 4 = 1`).  The norms collapse to the same
+shape in both cases, so the `Q.a = N(I)` cancellation is shared here. -/
+theorem normFormOfBasis_eq_of_norms {I : Ideal 𝓞K} (hI : I ≠ 0) (b : OrientedBasis I)
+    {Q : BinaryQuadraticForm} (ha : Q.a ≠ 0)
+    (hN : (Ideal.absNorm I : ℤ) = Q.a)
+    (hn0 : Algebra.norm ℤ (b.basis 0 : 𝓞K) = Q.a ^ 2)
+    (hn1 : Algebra.norm ℤ (b.basis 1 : 𝓞K) = Q.a * Q.c)
+    (hns : Algebra.norm ℤ ((b.basis 0 : 𝓞K) + (b.basis 1 : 𝓞K)) =
+      Q.a ^ 2 + Q.a * Q.b + Q.a * Q.c) :
+    normFormOfBasis hI b = Q := by
+  ext
+  · have h := normFormOfBasis_a_mul_absNorm hI b
+    rw [hN, hn0] at h
+    have hcancel : (normFormOfBasis hI b).a * Q.a = Q.a * Q.a := by rw [h]; ring
+    exact mul_right_cancel₀ ha hcancel
+  · have h := normFormOfBasis_b_mul_absNorm hI b
+    rw [hN, hns, hn0, hn1] at h
+    have hcancel : (normFormOfBasis hI b).b * Q.a = Q.b * Q.a := by rw [h]; ring
+    exact mul_right_cancel₀ ha hcancel
+  · have h := normFormOfBasis_c_mul_absNorm hI b
+    rw [hN, hn1] at h
+    have hcancel : (normFormOfBasis hI b).c * Q.a = Q.c * Q.a := by rw [h]; ring
+    exact mul_right_cancel₀ ha hcancel
+
 /-- The integral norm of `x : 𝓞K`, viewed in `ℚ`, is the quadratic form
 `re² − d · im²` of its coordinates in `K`. This bridges `Algebra.norm ℤ` to the
 explicit `Qsqrtd` norm formula, threading past the `Algebra ℚ K` diamond exactly
