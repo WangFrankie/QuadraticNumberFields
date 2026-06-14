@@ -524,6 +524,29 @@ theorem OrientedBasis.det_sq_pos {I : Ideal 𝓞K} (b : OrientedBasis I) :
   rw [pow_two]
   exact mul_pos_of_neg_of_neg b.det_neg b.det_neg
 
+/-- To prove that `normFormOfBasis` has the field discriminant, it is enough to
+identify the square of the coordinate determinant with the ideal norm. -/
+theorem normFormOfBasis_hasDiscriminant_of_det_sq {I : Ideal 𝓞K} (hI : I ≠ 0)
+    (b : OrientedBasis I)
+    (hdet : 4 * (d : ℚ) *
+        (((b.basis 0 : 𝓞K) : K).re * ((b.basis 1 : 𝓞K) : K).im -
+          ((b.basis 0 : 𝓞K) : K).im * ((b.basis 1 : 𝓞K) : K).re) ^ 2 =
+      (fieldDiscriminant d : ℚ) * (Ideal.absNorm I : ℚ) ^ 2) :
+    (normFormOfBasis hI b).HasDiscriminant (fieldDiscriminant d) := by
+  have hdiscN := normFormOfBasis_disc_mul_absNorm_sq hI b
+  have hdiscNQ := congrArg (fun z : ℤ => (z : ℚ)) hdiscN
+  have hkey := normFormOfBasis_polarized_disc_eq_det_sq b
+  push_cast at hdiscNQ
+  rw [hkey, hdet] at hdiscNQ
+  have hNsq_ne : (Ideal.absNorm I : ℚ) ^ 2 ≠ 0 := by
+    have hNpos : (0 : ℚ) < (Ideal.absNorm I : ℚ) := by
+      exact_mod_cast absNorm_pos hI
+    positivity
+  have hdiscQ : ((normFormOfBasis hI b).disc : ℚ) = fieldDiscriminant d :=
+    mul_right_cancel₀ hNsq_ne hdiscNQ
+  unfold HasDiscriminant
+  exact_mod_cast hdiscQ
+
 /-- The discriminant of `normFormOfBasis` is negative when `d < 0`. The key
 identity is `disc(Q) · N(I)² = 4 d · (α.re·β.im − α.im·β.re)²`, whose sign is
 forced by `d < 0` and the orientation `α.re·β.im − α.im·β.re < 0`. -/
