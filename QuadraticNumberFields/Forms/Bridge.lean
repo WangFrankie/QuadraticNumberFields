@@ -765,12 +765,5 @@ theorem formClassToClassGroup_eq_of_mod_four_ne_one
     formClassToClassGroup d = formClassToClassGroup_of_mod_four_ne_one d hd4 := by
   simp [formClassToClassGroup, hd4]
 
-/-- WIP Cox 7.7 bijection for imaginary quadratic fields. -/
-noncomputable def formClassEquivClassGroup
-    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hdneg : d < 0) :
-    FormClass (fieldDiscriminant d) ≃ ClassGroup (𝓞 (Qsqrtd (d : ℚ))) := by
-  classical
-  sorry
-
 end BinaryQuadraticForm
 end QuadraticNumberFields
