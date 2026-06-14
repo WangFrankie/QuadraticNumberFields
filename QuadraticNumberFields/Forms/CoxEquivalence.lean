@@ -525,9 +525,77 @@ theorem classGroupToFormClass_idealClassOfForm_leftInverse_of_mod_four_ne_one
     rw [imPartRatio_eq_im, h_wedge_im]; nlinarith
   let b_oriented : OrientedBasis (I : Ideal 𝓞K) :=
     { basis := b_cox, oriented := hpos }
-  -- normFormOfBasis hI b_oriented = Q.1 (coefficient matching: TODO)
+  -- normFormOfBasis hI b_oriented = Q.1: match all three coefficients.
   have h_normform_eq : normFormOfBasis hI_ne_zero b_oriented = Q.1 := by
-    sorry
+    -- The two oriented basis vectors are `α` and `β` in `K`.
+    have hb0 : ((b_oriented.basis 0 : 𝓞K) : K) = α := hα.symm
+    have hb1 : ((b_oriented.basis 1 : 𝓞K) : K) = β := hβ.symm
+    have ha_pos_int : 0 < Q.1.a := Q.2.2.2.1
+    have hane : Q.1.a ≠ 0 := ne_of_gt ha_pos_int
+    -- The ideal norm equals the leading coefficient `a`, via the basis determinant.
+    have hdetCoord : b_oriented.detCoord = -(Q.1.a : ℚ) := by
+      unfold OrientedBasis.detCoord
+      rw [hb0, hb1, h0_re, h0_im, h1_re, h1_im]; ring
+    have hz_eq : ((ringOfIntegersBasisOfModFourNeOne hd4).det
+        ((↑) ∘ b_oriented.basis) : ℤ) = -Q.1.a := by
+      have hz_cast : (((ringOfIntegersBasisOfModFourNeOne hd4).det
+          ((↑) ∘ b_oriented.basis) : ℤ) : ℚ) = -(Q.1.a : ℚ) := by
+        rw [b_oriented.det_ne_one_cast_eq_detCoord hd4, hdetCoord]
+      exact_mod_cast hz_cast
+    have hN_eq : (Ideal.absNorm (I : Ideal 𝓞K) : ℤ) = Q.1.a := by
+      have hz_abs := b_oriented.det_ne_one_natAbs_eq_absNorm hd4
+      rw [hz_eq] at hz_abs
+      simp only [Int.natAbs_neg] at hz_abs
+      omega
+    -- Discriminant relation over `ℚ`: `b² − 4ac = 4d`.
+    have hdiscQ : (Q.1.b : ℚ) ^ 2 - 4 * (Q.1.a : ℚ) * (Q.1.c : ℚ) = 4 * (d : ℚ) := by
+      have hz : Q.1.disc = 4 * d :=
+        calc Q.1.disc = fieldDiscriminant d := Q.2.1
+          _ = 4 * d := fieldDiscriminant_of_mod_four_ne_one hd4
+      unfold BinaryQuadraticForm.disc at hz
+      exact_mod_cast hz
+    -- Integer norms of the basis vectors and their sum.
+    have hnorm0 : Algebra.norm ℤ (b_oriented.basis 0 : 𝓞K) = Q.1.a ^ 2 := by
+      have h : (Algebra.norm ℤ (b_oriented.basis 0 : 𝓞K) : ℚ) = (Q.1.a : ℚ) ^ 2 := by
+        rw [fieldNorm_int_eq, hb0, h0_re, h0_im]; ring
+      exact_mod_cast h
+    have hnorm1 : Algebra.norm ℤ (b_oriented.basis 1 : 𝓞K) = Q.1.a * Q.1.c := by
+      have h : (Algebra.norm ℤ (b_oriented.basis 1 : 𝓞K) : ℚ) = (Q.1.a : ℚ) * (Q.1.c : ℚ) := by
+        rw [fieldNorm_int_eq, hb1, h1_re, h1_im]
+        linear_combination (1 / 4 : ℚ) * hdiscQ
+      exact_mod_cast h
+    have hnormsum : Algebra.norm ℤ ((b_oriented.basis 0 : 𝓞K) + (b_oriented.basis 1 : 𝓞K)) =
+        Q.1.a ^ 2 + Q.1.a * Q.1.b + Q.1.a * Q.1.c := by
+      have hsum_coe : (((b_oriented.basis 0 : 𝓞K) + (b_oriented.basis 1 : 𝓞K) : 𝓞K) : K) =
+          α + β := by
+        have hpc : (((b_oriented.basis 0 : 𝓞K) + (b_oriented.basis 1 : 𝓞K) : 𝓞K) : K) =
+            ((b_oriented.basis 0 : 𝓞K) : K) + ((b_oriented.basis 1 : 𝓞K) : K) := by
+          push_cast; ring
+        rw [hpc, hb0, hb1]
+      have h : (Algebra.norm ℤ ((b_oriented.basis 0 : 𝓞K) + (b_oriented.basis 1 : 𝓞K)) : ℚ) =
+          (Q.1.a : ℚ) ^ 2 + (Q.1.a : ℚ) * (Q.1.b : ℚ) + (Q.1.a : ℚ) * (Q.1.c : ℚ) := by
+        rw [fieldNorm_int_eq, hsum_coe]
+        simp only [QuadraticAlgebra.re_add, QuadraticAlgebra.im_add,
+          h0_re, h0_im, h1_re, h1_im]
+        linear_combination (1 / 4 : ℚ) * hdiscQ
+      exact_mod_cast h
+    -- Match coefficients, cancelling the positive `a = N(I)`.
+    ext
+    · have h := normFormOfBasis_a_mul_absNorm hI_ne_zero b_oriented
+      rw [hN_eq, hnorm0] at h
+      have hcancel : (normFormOfBasis hI_ne_zero b_oriented).a * Q.1.a = Q.1.a * Q.1.a := by
+        rw [h]; ring
+      exact mul_right_cancel₀ hane hcancel
+    · have h := normFormOfBasis_b_mul_absNorm hI_ne_zero b_oriented
+      rw [hN_eq, hnormsum, hnorm0, hnorm1] at h
+      have hcancel : (normFormOfBasis hI_ne_zero b_oriented).b * Q.1.a = Q.1.b * Q.1.a := by
+        rw [h]; ring
+      exact mul_right_cancel₀ hane hcancel
+    · have h := normFormOfBasis_c_mul_absNorm hI_ne_zero b_oriented
+      rw [hN_eq, hnorm1] at h
+      have hcancel : (normFormOfBasis hI_ne_zero b_oriented).c * Q.1.a = Q.1.c * Q.1.a := by
+        rw [h]; ring
+      exact mul_right_cancel₀ hane hcancel
   -- proper equivalence → equal classes
   have h_equiv : (normFormOfBasis hI_ne_zero
       (orientedBasisOfNeZero (I : Ideal 𝓞K) hI_ne_zero)).ProperEquivalent
