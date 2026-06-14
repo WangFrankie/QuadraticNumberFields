@@ -66,6 +66,72 @@ theorem formClassToClassGroup_rightInverse_of_ideal_representatives (hdneg : d <
   obtain ⟨I, hmk, hform⟩ := exists_mk0_eq_formClassOfNonzeroIdeal hdneg C
   rw [← hform, hrep I, hmk]
 
+/-- In the `d % 4 ≠ 1` branch, applying the forward map to the inverse form of
+an ideal computes to the Cox ideal class of the attached norm form. -/
+theorem formClassToClassGroup_formClassOfNonzeroIdeal_eq_of_mod_four_ne_one
+    (hdneg : d < 0) (hd4 : d % 4 ≠ 1) (I : (Ideal 𝓞K)⁰) :
+    formClassToClassGroup d (formClassOfNonzeroIdeal hdneg I) =
+      let hI : (I : Ideal 𝓞K) ≠ 0 := mem_nonZeroDivisors_iff_ne_zero.mp I.2
+      let b : OrientedBasis (I : Ideal 𝓞K) := orientedBasisOfNeZero (I : Ideal 𝓞K) hI
+      idealClassOfForm_of_mod_four_ne_one d hd4
+        (primitivePositiveDefiniteNormFormOfBasis hdneg hI b) := by
+  unfold formClassOfNonzeroIdeal
+  exact formClassToClassGroup_mk_eq_of_mod_four_ne_one d hd4 _
+
+/-- In the `d % 4 = 1` branch, applying the forward map to the inverse form of
+an ideal computes to the Cox ideal class of the attached norm form. -/
+theorem formClassToClassGroup_formClassOfNonzeroIdeal_eq_of_mod_four_eq_one
+    (hdneg : d < 0) (hd4 : d % 4 = 1) (I : (Ideal 𝓞K)⁰) :
+    formClassToClassGroup d (formClassOfNonzeroIdeal hdneg I) =
+      let hI : (I : Ideal 𝓞K) ≠ 0 := mem_nonZeroDivisors_iff_ne_zero.mp I.2
+      let b : OrientedBasis (I : Ideal 𝓞K) := orientedBasisOfNeZero (I : Ideal 𝓞K) hI
+      idealClassOfForm_of_mod_four_eq_one d hd4
+        (primitivePositiveDefiniteNormFormOfBasis hdneg hI b) := by
+  unfold formClassOfNonzeroIdeal
+  exact formClassToClassGroup_mk_eq_of_mod_four_eq_one d hd4 _
+
+/-- It is enough to prove the left inverse law separately for the two explicit
+Cox ideal class constructors. -/
+theorem formClassToClassGroup_leftInverse_of_branch_representatives (hdneg : d < 0)
+    (hne : ∀ (hd4 : d % 4 ≠ 1) (Q : PrimitivePositiveDefiniteForm (fieldDiscriminant d)),
+      classGroupToFormClass hdneg (idealClassOfForm_of_mod_four_ne_one d hd4 Q) =
+        Quotient.mk (primitivePositiveDefiniteFormSetoid _) Q)
+    (heq : ∀ (hd4 : d % 4 = 1) (Q : PrimitivePositiveDefiniteForm (fieldDiscriminant d)),
+      classGroupToFormClass hdneg (idealClassOfForm_of_mod_four_eq_one d hd4 Q) =
+        Quotient.mk (primitivePositiveDefiniteFormSetoid _) Q) :
+    ∀ C : FormClass (fieldDiscriminant d),
+      classGroupToFormClass hdneg (formClassToClassGroup d C) = C := by
+  apply formClassToClassGroup_leftInverse_of_representatives hdneg
+  intro Q
+  by_cases hd4 : d % 4 = 1
+  · rw [formClassToClassGroup_mk_eq_of_mod_four_eq_one d hd4]
+    exact heq hd4 Q
+  · rw [formClassToClassGroup_mk_eq_of_mod_four_ne_one d hd4]
+    exact hne hd4 Q
+
+/-- It is enough to prove the right inverse law separately for the two explicit
+Cox ideal class constructors attached to norm forms of ideal bases. -/
+theorem formClassToClassGroup_rightInverse_of_branch_ideal_representatives (hdneg : d < 0)
+    (hne : ∀ (hd4 : d % 4 ≠ 1) (I : (Ideal 𝓞K)⁰),
+      (let hI : (I : Ideal 𝓞K) ≠ 0 := mem_nonZeroDivisors_iff_ne_zero.mp I.2
+       let b : OrientedBasis (I : Ideal 𝓞K) := orientedBasisOfNeZero (I : Ideal 𝓞K) hI
+       idealClassOfForm_of_mod_four_ne_one d hd4
+         (primitivePositiveDefiniteNormFormOfBasis hdneg hI b)) = ClassGroup.mk0 I)
+    (heq : ∀ (hd4 : d % 4 = 1) (I : (Ideal 𝓞K)⁰),
+      (let hI : (I : Ideal 𝓞K) ≠ 0 := mem_nonZeroDivisors_iff_ne_zero.mp I.2
+       let b : OrientedBasis (I : Ideal 𝓞K) := orientedBasisOfNeZero (I : Ideal 𝓞K) hI
+       idealClassOfForm_of_mod_four_eq_one d hd4
+         (primitivePositiveDefiniteNormFormOfBasis hdneg hI b)) = ClassGroup.mk0 I) :
+    ∀ C : ClassGroup 𝓞K,
+      formClassToClassGroup d (classGroupToFormClass hdneg C) = C := by
+  apply formClassToClassGroup_rightInverse_of_ideal_representatives hdneg
+  intro I
+  by_cases hd4 : d % 4 = 1
+  · rw [formClassToClassGroup_formClassOfNonzeroIdeal_eq_of_mod_four_eq_one hdneg hd4]
+    exact heq hd4 I
+  · rw [formClassToClassGroup_formClassOfNonzeroIdeal_eq_of_mod_four_ne_one hdneg hd4]
+    exact hne hd4 I
+
 /-- Assemble the Cox 7.7 equivalence from representative-level compatibility
 of the two maps. -/
 noncomputable def formClassEquivClassGroupOfRepresentativeLaws (hdneg : d < 0)
