@@ -440,6 +440,235 @@ theorem basis_first_mul_eq_neg_a_mul_basis_second {I : Ideal 𝓞K} (hI : I ≠ 
   · simpa using cox_generator_relation_re ha hb hNim hN0
   · simpa using cox_generator_relation_im ha hb hNim hN0
 
+/-! ## Branch-agnostic Cox ideal transport -/
+
+/-- The scalar Cox generator gives one generator of the principal-relation
+inclusion `(b₀) · J(Q_b) ≤ (a_Q) · I`, independently of the order model used to
+write the two Cox generators. -/
+theorem basis_first_mul_cox_scalar_mem_span_a_mul_ideal {O : Type*} [CommRing O]
+    {I : Ideal 𝓞K} (b : OrientedBasis I)
+    (Q : PrimitivePositiveDefiniteForm (fieldDiscriminant d)) (e : 𝓞K ≃+* O) :
+    (b.basis 0 : 𝓞K) * e.symm (((Q.1.a : ℤ) : O)) ∈
+      Ideal.span ({((Q.1.a : ℤ) : 𝓞K)} : Set 𝓞K) * I := by
+  have hα : (b.basis 0 : 𝓞K) ∈ I := (b.basis 0).2
+  have ha : e.symm (((Q.1.a : ℤ) : O)) ∈
+      Ideal.span ({((Q.1.a : ℤ) : 𝓞K)} : Set 𝓞K) := by
+    rw [Ideal.mem_span_singleton]
+    exact ⟨1, by simp⟩
+  simpa [mul_comm] using Ideal.mul_mem_mul ha hα
+
+/-- The Cox generator relation places the second Cox generator in the same
+principal-relation target ideal. -/
+theorem basis_first_mul_cox_ideal_generator_mem_span_a_mul_ideal {O : Type*} [CommRing O]
+    {I : Ideal 𝓞K} (b : OrientedBasis I)
+    (Q : PrimitivePositiveDefiniteForm (fieldDiscriminant d)) (e : 𝓞K ≃+* O)
+    (betaO : O)
+    (hrel :
+      (b.basis 0 : 𝓞K) * e.symm betaO =
+        -(((Q.1.a : ℤ) : 𝓞K) * (b.basis 1 : 𝓞K))) :
+    (b.basis 0 : 𝓞K) * e.symm betaO ∈
+      Ideal.span ({((Q.1.a : ℤ) : 𝓞K)} : Set 𝓞K) * I := by
+  rw [hrel]
+  have hβ : (b.basis 1 : 𝓞K) ∈ I := (b.basis 1).2
+  have ha : ((Q.1.a : ℤ) : 𝓞K) ∈
+      Ideal.span ({((Q.1.a : ℤ) : 𝓞K)} : Set 𝓞K) :=
+    Ideal.subset_span (by simp)
+  exact neg_mem (Ideal.mul_mem_mul ha hβ)
+
+/-- The two Cox generator membership facts assemble to
+`(b₀) · J(Q_b) ≤ (a_Q) · I`, for any order model obtained by a ring equivalence
+from the ring of integers. -/
+theorem basis_first_mul_cox_ideal_le_span_a_mul_ideal {O : Type*} [CommRing O]
+    {I : Ideal 𝓞K} (b : OrientedBasis I)
+    (Q : PrimitivePositiveDefiniteForm (fieldDiscriminant d)) (e : 𝓞K ≃+* O)
+    (betaO : O)
+    (hrel :
+      (b.basis 0 : 𝓞K) * e.symm betaO =
+        -(((Q.1.a : ℤ) : 𝓞K) * (b.basis 1 : 𝓞K))) :
+    Ideal.span ({(b.basis 0 : 𝓞K)} : Set 𝓞K) *
+        Ideal.comap e.toRingHom
+          (Ideal.span ({((Q.1.a : ℤ) : O), betaO} : Set O)) ≤
+      Ideal.span ({((Q.1.a : ℤ) : 𝓞K)} : Set 𝓞K) * I := by
+  let aO : O := ((Q.1.a : ℤ) : O)
+  let target : Ideal 𝓞K := Ideal.span ({((Q.1.a : ℤ) : 𝓞K)} : Set 𝓞K) * I
+  have hscalar : (b.basis 0 : 𝓞K) * e.symm aO ∈ target := by
+    simpa [aO, target] using basis_first_mul_cox_scalar_mem_span_a_mul_ideal b Q e
+  have hbeta : (b.basis 0 : 𝓞K) * e.symm betaO ∈ target := by
+    simpa [target] using
+      basis_first_mul_cox_ideal_generator_mem_span_a_mul_ideal b Q e betaO hrel
+  rw [Ideal.span_singleton_mul_le_iff]
+  intro z hz
+  have hz' : e z ∈ Ideal.span ({aO, betaO} : Set O) := by
+    simpa [aO] using hz
+  rcases ((Ideal.mem_span_pair (x := aO) (y := betaO)).mp hz') with ⟨u, v, huv⟩
+  have hz_eq : z = e.symm (u * aO + v * betaO) := by
+    apply e.injective
+    simp [huv]
+  rw [hz_eq]
+  have hsplit :
+      (b.basis 0 : 𝓞K) * e.symm (u * aO + v * betaO) =
+        e.symm u * ((b.basis 0 : 𝓞K) * e.symm aO) +
+          e.symm v * ((b.basis 0 : 𝓞K) * e.symm betaO) := by
+    simp
+    ring
+  rw [hsplit]
+  exact target.add_mem (target.mul_mem_left (e.symm u) hscalar)
+    (target.mul_mem_left (e.symm v) hbeta)
+
+/-- The oriented-basis decomposition gives the reverse principal-relation
+inclusion `(a_Q) · I ≤ (b₀) · J(Q_b)`, independently of the order model. -/
+theorem span_a_mul_ideal_le_basis_first_mul_cox_ideal {O : Type*} [CommRing O]
+    {I : Ideal 𝓞K} (b : OrientedBasis I)
+    (Q : PrimitivePositiveDefiniteForm (fieldDiscriminant d)) (e : 𝓞K ≃+* O)
+    (betaO : O)
+    (hrel :
+      (b.basis 0 : 𝓞K) * e.symm betaO =
+        -(((Q.1.a : ℤ) : 𝓞K) * (b.basis 1 : 𝓞K))) :
+    Ideal.span ({((Q.1.a : ℤ) : 𝓞K)} : Set 𝓞K) * I ≤
+      Ideal.span ({(b.basis 0 : 𝓞K)} : Set 𝓞K) *
+        Ideal.comap e.toRingHom
+          (Ideal.span ({((Q.1.a : ℤ) : O), betaO} : Set O)) := by
+  let aOK : 𝓞K := ((Q.1.a : ℤ) : 𝓞K)
+  let aO : O := ((Q.1.a : ℤ) : O)
+  let target : Ideal 𝓞K := Ideal.span ({(b.basis 0 : 𝓞K)} : Set 𝓞K) *
+    Ideal.comap e.toRingHom (Ideal.span ({aO, betaO} : Set O))
+  have ha_mem_J :
+      e.symm aO ∈ Ideal.comap e.toRingHom (Ideal.span ({aO, betaO} : Set O)) := by
+    change e (e.symm aO) ∈ Ideal.span ({aO, betaO} : Set O)
+    rw [RingEquiv.apply_symm_apply]
+    exact Ideal.subset_span (by simp)
+  have hbeta_mem_J :
+      e.symm betaO ∈ Ideal.comap e.toRingHom (Ideal.span ({aO, betaO} : Set O)) := by
+    change e (e.symm betaO) ∈ Ideal.span ({aO, betaO} : Set O)
+    rw [RingEquiv.apply_symm_apply]
+    exact Ideal.subset_span (by simp)
+  have h_a_b0 : aOK * (b.basis 0 : 𝓞K) ∈ target := by
+    have hb0 : (b.basis 0 : 𝓞K) ∈ Ideal.span ({(b.basis 0 : 𝓞K)} : Set 𝓞K) :=
+      Ideal.subset_span (by simp)
+    have h : (b.basis 0 : 𝓞K) * e.symm aO ∈ target := Ideal.mul_mem_mul hb0 ha_mem_J
+    simpa [target, aOK, aO, mul_comm] using h
+  have h_a_b1 : aOK * (b.basis 1 : 𝓞K) ∈ target := by
+    have hb0 : (b.basis 0 : 𝓞K) ∈ Ideal.span ({(b.basis 0 : 𝓞K)} : Set 𝓞K) :=
+      Ideal.subset_span (by simp)
+    have hβ : (b.basis 0 : 𝓞K) * e.symm betaO ∈ target :=
+      Ideal.mul_mem_mul hb0 hbeta_mem_J
+    have hneg : -(aOK * (b.basis 1 : 𝓞K)) ∈ target := by
+      simpa [aOK, hrel] using hβ
+    simpa using neg_mem hneg
+  rw [Ideal.span_singleton_mul_le_iff]
+  intro z hz
+  let zI : I := ⟨z, hz⟩
+  let m : ℤ := b.basis.repr zI 0
+  let n : ℤ := b.basis.repr zI 1
+  have hz_decomp : z = m • (b.basis 0 : 𝓞K) + n • (b.basis 1 : 𝓞K) := by
+    have hsum := b.basis.sum_repr zI
+    have hsub : ((∑ i : Fin 2, (b.basis.repr zI) i • b.basis i : I) : 𝓞K) = z := by
+      simp [zI, hsum]
+    rw [Fin.sum_univ_two] at hsub
+    simpa [m, n] using hsub.symm
+  rw [hz_decomp, mul_add]
+  apply target.add_mem
+  · rw [zsmul_eq_mul']
+    rw [show aOK * ((b.basis 0 : 𝓞K) * (m : 𝓞K)) =
+        (m : 𝓞K) * (aOK * (b.basis 0 : 𝓞K)) by ring]
+    exact target.mul_mem_left (m : 𝓞K) h_a_b0
+  · rw [zsmul_eq_mul']
+    rw [show aOK * ((b.basis 1 : 𝓞K) * (n : 𝓞K)) =
+        (n : 𝓞K) * (aOK * (b.basis 1 : 𝓞K)) by ring]
+    exact target.mul_mem_left (n : 𝓞K) h_a_b1
+
+/-- The branch-agnostic principal ideal relation
+`(b₀) · J(Q_b) = (a_Q) · I`. -/
+theorem basis_first_mul_cox_ideal_eq_span_a_mul_ideal {O : Type*} [CommRing O]
+    {I : Ideal 𝓞K} (b : OrientedBasis I)
+    (Q : PrimitivePositiveDefiniteForm (fieldDiscriminant d)) (e : 𝓞K ≃+* O)
+    (betaO : O)
+    (hrel :
+      (b.basis 0 : 𝓞K) * e.symm betaO =
+        -(((Q.1.a : ℤ) : 𝓞K) * (b.basis 1 : 𝓞K))) :
+    Ideal.span ({(b.basis 0 : 𝓞K)} : Set 𝓞K) *
+        Ideal.comap e.toRingHom
+          (Ideal.span ({((Q.1.a : ℤ) : O), betaO} : Set O)) =
+      Ideal.span ({((Q.1.a : ℤ) : 𝓞K)} : Set 𝓞K) * I :=
+  le_antisymm (basis_first_mul_cox_ideal_le_span_a_mul_ideal b Q e betaO hrel)
+    (span_a_mul_ideal_le_basis_first_mul_cox_ideal b Q e betaO hrel)
+
+/-- A branch-level Cox ideal definition as `ClassGroup.mk0` turns a principal
+ideal relation into the representative-level right-inverse law. -/
+theorem idealClassOfNormForm_eq_mk0_of_basis_ideal_relation
+    (hdneg : d < 0) {I : (Ideal 𝓞K)⁰} (b : OrientedBasis (I : Ideal 𝓞K))
+    (idealOf : PrimitivePositiveDefiniteForm (fieldDiscriminant d) → Ideal 𝓞K)
+    (classOf : PrimitivePositiveDefiniteForm (fieldDiscriminant d) → ClassGroup 𝓞K)
+    (hne : ∀ Q : PrimitivePositiveDefiniteForm (fieldDiscriminant d), idealOf Q ≠ 0)
+    (hclass : ∀ Q : PrimitivePositiveDefiniteForm (fieldDiscriminant d),
+      classOf Q =
+        ClassGroup.mk0 ⟨idealOf Q, mem_nonZeroDivisors_iff_ne_zero.mpr (hne Q)⟩)
+    {x y : 𝓞K} (hx : x ≠ 0) (hy : y ≠ 0)
+    (hrel :
+      Ideal.span ({x} : Set 𝓞K) *
+          idealOf (primitivePositiveDefiniteNormFormOfBasis hdneg
+            (mem_nonZeroDivisors_iff_ne_zero.mp I.2) b) =
+        Ideal.span ({y} : Set 𝓞K) * (I : Ideal 𝓞K)) :
+    classOf (primitivePositiveDefiniteNormFormOfBasis hdneg
+      (mem_nonZeroDivisors_iff_ne_zero.mp I.2) b) = ClassGroup.mk0 I := by
+  rw [hclass, ClassGroup.mk0_eq_mk0_iff]
+  exact ⟨x, y, hx, hy, by simpa using hrel⟩
+
+/-- If a branch-level Cox ideal-class map is invariant under proper equivalence,
+then it is enough to prove the right-inverse law for any properly equivalent
+representative. -/
+theorem idealClassOfNormForm_eq_mk0_of_properEquivalent
+    (hdneg : d < 0) {I : (Ideal 𝓞K)⁰} (b : OrientedBasis (I : Ideal 𝓞K))
+    (classOf : PrimitivePositiveDefiniteForm (fieldDiscriminant d) → ClassGroup 𝓞K)
+    (hproper : ∀ Q R : PrimitivePositiveDefiniteForm (fieldDiscriminant d),
+      PrimitivePositiveDefiniteForm.ProperEquivalent Q R → classOf Q = classOf R)
+    (R : PrimitivePositiveDefiniteForm (fieldDiscriminant d))
+    (hQR :
+      PrimitivePositiveDefiniteForm.ProperEquivalent
+        (primitivePositiveDefiniteNormFormOfBasis hdneg
+          (mem_nonZeroDivisors_iff_ne_zero.mp I.2) b) R)
+    (hR : classOf R = ClassGroup.mk0 I) :
+    classOf (primitivePositiveDefiniteNormFormOfBasis hdneg
+      (mem_nonZeroDivisors_iff_ne_zero.mp I.2) b) = ClassGroup.mk0 I := by
+  calc
+    classOf (primitivePositiveDefiniteNormFormOfBasis hdneg
+        (mem_nonZeroDivisors_iff_ne_zero.mp I.2) b) = classOf R :=
+      hproper _ R hQR
+    _ = ClassGroup.mk0 I := hR
+
+/-- A branch-level principal-ideal relation theorem turns the first-basis-vector
+relation `(b₀) · J(Q_b) = (a_Q) · I` into the Cox right-inverse law. -/
+theorem idealClassOfNormForm_eq_mk0_of_basis_first_vector_relation
+    (hdneg : d < 0) {I : (Ideal 𝓞K)⁰} (b : OrientedBasis (I : Ideal 𝓞K))
+    (idealOf : PrimitivePositiveDefiniteForm (fieldDiscriminant d) → Ideal 𝓞K)
+    (classOf : PrimitivePositiveDefiniteForm (fieldDiscriminant d) → ClassGroup 𝓞K)
+    (hbranch :
+      ∀ {x y : 𝓞K}, x ≠ 0 → y ≠ 0 →
+        Ideal.span ({x} : Set 𝓞K) *
+            idealOf (primitivePositiveDefiniteNormFormOfBasis hdneg
+              (mem_nonZeroDivisors_iff_ne_zero.mp I.2) b) =
+          Ideal.span ({y} : Set 𝓞K) * (I : Ideal 𝓞K) →
+        classOf (primitivePositiveDefiniteNormFormOfBasis hdneg
+          (mem_nonZeroDivisors_iff_ne_zero.mp I.2) b) = ClassGroup.mk0 I)
+    (hrel :
+      Ideal.span ({(b.basis 0 : 𝓞K)} : Set 𝓞K) *
+          idealOf (primitivePositiveDefiniteNormFormOfBasis hdneg
+            (mem_nonZeroDivisors_iff_ne_zero.mp I.2) b) =
+        Ideal.span
+            ({(((primitivePositiveDefiniteNormFormOfBasis hdneg
+              (mem_nonZeroDivisors_iff_ne_zero.mp I.2) b).1.a : ℤ) : 𝓞K)} :
+              Set 𝓞K) *
+          (I : Ideal 𝓞K)) :
+    classOf (primitivePositiveDefiniteNormFormOfBasis hdneg
+      (mem_nonZeroDivisors_iff_ne_zero.mp I.2) b) = ClassGroup.mk0 I := by
+  have hb0_ne : (b.basis 0 : 𝓞K) ≠ 0 := fun h => b.basis.ne_zero 0 (Subtype.ext h)
+  have ha_ne : (((primitivePositiveDefiniteNormFormOfBasis hdneg
+      (mem_nonZeroDivisors_iff_ne_zero.mp I.2) b).1.a : ℤ) : 𝓞K) ≠ 0 := by
+    exact_mod_cast
+      (primitivePositiveDefiniteNormFormOfBasis hdneg
+        (mem_nonZeroDivisors_iff_ne_zero.mp I.2) b).2.2.2.1.ne'
+  exact hbranch hb0_ne ha_ne hrel
+
 end BasisChange
 
 end BinaryQuadraticForm
