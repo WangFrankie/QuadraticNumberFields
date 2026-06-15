@@ -932,6 +932,54 @@ theorem idealClassOfNormForm_eq_mk0_of_mod_four_eq_one_of_basis_ideal_relation
   exact ⟨x, y, hx, hy, by
     simpa [nonzeroIdealOfForm_of_mod_four_eq_one] using hrel⟩
 
+/-- In the `d % 4 ≠ 1` branch, it is enough to prove the right-inverse law after
+replacing the norm form attached to an oriented ideal basis by a properly
+equivalent representative. -/
+theorem idealClassOfNormForm_eq_mk0_of_mod_four_ne_one_of_properEquivalent
+    (hdneg : d < 0) (hd4 : d % 4 ≠ 1) (I : (Ideal 𝓞K)⁰)
+    (b : OrientedBasis (I : Ideal 𝓞K))
+    (R : PrimitivePositiveDefiniteForm (fieldDiscriminant d))
+    (hQR :
+      PrimitivePositiveDefiniteForm.ProperEquivalent
+        (primitivePositiveDefiniteNormFormOfBasis hdneg
+          (mem_nonZeroDivisors_iff_ne_zero.mp I.2) b) R)
+    (hR : idealClassOfForm_of_mod_four_ne_one d hd4 R = ClassGroup.mk0 I) :
+    idealClassOfForm_of_mod_four_ne_one d hd4
+        (primitivePositiveDefiniteNormFormOfBasis hdneg
+          (mem_nonZeroDivisors_iff_ne_zero.mp I.2) b) =
+      ClassGroup.mk0 I := by
+  calc
+    idealClassOfForm_of_mod_four_ne_one d hd4
+        (primitivePositiveDefiniteNormFormOfBasis hdneg
+          (mem_nonZeroDivisors_iff_ne_zero.mp I.2) b) =
+        idealClassOfForm_of_mod_four_ne_one d hd4 R :=
+      idealClassOfForm_of_mod_four_ne_one_eq_of_properEquivalent d hd4 _ _ hQR
+    _ = ClassGroup.mk0 I := hR
+
+/-- In the `d % 4 = 1` branch, it is enough to prove the right-inverse law after
+replacing the norm form attached to an oriented ideal basis by a properly
+equivalent representative. -/
+theorem idealClassOfNormForm_eq_mk0_of_mod_four_eq_one_of_properEquivalent
+    (hdneg : d < 0) (hd4 : d % 4 = 1) (I : (Ideal 𝓞K)⁰)
+    (b : OrientedBasis (I : Ideal 𝓞K))
+    (R : PrimitivePositiveDefiniteForm (fieldDiscriminant d))
+    (hQR :
+      PrimitivePositiveDefiniteForm.ProperEquivalent
+        (primitivePositiveDefiniteNormFormOfBasis hdneg
+          (mem_nonZeroDivisors_iff_ne_zero.mp I.2) b) R)
+    (hR : idealClassOfForm_of_mod_four_eq_one d hd4 R = ClassGroup.mk0 I) :
+    idealClassOfForm_of_mod_four_eq_one d hd4
+        (primitivePositiveDefiniteNormFormOfBasis hdneg
+          (mem_nonZeroDivisors_iff_ne_zero.mp I.2) b) =
+      ClassGroup.mk0 I := by
+  calc
+    idealClassOfForm_of_mod_four_eq_one d hd4
+        (primitivePositiveDefiniteNormFormOfBasis hdneg
+          (mem_nonZeroDivisors_iff_ne_zero.mp I.2) b) =
+        idealClassOfForm_of_mod_four_eq_one d hd4 R :=
+      idealClassOfForm_of_mod_four_eq_one_eq_of_properEquivalent d hd4 _ _ hQR
+    _ = ClassGroup.mk0 I := hR
+
 /-- In the `d % 4 ≠ 1` branch, the right-inverse law follows from the classical
 Cox relation `(α) · J(Q_b) = (a_Q) · I`, where `α` is the first vector of the
 oriented ideal basis and `Q_b` is its norm form. -/
