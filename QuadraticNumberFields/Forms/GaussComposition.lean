@@ -45,6 +45,53 @@ integer-triple model. -/
 def IsUnited (Q R : BinaryQuadraticForm) : Prop :=
   Q.disc = R.disc ∧ coeffGCD3 Q.a R.a (sigma Q R) = 1
 
+/-- Bézout data attached to a united pair of binary quadratic forms. -/
+structure UnitedBezout (Q R : BinaryQuadraticForm) where
+  /-- Coefficient of the left leading coefficient. -/
+  u : ℤ
+  /-- Coefficient of the right leading coefficient. -/
+  v : ℤ
+  /-- Coefficient of the half-sum `sigma Q R`. -/
+  w : ℤ
+  /-- The Bézout identity certifying the united condition. -/
+  linear_combination : u * Q.a + v * R.a + w * sigma Q R = 1
+
+/-- A united pair admits three-term Bézout coefficients
+`u * a + v * a' + w * sigma = 1`. -/
+theorem exists_unitedBezout_of_isUnited {Q R : BinaryQuadraticForm}
+    (h : Q.IsUnited R) : Nonempty (UnitedBezout Q R) := by
+  let g : ℕ := Int.gcd R.a (sigma Q R)
+  have hgcd : Int.gcd Q.a g = 1 := by
+    simpa [IsUnited, coeffGCD3, g, Int.gcd] using h.2
+  have hbezout_left : (1 : ℤ) = Q.a * Int.gcdA Q.a g + (g : ℤ) * Int.gcdB Q.a g := by
+    rw [← Int.gcd_eq_gcd_ab Q.a g, hgcd]
+    norm_num
+  have hbezout_right :
+      (g : ℤ) = R.a * Int.gcdA R.a (sigma Q R) +
+        sigma Q R * Int.gcdB R.a (sigma Q R) := by
+    exact Int.gcd_eq_gcd_ab R.a (sigma Q R)
+  refine ⟨⟨Int.gcdA Q.a g,
+    Int.gcdB Q.a g * Int.gcdA R.a (sigma Q R),
+    Int.gcdB Q.a g * Int.gcdB R.a (sigma Q R), ?_⟩⟩
+  calc
+    Int.gcdA Q.a g * Q.a +
+        (Int.gcdB Q.a g * Int.gcdA R.a (sigma Q R)) * R.a +
+        (Int.gcdB Q.a g * Int.gcdB R.a (sigma Q R)) * sigma Q R
+        = Q.a * Int.gcdA Q.a g + (g : ℤ) * Int.gcdB Q.a g := by
+          rw [hbezout_right]
+          ring
+    _ = 1 := hbezout_left.symm
+
+namespace UnitedBezout
+
+/-- A noncomputable choice of Bézout data attached to a proof that two forms are
+united. -/
+noncomputable def ofIsUnited {Q R : BinaryQuadraticForm} (h : Q.IsUnited R) :
+    UnitedBezout Q R :=
+  Classical.choice (exists_unitedBezout_of_isUnited h)
+
+end UnitedBezout
+
 /-- Concordant forms are the already-aligned representatives on which the
 elementary Gauss composition formula is direct. -/
 def IsConcordant (Q R : BinaryQuadraticForm) : Prop :=
@@ -80,6 +127,19 @@ theorem IsConcordant.isUnited {Q R : BinaryQuadraticForm}
   exact Nat.dvd_gcd (Nat.gcd_dvd_left _ _)
     (dvd_trans (Nat.gcd_dvd_right _ _) (Nat.gcd_dvd_left _ _))
 
+/-- Concordant forms admit united Bézout data with zero coefficient on
+`sigma`. -/
+theorem exists_unitedBezout_of_isConcordant {Q R : BinaryQuadraticForm}
+    (h : Q.IsConcordant R) : Nonempty (UnitedBezout Q R) := by
+  have hbezout : (1 : ℤ) = Q.a * Int.gcdA Q.a R.a + R.a * Int.gcdB Q.a R.a := by
+    rw [← Int.gcd_eq_gcd_ab Q.a R.a, h.2.2]
+    norm_num
+  refine ⟨⟨Int.gcdA Q.a R.a, Int.gcdB Q.a R.a, 0, ?_⟩⟩
+  calc
+    Int.gcdA Q.a R.a * Q.a + Int.gcdB Q.a R.a * R.a + 0 * sigma Q R
+        = Q.a * Int.gcdA Q.a R.a + R.a * Int.gcdB Q.a R.a := by ring
+    _ = 1 := hbezout.symm
+
 /-- The direct Gauss composition formula for concordant representatives.
 
 For concordant primitive forms the denominator divides the numerator; the
@@ -89,6 +149,23 @@ def composeConcordant (Q R : BinaryQuadraticForm) : BinaryQuadraticForm where
   a := Q.a * R.a
   b := Q.b
   c := (Q.b ^ 2 - Q.disc) / (4 * Q.a * R.a)
+
+/-- The direct Gauss composition formula for united representatives equipped
+with explicit Bézout data.  The middle coefficient is the classical
+`B = b + 2a(v(sigma-b) - w c)` choice before reduction modulo `2aa'`; the final
+coefficient is again made total by integer division. -/
+def composeUnited (Q R : BinaryQuadraticForm) (bezout : UnitedBezout Q R) :
+    BinaryQuadraticForm where
+  a := Q.a * R.a
+  b := Q.b + 2 * Q.a * (bezout.v * (sigma Q R - Q.b) - bezout.w * Q.c)
+  c := ((Q.b + 2 * Q.a * (bezout.v * (sigma Q R - Q.b) - bezout.w * Q.c)) ^ 2 -
+    Q.disc) / (4 * (Q.a * R.a))
+
+/-- The direct united-composition formula, choosing Bézout data from an
+`IsUnited` proof. -/
+noncomputable def composeUnitedOfIsUnited
+    (Q R : BinaryQuadraticForm) (h : Q.IsUnited R) : BinaryQuadraticForm :=
+  composeUnited Q R (UnitedBezout.ofIsUnited h)
 
 @[simp] theorem composeConcordant_a (Q R : BinaryQuadraticForm) :
     (composeConcordant Q R).a = Q.a * R.a :=
@@ -101,6 +178,45 @@ def composeConcordant (Q R : BinaryQuadraticForm) : BinaryQuadraticForm where
 @[simp] theorem composeConcordant_c (Q R : BinaryQuadraticForm) :
     (composeConcordant Q R).c = (Q.b ^ 2 - Q.disc) / (4 * Q.a * R.a) :=
   rfl
+
+@[simp] theorem composeUnited_a (Q R : BinaryQuadraticForm)
+    (bezout : UnitedBezout Q R) :
+    (composeUnited Q R bezout).a = Q.a * R.a :=
+  rfl
+
+@[simp] theorem composeUnited_b (Q R : BinaryQuadraticForm)
+    (bezout : UnitedBezout Q R) :
+    (composeUnited Q R bezout).b =
+      Q.b + 2 * Q.a * (bezout.v * (sigma Q R - Q.b) - bezout.w * Q.c) :=
+  rfl
+
+@[simp] theorem composeUnited_c (Q R : BinaryQuadraticForm)
+    (bezout : UnitedBezout Q R) :
+    (composeUnited Q R bezout).c =
+      ((Q.b + 2 * Q.a * (bezout.v * (sigma Q R - Q.b) - bezout.w * Q.c)) ^ 2 -
+        Q.disc) / (4 * (Q.a * R.a)) :=
+  rfl
+
+@[simp] theorem composeUnitedOfIsUnited_a (Q R : BinaryQuadraticForm)
+    (h : Q.IsUnited R) :
+    (composeUnitedOfIsUnited Q R h).a = Q.a * R.a :=
+  rfl
+
+/-- The united formula recovers the concordant formula when the middle
+coefficients are aligned and the chosen Bézout data has zero `sigma`
+coefficient. -/
+theorem composeUnited_eq_composeConcordant_of_sigma_eq_b_of_w_eq_zero
+    {Q R : BinaryQuadraticForm} {bezout : UnitedBezout Q R}
+    (hsigma : sigma Q R = Q.b) (hw : bezout.w = 0) :
+    composeUnited Q R bezout = composeConcordant Q R := by
+  ext
+  · rfl
+  · simp only [composeUnited_b, composeConcordant_b, hsigma, hw, sub_self, mul_zero,
+      zero_mul, add_zero]
+  · simp only [composeUnited_c, composeConcordant_c, hsigma, hw, sub_self, mul_zero,
+      zero_mul, add_zero]
+    exact congrArg (fun n => (Q.b ^ 2 - Q.disc) / n)
+      (show 4 * (Q.a * R.a) = 4 * Q.a * R.a by ring)
 
 /-- Concordant forms with equal discriminants and equal middle coefficient
 satisfy `a c = a' c'`. -/
