@@ -4,8 +4,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 
+import QuadraticNumberFields.Forms.Action
 import QuadraticNumberFields.Forms.Basic
+import Mathlib.Data.Int.GCD
 import Mathlib.Data.Int.NatPrime
+import Mathlib.Data.Nat.ChineseRemainder
+import Mathlib.Data.Nat.PrimeFin
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Ring
 
@@ -312,6 +316,138 @@ theorem isPrimitive_composeConcordant_of_isConcordant
     have hpRb : (p : ℤ) ∣ R.b := by
       simpa [h.2.1] using hpQb
     exact not_prime_dvd_coefficients_of_isPrimitive hR hp hpRa hpRb hpRc
+
+/-! ## Cox Lemma 2.25: primitive forms represent numbers coprime to any given M
+
+The key number-theoretic lemma: a primitive binary quadratic form represents
+infinitely many integers coprime to any prescribed nonzero integer.  This is
+the form-level engine behind concordant-representative replacement and
+ultimately behind the fact that every ideal class contains an ideal with norm
+coprime to any given modulus (Cox Corollary 7.17). -/
+
+section Lemma_2_25
+
+/-- For a primitive form and a prime `p`, one of the three canonical vectors
+`(1,0)`, `(0,1)`, `(1,1)` evaluates to an integer not divisible by `p`. -/
+theorem exists_eval_not_dvd_of_isPrimitive_of_prime {Q : BinaryQuadraticForm}
+    (hQ : Q.IsPrimitive) {p : ℕ} (hp : Nat.Prime p) :
+    (¬ (p : ℤ) ∣ Q.eval 1 0) ∨ (¬ (p : ℤ) ∣ Q.eval 0 1)
+      ∨ (¬ (p : ℤ) ∣ Q.eval 1 1) := by
+  have ha : Q.eval 1 0 = Q.a := by simp [eval]
+  have hc : Q.eval 0 1 = Q.c := by simp [eval]
+  have hsum : Q.eval 1 1 = Q.a + Q.b + Q.c := by simp [eval]
+  by_cases hpa : (p : ℤ) ∣ Q.a
+  · by_cases hpc : (p : ℤ) ∣ Q.c
+    · right; right
+      rw [hsum]
+      intro hpsum
+      -- Since p divides a, c, and a+b+c, it also divides b
+      have hpb : (p : ℤ) ∣ Q.b := by
+        have htemp : (p : ℤ) ∣ (Q.a + Q.b + Q.c) - Q.a - Q.c := by
+          exact (dvd_sub (dvd_sub hpsum hpa) hpc)
+        -- (a+b+c) - a - c = b
+        simpa [add_sub_add_right_eq_sub, add_sub_cancel_left, add_comm, add_left_comm] using htemp
+      -- Convert ℤ divisibility to ℕ divisibility
+      have hpb_nat : p ∣ Int.gcd Q.b Q.c :=
+        Int.dvd_gcd (by exact_mod_cast hpb) (by exact_mod_cast hpc)
+      have hpa_nat : p ∣ Int.gcd Q.a (Int.gcd Q.b Q.c) :=
+        Int.dvd_gcd (by exact_mod_cast hpa) (by exact_mod_cast hpb_nat)
+      rw [hQ] at hpa_nat
+      have hp_dvd_one : p ∣ (1 : ℕ) := hpa_nat
+      exact Nat.Prime.not_dvd_one hp hp_dvd_one
+    · right; left
+      rw [hc]
+      exact hpc
+  · left
+    rw [ha]
+    exact hpa
+
+/-- **Cox Lemma 2.25.** A primitive binary quadratic form represents an integer
+coprime to any prescribed nonzero integer `M`.  Moreover, the representing
+vector `(x, y)` can be chosen with `gcd x y = 1`.
+
+The proof uses the Chinese Remainder Theorem: for each prime `p | |M|`, pick
+`(u_p, v_p) ∈ {(1,0),(0,1),(1,1)}` with `p ∤ Q(u_p, v_p)` (by
+`exists_eval_not_dvd_of_isPrimitive_of_prime`), then combine via CRT to get
+`(x, y)` satisfying all congruences simultaneously. After dividing by `d =
+gcd(x, y)`, the resulting coprime pair still works. -/
+theorem exists_coprime_eval_of_isPrimitive {Q : BinaryQuadraticForm}
+    (hQ : Q.IsPrimitive) {M : ℤ} (hM : M ≠ 0) :
+    ∃ x y : ℤ, Int.gcd x y = 1 ∧ Int.gcd (Q.eval x y) M = 1 := by
+  -- The core CRT argument is deferred; this is the main outstanding sorry in the
+  -- Gauss composition development.  See the module docstring for the proof sketch.
+  sorry
+
+end Lemma_2_25
+
+/-! ## Concordant representative replacement
+
+The main lemma that makes Gauss composition work on arbitrary form classes:
+given two primitive positive definite forms of the same discriminant, there
+exist properly equivalent forms that are concordant (same middle coefficient,
+coprime leading coefficients). -/
+
+section ConcordantReplacement
+
+/-- From coprime `x y : ℤ`, construct an `SL₂(ℤ)` matrix whose first column is
+`(x, y)`.  The second column is produced by Bézout's identity. -/
+def sl2z_of_coprime (x y : ℤ) (h : Int.gcd x y = 1) : SL2Z := by
+  have hbezout : (Int.gcd x y : ℤ) = x * Int.gcdA x y + y * Int.gcdB x y :=
+    Int.gcd_eq_gcd_ab x y
+  rw [h] at hbezout
+  have hone : x * Int.gcdA x y + y * Int.gcdB x y = (1 : ℤ) :=
+    hbezout.symm
+  -- Build matrix [[x, -gcdB], [y, gcdA]] with determinant 1
+  refine ⟨![![x, -Int.gcdB x y], ![y, Int.gcdA x y]], ?_⟩
+  rw [Matrix.det_fin_two]
+  calc
+    x * Int.gcdA x y - (-Int.gcdB x y) * y = x * Int.gcdA x y + y * Int.gcdB x y := by ring
+    _ = (1 : ℤ) := hone
+
+/-- The transform of a form by `sl2z_of_coprime x y h` has leading coefficient
+equal to `Q.eval x y`. -/
+theorem transform_sl2z_of_coprime_a (Q : BinaryQuadraticForm) (x y : ℤ)
+    (h : Int.gcd x y = 1) :
+    (transform Q (sl2z_of_coprime x y h)).a = Q.eval x y := by
+  -- Compute directly: the first column of the matrix is (x, y)
+  have h00 : (sl2z_of_coprime x y h : Matrix (Fin 2) (Fin 2) ℤ) 0 0 = x := rfl
+  have h10 : (sl2z_of_coprime x y h : Matrix (Fin 2) (Fin 2) ℤ) 1 0 = y := rfl
+  -- The leading coefficient after SL₂(ℤ) transform is Q.eval at the first column
+  have hcalc : (transform Q (sl2z_of_coprime x y h)).a =
+      Q.eval ((sl2z_of_coprime x y h : Matrix (Fin 2) (Fin 2) ℤ) 0 0)
+             ((sl2z_of_coprime x y h : Matrix (Fin 2) (Fin 2) ℤ) 1 0) := by
+    simp [transform, eval]
+  rw [hcalc, h00, h10]
+
+/-- The transform of a form by `sl2z_of_coprime x y h` preserves the discriminant
+and primitivity (inherited from `Action.lean`). -/
+theorem properEquivalent_sl2z_of_coprime (Q : BinaryQuadraticForm) (x y : ℤ)
+    (h : Int.gcd x y = 1) : ProperEquivalent Q (transform Q (sl2z_of_coprime x y h)) :=
+  ⟨sl2z_of_coprime x y h, rfl⟩
+
+/-- **Concordant replacement lemma.** Given two primitive positive definite forms
+of the same discriminant, there exist properly equivalent forms that are
+concordant.  This is Boundary 1 of the Gauss composition implementation.
+
+Proof sketch (deferred):
+1. Apply `exists_coprime_eval_of_isPrimitive` to `Q` with `M = R.a` to get
+   `(x, y)` with `gcd x y = 1` and `gcd(Q(x, y), R.a) = 1`.
+2. Use `sl2z_of_coprime` to build an `SL₂(ℤ)` matrix sending `(1,0)` to `(x, y)`;
+   the transformed form `Q₁` has `Q₁.a = Q(x, y)` coprime to `R.a`.
+3. By the Chinese Remainder Theorem (since `gcd(Q₁.a, R.a) = 1` and
+   `Q₁.b ≡ R.b (mod 2)` from the shared discriminant), there exists `B`
+   with `B ≡ Q₁.b (mod 2·Q₁.a)` and `B ≡ R.b (mod 2·R.a)`.
+4. Apply `Tⁿ` transforms to both `Q₁` and `R` to make their middle
+   coefficients equal to `B`, yielding concordant `Q'`, `R'`. -/
+theorem exists_concordant_of_sameDiscriminant
+    {Q R : BinaryQuadraticForm} (hQprim : Q.IsPrimitive) (hRprim : R.IsPrimitive)
+    (hQpos : Q.IsPositiveDefinite) (hRpos : R.IsPositiveDefinite)
+    (hD : Q.disc = R.disc) :
+    ∃ Q' R' : BinaryQuadraticForm,
+      ProperEquivalent Q Q' ∧ ProperEquivalent R R' ∧ IsConcordant Q' R' := by
+  sorry
+
+end ConcordantReplacement
 
 /-! ## Sanity checks -/
 
