@@ -46,12 +46,35 @@ elementary Gauss composition formula is direct. -/
 def IsConcordant (Q R : BinaryQuadraticForm) : Prop :=
   Q.disc = R.disc ∧ Q.b = R.b ∧ Int.gcd Q.a R.a = 1
 
+/-- If two forms have the same middle coefficient, their Gauss `sigma` is that
+middle coefficient. -/
+theorem sigma_eq_left_b_of_b_eq {Q R : BinaryQuadraticForm} (h : Q.b = R.b) :
+    sigma Q R = Q.b := by
+  unfold sigma
+  rw [← h]
+  rw [show Q.b + Q.b = 2 * Q.b by ring]
+  exact Int.mul_ediv_cancel_left Q.b (by norm_num : (2 : ℤ) ≠ 0)
+
 /-- Concordance is symmetric. -/
 theorem IsConcordant.symm {Q R : BinaryQuadraticForm}
     (h : Q.IsConcordant R) : R.IsConcordant Q := by
   rcases h with ⟨hdisc, hb, hgcd⟩
   refine ⟨hdisc.symm, hb.symm, ?_⟩
   simpa [Int.gcd, Nat.gcd_comm] using hgcd
+
+/-- Concordant forms are united. -/
+theorem IsConcordant.isUnited {Q R : BinaryQuadraticForm}
+    (h : Q.IsConcordant R) : Q.IsUnited R := by
+  refine ⟨h.1, ?_⟩
+  have hsigma : sigma Q R = Q.b := sigma_eq_left_b_of_b_eq h.2.1
+  have hgcd : Nat.gcd Q.a.natAbs R.a.natAbs = 1 := by
+    simpa [Int.gcd] using h.2.2
+  unfold coeffGCD3
+  rw [hsigma]
+  apply Nat.dvd_one.mp
+  rw [← hgcd]
+  exact Nat.dvd_gcd (Nat.gcd_dvd_left _ _)
+    (dvd_trans (Nat.gcd_dvd_right _ _) (Nat.gcd_dvd_left _ _))
 
 /-- The direct Gauss composition formula for concordant representatives.
 
