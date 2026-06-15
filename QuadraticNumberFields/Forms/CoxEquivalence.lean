@@ -20,17 +20,12 @@ inverse-direction map from ideal classes to form classes lives in
 `Forms.InverseCox`, which imports `Forms.Bridge`.  Therefore the final
 equivalence belongs here rather than in `Forms.Bridge`.
 
-## Status
+## Main result
 
-The scaffold lemmas in the `CoxEquivalence` section reduce the equivalence to
-representative-level left and right inverse laws.  The `CoxLeftInverse` and
-`CoxLeftInverseEqOne` sections prove the two forward-then-inverse branch laws.
-
-The full assembled Cox equivalence still needs the branch-specific principal
-ideal relation `(α) · J(Q_b) = (a_Q) · I` for the norm form attached to an
-oriented ideal basis.  Once that relation is available, the lemmas in
-`CoxAssembly` turn it into the right-inverse branch laws and assemble the
-equivalence.
+The file proves the representative-level left and right inverse laws and
+assembles `formClassEquivClassGroup`, the Cox 7.7 equivalence between primitive
+positive definite form classes of the field discriminant and ideal classes of
+the imaginary quadratic order.
 -/
 
 open scoped NumberField nonZeroDivisors

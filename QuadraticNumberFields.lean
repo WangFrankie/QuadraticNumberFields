@@ -43,6 +43,9 @@ import QuadraticNumberFields.Splitting.Qsqrtd.Two
 import QuadraticNumberFields.Splitting.QuadraticField.Basic
 import QuadraticNumberFields.Forms.Basic
 import QuadraticNumberFields.Forms.Action
+import QuadraticNumberFields.Forms.Bridge
+import QuadraticNumberFields.Forms.CoxEquivalence
+import QuadraticNumberFields.Forms.Enumeration
 import QuadraticNumberFields.Forms.Reduction
 import QuadraticNumberFields.Forms.ClassNumber
 import QuadraticNumberFields.ClassNumber
