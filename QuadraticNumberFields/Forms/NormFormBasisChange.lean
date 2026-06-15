@@ -384,6 +384,94 @@ theorem formClassOfNonzeroIdeal_eq_mk_of_oriented (hdneg : d < 0) (I : (Ideal �
   apply Quotient.sound
   simpa using h_target
 
+/-! ## Branch-agnostic right-inverse core
+
+The Cox right-inverse computation also factors through the `K`-coordinates of the
+oriented basis.  The leading and middle coefficients of the norm form are rational
+functions of those coordinates (`normFormOfBasis_a_coord`, `normFormOfBasis_b_coord`),
+and the signed Cox generator relation `α · β_gen = -a · β` holds for *any* generator
+whose coordinates are `(-b/2, im_val)`, where the orientation determinant satisfies
+`αᵢβᵣ − αᵣβᵢ = N(I)·im_val`.  Both `d % 4` branches instantiate this with their
+`im_val` (`1` and `1/2`). -/
+
+/-- The leading coefficient of the Cox norm form in basis `K`-coordinates. -/
+theorem normFormOfBasis_a_coord {I : Ideal 𝓞K} (hI : I ≠ 0) (b : OrientedBasis I) :
+    ((normFormOfBasis hI b).a : ℚ) =
+      (((b.basis 0 : 𝓞K) : K).re ^ 2 - (d : ℚ) * ((b.basis 0 : 𝓞K) : K).im ^ 2) /
+        (Ideal.absNorm I : ℚ) := by
+  have hN : (Ideal.absNorm I : ℚ) ≠ 0 := by exact_mod_cast (absNorm_pos hI).ne'
+  rw [eq_div_iff hN]
+  have h : ((normFormOfBasis hI b).a : ℚ) * (Ideal.absNorm I : ℚ) =
+      (Algebra.norm ℤ (b.basis 0 : 𝓞K) : ℚ) := by
+    exact_mod_cast normFormOfBasis_a_mul_absNorm hI b
+  rw [fieldNorm_int_eq] at h
+  exact h
+
+/-- The middle coefficient of the Cox norm form in basis `K`-coordinates. -/
+theorem normFormOfBasis_b_coord {I : Ideal 𝓞K} (hI : I ≠ 0) (b : OrientedBasis I) :
+    ((normFormOfBasis hI b).b : ℚ) =
+      (2 * (((b.basis 0 : 𝓞K) : K).re * ((b.basis 1 : 𝓞K) : K).re -
+          (d : ℚ) * ((b.basis 0 : 𝓞K) : K).im * ((b.basis 1 : 𝓞K) : K).im)) /
+        (Ideal.absNorm I : ℚ) := by
+  have hN : (Ideal.absNorm I : ℚ) ≠ 0 := by exact_mod_cast (absNorm_pos hI).ne'
+  rw [eq_div_iff hN]
+  have h' : ((normFormOfBasis hI b).b : ℚ) * (Ideal.absNorm I : ℚ) =
+      ((Algebra.norm ℤ ((b.basis 0 : 𝓞K) + (b.basis 1 : 𝓞K)) -
+        Algebra.norm ℤ (b.basis 0 : 𝓞K) - Algebra.norm ℤ (b.basis 1 : 𝓞K) : ℤ) : ℚ) := by
+    exact_mod_cast normFormOfBasis_b_mul_absNorm hI b
+  rw [h']
+  push_cast
+  rw [fieldNorm_int_eq, fieldNorm_int_eq, fieldNorm_int_eq]
+  push_cast
+  simp only [QuadraticAlgebra.re_add, QuadraticAlgebra.im_add]
+  ring
+
+/-- Real-coordinate identity behind the signed Cox generator relation
+`α · β_gen = -A · β`, where `β_gen` has coordinates `(-B/2, im)`. -/
+theorem cox_generator_relation_re {αr αi βr βi D N A B im : ℚ}
+    (hA : A = (αr ^ 2 - D * αi ^ 2) / N) (hB : B = 2 * (αr * βr - D * αi * βi) / N)
+    (hN : αi * βr - αr * βi = N * im) (hN0 : N ≠ 0) :
+    αr * (-B / 2) + D * αi * im = -A * βr := by
+  rw [hA, hB]
+  field_simp
+  linear_combination (-(D * αi)) * hN
+
+/-- Imaginary-coordinate identity behind the signed Cox generator relation
+`α · β_gen = -A · β`, where `β_gen` has coordinates `(-B/2, im)`. -/
+theorem cox_generator_relation_im {αr αi βr βi D N A B im : ℚ}
+    (hA : A = (αr ^ 2 - D * αi ^ 2) / N) (hB : B = 2 * (αr * βr - D * αi * βi) / N)
+    (hN : αi * βr - αr * βi = N * im) (hN0 : N ≠ 0) :
+    αr * im + αi * (-B / 2) = -A * βi := by
+  rw [hA, hB]
+  field_simp
+  linear_combination (-αr) * hN
+
+/-- **Branch-agnostic signed Cox generator relation.** For any `β_gen ∈ 𝓞K` whose
+`K`-coordinates are `(-b/2, im_val)` (where `b` is the middle coefficient of the
+norm form), and whose orientation determinant satisfies `αᵢβᵣ − αᵣβᵢ = N(I)·im_val`,
+the first basis vector `α` satisfies `α · β_gen = -a · β`.  The sign is forced by
+the orientation convention.  The `d % 4 ≠ 1` branch uses `im_val = 1`, the
+`d % 4 = 1` branch uses `im_val = 1/2`. -/
+theorem basis_first_mul_eq_neg_a_mul_basis_second {I : Ideal 𝓞K} (hI : I ≠ 0)
+    (b : OrientedBasis I) (βgen : 𝓞K) (im_val : ℚ)
+    (hβre : ((βgen : 𝓞K) : K).re = -((normFormOfBasis hI b).b : ℚ) / 2)
+    (hβim : ((βgen : 𝓞K) : K).im = im_val)
+    (hNim : ((b.basis 0 : 𝓞K) : K).im * ((b.basis 1 : 𝓞K) : K).re -
+        ((b.basis 0 : 𝓞K) : K).re * ((b.basis 1 : 𝓞K) : K).im =
+      (Ideal.absNorm I : ℚ) * im_val) :
+    (b.basis 0 : 𝓞K) * βgen =
+      -(((normFormOfBasis hI b).a : ℤ) : 𝓞K) * (b.basis 1 : 𝓞K) := by
+  have ha := normFormOfBasis_a_coord hI b
+  have hb := normFormOfBasis_b_coord hI b
+  have hN0 : (Ideal.absNorm I : ℚ) ≠ 0 := by exact_mod_cast (absNorm_pos hI).ne'
+  apply IsFractionRing.injective 𝓞K K
+  ext <;>
+    simp only [map_mul, map_neg, map_intCast, QuadraticAlgebra.re_mul, QuadraticAlgebra.im_mul,
+      QuadraticAlgebra.re_neg, QuadraticAlgebra.im_neg, QuadraticAlgebra.re_intCast,
+      QuadraticAlgebra.im_intCast, zero_mul, add_zero, hβre, hβim]
+  · simpa using cox_generator_relation_re ha hb hNim hN0
+  · simpa using cox_generator_relation_im ha hb hNim hN0
+
 end BasisChange
 
 end BinaryQuadraticForm

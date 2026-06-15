@@ -165,60 +165,6 @@ theorem basis_first_mul_cox_scalar_mem_span_a_mul_ideal_of_mod_four_eq_one
     exact ⟨1, by simp⟩
   simpa [mul_comm] using Ideal.mul_mem_mul ha hα
 
-/-! ### Coordinate algebra for the Cox ideal-generator relation -/
-
-/-- Rational real-coordinate identity behind the signed Cox relation
-`α * ((-B) / 2 + √D) = -A * β` in the non-half-integral branch. -/
-theorem cox_ideal_generator_relation_re {αr αi βr βi D N A B : ℚ}
-    (hA : A = (αr ^ 2 - D * αi ^ 2) / N)
-    (hB : B = 2 * (αr * βr - D * αi * βi) / N)
-    (hN : N = αi * βr - αr * βi) (hN0 : N ≠ 0) :
-    αr * (-B / 2) + D * αi = -A * βr := by
-  apply mul_right_cancel₀ hN0
-  rw [add_mul, neg_mul, hA, hB]
-  field_simp [hN0]
-  rw [hN]
-  ring
-
-/-- Rational imaginary-coordinate identity behind the signed Cox relation
-`α * ((-B) / 2 + √D) = -A * β` in the non-half-integral branch. -/
-theorem cox_ideal_generator_relation_im {αr αi βr βi D N A B : ℚ}
-    (hA : A = (αr ^ 2 - D * αi ^ 2) / N)
-    (hB : B = 2 * (αr * βr - D * αi * βi) / N)
-    (hN : N = αi * βr - αr * βi) (hN0 : N ≠ 0) :
-    αr + αi * (-B / 2) = -A * βi := by
-  apply mul_right_cancel₀ hN0
-  rw [add_mul, neg_mul, hA, hB]
-  field_simp [hN0]
-  rw [hN]
-  ring
-
-/-- Rational real-coordinate identity behind the signed Cox relation in the
-half-integral branch. -/
-theorem cox_ideal_generator_relation_eq_one_re {αr αi βr βi D N A B : ℚ}
-    (hA : A = (αr ^ 2 - D * αi ^ 2) / N)
-    (hB : B = 2 * (αr * βr - D * αi * βi) / N)
-    (hN : N = 2 * (αi * βr - αr * βi)) (hN0 : N ≠ 0) :
-    αr * (-B / 2) + D * (αi / 2) = -A * βr := by
-  apply mul_right_cancel₀ hN0
-  rw [add_mul, neg_mul, hA, hB]
-  field_simp [hN0]
-  rw [hN]
-  ring
-
-/-- Rational imaginary-coordinate identity behind the signed Cox relation in the
-half-integral branch. -/
-theorem cox_ideal_generator_relation_eq_one_im {αr αi βr βi D N A B : ℚ}
-    (hA : A = (αr ^ 2 - D * αi ^ 2) / N)
-    (hB : B = 2 * (αr * βr - D * αi * βi) / N)
-    (hN : N = 2 * (αi * βr - αr * βi)) (hN0 : N ≠ 0) :
-    αr * (1 / 2) + αi * (-B / 2) = -A * βi := by
-  apply mul_right_cancel₀ hN0
-  rw [add_mul, neg_mul, hA, hB]
-  field_simp [hN0]
-  rw [hN]
-  ring
-
 /-- In the `d % 4 ≠ 1` branch, the second Cox ideal generator of the norm form
 satisfies the signed classical relation
 `α · β_Q = -a_Q · β`, where `(α, β)` is the oriented ideal basis.  The sign is
@@ -253,61 +199,17 @@ theorem basis_first_mul_cox_ideal_generator_eq_neg_normForm_a_mul_basis_second_o
     · simp [e, Zsqrtd.toQsqrtdHom, RingEquiv.apply_symm_apply, hdiv]
       linarith
     · simp [e, Zsqrtd.toQsqrtdHom, RingEquiv.apply_symm_apply, hdiv]
-  have ha : ((Q.1.a : ℤ) : ℚ) =
-      (((b.basis 0 : 𝓞K) : K).re ^ 2 -
-        (d : ℚ) * ((b.basis 0 : 𝓞K) : K).im ^ 2) /
-        (Ideal.absNorm (I : Ideal 𝓞K) : ℚ) := by
-    have h := congrArg (fun z : ℤ => (z : ℚ)) (normFormOfBasis_a_mul_absNorm hI b)
-    dsimp [Q, primitivePositiveDefiniteNormFormOfBasis] at h
-    rw [fieldNorm_int_eq] at h
-    have hN : (Ideal.absNorm (I : Ideal 𝓞K) : ℚ) ≠ 0 := by
-      exact_mod_cast (absNorm_pos hI).ne'
-    rw [eq_div_iff hN]
-    simpa [Q, primitivePositiveDefiniteNormFormOfBasis] using h
-  have hb : ((Q.1.b : ℤ) : ℚ) =
-      (2 * (((b.basis 0 : 𝓞K) : K).re * ((b.basis 1 : 𝓞K) : K).re -
-        (d : ℚ) * ((b.basis 0 : 𝓞K) : K).im *
-          ((b.basis 1 : 𝓞K) : K).im)) /
-        (Ideal.absNorm (I : Ideal 𝓞K) : ℚ) := by
-    have h := congrArg (fun z : ℤ => (z : ℚ)) (normFormOfBasis_b_mul_absNorm hI b)
-    dsimp [Q, primitivePositiveDefiniteNormFormOfBasis] at h
-    have hN : (Ideal.absNorm (I : Ideal 𝓞K) : ℚ) ≠ 0 := by
-      exact_mod_cast (absNorm_pos hI).ne'
-    rw [eq_div_iff hN]
-    simpa [Q, primitivePositiveDefiniteNormFormOfBasis] using
-      show ((normFormOfBasis hI b).b : ℚ) * (Ideal.absNorm (I : Ideal 𝓞K) : ℚ) =
-          2 * (((b.basis 0 : 𝓞K) : K).re * ((b.basis 1 : 𝓞K) : K).re -
-            (d : ℚ) * ((b.basis 0 : 𝓞K) : K).im *
-              ((b.basis 1 : 𝓞K) : K).im) by
-        have h' : ((normFormOfBasis hI b).b : ℚ) *
-            (Ideal.absNorm (I : Ideal 𝓞K) : ℚ) =
-            ((Algebra.norm ℤ ((b.basis 0 : 𝓞K) + (b.basis 1 : 𝓞K)) -
-              Algebra.norm ℤ (b.basis 0 : 𝓞K) -
-              Algebra.norm ℤ (b.basis 1 : 𝓞K) : ℤ) : ℚ) := by
-          simpa using h
-        rw [h']
-        push_cast
-        rw [fieldNorm_int_eq, fieldNorm_int_eq, fieldNorm_int_eq]
-        push_cast
-        simp only [QuadraticAlgebra.re_add, QuadraticAlgebra.im_add]
-        ring
-  have hNdet : (Ideal.absNorm (I : Ideal 𝓞K) : ℚ) =
-      ((b.basis 0 : 𝓞K) : K).im * ((b.basis 1 : 𝓞K) : K).re -
-        ((b.basis 0 : 𝓞K) : K).re * ((b.basis 1 : 𝓞K) : K).im := by
-    have hdet : b.detCoord = -(Ideal.absNorm (I : Ideal 𝓞K) : ℚ) :=
-      OrientedBasis.detCoord_eq_neg_absNorm_of_mod_four_ne_one hI hd4 b
+  -- Orientation determinant: `N(I) = αᵢβᵣ - αᵣβᵢ` (im_val = 1).
+  have hNim : ((b.basis 0 : 𝓞K) : K).im * ((b.basis 1 : 𝓞K) : K).re -
+      ((b.basis 0 : 𝓞K) : K).re * ((b.basis 1 : 𝓞K) : K).im =
+      (Ideal.absNorm (I : Ideal 𝓞K) : ℚ) * 1 := by
+    have hdet := OrientedBasis.detCoord_eq_neg_absNorm_of_mod_four_ne_one hI hd4 b
     unfold OrientedBasis.detCoord at hdet
     linarith
-  have hN0 : (Ideal.absNorm (I : Ideal 𝓞K) : ℚ) ≠ 0 := by
-    exact_mod_cast (absNorm_pos hI).ne'
-  apply IsFractionRing.injective 𝓞K K
-  ext <;>
-    simp only [map_mul, map_neg, map_intCast, QuadraticAlgebra.re_mul,
-      QuadraticAlgebra.im_mul, QuadraticAlgebra.re_neg, QuadraticAlgebra.im_neg,
-      QuadraticAlgebra.re_intCast, QuadraticAlgebra.im_intCast, zero_mul, add_zero,
-      mul_zero, hβQ.1, hβQ.2]
-  · simpa [mul_one] using cox_ideal_generator_relation_re ha hb hNdet hN0
-  · simpa [one_mul] using cox_ideal_generator_relation_im ha hb hNdet hN0
+  have hmain := basis_first_mul_eq_neg_a_mul_basis_second hI b
+    (e.symm ((⟨(-Q.1.b) / 2, 1⟩ : Zsqrtd d))) 1 hβQ.1 hβQ.2 hNim
+  rw [neg_mul] at hmain
+  exact hmain
 
 /-- In the `d % 4 = 1` branch, the second Cox ideal generator of the norm form
 satisfies the signed classical relation
@@ -356,62 +258,18 @@ theorem basis_first_mul_cox_ideal_generator_eq_neg_normForm_a_mul_basis_second_o
           norm_num
           ring
     · simpa [betaZ] using him.symm
-  have ha : ((Q.1.a : ℤ) : ℚ) =
-      (((b.basis 0 : 𝓞K) : K).re ^ 2 -
-        (d : ℚ) * ((b.basis 0 : 𝓞K) : K).im ^ 2) /
-        (Ideal.absNorm (I : Ideal 𝓞K) : ℚ) := by
-    have h := congrArg (fun z : ℤ => (z : ℚ)) (normFormOfBasis_a_mul_absNorm hI b)
-    dsimp [Q, primitivePositiveDefiniteNormFormOfBasis] at h
-    rw [fieldNorm_int_eq] at h
-    have hN : (Ideal.absNorm (I : Ideal 𝓞K) : ℚ) ≠ 0 := by
-      exact_mod_cast (absNorm_pos hI).ne'
-    rw [eq_div_iff hN]
-    simpa [Q, primitivePositiveDefiniteNormFormOfBasis] using h
-  have hb : ((Q.1.b : ℤ) : ℚ) =
-      (2 * (((b.basis 0 : 𝓞K) : K).re * ((b.basis 1 : 𝓞K) : K).re -
-        (d : ℚ) * ((b.basis 0 : 𝓞K) : K).im *
-          ((b.basis 1 : 𝓞K) : K).im)) /
-        (Ideal.absNorm (I : Ideal 𝓞K) : ℚ) := by
-    have h := congrArg (fun z : ℤ => (z : ℚ)) (normFormOfBasis_b_mul_absNorm hI b)
-    dsimp [Q, primitivePositiveDefiniteNormFormOfBasis] at h
-    have hN : (Ideal.absNorm (I : Ideal 𝓞K) : ℚ) ≠ 0 := by
-      exact_mod_cast (absNorm_pos hI).ne'
-    rw [eq_div_iff hN]
-    simpa [Q, primitivePositiveDefiniteNormFormOfBasis] using
-      show ((normFormOfBasis hI b).b : ℚ) * (Ideal.absNorm (I : Ideal 𝓞K) : ℚ) =
-          2 * (((b.basis 0 : 𝓞K) : K).re * ((b.basis 1 : 𝓞K) : K).re -
-            (d : ℚ) * ((b.basis 0 : 𝓞K) : K).im *
-              ((b.basis 1 : 𝓞K) : K).im) by
-        have h' : ((normFormOfBasis hI b).b : ℚ) *
-            (Ideal.absNorm (I : Ideal 𝓞K) : ℚ) =
-            ((Algebra.norm ℤ ((b.basis 0 : 𝓞K) + (b.basis 1 : 𝓞K)) -
-              Algebra.norm ℤ (b.basis 0 : 𝓞K) -
-              Algebra.norm ℤ (b.basis 1 : 𝓞K) : ℤ) : ℚ) := by
-          simpa using h
-        rw [h']
-        push_cast
-        rw [fieldNorm_int_eq, fieldNorm_int_eq, fieldNorm_int_eq]
-        push_cast
-        simp only [QuadraticAlgebra.re_add, QuadraticAlgebra.im_add]
-        ring
-  have hNdet : (Ideal.absNorm (I : Ideal 𝓞K) : ℚ) =
-      2 * (((b.basis 0 : 𝓞K) : K).im * ((b.basis 1 : 𝓞K) : K).re -
-        ((b.basis 0 : 𝓞K) : K).re * ((b.basis 1 : 𝓞K) : K).im) := by
-    have hdet : b.detCoord = -(Ideal.absNorm (I : Ideal 𝓞K) : ℚ) / 2 :=
-      OrientedBasis.detCoord_eq_neg_half_absNorm_of_mod_four_eq_one hI hd4 b
+  -- Orientation determinant: `N(I) = 2(αᵢβᵣ - αᵣβᵢ)` (im_val = 1/2).
+  have hNim : ((b.basis 0 : 𝓞K) : K).im * ((b.basis 1 : 𝓞K) : K).re -
+      ((b.basis 0 : 𝓞K) : K).re * ((b.basis 1 : 𝓞K) : K).im =
+      (Ideal.absNorm (I : Ideal 𝓞K) : ℚ) * (1 / 2) := by
+    have hdet := OrientedBasis.detCoord_eq_neg_half_absNorm_of_mod_four_eq_one hI hd4 b
     unfold OrientedBasis.detCoord at hdet
     linarith
-  have hN0 : (Ideal.absNorm (I : Ideal 𝓞K) : ℚ) ≠ 0 := by
-    exact_mod_cast (absNorm_pos hI).ne'
-  apply IsFractionRing.injective 𝓞K K
-  ext <;>
-    simp only [map_mul, map_neg, map_intCast, QuadraticAlgebra.re_mul,
-      QuadraticAlgebra.im_mul, QuadraticAlgebra.re_neg, QuadraticAlgebra.im_neg,
-      QuadraticAlgebra.re_intCast, QuadraticAlgebra.im_intCast, zero_mul, add_zero,
-      mul_zero, hβQ.1, hβQ.2]
-  · simpa [mul_one, div_eq_mul_inv, mul_assoc] using
-      cox_ideal_generator_relation_eq_one_re ha hb hNdet hN0
-  · simpa [one_mul] using cox_ideal_generator_relation_eq_one_im ha hb hNdet hN0
+  have hmain := basis_first_mul_eq_neg_a_mul_basis_second hI b
+    (e.symm ((⟨-(Q.1.b + 1) / 2, 1⟩ : ZOnePlusSqrtdOverTwo (d / 4)))) (1 / 2)
+    hβQ.1 hβQ.2 hNim
+  rw [neg_mul] at hmain
+  exact hmain
 
 /-- In the `d % 4 ≠ 1` branch, the second Cox ideal generator also satisfies
 the principal-relation inclusion `(b₀) · β_Q ∈ (a_Q) · I`. -/
