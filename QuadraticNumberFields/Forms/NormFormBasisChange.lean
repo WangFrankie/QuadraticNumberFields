@@ -450,12 +450,9 @@ theorem basis_first_mul_cox_scalar_mem_span_a_mul_ideal {O : Type*} [CommRing O]
     (Q : PrimitivePositiveDefiniteForm (fieldDiscriminant d)) (e : 𝓞K ≃+* O) :
     (b.basis 0 : 𝓞K) * e.symm (((Q.1.a : ℤ) : O)) ∈
       Ideal.span ({((Q.1.a : ℤ) : 𝓞K)} : Set 𝓞K) * I := by
-  have hα : (b.basis 0 : 𝓞K) ∈ I := (b.basis 0).2
-  have ha : e.symm (((Q.1.a : ℤ) : O)) ∈
-      Ideal.span ({((Q.1.a : ℤ) : 𝓞K)} : Set 𝓞K) := by
-    rw [Ideal.mem_span_singleton]
-    exact ⟨1, by simp⟩
-  simpa [mul_comm] using Ideal.mul_mem_mul ha hα
+  simpa [mul_comm] using
+    Ideal.mul_mem_mul (Ideal.mem_span_singleton_self (((Q.1.a : ℤ) : 𝓞K)))
+      (b.basis 0).2
 
 /-- The Cox generator relation places the second Cox generator in the same
 principal-relation target ideal. -/
@@ -470,10 +467,8 @@ theorem basis_first_mul_cox_ideal_generator_mem_span_a_mul_ideal {O : Type*} [Co
       Ideal.span ({((Q.1.a : ℤ) : 𝓞K)} : Set 𝓞K) * I := by
   rw [hrel]
   have hβ : (b.basis 1 : 𝓞K) ∈ I := (b.basis 1).2
-  have ha : ((Q.1.a : ℤ) : 𝓞K) ∈
-      Ideal.span ({((Q.1.a : ℤ) : 𝓞K)} : Set 𝓞K) :=
-    Ideal.subset_span (by simp)
-  exact neg_mem (Ideal.mul_mem_mul ha hβ)
+  exact neg_mem
+    (Ideal.mul_mem_mul (Ideal.mem_span_singleton_self (((Q.1.a : ℤ) : 𝓞K))) hβ)
 
 /-- The two Cox generator membership facts assemble to
 `(b₀) · J(Q_b) ≤ (a_Q) · I`, for any order model obtained by a ring equivalence
@@ -561,11 +556,9 @@ theorem span_a_mul_ideal_le_basis_first_mul_cox_ideal {O : Type*} [CommRing O]
   let m : ℤ := b.basis.repr zI 0
   let n : ℤ := b.basis.repr zI 1
   have hz_decomp : z = m • (b.basis 0 : 𝓞K) + n • (b.basis 1 : 𝓞K) := by
-    have hsum := b.basis.sum_repr zI
-    have hsub : ((∑ i : Fin 2, (b.basis.repr zI) i • b.basis i : I) : 𝓞K) = z := by
-      simp [zI, hsum]
-    rw [Fin.sum_univ_two] at hsub
-    simpa [m, n] using hsub.symm
+    have h := coe_OK_eq_sum_repr_smul I b.basis zI
+    rw [Fin.sum_univ_two] at h
+    simpa [zI, m, n] using h
   rw [hz_decomp, mul_add]
   apply target.add_mem
   · rw [zsmul_eq_mul']
