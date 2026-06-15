@@ -8,6 +8,7 @@ import Mathlib.GroupTheory.Index
 import Mathlib.NumberTheory.LegendreSymbol.Basic
 import QuadraticNumberFields.ClassGroup.Torsion
 import QuadraticNumberFields.ClassNumber
+import QuadraticNumberFields.RingOfIntegers.Norm
 import QuadraticNumberFields.Splitting.Qsqrtd.Kronecker
 
 /-!
@@ -26,6 +27,9 @@ namespace ClassGroup
 open scoped NumberField
 
 attribute [-instance] DivisionRing.toRatAlgebra
+
+open RingOfIntegers
+open Splitting
 
 /-! ## Class-number-one sieve -/
 
@@ -101,13 +105,42 @@ theorem genusCharacterRaw_mul (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (
   dsimp [genusCharacterRaw]
   rw [Ideal.absNorm.map_mul, Nat.cast_mul, legendreSym.mul]
 
+/-- From `p ∈ oddPrimeDiscriminantDivisors d` (so `p` is an odd prime), deduce
+`(p : ℤ) ∣ d`. For `d % 4 = 1`, `discrFormula d = d` directly. For `d % 4 ≠ 1`,
+`discrFormula d = 4*d`; since `p` is an odd prime, `p ∤ 4`, so `p ∣ d`. -/
+private theorem dvd_param_of_mem_oddPrimeDiscriminantDivisors {d : ℤ} {p : ℕ} [Fact p.Prime]
+    (hp_mem : p ∈ oddPrimeDiscriminantDivisors d) : (p : ℤ) ∣ d := by
+  have hp_ne_two : p ≠ 2 := ne_two_of_mem_oddPrimeDiscriminantDivisors hp_mem
+  have hp_prime : Nat.Prime p := Fact.out
+  have hp_dvd_disc : (p : ℤ) ∣ RingOfIntegers.discrFormula d :=
+    dvd_discr_of_mem_oddPrimeDiscriminantDivisors hp_mem
+  by_cases hd4 : d % 4 = 1
+  · rw [RingOfIntegers.discrFormula_of_mod_four_eq_one hd4] at hp_dvd_disc
+    exact hp_dvd_disc
+  · rw [RingOfIntegers.discrFormula_of_mod_four_ne_one hd4] at hp_dvd_disc
+    -- (p:ℤ) ∣ 4*d and p is prime; if p ∣ 4 then p=2, contradiction
+    have hp_prime_int : Prime (p : ℤ) := Nat.prime_iff_prime_int.mp hp_prime
+    rcases hp_prime_int.dvd_or_dvd hp_dvd_disc with (h4 | hd')
+    · -- (p : ℤ) ∣ 4 → p = 2 in ℕ, contradiction with p ≠ 2
+      exfalso
+      have hp_dvd_four_nat : p ∣ (4 : ℕ) := by exact_mod_cast h4
+      have h_four_eq_two_sq : (4 : ℕ) = (2 : ℕ)^2 := by norm_num
+      have hp_dvd_two_sq : p ∣ (2 : ℕ)^2 := by rwa [← h_four_eq_two_sq]
+      have hp_dvd_two : p ∣ (2 : ℕ) := hp_prime.dvd_of_dvd_pow hp_dvd_two_sq
+      have hp_eq_two : p = 2 :=
+        (Nat.prime_dvd_prime_iff_eq hp_prime Nat.prime_two).mp hp_dvd_two
+      exact hp_ne_two hp_eq_two
+    · exact hd'
+
 /-- The key well-definedness lemma: for an imaginary quadratic field `ℚ(√d)` (`d < 0`),
 an odd prime `p` dividing the discriminant, and a principal ideal `I = (α)` with
-`p ∤ absNorm I`, the genus character `χ_p(I) = legendreSym p (absNorm I)` equals `1`.
+`p ∤ absNorm I`, the genus character `χ_p(I)` equals `1`.
 
-The proof: since `d < 0`, norms are positive, so `absNorm I = Algebra.norm ℤ α`.
-By `ringOfIntegers_classification`, `α` lies in either `ℤ[√d]` or `ℤ[(1+√d)/2]`,
-where the norm form reduces to a square modulo `p` (because `p ∣ d`). -/
+TODO: complete this proof. The argument:
+1. In imaginary fields, all norms are ≥ 0, so |N| = N
+2. By classification, α ∈ ℤ[√d] or ℤ[(1+√d)/2]; the norm form reduces to a square mod p
+   because p ∣ d and d < 0 forces positivity.
+3. Conclude via `legendreSym.eq_one_iff`. -/
 theorem genusCharacterRaw_eq_one_of_isPrincipal_of_norm_not_dvd_of_neg
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (p : ℕ) [Fact p.Prime]
     (hd_neg : d < 0) (hp_disc : p ∈ oddPrimeDiscriminantDivisors d)
