@@ -245,3 +245,38 @@ theorem eq_re_smul_one_of_star_self {x : Qsqrtd (d : ℚ)} (hx : star x = x) :
   apply QuadraticAlgebra.ext
   · simp [QuadraticAlgebra.re_one]
   · simp [him, QuadraticAlgebra.im_one]
+
+/-! ### Wedge and `ℤ`-smul coordinate lemmas
+
+The alternating wedge `imPartRatio (u v̄ − v ū)` and the `re`/`im` coordinates of an
+integer scalar multiple, used by the Cox norm-form machinery.  These are pure
+coordinate facts about `Qsqrtd (d : ℚ)`. -/
+
+/-- The `re` coordinate of an integer scalar multiple. -/
+theorem re_zsmul (n : ℤ) (z : Qsqrtd (d : ℚ)) : (n • z).re = (n : ℚ) * z.re := by
+  rw [zsmul_eq_mul]
+  simp [QuadraticAlgebra.re_mul, QuadraticAlgebra.re_intCast, QuadraticAlgebra.im_intCast]
+
+/-- The `im` coordinate of an integer scalar multiple. -/
+theorem im_zsmul (n : ℤ) (z : Qsqrtd (d : ℚ)) : (n • z).im = (n : ℚ) * z.im := by
+  rw [zsmul_eq_mul]
+  simp [QuadraticAlgebra.im_mul, QuadraticAlgebra.re_intCast, QuadraticAlgebra.im_intCast]
+
+/-- The wedge `imPartRatio (u v̄ − v ū)` in coordinates: it is `2 (uᵢ vᵣ − uᵣ vᵢ)`,
+a bilinear alternating form of the `re`/`im` coordinates. -/
+theorem imPartRatio_wedge (u v : Qsqrtd (d : ℚ)) :
+    imPartRatio (u * star v - v * star u) =
+      2 * ((u.im : ℚ) * v.re - u.re * v.im) := by
+  rw [imPartRatio_eq_im]
+  simp only [QuadraticAlgebra.im_sub, QuadraticAlgebra.im_mul, QuadraticAlgebra.re_star,
+    QuadraticAlgebra.im_star]
+  ring
+
+/-- Multiplying both wedge arguments by `x` scales the wedge by the field norm
+`x.re² − d·x.im²` of `x`. -/
+theorem imPartRatio_wedge_mul_left (x u v : Qsqrtd (d : ℚ)) :
+    imPartRatio (x * u * star (x * v) - x * v * star (x * u)) =
+      ((x.re : ℚ) ^ 2 - (d : ℚ) * x.im ^ 2) * imPartRatio (u * star v - v * star u) := by
+  rw [imPartRatio_wedge, imPartRatio_wedge]
+  simp only [QuadraticAlgebra.re_mul, QuadraticAlgebra.im_mul]
+  ring

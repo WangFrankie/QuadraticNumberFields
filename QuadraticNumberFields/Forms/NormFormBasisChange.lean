@@ -62,18 +62,6 @@ local notation "K" => Qsqrtd (d : ℚ)
 local notation "𝓞K" => 𝓞 K
 local notation "√dK" => (⟨0, 1⟩ : K)
 
-omit [Fact (Squarefree d)] [Fact (d ≠ 1)] in
-/-- The oriented-basis wedge `imPartRatio (α β̄ − β ᾱ)` in coordinates: it is
-`2 (α.im β.re − α.re β.im)`, a bilinear alternating form of the `re`/`im`
-coordinates. -/
-theorem imPartRatio_wedge (u v : K) :
-    imPartRatio (u * star v - v * star u) =
-      2 * ((u.im : ℚ) * v.re - u.re * v.im) := by
-  rw [imPartRatio_eq_im]
-  simp only [QuadraticAlgebra.im_sub, QuadraticAlgebra.im_mul, QuadraticAlgebra.re_star,
-    QuadraticAlgebra.im_star]
-  ring
-
 /-- The image in `K` of any element of a nonzero ideal `I` expands over a
 `ℤ`-basis `b` of `I` via the representation coordinates. -/
 theorem coe_eq_sum_repr_smul (I : Ideal 𝓞K) (b : Basis (Fin 2) ℤ I) (w : I) :
@@ -86,16 +74,6 @@ theorem coe_eq_sum_repr_smul (I : Ideal 𝓞K) (b : Basis (Fin 2) ℤ I) (w : I)
   simp only [map_zsmul] at h
   simpa only [hf, LinearMap.comp_apply, LinearMap.restrictScalars_apply,
     Submodule.subtype_apply, Submodule.coe_subtype, Algebra.linearMap_apply] using h.symm
-
-omit [Fact (Squarefree d)] [Fact (d ≠ 1)] in
-theorem re_zsmul (n : ℤ) (z : K) : (n • z : K).re = (n : ℚ) * z.re := by
-  rw [zsmul_eq_mul]
-  simp [QuadraticAlgebra.re_mul, QuadraticAlgebra.re_intCast, QuadraticAlgebra.im_intCast]
-
-omit [Fact (Squarefree d)] [Fact (d ≠ 1)] in
-theorem im_zsmul (n : ℤ) (z : K) : (n • z : K).im = (n : ℚ) * z.im := by
-  rw [zsmul_eq_mul]
-  simp [QuadraticAlgebra.im_mul, QuadraticAlgebra.re_intCast, QuadraticAlgebra.im_intCast]
 
 /-- The `re` coordinate of an ideal element expands over a `ℤ`-basis. -/
 theorem coe_re_eq (I : Ideal 𝓞K) (b : Basis (Fin 2) ℤ I) (w : I) :
@@ -201,16 +179,6 @@ theorem formClassOfNonzeroIdeal_eq_mk (hdneg : d < 0) (I : (Ideal 𝓞K)⁰)
     (normFormOfBasis_properEquivalent (mem_nonZeroDivisors_iff_ne_zero.mp I.2) _ b)
 
 /-! ## Principal scaling invariance -/
-
-omit [Fact (Squarefree d)] [Fact (d ≠ 1)] in
-/-- Multiplying both wedge arguments by `x` scales the wedge by the field norm
-`x.re² − d·x.im²` of `x`. -/
-theorem imPartRatio_wedge_mul_left (x u v : K) :
-    imPartRatio (x * u * star (x * v) - x * v * star (x * u)) =
-      ((x.re : ℚ) ^ 2 - (d : ℚ) * x.im ^ 2) * imPartRatio (u * star v - v * star u) := by
-  rw [imPartRatio_wedge, imPartRatio_wedge]
-  simp only [QuadraticAlgebra.re_mul, QuadraticAlgebra.im_mul]
-  ring
 
 /-- The ideal norm of a principal scaling `span{x} · I` factors through the field
 norm of `x`. -/
