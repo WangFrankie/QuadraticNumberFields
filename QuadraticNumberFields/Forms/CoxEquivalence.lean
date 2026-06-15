@@ -1285,6 +1285,27 @@ theorem basis_first_mul_cox_ideal_generator_mem_span_a_mul_ideal_of_mod_four_ne_
     Ideal.subset_span (by simp)
   exact neg_mem (Ideal.mul_mem_mul ha hβ)
 
+/-- In the `d % 4 = 1` branch, the second Cox ideal generator also satisfies
+the principal-relation inclusion `(b₀) · β_Q ∈ (a_Q) · I`. -/
+theorem basis_first_mul_cox_ideal_generator_mem_span_a_mul_ideal_of_mod_four_eq_one
+    (hdneg : d < 0) (hd4 : d % 4 = 1) (I : (Ideal 𝓞K)⁰)
+    (b : OrientedBasis (I : Ideal 𝓞K)) :
+    let Q := primitivePositiveDefiniteNormFormOfBasis hdneg
+      (mem_nonZeroDivisors_iff_ne_zero.mp I.2) b
+    let e := RingOfIntegers.ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one
+      d hd4
+    (b.basis 0 : 𝓞K) *
+        e.symm ((⟨-(Q.1.b + 1) / 2, 1⟩ : ZOnePlusSqrtdOverTwo (d / 4))) ∈
+      Ideal.span ({((Q.1.a : ℤ) : 𝓞K)} : Set 𝓞K) * (I : Ideal 𝓞K) := by
+  intro Q e
+  rw [basis_first_mul_cox_ideal_generator_eq_neg_normForm_a_mul_basis_second_of_mod_four_eq_one
+    hdneg hd4 I b]
+  have hβ : (b.basis 1 : 𝓞K) ∈ (I : Ideal 𝓞K) := (b.basis 1).2
+  have ha : ((Q.1.a : ℤ) : 𝓞K) ∈
+      Ideal.span ({((Q.1.a : ℤ) : 𝓞K)} : Set 𝓞K) :=
+    Ideal.subset_span (by simp)
+  exact neg_mem (Ideal.mul_mem_mul ha hβ)
+
 /-- In the `d % 4 ≠ 1` branch, the two Cox generator membership lemmas assemble
 to the inclusion `(b₀) · J(Q_b) ≤ (a_Q) · I`. -/
 theorem basis_first_mul_cox_ideal_le_span_a_mul_ideal_of_mod_four_ne_one
@@ -1311,6 +1332,48 @@ theorem basis_first_mul_cox_ideal_le_span_a_mul_ideal_of_mod_four_ne_one
   intro z hz
   have hz' : e z ∈ Ideal.span ({aZ, betaZ} : Set (Zsqrtd d)) := by
     simpa [idealOfForm_of_mod_four_ne_one, e, aZ, betaZ] using hz
+  rcases ((Ideal.mem_span_pair (x := aZ) (y := betaZ)).mp hz') with ⟨u, v, huv⟩
+  have hz_eq : z = e.symm (u * aZ + v * betaZ) := by
+    apply e.injective
+    simp [huv]
+  rw [hz_eq]
+  have hsplit :
+      (b.basis 0 : 𝓞K) * e.symm (u * aZ + v * betaZ) =
+        e.symm u * ((b.basis 0 : 𝓞K) * e.symm aZ) +
+          e.symm v * ((b.basis 0 : 𝓞K) * e.symm betaZ) := by
+    simp
+    ring
+  rw [hsplit]
+  exact target.add_mem (target.mul_mem_left (e.symm u) hscalar)
+    (target.mul_mem_left (e.symm v) hbeta)
+
+/-- In the `d % 4 = 1` branch, the two Cox generator membership lemmas assemble
+to the inclusion `(b₀) · J(Q_b) ≤ (a_Q) · I`. -/
+theorem basis_first_mul_cox_ideal_le_span_a_mul_ideal_of_mod_four_eq_one
+    (hdneg : d < 0) (hd4 : d % 4 = 1) (I : (Ideal 𝓞K)⁰)
+    (b : OrientedBasis (I : Ideal 𝓞K)) :
+    let Q := primitivePositiveDefiniteNormFormOfBasis hdneg
+      (mem_nonZeroDivisors_iff_ne_zero.mp I.2) b
+    Ideal.span ({(b.basis 0 : 𝓞K)} : Set 𝓞K) *
+        idealOfForm_of_mod_four_eq_one d hd4 Q ≤
+      Ideal.span ({((Q.1.a : ℤ) : 𝓞K)} : Set 𝓞K) * (I : Ideal 𝓞K) := by
+  intro Q
+  let e := RingOfIntegers.ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one
+    d hd4
+  let aZ : ZOnePlusSqrtdOverTwo (d / 4) := ((Q.1.a : ℤ) : ZOnePlusSqrtdOverTwo (d / 4))
+  let betaZ : ZOnePlusSqrtdOverTwo (d / 4) := ⟨-(Q.1.b + 1) / 2, 1⟩
+  let target : Ideal 𝓞K := Ideal.span ({((Q.1.a : ℤ) : 𝓞K)} : Set 𝓞K) *
+    (I : Ideal 𝓞K)
+  have hscalar : (b.basis 0 : 𝓞K) * e.symm aZ ∈ target := by
+    simpa [Q, e, aZ, target] using
+      basis_first_mul_cox_scalar_mem_span_a_mul_ideal_of_mod_four_eq_one hdneg hd4 I b
+  have hbeta : (b.basis 0 : 𝓞K) * e.symm betaZ ∈ target := by
+    simpa [Q, e, betaZ, target] using
+      basis_first_mul_cox_ideal_generator_mem_span_a_mul_ideal_of_mod_four_eq_one hdneg hd4 I b
+  rw [Ideal.span_singleton_mul_le_iff]
+  intro z hz
+  have hz' : e z ∈ Ideal.span ({aZ, betaZ} : Set (ZOnePlusSqrtdOverTwo (d / 4))) := by
+    simpa [idealOfForm_of_mod_four_eq_one, e, aZ, betaZ] using hz
   rcases ((Ideal.mem_span_pair (x := aZ) (y := betaZ)).mp hz') with ⟨u, v, huv⟩
   have hz_eq : z = e.symm (u * aZ + v * betaZ) := by
     apply e.injective
@@ -1394,6 +1457,75 @@ theorem span_a_mul_ideal_le_basis_first_mul_cox_ideal_of_mod_four_ne_one
         (n : 𝓞K) * (aOK * (b.basis 1 : 𝓞K)) by ring]
     exact target.mul_mem_left (n : 𝓞K) h_a_b1
 
+/-- In the `d % 4 = 1` branch, the oriented basis decomposition of `I` gives
+the reverse inclusion `(a_Q) · I ≤ (b₀) · J(Q_b)`. -/
+theorem span_a_mul_ideal_le_basis_first_mul_cox_ideal_of_mod_four_eq_one
+    (hdneg : d < 0) (hd4 : d % 4 = 1) (I : (Ideal 𝓞K)⁰)
+    (b : OrientedBasis (I : Ideal 𝓞K)) :
+    let Q := primitivePositiveDefiniteNormFormOfBasis hdneg
+      (mem_nonZeroDivisors_iff_ne_zero.mp I.2) b
+    Ideal.span ({((Q.1.a : ℤ) : 𝓞K)} : Set 𝓞K) * (I : Ideal 𝓞K) ≤
+      Ideal.span ({(b.basis 0 : 𝓞K)} : Set 𝓞K) *
+        idealOfForm_of_mod_four_eq_one d hd4 Q := by
+  intro Q
+  let e := RingOfIntegers.ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one
+    d hd4
+  let aOK : 𝓞K := ((Q.1.a : ℤ) : 𝓞K)
+  let aZ : ZOnePlusSqrtdOverTwo (d / 4) := ((Q.1.a : ℤ) : ZOnePlusSqrtdOverTwo (d / 4))
+  let betaZ : ZOnePlusSqrtdOverTwo (d / 4) := ⟨-(Q.1.b + 1) / 2, 1⟩
+  let target : Ideal 𝓞K := Ideal.span ({(b.basis 0 : 𝓞K)} : Set 𝓞K) *
+    idealOfForm_of_mod_four_eq_one d hd4 Q
+  have ha_mem_J : e.symm aZ ∈ idealOfForm_of_mod_four_eq_one d hd4 Q := by
+    change e (e.symm aZ) ∈ Ideal.span ({aZ, betaZ} : Set (ZOnePlusSqrtdOverTwo (d / 4)))
+    rw [RingEquiv.apply_symm_apply]
+    exact Ideal.subset_span (by simp)
+  have hbeta_mem_J : e.symm betaZ ∈ idealOfForm_of_mod_four_eq_one d hd4 Q := by
+    change e (e.symm betaZ) ∈ Ideal.span ({aZ, betaZ} : Set (ZOnePlusSqrtdOverTwo (d / 4)))
+    rw [RingEquiv.apply_symm_apply]
+    exact Ideal.subset_span (by simp)
+  have h_a_b0 : aOK * (b.basis 0 : 𝓞K) ∈ target := by
+    have hb0 : (b.basis 0 : 𝓞K) ∈ Ideal.span ({(b.basis 0 : 𝓞K)} : Set 𝓞K) :=
+      Ideal.subset_span (by simp)
+    have h : (b.basis 0 : 𝓞K) * e.symm aZ ∈ target := Ideal.mul_mem_mul hb0 ha_mem_J
+    simpa [target, aOK, aZ, mul_comm] using h
+  have h_a_b1 : aOK * (b.basis 1 : 𝓞K) ∈ target := by
+    have hb0 : (b.basis 0 : 𝓞K) ∈ Ideal.span ({(b.basis 0 : 𝓞K)} : Set 𝓞K) :=
+      Ideal.subset_span (by simp)
+    have hβ : (b.basis 0 : 𝓞K) * e.symm betaZ ∈ target :=
+      Ideal.mul_mem_mul hb0 hbeta_mem_J
+    have hrel :=
+      basis_first_mul_cox_ideal_generator_eq_neg_normForm_a_mul_basis_second_of_mod_four_eq_one
+        hdneg hd4 I b
+    dsimp only at hrel
+    have hrel' : (b.basis 0 : 𝓞K) * e.symm betaZ =
+        -(aOK * (b.basis 1 : 𝓞K)) := by
+      simpa [Q, e, betaZ, aOK] using hrel
+    have hneg : -(aOK * (b.basis 1 : 𝓞K)) ∈ target := by
+      simpa [hrel'] using hβ
+    simpa using neg_mem hneg
+  rw [Ideal.span_singleton_mul_le_iff]
+  intro z hz
+  let zI : (I : Ideal 𝓞K) := ⟨z, hz⟩
+  let m : ℤ := b.basis.repr zI 0
+  let n : ℤ := b.basis.repr zI 1
+  have hz_decomp : z = m • (b.basis 0 : 𝓞K) + n • (b.basis 1 : 𝓞K) := by
+    have hsum := b.basis.sum_repr zI
+    have hsub : ((∑ i : Fin 2, (b.basis.repr zI) i • b.basis i :
+        (I : Ideal 𝓞K)) : 𝓞K) = z := by
+      simp [zI, hsum]
+    rw [Fin.sum_univ_two] at hsub
+    simpa [m, n] using hsub.symm
+  rw [hz_decomp, mul_add]
+  apply target.add_mem
+  · rw [zsmul_eq_mul']
+    rw [show aOK * ((b.basis 0 : 𝓞K) * (m : 𝓞K)) =
+        (m : 𝓞K) * (aOK * (b.basis 0 : 𝓞K)) by ring]
+    exact target.mul_mem_left (m : 𝓞K) h_a_b0
+  · rw [zsmul_eq_mul']
+    rw [show aOK * ((b.basis 1 : 𝓞K) * (n : 𝓞K)) =
+        (n : 𝓞K) * (aOK * (b.basis 1 : 𝓞K)) by ring]
+    exact target.mul_mem_left (n : 𝓞K) h_a_b1
+
 /-- In the `d % 4 ≠ 1` branch, the oriented basis first vector gives the
 principal ideal relation `(b₀) · J(Q_b) = (a_Q) · I` for the norm form. -/
 theorem basis_first_mul_cox_ideal_eq_span_a_mul_ideal_of_mod_four_ne_one
@@ -1408,6 +1540,21 @@ theorem basis_first_mul_cox_ideal_eq_span_a_mul_ideal_of_mod_four_ne_one
   exact le_antisymm
     (basis_first_mul_cox_ideal_le_span_a_mul_ideal_of_mod_four_ne_one hdneg hd4 I b)
     (span_a_mul_ideal_le_basis_first_mul_cox_ideal_of_mod_four_ne_one hdneg hd4 I b)
+
+/-- In the `d % 4 = 1` branch, the oriented basis first vector gives the
+principal ideal relation `(b₀) · J(Q_b) = (a_Q) · I` for the norm form. -/
+theorem basis_first_mul_cox_ideal_eq_span_a_mul_ideal_of_mod_four_eq_one
+    (hdneg : d < 0) (hd4 : d % 4 = 1) (I : (Ideal 𝓞K)⁰)
+    (b : OrientedBasis (I : Ideal 𝓞K)) :
+    let Q := primitivePositiveDefiniteNormFormOfBasis hdneg
+      (mem_nonZeroDivisors_iff_ne_zero.mp I.2) b
+    Ideal.span ({(b.basis 0 : 𝓞K)} : Set 𝓞K) *
+        idealOfForm_of_mod_four_eq_one d hd4 Q =
+      Ideal.span ({((Q.1.a : ℤ) : 𝓞K)} : Set 𝓞K) * (I : Ideal 𝓞K) := by
+  intro Q
+  exact le_antisymm
+    (basis_first_mul_cox_ideal_le_span_a_mul_ideal_of_mod_four_eq_one hdneg hd4 I b)
+    (span_a_mul_ideal_le_basis_first_mul_cox_ideal_of_mod_four_eq_one hdneg hd4 I b)
 
 /-- In the `d % 4 ≠ 1` branch, the right-inverse law follows from the classical
 Cox relation `(α) · J(Q_b) = (a_Q) · I`, where `α` is the first vector of the
@@ -1487,6 +1634,30 @@ theorem idealClassOfNormForm_eq_mk0_of_mod_four_eq_one_of_basis_first_vector_rel
     (primitivePositiveDefiniteNormFormOfBasis hdneg
       (mem_nonZeroDivisors_iff_ne_zero.mp I.2) b).2.2.2.1.ne'
 
+/-- In the `d % 4 = 1` branch, the Cox ideal class of the norm form attached to
+any oriented basis of `I` is the original ideal class. -/
+theorem idealClassOfNormForm_eq_mk0_of_mod_four_eq_one_of_basis
+    (hdneg : d < 0) (hd4 : d % 4 = 1) (I : (Ideal 𝓞K)⁰)
+    (b : OrientedBasis (I : Ideal 𝓞K)) :
+    idealClassOfForm_of_mod_four_eq_one d hd4
+        (primitivePositiveDefiniteNormFormOfBasis hdneg
+          (mem_nonZeroDivisors_iff_ne_zero.mp I.2) b) =
+      ClassGroup.mk0 I :=
+  idealClassOfNormForm_eq_mk0_of_mod_four_eq_one_of_basis_first_vector_relation
+    hdneg hd4 I b
+    (basis_first_mul_cox_ideal_eq_span_a_mul_ideal_of_mod_four_eq_one hdneg hd4 I b)
+
+/-- Right-inverse branch law for the `d % 4 = 1` Cox map, using the canonical
+oriented basis chosen by `classGroupToFormClass`. -/
+theorem idealClassOfNormForm_eq_mk0_of_mod_four_eq_one
+    (hdneg : d < 0) (hd4 : d % 4 = 1) (I : (Ideal 𝓞K)⁰) :
+    (let hI : (I : Ideal 𝓞K) ≠ 0 := mem_nonZeroDivisors_iff_ne_zero.mp I.2
+     let b : OrientedBasis (I : Ideal 𝓞K) := orientedBasisOfNeZero (I : Ideal 𝓞K) hI
+     idealClassOfForm_of_mod_four_eq_one d hd4
+       (primitivePositiveDefiniteNormFormOfBasis hdneg hI b)) = ClassGroup.mk0 I := by
+  exact idealClassOfNormForm_eq_mk0_of_mod_four_eq_one_of_basis hdneg hd4 I
+    (orientedBasisOfNeZero (I : Ideal 𝓞K) (mem_nonZeroDivisors_iff_ne_zero.mp I.2))
+
 /-- A principal-ideal relation proves the right-inverse law for the canonical
 oriented basis in the `d % 4 ≠ 1` branch. -/
 theorem idealClassOfNormForm_eq_mk0_of_mod_four_ne_one_of_ideal_relation
@@ -1553,6 +1724,23 @@ noncomputable def formClassEquivClassGroupOfRightBranchLaws (hdneg : d < 0)
   formClassEquivClassGroupOfInverseLaws hdneg
     (formClassToClassGroup_leftInverse hdneg)
     (formClassToClassGroup_rightInverse_of_branch_ideal_representatives hdneg hne heq)
+
+/-- The inverse ideal-to-form map followed by the Cox map is the identity on
+ideal classes. -/
+theorem formClassToClassGroup_rightInverse (hdneg : d < 0) :
+    ∀ C : ClassGroup 𝓞K,
+      formClassToClassGroup d (classGroupToFormClass hdneg C) = C :=
+  formClassToClassGroup_rightInverse_of_branch_ideal_representatives hdneg
+    (idealClassOfNormForm_eq_mk0_of_mod_four_ne_one hdneg)
+    (idealClassOfNormForm_eq_mk0_of_mod_four_eq_one hdneg)
+
+/-- Cox 7.7 equivalence between primitive positive definite form classes of the
+field discriminant and ideal classes of the imaginary quadratic order. -/
+noncomputable def formClassEquivClassGroup (hdneg : d < 0) :
+    FormClass (fieldDiscriminant d) ≃ ClassGroup 𝓞K :=
+  formClassEquivClassGroupOfInverseLaws hdneg
+    (formClassToClassGroup_leftInverse hdneg)
+    (formClassToClassGroup_rightInverse hdneg)
 
 end CoxAssembly
 end BinaryQuadraticForm
