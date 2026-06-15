@@ -73,6 +73,29 @@ theorem classGroupRepresentativesQsqrtd_eq_univ
   exact Finset.image_univ_equiv
     (BinaryQuadraticForm.formClassEquivClassGroup (d := d) hdneg)
 
+/-- For imaginary squarefree `d`, the class number of `ℚ(√d)` is the number of
+primitive reduced positive definite forms of the field discriminant. -/
+theorem classNumberQsqrtd_eq_reducedForms_card
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hdneg : d < 0) :
+    classNumberQsqrtd d =
+      (BinaryQuadraticForm.enumPrimitiveReducedForms
+        (BinaryQuadraticForm.fieldDiscriminant d)).card := by
+  classical
+  calc
+    classNumberQsqrtd d =
+        (Finset.univ : Finset (ClassGroup (𝓞 (Qsqrtd (d : ℚ))))).card := by
+      simp [classNumberQsqrtd, NumberField.classNumber]
+    _ = (classGroupRepresentativesQsqrtd d hdneg).card := by
+      rw [classGroupRepresentativesQsqrtd_eq_univ]
+    _ = (BinaryQuadraticForm.reducedFormClasses
+          (BinaryQuadraticForm.fieldDiscriminant d)).card := by
+      rw [classGroupRepresentativesQsqrtd]
+      exact Finset.card_image_of_injective _
+        (BinaryQuadraticForm.formClassEquivClassGroup (d := d) hdneg).injective
+    _ = (BinaryQuadraticForm.enumPrimitiveReducedForms
+          (BinaryQuadraticForm.fieldDiscriminant d)).card :=
+      BinaryQuadraticForm.reducedFormClasses_card _
+
 /-! ## Small-norm class-group closure lemmas -/
 
 /-- The natural number `2` is irreducible, as a convenience for absolute-norm

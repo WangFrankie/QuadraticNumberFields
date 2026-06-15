@@ -235,6 +235,29 @@ theorem reducedFormClasses_eq_univ (D : ℤ) : reducedFormClasses D = Finset.uni
   ext C
   exact ⟨fun _ => Finset.mem_univ C, fun _ => mem_reducedFormClasses D C⟩
 
+/-- Passing from reduced forms to form classes does not identify distinct
+enumerated forms. -/
+theorem reducedFormClasses_card (D : ℤ) :
+    (reducedFormClasses D).card = (enumPrimitiveReducedForms D).card := by
+  classical
+  rw [reducedFormClasses]
+  trans (enumPrimitiveReducedForms D).attach.card
+  · refine Finset.card_image_of_injective _ ?_
+    intro Q R hQR
+    have hQ := of_mem_enumPrimitiveReducedForms Q.2
+    have hR := of_mem_enumPrimitiveReducedForms R.2
+    have hclass :
+        Quotient.mk (primitivePositiveDefiniteFormSetoid D)
+          (primitivePositiveDefiniteFormOfMemEnum Q.2) =
+        Quotient.mk (primitivePositiveDefiniteFormSetoid D)
+          (primitivePositiveDefiniteFormOfMemEnum R.2) := by
+      simpa using hQR
+    have hval : Q.1 = R.1 :=
+      congrArg (fun S : PrimitivePositiveDefiniteForm D => S.1)
+        (eq_of_isReduced_of_mk_eq_mk hQ.2.2.1 hR.2.2.1 hclass)
+    exact Subtype.ext hval
+  · simp
+
 /-- The list view of the reduced-form enumeration has no duplicates. -/
 theorem enumPrimitiveReducedFormsList_nodup (D : ℤ) :
     (enumPrimitiveReducedFormsList D).Nodup := by
