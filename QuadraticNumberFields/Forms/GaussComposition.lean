@@ -67,6 +67,36 @@ def composeConcordant (Q R : BinaryQuadraticForm) : BinaryQuadraticForm where
     (composeConcordant Q R).c = (Q.b ^ 2 - Q.disc) / (4 * Q.a * R.a) :=
   rfl
 
+/-- Concordant forms with equal discriminants and equal middle coefficient
+satisfy `a c = a' c'`. -/
+theorem mul_c_eq_mul_c_of_isConcordant {Q R : BinaryQuadraticForm}
+    (h : Q.IsConcordant R) : Q.a * Q.c = R.a * R.c := by
+  rcases h with ⟨hdisc, hb, _⟩
+  simp [disc, hb] at hdisc
+  nlinarith
+
+/-- For concordant forms, the right leading coefficient divides the left
+trailing coefficient. -/
+theorem right_a_dvd_left_c_of_isConcordant {Q R : BinaryQuadraticForm}
+    (h : Q.IsConcordant R) : R.a ∣ Q.c := by
+  have hprod := mul_c_eq_mul_c_of_isConcordant h
+  have hdiv : R.a ∣ Q.a * Q.c := by
+    rw [hprod]
+    exact dvd_mul_right R.a R.c
+  have hgcd : Int.gcd R.a Q.a = 1 := by
+    simpa [Int.gcd, Nat.gcd_comm] using h.2.2
+  exact Int.dvd_of_dvd_mul_right_of_gcd_one hdiv hgcd
+
+/-- For concordant forms, the left leading coefficient divides the right
+trailing coefficient. -/
+theorem left_a_dvd_right_c_of_isConcordant {Q R : BinaryQuadraticForm}
+    (h : Q.IsConcordant R) : Q.a ∣ R.c := by
+  have hprod := mul_c_eq_mul_c_of_isConcordant h
+  have hdiv : Q.a ∣ R.a * R.c := by
+    rw [← hprod]
+    exact dvd_mul_right Q.a Q.c
+  exact Int.dvd_of_dvd_mul_right_of_gcd_one hdiv h.2.2
+
 /-- If the integer division in the concordant formula is exact, the composed
 form has the same discriminant as the left factor. -/
 theorem disc_composeConcordant_of_eq_mul (Q R : BinaryQuadraticForm) {c : ℤ}
@@ -82,6 +112,42 @@ theorem disc_composeConcordant_of_eq_mul (Q R : BinaryQuadraticForm) {c : ℤ}
         ((Q.b ^ 2 - Q.disc) / (4 * Q.a * R.a)) by rfl]
   rw [hcdiv]
   nlinarith [hc]
+
+/-- Concordant forms with nonzero leading coefficients compose to a form with
+the same discriminant. -/
+theorem disc_composeConcordant_of_isConcordant {Q R : BinaryQuadraticForm}
+    (h : Q.IsConcordant R) (hQa : Q.a ≠ 0) (hRa : R.a ≠ 0) :
+    (composeConcordant Q R).disc = Q.disc := by
+  apply disc_composeConcordant_of_eq_mul Q R (c := Q.c / R.a)
+  · exact mul_ne_zero (mul_ne_zero (by norm_num : (4 : ℤ) ≠ 0) hQa) hRa
+  · have hRdvd : R.a ∣ Q.c := right_a_dvd_left_c_of_isConcordant h
+    have hQcediv : Q.c / R.a * R.a = Q.c := Int.ediv_mul_cancel hRdvd
+    have hdiscQ : Q.b ^ 2 - Q.disc = 4 * Q.a * Q.c := by
+      simp [disc]
+    calc
+      Q.b ^ 2 - Q.disc = 4 * Q.a * Q.c := hdiscQ
+      _ = 4 * Q.a * (Q.c / R.a * R.a) := by rw [hQcediv]
+      _ = (4 * Q.a * R.a) * (Q.c / R.a) := by ring
+
+/-- Concordant composition preserves a prescribed discriminant when both
+leading coefficients are nonzero. -/
+theorem hasDiscriminant_composeConcordant_of_isConcordant
+    {Q R : BinaryQuadraticForm} {D : ℤ}
+    (hQD : Q.HasDiscriminant D) (h : Q.IsConcordant R)
+    (hQa : Q.a ≠ 0) (hRa : R.a ≠ 0) :
+    (composeConcordant Q R).HasDiscriminant D := by
+  unfold HasDiscriminant at hQD ⊢
+  rw [disc_composeConcordant_of_isConcordant h hQa hRa, hQD]
+
+/-- Concordant composition preserves positive definiteness. -/
+theorem isPositiveDefinite_composeConcordant_of_isConcordant
+    {Q R : BinaryQuadraticForm} (h : Q.IsConcordant R)
+    (hQ : Q.IsPositiveDefinite) (hR : R.IsPositiveDefinite) :
+    (composeConcordant Q R).IsPositiveDefinite := by
+  constructor
+  · exact mul_pos hQ.1 hR.1
+  · rw [disc_composeConcordant_of_isConcordant h (ne_of_gt hQ.1) (ne_of_gt hR.1)]
+    exact hQ.2
 
 /-! ## Sanity checks -/
 
@@ -100,6 +166,22 @@ example :
   exact disc_composeConcordant_of_eq_mul
     (BinaryQuadraticForm.mk 1 0 1) (BinaryQuadraticForm.mk 1 0 1) (c := 1)
     (by norm_num) (by norm_num [disc])
+
+example :
+    (composeConcordant (BinaryQuadraticForm.mk 1 0 1)
+      (BinaryQuadraticForm.mk 1 0 1)).disc = -4 := by
+  exact disc_composeConcordant_of_isConcordant
+    (Q := BinaryQuadraticForm.mk 1 0 1) (R := BinaryQuadraticForm.mk 1 0 1)
+    (by norm_num [IsConcordant, disc]) (by norm_num) (by norm_num)
+
+example :
+    (composeConcordant (BinaryQuadraticForm.mk 1 0 1)
+      (BinaryQuadraticForm.mk 1 0 1)).IsPositiveDefinite := by
+  exact isPositiveDefinite_composeConcordant_of_isConcordant
+    (Q := BinaryQuadraticForm.mk 1 0 1) (R := BinaryQuadraticForm.mk 1 0 1)
+    (by norm_num [IsConcordant, disc])
+    (by norm_num [IsPositiveDefinite, disc])
+    (by norm_num [IsPositiveDefinite, disc])
 
 end BinaryQuadraticForm
 end QuadraticNumberFields
