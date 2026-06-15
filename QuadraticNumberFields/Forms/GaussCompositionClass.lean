@@ -52,5 +52,30 @@ theorem composeConcordant_comm {D : ℤ} (Q R : PrimitivePositiveDefiniteForm D)
 
 end PrimitivePositiveDefiniteForm
 
+namespace FormClass
+
+/-- The form class produced by directly composing chosen concordant primitive
+positive definite representatives.
+
+This is not yet a multiplication on `FormClass D`: it still depends on chosen
+representatives and a concordance proof.  The later well-definedness theorem
+will remove those choices. -/
+def composeConcordantOfRepresentatives {D : ℤ}
+    (Q R : PrimitivePositiveDefiniteForm D) (h : Q.1.IsConcordant R.1) :
+    FormClass D :=
+  Quotient.mk (primitivePositiveDefiniteFormSetoid D)
+    (PrimitivePositiveDefiniteForm.composeConcordant Q R h)
+
+/-- Chosen-representative concordant composition is symmetric after passing to
+form classes. -/
+theorem composeConcordantOfRepresentatives_comm {D : ℤ}
+    (Q R : PrimitivePositiveDefiniteForm D) (h : Q.1.IsConcordant R.1) :
+    composeConcordantOfRepresentatives Q R h =
+      composeConcordantOfRepresentatives R Q h.symm := by
+  unfold composeConcordantOfRepresentatives
+  rw [PrimitivePositiveDefiniteForm.composeConcordant_comm]
+
+end FormClass
+
 end BinaryQuadraticForm
 end QuadraticNumberFields
