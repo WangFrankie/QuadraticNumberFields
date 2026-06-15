@@ -26,9 +26,11 @@ The scaffold lemmas in the `CoxEquivalence` section reduce the equivalence to
 representative-level left and right inverse laws.  The `CoxLeftInverse` and
 `CoxLeftInverseEqOne` sections prove the two forward-then-inverse branch laws.
 
-The full assembled Cox equivalence still needs the two right-inverse branch
-laws, which identify the Cox ideal class of a norm form attached to an oriented
-ideal basis with the original ideal class.
+The full assembled Cox equivalence still needs the branch-specific principal
+ideal relation `(α) · J(Q_b) = (a_Q) · I` for the norm form attached to an
+oriented ideal basis.  Once that relation is available, the lemmas in
+`CoxAssembly` turn it into the right-inverse branch laws and assemble the
+equivalence.
 -/
 
 open scoped NumberField nonZeroDivisors
@@ -166,23 +168,9 @@ end CoxEquivalence
 
 section CoxLeftInverse
 
-/-! ## Left Inverse Round-Trip: `d % 4 ≠ 1` Branch (WIP)
+/-! ## Left Inverse Round-Trip: `d % 4 ≠ 1` Branch
 
 Goal: `classGroupToFormClass hdneg (idealClassOfForm_of_mod_four_ne_one d hd4 Q) = ⟦Q⟧`.
-
-✅ Core spanning lemma: `mem_span_coxBetaZ_of_mem_ideal` — the Cox ideal
-   `(a, ⟨-b/2, 1⟩)` in `Zsqrtd d` is spanned as a ℤ-module by `{a, (b/2)-√d}`.
-
-🚧 Remaining: construct the `Basis` from the spanning lemma (blocked: `Basis`
-   not accessible from this file's import chain despite being used in
-   `InverseCox.lean`), add orientation, compute norm form equality.
-
-The key proof chain once the basis exists:
-  classGroupToFormClass hdneg (idealClassOfForm Q)
-    = formClassOfNonzeroIdeal hdneg (nonzeroIdealOfForm Q)  [L3: eq_of_mk0_eq]
-    = ⟦normFormOfBasis hI b⟧  [formClassOfNonzeroIdeal_eq_mk]
-    = ⟦Q.1⟧  [norm form = Q.1, via coxBasis computation]
-    = ⟦Q⟧
 -/
 
 variable {d : ℤ} [Fact (Squarefree d)] [Fact (d ≠ 1)]
@@ -893,5 +881,178 @@ theorem classGroupToFormClass_idealClassOfForm_leftInverse_of_mod_four_eq_one
   simpa using h_target
 
 end CoxLeftInverseEqOne
+
+section CoxAssembly
+
+variable {d : ℤ} [Fact (Squarefree d)] [Fact (d ≠ 1)]
+
+local notation "K" => Qsqrtd (d : ℚ)
+local notation "𝓞K" => 𝓞 K
+
+/-- A principal-ideal relation proves the right-inverse law for the `d % 4 ≠ 1`
+branch for any chosen oriented basis.  This isolates the remaining Cox
+arithmetic to constructing the two nonzero principal generators and the displayed
+ideal equality. -/
+theorem idealClassOfNormForm_eq_mk0_of_mod_four_ne_one_of_basis_ideal_relation
+    (hdneg : d < 0) (hd4 : d % 4 ≠ 1) (I : (Ideal 𝓞K)⁰)
+    (b : OrientedBasis (I : Ideal 𝓞K)) {x y : 𝓞K} (hx : x ≠ 0) (hy : y ≠ 0)
+    (hrel :
+      Ideal.span ({x} : Set 𝓞K) *
+          idealOfForm_of_mod_four_ne_one d hd4
+            (primitivePositiveDefiniteNormFormOfBasis hdneg
+              (mem_nonZeroDivisors_iff_ne_zero.mp I.2) b) =
+        Ideal.span ({y} : Set 𝓞K) * (I : Ideal 𝓞K)) :
+    idealClassOfForm_of_mod_four_ne_one d hd4
+        (primitivePositiveDefiniteNormFormOfBasis hdneg
+          (mem_nonZeroDivisors_iff_ne_zero.mp I.2) b) =
+      ClassGroup.mk0 I := by
+  dsimp [idealClassOfForm_of_mod_four_ne_one]
+  rw [ClassGroup.mk0_eq_mk0_iff]
+  exact ⟨x, y, hx, hy, by
+    simpa [nonzeroIdealOfForm_of_mod_four_ne_one] using hrel⟩
+
+/-- A principal-ideal relation proves the right-inverse law for the `d % 4 = 1`
+branch for any chosen oriented basis.  This is the half-integral analogue of
+`idealClassOfNormForm_eq_mk0_of_mod_four_ne_one_of_basis_ideal_relation`. -/
+theorem idealClassOfNormForm_eq_mk0_of_mod_four_eq_one_of_basis_ideal_relation
+    (hdneg : d < 0) (hd4 : d % 4 = 1) (I : (Ideal 𝓞K)⁰)
+    (b : OrientedBasis (I : Ideal 𝓞K)) {x y : 𝓞K} (hx : x ≠ 0) (hy : y ≠ 0)
+    (hrel :
+      Ideal.span ({x} : Set 𝓞K) *
+          idealOfForm_of_mod_four_eq_one d hd4
+            (primitivePositiveDefiniteNormFormOfBasis hdneg
+              (mem_nonZeroDivisors_iff_ne_zero.mp I.2) b) =
+        Ideal.span ({y} : Set 𝓞K) * (I : Ideal 𝓞K)) :
+    idealClassOfForm_of_mod_four_eq_one d hd4
+        (primitivePositiveDefiniteNormFormOfBasis hdneg
+          (mem_nonZeroDivisors_iff_ne_zero.mp I.2) b) =
+      ClassGroup.mk0 I := by
+  dsimp [idealClassOfForm_of_mod_four_eq_one]
+  rw [ClassGroup.mk0_eq_mk0_iff]
+  exact ⟨x, y, hx, hy, by
+    simpa [nonzeroIdealOfForm_of_mod_four_eq_one] using hrel⟩
+
+/-- In the `d % 4 ≠ 1` branch, the right-inverse law follows from the classical
+Cox relation `(α) · J(Q_b) = (a_Q) · I`, where `α` is the first vector of the
+oriented ideal basis and `Q_b` is its norm form. -/
+theorem idealClassOfNormForm_eq_mk0_of_mod_four_ne_one_of_basis_first_vector_relation
+    (hdneg : d < 0) (hd4 : d % 4 ≠ 1) (I : (Ideal 𝓞K)⁰)
+    (b : OrientedBasis (I : Ideal 𝓞K))
+    (hrel :
+      Ideal.span ({(b.basis 0 : 𝓞K)} : Set 𝓞K) *
+          idealOfForm_of_mod_four_ne_one d hd4
+            (primitivePositiveDefiniteNormFormOfBasis hdneg
+              (mem_nonZeroDivisors_iff_ne_zero.mp I.2) b) =
+        Ideal.span
+            ({(((primitivePositiveDefiniteNormFormOfBasis hdneg
+              (mem_nonZeroDivisors_iff_ne_zero.mp I.2) b).1.a : ℤ) : 𝓞K)} :
+              Set 𝓞K) *
+          (I : Ideal 𝓞K)) :
+    idealClassOfForm_of_mod_four_ne_one d hd4
+        (primitivePositiveDefiniteNormFormOfBasis hdneg
+          (mem_nonZeroDivisors_iff_ne_zero.mp I.2) b) =
+      ClassGroup.mk0 I := by
+  have hb0_ne : (b.basis 0 : 𝓞K) ≠ 0 := fun h => b.basis.ne_zero 0 (Subtype.ext h)
+  refine idealClassOfNormForm_eq_mk0_of_mod_four_ne_one_of_basis_ideal_relation
+    hdneg hd4 I b hb0_ne ?_ hrel
+  exact_mod_cast
+    (primitivePositiveDefiniteNormFormOfBasis hdneg
+      (mem_nonZeroDivisors_iff_ne_zero.mp I.2) b).2.2.2.1.ne'
+
+/-- In the `d % 4 = 1` branch, the right-inverse law follows from the same
+principal relation between the basis first vector, the Cox ideal of the norm
+form, and the original ideal. -/
+theorem idealClassOfNormForm_eq_mk0_of_mod_four_eq_one_of_basis_first_vector_relation
+    (hdneg : d < 0) (hd4 : d % 4 = 1) (I : (Ideal 𝓞K)⁰)
+    (b : OrientedBasis (I : Ideal 𝓞K))
+    (hrel :
+      Ideal.span ({(b.basis 0 : 𝓞K)} : Set 𝓞K) *
+          idealOfForm_of_mod_four_eq_one d hd4
+            (primitivePositiveDefiniteNormFormOfBasis hdneg
+              (mem_nonZeroDivisors_iff_ne_zero.mp I.2) b) =
+        Ideal.span
+            ({(((primitivePositiveDefiniteNormFormOfBasis hdneg
+              (mem_nonZeroDivisors_iff_ne_zero.mp I.2) b).1.a : ℤ) : 𝓞K)} :
+              Set 𝓞K) *
+          (I : Ideal 𝓞K)) :
+    idealClassOfForm_of_mod_four_eq_one d hd4
+        (primitivePositiveDefiniteNormFormOfBasis hdneg
+          (mem_nonZeroDivisors_iff_ne_zero.mp I.2) b) =
+      ClassGroup.mk0 I := by
+  have hb0_ne : (b.basis 0 : 𝓞K) ≠ 0 := fun h => b.basis.ne_zero 0 (Subtype.ext h)
+  refine idealClassOfNormForm_eq_mk0_of_mod_four_eq_one_of_basis_ideal_relation
+    hdneg hd4 I b hb0_ne ?_ hrel
+  exact_mod_cast
+    (primitivePositiveDefiniteNormFormOfBasis hdneg
+      (mem_nonZeroDivisors_iff_ne_zero.mp I.2) b).2.2.2.1.ne'
+
+/-- A principal-ideal relation proves the right-inverse law for the canonical
+oriented basis in the `d % 4 ≠ 1` branch. -/
+theorem idealClassOfNormForm_eq_mk0_of_mod_four_ne_one_of_ideal_relation
+    (hdneg : d < 0) (hd4 : d % 4 ≠ 1) (I : (Ideal 𝓞K)⁰)
+    {x y : 𝓞K} (hx : x ≠ 0) (hy : y ≠ 0)
+    (hrel :
+      (let hI : (I : Ideal 𝓞K) ≠ 0 := mem_nonZeroDivisors_iff_ne_zero.mp I.2
+       let b : OrientedBasis (I : Ideal 𝓞K) := orientedBasisOfNeZero (I : Ideal 𝓞K) hI
+       Ideal.span ({x} : Set 𝓞K) *
+          idealOfForm_of_mod_four_ne_one d hd4
+            (primitivePositiveDefiniteNormFormOfBasis hdneg hI b)) =
+        Ideal.span ({y} : Set 𝓞K) * (I : Ideal 𝓞K)) :
+    (let hI : (I : Ideal 𝓞K) ≠ 0 := mem_nonZeroDivisors_iff_ne_zero.mp I.2
+     let b : OrientedBasis (I : Ideal 𝓞K) := orientedBasisOfNeZero (I : Ideal 𝓞K) hI
+     idealClassOfForm_of_mod_four_ne_one d hd4
+       (primitivePositiveDefiniteNormFormOfBasis hdneg hI b)) = ClassGroup.mk0 I := by
+  exact idealClassOfNormForm_eq_mk0_of_mod_four_ne_one_of_basis_ideal_relation
+    hdneg hd4 I (orientedBasisOfNeZero (I : Ideal 𝓞K)
+      (mem_nonZeroDivisors_iff_ne_zero.mp I.2)) hx hy hrel
+
+/-- A principal-ideal relation proves the right-inverse law for the canonical
+oriented basis in the `d % 4 = 1` branch. -/
+theorem idealClassOfNormForm_eq_mk0_of_mod_four_eq_one_of_ideal_relation
+    (hdneg : d < 0) (hd4 : d % 4 = 1) (I : (Ideal 𝓞K)⁰)
+    {x y : 𝓞K} (hx : x ≠ 0) (hy : y ≠ 0)
+    (hrel :
+      (let hI : (I : Ideal 𝓞K) ≠ 0 := mem_nonZeroDivisors_iff_ne_zero.mp I.2
+       let b : OrientedBasis (I : Ideal 𝓞K) := orientedBasisOfNeZero (I : Ideal 𝓞K) hI
+       Ideal.span ({x} : Set 𝓞K) *
+          idealOfForm_of_mod_four_eq_one d hd4
+            (primitivePositiveDefiniteNormFormOfBasis hdneg hI b)) =
+        Ideal.span ({y} : Set 𝓞K) * (I : Ideal 𝓞K)) :
+    (let hI : (I : Ideal 𝓞K) ≠ 0 := mem_nonZeroDivisors_iff_ne_zero.mp I.2
+     let b : OrientedBasis (I : Ideal 𝓞K) := orientedBasisOfNeZero (I : Ideal 𝓞K) hI
+     idealClassOfForm_of_mod_four_eq_one d hd4
+       (primitivePositiveDefiniteNormFormOfBasis hdneg hI b)) = ClassGroup.mk0 I := by
+  exact idealClassOfNormForm_eq_mk0_of_mod_four_eq_one_of_basis_ideal_relation
+    hdneg hd4 I (orientedBasisOfNeZero (I : Ideal 𝓞K)
+      (mem_nonZeroDivisors_iff_ne_zero.mp I.2)) hx hy hrel
+
+/-- The Cox map followed by the inverse ideal-to-form map is the identity on
+form classes. -/
+theorem formClassToClassGroup_leftInverse (hdneg : d < 0) :
+    ∀ C : FormClass (fieldDiscriminant d),
+      classGroupToFormClass hdneg (formClassToClassGroup d C) = C :=
+  formClassToClassGroup_leftInverse_of_branch_representatives hdneg
+    (classGroupToFormClass_idealClassOfForm_leftInverse_of_mod_four_ne_one hdneg)
+    (classGroupToFormClass_idealClassOfForm_leftInverse_of_mod_four_eq_one hdneg)
+
+/-- Assemble the Cox 7.7 equivalence from the two remaining right-inverse
+branch laws.  The left inverse branch laws are already proved in this file. -/
+noncomputable def formClassEquivClassGroupOfRightBranchLaws (hdneg : d < 0)
+    (hne : ∀ (hd4 : d % 4 ≠ 1) (I : (Ideal 𝓞K)⁰),
+      (let hI : (I : Ideal 𝓞K) ≠ 0 := mem_nonZeroDivisors_iff_ne_zero.mp I.2
+       let b : OrientedBasis (I : Ideal 𝓞K) := orientedBasisOfNeZero (I : Ideal 𝓞K) hI
+       idealClassOfForm_of_mod_four_ne_one d hd4
+         (primitivePositiveDefiniteNormFormOfBasis hdneg hI b)) = ClassGroup.mk0 I)
+    (heq : ∀ (hd4 : d % 4 = 1) (I : (Ideal 𝓞K)⁰),
+      (let hI : (I : Ideal 𝓞K) ≠ 0 := mem_nonZeroDivisors_iff_ne_zero.mp I.2
+       let b : OrientedBasis (I : Ideal 𝓞K) := orientedBasisOfNeZero (I : Ideal 𝓞K) hI
+       idealClassOfForm_of_mod_four_eq_one d hd4
+         (primitivePositiveDefiniteNormFormOfBasis hdneg hI b)) = ClassGroup.mk0 I) :
+    FormClass (fieldDiscriminant d) ≃ ClassGroup 𝓞K :=
+  formClassEquivClassGroupOfInverseLaws hdneg
+    (formClassToClassGroup_leftInverse hdneg)
+    (formClassToClassGroup_rightInverse_of_branch_ideal_representatives hdneg hne heq)
+
+end CoxAssembly
 end BinaryQuadraticForm
 end QuadraticNumberFields
