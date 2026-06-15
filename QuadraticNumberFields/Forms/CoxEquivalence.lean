@@ -1046,6 +1046,32 @@ theorem cox_ideal_generator_relation_im {αr αi βr βi D N A B : ℚ}
   rw [hN]
   ring
 
+/-- Rational real-coordinate identity behind the signed Cox relation in the
+half-integral branch. -/
+theorem cox_ideal_generator_relation_eq_one_re {αr αi βr βi D N A B : ℚ}
+    (hA : A = (αr ^ 2 - D * αi ^ 2) / N)
+    (hB : B = 2 * (αr * βr - D * αi * βi) / N)
+    (hN : N = 2 * (αi * βr - αr * βi)) (hN0 : N ≠ 0) :
+    αr * (-B / 2) + D * (αi / 2) = -A * βr := by
+  apply mul_right_cancel₀ hN0
+  rw [add_mul, neg_mul, hA, hB]
+  field_simp [hN0]
+  rw [hN]
+  ring
+
+/-- Rational imaginary-coordinate identity behind the signed Cox relation in the
+half-integral branch. -/
+theorem cox_ideal_generator_relation_eq_one_im {αr αi βr βi D N A B : ℚ}
+    (hA : A = (αr ^ 2 - D * αi ^ 2) / N)
+    (hB : B = 2 * (αr * βr - D * αi * βi) / N)
+    (hN : N = 2 * (αi * βr - αr * βi)) (hN0 : N ≠ 0) :
+    αr * (1 / 2) + αi * (-B / 2) = -A * βi := by
+  apply mul_right_cancel₀ hN0
+  rw [add_mul, neg_mul, hA, hB]
+  field_simp [hN0]
+  rw [hN]
+  ring
+
 /-- In the `d % 4 ≠ 1` branch, the second Cox ideal generator of the norm form
 satisfies the signed classical relation
 `α · β_Q = -a_Q · β`, where `(α, β)` is the oriented ideal basis.  The sign is
@@ -1135,6 +1161,110 @@ theorem basis_first_mul_cox_ideal_generator_eq_neg_normForm_a_mul_basis_second_o
       mul_zero, hβQ.1, hβQ.2]
   · simpa [mul_one] using cox_ideal_generator_relation_re ha hb hNdet hN0
   · simpa [one_mul] using cox_ideal_generator_relation_im ha hb hNdet hN0
+
+/-- In the `d % 4 = 1` branch, the second Cox ideal generator of the norm form
+satisfies the signed classical relation
+`α · β_Q = -a_Q · β`, where the Cox generator has `K`-coordinates
+`(-b_Q / 2, 1 / 2)`. -/
+theorem basis_first_mul_cox_ideal_generator_eq_neg_normForm_a_mul_basis_second_of_mod_four_eq_one
+    (hdneg : d < 0) (hd4 : d % 4 = 1) (I : (Ideal 𝓞K)⁰)
+    (b : OrientedBasis (I : Ideal 𝓞K)) :
+    let hI : (I : Ideal 𝓞K) ≠ 0 := mem_nonZeroDivisors_iff_ne_zero.mp I.2
+    let Q := primitivePositiveDefiniteNormFormOfBasis hdneg hI b
+    let e := RingOfIntegers.ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one
+      d hd4
+    (b.basis 0 : 𝓞K) *
+        e.symm ((⟨-(Q.1.b + 1) / 2, 1⟩ : ZOnePlusSqrtdOverTwo (d / 4))) =
+      -(((Q.1.a : ℤ) : 𝓞K) * (b.basis 1 : 𝓞K)) := by
+  intro hI Q e
+  have hβQ :
+      ((e.symm (⟨-(Q.1.b + 1) / 2, 1⟩ : ZOnePlusSqrtdOverTwo (d / 4)) :
+          𝓞K) : K).re = (-(Q.1.b : ℚ)) / 2 ∧
+      ((e.symm (⟨-(Q.1.b + 1) / 2, 1⟩ : ZOnePlusSqrtdOverTwo (d / 4)) :
+          𝓞K) : K).im = (1 : ℚ) / 2 := by
+    let betaZ : ZOnePlusSqrtdOverTwo (d / 4) := ⟨-(Q.1.b + 1) / 2, 1⟩
+    let x : 𝓞K := e.symm betaZ
+    have hre := RingOfIntegers.ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one_re
+      d hd4 x
+    have him := RingOfIntegers.ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one_im
+      d hd4 x
+    dsimp [x, e] at hre him
+    rw [RingEquiv.apply_symm_apply] at hre him
+    have hodd : Odd Q.1.b :=
+      odd_b_of_hasDiscriminant_fieldDiscriminant_of_mod_four_eq_one hd4 Q.2.1
+    obtain ⟨k, hk⟩ := hodd
+    have hdiv : (-(Q.1.b + 1) / 2 : ℤ) = -(k + 1) := by
+      rw [hk]
+      omega
+    have hdiv' : ((-1 + -Q.1.b) / 2 : ℤ) = -1 - k := by
+      rw [hk]
+      omega
+    constructor
+    · rw [← hre]
+      calc
+        ((betaZ.re : ℚ) + (betaZ.im : ℚ) / 2) = ((-1 - k : ℤ) : ℚ) + 1 / 2 := by
+          simp [betaZ, hdiv']
+        _ = -(Q.1.b : ℚ) / 2 := by
+          rw [hk]
+          norm_num
+          ring
+    · simpa [betaZ] using him.symm
+  have ha : ((Q.1.a : ℤ) : ℚ) =
+      (((b.basis 0 : 𝓞K) : K).re ^ 2 -
+        (d : ℚ) * ((b.basis 0 : 𝓞K) : K).im ^ 2) /
+        (Ideal.absNorm (I : Ideal 𝓞K) : ℚ) := by
+    have h := congrArg (fun z : ℤ => (z : ℚ)) (normFormOfBasis_a_mul_absNorm hI b)
+    dsimp [Q, primitivePositiveDefiniteNormFormOfBasis] at h
+    rw [fieldNorm_int_eq] at h
+    have hN : (Ideal.absNorm (I : Ideal 𝓞K) : ℚ) ≠ 0 := by
+      exact_mod_cast (absNorm_pos hI).ne'
+    rw [eq_div_iff hN]
+    simpa [Q, primitivePositiveDefiniteNormFormOfBasis] using h
+  have hb : ((Q.1.b : ℤ) : ℚ) =
+      (2 * (((b.basis 0 : 𝓞K) : K).re * ((b.basis 1 : 𝓞K) : K).re -
+        (d : ℚ) * ((b.basis 0 : 𝓞K) : K).im *
+          ((b.basis 1 : 𝓞K) : K).im)) /
+        (Ideal.absNorm (I : Ideal 𝓞K) : ℚ) := by
+    have h := congrArg (fun z : ℤ => (z : ℚ)) (normFormOfBasis_b_mul_absNorm hI b)
+    dsimp [Q, primitivePositiveDefiniteNormFormOfBasis] at h
+    have hN : (Ideal.absNorm (I : Ideal 𝓞K) : ℚ) ≠ 0 := by
+      exact_mod_cast (absNorm_pos hI).ne'
+    rw [eq_div_iff hN]
+    simpa [Q, primitivePositiveDefiniteNormFormOfBasis] using
+      show ((normFormOfBasis hI b).b : ℚ) * (Ideal.absNorm (I : Ideal 𝓞K) : ℚ) =
+          2 * (((b.basis 0 : 𝓞K) : K).re * ((b.basis 1 : 𝓞K) : K).re -
+            (d : ℚ) * ((b.basis 0 : 𝓞K) : K).im *
+              ((b.basis 1 : 𝓞K) : K).im) by
+        have h' : ((normFormOfBasis hI b).b : ℚ) *
+            (Ideal.absNorm (I : Ideal 𝓞K) : ℚ) =
+            ((Algebra.norm ℤ ((b.basis 0 : 𝓞K) + (b.basis 1 : 𝓞K)) -
+              Algebra.norm ℤ (b.basis 0 : 𝓞K) -
+              Algebra.norm ℤ (b.basis 1 : 𝓞K) : ℤ) : ℚ) := by
+          simpa using h
+        rw [h']
+        push_cast
+        rw [fieldNorm_int_eq, fieldNorm_int_eq, fieldNorm_int_eq]
+        push_cast
+        simp only [QuadraticAlgebra.re_add, QuadraticAlgebra.im_add]
+        ring
+  have hNdet : (Ideal.absNorm (I : Ideal 𝓞K) : ℚ) =
+      2 * (((b.basis 0 : 𝓞K) : K).im * ((b.basis 1 : 𝓞K) : K).re -
+        ((b.basis 0 : 𝓞K) : K).re * ((b.basis 1 : 𝓞K) : K).im) := by
+    have hdet : b.detCoord = -(Ideal.absNorm (I : Ideal 𝓞K) : ℚ) / 2 :=
+      OrientedBasis.detCoord_eq_neg_half_absNorm_of_mod_four_eq_one hI hd4 b
+    unfold OrientedBasis.detCoord at hdet
+    linarith
+  have hN0 : (Ideal.absNorm (I : Ideal 𝓞K) : ℚ) ≠ 0 := by
+    exact_mod_cast (absNorm_pos hI).ne'
+  apply IsFractionRing.injective 𝓞K K
+  ext <;>
+    simp only [map_mul, map_neg, map_intCast, QuadraticAlgebra.re_mul,
+      QuadraticAlgebra.im_mul, QuadraticAlgebra.re_neg, QuadraticAlgebra.im_neg,
+      QuadraticAlgebra.re_intCast, QuadraticAlgebra.im_intCast, zero_mul, add_zero,
+      mul_zero, hβQ.1, hβQ.2]
+  · simpa [mul_one, div_eq_mul_inv, mul_assoc] using
+      cox_ideal_generator_relation_eq_one_re ha hb hNdet hN0
+  · simpa [one_mul] using cox_ideal_generator_relation_eq_one_im ha hb hNdet hN0
 
 /-- In the `d % 4 ≠ 1` branch, the second Cox ideal generator also satisfies
 the principal-relation inclusion `(b₀) · β_Q ∈ (a_Q) · I`. -/
