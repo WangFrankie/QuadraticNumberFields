@@ -980,6 +980,44 @@ theorem idealClassOfNormForm_eq_mk0_of_mod_four_eq_one_of_properEquivalent
       idealClassOfForm_of_mod_four_eq_one_eq_of_properEquivalent d hd4 _ _ hQR
     _ = ClassGroup.mk0 I := hR
 
+/-- In the `d % 4 ≠ 1` branch, the scalar generator of the Cox ideal of the norm
+form gives one generator of the principal-relation inclusion
+`(b₀) · J(Q_b) ≤ (a_Q) · I`. -/
+theorem basis_first_mul_cox_scalar_mem_span_a_mul_ideal_of_mod_four_ne_one
+    (hdneg : d < 0) (hd4 : d % 4 ≠ 1) (I : (Ideal 𝓞K)⁰)
+    (b : OrientedBasis (I : Ideal 𝓞K)) :
+    let Q := primitivePositiveDefiniteNormFormOfBasis hdneg
+      (mem_nonZeroDivisors_iff_ne_zero.mp I.2) b
+    let e := RingOfIntegers.ringOfIntegers_equiv_zsqrtd_of_mod_four_ne_one d hd4
+    (b.basis 0 : 𝓞K) * e.symm (((Q.1.a : ℤ) : Zsqrtd d)) ∈
+      Ideal.span ({((Q.1.a : ℤ) : 𝓞K)} : Set 𝓞K) * (I : Ideal 𝓞K) := by
+  intro Q e
+  have hα : (b.basis 0 : 𝓞K) ∈ (I : Ideal 𝓞K) := (b.basis 0).2
+  have ha : e.symm (((Q.1.a : ℤ) : Zsqrtd d)) ∈
+      Ideal.span ({((Q.1.a : ℤ) : 𝓞K)} : Set 𝓞K) := by
+    rw [Ideal.mem_span_singleton]
+    exact ⟨1, by simp⟩
+  simpa [mul_comm] using Ideal.mul_mem_mul ha hα
+
+/-- In the `d % 4 = 1` branch, the scalar generator of the Cox ideal of the norm
+form gives one generator of the principal-relation inclusion
+`(b₀) · J(Q_b) ≤ (a_Q) · I`. -/
+theorem basis_first_mul_cox_scalar_mem_span_a_mul_ideal_of_mod_four_eq_one
+    (hdneg : d < 0) (hd4 : d % 4 = 1) (I : (Ideal 𝓞K)⁰)
+    (b : OrientedBasis (I : Ideal 𝓞K)) :
+    let Q := primitivePositiveDefiniteNormFormOfBasis hdneg
+      (mem_nonZeroDivisors_iff_ne_zero.mp I.2) b
+    let e := RingOfIntegers.ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one d hd4
+    (b.basis 0 : 𝓞K) * e.symm (((Q.1.a : ℤ) : ZOnePlusSqrtdOverTwo (d / 4))) ∈
+      Ideal.span ({((Q.1.a : ℤ) : 𝓞K)} : Set 𝓞K) * (I : Ideal 𝓞K) := by
+  intro Q e
+  have hα : (b.basis 0 : 𝓞K) ∈ (I : Ideal 𝓞K) := (b.basis 0).2
+  have ha : e.symm (((Q.1.a : ℤ) : ZOnePlusSqrtdOverTwo (d / 4))) ∈
+      Ideal.span ({((Q.1.a : ℤ) : 𝓞K)} : Set 𝓞K) := by
+    rw [Ideal.mem_span_singleton]
+    exact ⟨1, by simp⟩
+  simpa [mul_comm] using Ideal.mul_mem_mul ha hα
+
 /-- In the `d % 4 ≠ 1` branch, the right-inverse law follows from the classical
 Cox relation `(α) · J(Q_b) = (a_Q) · I`, where `α` is the first vector of the
 oriented ideal basis and `Q_b` is its norm form. -/
