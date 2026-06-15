@@ -4,9 +4,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 
+import Mathlib.GroupTheory.Index
+import Mathlib.NumberTheory.LegendreSymbol.Basic
 import QuadraticNumberFields.ClassGroup.Torsion
 import QuadraticNumberFields.ClassNumber
-import Mathlib.GroupTheory.Index
+import QuadraticNumberFields.Splitting.Qsqrtd.Kronecker
 
 /-!
 # Genus Theory
@@ -33,6 +35,49 @@ usually denoted `t`, the number of prime-discriminant factors of the fundamental
 discriminant. -/
 def primeDiscriminantFactorCount (d : ℤ) : ℕ :=
   (RingOfIntegers.discrFormula d).natAbs.primeFactors.card
+
+/-! ## Discriminant prime factors -/
+
+/-- The set of odd rational primes dividing the discriminant of `ℚ(√d)`.
+These are precisely the odd primes at which the Kronecker symbol of the discriminant
+vanishes — i.e., the ramified odd primes. By `isRamified_iff_kroneckerSymNat_discr_eq_zero`
+and the odd-prime bridge `legendreSym_discFormula_eq_legendreSym_param_of_ne_two`,
+for an odd prime `p` this is equivalent to `p ∣ d`. -/
+def oddPrimeDiscriminantDivisors (d : ℤ) : Finset ℕ :=
+  ((RingOfIntegers.discrFormula d).natAbs.primeFactors).filter fun p => p ≠ 2
+
+/-- Cardinality bound: the number of odd prime discriminant divisors is at most
+`primeDiscriminantFactorCount d`. -/
+theorem card_oddPrimeDiscriminantDivisors_le (d : ℤ) :
+    (oddPrimeDiscriminantDivisors d).card ≤ primeDiscriminantFactorCount d := by
+  dsimp [oddPrimeDiscriminantDivisors, primeDiscriminantFactorCount]
+  exact Finset.card_filter_le _ _
+
+/-- Characterization of membership in `oddPrimeDiscriminantDivisors`. -/
+theorem mem_oddPrimeDiscriminantDivisors_iff (d : ℤ) (p : ℕ) :
+    p ∈ oddPrimeDiscriminantDivisors d ↔
+      p ∈ ((RingOfIntegers.discrFormula d).natAbs.primeFactors) ∧ p ≠ 2 :=
+  Finset.mem_filter
+
+/-- Members of `oddPrimeDiscriminantDivisors d` are prime. -/
+theorem prime_of_mem_oddPrimeDiscriminantDivisors {d : ℤ} {p : ℕ}
+    (hp : p ∈ oddPrimeDiscriminantDivisors d) : Nat.Prime p :=
+  Nat.prime_of_mem_primeFactors ((Finset.mem_filter.mp hp).left)
+
+/-- Members of `oddPrimeDiscriminantDivisors d` are not `2`. -/
+theorem ne_two_of_mem_oddPrimeDiscriminantDivisors {d : ℤ} {p : ℕ}
+    (hp : p ∈ oddPrimeDiscriminantDivisors d) : p ≠ 2 :=
+  (Finset.mem_filter.mp hp).right
+
+/-- Members of `oddPrimeDiscriminantDivisors d` divide the discriminant formula. -/
+theorem dvd_discr_of_mem_oddPrimeDiscriminantDivisors {d : ℤ} {p : ℕ}
+    (hp : p ∈ oddPrimeDiscriminantDivisors d) :
+    (p : ℤ) ∣ RingOfIntegers.discrFormula d := by
+  have hmem := (Finset.mem_filter.mp hp).left
+  have hmem' := Nat.mem_primeFactors.mp hmem
+  have hdvd : p ∣ (RingOfIntegers.discrFormula d).natAbs := hmem'.2.1
+  rw [← Int.dvd_natAbs]
+  exact mod_cast hdvd
 
 private theorem le_one_of_two_pow_sub_one_dvd_one {t : ℕ} (h : 2 ^ (t - 1) ∣ 1) :
     t ≤ 1 := by
