@@ -1136,6 +1136,25 @@ theorem basis_first_mul_cox_ideal_generator_eq_neg_normForm_a_mul_basis_second_o
   · simpa [mul_one] using cox_ideal_generator_relation_re ha hb hNdet hN0
   · simpa [one_mul] using cox_ideal_generator_relation_im ha hb hNdet hN0
 
+/-- In the `d % 4 ≠ 1` branch, the second Cox ideal generator also satisfies
+the principal-relation inclusion `(b₀) · β_Q ∈ (a_Q) · I`. -/
+theorem basis_first_mul_cox_ideal_generator_mem_span_a_mul_ideal_of_mod_four_ne_one
+    (hdneg : d < 0) (hd4 : d % 4 ≠ 1) (I : (Ideal 𝓞K)⁰)
+    (b : OrientedBasis (I : Ideal 𝓞K)) :
+    let Q := primitivePositiveDefiniteNormFormOfBasis hdneg
+      (mem_nonZeroDivisors_iff_ne_zero.mp I.2) b
+    let e := RingOfIntegers.ringOfIntegers_equiv_zsqrtd_of_mod_four_ne_one d hd4
+    (b.basis 0 : 𝓞K) * e.symm ((⟨(-Q.1.b) / 2, 1⟩ : Zsqrtd d)) ∈
+      Ideal.span ({((Q.1.a : ℤ) : 𝓞K)} : Set 𝓞K) * (I : Ideal 𝓞K) := by
+  intro Q e
+  rw [basis_first_mul_cox_ideal_generator_eq_neg_normForm_a_mul_basis_second_of_mod_four_ne_one
+    hdneg hd4 I b]
+  have hβ : (b.basis 1 : 𝓞K) ∈ (I : Ideal 𝓞K) := (b.basis 1).2
+  have ha : ((Q.1.a : ℤ) : 𝓞K) ∈
+      Ideal.span ({((Q.1.a : ℤ) : 𝓞K)} : Set 𝓞K) :=
+    Ideal.subset_span (by simp)
+  exact neg_mem (Ideal.mul_mem_mul ha hβ)
+
 /-- In the `d % 4 ≠ 1` branch, the right-inverse law follows from the classical
 Cox relation `(α) · J(Q_b) = (a_Q) · I`, where `α` is the first vector of the
 oriented ideal basis and `Q_b` is its norm form. -/
