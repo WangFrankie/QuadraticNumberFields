@@ -5,6 +5,7 @@ Authors: Frankie Wang
 -/
 
 import QuadraticNumberFields.Forms.Basic
+import Mathlib.Data.Int.NatPrime
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Ring
 
@@ -136,6 +137,25 @@ theorem disc_composeConcordant_of_isConcordant {Q R : BinaryQuadraticForm}
       _ = 4 * Q.a * (Q.c / R.a * R.a) := by rw [hQcediv]
       _ = (4 * Q.a * R.a) * (Q.c / R.a) := by ring
 
+/-- For concordant forms with nonzero leading coefficients, the final
+coefficient in the direct composition formula is `c / a'`. -/
+theorem composeConcordant_c_of_isConcordant {Q R : BinaryQuadraticForm}
+    (h : Q.IsConcordant R) (hQa : Q.a ≠ 0) (hRa : R.a ≠ 0) :
+    (composeConcordant Q R).c = Q.c / R.a := by
+  have hden : 4 * Q.a * R.a ≠ 0 :=
+    mul_ne_zero (mul_ne_zero (by norm_num : (4 : ℤ) ≠ 0) hQa) hRa
+  have hRdvd : R.a ∣ Q.c := right_a_dvd_left_c_of_isConcordant h
+  have hQcediv : Q.c / R.a * R.a = Q.c := Int.ediv_mul_cancel hRdvd
+  have hdiscQ : Q.b ^ 2 - Q.disc = 4 * Q.a * Q.c := by
+    simp [disc]
+  have hnum : Q.b ^ 2 - Q.disc = (4 * Q.a * R.a) * (Q.c / R.a) := by
+    calc
+      Q.b ^ 2 - Q.disc = 4 * Q.a * Q.c := hdiscQ
+      _ = 4 * Q.a * (Q.c / R.a * R.a) := by rw [hQcediv]
+      _ = (4 * Q.a * R.a) * (Q.c / R.a) := by ring
+  rw [composeConcordant_c, hnum]
+  exact Int.mul_ediv_cancel_left (Q.c / R.a) hden
+
 /-- Concordant composition preserves a prescribed discriminant when both
 leading coefficients are nonzero. -/
 theorem hasDiscriminant_composeConcordant_of_isConcordant
@@ -161,6 +181,71 @@ theorem composeConcordant_comm_of_isConcordant {Q R : BinaryQuadraticForm}
     (h : Q.IsConcordant R) :
     composeConcordant Q R = composeConcordant R Q := by
   ext <;> simp [composeConcordant, h.1, h.2.1, mul_comm, mul_left_comm]
+
+/-- Primitive forms have no prime common divisor of all three coefficients. -/
+theorem not_prime_dvd_coefficients_of_isPrimitive {Q : BinaryQuadraticForm}
+    (hQ : Q.IsPrimitive) {p : ℕ} (hp : Nat.Prime p)
+    (ha : (p : ℤ) ∣ Q.a) (hb : (p : ℤ) ∣ Q.b) (hc : (p : ℤ) ∣ Q.c) :
+    False := by
+  unfold IsPrimitive at hQ
+  have hbc : p ∣ Int.gcd Q.b Q.c := Int.dvd_gcd hb hc
+  have hgcd : p ∣ Int.gcd Q.a (Int.gcd Q.b Q.c) :=
+    Int.dvd_gcd ha (by exact_mod_cast hbc)
+  rw [hQ] at hgcd
+  exact hp.not_dvd_one hgcd
+
+/-- Concordant composition preserves primitivity. -/
+theorem isPrimitive_composeConcordant_of_isConcordant
+    {Q R : BinaryQuadraticForm} (h : Q.IsConcordant R)
+    (hQ : Q.IsPrimitive) (hR : R.IsPrimitive) (hQa : Q.a ≠ 0) (hRa : R.a ≠ 0) :
+    (composeConcordant Q R).IsPrimitive := by
+  unfold IsPrimitive
+  let S := composeConcordant Q R
+  let n : ℕ := Int.gcd S.a (Int.gcd S.b S.c)
+  change n = 1
+  by_contra hn
+  obtain ⟨p, hp, hpn⟩ := Nat.exists_prime_and_dvd hn
+  have hpz_dvd_n : (p : ℤ) ∣ (n : ℤ) := by exact_mod_cast hpn
+  have hn_a : (n : ℤ) ∣ S.a := Int.gcd_dvd_left _ _
+  have hn_bc : (n : ℤ) ∣ Int.gcd S.b S.c := Int.gcd_dvd_right _ _
+  have hn_b : (n : ℤ) ∣ S.b := dvd_trans hn_bc (Int.gcd_dvd_left _ _)
+  have hn_c : (n : ℤ) ∣ S.c := dvd_trans hn_bc (Int.gcd_dvd_right _ _)
+  have hpS_a : (p : ℤ) ∣ S.a := dvd_trans hpz_dvd_n hn_a
+  have hpS_b : (p : ℤ) ∣ S.b := dvd_trans hpz_dvd_n hn_b
+  have hpS_c : (p : ℤ) ∣ S.c := dvd_trans hpz_dvd_n hn_c
+  have hpQaRa : (p : ℤ) ∣ Q.a * R.a := by
+    simpa [S, composeConcordant] using hpS_a
+  have hpQb : (p : ℤ) ∣ Q.b := by
+    simpa [S, composeConcordant] using hpS_b
+  have hpC : (p : ℤ) ∣ Q.c / R.a := by
+    have hSc : S.c = Q.c / R.a := composeConcordant_c_of_isConcordant h hQa hRa
+    rwa [hSc] at hpS_c
+  have hRdvd : R.a ∣ Q.c := right_a_dvd_left_c_of_isConcordant h
+  have hQcediv : Q.c / R.a * R.a = Q.c := Int.ediv_mul_cancel hRdvd
+  have hpQc : (p : ℤ) ∣ Q.c := by
+    rw [← hQcediv]
+    exact dvd_mul_of_dvd_left hpC R.a
+  have hprod := mul_c_eq_mul_c_of_isConcordant h
+  have hRceq : Q.a * (Q.c / R.a) = R.c := by
+    have hcancel :
+        R.a * (Q.a * (Q.c / R.a)) = R.a * R.c := by
+      calc
+        R.a * (Q.a * (Q.c / R.a)) = Q.a * (Q.c / R.a * R.a) := by ring
+        _ = Q.a * Q.c := by rw [hQcediv]
+        _ = R.a * R.c := hprod
+    exact mul_left_cancel₀ hRa hcancel
+  have hpRc : (p : ℤ) ∣ R.c := by
+    rw [← hRceq]
+    exact dvd_mul_of_dvd_right hpC Q.a
+  have hpQaRa_nat : p ∣ (Q.a * R.a).natAbs := (Int.natCast_dvd).mp hpQaRa
+  rw [Int.natAbs_mul] at hpQaRa_nat
+  rcases (Nat.Prime.dvd_mul hp).mp hpQaRa_nat with hpQa_nat | hpRa_nat
+  · have hpQa : (p : ℤ) ∣ Q.a := (Int.natCast_dvd).mpr hpQa_nat
+    exact not_prime_dvd_coefficients_of_isPrimitive hQ hp hpQa hpQb hpQc
+  · have hpRa : (p : ℤ) ∣ R.a := (Int.natCast_dvd).mpr hpRa_nat
+    have hpRb : (p : ℤ) ∣ R.b := by
+      simpa [h.2.1] using hpQb
+    exact not_prime_dvd_coefficients_of_isPrimitive hR hp hpRa hpRb hpRc
 
 /-! ## Sanity checks -/
 
