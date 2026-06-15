@@ -464,7 +464,11 @@ noncomputable def idealOfForm_of_mod_four_ne_one
       ({((Q.1.a : ℤ) : Zsqrtd d), (⟨(-Q.1.b) / 2, 1⟩ : Zsqrtd d)} :
         Set (Zsqrtd d)))
 
-private theorem cox_ringOfIntegers_ideal_relation_transform_of_mod_four_ne_one
+/-- The Cox ideal relation in the ring of integers for a proper transform in
+the `d % 4 ≠ 1` branch.  If `R = Q ∘ g`, then the transformed leading
+coefficient and the Cox multiplier `λ` give the principal-ideal identity
+relating the Cox ideals attached to `Q` and `R`. -/
+theorem cox_ringOfIntegers_ideal_relation_transform_of_mod_four_ne_one
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd4 : d % 4 ≠ 1)
     (Q R : PrimitivePositiveDefiniteForm (fieldDiscriminant d)) (g : SL2Z)
     (hR : R.1 = transform Q.1 g) :
@@ -509,7 +513,10 @@ noncomputable def idealOfForm_of_mod_four_eq_one
         (⟨-(Q.1.b + 1) / 2, 1⟩ : ZOnePlusSqrtdOverTwo (d / 4))} :
         Set (ZOnePlusSqrtdOverTwo (d / 4))))
 
-private theorem cox_ringOfIntegers_ideal_relation_transform_of_mod_four_eq_one
+/-- The Cox ideal relation in the ring of integers for a proper transform in
+the `d % 4 = 1` branch.  This is the half-integral analogue of
+`cox_ringOfIntegers_ideal_relation_transform_of_mod_four_ne_one`. -/
+theorem cox_ringOfIntegers_ideal_relation_transform_of_mod_four_eq_one
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd4 : d % 4 = 1)
     (Q R : PrimitivePositiveDefiniteForm (fieldDiscriminant d)) (g : SL2Z)
     (hR : R.1 = transform Q.1 g) :
@@ -628,7 +635,10 @@ noncomputable def idealClassOfForm_of_mod_four_eq_one
     ClassGroup (𝓞 (Qsqrtd (d : ℚ))) :=
   ClassGroup.mk0 (nonzeroIdealOfForm_of_mod_four_eq_one d hd4 Q)
 
-private theorem idealClassOfForm_of_mod_four_ne_one_eq_of_transform
+/-- Properly transforming a form does not change the associated Cox ideal class
+in the `d % 4 ≠ 1` branch, in the representative-level form where the
+transforming matrix is specified. -/
+theorem idealClassOfForm_of_mod_four_ne_one_eq_of_transform
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd4 : d % 4 ≠ 1)
     (Q R : PrimitivePositiveDefiniteForm (fieldDiscriminant d)) (g : SL2Z)
     (hR : R.1 = transform Q.1 g) :
@@ -668,7 +678,9 @@ private theorem idealClassOfForm_of_mod_four_ne_one_eq_of_transform
   refine ⟨x, y, hx, hy, ?_⟩
   simpa [x, y, lam, nonzeroIdealOfForm_of_mod_four_ne_one] using hideal
 
-private theorem idealClassOfForm_of_mod_four_ne_one_eq_of_properEquivalent
+/-- Properly equivalent forms have the same associated Cox ideal class in the
+`d % 4 ≠ 1` branch. -/
+theorem idealClassOfForm_of_mod_four_ne_one_eq_of_properEquivalent
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd4 : d % 4 ≠ 1)
     (Q R : PrimitivePositiveDefiniteForm (fieldDiscriminant d))
     (hQR : PrimitivePositiveDefiniteForm.ProperEquivalent Q R) :
@@ -677,7 +689,10 @@ private theorem idealClassOfForm_of_mod_four_ne_one_eq_of_properEquivalent
   rcases hQR with ⟨g, hg⟩
   exact idealClassOfForm_of_mod_four_ne_one_eq_of_transform d hd4 Q R g hg.symm
 
-private theorem idealClassOfForm_of_mod_four_eq_one_eq_of_transform
+/-- Properly transforming a form does not change the associated Cox ideal class
+in the `d % 4 = 1` branch, in the representative-level form where the
+transforming matrix is specified. -/
+theorem idealClassOfForm_of_mod_four_eq_one_eq_of_transform
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd4 : d % 4 = 1)
     (Q R : PrimitivePositiveDefiniteForm (fieldDiscriminant d)) (g : SL2Z)
     (hR : R.1 = transform Q.1 g) :
@@ -719,7 +734,9 @@ private theorem idealClassOfForm_of_mod_four_eq_one_eq_of_transform
   refine ⟨x, y, hx, hy, ?_⟩
   simpa [x, y, lam, nonzeroIdealOfForm_of_mod_four_eq_one] using hideal
 
-private theorem idealClassOfForm_of_mod_four_eq_one_eq_of_properEquivalent
+/-- Properly equivalent forms have the same associated Cox ideal class in the
+`d % 4 = 1` branch. -/
+theorem idealClassOfForm_of_mod_four_eq_one_eq_of_properEquivalent
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd4 : d % 4 = 1)
     (Q R : PrimitivePositiveDefiniteForm (fieldDiscriminant d))
     (hQR : PrimitivePositiveDefiniteForm.ProperEquivalent Q R) :
