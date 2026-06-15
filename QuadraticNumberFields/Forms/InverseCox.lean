@@ -596,6 +596,16 @@ theorem OrientedBasis.detCoord_sq_eq_absNorm_sq_of_mod_four_ne_one {I : Ideal �
   b.detCoord_sq_eq_absNorm_sq_of_int_det (b.det_ne_one_natAbs_eq_absNorm hd4)
     (b.det_ne_one_cast_eq_detCoord hd4)
 
+/-- In the `d % 4 ≠ 1` branch, orientation fixes the determinant sign:
+`detCoord = -N(I)`. -/
+theorem OrientedBasis.detCoord_eq_neg_absNorm_of_mod_four_ne_one {I : Ideal 𝓞K}
+    (hI : I ≠ 0) (hd4 : d % 4 ≠ 1) (b : OrientedBasis I) :
+    b.detCoord = -(Ideal.absNorm I : ℚ) := by
+  have hsq := b.detCoord_sq_eq_absNorm_sq_of_mod_four_ne_one hd4
+  have hdet_neg := b.det_neg
+  have hN_pos : (0 : ℚ) < Ideal.absNorm I := by exact_mod_cast absNorm_pos hI
+  nlinarith
+
 /-- If an integral determinant has absolute value `N(I)` and casts to
 `2 * detCoord`, then the half-integral determinant square formula follows. -/
 theorem OrientedBasis.four_detCoord_sq_eq_absNorm_sq_of_int_det {I : Ideal 𝓞K}
@@ -620,6 +630,16 @@ theorem OrientedBasis.four_detCoord_sq_eq_absNorm_sq_of_mod_four_eq_one {I : Ide
     4 * b.detCoord ^ 2 = (Ideal.absNorm I : ℚ) ^ 2 := by
   obtain ⟨k, hk⟩ := RingOfIntegers.exists_k_of_mod_four_eq_one hd4
   exact b.four_detCoord_sq_eq_absNorm_sq_of_eq k hk
+
+/-- In the `d % 4 = 1` branch, orientation fixes the determinant sign:
+`detCoord = -N(I)/2`. -/
+theorem OrientedBasis.detCoord_eq_neg_half_absNorm_of_mod_four_eq_one {I : Ideal 𝓞K}
+    (hI : I ≠ 0) (hd4 : d % 4 = 1) (b : OrientedBasis I) :
+    b.detCoord = -(Ideal.absNorm I : ℚ) / 2 := by
+  have hsq := b.four_detCoord_sq_eq_absNorm_sq_of_mod_four_eq_one hd4
+  have hdet_neg := b.det_neg
+  have hN_pos : (0 : ℚ) < Ideal.absNorm I := by exact_mod_cast absNorm_pos hI
+  nlinarith
 
 /-- To prove that `normFormOfBasis` has the field discriminant, it is enough to
 identify the square of the coordinate determinant with the ideal norm. -/
