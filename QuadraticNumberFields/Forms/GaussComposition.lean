@@ -205,6 +205,49 @@ theorem composeConcordant_comm_of_isConcordant {Q R : BinaryQuadraticForm}
     composeConcordant Q R = composeConcordant R Q := by
   ext <;> simp [composeConcordant, h.1, h.2.1, mul_comm, mul_left_comm]
 
+/-- A representative with leading coefficient `1` and the same middle
+coefficient as `Q`, concordant to `Q`.  This is the representative-level unit
+for the direct concordant composition formula attached to `Q`; identifying it
+with the canonical principal form is a separate proper-equivalence statement. -/
+def concordantUnitRepresentative (Q : BinaryQuadraticForm) : BinaryQuadraticForm where
+  a := 1
+  b := Q.b
+  c := Q.a * Q.c
+
+/-- The attached unit representative is concordant to the original form. -/
+theorem concordantUnitRepresentative_isConcordant (Q : BinaryQuadraticForm) :
+    (concordantUnitRepresentative Q).IsConcordant Q := by
+  refine ⟨?_, rfl, ?_⟩
+  · simp [concordantUnitRepresentative, disc]
+    ring
+  · simp [concordantUnitRepresentative, Int.gcd]
+
+/-- The attached unit representative is a left identity for direct concordant
+composition. -/
+theorem composeConcordant_concordantUnitRepresentative (Q : BinaryQuadraticForm)
+    (hQa : Q.a ≠ 0) :
+    composeConcordant (concordantUnitRepresentative Q) Q = Q := by
+  ext
+  · change 1 * Q.a = Q.a
+    ring
+  · change Q.b = Q.b
+    rfl
+  · simp only [composeConcordant_c, concordantUnitRepresentative, disc]
+    rw [show Q.b ^ 2 - (Q.b ^ 2 - 4 * 1 * (Q.a * Q.c)) =
+        (4 * Q.a) * Q.c by ring]
+    rw [show 4 * 1 * Q.a = 4 * Q.a by ring]
+    exact Int.mul_ediv_cancel_left Q.c
+      (mul_ne_zero (by norm_num : (4 : ℤ) ≠ 0) hQa)
+
+/-- The attached unit representative is a right identity for direct concordant
+composition. -/
+theorem composeConcordant_concordantUnitRepresentative_right (Q : BinaryQuadraticForm)
+    (hQa : Q.a ≠ 0) :
+    composeConcordant Q (concordantUnitRepresentative Q) = Q := by
+  rw [composeConcordant_comm_of_isConcordant
+    (concordantUnitRepresentative_isConcordant Q).symm]
+  exact composeConcordant_concordantUnitRepresentative Q hQa
+
 /-- Primitive forms have no prime common divisor of all three coefficients. -/
 theorem not_prime_dvd_coefficients_of_isPrimitive {Q : BinaryQuadraticForm}
     (hQ : Q.IsPrimitive) {p : ℕ} (hp : Nat.Prime p)
