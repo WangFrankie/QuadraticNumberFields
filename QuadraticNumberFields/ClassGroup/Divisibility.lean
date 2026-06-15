@@ -19,7 +19,7 @@ namespace ClassGroup
 /-- Placeholder predicate for divisibility data in a quadratic class group. -/
 def HasClassNumberDivisibilityData (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
     (n : ℕ) : Prop :=
-  HasGenusTheoryData d ∧ 0 < n
+  genusFormula d ∧ 0 < n
 
 end ClassGroup
 end QuadraticNumberFields

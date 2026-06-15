@@ -76,10 +76,12 @@ noncomputable def squareClassSubgroup (d : ℤ) [Fact (Squarefree d)] [Fact (d �
     Subgroup (ClassGroup (𝓞 (Qsqrtd (d : ℚ)))) :=
   (powMonoidHom (α := ClassGroup (𝓞 (Qsqrtd (d : ℚ)))) 2).range
 
-/-- The genus-theory datum needed for the elementary class-number-one sieve:
-the standard cardinality formula for the principal-genus quotient
-`Cl(𝓞(ℚ(√d))) / Cl(𝓞(ℚ(√d)))²`. -/
-def HasGenusTheoryData (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] : Prop :=
+/-- The standard genus formula for the principal-genus quotient
+`Cl(𝓞(ℚ(√d))) / Cl(𝓞(ℚ(√d)))²`: its cardinality is `2 ^ (t - 1)`, where `t` is the
+number of prime-discriminant factors. In the literature this is the statement that
+`Cl / Cl²` is the genus group and each genus contains exactly `2 ^ (t - 1)` classes,
+or equivalently `#Cl[2] = 2 ^ (t - 1)`. -/
+def genusFormula (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] : Prop :=
   Nat.card (ClassGroup (𝓞 (Qsqrtd (d : ℚ))) ⧸ squareClassSubgroup d) =
     2 ^ (primeDiscriminantFactorCount d - 1)
 
@@ -218,15 +220,15 @@ theorem discriminant_prime_shape_of_genus_divisibility
     (primeDiscriminantFactorCount_le_one_of_genus_divisibility d hdiv hclass)
 
 /-- **Genus-theory sieve for class number one.** Assuming the standard genus
-cardinality formula `HasGenusTheoryData d`, if an imaginary quadratic field
+cardinality formula `genusFormula d`, if an imaginary quadratic field
 `ℚ(√d)` has class number one, then its squarefree parameter has prime shape:
 `d = -1`, `d = -2`, or `d = -p` for a rational prime `p ≡ 3 (mod 4)`.
 
-The remaining genus-theory construction is the proof of `HasGenusTheoryData d`,
+The remaining genus-theory construction is the proof of `genusFormula d`,
 namely the cardinality formula for the principal-genus quotient `Cl / Cl²`. -/
 theorem classNumber_eq_one_imp_discriminant_prime_shape
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : d < 0)
-    (hgenus : HasGenusTheoryData d)
+    (hgenus : genusFormula d)
     (h : NumberField.classNumber (Qsqrtd (d : ℚ)) = 1) :
     d = -1 ∨ d = -2 ∨ ∃ p : ℕ, Nat.Prime p ∧ p % 4 = 3 ∧ d = -(p : ℤ) := by
   have hdiv : 2 ^ (primeDiscriminantFactorCount d - 1) ∣
