@@ -219,4 +219,60 @@ theorem classNumberQsqrtd_eq_one_of_mem_heegnerSet
     classNumberQsqrtd d = 1 :=
   Heegner.classNumber_eq_one_of_mem_heegnerSet hd
 
+/-! ## Reduced-form computation regressions -/
+
+example : classNumberQsqrtd (-1) = 1 := by
+  rw [classNumberQsqrtd_eq_reducedForms_card (-1) (by norm_num)]
+  rw [BinaryQuadraticForm.enumPrimitiveReducedForms_card_eq_length]
+  norm_num [BinaryQuadraticForm.fieldDiscriminant,
+    BinaryQuadraticForm.enumPrimitiveReducedFormsList_neg4_length]
+
+example : classNumberQsqrtd (-2) = 1 := by
+  rw [classNumberQsqrtd_eq_reducedForms_card (-2) (by norm_num)]
+  rw [BinaryQuadraticForm.enumPrimitiveReducedForms_card_eq_length]
+  norm_num [BinaryQuadraticForm.fieldDiscriminant,
+    BinaryQuadraticForm.enumPrimitiveReducedFormsList_neg8_length]
+
+example : classNumberQsqrtd (-3) = 1 := by
+  rw [classNumberQsqrtd_eq_reducedForms_card (-3) (by norm_num)]
+  rw [BinaryQuadraticForm.enumPrimitiveReducedForms_card_eq_length]
+  norm_num [BinaryQuadraticForm.fieldDiscriminant,
+    BinaryQuadraticForm.enumPrimitiveReducedFormsList_neg3_length]
+
+example : classNumberQsqrtd (-7) = 1 := by
+  rw [classNumberQsqrtd_eq_reducedForms_card (-7) (by norm_num)]
+  rw [BinaryQuadraticForm.enumPrimitiveReducedForms_card_eq_length]
+  norm_num [BinaryQuadraticForm.fieldDiscriminant,
+    BinaryQuadraticForm.enumPrimitiveReducedFormsList_neg7_length]
+
+example : classNumberQsqrtd (-11) = 1 := by
+  rw [classNumberQsqrtd_eq_reducedForms_card (-11) (by norm_num)]
+  rw [BinaryQuadraticForm.enumPrimitiveReducedForms_card_eq_length]
+  norm_num [BinaryQuadraticForm.fieldDiscriminant,
+    BinaryQuadraticForm.enumPrimitiveReducedFormsList_neg11_length]
+
+example : classNumberQsqrtd (-19) = 1 := by
+  rw [classNumberQsqrtd_eq_reducedForms_card (-19) (by norm_num)]
+  rw [BinaryQuadraticForm.enumPrimitiveReducedForms_card_eq_length]
+  norm_num [BinaryQuadraticForm.fieldDiscriminant,
+    BinaryQuadraticForm.enumPrimitiveReducedFormsList_neg19_length]
+
+example : classNumberQsqrtd (-43) = 1 := by
+  rw [classNumberQsqrtd_eq_reducedForms_card (-43) (by norm_num)]
+  rw [BinaryQuadraticForm.enumPrimitiveReducedForms_card_eq_length]
+  norm_num [BinaryQuadraticForm.fieldDiscriminant,
+    BinaryQuadraticForm.enumPrimitiveReducedFormsList_neg43_length]
+
+example : classNumberQsqrtd (-67) = 1 := by
+  rw [classNumberQsqrtd_eq_reducedForms_card (-67) (by norm_num)]
+  rw [BinaryQuadraticForm.enumPrimitiveReducedForms_card_eq_length]
+  norm_num [BinaryQuadraticForm.fieldDiscriminant,
+    BinaryQuadraticForm.enumPrimitiveReducedFormsList_neg67_length]
+
+example : classNumberQsqrtd (-163) = 1 := by
+  rw [classNumberQsqrtd_eq_reducedForms_card (-163) (by norm_num)]
+  rw [BinaryQuadraticForm.enumPrimitiveReducedForms_card_eq_length]
+  norm_num [BinaryQuadraticForm.fieldDiscriminant,
+    BinaryQuadraticForm.enumPrimitiveReducedFormsList_neg163_length]
+
 end QuadraticNumberFields

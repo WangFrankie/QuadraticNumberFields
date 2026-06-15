@@ -186,4 +186,12 @@ theorem classNumber_eq_two :
 theorem classNumberQsqrtd_neg5 : classNumberQsqrtd (-5) = 2 :=
   classNumber_eq_two
 
+/-- Computation-path regression for `ℚ(√-5)`: the class number is obtained from
+the reduced-form enumeration. -/
+theorem classNumberQsqrtd_neg5_by_reducedForms : classNumberQsqrtd (-5) = 2 := by
+  rw [classNumberQsqrtd_eq_reducedForms_card (-5) (by norm_num)]
+  rw [BinaryQuadraticForm.enumPrimitiveReducedForms_card_eq_length]
+  norm_num [BinaryQuadraticForm.fieldDiscriminant,
+    BinaryQuadraticForm.enumPrimitiveReducedFormsList_neg20_length]
+
 end QuadraticNumberFields.Examples.SqrtNeg5
