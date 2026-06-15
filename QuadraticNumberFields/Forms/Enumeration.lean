@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 
+import QuadraticNumberFields.Forms.Bridge
 import QuadraticNumberFields.Forms.Reduction
 import Mathlib.Data.Nat.Sqrt
 import Mathlib.Tactic
@@ -200,6 +201,39 @@ theorem mem_enumPrimitiveReducedForms_iff {D : ℤ} {Q : BinaryQuadraticForm} :
   · exact of_mem_enumPrimitiveReducedForms
   · intro hQ
     exact mem_enumPrimitiveReducedForms_of_reduced hQ.1 hQ.2.1 hQ.2.2.1 hQ.2.2.2
+
+/-- View an enumerated reduced primitive positive definite form as a member of
+the restricted Cox carrier. -/
+def primitivePositiveDefiniteFormOfMemEnum {D : ℤ} {Q : BinaryQuadraticForm}
+    (hQ : Q ∈ enumPrimitiveReducedForms D) : PrimitivePositiveDefiniteForm D :=
+  let h := of_mem_enumPrimitiveReducedForms hQ
+  ⟨Q, h.1, h.2.2.2, h.2.1⟩
+
+/-- Form classes represented by the reduced-form enumeration. -/
+noncomputable def reducedFormClasses (D : ℤ) : Finset (FormClass D) := by
+  classical
+  exact (enumPrimitiveReducedForms D).attach.image fun Q =>
+    Quotient.mk (primitivePositiveDefiniteFormSetoid D)
+      (primitivePositiveDefiniteFormOfMemEnum Q.2)
+
+/-- Every form class has a representative in the reduced-form enumeration. -/
+theorem mem_reducedFormClasses (D : ℤ) (C : FormClass D) : C ∈ reducedFormClasses D := by
+  classical
+  obtain ⟨R, hRred, hRclass⟩ := exists_isReduced_mk_eq_formClass C
+  have hRmem : R.1 ∈ enumPrimitiveReducedForms D :=
+    mem_enumPrimitiveReducedForms_of_reduced R.2.1 R.2.2.2 hRred R.2.2.1
+  refine Finset.mem_image.mpr ⟨⟨R.1, hRmem⟩, ?_, ?_⟩
+  · simp
+  · simpa [primitivePositiveDefiniteFormOfMemEnum] using hRclass
+
+noncomputable instance formClassFintype (D : ℤ) : Fintype (FormClass D) :=
+  ⟨reducedFormClasses D, mem_reducedFormClasses D⟩
+
+/-- The reduced-form representatives cover all form classes. -/
+theorem reducedFormClasses_eq_univ (D : ℤ) : reducedFormClasses D = Finset.univ := by
+  classical
+  ext C
+  exact ⟨fun _ => Finset.mem_univ C, fun _ => mem_reducedFormClasses D C⟩
 
 /-- The list view of the reduced-form enumeration has no duplicates. -/
 theorem enumPrimitiveReducedFormsList_nodup (D : ℤ) :

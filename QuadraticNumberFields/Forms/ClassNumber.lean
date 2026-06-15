@@ -5,6 +5,8 @@ Authors: Frankie Wang
 -/
 
 import QuadraticNumberFields.ClassNumber
+import QuadraticNumberFields.Forms.CoxEquivalence
+import QuadraticNumberFields.Forms.Enumeration
 import QuadraticNumberFields.Heegner.ClassNumberOne
 
 /-!
@@ -22,9 +24,13 @@ same signature.
 ## Main definitions
 
 * `classNumberQsqrtd`: the class number of `ℚ(√d)` as a function of `d : ℤ`.
+* `classGroupRepresentativesQsqrtd`: class-group representatives obtained from
+  reduced primitive positive definite forms.
 
 ## Main statements
 
+* `classGroupRepresentativesQsqrtd_eq_univ`: the reduced-form representatives
+  cover the full class group for imaginary squarefree `d`.
 * `classNumberQsqrtd_neg1` … `classNumberQsqrtd_neg163`: the nine Heegner
   fields have class number one.
 * `classNumberQsqrtd_eq_one_of_mem_heegnerSet`: packaged form over
@@ -43,6 +49,29 @@ namespace QuadraticNumberFields
 squarefree integer parameter `d`. Thin alias of `NumberField.classNumber`. -/
 noncomputable def classNumberQsqrtd (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] : ℕ :=
   NumberField.classNumber (Qsqrtd (d : ℚ))
+
+/-! ## Class-group representatives from reduced forms -/
+
+/-- Representatives of the class group of `ℚ(√d)` obtained by enumerating
+reduced primitive positive definite forms of the field discriminant and applying
+the Cox 7.7 equivalence. -/
+noncomputable def classGroupRepresentativesQsqrtd
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hdneg : d < 0) :
+    Finset (ClassGroup (𝓞 (Qsqrtd (d : ℚ)))) := by
+  classical
+  exact (BinaryQuadraticForm.reducedFormClasses (BinaryQuadraticForm.fieldDiscriminant d)).image
+    (BinaryQuadraticForm.formClassEquivClassGroup (d := d) hdneg)
+
+/-- The class-group representatives obtained from the reduced-form enumeration
+cover the full class group. -/
+theorem classGroupRepresentativesQsqrtd_eq_univ
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hdneg : d < 0) :
+    classGroupRepresentativesQsqrtd d hdneg = Finset.univ := by
+  classical
+  rw [classGroupRepresentativesQsqrtd,
+    BinaryQuadraticForm.reducedFormClasses_eq_univ]
+  exact Finset.image_univ_equiv
+    (BinaryQuadraticForm.formClassEquivClassGroup (d := d) hdneg)
 
 /-! ## Small-norm class-group closure lemmas -/
 
