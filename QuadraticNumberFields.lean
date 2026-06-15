@@ -44,6 +44,9 @@ import QuadraticNumberFields.Splitting.QuadraticField.Basic
 import QuadraticNumberFields.Forms.Basic
 import QuadraticNumberFields.Forms.Action
 import QuadraticNumberFields.Forms.Bridge
+import QuadraticNumberFields.Forms.CoxLeftInverse
+import QuadraticNumberFields.Forms.CoxLeftInverseEqOne
+import QuadraticNumberFields.Forms.CoxRightInverse
 import QuadraticNumberFields.Forms.CoxEquivalence
 import QuadraticNumberFields.Forms.Enumeration
 import QuadraticNumberFields.Forms.Reduction
