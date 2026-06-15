@@ -20,6 +20,28 @@ namespace BinaryQuadraticForm
 
 namespace PrimitivePositiveDefiniteForm
 
+/-- The representative-level unit attached to a primitive positive definite
+form, lifted to the restricted carrier of the same discriminant. -/
+def concordantUnitRepresentative {D : ℤ} (Q : PrimitivePositiveDefiniteForm D) :
+    PrimitivePositiveDefiniteForm D where
+  val := BinaryQuadraticForm.concordantUnitRepresentative Q.1
+  property := by
+    refine ⟨?_, ?_, ?_⟩
+    · exact (BinaryQuadraticForm.concordantUnitRepresentative_isConcordant Q.1).1.trans Q.2.1
+    · unfold BinaryQuadraticForm.IsPrimitive
+      simp [BinaryQuadraticForm.concordantUnitRepresentative, Int.gcd]
+    · constructor
+      · norm_num [BinaryQuadraticForm.concordantUnitRepresentative]
+      · rw [(BinaryQuadraticForm.concordantUnitRepresentative_isConcordant Q.1).1]
+        exact Q.2.2.2.2
+
+/-- The attached unit representative is concordant to the original primitive
+positive definite form. -/
+theorem concordantUnitRepresentative_isConcordant {D : ℤ}
+    (Q : PrimitivePositiveDefiniteForm D) :
+    (concordantUnitRepresentative Q).1.IsConcordant Q.1 :=
+  BinaryQuadraticForm.concordantUnitRepresentative_isConcordant Q.1
+
 /-- Direct Gauss composition of concordant primitive positive definite forms.
 
 This is still representative-level composition: the caller supplies concordant
@@ -49,6 +71,26 @@ theorem composeConcordant_comm {D : ℤ} (Q R : PrimitivePositiveDefiniteForm D)
     composeConcordant Q R h = composeConcordant R Q h.symm := by
   apply Subtype.ext
   exact BinaryQuadraticForm.composeConcordant_comm_of_isConcordant h
+
+/-- The attached unit representative is a left identity for direct concordant
+composition on the restricted carrier. -/
+theorem composeConcordant_concordantUnitRepresentative {D : ℤ}
+    (Q : PrimitivePositiveDefiniteForm D) :
+    composeConcordant (concordantUnitRepresentative Q) Q
+      (concordantUnitRepresentative_isConcordant Q) = Q := by
+  apply Subtype.ext
+  exact BinaryQuadraticForm.composeConcordant_concordantUnitRepresentative Q.1
+    (ne_of_gt Q.2.2.2.1)
+
+/-- The attached unit representative is a right identity for direct concordant
+composition on the restricted carrier. -/
+theorem composeConcordant_concordantUnitRepresentative_right {D : ℤ}
+    (Q : PrimitivePositiveDefiniteForm D) :
+    composeConcordant Q (concordantUnitRepresentative Q)
+      (concordantUnitRepresentative_isConcordant Q).symm = Q := by
+  apply Subtype.ext
+  exact BinaryQuadraticForm.composeConcordant_concordantUnitRepresentative_right Q.1
+    (ne_of_gt Q.2.2.2.1)
 
 end PrimitivePositiveDefiniteForm
 
