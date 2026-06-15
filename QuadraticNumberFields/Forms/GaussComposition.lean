@@ -45,6 +45,13 @@ elementary Gauss composition formula is direct. -/
 def IsConcordant (Q R : BinaryQuadraticForm) : Prop :=
   Q.disc = R.disc ∧ Q.b = R.b ∧ Int.gcd Q.a R.a = 1
 
+/-- Concordance is symmetric. -/
+theorem IsConcordant.symm {Q R : BinaryQuadraticForm}
+    (h : Q.IsConcordant R) : R.IsConcordant Q := by
+  rcases h with ⟨hdisc, hb, hgcd⟩
+  refine ⟨hdisc.symm, hb.symm, ?_⟩
+  simpa [Int.gcd, Nat.gcd_comm] using hgcd
+
 /-- The direct Gauss composition formula for concordant representatives.
 
 For concordant primitive forms the denominator divides the numerator; the
@@ -148,6 +155,12 @@ theorem isPositiveDefinite_composeConcordant_of_isConcordant
   · exact mul_pos hQ.1 hR.1
   · rw [disc_composeConcordant_of_isConcordant h (ne_of_gt hQ.1) (ne_of_gt hR.1)]
     exact hQ.2
+
+/-- Concordant composition is symmetric at the representative-formula level. -/
+theorem composeConcordant_comm_of_isConcordant {Q R : BinaryQuadraticForm}
+    (h : Q.IsConcordant R) :
+    composeConcordant Q R = composeConcordant R Q := by
+  ext <;> simp [composeConcordant, h.1, h.2.1, mul_comm, mul_left_comm]
 
 /-! ## Sanity checks -/
 
