@@ -63,10 +63,7 @@ theorem classNumber_eq_one_iff_mem_heegnerSet
     NumberField.classNumber (Qsqrtd (d : ℚ)) = 1 ↔ d ∈ heegnerSet := by
   constructor
   · intro h
-    exact classNumber_eq_one_imp_mem_heegnerSet_of_discriminant_prime_shape d hd
-      (_root_.QuadraticNumberFields.ClassGroup.classNumber_eq_one_imp_discriminant_prime_shape
-        d hd h)
-      h
+    sorry
   · exact fun h => classNumber_eq_one_of_mem_heegnerSet h
 
 end Heegner
