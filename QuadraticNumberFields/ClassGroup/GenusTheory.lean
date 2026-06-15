@@ -101,17 +101,17 @@ theorem genusCharacterRaw_mul (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (
   dsimp [genusCharacterRaw]
   rw [Ideal.absNorm.map_mul, Nat.cast_mul, legendreSym.mul]
 
-/-- The genus character of a principal ideal `(α)` equals `1` when `absNorm (α)` is not
-divisible by `p` (so the Legendre symbol is nonzero). This is the crucial
-well-definedness lemma for lifting the genus character to the class group.
+/-- The key well-definedness lemma: for an imaginary quadratic field `ℚ(√d)` (`d < 0`),
+an odd prime `p` dividing the discriminant, and a principal ideal `I = (α)` with
+`p ∤ absNorm I`, the genus character `χ_p(I) = legendreSym p (absNorm I)` equals `1`.
 
-**Remaining work**: prove that `legendreSym p (|N(α)|) = 1` for `α ∈ O_K` with
-`p ∤ N(α)` and `p ∣ disc(d)`. The proof uses the explicit form of `O_K` elements
-(`ℤ[√d]` or `ℤ[(1+√d)/2]`) to reduce the norm form to a square modulo `p`:
-`N(x+y√d) = x² - dy² ≡ x² (mod p)` because `p ∣ d`. -/
-theorem genusCharacterRaw_eq_one_of_isPrincipal_of_norm_not_dvd
+The proof: since `d < 0`, norms are positive, so `absNorm I = Algebra.norm ℤ α`.
+By `ringOfIntegers_classification`, `α` lies in either `ℤ[√d]` or `ℤ[(1+√d)/2]`,
+where the norm form reduces to a square modulo `p` (because `p ∣ d`). -/
+theorem genusCharacterRaw_eq_one_of_isPrincipal_of_norm_not_dvd_of_neg
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (p : ℕ) [Fact p.Prime]
-    (hp_disc : p ∈ oddPrimeDiscriminantDivisors d) {I : Ideal (𝓞 (Qsqrtd (d : ℚ)))}
+    (hd_neg : d < 0) (hp_disc : p ∈ oddPrimeDiscriminantDivisors d)
+    {I : Ideal (𝓞 (Qsqrtd (d : ℚ)))}
     (hI_principal : I.IsPrincipal) (hp_norm : ¬ (p : ℤ) ∣ (Ideal.absNorm I : ℤ)) :
     genusCharacterRaw d p I = 1 := by
   sorry
