@@ -317,6 +317,73 @@ theorem formClassOfNonzeroIdeal_eq_of_mk0_eq (hdneg : d < 0) (I J : (Ideal 𝓞K
         (span_singleton_mul_mem_nonZeroDivisors hy J)]
   exact congrArg (formClassOfNonzeroIdeal hdneg) (Subtype.ext hxy)
 
+/-! ## Branch-agnostic left-inverse core
+
+The two Cox left-inverse branches (`d % 4 ≠ 1` and `d % 4 = 1`) differ only in the
+concrete order (`Zsqrtd d` versus `ZOnePlusSqrtdOverTwo (d / 4)`), the ring
+equivalence to `𝓞K`, and the imaginary `K`-coordinate `im_val` of the second Cox
+basis vector (`-1` versus `-1/2`).  The form-level computation that turns those
+coordinates into the equality of form classes is identical, so it is proved once
+here. -/
+
+/-- The forward Cox map on the class of a nonzero ideal `I` computes to
+`formClassOfNonzeroIdeal hdneg I`, regardless of the surjectivity representative
+chosen by `classGroupToFormClass`. -/
+theorem classGroupToFormClass_mk0_eq_formClassOfNonzeroIdeal (hdneg : d < 0)
+    (I : (Ideal 𝓞K)⁰) :
+    classGroupToFormClass hdneg (ClassGroup.mk0 I) = formClassOfNonzeroIdeal hdneg I := by
+  dsimp [classGroupToFormClass]
+  let J := Classical.choose (ClassGroup.mk0_surjective (ClassGroup.mk0 I))
+  have hJ_mk0 : ClassGroup.mk0 J = ClassGroup.mk0 I :=
+    Classical.choose_spec (ClassGroup.mk0_surjective (ClassGroup.mk0 I))
+  exact formClassOfNonzeroIdeal_eq_of_mk0_eq hdneg J I hJ_mk0
+
+/-- **Branch-agnostic Cox left-inverse core.** Given an oriented basis `b` of a
+nonzero ideal `I` whose `K`-coordinates are `(a, 0)` and `(b/2, im_val)`, ideal
+norm `N(I) = a`, and the norm relation `(b/2)² − d·im_val² = a·c`, the Cox form
+class of `I` is the class of `Q`.  Both `d % 4` branches instantiate this with
+their `im_val` (`-1` and `-1/2`); only the construction of `b` and the proof of
+`hN_eq` are branch-specific. -/
+theorem formClassOfNonzeroIdeal_eq_mk_of_oriented (hdneg : d < 0) (I : (Ideal 𝓞K)⁰)
+    (Q : PrimitivePositiveDefiniteForm (fieldDiscriminant d))
+    (b : OrientedBasis (I : Ideal 𝓞K)) (im_val : ℚ)
+    (h0_re : ((b.basis 0 : 𝓞K) : K).re = (Q.1.a : ℚ))
+    (h0_im : ((b.basis 0 : 𝓞K) : K).im = 0)
+    (h1_re : ((b.basis 1 : 𝓞K) : K).re = (Q.1.b / 2 : ℚ))
+    (h1_im : ((b.basis 1 : 𝓞K) : K).im = im_val)
+    (hac : (Q.1.b / 2 : ℚ) ^ 2 - (d : ℚ) * im_val ^ 2 = (Q.1.a : ℚ) * Q.1.c)
+    (hN_eq : (Ideal.absNorm (I : Ideal 𝓞K) : ℤ) = Q.1.a) :
+    formClassOfNonzeroIdeal hdneg I =
+      Quotient.mk (primitivePositiveDefiniteFormSetoid (fieldDiscriminant d)) Q := by
+  have hI_ne_zero : (I : Ideal 𝓞K) ≠ 0 := mem_nonZeroDivisors_iff_ne_zero.mp I.2
+  have hane : Q.1.a ≠ 0 := ne_of_gt Q.2.2.2.1
+  have hnorm0 : Algebra.norm ℤ (b.basis 0 : 𝓞K) = Q.1.a ^ 2 := by
+    have h : (Algebra.norm ℤ (b.basis 0 : 𝓞K) : ℚ) = (Q.1.a : ℚ) ^ 2 := by
+      rw [fieldNorm_int_eq, h0_re, h0_im]; ring
+    exact_mod_cast h
+  have hnorm1 : Algebra.norm ℤ (b.basis 1 : 𝓞K) = Q.1.a * Q.1.c := by
+    have h : (Algebra.norm ℤ (b.basis 1 : 𝓞K) : ℚ) = (Q.1.a : ℚ) * (Q.1.c : ℚ) := by
+      rw [fieldNorm_int_eq, h1_re, h1_im]; exact hac
+    exact_mod_cast h
+  have hnormsum : Algebra.norm ℤ ((b.basis 0 : 𝓞K) + (b.basis 1 : 𝓞K)) =
+      Q.1.a ^ 2 + Q.1.a * Q.1.b + Q.1.a * Q.1.c := by
+    have hsum_coe : (((b.basis 0 : 𝓞K) + (b.basis 1 : 𝓞K) : 𝓞K) : K) =
+        ((b.basis 0 : 𝓞K) : K) + ((b.basis 1 : 𝓞K) : K) := by push_cast; ring
+    have h : (Algebra.norm ℤ ((b.basis 0 : 𝓞K) + (b.basis 1 : 𝓞K)) : ℚ) =
+        (Q.1.a : ℚ) ^ 2 + (Q.1.a : ℚ) * (Q.1.b : ℚ) + (Q.1.a : ℚ) * (Q.1.c : ℚ) := by
+      rw [fieldNorm_int_eq, hsum_coe]
+      simp only [QuadraticAlgebra.re_add, QuadraticAlgebra.im_add, h0_re, h0_im, h1_re, h1_im]
+      linear_combination hac
+    exact_mod_cast h
+  have h_normform_eq : normFormOfBasis hI_ne_zero b = Q.1 :=
+    normFormOfBasis_eq_of_norms hI_ne_zero b hane hN_eq hnorm0 hnorm1 hnormsum
+  have h_target : (normFormOfBasis hI_ne_zero b).ProperEquivalent Q.1 := by
+    rw [h_normform_eq]; exact BinaryQuadraticForm.ProperEquivalent.refl Q.1
+  rw [formClassOfNonzeroIdeal_eq_mk hdneg I (b := b)]
+  dsimp [primitivePositiveDefiniteNormFormOfBasis]
+  apply Quotient.sound
+  simpa using h_target
+
 end BasisChange
 
 end BinaryQuadraticForm
