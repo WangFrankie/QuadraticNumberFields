@@ -5,7 +5,6 @@ Authors: Frankie Wang
 -/
 
 import QuadraticNumberFields.Forms.CoxEquivalence
-import QuadraticNumberFields.Forms.ClassNumber
 
 /-!
 # Form class group structure via Cox 7.7 transport
@@ -39,9 +38,6 @@ namespace BinaryQuadraticForm
 section GroupStructure
 
 variable {d : ℤ} [Fact (Squarefree d)] [Fact (d ≠ 1)]
-
-local notation "K" => Qsqrtd (d : ℚ)
-local notation "𝓞K" => 𝓞 K
 
 /-- Transported `CommGroup` structure on `FormClass (fieldDiscriminant d)` via
 the Cox 7.7 equivalence.  This is a `def` (not an `instance`) to avoid
