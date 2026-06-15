@@ -79,6 +79,45 @@ theorem dvd_discr_of_mem_oddPrimeDiscriminantDivisors {d : ℤ} {p : ℕ}
   rw [← Int.dvd_natAbs]
   exact mod_cast hdvd
 
+/-! ## Genus characters at odd primes
+
+At each odd prime `p` dividing the discriminant, the genus character
+`χ_p : Cl(K) → {±1}` sends an ideal class represented by an ideal `I` coprime to `p`
+to `legendreSym p (absNorm I)`. The value is independent of the choice of ideal
+representative because the norm of a principal ideal `(α)` coprime to `p` is a
+quadratic residue modulo `p` when `p` ramifies in `ℚ(√d)`. -/
+
+/-- Raw genus character at an odd prime `p` dividing the discriminant, defined on
+ideals of `𝓞(ℚ(√d))`. For an ideal `I`, returns `legendreSym p (absNorm I)`.
+This is multiplicative in `I` via `legendreSym.mul`. -/
+noncomputable def genusCharacterRaw (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (p : ℕ)
+    [Fact p.Prime] (I : Ideal (𝓞 (Qsqrtd (d : ℚ)))) : ℤ :=
+  legendreSym p (Ideal.absNorm I : ℤ)
+
+/-- The raw genus character is multiplicative: `χ_p(I·J) = χ_p(I)·χ_p(J)`. -/
+theorem genusCharacterRaw_mul (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (p : ℕ) [Fact p.Prime]
+    (I J : Ideal (𝓞 (Qsqrtd (d : ℚ)))) :
+    genusCharacterRaw d p (I * J) = genusCharacterRaw d p I * genusCharacterRaw d p J := by
+  dsimp [genusCharacterRaw]
+  rw [Ideal.absNorm.map_mul, Nat.cast_mul, legendreSym.mul]
+
+/-- The genus character of a principal ideal `(α)` equals `1` when `absNorm (α)` is not
+divisible by `p` (so the Legendre symbol is nonzero). This is the crucial
+well-definedness lemma for lifting the genus character to the class group.
+
+**Remaining work**: prove that `legendreSym p (|N(α)|) = 1` for `α ∈ O_K` with
+`p ∤ N(α)` and `p ∣ disc(d)`. The proof uses the explicit form of `O_K` elements
+(`ℤ[√d]` or `ℤ[(1+√d)/2]`) to reduce the norm form to a square modulo `p`:
+`N(x+y√d) = x² - dy² ≡ x² (mod p)` because `p ∣ d`. -/
+theorem genusCharacterRaw_eq_one_of_isPrincipal_of_norm_not_dvd
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (p : ℕ) [Fact p.Prime]
+    (hp_disc : p ∈ oddPrimeDiscriminantDivisors d) {I : Ideal (𝓞 (Qsqrtd (d : ℚ)))}
+    (hI_principal : I.IsPrincipal) (hp_norm : ¬ (p : ℤ) ∣ (Ideal.absNorm I : ℤ)) :
+    genusCharacterRaw d p I = 1 := by
+  sorry
+
+/-! ## Class-number-one sieve (continued) -/
+
 private theorem le_one_of_two_pow_sub_one_dvd_one {t : ℕ} (h : 2 ^ (t - 1) ∣ 1) :
     t ≤ 1 := by
   have hpow : 2 ^ (t - 1) = 1 := Nat.dvd_one.mp h
