@@ -54,6 +54,7 @@ import QuadraticNumberFields.Forms.Enumeration
 import QuadraticNumberFields.Forms.Reduction
 import QuadraticNumberFields.Forms.ClassNumber
 import QuadraticNumberFields.Forms.Structure
+import QuadraticNumberFields.Forms.ClassGroupLaw
 import QuadraticNumberFields.ClassNumber
 import QuadraticNumberFields.Examples.SqrtNeg5.Ideals
 import QuadraticNumberFields.Examples.SqrtNeg5.RamificationInertia
