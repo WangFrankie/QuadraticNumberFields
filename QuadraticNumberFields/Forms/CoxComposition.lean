@@ -199,6 +199,91 @@ end CoxComposition
 
 namespace PrimitivePositiveDefiniteForm
 
+private theorem comap_mul_of_ringEquiv {R S : Type*} [CommRing R] [CommRing S]
+    (e : R ≃+* S) (I J : Ideal S) :
+    Ideal.comap (e : R →+* S) (I * J) =
+      Ideal.comap (e : R →+* S) I * Ideal.comap (e : R →+* S) J := by
+  apply_fun Ideal.map (e : R →+* S) using fun A B h =>
+    calc
+      A = Ideal.comap (e : R →+* S) (Ideal.map (e : R →+* S) A) := by
+        rw [Ideal.comap_map_of_bijective (f := (e : R →+* S)) e.bijective]
+      _ = Ideal.comap (e : R →+* S) (Ideal.map (e : R →+* S) B) := by rw [h]
+      _ = B := by
+        rw [Ideal.comap_map_of_bijective (f := (e : R →+* S)) e.bijective]
+  rw [Ideal.map_comap_of_surjective (e : R →+* S) e.surjective]
+  rw [Ideal.map_mul]
+  rw [Ideal.map_comap_of_surjective (e : R →+* S) e.surjective]
+  rw [Ideal.map_comap_of_surjective (e : R →+* S) e.surjective]
+
+private theorem two_mul_neg_div_two_of_even {b : ℤ} (hb : Even b) :
+    2 * ((-b) / 2) = -b := by
+  rcases hb with ⟨k, hk⟩
+  rw [hk]
+  omega
+
+/-- In the non-half-integral branch, Cox ideals multiply under direct
+concordant Gauss composition. -/
+theorem idealOfForm_composeConcordant_of_mod_four_ne_one
+    {d : ℤ} [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd4 : d % 4 ≠ 1)
+    (Q R : PrimitivePositiveDefiniteForm (fieldDiscriminant d))
+    (h : Q.1.IsConcordant R.1) :
+    idealOfForm_of_mod_four_ne_one d hd4 (composeConcordant Q R h) =
+      idealOfForm_of_mod_four_ne_one d hd4 Q *
+        idealOfForm_of_mod_four_ne_one d hd4 R := by
+  let e := RingOfIntegers.ringOfIntegers_equiv_zsqrtd_of_mod_four_ne_one d hd4
+  let u : ℤ := (-Q.1.b) / 2
+  have hb_even : Even Q.1.b :=
+    even_b_of_hasDiscriminant_fieldDiscriminant_of_mod_four_ne_one hd4 Q.2.1
+  have hu : 2 * u = -(Q.1.b + 0) := by
+    simpa [u] using two_mul_neg_div_two_of_even hb_even
+  have hdiscQ : Q.1.b ^ 2 - 4 * Q.1.a * Q.1.c = 0 ^ 2 + 4 * d := by
+    simpa [BinaryQuadraticForm.HasDiscriminant, BinaryQuadraticForm.disc,
+      fieldDiscriminant_of_mod_four_ne_one hd4] using Q.2.1
+  have hdiscR : Q.1.b ^ 2 - 4 * R.1.a * R.1.c = 0 ^ 2 + 4 * d := by
+    have hRdisc : R.1.b ^ 2 - 4 * R.1.a * R.1.c = 0 ^ 2 + 4 * d := by
+      simpa [BinaryQuadraticForm.HasDiscriminant, BinaryQuadraticForm.disc,
+        fieldDiscriminant_of_mod_four_ne_one hd4] using R.2.1
+    simpa [h.2.1] using hRdisc
+  have hcoord :
+      CoxIdealRelation.coxIdeal d 0 Q.1.a u *
+          CoxIdealRelation.coxIdeal d 0 R.1.a u =
+        CoxIdealRelation.coxIdeal d 0 (Q.1.a * R.1.a) u :=
+    CoxComposition.coxIdeal_mul_of_concordant hdiscQ hdiscR hu h.2.2
+  calc
+    idealOfForm_of_mod_four_ne_one d hd4 (composeConcordant Q R h)
+        = Ideal.comap (e : 𝓞 (Qsqrtd (d : ℚ)) →+* Zsqrtd d)
+            (CoxIdealRelation.coxIdeal d 0 (Q.1.a * R.1.a) u) := by
+          simp [idealOfForm_of_mod_four_ne_one, PrimitivePositiveDefiniteForm.composeConcordant,
+            BinaryQuadraticForm.composeConcordant, CoxIdealRelation.coxIdeal, Int.cast_mul, e, u]
+    _ = Ideal.comap (e : 𝓞 (Qsqrtd (d : ℚ)) →+* Zsqrtd d)
+          (CoxIdealRelation.coxIdeal d 0 Q.1.a u *
+            CoxIdealRelation.coxIdeal d 0 R.1.a u) := by
+          rw [hcoord]
+    _ = Ideal.comap (e : 𝓞 (Qsqrtd (d : ℚ)) →+* Zsqrtd d)
+          (CoxIdealRelation.coxIdeal d 0 Q.1.a u) *
+        Ideal.comap (e : 𝓞 (Qsqrtd (d : ℚ)) →+* Zsqrtd d)
+          (CoxIdealRelation.coxIdeal d 0 R.1.a u) := by
+          rw [comap_mul_of_ringEquiv]
+    _ = idealOfForm_of_mod_four_ne_one d hd4 Q *
+        idealOfForm_of_mod_four_ne_one d hd4 R := by
+          simp [idealOfForm_of_mod_four_ne_one, CoxIdealRelation.coxIdeal, e, u, ← h.2.1]
+
+/-- In the non-half-integral branch, Cox ideal classes multiply under direct
+concordant Gauss composition. -/
+theorem idealClassOfForm_composeConcordant_of_mod_four_ne_one
+    {d : ℤ} [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd4 : d % 4 ≠ 1)
+    (Q R : PrimitivePositiveDefiniteForm (fieldDiscriminant d))
+    (h : Q.1.IsConcordant R.1) :
+    idealClassOfForm_of_mod_four_ne_one d hd4
+        (composeConcordant Q R h) =
+      idealClassOfForm_of_mod_four_ne_one d hd4 Q *
+        idealClassOfForm_of_mod_four_ne_one d hd4 R := by
+  unfold idealClassOfForm_of_mod_four_ne_one
+  rw [← map_mul]
+  apply congrArg ClassGroup.mk0
+  apply Subtype.ext
+  exact idealOfForm_composeConcordant_of_mod_four_ne_one hd4 Q R h
+
 end PrimitivePositiveDefiniteForm
 
 end BinaryQuadraticForm
