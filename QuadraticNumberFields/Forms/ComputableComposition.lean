@@ -350,8 +350,23 @@ theorem disc_composeForm (Q R : BinaryQuadraticForm)
     · rcases eq_zero_or_eq_zero_of_mul_eq_zero hprod with (hqa | hra)
       · exact hQa hqa
       · exact hR'a_ne_zero hra
-  -- The final algebra: unfold composeForm, simplify with R' and B, then use hC for exact division.
-  sorry
+  -- Final step: compute the discriminant via the coefficient lemmas.
+  -- disc = b² - 4*a*c = B² - 4*(Q.a*R'.a)*((B²-Q.disc)/(4*(Q.a*R'.a))) = ... = Q.disc
+  have h_exact_div : (B ^ 2 - Q.disc) / (4 * (Q.a * R'.a)) = C := by
+    have h_denom_eq : 4 * (Q.a * R'.a) = (4 * Q.a * R'.a) := by ring
+    rw [h_denom_eq, hC]
+    exact Int.mul_ediv_cancel_left C h_den_nonzero'
+  calc
+    (composeForm Q R hQR hR hQa).disc
+        = (composeForm Q R hQR hR hQa).b ^ 2 -
+          4 * (composeForm Q R hQR hR hQa).a *
+              (composeForm Q R hQR hR hQa).c := rfl
+    _ = B ^ 2 - 4 * (Q.a * R'.a) * ((B ^ 2 - Q.disc) / (4 * (Q.a * R'.a))) := by
+      simp [composeForm_a, composeForm_b, composeForm_c, R', B]
+    _ = B ^ 2 - 4 * (Q.a * R'.a) * C := by rw [h_exact_div]
+    _ = B ^ 2 - ((4 * Q.a * R'.a) * C) := by ring
+    _ = B ^ 2 - (B ^ 2 - Q.disc) := by rw [← hC]
+    _ = Q.disc := by ring
 
 /-! ## Regression: computable composition on `d = -21` spike forms
 
