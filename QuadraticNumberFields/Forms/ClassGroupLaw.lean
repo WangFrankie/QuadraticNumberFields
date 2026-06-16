@@ -72,6 +72,30 @@ theorem reducedRepresentativeRep_formClass (C : FormClass D) :
   simpa [ReducedFormRep.formClass, reducedRepresentativeRep,
     primitivePositiveDefiniteFormOfMemEnum] using reducedRepresentative_mk_eq C
 
+/-- Passing from a reduced representative to its class and choosing the reduced
+representative returns the original enumerated representative. -/
+theorem reducedRepresentativeRep_formClass_leftInverse (Q : ReducedFormRep D) :
+    reducedRepresentativeRep Q.formClass = Q := by
+  apply Subtype.ext
+  have hQred : (primitivePositiveDefiniteFormOfMemEnum Q.2).1.IsReduced :=
+    (of_mem_enumPrimitiveReducedForms Q.2).2.2.1
+  have hQ :
+      Quotient.mk (primitivePositiveDefiniteFormSetoid D)
+        (primitivePositiveDefiniteFormOfMemEnum Q.2) = Q.formClass := rfl
+  have h :=
+    eq_of_isReduced_of_mk_eq_mk hQred (reducedRepresentative_isReduced Q.formClass)
+      (hQ.trans (reducedRepresentative_mk_eq Q.formClass).symm)
+  simpa [reducedRepresentativeRep, primitivePositiveDefiniteFormOfMemEnum] using
+    congrArg Subtype.val h.symm
+
+/-- Reduced representatives are equivalent to form classes. -/
+noncomputable def reducedFormRepEquivFormClass (D : ℤ) :
+    ReducedFormRep D ≃ FormClass D where
+  toFun := ReducedFormRep.formClass
+  invFun := reducedRepresentativeRep
+  left_inv := reducedRepresentativeRep_formClass_leftInverse
+  right_inv := reducedRepresentativeRep_formClass
+
 /-- Any reduced representative of a form class is the chosen reduced
 representative of that class. -/
 theorem eq_reducedRepresentative_of_isReduced_mk_eq
@@ -130,6 +154,23 @@ theorem reducedFormRepMul_formClass
     (reducedFormRepMul hdneg Q R).formClass = Q.formClass * R.formClass := by
   letI := formClassCommGroup hdneg
   exact reducedRepresentativeRep_formClass (Q.formClass * R.formClass)
+
+/-- Finite reduced-form representatives are equivalent to the ideal class group. -/
+noncomputable def reducedFormRepEquivClassGroup (hdneg : d < 0) :
+    ReducedFormRep (fieldDiscriminant d) ≃ ClassGroup (𝓞 (Qsqrtd (d : ℚ))) :=
+  (reducedFormRepEquivFormClass (fieldDiscriminant d)).trans
+    (formClassEquivClassGroup hdneg)
+
+/-- Multiplication on reduced representatives agrees with ideal class-group
+multiplication under the Cox equivalence. -/
+theorem reducedFormRepEquivClassGroup_mul
+    (Q R : ReducedFormRep (fieldDiscriminant d)) :
+    reducedFormRepEquivClassGroup hdneg (reducedFormRepMul hdneg Q R) =
+      reducedFormRepEquivClassGroup hdneg Q * reducedFormRepEquivClassGroup hdneg R := by
+  letI := formClassCommGroup hdneg
+  change formClassEquivClassGroup hdneg (ReducedFormRep.formClass (reducedFormRepMul hdneg Q R)) =
+    formClassEquivClassGroup hdneg Q.formClass * formClassEquivClassGroup hdneg R.formClass
+  rw [reducedFormRepMul_formClass, formClassEquivClassGroup_mul]
 
 /-- Any reduced form representing the product class is the chosen reduced
 product representative. -/
