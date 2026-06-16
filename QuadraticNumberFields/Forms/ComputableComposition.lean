@@ -368,6 +368,227 @@ theorem disc_composeForm (Q R : BinaryQuadraticForm)
     _ = B ^ 2 - (B ^ 2 - Q.disc) := by rw [← hC]
     _ = Q.disc := by ring
 
+/-- The exact division identity for the `c` coefficient of `composeForm`:
+`(4 * Q.a * R'.a) * c = B² - Q.disc`. -/
+theorem composeForm_exact_div (Q R : BinaryQuadraticForm)
+    (hQR : Q.disc = R.disc) (hR : R.IsPrimitive) (hQa : Q.a ≠ 0)
+    (hQpos : Q.IsPositiveDefinite) (hRpos : R.IsPositiveDefinite) :
+    (4 * Q.a * (unitedRep Q R hR hQa).a) * (composeForm Q R hQR hR hQa).c =
+      (composeMiddleB Q (unitedRep Q R hR hQa)) ^ 2 - Q.disc := by
+  let R' := unitedRep Q R hR hQa
+  let B := composeMiddleB Q R'
+  have hcop : Int.gcd Q.a R'.a = 1 := gcd_left_a_unitedRep Q R hR hQa
+  have hdisc_eq : Q.disc = R'.disc :=
+    hQR.trans (disc_eq_of_properEquivalent (unitedRep_properEquivalent Q R hR hQa))
+  have hpar : 2 ∣ R'.b - Q.b := by
+    rcases even_sub_b_of_same_discriminant hdisc_eq with ⟨k, hk⟩
+    exact ⟨k, by rw [hk]; ring⟩
+  have h_mod_left : B ≡ Q.b [ZMOD 2 * Q.a] := composeMiddleB_modEq_left Q R'
+  have h_mod_right : B ≡ R'.b [ZMOD 2 * R'.a] :=
+    composeMiddleB_modEq_right Q R' hcop hpar
+  -- Step 1: 4·Q.a ∣ B² - Q.disc
+  have h_dvd_left : (4 * Q.a) ∣ B ^ 2 - Q.disc := by
+    have hk_div := (Int.modEq_iff_dvd.mp h_mod_left)
+    rcases hk_div with ⟨k, hk⟩
+    have hB : B = Q.b - 2 * Q.a * k := by linarith
+    rw [hB]
+    use Q.a * k ^ 2 - Q.b * k + Q.c
+    calc
+      (Q.b - 2 * Q.a * k) ^ 2 - Q.disc
+          = (Q.b - 2 * Q.a * k) ^ 2 - (Q.b ^ 2 - 4 * Q.a * Q.c) := rfl
+      _ = 4 * Q.a * (Q.a * k ^ 2 - Q.b * k + Q.c) := by ring
+  -- Step 2: 4·R'.a ∣ B² - Q.disc
+  have h_dvd_right : (4 * R'.a) ∣ B ^ 2 - Q.disc := by
+    have hk_div := (Int.modEq_iff_dvd.mp h_mod_right)
+    rcases hk_div with ⟨k, hk⟩
+    have hB : B = R'.b - 2 * R'.a * k := by linarith
+    rw [hB, hdisc_eq]
+    use R'.a * k ^ 2 - R'.b * k + R'.c
+    calc
+      (R'.b - 2 * R'.a * k) ^ 2 - R'.disc
+          = (R'.b - 2 * R'.a * k) ^ 2 - (R'.b ^ 2 - 4 * R'.a * R'.c) := rfl
+      _ = 4 * R'.a * (R'.a * k ^ 2 - R'.b * k + R'.c) := by ring
+  -- Step 3: coprime cancellation → 4·Q.a·R'.a ∣ B² - Q.disc
+  have h_dvd_prod : (4 * Q.a * R'.a) ∣ B ^ 2 - Q.disc := by
+    rcases h_dvd_left with ⟨A, hA⟩
+    rcases h_dvd_right with ⟨C, hC⟩
+    have h_eq : Q.a * A = R'.a * C := by nlinarith
+    have h_ra_div_qaA : R'.a ∣ Q.a * A := by rw [h_eq]; exact dvd_mul_right _ _
+    have h_ra_div_A : R'.a ∣ A :=
+      Int.dvd_of_dvd_mul_right_of_gcd_one h_ra_div_qaA (by rwa [Int.gcd_comm])
+    rcases h_ra_div_A with ⟨D, hD⟩
+    use D
+    calc
+      B ^ 2 - Q.disc = 4 * Q.a * A := hA
+      _ = 4 * Q.a * (R'.a * D) := by rw [hD]
+      _ = (4 * Q.a * R'.a) * D := by ring
+  -- Rewrite h_dvd_prod to the exact form we need
+  rcases h_dvd_prod with ⟨C, hC⟩
+  have h_den_nonzero' : (4 * Q.a * R'.a) ≠ 0 := by
+    intro hzero
+    have h_or : (4 : ℤ) = 0 ∨ Q.a * R'.a = 0 :=
+      eq_zero_or_eq_zero_of_mul_eq_zero (by simpa [mul_assoc] using hzero)
+    rcases h_or with (h4 | hprod)
+    · norm_num at h4
+    · rcases eq_zero_or_eq_zero_of_mul_eq_zero hprod with (hqa | hra)
+      · exact hQa hqa
+      · have hR'a_pos : 0 < R'.a := by
+          rw [unitedRep_a]
+          have hxy_gcd : Int.gcd (coprimeEvalVector R Q.a hR hQa).1
+              (coprimeEvalVector R Q.a hR hQa).2 = 1 :=
+            coprimeEvalVector_gcd R Q.a hR hQa
+          have hxy_nonzero : (coprimeEvalVector R Q.a hR hQa).1 ≠ 0 ∨
+              (coprimeEvalVector R Q.a hR hQa).2 ≠ 0 := by
+            by_contra! hboth
+            rcases hboth with ⟨hx, hy⟩
+            rw [hx, hy] at hxy_gcd
+            simp at hxy_gcd
+          exact eval_pos_of_isPositiveDefinite R hRpos hxy_nonzero
+        exact ne_of_gt hR'a_pos hra
+  have h_denom_eq' : 4 * (Q.a * R'.a) = (4 * Q.a * R'.a) := by ring
+  calc
+    (4 * Q.a * R'.a) * (composeForm Q R hQR hR hQa).c
+        = (4 * Q.a * R'.a) * ((B ^ 2 - Q.disc) / (4 * (Q.a * R'.a))) := rfl
+    _ = (4 * Q.a * R'.a) * C := by
+      rw [h_denom_eq', ← hC, Int.mul_ediv_cancel_left C h_den_nonzero']
+    _ = B ^ 2 - Q.disc := by rw [hC]; ring
+
+/-- **Primitivity preservation for computable composition.**
+Both input forms must be primitive; the composed form is primitive too. -/
+theorem isPrimitive_composeForm (Q R : BinaryQuadraticForm)
+    (hQR : Q.disc = R.disc) (hQprim : Q.IsPrimitive) (hRprim : R.IsPrimitive)
+    (hQa : Q.a ≠ 0) (hQpos : Q.IsPositiveDefinite) (hRpos : R.IsPositiveDefinite) :
+    (composeForm Q R hQR hRprim hQa).IsPrimitive := by
+  let R' := unitedRep Q R hRprim hQa
+  let B := composeMiddleB Q R'
+  have hcop : Int.gcd Q.a R'.a = 1 := gcd_left_a_unitedRep Q R hRprim hQa
+  have hdisc_eq : Q.disc = R'.disc :=
+    hQR.trans (disc_eq_of_properEquivalent (unitedRep_properEquivalent Q R hRprim hQa))
+  have hpar : 2 ∣ R'.b - Q.b := by
+    rcases even_sub_b_of_same_discriminant hdisc_eq with ⟨k, hk⟩
+    exact ⟨k, by rw [hk]; ring⟩
+  have h_mod_left : B ≡ Q.b [ZMOD 2 * Q.a] := composeMiddleB_modEq_left Q R'
+  have h_mod_right : B ≡ R'.b [ZMOD 2 * R'.a] :=
+    composeMiddleB_modEq_right Q R' hcop hpar
+  -- R' is primitive (primitivity preserved under SL₂)
+  have hR'prim : R'.IsPrimitive :=
+    isPrimitive_transform R hRprim (sl2z_of_coprime
+      (coprimeEvalVector R Q.a hRprim hQa).1
+      (coprimeEvalVector R Q.a hRprim hQa).2
+      (coprimeEvalVector_gcd R Q.a hRprim hQa))
+  -- Exact division identity: (4·Q.a·R'.a) · c = B² - Q.disc
+  have h_exact_div : (4 * Q.a * R'.a) * (composeForm Q R hQR hRprim hQa).c = B ^ 2 - Q.disc :=
+    composeForm_exact_div Q R hQR hRprim hQa hQpos hRpos
+  -- Now the primitivity argument proper
+  unfold IsPrimitive
+  let S := composeForm Q R hQR hRprim hQa
+  let n : ℕ := Int.gcd S.a (Int.gcd S.b S.c)
+  change n = 1
+  by_contra hn
+  obtain ⟨p, hp, hpn⟩ := Nat.exists_prime_and_dvd hn
+  have hpz_dvd_n : (p : ℤ) ∣ (n : ℤ) := by exact_mod_cast hpn
+  have hn_a : (n : ℤ) ∣ S.a := Int.gcd_dvd_left _ _
+  have hn_bc : (n : ℤ) ∣ Int.gcd S.b S.c := Int.gcd_dvd_right _ _
+  have hn_b : (n : ℤ) ∣ S.b := dvd_trans hn_bc (Int.gcd_dvd_left _ _)
+  have hn_c : (n : ℤ) ∣ S.c := dvd_trans hn_bc (Int.gcd_dvd_right _ _)
+  have hpS_a : (p : ℤ) ∣ S.a := dvd_trans hpz_dvd_n hn_a
+  have hpS_b : (p : ℤ) ∣ S.b := dvd_trans hpz_dvd_n hn_b
+  have hpS_c : (p : ℤ) ∣ S.c := dvd_trans hpz_dvd_n hn_c
+  -- Unfold S coefficients
+  have haS : S.a = Q.a * R'.a := by dsimp [S, composeForm, R', B]
+  have hbS : S.b = B := by dsimp [S, composeForm, R', B]
+  rw [haS] at hpS_a
+  rw [hbS] at hpS_b
+  -- p ∣ Q.a * R'.a, gcd(Q.a, R'.a) = 1 ⇒ p divides exactly one
+  have hpQaRa_nat : p ∣ (Q.a * R'.a).natAbs := (Int.natCast_dvd).mp hpS_a
+  rw [Int.natAbs_mul] at hpQaRa_nat
+  rcases (Nat.Prime.dvd_mul hp).mp hpQaRa_nat with hpQa_nat | hpRa_nat
+  · -- Case 1: p ∣ Q.a
+    have hpQa : (p : ℤ) ∣ Q.a := (Int.natCast_dvd).mpr hpQa_nat
+    -- p ∣ Q.a ⇒ from B ≡ Q.b (mod 2·Q.a) we get p ∣ Q.b
+    have hpQb_sub_B : (p : ℤ) ∣ Q.b - B := by
+      rcases (Int.modEq_iff_dvd.mp h_mod_left) with ⟨k, hk⟩
+      rw [hk]
+      have hp2Qa : (p : ℤ) ∣ 2 * Q.a := dvd_mul_of_dvd_right hpQa 2
+      exact dvd_mul_of_dvd_left hp2Qa k
+    have hpQb : (p : ℤ) ∣ Q.b := by
+      have : Q.b = (Q.b - B) + B := by ring
+      rw [this]; exact dvd_add hpQb_sub_B hpS_b
+    -- From the exact division identity derive p ∣ Q.c
+    rcases (Int.modEq_iff_dvd.mp h_mod_left) with ⟨k₁, hk₁⟩
+    have hB_eq : B = Q.b - 2 * Q.a * k₁ := by linarith
+    rw [hB_eq] at h_exact_div
+    have h_factor : (Q.b - 2 * Q.a * k₁) ^ 2 - (Q.b ^ 2 - 4 * Q.a * Q.c) =
+        4 * Q.a * (Q.c - k₁ * Q.b + Q.a * k₁ ^ 2) := by ring
+    rw [show Q.disc = Q.b ^ 2 - 4 * Q.a * Q.c from rfl] at h_exact_div
+    rw [h_factor] at h_exact_div
+    have h_cancel : R'.a * S.c = Q.c - k₁ * Q.b + Q.a * k₁ ^ 2 := by
+      have h4Qa_ne : 4 * Q.a ≠ 0 := mul_ne_zero (by norm_num) hQa
+      apply mul_left_cancel₀ h4Qa_ne
+      calc
+        4 * Q.a * (R'.a * S.c) = (4 * Q.a * R'.a) * S.c := by ring
+        _ = 4 * Q.a * (Q.c - k₁ * Q.b + Q.a * k₁ ^ 2) := h_exact_div
+        _ = 4 * Q.a * (Q.c - k₁ * Q.b + Q.a * k₁ ^ 2) := rfl
+    have hpQc : (p : ℤ) ∣ Q.c := by
+      have hQc_expr : Q.c = R'.a * S.c + k₁ * Q.b - Q.a * k₁ ^ 2 := by linarith
+      rw [hQc_expr]
+      apply dvd_sub
+      · apply dvd_add
+        · exact dvd_mul_of_dvd_right hpS_c _
+        · exact dvd_mul_of_dvd_right hpQb k₁
+      · exact dvd_mul_of_dvd_left hpQa (k₁ ^ 2)
+    exact not_prime_dvd_coefficients_of_isPrimitive hQprim hp hpQa hpQb hpQc
+  · -- Case 2: p ∣ R'.a
+    have hpR'a : (p : ℤ) ∣ R'.a := (Int.natCast_dvd).mpr hpRa_nat
+    -- p ∣ R'.a ⇒ from B ≡ R'.b (mod 2·R'.a) we get p ∣ R'.b
+    have hpR'b_sub_B : (p : ℤ) ∣ R'.b - B := by
+      rcases (Int.modEq_iff_dvd.mp h_mod_right) with ⟨k, hk⟩
+      rw [hk]
+      have hp2R'a : (p : ℤ) ∣ 2 * R'.a := dvd_mul_of_dvd_right hpR'a 2
+      exact dvd_mul_of_dvd_left hp2R'a k
+    have hpR'b : (p : ℤ) ∣ R'.b := by
+      have : R'.b = (R'.b - B) + B := by ring
+      rw [this]; exact dvd_add hpR'b_sub_B hpS_b
+    -- From the exact division identity derive p ∣ R'.c
+    rcases (Int.modEq_iff_dvd.mp h_mod_right) with ⟨k₂, hk₂⟩
+    have hB_eq : B = R'.b - 2 * R'.a * k₂ := by linarith
+    rw [hB_eq] at h_exact_div
+    -- Use Q.disc = R'.disc to express in terms of R'
+    have hdiscR' : R'.disc = R'.b ^ 2 - 4 * R'.a * R'.c := rfl
+    rw [hdisc_eq, hdiscR'] at h_exact_div
+    have h_factor : (R'.b - 2 * R'.a * k₂) ^ 2 - (R'.b ^ 2 - 4 * R'.a * R'.c) =
+        4 * R'.a * (R'.c - k₂ * R'.b + R'.a * k₂ ^ 2) := by ring
+    rw [h_factor] at h_exact_div
+    have h_cancel : Q.a * S.c = R'.c - k₂ * R'.b + R'.a * k₂ ^ 2 := by
+      have hR'a_ne : R'.a ≠ 0 := by
+        have hR'a_pos : 0 < R'.a := by
+          rw [unitedRep_a]
+          have hxy_gcd : Int.gcd (coprimeEvalVector R Q.a hRprim hQa).1
+              (coprimeEvalVector R Q.a hRprim hQa).2 = 1 :=
+            coprimeEvalVector_gcd R Q.a hRprim hQa
+          have hxy_nonzero : (coprimeEvalVector R Q.a hRprim hQa).1 ≠ 0 ∨
+              (coprimeEvalVector R Q.a hRprim hQa).2 ≠ 0 := by
+            by_contra! hboth
+            rcases hboth with ⟨hx, hy⟩
+            rw [hx, hy] at hxy_gcd; simp at hxy_gcd
+          exact eval_pos_of_isPositiveDefinite R hRpos hxy_nonzero
+        exact ne_of_gt hR'a_pos
+      have h4R'a_ne : 4 * R'.a ≠ 0 := mul_ne_zero (by norm_num) hR'a_ne
+      apply mul_left_cancel₀ h4R'a_ne
+      calc
+        4 * R'.a * (Q.a * S.c) = (4 * Q.a * R'.a) * S.c := by ring
+        _ = 4 * R'.a * (R'.c - k₂ * R'.b + R'.a * k₂ ^ 2) := h_exact_div
+        _ = 4 * R'.a * (R'.c - k₂ * R'.b + R'.a * k₂ ^ 2) := rfl
+    have hpR'c : (p : ℤ) ∣ R'.c := by
+      have hR'c_expr : R'.c = Q.a * S.c + k₂ * R'.b - R'.a * k₂ ^ 2 := by linarith
+      rw [hR'c_expr]
+      apply dvd_sub
+      · apply dvd_add
+        · exact dvd_mul_of_dvd_right hpS_c _
+        · exact dvd_mul_of_dvd_right hpR'b k₂
+      · exact dvd_mul_of_dvd_left hpR'a (k₂ ^ 2)
+    exact not_prime_dvd_coefficients_of_isPrimitive hR'prim hp hpR'a hpR'b hpR'c
+
 /-! ## Regression: computable composition on `d = -21` spike forms
 
 The spike (Design Doc §2) confirms that `fieldDiscriminant (-21 : ℚ) = -84` and
