@@ -5,6 +5,7 @@ Authors: Frankie Wang
 -/
 
 import QuadraticNumberFields.Forms.GaussCompositionClass
+import QuadraticNumberFields.Forms.Structure
 
 /-!
 # Cox Ideal Multiplicativity for Concordant Gauss Composition
@@ -70,10 +71,10 @@ theorem coxIdeal_mul_of_concordant
     (hdiscR : B ^ 2 - 4 * A' * C' = bb ^ 2 + 4 * DD)
     (hu : 2 * u = -(B + bb))
     (hcop : Int.gcd A A' = 1) :
-    coxIdeal DD bb A u * coxIdeal DD bb A' u =
-      coxIdeal DD bb (A * A') u := by
+    CoxIdealRelation.coxIdeal DD bb A u * CoxIdealRelation.coxIdeal DD bb A' u =
+      CoxIdealRelation.coxIdeal DD bb (A * A') u := by
   let β : QuadraticAlgebra ℤ DD bb := ⟨u, 1⟩
-  let K : Ideal (QuadraticAlgebra ℤ DD bb) := coxIdeal DD bb (A * A') u
+  let K : Ideal (QuadraticAlgebra ℤ DD bb) := CoxIdealRelation.coxIdeal DD bb (A * A') u
   have hB : B = -2 * u - bb := by omega
   have hDD : DD = u ^ 2 + bb * u - A * C := by
     rw [hB] at hdiscQ
@@ -94,7 +95,7 @@ theorem coxIdeal_mul_of_concordant
         rw [hAC]
         ring
   have hAA'_mem_K : (((A * A' : ℤ) : QuadraticAlgebra ℤ DD bb)) ∈ K := by
-    exact self_mem_coxIdeal DD bb (A * A') u
+    exact CoxIdealRelation.self_mem_coxIdeal DD bb (A * A') u
   have hβ_mem_K : β ∈ K := by
     exact Ideal.subset_span (by simp [β])
   have hAβ_mem_K : ((A : QuadraticAlgebra ℤ DD bb) * β) ∈ K :=
@@ -123,7 +124,7 @@ theorem coxIdeal_mul_of_concordant
       rw [hB]
       ring
   apply le_antisymm
-  · dsimp [coxIdeal]
+  · dsimp [CoxIdealRelation.coxIdeal]
     apply span_pair_mul_span_pair_le
     · change ((A : QuadraticAlgebra ℤ DD bb) * (A' : QuadraticAlgebra ℤ DD bb)) ∈ K
       simpa [Int.cast_mul] using hAA'_mem_K
@@ -138,24 +139,30 @@ theorem coxIdeal_mul_of_concordant
           K.neg_mem (K.mul_mem_left (B : QuadraticAlgebra ℤ DD bb) hβ_mem_K)
       exact K.sub_mem hnegBβ hAC_mem_K
   · intro z hz
-    let P : Ideal (QuadraticAlgebra ℤ DD bb) := coxIdeal DD bb A u * coxIdeal DD bb A' u
+    let P : Ideal (QuadraticAlgebra ℤ DD bb) :=
+      CoxIdealRelation.coxIdeal DD bb A u * CoxIdealRelation.coxIdeal DD bb A' u
     change z ∈ P
     have hAA'_prod : (((A * A' : ℤ) : QuadraticAlgebra ℤ DD bb)) ∈ P := by
-      have hA : ((A : QuadraticAlgebra ℤ DD bb)) ∈ coxIdeal DD bb A u :=
-        self_mem_coxIdeal DD bb A u
-      have hA' : ((A' : QuadraticAlgebra ℤ DD bb)) ∈ coxIdeal DD bb A' u :=
-        self_mem_coxIdeal DD bb A' u
+      have hA : ((A : QuadraticAlgebra ℤ DD bb)) ∈ CoxIdealRelation.coxIdeal DD bb A u :=
+        CoxIdealRelation.self_mem_coxIdeal DD bb A u
+      have hA' : ((A' : QuadraticAlgebra ℤ DD bb)) ∈
+          CoxIdealRelation.coxIdeal DD bb A' u :=
+        CoxIdealRelation.self_mem_coxIdeal DD bb A' u
       simpa [P, Int.cast_mul] using Ideal.mul_mem_mul hA hA'
     have hβ_prod : β ∈ P := by
       have hAβ : ((A : QuadraticAlgebra ℤ DD bb) * β) ∈ P := by
-        have hA : ((A : QuadraticAlgebra ℤ DD bb)) ∈ coxIdeal DD bb A u :=
-          self_mem_coxIdeal DD bb A u
-        have hβ' : β ∈ coxIdeal DD bb A' u := Ideal.subset_span (by simp [β])
+        have hA : ((A : QuadraticAlgebra ℤ DD bb)) ∈
+            CoxIdealRelation.coxIdeal DD bb A u :=
+          CoxIdealRelation.self_mem_coxIdeal DD bb A u
+        have hβ' : β ∈ CoxIdealRelation.coxIdeal DD bb A' u :=
+          Ideal.subset_span (by simp [β])
         simpa [P] using Ideal.mul_mem_mul hA hβ'
       have hA'β : ((A' : QuadraticAlgebra ℤ DD bb) * β) ∈ P := by
-        have hβ : β ∈ coxIdeal DD bb A u := Ideal.subset_span (by simp [β])
-        have hA' : ((A' : QuadraticAlgebra ℤ DD bb)) ∈ coxIdeal DD bb A' u :=
-          self_mem_coxIdeal DD bb A' u
+        have hβ : β ∈ CoxIdealRelation.coxIdeal DD bb A u :=
+          Ideal.subset_span (by simp [β])
+        have hA' : ((A' : QuadraticAlgebra ℤ DD bb)) ∈
+            CoxIdealRelation.coxIdeal DD bb A' u :=
+          CoxIdealRelation.self_mem_coxIdeal DD bb A' u
         simpa [P, mul_comm] using Ideal.mul_mem_mul hβ hA'
       have hlin :
           β =
@@ -181,7 +188,7 @@ theorem coxIdeal_mul_of_concordant
         z ∈ Ideal.span
           ({(((A * A' : ℤ) : QuadraticAlgebra ℤ DD bb)), β} :
             Set (QuadraticAlgebra ℤ DD bb)) := by
-      simpa [K, coxIdeal, β] using hz
+      simpa [K, CoxIdealRelation.coxIdeal, β] using hz
     exact Submodule.span_induction
       (p := fun x _ => x ∈ P)
       (fun x hx => by
@@ -380,6 +387,50 @@ theorem formClassToClassGroup_composeConcordant
     exact idealClassOfForm_composeConcordant_of_mod_four_ne_one hd4 Q R h
 
 end PrimitivePositiveDefiniteForm
+
+namespace FormClass
+
+/-- The Cox map sends chosen-representative concordant composition to the product
+of the Cox images of the input classes. -/
+theorem formClassToClassGroup_composeConcordantOfRepresentatives
+    {d : ℤ} [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (Q R : PrimitivePositiveDefiniteForm (fieldDiscriminant d))
+    (h : Q.1.IsConcordant R.1) :
+    formClassToClassGroup d (composeConcordantOfRepresentatives Q R h) =
+      formClassToClassGroup d
+          (Quotient.mk (primitivePositiveDefiniteFormSetoid (fieldDiscriminant d)) Q) *
+        formClassToClassGroup d
+          (Quotient.mk (primitivePositiveDefiniteFormSetoid (fieldDiscriminant d)) R) := by
+  unfold composeConcordantOfRepresentatives
+  exact PrimitivePositiveDefiniteForm.formClassToClassGroup_composeConcordant Q R h
+
+/-- Chosen-representative concordant composition agrees with the transported
+product on form classes. -/
+theorem composeConcordantOfRepresentatives_eq_mul
+    {d : ℤ} [Fact (Squarefree d)] [Fact (d ≠ 1)] (hdneg : d < 0)
+    (Q R : PrimitivePositiveDefiniteForm (fieldDiscriminant d))
+    (h : Q.1.IsConcordant R.1) :
+    composeConcordantOfRepresentatives Q R h =
+      @Mul.mul (FormClass (fieldDiscriminant d)) (formClassCommGroup hdneg).toMul
+        (Quotient.mk (primitivePositiveDefiniteFormSetoid (fieldDiscriminant d)) Q :
+          FormClass (fieldDiscriminant d))
+        (Quotient.mk (primitivePositiveDefiniteFormSetoid (fieldDiscriminant d)) R :
+          FormClass (fieldDiscriminant d)) := by
+  letI := formClassCommGroup hdneg
+  apply (formClassEquivClassGroup hdneg).injective
+  change formClassToClassGroup d (composeConcordantOfRepresentatives Q R h) =
+    formClassToClassGroup d
+      (@Mul.mul (FormClass (fieldDiscriminant d)) (formClassCommGroup hdneg).toMul
+        (Quotient.mk (primitivePositiveDefiniteFormSetoid (fieldDiscriminant d)) Q :
+          FormClass (fieldDiscriminant d))
+        (Quotient.mk (primitivePositiveDefiniteFormSetoid (fieldDiscriminant d)) R :
+          FormClass (fieldDiscriminant d)))
+  rw [formClassToClassGroup_composeConcordantOfRepresentatives]
+  exact (formClassEquivClassGroup_mul hdneg
+    (Quotient.mk (primitivePositiveDefiniteFormSetoid (fieldDiscriminant d)) Q)
+    (Quotient.mk (primitivePositiveDefiniteFormSetoid (fieldDiscriminant d)) R)).symm
+
+end FormClass
 
 end BinaryQuadraticForm
 end QuadraticNumberFields
