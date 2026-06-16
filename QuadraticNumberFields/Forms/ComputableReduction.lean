@@ -5,6 +5,7 @@ Authors: Frankie Wang
 -/
 
 import QuadraticNumberFields.Forms.GaussComposition
+import QuadraticNumberFields.Forms.Enumeration
 import QuadraticNumberFields.Forms.Reduction
 
 /-!
@@ -48,7 +49,7 @@ def normalizeB (Q : BinaryQuadraticForm) (ha : 0 < Q.a) : BinaryQuadraticForm :=
 
 @[simp] theorem normalizeB_a (Q : BinaryQuadraticForm) (ha : 0 < Q.a) :
     (normalizeB Q ha).a = Q.a := by
-  simp [normalizeB, transform_translate_a]
+  simp [normalizeB]
 
 /-- Explicit formula for `normalizeB_b` when the remainder is ≤ a. -/
 private theorem normalizeB_b_eq_r (a b : ℤ) (ha : 0 < a) (h : b % (2 * a) ≤ a) :
@@ -258,6 +259,16 @@ private theorem isReduced_boundary_flip {Q : BinaryQuadraticForm}
   · intro _
     exact hb_nonneg
 
+private theorem isPositiveDefinite_of_properEquivalent {Q R : BinaryQuadraticForm}
+    (hQ : Q.IsPositiveDefinite) (hQR : ProperEquivalent Q R) : R.IsPositiveDefinite := by
+  rcases hQR with ⟨g, rfl⟩
+  exact isPositiveDefinite_transform Q hQ g
+
+private theorem isPrimitive_of_properEquivalent {Q R : BinaryQuadraticForm}
+    (hQ : Q.IsPrimitive) (hQR : ProperEquivalent Q R) : R.IsPrimitive := by
+  rcases hQR with ⟨g, rfl⟩
+  exact isPrimitive_transform Q hQ g
+
 private theorem reduceForm_eq (Q : BinaryQuadraticForm) (hpos : Q.IsPositiveDefinite) :
     reduceForm Q hpos =
       (have ha_pos : 0 < Q.a := hpos.1
@@ -382,6 +393,36 @@ theorem reduceForm_isReduced (Q : BinaryQuadraticForm)
     (hpos : Q.IsPositiveDefinite) :
     (reduceForm Q hpos).IsReduced := by
   exact (reduceForm_correct Q hpos).2
+
+/-- The computable reduction of a primitive positive definite form of
+discriminant `D` belongs to the finite reduced-form enumeration. -/
+theorem reduceForm_mem_enum {D : ℤ} (Q : BinaryQuadraticForm)
+    (hdisc : Q.HasDiscriminant D) (hprim : Q.IsPrimitive)
+    (hpos : Q.IsPositiveDefinite) :
+    reduceForm Q hpos ∈ enumPrimitiveReducedForms D := by
+  have hpe := reduceForm_properEquivalent Q hpos
+  apply mem_enumPrimitiveReducedForms_of_reduced
+  · exact (disc_eq_of_properEquivalent hpe).symm.trans hdisc
+  · exact isPositiveDefinite_of_properEquivalent hpos hpe
+  · exact reduceForm_isReduced Q hpos
+  · exact isPrimitive_of_properEquivalent hprim hpe
+
+/-- The computable reduction packaged in the primitive positive definite
+carrier. -/
+def reduceFormPrimitive {D : ℤ} (Q : PrimitivePositiveDefiniteForm D) :
+    PrimitivePositiveDefiniteForm D :=
+  let hpos := Q.2.2.2
+  let R := reduceForm Q.1 hpos
+  have hmem : R ∈ enumPrimitiveReducedForms D :=
+    reduceForm_mem_enum Q.1 Q.2.1 Q.2.2.1 hpos
+  primitivePositiveDefiniteFormOfMemEnum hmem
+
+/-- Computable reduction preserves the proper-equivalence class. -/
+theorem reduceFormPrimitive_mk_eq {D : ℤ} (Q : PrimitivePositiveDefiniteForm D) :
+    Quotient.mk (primitivePositiveDefiniteFormSetoid D) (reduceFormPrimitive Q) =
+      Quotient.mk (primitivePositiveDefiniteFormSetoid D) Q := by
+  apply Quotient.sound
+  exact (reduceForm_properEquivalent Q.1 Q.2.2.2).symm
 
 /-! ## Regression: reduction on spike forms
 
