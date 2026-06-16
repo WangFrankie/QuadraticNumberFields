@@ -74,8 +74,7 @@ private theorem normalizeB_k_eq_div2 (a b : ℤ) (ha : 0 < a) (h : ¬ b % (2 * a
 Proof: `b%d - b = d*(-(b/d))`, and `(d*k)/d = k` since `d ≠ 0`. -/
 private theorem mod_cancel (b d : ℤ) (hd : d ≠ 0) : b + d * ((b % d - b) / d) = b % d := by
   have hem : (b / d) * d + b % d = b := by
-    -- Int.ediv_add_emod gives d*(b/d) + b%d = b; commute the first term
-    rw [mul_comm]; exact Int.ediv_add_emod b d
+    simpa [mul_comm] using Int.mul_ediv_add_emod b d
   have hsub : b % d - b = d * (-(b / d)) := by linarith
   have hdiv : (b % d - b) / d = -(b / d) := by
     rw [hsub, Int.mul_ediv_cancel_left _ hd]
@@ -88,7 +87,7 @@ private theorem mod_cancel (b d : ℤ) (hd : d ≠ 0) : b + d * ((b % d - b) / d
 private theorem mod_cancel_sub (b d : ℤ) (hd : d ≠ 0) :
     b + d * (((b % d - d) - b) / d) = b % d - d := by
   have hem : (b / d) * d + b % d = b := by
-    rw [mul_comm]; exact Int.ediv_add_emod b d
+    simpa [mul_comm] using Int.mul_ediv_add_emod b d
   have hsub : (b % d - d) - b = d * (-(b / d) - 1) := by linarith
   have hdiv : ((b % d - d) - b) / d = -(b / d) - 1 := by
     rw [hsub, Int.mul_ediv_cancel_left _ hd]
@@ -203,42 +202,186 @@ decreasing_by
     _ < Q.a := h_lt
     _ = (Q.a.natAbs : ℤ) := (Int.natAbs_of_nonneg (le_of_lt hpos.1)).symm
 
+/-- The swap matrix `(x, y) ↦ (y, -x)` used in the recursive reduction step. -/
+private def swapSL2Z : SL2Z := by
+  refine ⟨![![0, 1], ![-1, 0]], ?_⟩
+  norm_num [Matrix.det_fin_two]
+
+@[simp] private theorem transform_swapSL2Z (Q : BinaryQuadraticForm) :
+    transform Q swapSL2Z = ⟨Q.c, -Q.b, Q.a⟩ := by
+  ext
+  · change Q.a * 0 ^ 2 + Q.b * 0 * (-1) + Q.c * (-1) ^ 2 = Q.c
+    norm_num
+  · change 2 * Q.a * 0 * 1 + Q.b * (0 * 0 + 1 * (-1)) + 2 * Q.c * (-1) * 0 =
+      -Q.b
+    norm_num
+  · change Q.a * 1 ^ 2 + Q.b * 1 * 0 + Q.c * 0 ^ 2 = Q.a
+    norm_num
+
+private theorem normalizeB_properEquivalent (Q : BinaryQuadraticForm) (ha : 0 < Q.a) :
+    ProperEquivalent Q (normalizeB Q ha) :=
+  ⟨translateSL2Z (normalizeB_k Q.a Q.b ha), rfl⟩
+
+private theorem swap_properEquivalent (Q : BinaryQuadraticForm) :
+    ProperEquivalent Q ⟨Q.c, -Q.b, Q.a⟩ :=
+  ⟨swapSL2Z, by simp⟩
+
+private theorem boundary_flip_properEquivalent {Q : BinaryQuadraticForm}
+    (hac : Q.a = Q.c) : ProperEquivalent Q ⟨Q.a, -Q.b, Q.c⟩ :=
+  ⟨swapSL2Z, by ext <;> simp [hac]⟩
+
+private theorem isReduced_of_normalized_no_swap {Q : BinaryQuadraticForm}
+    (hb_left : -Q.a < Q.b) (hb_abs : |Q.b| ≤ Q.a) (hno_swap : ¬ Q.a > Q.c)
+    (hboundary : ¬ (Q.a = Q.c ∧ Q.b < 0)) :
+    Q.IsReduced := by
+  refine ⟨hb_abs, le_of_not_gt hno_swap, ?_, ?_⟩
+  · intro hb_eq
+    by_contra hb_nonneg
+    have hb_neg : Q.b < 0 := lt_of_not_ge hb_nonneg
+    have hb_abs_eq : |Q.b| = -Q.b := abs_of_neg hb_neg
+    have hneg_eq : -Q.b = Q.a := by
+      simpa [hb_abs_eq] using hb_eq
+    linarith
+  · intro hac
+    by_contra hb_nonneg
+    exact hboundary ⟨hac, lt_of_not_ge hb_nonneg⟩
+
+private theorem isReduced_boundary_flip {Q : BinaryQuadraticForm}
+    (hb_abs : |Q.b| ≤ Q.a) (hno_swap : ¬ Q.a > Q.c) (hboundary : Q.a = Q.c ∧ Q.b < 0) :
+    (BinaryQuadraticForm.mk Q.a (-Q.b) Q.c).IsReduced := by
+  rw [isReduced_mk_iff]
+  have hb_nonneg : 0 ≤ -Q.b := by linarith
+  refine ⟨?_, le_of_not_gt hno_swap, ?_, ?_⟩
+  · simpa [abs_neg] using hb_abs
+  · intro _
+    exact hb_nonneg
+  · intro _
+    exact hb_nonneg
+
+private theorem reduceForm_eq (Q : BinaryQuadraticForm) (hpos : Q.IsPositiveDefinite) :
+    reduceForm Q hpos =
+      (have ha_pos : 0 < Q.a := hpos.1
+       let Q₁ := normalizeB Q ha_pos
+       have hdisc₁ : Q₁.disc < 0 := by
+         have h_eq : Q₁.disc = Q.disc :=
+           disc_transform Q (translateSL2Z (normalizeB_k Q.a Q.b ha_pos))
+         rw [h_eq]
+         exact hpos.2
+       have ha₁_eq : Q₁.a = Q.a := normalizeB_a Q ha_pos
+       have _ha₁_pos : 0 < Q₁.a := by
+         rw [ha₁_eq]
+         exact ha_pos
+       have hc₁_pos_of_disc_lt : 0 < Q₁.c := by
+         have hdisc_form : Q₁.b ^ 2 - 4 * Q₁.a * Q₁.c < 0 := by
+           simpa [disc] using hdisc₁
+         have _hsq_nonneg : 0 ≤ Q₁.b ^ 2 := pow_two_nonneg _
+         nlinarith
+       if _h_swap : Q₁.a > Q₁.c then
+         let Q₂ : BinaryQuadraticForm := ⟨Q₁.c, -Q₁.b, Q₁.a⟩
+         have hpos₂ : Q₂.IsPositiveDefinite := by
+           have ha₂ : 0 < Q₂.a := by
+             simpa [Q₂] using hc₁_pos_of_disc_lt
+           have hdisc₂ : Q₂.disc < 0 := by
+             calc
+               Q₂.disc = (-Q₁.b) ^ 2 - 4 * Q₁.c * Q₁.a := rfl
+               _ = Q₁.b ^ 2 - 4 * Q₁.a * Q₁.c := by ring
+               _ < 0 := by
+                 simpa [disc] using hdisc₁
+           exact ⟨ha₂, hdisc₂⟩
+         reduceForm Q₂ hpos₂
+       else
+         if Q₁.a = Q₁.c ∧ Q₁.b < 0 then
+           ⟨Q₁.a, -Q₁.b, Q₁.c⟩
+         else
+           Q₁) := by
+  unfold reduceForm
+  rfl
+
+private theorem reduceForm_correct (Q : BinaryQuadraticForm) (hpos : Q.IsPositiveDefinite) :
+    ProperEquivalent Q (reduceForm Q hpos) ∧ (reduceForm Q hpos).IsReduced := by
+  let P : ℕ → Prop := fun n => ∀ Q : BinaryQuadraticForm,
+    ∀ hpos : Q.IsPositiveDefinite, Q.a.natAbs = n →
+      ProperEquivalent Q (reduceForm Q hpos) ∧ (reduceForm Q hpos).IsReduced
+  have hP : ∀ n, P n := by
+    intro n
+    induction n using Nat.strong_induction_on with
+    | h n ih =>
+      intro Q hpos hn
+      have ha_pos : 0 < Q.a := hpos.1
+      let Q₁ := normalizeB Q ha_pos
+      have hdisc₁ : Q₁.disc < 0 := by
+        have h_eq : Q₁.disc = Q.disc :=
+          disc_transform Q (translateSL2Z (normalizeB_k Q.a Q.b ha_pos))
+        rw [h_eq]
+        exact hpos.2
+      have ha₁_eq : Q₁.a = Q.a := normalizeB_a Q ha_pos
+      have hc₁_pos : 0 < Q₁.c := by
+        have hdisc_form : Q₁.b ^ 2 - 4 * Q₁.a * Q₁.c < 0 := by
+          simpa [disc] using hdisc₁
+        have hsq_nonneg : 0 ≤ Q₁.b ^ 2 := pow_two_nonneg _
+        nlinarith
+      have hbounds : -Q.a < Q₁.b ∧ Q₁.b ≤ Q.a := by
+        have := normalizeB_bounds Q ha_pos
+        simpa [Q₁] using this
+      rcases hbounds with ⟨hb_left, hb_right⟩
+      have hb_left₁ : -Q₁.a < Q₁.b := by
+        simpa [ha₁_eq] using hb_left
+      have hb_abs : |Q₁.b| ≤ Q₁.a := by
+        rw [ha₁_eq, abs_le]
+        constructor <;> linarith
+      have hQ_Q₁ : ProperEquivalent Q Q₁ := by
+        simpa [Q₁] using normalizeB_properEquivalent Q ha_pos
+      rw [reduceForm_eq Q hpos]
+      by_cases h_swap : Q₁.a > Q₁.c
+      · rw [dif_pos h_swap]
+        let Q₂ : BinaryQuadraticForm := ⟨Q₁.c, -Q₁.b, Q₁.a⟩
+        have hpos₂ : Q₂.IsPositiveDefinite := by
+          have ha₂ : 0 < Q₂.a := by
+            simpa [Q₂] using hc₁_pos
+          have hdisc₂ : Q₂.disc < 0 := by
+            calc
+              Q₂.disc = (-Q₁.b) ^ 2 - 4 * Q₁.c * Q₁.a := rfl
+              _ = Q₁.b ^ 2 - 4 * Q₁.a * Q₁.c := by
+                ring
+              _ < 0 := by
+                simpa [disc] using hdisc₁
+          exact ⟨ha₂, hdisc₂⟩
+        have hmeasure : Q₂.a.natAbs < n := by
+          have hnat : Q₁.c.natAbs < Q.a.natAbs := by
+            apply Int.ofNat_lt.mp
+            calc
+              (Q₁.c.natAbs : ℤ) = Q₁.c := Int.natAbs_of_nonneg (le_of_lt hc₁_pos)
+              _ < Q₁.a := h_swap
+              _ = Q.a := ha₁_eq
+              _ = (Q.a.natAbs : ℤ) := (Int.natAbs_of_nonneg (le_of_lt hpos.1)).symm
+          simpa [Q₂, hn] using hnat
+        have hrec := ih Q₂.a.natAbs hmeasure Q₂ hpos₂ rfl
+        have hQ₁_Q₂ : ProperEquivalent Q₁ Q₂ := by
+          simpa [Q₂] using swap_properEquivalent Q₁
+        exact ⟨hQ_Q₁.trans (hQ₁_Q₂.trans hrec.1), hrec.2⟩
+      · rw [dif_neg h_swap]
+        by_cases hboundary : Q₁.a = Q₁.c ∧ Q₁.b < 0
+        · rw [if_pos hboundary]
+          have hQ₁_flip : ProperEquivalent Q₁ ⟨Q₁.a, -Q₁.b, Q₁.c⟩ :=
+            boundary_flip_properEquivalent hboundary.1
+          have hred : (BinaryQuadraticForm.mk Q₁.a (-Q₁.b) Q₁.c).IsReduced :=
+            isReduced_boundary_flip hb_abs h_swap hboundary
+          exact ⟨hQ_Q₁.trans hQ₁_flip, hred⟩
+        · rw [if_neg hboundary]
+          exact ⟨hQ_Q₁, isReduced_of_normalized_no_swap hb_left₁ hb_abs h_swap hboundary⟩
+  exact hP Q.a.natAbs Q hpos rfl
+
 /-- The result of `reduceForm` is properly equivalent to the input. -/
 theorem reduceForm_properEquivalent (Q : BinaryQuadraticForm)
     (hpos : Q.IsPositiveDefinite) :
     ProperEquivalent Q (reduceForm Q hpos) := by
-  -- Each step is a proper equivalence: normalizeB is a translation T^k,
-  -- swap is the SL₂ matrix [[0,1],[-1,0]], and the boundary fix flips b sign
-  -- (equivalent to negation).  By induction on the recursion, these chain.
-  -- TODO: formalise by well-founded induction on the termination measure.
-  sorry
+  exact (reduceForm_correct Q hpos).1
 
-/-- The result of `reduceForm` is reduced.  The non-recursive termination branch
-is fully proved.  The recursive (swap) branch requires well-founded induction
-on `a.natAbs` (TODO). -/
+/-- The result of `reduceForm` is reduced. -/
 theorem reduceForm_isReduced (Q : BinaryQuadraticForm)
     (hpos : Q.IsPositiveDefinite) :
     (reduceForm Q hpos).IsReduced := by
-  have ha_pos : 0 < Q.a := hpos.1
-  let Q₁ := normalizeB Q ha_pos
-  have ha₁_eq : Q₁.a = Q.a := normalizeB_a Q ha_pos
-  have hbounds : -Q.a < Q₁.b ∧ Q₁.b ≤ Q.a := by
-    have := normalizeB_bounds Q ha_pos; simpa [Q₁] using this
-  rcases hbounds with ⟨hbl, hbr⟩
-  have h_abs : |Q₁.b| ≤ Q₁.a := by
-    rw [ha₁_eq, abs_le]; constructor <;> linarith
-  -- Case-split on the conditions in reduceForm
-  by_cases h_swap : Q₁.a > Q₁.c
-  · -- Recursive swap branch: needs well-founded induction on a.natAbs.
-    -- The non-recursive branches below are fully proved.
-    sorry
-  · -- Non-recursive: ¬ (a > c) → a ≤ c.
-    -- In this branch reduceForm returns either ⟨a, -b, c⟩ or normalizeB directly.
-    -- Both outputs satisfy IsReduced by construction (see docstring).
-    -- The proof reduces to checking the four IsReduced conditions, which are
-    -- immediate from normalizeB_bounds and the branch conditions.
-    -- TODO: avoid rw [reduceForm] which expands internal let binders untractably.
-    sorry
+  exact (reduceForm_correct Q hpos).2
 
 /-! ## Regression: reduction on spike forms
 
@@ -258,7 +401,10 @@ def testReducePrincipal : BinaryQuadraticForm :=
 
 #eval testReducePrincipal
 example : testReducePrincipal = BinaryQuadraticForm.mk 1 0 21 := by
-  native_decide
+  unfold testReducePrincipal
+  rw [reduceForm_eq]
+  norm_num [normalizeB, normalizeB_k, normalizeB_b, disc]
+  exact transform_one _
 
 def testReduceNonPrincipal : BinaryQuadraticForm :=
   let Q := BinaryQuadraticForm.mk 2 2 11
@@ -269,7 +415,10 @@ def testReduceNonPrincipal : BinaryQuadraticForm :=
 
 #eval testReduceNonPrincipal
 example : testReduceNonPrincipal = BinaryQuadraticForm.mk 2 2 11 := by
-  native_decide
+  unfold testReduceNonPrincipal
+  rw [reduceForm_eq]
+  norm_num [normalizeB, normalizeB_k, normalizeB_b, disc]
+  exact transform_one _
 
 def testReduceNonReduced : BinaryQuadraticForm :=
   let Q := BinaryQuadraticForm.mk 6 6 5
@@ -280,7 +429,12 @@ def testReduceNonReduced : BinaryQuadraticForm :=
 
 #eval testReduceNonReduced
 example : testReduceNonReduced = BinaryQuadraticForm.mk 5 4 5 := by
-  native_decide
+  unfold testReduceNonReduced
+  rw [reduceForm_eq]
+  norm_num [normalizeB, normalizeB_k, normalizeB_b, disc]
+  rw [reduceForm_eq]
+  norm_num [normalizeB, normalizeB_k, normalizeB_b, disc]
+  rfl
 
 end Reduce
 
