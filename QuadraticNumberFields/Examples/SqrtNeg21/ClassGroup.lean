@@ -22,27 +22,27 @@ example : NumberField.classNumber (Qsqrtd (-47 : ℤ)) = 5 := by
           compute_class_number_qsqrtd
 
 
-set_option maxRecDepth 10000
-instance : Fact (Prime (2347 : ℤ)) := by decide
+-- set_option maxRecDepth 10000
+-- instance : Fact (Prime (2347 : ℤ)) := by decide
 
 
-example : NumberField.classNumber (Qsqrtd (-2347 : ℤ)) = 5 := by
-          compute_class_number_qsqrtd
+-- example : NumberField.classNumber (Qsqrtd (-2347 : ℤ)) = 5 := by
+--           compute_class_number_qsqrtd
 
 
-theorem prime_61 : Prime 61 := by decide
-theorem prime_131 : Prime 131 := by decide
+-- theorem prime_61 : Prime 61 := by decide
+-- theorem prime_131 : Prime 131 := by decide
 
-instance :Fact ((-7991 : ℤ) ≠ 1) := by decide
-instance : Fact (Squarefree (-7991 : ℤ)) :=
-    ⟨Int.squarefree_natAbs.mp (by
-      change Squarefree (7991 : ℕ)
-      rw [show (7991 : ℕ) = 61 * 131 by norm_num]
-      rw [Nat.squarefree_mul (by norm_num : Nat.Coprime 61 131)]
-      exact ⟨prime_61.squarefree, prime_131.squarefree⟩)⟩
+-- instance :Fact ((-7991 : ℤ) ≠ 1) := by decide
+-- instance : Fact (Squarefree (-7991 : ℤ)) :=
+--     ⟨Int.squarefree_natAbs.mp (by
+--       change Squarefree (7991 : ℕ)
+--       rw [show (7991 : ℕ) = 61 * 131 by norm_num]
+--       rw [Nat.squarefree_mul (by norm_num : Nat.Coprime 61 131)]
+--       exact ⟨prime_61.squarefree, prime_131.squarefree⟩)⟩
 
-example : NumberField.classNumber (Qsqrtd (-7991 : ℤ)) = 100 := by
-          compute_class_number_qsqrtd
+-- example : NumberField.classNumber (Qsqrtd (-7991 : ℤ)) = 100 := by
+--           compute_class_number_qsqrtd
 -- #eval 61*131
 
 -- theorem prime_151 : Prime 151 := by decide
