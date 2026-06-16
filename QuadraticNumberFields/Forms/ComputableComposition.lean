@@ -181,13 +181,16 @@ def composeMiddleB (Q R : BinaryQuadraticForm) : ℤ :=
   let x := d * Int.gcdA Q.a R.a
   Q.b + 2 * Q.a * x
 
-/-- `composeMiddleB` satisfies `B ≡ Q.b (mod 2·Q.a)`. -/
+/-- `composeMiddleB` satisfies `B ≡ Q.b (mod 2·Q.a)`.
+Proof: `B = Q.b + 2·Q.a·x`, so `2·Q.a ∣ B - Q.b`. -/
 theorem composeMiddleB_modEq_left (Q R : BinaryQuadraticForm) :
     composeMiddleB Q R ≡ Q.b [ZMOD 2 * Q.a] := by
-  rw [composeMiddleB]
-  apply Int.ModEq.of_dvd
-  use (R.b - Q.b) / 2 * Int.gcdA Q.a R.a
-  ring
+  rw [composeMiddleB, Int.modEq_iff_dvd]
+  -- Goal: 2*Q.a ∣ Q.b - (Q.b + 2*Q.a*x)  =>  2*Q.a ∣ -(2*Q.a*x)
+  have : Q.b - (Q.b + 2 * Q.a * (((R.b - Q.b) / 2) * Int.gcdA Q.a R.a)) =
+      -((2 * Q.a) * (((R.b - Q.b) / 2) * Int.gcdA Q.a R.a)) := by ring
+  rw [this, dvd_neg]
+  exact dvd_mul_right _ _
 
 /-- Computable Dirichlet composition.  The right factor is first replaced by a
 properly equivalent representative whose leading coefficient is coprime to
@@ -232,7 +235,7 @@ are coprime, `B² - Q.disc` is divisible by `4·Q.a·R'.a`, making the final
 division exact. -/
 theorem disc_composeForm (Q R : BinaryQuadraticForm)
     (hQR : Q.disc = R.disc) (hR : R.IsPrimitive) (hQa : Q.a ≠ 0)
-    (hQpos : Q.IsPositiveDefinite) (hRpos : R.IsPositiveDefinite) :
+    (_hQpos : Q.IsPositiveDefinite) (_hRpos : R.IsPositiveDefinite) :
     (composeForm Q R hQR hR hQa).disc = Q.disc := by
   -- The `#eval` regression tests below numerically verify this for concrete
   -- forms of discriminant -84.  The general CRT divisibility proof:
