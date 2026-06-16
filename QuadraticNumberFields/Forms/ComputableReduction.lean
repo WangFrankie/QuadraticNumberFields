@@ -1,0 +1,199 @@
+/-
+Copyright (c) 2026 Frankie Wang. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Frankie Wang
+-/
+
+import QuadraticNumberFields.Forms.GaussComposition
+import QuadraticNumberFields.Forms.Reduction
+
+/-!
+# Computable Gauss Reduction
+
+This file provides a computable Gauss reduction algorithm `reduceForm` for
+primitive positive-definite binary quadratic forms.
+
+## Algorithm
+
+Given `Q = (a, b, c)` with `a > 0` and `disc < 0`:
+
+1. **Normalise** `b` into `(-a, a]` by a translation `T^k`.
+2. If `a > c`, **swap** `(a, c)` and negate `b`, then recurse.
+3. Otherwise, if `a = c` and `b < 0`, flip the sign of `b`.
+4. Return the result.
+
+Termination: the swap step replaces `a` with `c` where `a > c`, and both are
+positive by the positive-definite hypothesis, so the `Nat` measure decreases.
+-/
+
+namespace QuadraticNumberFields
+namespace BinaryQuadraticForm
+
+section NormalizeB
+
+/-- The value of `b` after normalisation into `(-a, a]`.  Computed as
+`b mod (2a)`, shifted into that interval. -/
+def normalizeB_b (a b : ℤ) (_ha : 0 < a) : ℤ :=
+  let r := b % (2 * a)
+  if r ≤ a then r else r - 2 * a
+
+/-- The `k` in `T^k` that achieves the normalisation. -/
+def normalizeB_k (a b : ℤ) (ha : 0 < a) : ℤ :=
+  (normalizeB_b a b ha - b) / (2 * a)
+
+/-- Apply the translation `T^k` to normalise the middle coefficient. -/
+def normalizeB (Q : BinaryQuadraticForm) (ha : 0 < Q.a) : BinaryQuadraticForm :=
+  let k := normalizeB_k Q.a Q.b ha
+  transform Q (translateSL2Z k)
+
+@[simp] theorem normalizeB_a (Q : BinaryQuadraticForm) (ha : 0 < Q.a) :
+    (normalizeB Q ha).a = Q.a := by
+  simp [normalizeB, transform_translate_a]
+
+/-- The middle coefficient after normalisation lies in `(-a, a]`. -/
+theorem normalizeB_bounds (Q : BinaryQuadraticForm) (ha : 0 < Q.a) :
+    let Q' := normalizeB Q ha
+    (-Q.a < Q'.b ∧ Q'.b ≤ Q.a) := by
+  -- The bound follows from the construction of b' = b mod (2a) adjusted to (-a, a].
+  -- TODO: formalise the modular-arithmetic bound.
+  sorry
+
+end NormalizeB
+
+section Reduce
+
+/-- **Positive c** lemma: for a positive-definite form with `a > 0`,
+the trailing coefficient `c` is also positive.  This follows from
+`disc = b² - 4ac < 0`. -/
+theorem c_pos_of_isPositiveDefinite {Q : BinaryQuadraticForm}
+    (hpos : Q.IsPositiveDefinite) : 0 < Q.c := by
+  rcases hpos with ⟨ha, hdisc⟩
+  have hdisc' : Q.b ^ 2 - 4 * Q.a * Q.c < 0 := by
+    simpa [disc] using hdisc
+  have hsq_nonneg : 0 ≤ Q.b ^ 2 := pow_two_nonneg _
+  nlinarith
+
+/-- Computable Gauss reduction for positive-definite binary quadratic forms.
+
+Termination: the swap step replaces `a` with `c` where `a > c`.  Since
+positive-definite forms have `a > 0` and `c > 0`, the natural-number measure
+`a.natAbs` strictly decreases. -/
+def reduceForm (Q : BinaryQuadraticForm) (hpos : Q.IsPositiveDefinite) :
+    BinaryQuadraticForm :=
+  have ha_pos : 0 < Q.a := hpos.1
+  let Q₁ := normalizeB Q ha_pos
+  -- Q₁ has the same discriminant as Q (translation preserves disc)
+  have hdisc₁ : Q₁.disc < 0 := by
+    have h_eq : Q₁.disc = Q.disc :=
+      disc_transform Q (translateSL2Z (normalizeB_k Q.a Q.b ha_pos))
+    rw [h_eq]
+    exact hpos.2
+  -- Q₁.a = Q.a (translation preserves a)
+  have ha₁_eq : Q₁.a = Q.a := normalizeB_a Q ha_pos
+  -- Q₁.a > 0
+  have ha₁_pos : 0 < Q₁.a := by rw [ha₁_eq]; exact ha_pos
+  -- from disc < 0 and a > 0, deduce c > 0 for any such form
+  have hc₁_pos_of_disc_lt : 0 < Q₁.c := by
+    have hdisc_form : Q₁.b ^ 2 - 4 * Q₁.a * Q₁.c < 0 := by
+      simpa [disc] using hdisc₁
+    have hsq_nonneg : 0 ≤ Q₁.b ^ 2 := pow_two_nonneg _
+    nlinarith
+  if h_swap : Q₁.a > Q₁.c then
+    -- Swap a ↔ c and negate b, then recurse.
+    let Q₂ : BinaryQuadraticForm := ⟨Q₁.c, -Q₁.b, Q₁.a⟩
+    have hpos₂ : Q₂.IsPositiveDefinite := by
+      have ha₂ : 0 < Q₂.a := by
+        simpa [Q₂] using hc₁_pos_of_disc_lt
+      have hdisc₂ : Q₂.disc < 0 := by
+        calc
+          Q₂.disc = (-Q₁.b) ^ 2 - 4 * Q₁.c * Q₁.a := rfl
+          _ = Q₁.b ^ 2 - 4 * Q₁.a * Q₁.c := by ring
+          _ < 0 := by
+            simpa [disc] using hdisc₁
+      exact ⟨ha₂, hdisc₂⟩
+    reduceForm Q₂ hpos₂
+  else
+    -- No swap needed: check the boundary condition a = c ∧ b < 0
+    if Q₁.a = Q₁.c ∧ Q₁.b < 0 then
+      ⟨Q₁.a, -Q₁.b, Q₁.c⟩
+    else
+      Q₁
+termination_by Q.a.natAbs
+decreasing_by
+  -- Goal: Q₂.a.natAbs < Q.a.natAbs, i.e., Q₁.c.natAbs < Q.a.natAbs
+  have hc₁_pos : 0 < Q₁.c := hc₁_pos_of_disc_lt
+  have h_lt : Q₁.c < Q.a := by
+    calc
+      Q₁.c < Q₁.a := h_swap
+      _ = Q.a := ha₁_eq
+  apply Int.ofNat_lt.mp
+  calc
+    (Q₁.c.natAbs : ℤ) = Q₁.c := Int.natAbs_of_nonneg (le_of_lt hc₁_pos)
+    _ < Q.a := h_lt
+    _ = (Q.a.natAbs : ℤ) := (Int.natAbs_of_nonneg (le_of_lt hpos.1)).symm
+
+/-- The result of `reduceForm` is properly equivalent to the input. -/
+theorem reduceForm_properEquivalent (Q : BinaryQuadraticForm)
+    (hpos : Q.IsPositiveDefinite) :
+    ProperEquivalent Q (reduceForm Q hpos) := by
+  -- Each step (normalizeB: translation, swap: SL₂ matrix [[0,1],[-1,0]])
+  -- is a proper equivalence.  The proof chains these equivalences along
+  -- the recursion tree by induction.
+  -- TODO: formalise the invariant.
+  sorry
+
+/-- The result of `reduceForm` is reduced. -/
+theorem reduceForm_isReduced (Q : BinaryQuadraticForm)
+    (hpos : Q.IsPositiveDefinite) :
+    (reduceForm Q hpos).IsReduced := by
+  -- By construction: after termination, |b| ≤ a (normalizeB ensures this),
+  -- a ≤ c (otherwise we would have swapped), and boundary conditions hold.
+  -- TODO: formalise from the algorithm invariants.
+  sorry
+
+/-! ## Regression: reduction on spike forms
+
+The spike forms from `d = -21` (`disc = -84`) are:
+`(1,0,21)`, `(2,2,11)`, `(3,0,7)`, `(5,4,5)`.
+
+All four happen to already be reduced, so `reduceForm` should return them
+unchanged.  We also test a non-reduced form `(6, 6, 5)` which reduces to
+`(5, 4, 5)`. -/
+
+def testReducePrincipal : BinaryQuadraticForm :=
+  let Q := BinaryQuadraticForm.mk 1 0 21
+  have hpos : Q.IsPositiveDefinite := by
+    refine ⟨by norm_num, ?_⟩
+    unfold disc; norm_num
+  reduceForm Q hpos
+
+#eval testReducePrincipal
+example : testReducePrincipal = BinaryQuadraticForm.mk 1 0 21 := by
+  native_decide
+
+def testReduceNonPrincipal : BinaryQuadraticForm :=
+  let Q := BinaryQuadraticForm.mk 2 2 11
+  have hpos : Q.IsPositiveDefinite := by
+    refine ⟨by norm_num, ?_⟩
+    unfold disc; norm_num
+  reduceForm Q hpos
+
+#eval testReduceNonPrincipal
+example : testReduceNonPrincipal = BinaryQuadraticForm.mk 2 2 11 := by
+  native_decide
+
+def testReduceNonReduced : BinaryQuadraticForm :=
+  let Q := BinaryQuadraticForm.mk 6 6 5
+  have hpos : Q.IsPositiveDefinite := by
+    refine ⟨by norm_num, ?_⟩
+    unfold disc; norm_num
+  reduceForm Q hpos
+
+#eval testReduceNonReduced
+example : testReduceNonReduced = BinaryQuadraticForm.mk 5 4 5 := by
+  native_decide
+
+end Reduce
+
+end BinaryQuadraticForm
+end QuadraticNumberFields
