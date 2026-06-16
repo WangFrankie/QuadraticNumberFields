@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 
+import QuadraticNumberFields.Forms.Enumeration
 import QuadraticNumberFields.Forms.Structure
 
 /-!
@@ -26,6 +27,16 @@ section ReducedRepresentatives
 
 variable {D : ℤ}
 
+/-- The finite representative type of reduced primitive positive definite
+forms of discriminant `D`, backed by the enumerator. -/
+abbrev ReducedFormRep (D : ℤ) : Type :=
+  { Q : BinaryQuadraticForm // Q ∈ enumPrimitiveReducedForms D }
+
+/-- Interpret an enumerated reduced form as its proper-equivalence class. -/
+def ReducedFormRep.formClass (Q : ReducedFormRep D) : FormClass D :=
+  Quotient.mk (primitivePositiveDefiniteFormSetoid D)
+    (primitivePositiveDefiniteFormOfMemEnum Q.2)
+
 /-- The reduced representative of a form class, chosen using Gauss reduction. -/
 noncomputable def reducedRepresentative (C : FormClass D) : PrimitivePositiveDefiniteForm D :=
   Classical.choose (exists_isReduced_mk_eq_formClass C)
@@ -39,6 +50,27 @@ theorem reducedRepresentative_isReduced (C : FormClass D) :
 theorem reducedRepresentative_mk_eq (C : FormClass D) :
     Quotient.mk (primitivePositiveDefiniteFormSetoid D) (reducedRepresentative C) = C :=
   (Classical.choose_spec (exists_isReduced_mk_eq_formClass C)).2
+
+/-- The chosen reduced representative belongs to the finite reduced-form
+enumeration. -/
+theorem reducedRepresentative_mem_enum (C : FormClass D) :
+    (reducedRepresentative C).1 ∈ enumPrimitiveReducedForms D :=
+  mem_enumPrimitiveReducedForms_of_reduced
+    (reducedRepresentative C).2.1
+    (reducedRepresentative C).2.2.2
+    (reducedRepresentative_isReduced C)
+    (reducedRepresentative C).2.2.1
+
+/-- The chosen reduced representative as an element of the finite enumerated
+representative type. -/
+noncomputable def reducedRepresentativeRep (C : FormClass D) : ReducedFormRep D :=
+  ⟨(reducedRepresentative C).1, reducedRepresentative_mem_enum C⟩
+
+/-- The chosen reduced representative represents the original form class. -/
+theorem reducedRepresentativeRep_formClass (C : FormClass D) :
+    (reducedRepresentativeRep C).formClass = C := by
+  simpa [ReducedFormRep.formClass, reducedRepresentativeRep,
+    primitivePositiveDefiniteFormOfMemEnum] using reducedRepresentative_mk_eq C
 
 /-- Any reduced representative of a form class is the chosen reduced
 representative of that class. -/
@@ -80,6 +112,24 @@ theorem reducedProductRepresentative_isReduced
     (reducedProductRepresentative hdneg C E).1.IsReduced := by
   letI := formClassCommGroup hdneg
   exact reducedRepresentative_isReduced (C * E)
+
+/-- Multiplication on finite reduced-form representatives, using the
+Cox-transported class-group law and reducing back to the finite enumeration.
+
+Explicit Gauss composition should eventually compute the same representative. -/
+noncomputable def reducedFormRepMul
+    (Q R : ReducedFormRep (fieldDiscriminant d)) :
+    ReducedFormRep (fieldDiscriminant d) := by
+  letI := formClassCommGroup hdneg
+  exact reducedRepresentativeRep (Q.formClass * R.formClass)
+
+/-- The finite representative multiplication represents class multiplication. -/
+theorem reducedFormRepMul_formClass
+    (Q R : ReducedFormRep (fieldDiscriminant d)) :
+    haveI := formClassCommGroup hdneg
+    (reducedFormRepMul hdneg Q R).formClass = Q.formClass * R.formClass := by
+  letI := formClassCommGroup hdneg
+  exact reducedRepresentativeRep_formClass (Q.formClass * R.formClass)
 
 /-- Any reduced form representing the product class is the chosen reduced
 product representative. -/
