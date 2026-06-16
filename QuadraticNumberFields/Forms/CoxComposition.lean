@@ -357,6 +357,28 @@ theorem idealClassOfForm_composeConcordant_of_mod_four_eq_one
   apply Subtype.ext
   exact idealOfForm_composeConcordant_of_mod_four_eq_one hd4 Q R h
 
+/-- Branch-independent Cox-map version of ideal-class multiplicativity for
+direct concordant Gauss composition. -/
+theorem formClassToClassGroup_composeConcordant
+    {d : ℤ} [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (Q R : PrimitivePositiveDefiniteForm (fieldDiscriminant d))
+    (h : Q.1.IsConcordant R.1) :
+    formClassToClassGroup d
+        (Quotient.mk (primitivePositiveDefiniteFormSetoid _) (composeConcordant Q R h)) =
+      formClassToClassGroup d
+          (Quotient.mk (primitivePositiveDefiniteFormSetoid _) Q) *
+        formClassToClassGroup d
+          (Quotient.mk (primitivePositiveDefiniteFormSetoid _) R) := by
+  by_cases hd4 : d % 4 = 1
+  · rw [formClassToClassGroup_mk_eq_of_mod_four_eq_one d hd4]
+    rw [formClassToClassGroup_mk_eq_of_mod_four_eq_one d hd4]
+    rw [formClassToClassGroup_mk_eq_of_mod_four_eq_one d hd4]
+    exact idealClassOfForm_composeConcordant_of_mod_four_eq_one hd4 Q R h
+  · rw [formClassToClassGroup_mk_eq_of_mod_four_ne_one d hd4]
+    rw [formClassToClassGroup_mk_eq_of_mod_four_ne_one d hd4]
+    rw [formClassToClassGroup_mk_eq_of_mod_four_ne_one d hd4]
+    exact idealClassOfForm_composeConcordant_of_mod_four_ne_one hd4 Q R h
+
 end PrimitivePositiveDefiniteForm
 
 end BinaryQuadraticForm

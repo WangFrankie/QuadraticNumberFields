@@ -23,9 +23,9 @@ typeclass inference on the `Quotient` type.
 
 ## TODO
 
-When explicit Gauss / Dirichlet composition is available:
-* Replace `formClassCommGroup` with the explicit formula
-* Prove that transported multiplication agrees with Gauss composition
+The Cox ideal-class bridge for direct concordant Gauss composition is now staged
+separately.  The remaining Gauss-composition work is quotient-level
+well-definedness and agreement with this transported multiplication.
 -/
 
 open scoped NumberField
@@ -43,7 +43,8 @@ variable {d : ℤ} [Fact (Squarefree d)] [Fact (d ≠ 1)]
 the Cox 7.7 equivalence.  This is a `def` (not an `instance`) to avoid
 uncontrolled typeclass inference on the `Quotient` type.
 
-TODO: replace with explicit Gauss / Dirichlet composition when available. -/
+TODO: after quotient-level Gauss composition is well-defined, prove it agrees
+with this transported multiplication. -/
 @[reducible]
 noncomputable def formClassCommGroup (hdneg : d < 0) :
     CommGroup (FormClass (fieldDiscriminant d)) :=
@@ -52,7 +53,9 @@ noncomputable def formClassCommGroup (hdneg : d < 0) :
 /-- The Cox 7.7 equivalence preserves multiplication when `FormClass` carries
 the transported group structure.
 
-TODO: prove agreement with Gauss composition when available. -/
+TODO: use the Cox composition bridge to identify transported multiplication
+with quotient-level explicit Gauss composition once representative
+well-definedness is available. -/
 theorem formClassEquivClassGroup_mul (hdneg : d < 0) (x y : FormClass (fieldDiscriminant d)) :
     haveI := formClassCommGroup hdneg
     formClassEquivClassGroup hdneg (x * y) =
