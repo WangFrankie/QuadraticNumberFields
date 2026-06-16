@@ -158,5 +158,20 @@ theorem unitedRep_isUnited {Q R : BinaryQuadraticForm}
   · exact hQR.trans (disc_eq_of_properEquivalent (unitedRep_properEquivalent Q R hR hQa))
   · exact coeffGCD3_eq_one_of_gcd_left (gcd_left_a_unitedRep Q R hR hQa)
 
+/-! ## Computable Dirichlet composition -/
+
+/-- Computable Dirichlet composition of forms after replacing the right factor
+by a properly equivalent representative united with the left factor. -/
+def composeForm (Q R : BinaryQuadraticForm)
+    (hQR : Q.disc = R.disc) (hR : R.IsPrimitive) (hQa : Q.a ≠ 0) :
+    BinaryQuadraticForm :=
+  composeUnited Q (unitedRep Q R hR hQa)
+    (unitedBezout (unitedRep_isUnited hQR hR hQa))
+
+@[simp] theorem composeForm_a (Q R : BinaryQuadraticForm)
+    (hQR : Q.disc = R.disc) (hR : R.IsPrimitive) (hQa : Q.a ≠ 0) :
+    (composeForm Q R hQR hR hQa).a = Q.a * (unitedRep Q R hR hQa).a :=
+  rfl
+
 end BinaryQuadraticForm
 end QuadraticNumberFields
