@@ -68,19 +68,23 @@ def gaussMul (hdneg : d < 0) (Q R : ReducedFormRep D) :
   -- discriminant preservation (a > 0 by construction, disc < 0 shown below).
   let comp := composeForm Qf Rf hQR hRprim hQa
   have hcomp_pos : comp.IsPositiveDefinite := by
-    -- The leading coefficient is Qf.a * (unitedRep ...).a, product of positives.
-    -- The discriminant is Qf.disc = D < 0 (by preservation).  Both proofs
-    -- are deferred to the `disc_composeForm` theorem.
     have ha_pos : 0 < comp.a := by
       rw [composeForm_a]
       apply mul_pos hQpos.1
-      -- unitedRep leading coefficient = Rf.eval(coprime vector) > 0
-      -- for a positive-definite form at a nonzero (primitive) vector.
-      -- TODO: formalise this positivity lemma.
-      sorry
+      -- R'.a = Rf.eval(coprimeEvalVector Rf Qf.a hRprim hQa), positive by
+      -- eval_pos_of_isPositiveDefinite from Action.lean
+      rw [unitedRep_a]
+      have hxy_nonzero : (coprimeEvalVector Rf Qf.a hRprim hQa).1 ≠ 0 ∨
+          (coprimeEvalVector Rf Qf.a hRprim hQa).2 ≠ 0 := by
+        have hgcd := coprimeEvalVector_gcd Rf Qf.a hRprim hQa
+        by_contra! hboth
+        rcases hboth with ⟨hx, hy⟩
+        rw [hx, hy] at hgcd; simp at hgcd
+      exact eval_pos_of_isPositiveDefinite Rf hRpos hxy_nonzero
     have hdisc_lt : comp.disc < 0 := by
-      -- Follows from `disc_composeForm` (which uses hdneg)
-      sorry
+      rw [disc_composeForm Qf Rf hQR hRprim hQa hQpos hRpos]
+      rw [hdiscQ]
+      exact fieldDiscriminant_neg hdneg
     exact ⟨ha_pos, hdisc_lt⟩
   reduceForm comp hcomp_pos
 
