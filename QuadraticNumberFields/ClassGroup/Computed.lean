@@ -7,6 +7,7 @@ Authors: Frankie Wang
 import Mathlib.Data.ZMod.Basic
 import QuadraticNumberFields.ClassNumber
 import QuadraticNumberFields.Forms.ClassGroupLaw
+import QuadraticNumberFields.Forms.ClassNumber
 
 /-!
 # Computed Class Groups
@@ -70,6 +71,22 @@ noncomputable def card (G : ComputedClassGroup d) : ℕ :=
 /-- The multiplication table of a computed class-group model. -/
 def mulTable (G : ComputedClassGroup d) : G.Rep → G.Rep → G.Rep :=
   G.mul
+
+/-- Class-number-one shortcut for a computed class-group model: if the computed
+representative type has cardinality one, every ideal class is trivial. -/
+theorem eq_one_of_card_eq_one (G : ComputedClassGroup d) (hcard : G.card = 1)
+    (C : _root_.ClassGroup (𝓞 (Qsqrtd (d : ℚ)))) : C = 1 := by
+  classical
+  letI := G.instFintype
+  have hcard' : Fintype.card G.Rep = 1 := by
+    simpa [ComputedClassGroup.card] using hcard
+  have hsub : Subsingleton G.Rep :=
+    Fintype.card_le_one_iff_subsingleton.mp (by omega)
+  obtain ⟨x, hx⟩ := G.surjective C
+  calc
+    C = G.toClassGroup x := hx.symm
+    _ = G.toClassGroup G.one := congrArg G.toClassGroup (Subsingleton.elim x G.one)
+    _ = 1 := G.map_one
 
 end ComputedClassGroup
 
@@ -137,6 +154,12 @@ theorem reducedFormsComputedClassGroup_card
       (BinaryQuadraticForm.enumPrimitiveReducedForms
         (BinaryQuadraticForm.fieldDiscriminant d)).card := by
   simp [ClassGroup.ComputedClassGroup.card, reducedFormsComputedClassGroup]
+
+/-- The reduced-form computed backend recovers the class number of `ℚ(√d)`. -/
+theorem reducedFormsComputedClassGroup_card_eq_classNumberQsqrtd
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hdneg : d < 0) :
+    (reducedFormsComputedClassGroup d hdneg).card = classNumberQsqrtd d := by
+  rw [reducedFormsComputedClassGroup_card, ← classNumberQsqrtd_eq_reducedForms_card d hdneg]
 
 /-- The reduced-form computed backend uses the reduced-representative
 multiplication table. -/
