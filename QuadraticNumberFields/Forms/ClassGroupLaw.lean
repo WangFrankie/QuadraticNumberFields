@@ -32,6 +32,14 @@ forms of discriminant `D`, backed by the enumerator. -/
 abbrev ReducedFormRep (D : ℤ) : Type :=
   { Q : BinaryQuadraticForm // Q ∈ enumPrimitiveReducedForms D }
 
+/-- The finite representative type has the same cardinality as the reduced-form
+enumeration backing it. -/
+theorem reducedFormRep_card (D : ℤ) :
+    Fintype.card (ReducedFormRep D) = (enumPrimitiveReducedForms D).card := by
+  classical
+  change Fintype.card {Q : BinaryQuadraticForm // Q ∈ enumPrimitiveReducedForms D} = _
+  exact Fintype.card_coe (enumPrimitiveReducedForms D)
+
 /-- Interpret an enumerated reduced form as its proper-equivalence class. -/
 def ReducedFormRep.formClass (Q : ReducedFormRep D) : FormClass D :=
   Quotient.mk (primitivePositiveDefiniteFormSetoid D)
@@ -194,6 +202,19 @@ theorem reducedFormRep_mul_eq_reducedFormRepMul
           simp [Equiv.mul_def]
     _ = reducedFormRepEquivClassGroup hdneg (reducedFormRepMul hdneg Q R) :=
           (reducedFormRepEquivClassGroup_mul hdneg Q R).symm
+
+/-- Class-number-one shortcut on finite reduced-form representatives: if the
+enumerated representative type has cardinality one, every representative is the
+identity in the transported group. -/
+theorem reducedFormRep_eq_one_of_card_eq_one
+    (hcard : Fintype.card (ReducedFormRep (fieldDiscriminant d)) = 1)
+    (Q : ReducedFormRep (fieldDiscriminant d)) :
+    haveI := reducedFormRepCommGroup hdneg
+    Q = 1 := by
+  letI := reducedFormRepCommGroup hdneg
+  have hsub : Subsingleton (ReducedFormRep (fieldDiscriminant d)) :=
+    Fintype.card_le_one_iff_subsingleton.mp (by omega)
+  exact Subsingleton.elim Q 1
 
 /-- Any reduced form representing the product class is the chosen reduced
 product representative. -/
