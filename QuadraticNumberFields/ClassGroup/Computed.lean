@@ -6,6 +6,7 @@ Authors: Frankie Wang
 
 import Mathlib.Data.ZMod.Basic
 import QuadraticNumberFields.ClassNumber
+import QuadraticNumberFields.Forms.ClassGroupLaw
 
 /-!
 # Computed Class Groups
@@ -92,6 +93,59 @@ noncomputable def computedClassNumber (d : ℤ) [Fact (Squarefree d)] [Fact (d �
 noncomputable def classGroupMulTable (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
     (computedClassGroup d).Rep → (computedClassGroup d).Rep → (computedClassGroup d).Rep :=
   (computedClassGroup d).mulTable
+
+/-! ## Reduced-form backend target -/
+
+/-- A certified finite computed class-group model for imaginary quadratic fields,
+using reduced primitive positive definite binary quadratic forms. -/
+noncomputable def reducedFormsComputedClassGroup
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hdneg : d < 0) :
+    ClassGroup.ComputedClassGroup d := by
+  classical
+  letI := BinaryQuadraticForm.reducedFormRepCommGroup (d := d) hdneg
+  exact
+    { Rep := BinaryQuadraticForm.ReducedFormRep (BinaryQuadraticForm.fieldDiscriminant d)
+      instFintype := inferInstance
+      instDecidableEq := inferInstance
+      one := 1
+      mul := fun x y => BinaryQuadraticForm.reducedFormRepMul hdneg x y
+      inv := fun x => x⁻¹
+      toClassGroup := BinaryQuadraticForm.reducedFormRepEquivClassGroup hdneg
+      map_one := by
+        simp [Equiv.one_def]
+      map_mul := by
+        intro x y
+        exact BinaryQuadraticForm.reducedFormRepEquivClassGroup_mul hdneg x y
+      map_inv := by
+        intro x
+        simp [Equiv.inv_def]
+      surjective := (BinaryQuadraticForm.reducedFormRepEquivClassGroup hdneg).surjective
+      injective := (BinaryQuadraticForm.reducedFormRepEquivClassGroup hdneg).injective }
+
+/-- The reduced-form computed backend uses the finite reduced-form representative type. -/
+theorem reducedFormsComputedClassGroup_rep
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hdneg : d < 0) :
+    (reducedFormsComputedClassGroup d hdneg).Rep =
+      BinaryQuadraticForm.ReducedFormRep (BinaryQuadraticForm.fieldDiscriminant d) :=
+  rfl
+
+/-- The reduced-form computed backend reads off the reduced-form enumeration
+cardinality. -/
+theorem reducedFormsComputedClassGroup_card
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hdneg : d < 0) :
+    (reducedFormsComputedClassGroup d hdneg).card =
+      (BinaryQuadraticForm.enumPrimitiveReducedForms
+        (BinaryQuadraticForm.fieldDiscriminant d)).card := by
+  simp [ClassGroup.ComputedClassGroup.card, reducedFormsComputedClassGroup]
+
+/-- The reduced-form computed backend uses the reduced-representative
+multiplication table. -/
+theorem reducedFormsComputedClassGroup_mul
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hdneg : d < 0)
+    (Q R : BinaryQuadraticForm.ReducedFormRep (BinaryQuadraticForm.fieldDiscriminant d)) :
+    (reducedFormsComputedClassGroup d hdneg).mul Q R =
+      BinaryQuadraticForm.reducedFormRepMul hdneg Q R :=
+  rfl
 
 /-! ## Target examples -/
 
