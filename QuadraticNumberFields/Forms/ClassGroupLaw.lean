@@ -161,6 +161,13 @@ noncomputable def reducedFormRepEquivClassGroup (hdneg : d < 0) :
   (reducedFormRepEquivFormClass (fieldDiscriminant d)).trans
     (formClassEquivClassGroup hdneg)
 
+/-- Transported `CommGroup` structure on finite reduced-form representatives.
+This is a `def` (not an instance), matching `formClassCommGroup`. -/
+@[reducible]
+noncomputable def reducedFormRepCommGroup (hdneg : d < 0) :
+    CommGroup (ReducedFormRep (fieldDiscriminant d)) :=
+  Equiv.commGroup (reducedFormRepEquivClassGroup hdneg)
+
 /-- Multiplication on reduced representatives agrees with ideal class-group
 multiplication under the Cox equivalence. -/
 theorem reducedFormRepEquivClassGroup_mul
@@ -171,6 +178,22 @@ theorem reducedFormRepEquivClassGroup_mul
   change formClassEquivClassGroup hdneg (ReducedFormRep.formClass (reducedFormRepMul hdneg Q R)) =
     formClassEquivClassGroup hdneg Q.formClass * formClassEquivClassGroup hdneg R.formClass
   rw [reducedFormRepMul_formClass, formClassEquivClassGroup_mul]
+
+/-- The transported group multiplication on finite reduced-form representatives
+is the reduced representative product. -/
+theorem reducedFormRep_mul_eq_reducedFormRepMul
+    (Q R : ReducedFormRep (fieldDiscriminant d)) :
+    haveI := reducedFormRepCommGroup hdneg
+    Q * R = reducedFormRepMul hdneg Q R := by
+  letI := reducedFormRepCommGroup hdneg
+  apply (reducedFormRepEquivClassGroup hdneg).injective
+  calc
+    reducedFormRepEquivClassGroup hdneg (Q * R)
+        = reducedFormRepEquivClassGroup hdneg Q *
+          reducedFormRepEquivClassGroup hdneg R := by
+          simp [Equiv.mul_def]
+    _ = reducedFormRepEquivClassGroup hdneg (reducedFormRepMul hdneg Q R) :=
+          (reducedFormRepEquivClassGroup_mul hdneg Q R).symm
 
 /-- Any reduced form representing the product class is the chosen reduced
 product representative. -/
