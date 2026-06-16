@@ -70,22 +70,64 @@ private theorem normalizeB_k_eq_div2 (a b : ℤ) (ha : 0 < a) (h : ¬ b % (2 * a
     normalizeB_k a b ha = ((b % (2 * a) - 2 * a) - b) / (2 * a) := by
   unfold normalizeB_k; rw [normalizeB_b_eq_r_sub a b ha h]
 
-/-- The middle coefficient after normalisation equals the modular-adjusted value.
-The proof uses modular arithmetic on `b % (2a)`; the `ring`-normalisation issues
-with `Int.emod_add_mul_ediv` are resolved by using the variable `d := 2*Q.a`. -/
+/-- Key modular identity: `b + d * ((b % d - b) / d) = b % d`.
+Proof: `b%d - b = d*(-(b/d))`, and `(d*k)/d = k` since `d ≠ 0`. -/
+private theorem mod_cancel (b d : ℤ) (hd : d ≠ 0) : b + d * ((b % d - b) / d) = b % d := by
+  have hem : (b / d) * d + b % d = b := by
+    -- Int.ediv_add_emod gives d*(b/d) + b%d = b; commute the first term
+    rw [mul_comm]; exact Int.ediv_add_emod b d
+  have hsub : b % d - b = d * (-(b / d)) := by linarith
+  have hdiv : (b % d - b) / d = -(b / d) := by
+    rw [hsub, Int.mul_ediv_cancel_left _ hd]
+  calc
+    b + d * ((b % d - b) / d) = b + d * (-(b / d)) := by rw [hdiv]
+    _ = b - d * (b / d) := by ring
+    _ = b % d := by linarith
+
+/-- Modular identity with shift: `b + d * (((b % d - d) - b) / d) = b % d - d`. -/
+private theorem mod_cancel_sub (b d : ℤ) (hd : d ≠ 0) :
+    b + d * (((b % d - d) - b) / d) = b % d - d := by
+  have hem : (b / d) * d + b % d = b := by
+    rw [mul_comm]; exact Int.ediv_add_emod b d
+  have hsub : (b % d - d) - b = d * (-(b / d) - 1) := by linarith
+  have hdiv : ((b % d - d) - b) / d = -(b / d) - 1 := by
+    rw [hsub, Int.mul_ediv_cancel_left _ hd]
+  calc
+    b + d * (((b % d - d) - b) / d) = b + d * (-(b / d) - 1) := by rw [hdiv]
+    _ = b - d * (b / d) - d := by ring
+    _ = b % d - d := by linarith
+
+/-- The middle coefficient after normalisation equals the modular-adjusted value. -/
 theorem normalizeB_b_eq (Q : BinaryQuadraticForm) (ha : 0 < Q.a) :
     (normalizeB Q ha).b = normalizeB_b Q.a Q.b ha := by
-  -- The modular arithmetic proof is delicate (ring normalisation vs Int.ediv
-  -- lemmas).  Numerical correctness is confirmed by the #eval regression tests.
-  sorry
+  have hd_ne_zero : 2 * Q.a ≠ 0 := by nlinarith
+  set d := 2 * Q.a
+  rw [normalizeB, transform_translate_b]
+  by_cases h : Q.b % d ≤ Q.a
+  · rw [normalizeB_k_eq_div1 Q.a Q.b ha h, normalizeB_b_eq_r Q.a Q.b ha h]
+    exact mod_cancel Q.b d hd_ne_zero
+  · rw [normalizeB_k_eq_div2 Q.a Q.b ha h, normalizeB_b_eq_r_sub Q.a Q.b ha h]
+    exact mod_cancel_sub Q.b d hd_ne_zero
 
-/-- The middle coefficient after normalisation lies in `(-a, a]`.
-Proof: `b' = r` or `r - 2a` where `r = b % (2a)`, with `0 ≤ r < 2a`. -/
+/-- The middle coefficient after normalisation lies in `(-a, a]`. -/
 theorem normalizeB_bounds (Q : BinaryQuadraticForm) (ha : 0 < Q.a) :
     let Q' := normalizeB Q ha
     (-Q.a < Q'.b ∧ Q'.b ≤ Q.a) := by
-  -- Follows from normalizeB_b_eq and properties of Int.emod (0 ≤ r < 2a).
-  sorry
+  intro Q'
+  have hb_eq : Q'.b = normalizeB_b Q.a Q.b ha := normalizeB_b_eq Q ha
+  rw [hb_eq]
+  have hd_pos : 0 < 2 * Q.a := by nlinarith
+  by_cases h : Q.b % (2 * Q.a) ≤ Q.a
+  · rw [normalizeB_b_eq_r Q.a Q.b ha h]
+    have h_r_nonneg : 0 ≤ Q.b % (2 * Q.a) := Int.emod_nonneg _ (by nlinarith)
+    have h_left : -Q.a < Q.b % (2 * Q.a) := by nlinarith
+    exact ⟨h_left, h⟩
+  · rw [normalizeB_b_eq_r_sub Q.a Q.b ha h]
+    have h_r_lt : Q.b % (2 * Q.a) < 2 * Q.a := Int.emod_lt_of_pos _ hd_pos
+    have h_r_gt_a : Q.a < Q.b % (2 * Q.a) := Int.not_le.mp h
+    have h_left : -Q.a < Q.b % (2 * Q.a) - 2 * Q.a := by nlinarith
+    have h_right : Q.b % (2 * Q.a) - 2 * Q.a ≤ Q.a := by nlinarith
+    exact ⟨h_left, h_right⟩
 
 end NormalizeB
 
