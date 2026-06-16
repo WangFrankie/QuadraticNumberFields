@@ -47,7 +47,7 @@ theorem concordantUnitRepresentative_isConcordant {D : ℤ}
 This is still representative-level composition: the caller supplies concordant
 representatives.  The later quotient-level multiplication must prove that any
 two classes admit concordant representatives and that the output class is
-independent of those choices. -/
+independent of those representatives. -/
 def composeConcordant {D : ℤ} (Q R : PrimitivePositiveDefiniteForm D)
     (h : Q.1.IsConcordant R.1) : PrimitivePositiveDefiniteForm D where
   val := BinaryQuadraticForm.composeConcordant Q.1 R.1
@@ -71,6 +71,13 @@ theorem composeConcordant_comm {D : ℤ} (Q R : PrimitivePositiveDefiniteForm D)
     composeConcordant Q R h = composeConcordant R Q h.symm := by
   apply Subtype.ext
   exact BinaryQuadraticForm.composeConcordant_comm_of_isConcordant h
+
+/-- Concordant composition does not depend on the chosen proof of concordance. -/
+theorem composeConcordant_eq_of_concordance_proof {D : ℤ}
+    (Q R : PrimitivePositiveDefiniteForm D) (h h' : Q.1.IsConcordant R.1) :
+    composeConcordant Q R h = composeConcordant Q R h' := by
+  apply Subtype.ext
+  rfl
 
 /-- The attached unit representative is a left identity for direct concordant
 composition on the restricted carrier. -/
@@ -127,8 +134,7 @@ namespace FormClass
 positive definite representatives.
 
 This is not yet a multiplication on `FormClass D`: it still depends on chosen
-representatives and a concordance proof.  The later well-definedness theorem
-will remove those choices. -/
+representatives.  The later well-definedness theorem will remove those choices. -/
 def composeConcordantOfRepresentatives {D : ℤ}
     (Q R : PrimitivePositiveDefiniteForm D) (h : Q.1.IsConcordant R.1) :
     FormClass D :=
@@ -143,6 +149,15 @@ theorem composeConcordantOfRepresentatives_comm {D : ℤ}
       composeConcordantOfRepresentatives R Q h.symm := by
   unfold composeConcordantOfRepresentatives
   rw [PrimitivePositiveDefiniteForm.composeConcordant_comm]
+
+/-- Chosen-representative concordant composition does not depend on the chosen
+proof of concordance. -/
+theorem composeConcordantOfRepresentatives_eq_of_concordance_proof {D : ℤ}
+    (Q R : PrimitivePositiveDefiniteForm D) (h h' : Q.1.IsConcordant R.1) :
+    composeConcordantOfRepresentatives Q R h =
+      composeConcordantOfRepresentatives Q R h' := by
+  unfold composeConcordantOfRepresentatives
+  rw [PrimitivePositiveDefiniteForm.composeConcordant_eq_of_concordance_proof Q R h h']
 
 /-- Any two form classes admit concordant representatives. -/
 theorem exists_concordant_representatives {D : ℤ} (C E : FormClass D) :
