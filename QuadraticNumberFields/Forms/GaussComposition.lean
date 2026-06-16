@@ -803,18 +803,14 @@ theorem exists_middle_alignment {A C b d : ℤ} (hgcd : Int.gcd A C = 1)
 
 /-- **Concordant replacement lemma.** Given two primitive positive definite forms
 of the same discriminant, there exist properly equivalent forms that are
-concordant.  This is Boundary 1 of the Gauss composition implementation.
+concordant.
 
-Proof sketch (deferred):
-1. Apply `exists_coprime_eval_of_isPrimitive` to `Q` with `M = R.a` to get
-   `(x, y)` with `gcd x y = 1` and `gcd(Q(x, y), R.a) = 1`.
-2. Use `sl2z_of_coprime` to build an `SL₂(ℤ)` matrix sending `(1,0)` to `(x, y)`;
-   the transformed form `Q₁` has `Q₁.a = Q(x, y)` coprime to `R.a`.
-3. By the Chinese Remainder Theorem (since `gcd(Q₁.a, R.a) = 1` and
-   `Q₁.b ≡ R.b (mod 2)` from the shared discriminant), there exists `B`
-   with `B ≡ Q₁.b (mod 2·Q₁.a)` and `B ≡ R.b (mod 2·R.a)`.
-4. Apply `Tⁿ` transforms to both `Q₁` and `R` to make their middle
-   coefficients equal to `B`, yielding concordant `Q'`, `R'`. -/
+The proof first uses `exists_coprime_eval_of_isPrimitive` to find a primitive
+vector where `Q` takes a value coprime to `R.a`, then applies the corresponding
+`SL₂(ℤ)` change of variables to make that value the leading coefficient.  Since
+same-discriminant forms have middle coefficients of the same parity, Bezout
+coefficients for the two coprime leading coefficients give translations that
+align the middle coefficients, producing concordant representatives. -/
 theorem exists_concordant_of_sameDiscriminant
     {Q R : BinaryQuadraticForm} (hQprim : Q.IsPrimitive) (_hRprim : R.IsPrimitive)
     (_hQpos : Q.IsPositiveDefinite) (hRpos : R.IsPositiveDefinite)
