@@ -102,5 +102,61 @@ theorem coprimeEvalVector_eval_gcd (Q : BinaryQuadraticForm) (M : ℤ)
       (coprimeEvalVector Q M hQ hM).2) M = 1 :=
   (Nat.find_spec (exists_coprimeEvalPred Q M hQ hM)).2
 
+/-! ## Computable united representatives -/
+
+/-- If the first two entries in a triple of coefficients are coprime, then the
+three-entry absolute gcd is `1`. -/
+theorem coeffGCD3_eq_one_of_gcd_left {x y z : ℤ} (hxy : Int.gcd x y = 1) :
+    coeffGCD3 x y z = 1 := by
+  have hgcd : Nat.gcd x.natAbs y.natAbs = 1 := by
+    simpa [Int.gcd] using hxy
+  apply Nat.dvd_one.mp
+  rw [← hgcd]
+  unfold coeffGCD3
+  exact Nat.dvd_gcd (Nat.gcd_dvd_left _ _)
+    (dvd_trans (Nat.gcd_dvd_right _ _) (Nat.gcd_dvd_left _ _))
+
+/-- A computable representative of `R` whose leading coefficient is coprime to
+`Q.a`.
+
+The representative is obtained by finding a primitive vector `(x, y)` on which
+`R` represents a value coprime to `Q.a`, then using the explicit
+`SL₂(ℤ)` matrix with first column `(x, y)`. -/
+def unitedRep (Q R : BinaryQuadraticForm) (hR : R.IsPrimitive) (hQa : Q.a ≠ 0) :
+    BinaryQuadraticForm :=
+  let v := coprimeEvalVector R Q.a hR hQa
+  transform R (sl2z_of_coprime v.1 v.2 (coprimeEvalVector_gcd R Q.a hR hQa))
+
+/-- The leading coefficient of `unitedRep` is the represented coprime value. -/
+theorem unitedRep_a (Q R : BinaryQuadraticForm) (hR : R.IsPrimitive) (hQa : Q.a ≠ 0) :
+    (unitedRep Q R hR hQa).a =
+      R.eval (coprimeEvalVector R Q.a hR hQa).1 (coprimeEvalVector R Q.a hR hQa).2 := by
+  simp [unitedRep, transform_sl2z_of_coprime_a]
+
+/-- The leading coefficient of `unitedRep` is coprime to `Q.a`. -/
+theorem gcd_left_a_unitedRep (Q R : BinaryQuadraticForm)
+    (hR : R.IsPrimitive) (hQa : Q.a ≠ 0) :
+    Int.gcd Q.a (unitedRep Q R hR hQa).a = 1 := by
+  rw [unitedRep_a]
+  simpa [Int.gcd, Nat.gcd_comm] using coprimeEvalVector_eval_gcd R Q.a hR hQa
+
+/-- `unitedRep` is properly equivalent to the original right factor. -/
+theorem unitedRep_properEquivalent (Q R : BinaryQuadraticForm)
+    (hR : R.IsPrimitive) (hQa : Q.a ≠ 0) :
+    ProperEquivalent R (unitedRep Q R hR hQa) := by
+  exact properEquivalent_sl2z_of_coprime R
+    (coprimeEvalVector R Q.a hR hQa).1
+    (coprimeEvalVector R Q.a hR hQa).2
+    (coprimeEvalVector_gcd R Q.a hR hQa)
+
+/-- If `Q` and `R` have the same discriminant, then `unitedRep Q R` is united
+with `Q`. -/
+theorem unitedRep_isUnited {Q R : BinaryQuadraticForm}
+    (hQR : Q.disc = R.disc) (hR : R.IsPrimitive) (hQa : Q.a ≠ 0) :
+    Q.IsUnited (unitedRep Q R hR hQa) := by
+  refine ⟨?_, ?_⟩
+  · exact hQR.trans (disc_eq_of_properEquivalent (unitedRep_properEquivalent Q R hR hQa))
+  · exact coeffGCD3_eq_one_of_gcd_left (gcd_left_a_unitedRep Q R hR hQa)
+
 end BinaryQuadraticForm
 end QuadraticNumberFields
