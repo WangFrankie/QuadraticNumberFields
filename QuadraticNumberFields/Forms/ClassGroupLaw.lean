@@ -40,6 +40,16 @@ theorem reducedRepresentative_mk_eq (C : FormClass D) :
     Quotient.mk (primitivePositiveDefiniteFormSetoid D) (reducedRepresentative C) = C :=
   (Classical.choose_spec (exists_isReduced_mk_eq_formClass C)).2
 
+/-- Any reduced representative of a form class is the chosen reduced
+representative of that class. -/
+theorem eq_reducedRepresentative_of_isReduced_mk_eq
+    {C : FormClass D} {Q : PrimitivePositiveDefiniteForm D}
+    (hQred : Q.1.IsReduced)
+    (hQ : Quotient.mk (primitivePositiveDefiniteFormSetoid D) Q = C) :
+    Q = reducedRepresentative C :=
+  eq_of_isReduced_of_mk_eq_mk hQred (reducedRepresentative_isReduced C)
+    (hQ.trans (reducedRepresentative_mk_eq C).symm)
+
 variable {d : ℤ} [Fact (Squarefree d)] [Fact (d ≠ 1)] (hdneg : d < 0)
 
 /-- The reduced representative of the product of two form classes, using the
@@ -71,6 +81,18 @@ theorem reducedProductRepresentative_isReduced
   letI := formClassCommGroup hdneg
   exact reducedRepresentative_isReduced (C * E)
 
+/-- Any reduced form representing the product class is the chosen reduced
+product representative. -/
+theorem eq_reducedProductRepresentative_of_isReduced_mk_eq_mul
+    {C E : FormClass (fieldDiscriminant d)}
+    {Q : PrimitivePositiveDefiniteForm (fieldDiscriminant d)}
+    (hQred : Q.1.IsReduced)
+    (hQ : haveI := formClassCommGroup hdneg
+      Quotient.mk (primitivePositiveDefiniteFormSetoid (fieldDiscriminant d)) Q = C * E) :
+    Q = reducedProductRepresentative hdneg C E := by
+  letI := formClassCommGroup hdneg
+  exact eq_reducedRepresentative_of_isReduced_mk_eq hQred hQ
+
 example (C : FormClass (fieldDiscriminant d)) :
     (reducedRepresentative C).1.IsReduced :=
   reducedRepresentative_isReduced C
@@ -80,6 +102,14 @@ example (C E : FormClass (fieldDiscriminant d)) :
     Quotient.mk (primitivePositiveDefiniteFormSetoid (fieldDiscriminant d))
       (reducedProductRepresentative hdneg C E) = C * E :=
   reducedProductRepresentative_mk_eq_mul hdneg C E
+
+example (C E : FormClass (fieldDiscriminant d))
+    {Q : PrimitivePositiveDefiniteForm (fieldDiscriminant d)}
+    (hQred : Q.1.IsReduced)
+    (hQ : haveI := formClassCommGroup hdneg
+      Quotient.mk (primitivePositiveDefiniteFormSetoid (fieldDiscriminant d)) Q = C * E) :
+    Q = reducedProductRepresentative hdneg C E :=
+  eq_reducedProductRepresentative_of_isReduced_mk_eq_mul hdneg hQred hQ
 
 end ReducedRepresentatives
 
