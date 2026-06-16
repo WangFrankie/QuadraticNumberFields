@@ -8,6 +8,7 @@ import QuadraticNumberFields.RingOfIntegers.CommonInstances
 import QuadraticNumberFields.Examples.SqrtNeg5.ClassNumber
 import QuadraticNumberFields.Forms.Structure
 import QuadraticNumberFields.Forms.Enumeration
+import Mathlib.GroupTheory.SpecificGroups.Cyclic
 
 /-!
 # √-5: Form class group — full theory tour
@@ -197,6 +198,19 @@ theorem classP_mul_self_eq_one :
         _ = classP * classP⁻¹ := by rw [hP]
         _ = 1 := by simp
     exact absurd hclassP_eq_one classP_ne_one
+
+/-- The ideal class group of `ℚ(√-5)` is cyclic of order two. -/
+noncomputable def classGroupMulEquivZMod2 :
+    ClassGroup (𝓞 (Qsqrtd ((-5 : ℤ) : ℚ))) ≃* Multiplicative (ZMod 2) :=
+  mulEquivOfPrimeCardEq (p := 2)
+    (G := ClassGroup (𝓞 (Qsqrtd ((-5 : ℤ) : ℚ))))
+    (G' := Multiplicative (ZMod 2))
+    (by
+      rw [Nat.card_eq_fintype_card]
+      simpa [O, NumberField.classNumber] using classNumber_eq_two)
+    (by
+      rw [Nat.card_eq_fintype_card]
+      simp)
 
 end GroupLaw
 
