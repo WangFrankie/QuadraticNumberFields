@@ -20,6 +20,8 @@ import QuadraticNumberFields.Families.Basic
 import QuadraticNumberFields.Families.Chowla
 import QuadraticNumberFields.Families.RichaudDegert
 import QuadraticNumberFields.Families.Yokoi
+import QuadraticNumberFields.Forms.GaussComposition
+import QuadraticNumberFields.Forms.GaussCompositionClass
 import QuadraticNumberFields.Heegner.StarkHeegner
 import QuadraticNumberFields.Qsqrtd.Automorphism
 import QuadraticNumberFields.Qsqrtd.Basic

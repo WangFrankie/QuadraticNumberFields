@@ -43,9 +43,7 @@ import QuadraticNumberFields.Splitting.Qsqrtd.Two
 import QuadraticNumberFields.Splitting.QuadraticField.Basic
 import QuadraticNumberFields.Forms.Basic
 import QuadraticNumberFields.Forms.Action
-import QuadraticNumberFields.Forms.GaussComposition
 import QuadraticNumberFields.Forms.Bridge
-import QuadraticNumberFields.Forms.GaussCompositionClass
 import QuadraticNumberFields.Forms.CoxLeftInverse
 import QuadraticNumberFields.Forms.CoxLeftInverseEqOne
 import QuadraticNumberFields.Forms.CoxRightInverse

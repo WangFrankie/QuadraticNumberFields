@@ -443,6 +443,8 @@ coprime to any given modulus (Cox Corollary 7.17). -/
 
 section Lemma_2_25
 
+open scoped Function
+
 /-- For a primitive form and a prime `p`, one of the three canonical vectors
 `(1,0)`, `(0,1)`, `(1,1)` evaluates to an integer not divisible by `p`. -/
 theorem exists_eval_not_dvd_of_isPrimitive_of_prime {Q : BinaryQuadraticForm}
@@ -478,6 +480,136 @@ theorem exists_eval_not_dvd_of_isPrimitive_of_prime {Q : BinaryQuadraticForm}
     rw [ha]
     exact hpa
 
+/-- If no prime divisor of `M` divides `n`, then `n` is coprime to `M`. -/
+theorem gcd_eq_one_of_forall_prime_not_dvd {n M : ℤ}
+    (h : ∀ p : ℕ, p.Prime → (p : ℤ) ∣ M → ¬ (p : ℤ) ∣ n) :
+    Int.gcd n M = 1 := by
+  by_contra hg
+  obtain ⟨p, hp, hpdvd⟩ := Nat.exists_prime_and_dvd hg
+  have hpz_dvd_gcd : (p : ℤ) ∣ (Int.gcd n M : ℤ) := by exact_mod_cast hpdvd
+  have hpz_dvd_n : (p : ℤ) ∣ n := dvd_trans hpz_dvd_gcd (Int.gcd_dvd_left n M)
+  have hpz_dvd_M : (p : ℤ) ∣ M := dvd_trans hpz_dvd_gcd (Int.gcd_dvd_right n M)
+  exact (h p hp hpz_dvd_M) hpz_dvd_n
+
+/-- Evaluation of an integral binary quadratic form respects congruent input
+vectors. -/
+theorem eval_modEq {Q : BinaryQuadraticForm} {m x x' y y' : ℤ}
+    (hx : x ≡ x' [ZMOD m]) (hy : y ≡ y' [ZMOD m]) :
+    Q.eval x y ≡ Q.eval x' y' [ZMOD m] := by
+  unfold eval
+  simpa [mul_assoc] using
+    (Int.ModEq.add (Int.ModEq.add (Int.ModEq.mul_left Q.a (Int.ModEq.pow 2 hx))
+      (Int.ModEq.mul_left Q.b (Int.ModEq.mul hx hy)))
+      (Int.ModEq.mul_left Q.c (Int.ModEq.pow 2 hy)))
+
+/-- Binary quadratic form evaluation is homogeneous of degree two. -/
+theorem eval_mul_right (Q : BinaryQuadraticForm) (x y k : ℤ) :
+    Q.eval (x * k) (y * k) = k ^ 2 * Q.eval x y := by
+  unfold eval
+  ring
+
+/-- A small residue vector modulo a prime on which a primitive form is nonzero. -/
+private structure PrimeAvoidingVector (Q : BinaryQuadraticForm) (p : ℕ) where
+  x : ℕ
+  y : ℕ
+  x_le_one : x ≤ 1
+  y_le_one : y ≤ 1
+  coprime : Int.gcd (x : ℤ) (y : ℤ) = 1
+  not_dvd_eval : ¬ (p : ℤ) ∣ Q.eval x y
+
+/-- Primitive forms have a nonzero value modulo every prime at one of
+`(1, 0)`, `(0, 1)`, or `(1, 1)`. -/
+private theorem exists_primeAvoidingVector {Q : BinaryQuadraticForm}
+    (hQ : Q.IsPrimitive) {p : ℕ} (hp : Nat.Prime p) :
+    Nonempty (PrimeAvoidingVector Q p) := by
+  rcases exists_eval_not_dvd_of_isPrimitive_of_prime hQ hp with h10 | h01 | h11
+  · exact ⟨⟨1, 0, by norm_num, by norm_num, by norm_num, by simpa using h10⟩⟩
+  · exact ⟨⟨0, 1, by norm_num, by norm_num, by norm_num, by simpa using h01⟩⟩
+  · exact ⟨⟨1, 1, by norm_num, by norm_num, by norm_num, by simpa using h11⟩⟩
+
+/-- Distinct prime divisors of a natural number are pairwise coprime. -/
+private theorem primeFactors_pairwise_coprime (N : ℕ) :
+    Set.Pairwise N.primeFactors (Nat.Coprime on id) := by
+  intro p hp q hq hpq
+  have hpp : p.Prime := Nat.prime_of_mem_primeFactors hp
+  have hqp : q.Prime := Nat.prime_of_mem_primeFactors hq
+  exact hpp.coprime_iff_not_dvd.mpr fun hpdq =>
+    hpq ((hqp.dvd_iff_eq hpp.ne_one).mp hpdq).symm
+
+/-- The first coordinate chosen for a prime factor of `M`, defaulting to `0`
+away from the prime-factor set. -/
+private noncomputable def primeAvoidingX
+    (Q : BinaryQuadraticForm) (hQ : Q.IsPrimitive) (M : ℤ) (p : ℕ) : ℕ :=
+  if hp : p ∈ M.natAbs.primeFactors then
+    (Classical.choice
+      (exists_primeAvoidingVector (Q := Q) hQ (Nat.prime_of_mem_primeFactors hp))).x
+  else
+    0
+
+/-- The second coordinate chosen for a prime factor of `M`, defaulting to `0`
+away from the prime-factor set. -/
+private noncomputable def primeAvoidingY
+    (Q : BinaryQuadraticForm) (hQ : Q.IsPrimitive) (M : ℤ) (p : ℕ) : ℕ :=
+  if hp : p ∈ M.natAbs.primeFactors then
+    (Classical.choice
+      (exists_primeAvoidingVector (Q := Q) hQ (Nat.prime_of_mem_primeFactors hp))).y
+  else
+    0
+
+/-- The chosen local residue vector avoids zero modulo each prime factor of
+`M`. -/
+private theorem primeAvoiding_not_dvd_eval
+    (Q : BinaryQuadraticForm) (hQ : Q.IsPrimitive) (M : ℤ)
+    {p : ℕ} (hp : p ∈ M.natAbs.primeFactors) :
+    ¬ (p : ℤ) ∣ Q.eval (primeAvoidingX Q hQ M p) (primeAvoidingY Q hQ M p) := by
+  simpa [primeAvoidingX, primeAvoidingY, hp] using
+    (Classical.choice
+      (exists_primeAvoidingVector (Q := Q) hQ (Nat.prime_of_mem_primeFactors hp))).not_dvd_eval
+
+/-- CRT choice of first coordinates avoiding all prime factors of `M`. -/
+private noncomputable def crtAvoidingX
+    (Q : BinaryQuadraticForm) (hQ : Q.IsPrimitive) (M : ℤ) : ℕ :=
+  Nat.chineseRemainderOfFinset
+    (primeAvoidingX Q hQ M)
+    id M.natAbs.primeFactors
+    (by intro p hp; exact (Nat.prime_of_mem_primeFactors hp).ne_zero)
+    (primeFactors_pairwise_coprime M.natAbs)
+
+/-- CRT choice of second coordinates avoiding all prime factors of `M`. -/
+private noncomputable def crtAvoidingY
+    (Q : BinaryQuadraticForm) (hQ : Q.IsPrimitive) (M : ℤ) : ℕ :=
+  Nat.chineseRemainderOfFinset
+    (primeAvoidingY Q hQ M)
+    id M.natAbs.primeFactors
+    (by intro p hp; exact (Nat.prime_of_mem_primeFactors hp).ne_zero)
+    (primeFactors_pairwise_coprime M.natAbs)
+
+/-- The CRT first coordinate has the prescribed residue modulo every prime
+factor of `M`. -/
+private theorem crtAvoidingX_modEq
+    (Q : BinaryQuadraticForm) (hQ : Q.IsPrimitive) (M : ℤ)
+    {p : ℕ} (hp : p ∈ M.natAbs.primeFactors) :
+    crtAvoidingX Q hQ M ≡ primeAvoidingX Q hQ M p [MOD p] := by
+  unfold crtAvoidingX
+  simpa using (Nat.chineseRemainderOfFinset
+    (primeAvoidingX Q hQ M)
+    id M.natAbs.primeFactors
+    (by intro p hp; exact (Nat.prime_of_mem_primeFactors hp).ne_zero)
+    (primeFactors_pairwise_coprime M.natAbs)).prop p hp
+
+/-- The CRT second coordinate has the prescribed residue modulo every prime
+factor of `M`. -/
+private theorem crtAvoidingY_modEq
+    (Q : BinaryQuadraticForm) (hQ : Q.IsPrimitive) (M : ℤ)
+    {p : ℕ} (hp : p ∈ M.natAbs.primeFactors) :
+    crtAvoidingY Q hQ M ≡ primeAvoidingY Q hQ M p [MOD p] := by
+  unfold crtAvoidingY
+  simpa using (Nat.chineseRemainderOfFinset
+    (primeAvoidingY Q hQ M)
+    id M.natAbs.primeFactors
+    (by intro p hp; exact (Nat.prime_of_mem_primeFactors hp).ne_zero)
+    (primeFactors_pairwise_coprime M.natAbs)).prop p hp
+
 /-- **Cox Lemma 2.25.** A primitive binary quadratic form represents an integer
 coprime to any prescribed nonzero integer `M`.  Moreover, the representing
 vector `(x, y)` can be chosen with `gcd x y = 1`.
@@ -490,9 +622,57 @@ gcd(x, y)`, the resulting coprime pair still works. -/
 theorem exists_coprime_eval_of_isPrimitive {Q : BinaryQuadraticForm}
     (hQ : Q.IsPrimitive) {M : ℤ} (hM : M ≠ 0) :
     ∃ x y : ℤ, Int.gcd x y = 1 ∧ Int.gcd (Q.eval x y) M = 1 := by
-  -- The core CRT argument is deferred; this is the main outstanding sorry in the
-  -- Gauss composition development.  See the module docstring for the proof sketch.
-  sorry
+  by_cases hMone : M.natAbs = 1
+  · exact ⟨1, 0, by norm_num, by simp [Int.gcd, hMone]⟩
+  let X : ℤ := crtAvoidingX Q hQ M
+  let Y : ℤ := crtAvoidingY Q hQ M
+  have hMnat : M.natAbs ≠ 0 := by
+    contrapose! hM
+    exact Int.natAbs_eq_zero.mp hM
+  have havoid : ∀ p : ℕ, p.Prime → (p : ℤ) ∣ M → ¬ (p : ℤ) ∣ Q.eval X Y := by
+    intro p hp hpdM hpEval
+    have hpdMnat : p ∣ M.natAbs := (Int.natCast_dvd).mp hpdM
+    have hp_mem : p ∈ M.natAbs.primeFactors := hp.mem_primeFactors hpdMnat hMnat
+    have hxnat := crtAvoidingX_modEq Q hQ M hp_mem
+    have hynat := crtAvoidingY_modEq Q hQ M hp_mem
+    have hx : X ≡ (primeAvoidingX Q hQ M p : ℤ) [ZMOD p] := by
+      simpa [X] using (by exact_mod_cast hxnat)
+    have hy : Y ≡ (primeAvoidingY Q hQ M p : ℤ) [ZMOD p] := by
+      simpa [Y] using (by exact_mod_cast hynat)
+    have heval : Q.eval X Y ≡
+        Q.eval (primeAvoidingX Q hQ M p) (primeAvoidingY Q hQ M p) [ZMOD p] :=
+      eval_modEq hx hy
+    have hlocal_dvd : (p : ℤ) ∣
+        Q.eval (primeAvoidingX Q hQ M p) (primeAvoidingY Q hQ M p) := by
+      have hzero : Q.eval X Y ≡ 0 [ZMOD p] := Int.modEq_zero_iff_dvd.mpr hpEval
+      exact Int.modEq_zero_iff_dvd.mp (heval.symm.trans hzero)
+    exact primeAvoiding_not_dvd_eval Q hQ M hp_mem hlocal_dvd
+  have hXYcoprimeM : Int.gcd (Q.eval X Y) M = 1 :=
+    gcd_eq_one_of_forall_prime_not_dvd havoid
+  have hgpos : 0 < Int.gcd X Y := by
+    exact Nat.pos_of_ne_zero fun hg => by
+      have hX0Y0 : X = 0 ∧ Y = 0 := by
+        simpa using (Int.gcd_eq_zero_iff.mp hg)
+      have hQE0 : Q.eval X Y = 0 := by
+        rw [hX0Y0.1, hX0Y0.2]
+        simp [eval]
+      have hbad : Int.gcd (Q.eval X Y) M = M.natAbs := by
+        simp [hQE0]
+      rw [hXYcoprimeM] at hbad
+      exact hMone hbad.symm
+  obtain ⟨x, y, hxy, hX, hY⟩ := Int.exists_gcd_one hgpos
+  refine ⟨x, y, hxy, ?_⟩
+  apply gcd_eq_one_of_forall_prime_not_dvd
+  intro p hp hpdM hpdEval
+  have hpdEvalXY : (p : ℤ) ∣ Q.eval X Y := by
+    let g : ℤ := Int.gcd X Y
+    have hXg : X = x * g := by simpa [g] using hX
+    have hYg : Y = y * g := by simpa [g] using hY
+    have hQeval : Q.eval X Y = g ^ 2 * Q.eval x y := by
+      rw [hXg, hYg, eval_mul_right]
+    rw [hQeval]
+    exact dvd_mul_of_dvd_right hpdEval ((Int.gcd X Y : ℤ) ^ 2)
+  exact (havoid p hp hpdM) hpdEvalXY
 
 end Lemma_2_25
 
@@ -541,6 +721,86 @@ theorem properEquivalent_sl2z_of_coprime (Q : BinaryQuadraticForm) (x y : ℤ)
     (h : Int.gcd x y = 1) : ProperEquivalent Q (transform Q (sl2z_of_coprime x y h)) :=
   ⟨sl2z_of_coprime x y h, rfl⟩
 
+/-- The translation matrix `T^n = [[1,n],[0,1]]`. -/
+def translateSL2Z (n : ℤ) : SL2Z := by
+  refine ⟨![![1, n], ![0, 1]], ?_⟩
+  rw [Matrix.det_fin_two]
+  change 1 * 1 - n * 0 = 1
+  ring
+
+@[simp] theorem translateSL2Z_apply_00 (n : ℤ) :
+    (translateSL2Z n : Matrix (Fin 2) (Fin 2) ℤ) 0 0 = 1 :=
+  rfl
+
+@[simp] theorem translateSL2Z_apply_01 (n : ℤ) :
+    (translateSL2Z n : Matrix (Fin 2) (Fin 2) ℤ) 0 1 = n :=
+  rfl
+
+@[simp] theorem translateSL2Z_apply_10 (n : ℤ) :
+    (translateSL2Z n : Matrix (Fin 2) (Fin 2) ℤ) 1 0 = 0 :=
+  rfl
+
+@[simp] theorem translateSL2Z_apply_11 (n : ℤ) :
+    (translateSL2Z n : Matrix (Fin 2) (Fin 2) ℤ) 1 1 = 1 :=
+  rfl
+
+@[simp] theorem transform_translate_a (Q : BinaryQuadraticForm) (n : ℤ) :
+    (transform Q (translateSL2Z n)).a = Q.a := by
+  change Q.a * 1 ^ 2 + Q.b * 1 * 0 + Q.c * 0 ^ 2 = Q.a
+  ring
+
+@[simp] theorem transform_translate_b (Q : BinaryQuadraticForm) (n : ℤ) :
+    (transform Q (translateSL2Z n)).b = Q.b + 2 * Q.a * n := by
+  change 2 * Q.a * 1 * n + Q.b * (1 * 1 + n * 0) + 2 * Q.c * 0 * 1 =
+    Q.b + 2 * Q.a * n
+  ring
+
+@[simp] theorem transform_translate_c (Q : BinaryQuadraticForm) (n : ℤ) :
+    (transform Q (translateSL2Z n)).c = Q.a * n ^ 2 + Q.b * n + Q.c := by
+  change Q.a * n ^ 2 + Q.b * n * 1 + Q.c * 1 ^ 2 = Q.a * n ^ 2 + Q.b * n + Q.c
+  ring
+
+/-- Same-discriminant forms have middle coefficients of the same parity. -/
+theorem even_sub_b_of_same_discriminant {Q R : BinaryQuadraticForm}
+    (hD : Q.disc = R.disc) : Even (R.b - Q.b) := by
+  rcases Q with ⟨a, b, c⟩
+  rcases R with ⟨A, B, C⟩
+  simp only [disc_mk] at hD
+  have hprod : (B - b) * (B + b) = 4 * (A * C - a * c) := by nlinarith
+  have hprod_even : Even ((B - b) * (B + b)) := by
+    rw [hprod]
+    use 2 * (A * C - a * c)
+    ring
+  rw [Int.even_mul] at hprod_even
+  rcases hprod_even with h | h
+  · exact h
+  · have hsame : Even ((B + b) - (B - b)) := by
+      use b
+      ring
+    rcases h with ⟨k, hk⟩
+    rcases hsame with ⟨l, hl⟩
+    use k - l
+    linarith
+
+/-- If leading coefficients are coprime and middle coefficients have the same
+parity, translations can align the middle coefficients. -/
+theorem exists_middle_alignment {A C b d : ℤ} (hgcd : Int.gcd A C = 1)
+    (heven : Even (d - b)) :
+    ∃ n m : ℤ, b + 2 * A * n = d + 2 * C * m := by
+  rcases heven with ⟨k, hk⟩
+  have hbez : (1 : ℤ) = A * Int.gcdA A C + C * Int.gcdB A C := by
+    rw [← Int.gcd_eq_gcd_ab A C, hgcd]
+    norm_num
+  refine ⟨Int.gcdA A C * k, -Int.gcdB A C * k, ?_⟩
+  calc
+    b + 2 * A * (Int.gcdA A C * k) = b + 2 * (A * Int.gcdA A C) * k := by ring
+    _ = b + 2 * ((1 : ℤ) - C * Int.gcdB A C) * k := by
+      have hA : A * Int.gcdA A C = (1 : ℤ) - C * Int.gcdB A C := by linarith
+      rw [hA]
+    _ = b + 2 * k + 2 * C * (-Int.gcdB A C * k) := by ring
+    _ = b + (d - b) + 2 * C * (-Int.gcdB A C * k) := by rw [hk]; ring
+    _ = d + 2 * C * (-Int.gcdB A C * k) := by ring
+
 /-- **Concordant replacement lemma.** Given two primitive positive definite forms
 of the same discriminant, there exist properly equivalent forms that are
 concordant.  This is Boundary 1 of the Gauss composition implementation.
@@ -556,12 +816,40 @@ Proof sketch (deferred):
 4. Apply `Tⁿ` transforms to both `Q₁` and `R` to make their middle
    coefficients equal to `B`, yielding concordant `Q'`, `R'`. -/
 theorem exists_concordant_of_sameDiscriminant
-    {Q R : BinaryQuadraticForm} (hQprim : Q.IsPrimitive) (hRprim : R.IsPrimitive)
-    (hQpos : Q.IsPositiveDefinite) (hRpos : R.IsPositiveDefinite)
+    {Q R : BinaryQuadraticForm} (hQprim : Q.IsPrimitive) (_hRprim : R.IsPrimitive)
+    (_hQpos : Q.IsPositiveDefinite) (hRpos : R.IsPositiveDefinite)
     (hD : Q.disc = R.disc) :
     ∃ Q' R' : BinaryQuadraticForm,
       ProperEquivalent Q Q' ∧ ProperEquivalent R R' ∧ IsConcordant Q' R' := by
-  sorry
+  obtain ⟨x, y, hxy, hcop⟩ :=
+    exists_coprime_eval_of_isPrimitive hQprim (M := R.a) (ne_of_gt hRpos.1)
+  let g : SL2Z := sl2z_of_coprime x y hxy
+  let Q₁ : BinaryQuadraticForm := transform Q g
+  have hQ_Q₁ : ProperEquivalent Q Q₁ := ⟨g, rfl⟩
+  have hQ₁a : Q₁.a = Q.eval x y := by
+    simpa [Q₁, g] using transform_sl2z_of_coprime_a Q x y hxy
+  have hQ₁a_coprime_Ra : Int.gcd Q₁.a R.a = 1 := by
+    simpa [hQ₁a] using hcop
+  have hQ₁disc_R : Q₁.disc = R.disc := by
+    calc
+      Q₁.disc = Q.disc := by simpa [Q₁, g] using disc_transform Q g
+      _ = R.disc := hD
+  have heven : Even (R.b - Q₁.b) := even_sub_b_of_same_discriminant hQ₁disc_R
+  obtain ⟨n, m, hbm⟩ :=
+    exists_middle_alignment (A := Q₁.a) (C := R.a) (b := Q₁.b) (d := R.b)
+      hQ₁a_coprime_Ra heven
+  let Q' : BinaryQuadraticForm := transform Q₁ (translateSL2Z n)
+  let R' : BinaryQuadraticForm := transform R (translateSL2Z m)
+  refine ⟨Q', R', ?_, ?_, ?_⟩
+  · exact hQ_Q₁.trans ⟨translateSL2Z n, rfl⟩
+  · exact ⟨translateSL2Z m, rfl⟩
+  · refine ⟨?_, ?_, ?_⟩
+    · calc
+        Q'.disc = Q₁.disc := by simpa [Q'] using disc_transform Q₁ (translateSL2Z n)
+        _ = R.disc := hQ₁disc_R
+        _ = R'.disc := by simpa [R'] using (disc_transform R (translateSL2Z m)).symm
+    · simpa [Q', R'] using hbm
+    · simpa [Q', R'] using hQ₁a_coprime_Ra
 
 end ConcordantReplacement
 
