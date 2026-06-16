@@ -24,9 +24,11 @@ typeclass inference on the `Quotient` type.
 ## TODO
 
 The Cox ideal-class bridge for direct concordant Gauss composition is staged in
-`Forms.CoxComposition`.  The remaining Gauss-composition work is quotient-level
-well-definedness and replacing the transported multiplication with the explicit
-quotient-level operation.
+`Forms.CoxComposition`, where chosen-representative composition is now proved
+independent of the chosen concordant representatives
+(`FormClass.composeConcordantOfRepresentatives_eq_of_mk_eq`).  The remaining
+Gauss-composition work is defining the quotient-level explicit Gauss
+multiplication and identifying it with the transported multiplication.
 -/
 
 open scoped NumberField

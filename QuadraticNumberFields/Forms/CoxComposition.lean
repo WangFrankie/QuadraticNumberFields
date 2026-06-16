@@ -430,6 +430,24 @@ theorem composeConcordantOfRepresentatives_eq_mul
     (Quotient.mk (primitivePositiveDefiniteFormSetoid (fieldDiscriminant d)) Q)
     (Quotient.mk (primitivePositiveDefiniteFormSetoid (fieldDiscriminant d)) R)).symm
 
+/-- Chosen-representative concordant composition is independent of the chosen
+concordant representatives for the same two form classes. -/
+theorem composeConcordantOfRepresentatives_eq_of_mk_eq
+    {d : ℤ} [Fact (Squarefree d)] [Fact (d ≠ 1)] (hdneg : d < 0)
+    {Q₁ Q₂ R₁ R₂ : PrimitivePositiveDefiniteForm (fieldDiscriminant d)}
+    (hQ : (Quotient.mk (primitivePositiveDefiniteFormSetoid (fieldDiscriminant d)) Q₁ :
+        FormClass (fieldDiscriminant d)) =
+      Quotient.mk (primitivePositiveDefiniteFormSetoid (fieldDiscriminant d)) Q₂)
+    (hR : (Quotient.mk (primitivePositiveDefiniteFormSetoid (fieldDiscriminant d)) R₁ :
+        FormClass (fieldDiscriminant d)) =
+      Quotient.mk (primitivePositiveDefiniteFormSetoid (fieldDiscriminant d)) R₂)
+    (h₁ : Q₁.1.IsConcordant R₁.1)
+    (h₂ : Q₂.1.IsConcordant R₂.1) :
+    composeConcordantOfRepresentatives Q₁ R₁ h₁ =
+      composeConcordantOfRepresentatives Q₂ R₂ h₂ := by
+  rw [composeConcordantOfRepresentatives_eq_mul hdneg Q₁ R₁ h₁,
+    composeConcordantOfRepresentatives_eq_mul hdneg Q₂ R₂ h₂, hQ, hR]
+
 end FormClass
 
 end BinaryQuadraticForm
