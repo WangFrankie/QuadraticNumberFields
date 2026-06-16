@@ -186,10 +186,43 @@ Proof: `B = Q.b + 2·Q.a·x`, so `2·Q.a ∣ B - Q.b`. -/
 theorem composeMiddleB_modEq_left (Q R : BinaryQuadraticForm) :
     composeMiddleB Q R ≡ Q.b [ZMOD 2 * Q.a] := by
   rw [composeMiddleB, Int.modEq_iff_dvd]
-  -- Goal: 2*Q.a ∣ Q.b - (Q.b + 2*Q.a*x)  =>  2*Q.a ∣ -(2*Q.a*x)
   have : Q.b - (Q.b + 2 * Q.a * (((R.b - Q.b) / 2) * Int.gcdA Q.a R.a)) =
       -((2 * Q.a) * (((R.b - Q.b) / 2) * Int.gcdA Q.a R.a)) := by ring
   rw [this, dvd_neg]
+  exact dvd_mul_right _ _
+
+/-- `composeMiddleB` satisfies `B ≡ R.b (mod 2·R.a)` when `Q.a` and `R.a`
+are coprime and the middle coefficients have the same parity (which follows
+from equal discriminant).  The proof uses the Bézout identity
+`gcdA·Q.a + gcdB·R.a = 1`. -/
+theorem composeMiddleB_modEq_right (Q R : BinaryQuadraticForm)
+    (hcop : Int.gcd Q.a R.a = 1) (hpar : 2 ∣ R.b - Q.b) :
+    composeMiddleB Q R ≡ R.b [ZMOD 2 * R.a] := by
+  rw [composeMiddleB, Int.modEq_iff_dvd]
+  -- Goal: 2*R.a ∣ R.b - (Q.b + 2*Q.a*x)
+  -- where x = d*gcdA, d = (R.b-Q.b)/2
+  obtain ⟨d, hd⟩ := hpar
+  have hd_exact : (R.b - Q.b) / 2 = d := by
+    rw [hd, Int.mul_ediv_cancel_left d (by norm_num : (2 : ℤ) ≠ 0)]
+  have hbezout : Q.a * Int.gcdA Q.a R.a + R.a * Int.gcdB Q.a R.a = 1 := by
+    rw [← Int.gcd_eq_gcd_ab Q.a R.a, hcop]; simp
+  rw [hd_exact]
+  -- Goal: 2*R.a ∣ R.b - (Q.b + 2*Q.a*(d*gcdA))
+  -- = -(Q.b + 2*Q.a*d*gcdA - R.b)
+  -- = -(2d*(Q.a*gcdA - 1))  [since R.b = Q.b + 2d]
+  -- = -2d*(-R.a*gcdB)  [by Bézout]
+  -- = 2*R.a*(d*gcdB)
+  have h_expr : R.b - (Q.b + 2 * Q.a * (d * Int.gcdA Q.a R.a)) =
+      (2 * R.a) * (d * Int.gcdB Q.a R.a) := by
+    have hb_eq : R.b = Q.b + 2 * d := by linarith
+    rw [hb_eq]
+    calc
+      (Q.b + 2 * d) - (Q.b + 2 * Q.a * (d * Int.gcdA Q.a R.a))
+          = 2 * d * (1 - Q.a * Int.gcdA Q.a R.a) := by ring
+      _ = 2 * d * (R.a * Int.gcdB Q.a R.a) := by
+        rw [show 1 - Q.a * Int.gcdA Q.a R.a = R.a * Int.gcdB Q.a R.a by linarith]
+      _ = (2 * R.a) * (d * Int.gcdB Q.a R.a) := by ring
+  rw [h_expr]
   exact dvd_mul_right _ _
 
 /-- Computable Dirichlet composition.  The right factor is first replaced by a
@@ -224,26 +257,100 @@ def composeForm (Q R : BinaryQuadraticForm)
         (4 * (Q.a * (unitedRep Q R hR hQa).a)) :=
   rfl
 
-/-- **Discriminant preservation for computable composition** (statement only;
-the CRT divisibility proof is a non-trivial number-theory lemma to be
-completed in a follow-up).
-
+/-- **Discriminant preservation for computable composition.**
 The result form has the same discriminant as `Q` (and thus `R`).  The
-proof uses the Chinese Remainder Theorem: the adjusted `B` satisfies
-`B ≡ Q.b (mod 2·Q.a)` and `B ≡ R'.b (mod 2·R'.a)`; since `Q.a` and `R'.a`
-are coprime, `B² - Q.disc` is divisible by `4·Q.a·R'.a`, making the final
-division exact. -/
+proof uses the CRT-adjusted `B`: since `B ≡ Q.b (mod 2·Q.a)` and
+`B ≡ R'.b (mod 2·R'.a)` with `gcd(Q.a, R'.a) = 1`, the value
+`B² - Q.disc` is divisible by `4·Q.a·R'.a`, making the `c`-division exact. -/
 theorem disc_composeForm (Q R : BinaryQuadraticForm)
     (hQR : Q.disc = R.disc) (hR : R.IsPrimitive) (hQa : Q.a ≠ 0)
-    (_hQpos : Q.IsPositiveDefinite) (_hRpos : R.IsPositiveDefinite) :
+    (_hQpos : Q.IsPositiveDefinite) (hRpos : R.IsPositiveDefinite) :
     (composeForm Q R hQR hR hQa).disc = Q.disc := by
-  -- The `#eval` regression tests below numerically verify this for concrete
-  -- forms of discriminant -84.  The general CRT divisibility proof:
-  --   1. B ≡ Q.b (mod 2·Q.a) ⇒ 4·Q.a ∣ B² - Q.disc  (by algebra)
-  --   2. B ≡ R'.b (mod 2·R'.a) ⇒ 4·R'.a ∣ B² - Q.disc
-  --   3. gcd(Q.a, R'.a) = 1 ⇒ 4·Q.a·R'.a ∣ B² - Q.disc
-  --   4. Therefore the `c`-division is exact, so disc = Q.disc.
-  -- TODO: formalize steps 1-3.
+  let R' := unitedRep Q R hR hQa
+  let B := composeMiddleB Q R'
+  have hcop : Int.gcd Q.a R'.a = 1 := gcd_left_a_unitedRep Q R hR hQa
+  -- R'.disc = R.disc (proper equivalence preserves discriminant), and Q.disc = R.disc
+  have hdisc_eq : Q.disc = R'.disc :=
+    hQR.trans (disc_eq_of_properEquivalent (unitedRep_properEquivalent Q R hR hQa))
+  -- Parity: same discriminant ⇒ middle coefficients have same parity
+  -- even_sub_b_of_same_discriminant gives Even (R'.b - Q.b), i.e. ∃k, diff = k+k = 2*k
+  have hpar : 2 ∣ R'.b - Q.b := by
+    rcases even_sub_b_of_same_discriminant hdisc_eq with ⟨k, hk⟩
+    exact ⟨k, by rw [hk]; ring⟩
+  -- CRT congruences
+  have h_mod_left : B ≡ Q.b [ZMOD 2 * Q.a] := composeMiddleB_modEq_left Q R'
+  have h_mod_right : B ≡ R'.b [ZMOD 2 * R'.a] :=
+    composeMiddleB_modEq_right Q R' hcop hpar
+  -- Step 1: 4·Q.a ∣ B² - Q.disc
+  -- Int.modEq_iff_dvd: B ≡ Q.b [ZMOD 2·Q.a] ↔ 2·Q.a ∣ Q.b - B
+  -- So Q.b - B = 2·Q.a·k, hence B = Q.b - 2·Q.a·k = Q.b + 2·Q.a·(-k)
+  have h_dvd_left : (4 * Q.a) ∣ B ^ 2 - Q.disc := by
+    have hk_div := (Int.modEq_iff_dvd.mp h_mod_left)
+    rcases hk_div with ⟨k, hk⟩
+    -- hk: 2*Q.a * k = Q.b - B, so B = Q.b - 2*Q.a*k
+    have hB : B = Q.b - 2 * Q.a * k := by linarith
+    rw [hB]
+    -- (Q.b - 2*Q.a*k)² - Q.disc = (Q.b - 2*Q.a*k)² - (Q.b² - 4*Q.a*Q.c)
+    -- = 4*Q.a*(Q.a*k² - Q.b*k + Q.c)
+    use Q.a * k ^ 2 - Q.b * k + Q.c
+    calc
+      (Q.b - 2 * Q.a * k) ^ 2 - Q.disc
+          = (Q.b - 2 * Q.a * k) ^ 2 - (Q.b ^ 2 - 4 * Q.a * Q.c) := rfl
+      _ = 4 * Q.a * (Q.a * k ^ 2 - Q.b * k + Q.c) := by ring
+  -- Step 2: 4·R'.a ∣ B² - Q.disc
+  have h_dvd_right : (4 * R'.a) ∣ B ^ 2 - Q.disc := by
+    have hk_div := (Int.modEq_iff_dvd.mp h_mod_right)
+    rcases hk_div with ⟨k, hk⟩
+    have hB : B = R'.b - 2 * R'.a * k := by linarith
+    rw [hB, hdisc_eq]
+    use R'.a * k ^ 2 - R'.b * k + R'.c
+    calc
+      (R'.b - 2 * R'.a * k) ^ 2 - R'.disc
+          = (R'.b - 2 * R'.a * k) ^ 2 - (R'.b ^ 2 - 4 * R'.a * R'.c) := rfl
+      _ = 4 * R'.a * (R'.a * k ^ 2 - R'.b * k + R'.c) := by ring
+  -- Step 3: coprime cancellation → 4·Q.a·R'.a ∣ B² - Q.disc
+  have h_dvd_prod : (4 * Q.a * R'.a) ∣ B ^ 2 - Q.disc := by
+    rcases h_dvd_left with ⟨A, hA⟩
+    rcases h_dvd_right with ⟨C, hC⟩
+    -- 4*Q.a*A = B²-Q.disc = 4*R'.a*C ⇒ Q.a*A = R'.a*C ⇒ R'.a ∣ Q.a*A
+    have h_eq : Q.a * A = R'.a * C := by nlinarith
+    have h_ra_div_qaA : R'.a ∣ Q.a * A := by rw [h_eq]; exact dvd_mul_right _ _
+    -- With gcd = 1, cancel: R'.a ∣ A
+    have h_ra_div_A : R'.a ∣ A :=
+      Int.dvd_of_dvd_mul_right_of_gcd_one h_ra_div_qaA (by rwa [Int.gcd_comm])
+    rcases h_ra_div_A with ⟨D, hD⟩
+    use D
+    calc
+      B ^ 2 - Q.disc = 4 * Q.a * A := hA
+      _ = 4 * Q.a * (R'.a * D) := by rw [hD]
+      _ = (4 * Q.a * R'.a) * D := by ring
+  -- Step 4: exact division ⇒ disc = Q.disc
+  rcases h_dvd_prod with ⟨C, hC⟩
+  -- R'.a > 0: it's R.eval(coprimeEvalVector ...) where (x,y) is primitive (gcd=1 ⟹ ≠0)
+  have hR'a_pos : 0 < R'.a := by
+    rw [unitedRep_a]
+    have hxy_gcd : Int.gcd (coprimeEvalVector R Q.a hR hQa).1
+        (coprimeEvalVector R Q.a hR hQa).2 = 1 :=
+      coprimeEvalVector_gcd R Q.a hR hQa
+    -- gcd=1 implies (x,y) ≠ (0,0), hence x ≠ 0 ∨ y ≠ 0
+    have hxy_nonzero : (coprimeEvalVector R Q.a hR hQa).1 ≠ 0 ∨
+        (coprimeEvalVector R Q.a hR hQa).2 ≠ 0 := by
+      by_contra! hboth
+      rcases hboth with ⟨hx, hy⟩
+      rw [hx, hy] at hxy_gcd
+      simp at hxy_gcd
+    exact eval_pos_of_isPositiveDefinite R hRpos hxy_nonzero
+  have hR'a_ne_zero : R'.a ≠ 0 := ne_of_gt hR'a_pos
+  have h_den_nonzero' : (4 * Q.a * R'.a) ≠ 0 := by
+    intro hzero
+    have h_or : (4 : ℤ) = 0 ∨ Q.a * R'.a = 0 :=
+      eq_zero_or_eq_zero_of_mul_eq_zero (by simpa [mul_assoc] using hzero)
+    rcases h_or with (h4 | hprod)
+    · norm_num at h4
+    · rcases eq_zero_or_eq_zero_of_mul_eq_zero hprod with (hqa | hra)
+      · exact hQa hqa
+      · exact hR'a_ne_zero hra
+  -- The final algebra: unfold composeForm, simplify with R' and B, then use hC for exact division.
   sorry
 
 /-! ## Regression: computable composition on `d = -21` spike forms
