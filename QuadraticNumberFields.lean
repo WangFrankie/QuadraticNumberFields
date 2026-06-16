@@ -70,6 +70,7 @@ import QuadraticNumberFields.Units.Imaginary
 import QuadraticNumberFields.Units.Fundamental
 import QuadraticNumberFields.Units.Families
 import QuadraticNumberFields.Heegner.ClassNumberOne
+import QuadraticNumberFields.Heegner.ClassNumberOneByForms
 
 /-!
 # Quadratic Number Fields

@@ -16,6 +16,9 @@ This file defines a computable search space for primitive reduced positive
 definite forms of a negative discriminant.
 -/
 
+/-- Close concrete reduced-form list cardinality goals by native enumeration. -/
+syntax "reduce_forms_count" : tactic
+
 namespace QuadraticNumberFields
 namespace BinaryQuadraticForm
 
@@ -272,75 +275,61 @@ theorem enumPrimitiveReducedForms_card_eq_length (D : ℤ) :
   simpa [enumPrimitiveReducedForms] using
     List.toFinset_card_of_nodup (enumPrimitiveReducedFormsList_nodup D)
 
+macro_rules
+  | `(tactic| reduce_forms_count) =>
+      `(tactic|
+        norm_num [enumPrimitiveReducedFormsList, candidateForms, candidateFormsForA,
+          aCandidates, searchBound, bCandidates] <;> decide)
+
 /-- The reduced primitive positive definite forms of discriminant `-20` are two. -/
 theorem enumPrimitiveReducedFormsList_neg20_length :
     (enumPrimitiveReducedFormsList (-20)).length = 2 := by
-  norm_num [enumPrimitiveReducedFormsList, candidateForms, candidateFormsForA,
-    aCandidates, searchBound, bCandidates]
-  all_goals decide
+  reduce_forms_count
 
 /-- The reduced primitive positive definite forms of discriminant `-4` are one. -/
 theorem enumPrimitiveReducedFormsList_neg4_length :
     (enumPrimitiveReducedFormsList (-4)).length = 1 := by
-  norm_num [enumPrimitiveReducedFormsList, candidateForms, candidateFormsForA,
-    aCandidates, searchBound, bCandidates]
-  all_goals decide
+  reduce_forms_count
 
 /-- The reduced primitive positive definite forms of discriminant `-8` are one. -/
 theorem enumPrimitiveReducedFormsList_neg8_length :
     (enumPrimitiveReducedFormsList (-8)).length = 1 := by
-  norm_num [enumPrimitiveReducedFormsList, candidateForms, candidateFormsForA,
-    aCandidates, searchBound, bCandidates]
-  all_goals decide
+  reduce_forms_count
 
 /-- The reduced primitive positive definite forms of discriminant `-3` are one. -/
 theorem enumPrimitiveReducedFormsList_neg3_length :
     (enumPrimitiveReducedFormsList (-3)).length = 1 := by
-  norm_num [enumPrimitiveReducedFormsList, candidateForms, candidateFormsForA,
-    aCandidates, searchBound, bCandidates]
-  all_goals decide
+  reduce_forms_count
 
 /-- The reduced primitive positive definite forms of discriminant `-7` are one. -/
 theorem enumPrimitiveReducedFormsList_neg7_length :
     (enumPrimitiveReducedFormsList (-7)).length = 1 := by
-  norm_num [enumPrimitiveReducedFormsList, candidateForms, candidateFormsForA,
-    aCandidates, searchBound, bCandidates]
-  all_goals decide
+  reduce_forms_count
 
 /-- The reduced primitive positive definite forms of discriminant `-11` are one. -/
 theorem enumPrimitiveReducedFormsList_neg11_length :
     (enumPrimitiveReducedFormsList (-11)).length = 1 := by
-  norm_num [enumPrimitiveReducedFormsList, candidateForms, candidateFormsForA,
-    aCandidates, searchBound, bCandidates]
-  all_goals decide
+  reduce_forms_count
 
 /-- The reduced primitive positive definite forms of discriminant `-19` are one. -/
 theorem enumPrimitiveReducedFormsList_neg19_length :
     (enumPrimitiveReducedFormsList (-19)).length = 1 := by
-  norm_num [enumPrimitiveReducedFormsList, candidateForms, candidateFormsForA,
-    aCandidates, searchBound, bCandidates]
-  all_goals decide
+  reduce_forms_count
 
 /-- The reduced primitive positive definite forms of discriminant `-43` are one. -/
 theorem enumPrimitiveReducedFormsList_neg43_length :
     (enumPrimitiveReducedFormsList (-43)).length = 1 := by
-  norm_num [enumPrimitiveReducedFormsList, candidateForms, candidateFormsForA,
-    aCandidates, searchBound, bCandidates]
-  all_goals decide
+  reduce_forms_count
 
 /-- The reduced primitive positive definite forms of discriminant `-67` are one. -/
 theorem enumPrimitiveReducedFormsList_neg67_length :
     (enumPrimitiveReducedFormsList (-67)).length = 1 := by
-  norm_num [enumPrimitiveReducedFormsList, candidateForms, candidateFormsForA,
-    aCandidates, searchBound, bCandidates]
-  all_goals decide
+  reduce_forms_count
 
 /-- The reduced primitive positive definite forms of discriminant `-163` are one. -/
 theorem enumPrimitiveReducedFormsList_neg163_length :
     (enumPrimitiveReducedFormsList (-163)).length = 1 := by
-  norm_num [enumPrimitiveReducedFormsList, candidateForms, candidateFormsForA,
-    aCandidates, searchBound, bCandidates]
-  all_goals decide
+  reduce_forms_count
 
 example : bCandidates 1 = [-1, 0, 1] := by
   decide

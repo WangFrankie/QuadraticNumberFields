@@ -43,6 +43,10 @@ open Ideal
 
 attribute [-instance] DivisionRing.toRatAlgebra
 
+/-- Close concrete imaginary quadratic class-number goals by transporting to
+reduced forms and evaluating the native reduced-form enumerator. -/
+syntax "compute_class_number_qsqrtd" : tactic
+
 namespace QuadraticNumberFields
 
 /-- The class number of the quadratic field `ℚ(√d)`, as a function of the
@@ -95,6 +99,15 @@ theorem classNumberQsqrtd_eq_reducedForms_card
     _ = (BinaryQuadraticForm.enumPrimitiveReducedForms
           (BinaryQuadraticForm.fieldDiscriminant d)).card :=
       BinaryQuadraticForm.reducedFormClasses_card _
+
+macro_rules
+  | `(tactic| compute_class_number_qsqrtd) =>
+      `(tactic|
+        (try (change classNumberQsqrtd _ = _);
+         rw [classNumberQsqrtd_eq_reducedForms_card _ (by norm_num)];
+         rw [BinaryQuadraticForm.enumPrimitiveReducedForms_card_eq_length];
+         norm_num [BinaryQuadraticForm.fieldDiscriminant];
+         reduce_forms_count))
 
 /-! ## Small-norm class-group closure lemmas -/
 
@@ -222,57 +235,30 @@ theorem classNumberQsqrtd_eq_one_of_mem_heegnerSet
 /-! ## Reduced-form computation regressions -/
 
 example : classNumberQsqrtd (-1) = 1 := by
-  rw [classNumberQsqrtd_eq_reducedForms_card (-1) (by norm_num)]
-  rw [BinaryQuadraticForm.enumPrimitiveReducedForms_card_eq_length]
-  norm_num [BinaryQuadraticForm.fieldDiscriminant,
-    BinaryQuadraticForm.enumPrimitiveReducedFormsList_neg4_length]
+  compute_class_number_qsqrtd
 
 example : classNumberQsqrtd (-2) = 1 := by
-  rw [classNumberQsqrtd_eq_reducedForms_card (-2) (by norm_num)]
-  rw [BinaryQuadraticForm.enumPrimitiveReducedForms_card_eq_length]
-  norm_num [BinaryQuadraticForm.fieldDiscriminant,
-    BinaryQuadraticForm.enumPrimitiveReducedFormsList_neg8_length]
+  compute_class_number_qsqrtd
 
 example : classNumberQsqrtd (-3) = 1 := by
-  rw [classNumberQsqrtd_eq_reducedForms_card (-3) (by norm_num)]
-  rw [BinaryQuadraticForm.enumPrimitiveReducedForms_card_eq_length]
-  norm_num [BinaryQuadraticForm.fieldDiscriminant,
-    BinaryQuadraticForm.enumPrimitiveReducedFormsList_neg3_length]
+  compute_class_number_qsqrtd
 
 example : classNumberQsqrtd (-7) = 1 := by
-  rw [classNumberQsqrtd_eq_reducedForms_card (-7) (by norm_num)]
-  rw [BinaryQuadraticForm.enumPrimitiveReducedForms_card_eq_length]
-  norm_num [BinaryQuadraticForm.fieldDiscriminant,
-    BinaryQuadraticForm.enumPrimitiveReducedFormsList_neg7_length]
+  compute_class_number_qsqrtd
 
 example : classNumberQsqrtd (-11) = 1 := by
-  rw [classNumberQsqrtd_eq_reducedForms_card (-11) (by norm_num)]
-  rw [BinaryQuadraticForm.enumPrimitiveReducedForms_card_eq_length]
-  norm_num [BinaryQuadraticForm.fieldDiscriminant,
-    BinaryQuadraticForm.enumPrimitiveReducedFormsList_neg11_length]
+  compute_class_number_qsqrtd
 
 example : classNumberQsqrtd (-19) = 1 := by
-  rw [classNumberQsqrtd_eq_reducedForms_card (-19) (by norm_num)]
-  rw [BinaryQuadraticForm.enumPrimitiveReducedForms_card_eq_length]
-  norm_num [BinaryQuadraticForm.fieldDiscriminant,
-    BinaryQuadraticForm.enumPrimitiveReducedFormsList_neg19_length]
+  compute_class_number_qsqrtd
 
 example : classNumberQsqrtd (-43) = 1 := by
-  rw [classNumberQsqrtd_eq_reducedForms_card (-43) (by norm_num)]
-  rw [BinaryQuadraticForm.enumPrimitiveReducedForms_card_eq_length]
-  norm_num [BinaryQuadraticForm.fieldDiscriminant,
-    BinaryQuadraticForm.enumPrimitiveReducedFormsList_neg43_length]
+  compute_class_number_qsqrtd
 
 example : classNumberQsqrtd (-67) = 1 := by
-  rw [classNumberQsqrtd_eq_reducedForms_card (-67) (by norm_num)]
-  rw [BinaryQuadraticForm.enumPrimitiveReducedForms_card_eq_length]
-  norm_num [BinaryQuadraticForm.fieldDiscriminant,
-    BinaryQuadraticForm.enumPrimitiveReducedFormsList_neg67_length]
+  compute_class_number_qsqrtd
 
 example : classNumberQsqrtd (-163) = 1 := by
-  rw [classNumberQsqrtd_eq_reducedForms_card (-163) (by norm_num)]
-  rw [BinaryQuadraticForm.enumPrimitiveReducedForms_card_eq_length]
-  norm_num [BinaryQuadraticForm.fieldDiscriminant,
-    BinaryQuadraticForm.enumPrimitiveReducedFormsList_neg163_length]
+  compute_class_number_qsqrtd
 
 end QuadraticNumberFields
