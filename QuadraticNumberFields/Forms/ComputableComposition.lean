@@ -173,5 +173,41 @@ def composeForm (Q R : BinaryQuadraticForm)
     (composeForm Q R hQR hR hQa).a = Q.a * (unitedRep Q R hR hQa).a :=
   rfl
 
+@[simp] theorem composeForm_b (Q R : BinaryQuadraticForm)
+    (hQR : Q.disc = R.disc) (hR : R.IsPrimitive) (hQa : Q.a ≠ 0) :
+    (composeForm Q R hQR hR hQa).b =
+      Q.b + 2 * Q.a *
+        ((unitedBezout (unitedRep_isUnited hQR hR hQa)).v *
+          (sigma Q (unitedRep Q R hR hQa) - Q.b) -
+            (unitedBezout (unitedRep_isUnited hQR hR hQa)).w * Q.c) :=
+  rfl
+
+@[simp] theorem composeForm_c (Q R : BinaryQuadraticForm)
+    (hQR : Q.disc = R.disc) (hR : R.IsPrimitive) (hQa : Q.a ≠ 0) :
+    (composeForm Q R hQR hR hQa).c =
+      ((Q.b + 2 * Q.a *
+        ((unitedBezout (unitedRep_isUnited hQR hR hQa)).v *
+          (sigma Q (unitedRep Q R hR hQa) - Q.b) -
+            (unitedBezout (unitedRep_isUnited hQR hR hQa)).w * Q.c)) ^ 2 - Q.disc) /
+        (4 * (Q.a * (unitedRep Q R hR hQa).a)) :=
+  rfl
+
+/-- Conditional discriminant preservation for computable composition, reducing
+the remaining work to exactness of the final division. -/
+theorem disc_composeForm_of_eq_mul (Q R : BinaryQuadraticForm)
+    (hQR : Q.disc = R.disc) (hR : R.IsPrimitive) (hQa : Q.a ≠ 0) {c : ℤ}
+    (hden : 4 * (Q.a * (unitedRep Q R hR hQa).a) ≠ 0)
+    (hc : (composeForm Q R hQR hR hQa).b ^ 2 - Q.disc =
+      (4 * (Q.a * (unitedRep Q R hR hQa).a)) * c) :
+    (composeForm Q R hQR hR hQa).disc = Q.disc := by
+  rw [show (composeForm Q R hQR hR hQa).disc =
+      (composeForm Q R hQR hR hQa).b ^ 2 -
+        4 * (composeForm Q R hQR hR hQa).a *
+          (composeForm Q R hQR hR hQa).c by rfl]
+  rw [composeForm_a, composeForm_c]
+  rw [← composeForm_b Q R hQR hR hQa, hc]
+  rw [Int.mul_ediv_cancel_left c hden]
+  nlinarith [hc]
+
 end BinaryQuadraticForm
 end QuadraticNumberFields
