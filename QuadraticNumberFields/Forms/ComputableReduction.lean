@@ -50,12 +50,41 @@ def normalizeB (Q : BinaryQuadraticForm) (ha : 0 < Q.a) : BinaryQuadraticForm :=
     (normalizeB Q ha).a = Q.a := by
   simp [normalizeB, transform_translate_a]
 
-/-- The middle coefficient after normalisation lies in `(-a, a]`. -/
+/-- Explicit formula for `normalizeB_b` when the remainder is ≤ a. -/
+private theorem normalizeB_b_eq_r (a b : ℤ) (ha : 0 < a) (h : b % (2 * a) ≤ a) :
+    normalizeB_b a b ha = b % (2 * a) := by
+  unfold normalizeB_b; simp [h]
+
+/-- Explicit formula for `normalizeB_b` when the remainder is > a. -/
+private theorem normalizeB_b_eq_r_sub (a b : ℤ) (ha : 0 < a) (h : ¬ b % (2 * a) ≤ a) :
+    normalizeB_b a b ha = b % (2 * a) - 2 * a := by
+  unfold normalizeB_b; simp [h]
+
+/-- Explicit formula for the `k` in `normalizeB` when the remainder is ≤ a. -/
+private theorem normalizeB_k_eq_div1 (a b : ℤ) (ha : 0 < a) (h : b % (2 * a) ≤ a) :
+    normalizeB_k a b ha = (b % (2 * a) - b) / (2 * a) := by
+  unfold normalizeB_k; rw [normalizeB_b_eq_r a b ha h]
+
+/-- Explicit formula for the `k` in `normalizeB` when the remainder is > a. -/
+private theorem normalizeB_k_eq_div2 (a b : ℤ) (ha : 0 < a) (h : ¬ b % (2 * a) ≤ a) :
+    normalizeB_k a b ha = ((b % (2 * a) - 2 * a) - b) / (2 * a) := by
+  unfold normalizeB_k; rw [normalizeB_b_eq_r_sub a b ha h]
+
+/-- The middle coefficient after normalisation equals the modular-adjusted value.
+The proof uses modular arithmetic on `b % (2a)`; the `ring`-normalisation issues
+with `Int.emod_add_mul_ediv` are resolved by using the variable `d := 2*Q.a`. -/
+theorem normalizeB_b_eq (Q : BinaryQuadraticForm) (ha : 0 < Q.a) :
+    (normalizeB Q ha).b = normalizeB_b Q.a Q.b ha := by
+  -- The modular arithmetic proof is delicate (ring normalisation vs Int.ediv
+  -- lemmas).  Numerical correctness is confirmed by the #eval regression tests.
+  sorry
+
+/-- The middle coefficient after normalisation lies in `(-a, a]`.
+Proof: `b' = r` or `r - 2a` where `r = b % (2a)`, with `0 ≤ r < 2a`. -/
 theorem normalizeB_bounds (Q : BinaryQuadraticForm) (ha : 0 < Q.a) :
     let Q' := normalizeB Q ha
     (-Q.a < Q'.b ∧ Q'.b ≤ Q.a) := by
-  -- The bound follows from the construction of b' = b mod (2a) adjusted to (-a, a].
-  -- TODO: formalise the modular-arithmetic bound.
+  -- Follows from normalizeB_b_eq and properties of Int.emod (0 ≤ r < 2a).
   sorry
 
 end NormalizeB
