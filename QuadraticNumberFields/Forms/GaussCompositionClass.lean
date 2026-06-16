@@ -92,6 +92,33 @@ theorem composeConcordant_concordantUnitRepresentative_right {D : ℤ}
   exact BinaryQuadraticForm.composeConcordant_concordantUnitRepresentative_right Q.1
     (ne_of_gt Q.2.2.2.1)
 
+/-- Any two primitive positive definite forms of the same discriminant admit
+properly equivalent concordant representatives. -/
+theorem exists_concordant_representatives {D : ℤ}
+    (Q R : PrimitivePositiveDefiniteForm D) :
+    ∃ Q' R' : PrimitivePositiveDefiniteForm D,
+      ProperEquivalent Q Q' ∧ ProperEquivalent R R' ∧ Q'.1.IsConcordant R'.1 := by
+  obtain ⟨Q', R', ⟨g, hg⟩, ⟨h, hh⟩, hcon⟩ :=
+    BinaryQuadraticForm.exists_concordant_of_sameDiscriminant
+      Q.2.2.1 R.2.2.1 Q.2.2.2 R.2.2.2 (Q.2.1.trans R.2.1.symm)
+  refine ⟨⟨Q', ?_⟩, ⟨R', ?_⟩, ⟨g, hg⟩, ⟨h, hh⟩, hcon⟩
+  · constructor
+    · rw [← hg]
+      exact (disc_transform Q.1 g).trans Q.2.1
+    · constructor
+      · rw [← hg]
+        exact isPrimitive_transform Q.1 Q.2.2.1 g
+      · rw [← hg]
+        exact isPositiveDefinite_transform Q.1 Q.2.2.2 g
+  · constructor
+    · rw [← hh]
+      exact (disc_transform R.1 h).trans R.2.1
+    · constructor
+      · rw [← hh]
+        exact isPrimitive_transform R.1 R.2.2.1 h
+      · rw [← hh]
+        exact isPositiveDefinite_transform R.1 R.2.2.2 h
+
 end PrimitivePositiveDefiniteForm
 
 namespace FormClass
@@ -116,6 +143,19 @@ theorem composeConcordantOfRepresentatives_comm {D : ℤ}
       composeConcordantOfRepresentatives R Q h.symm := by
   unfold composeConcordantOfRepresentatives
   rw [PrimitivePositiveDefiniteForm.composeConcordant_comm]
+
+/-- Any two form classes admit concordant representatives. -/
+theorem exists_concordant_representatives {D : ℤ} (C E : FormClass D) :
+    ∃ Q R : PrimitivePositiveDefiniteForm D,
+      Quotient.mk (primitivePositiveDefiniteFormSetoid D) Q = C ∧
+      Quotient.mk (primitivePositiveDefiniteFormSetoid D) R = E ∧ Q.1.IsConcordant R.1 := by
+  induction C using Quotient.inductionOn with
+  | h Q =>
+      induction E using Quotient.inductionOn with
+      | h R =>
+          obtain ⟨Q', R', hQ, hR, hcon⟩ :=
+            PrimitivePositiveDefiniteForm.exists_concordant_representatives Q R
+          exact ⟨Q', R', (Quotient.sound hQ).symm, (Quotient.sound hR).symm, hcon⟩
 
 end FormClass
 
