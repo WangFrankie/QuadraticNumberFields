@@ -209,5 +209,93 @@ theorem disc_composeForm_of_eq_mul (Q R : BinaryQuadraticForm)
   rw [Int.mul_ediv_cancel_left c hden]
   nlinarith [hc]
 
+/-! ## Regression: computable composition on `d = -21` spike forms
+
+The spike (Design Doc §2) confirms that `fieldDiscriminant (-21 : ℚ) = -84` and
+the primitive reduced forms are `[(1,0,21), (2,2,11), (3,0,7), (5,4,5)]`.
+These `#eval` tests verify that `composeForm` runs to a concrete integer triple
+without errors.
+
+Note: the form `c`-coefficient uses truncated integer division (`Int.ediv`).
+Discriminant preservation requires an exact-division proof (Step 6); the raw
+`#eval` output may differ from the true reduced product until the exactness
+lemma is established. -/
+
+/-- Regression: `composeForm` on two reduced forms of discriminant `-84`.
+We assert only that the result is a well-defined integer triple; the actual
+value (which may differ from the ideal untruncated triple) is inspected via
+`#eval`. -/
+def testComposeFormIdentity : BinaryQuadraticForm :=
+  let Q := BinaryQuadraticForm.mk 1 0 21
+  let R := BinaryQuadraticForm.mk 2 2 11
+  have hQR : Q.disc = R.disc := by
+    unfold disc; decide
+  have hR : R.IsPrimitive := by
+    unfold IsPrimitive; decide
+  have hQa : Q.a ≠ 0 := by decide
+  composeForm Q R hQR hR hQa
+
+#eval testComposeFormIdentity
+
+/-- Verify that the computed form has the `a` and `b` coefficients we expect
+from the algorithm (regression against algorithm drift). -/
+example : testComposeFormIdentity.a = 11 := by
+  native_decide
+example : testComposeFormIdentity.b = 0 := by
+  native_decide
+
+/-- `composeForm` with the principal form `(1,0,21)` and `(5,4,5)`. -/
+def testComposeFormPrincipal2 : BinaryQuadraticForm :=
+  let Q := BinaryQuadraticForm.mk 1 0 21
+  let R := BinaryQuadraticForm.mk 5 4 5
+  have hQR : Q.disc = R.disc := by
+    unfold disc; decide
+  have hR : R.IsPrimitive := by
+    unfold IsPrimitive; decide
+  have hQa : Q.a ≠ 0 := by decide
+  composeForm Q R hQR hR hQa
+
+#eval testComposeFormPrincipal2
+
+example : testComposeFormPrincipal2.a = 5 := by
+  native_decide
+
+/-- `composeForm` of `(3,0,7)` with itself (order-2 element). -/
+def testComposeFormOrder2 : BinaryQuadraticForm :=
+  let Q := BinaryQuadraticForm.mk 3 0 7
+  let R := BinaryQuadraticForm.mk 3 0 7
+  have hQR : Q.disc = R.disc := by
+    unfold disc; decide
+  have hR : R.IsPrimitive := by
+    unfold IsPrimitive; decide
+  have hQa : Q.a ≠ 0 := by decide
+  composeForm Q R hQR hR hQa
+
+#eval testComposeFormOrder2
+
+example : testComposeFormOrder2.a = 21 := by
+  native_decide
+
+/-- Verify that all four reduced forms of discriminant `-84` have equal
+discriminant (a precondition for composition). -/
+example : (BinaryQuadraticForm.mk 1 0 21).disc = -84 := by
+  unfold disc; native_decide
+example : (BinaryQuadraticForm.mk 2 2 11).disc = -84 := by
+  unfold disc; native_decide
+example : (BinaryQuadraticForm.mk 3 0 7).disc = -84 := by
+  unfold disc; native_decide
+example : (BinaryQuadraticForm.mk 5 4 5).disc = -84 := by
+  unfold disc; native_decide
+
+/-- All four forms are primitive. -/
+example : (BinaryQuadraticForm.mk 1 0 21).IsPrimitive := by
+  unfold IsPrimitive; decide
+example : (BinaryQuadraticForm.mk 2 2 11).IsPrimitive := by
+  unfold IsPrimitive; decide
+example : (BinaryQuadraticForm.mk 3 0 7).IsPrimitive := by
+  unfold IsPrimitive; decide
+example : (BinaryQuadraticForm.mk 5 4 5).IsPrimitive := by
+  unfold IsPrimitive; decide
+
 end BinaryQuadraticForm
 end QuadraticNumberFields
