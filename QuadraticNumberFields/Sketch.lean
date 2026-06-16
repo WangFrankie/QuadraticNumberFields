@@ -20,6 +20,10 @@ import QuadraticNumberFields.Families.Basic
 import QuadraticNumberFields.Families.Chowla
 import QuadraticNumberFields.Families.RichaudDegert
 import QuadraticNumberFields.Families.Yokoi
+import QuadraticNumberFields.Forms.ComputableClassGroup
+import QuadraticNumberFields.Forms.ComputableComposition
+import QuadraticNumberFields.Forms.ComputableReduction
+import QuadraticNumberFields.Forms.ClassGroupStructure
 import QuadraticNumberFields.Forms.GaussComposition
 import QuadraticNumberFields.Forms.GaussCompositionClass
 import QuadraticNumberFields.Heegner.StarkHeegner
@@ -39,6 +43,17 @@ kept out of the stable `QuadraticNumberFields` entry point so that
 
 Current work in progress:
 
+* `Forms.ComputableComposition`: computable Dirichlet composition (`composeForm`,
+  CRT-adjusted).  Correctness proofs (`disc_composeForm`, `composeForm_mk`) WIP.
+* `Forms.ComputableReduction`: computable Gauss reduction (`reduceForm`,
+  well-founded recursion).  Correctness proofs (`reduceForm_isReduced`,
+  `reduceForm_properEquivalent`) WIP.
+* `Forms.ComputableClassGroup`: computable Gauss multiplication `gaussMul` /
+  `composeAndReduce` with Klein-four-group verification for `d=-21`.
+  Consistency proof (`gaussMul = reducedFormRepMul`) WIP.
+* `Forms.ClassGroupStructure`: concrete isomorphism types for `-5` (≅ ℤ/2),
+  `-23` (≅ ℤ/3), `-21` (≅ ℤ/2 × ℤ/2) — computational verification complete,
+  formal proofs WIP.
 * `Euclidean.Basic`: imaginary-quadratic norm-Euclidean classification skeleton.
 * `Heegner.StarkHeegner`: full Baker–Heegner–Stark statement; the deep
   direction (completeness of the nine Heegner numbers) is still `sorry`.

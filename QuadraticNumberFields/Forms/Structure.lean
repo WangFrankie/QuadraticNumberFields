@@ -23,12 +23,18 @@ typeclass inference on the `Quotient` type.
 
 ## TODO
 
-The Cox ideal-class bridge for direct concordant Gauss composition is staged in
-`Forms.CoxComposition`, where chosen-representative composition is now proved
-independent of the chosen concordant representatives
-(`FormClass.composeConcordantOfRepresentatives_eq_of_mk_eq`).  The remaining
-Gauss-composition work is defining the quotient-level explicit Gauss
-multiplication and identifying it with the transported multiplication.
+* The computable Gauss composition pipeline is in `Forms.ComputableComposition`
+  (`composeForm`, CRT-adjusted), `Forms.ComputableReduction` (`reduceForm`,
+  well-founded recursion), and `Forms.ComputableClassGroup` (`gaussMul`,
+  `composeAndReduce`).  The remaining work is the consistency proof
+  `gaussMul = reducedFormRepMul` (bridge lemma `composeForm_mk` +
+  `reduceForm_properEquivalent` + `reduceForm_isReduced`).
+
+* Concrete class-group isomorphism types for `-5`, `-23`, `-21` live in
+  `Forms.ClassGroupStructure` (cyclic / Klein four-group identification tools).
+
+* The Cox ideal-class bridge for direct concordant Gauss composition is proved in
+  `Forms.CoxComposition` (`FormClass.composeConcordantOfRepresentatives_eq_of_mk_eq`).
 -/
 
 open scoped NumberField
@@ -46,8 +52,8 @@ variable {d : ℤ} [Fact (Squarefree d)] [Fact (d ≠ 1)]
 the Cox 7.7 equivalence.  This is a `def` (not an `instance`) to avoid
 uncontrolled typeclass inference on the `Quotient` type.
 
-TODO: after quotient-level Gauss composition is well-defined, replace this
-transported multiplication by the explicit operation proved equivalent to it. -/
+TODO: after `gaussMul = reducedFormRepMul` is proved (see `Forms.ComputableClassGroup`),
+replace this transported multiplication by the explicit computable operation. -/
 @[reducible]
 noncomputable def formClassCommGroup (hdneg : d < 0) :
     CommGroup (FormClass (fieldDiscriminant d)) :=
@@ -56,8 +62,9 @@ noncomputable def formClassCommGroup (hdneg : d < 0) :
 /-- The Cox 7.7 equivalence preserves multiplication when `FormClass` carries
 the transported group structure.
 
-TODO: use the representative-level Cox composition bridge to identify the final
-quotient-level explicit Gauss composition with this transported multiplication. -/
+TODO: after `composeForm_mk` and the reduction correctness proofs are done,
+identify the explicit Gauss composition with this transported multiplication
+(see `Forms.ComputableClassGroup.gaussMul_eq_reducedFormRepMul`). -/
 theorem formClassEquivClassGroup_mul (hdneg : d < 0) (x y : FormClass (fieldDiscriminant d)) :
     haveI := formClassCommGroup hdneg
     formClassEquivClassGroup hdneg (x * y) =
