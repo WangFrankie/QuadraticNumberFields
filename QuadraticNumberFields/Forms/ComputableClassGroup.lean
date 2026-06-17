@@ -529,22 +529,6 @@ theorem composeForm_mk (hdneg : d < 0)
     exact idealClassOfForm_composeForm_of_mod_four_ne_one
       hdneg hd4 Q R hQR hRprim hQa hQpos hRpos
 
-/-- The computable Gauss multiplication equals the Cox-transported
-class-group law on reduced-form representatives
-(both as `BinaryQuadraticForm` values). -/
-theorem gaussMul_eq_reducedFormRepMul_val
-    (hdneg : d < 0) (Q R : ReducedFormRep D) :
-    gaussMul hdneg Q R = (reducedFormRepMul hdneg Q R).1 := by
-  -- Both sides are the unique reduced representative of the product class.
-  -- By `composeForm_mk`, the composition represents the product class.
-  -- By `reduceForm_properEquivalent`, the reduction is in the same class.
-  -- By `reducedFormRepMul_formClass`, `reducedFormRepMul` also represents
-  -- the product class.  Both are reduced, so they are equal by uniqueness
-  -- (`eq_of_isReduced_of_mk_eq_mk` / `reducedRepresentativeRep_formClass_leftInverse`).
-  --
-  -- Dependency: `composeForm_mk` (above) and `reduceForm_mem_enum` (proved).
-  sorry
-
 omit [Fact (Squarefree d)] [Fact (d ≠ 1)] in
 /-- The `gaussMul` result belongs to the reduced-form enumeration. -/
 theorem mem_enum_of_gaussMul (hdneg : d < 0) (Q R : ReducedFormRep D) :
@@ -585,6 +569,68 @@ theorem mem_enum_of_gaussMul (hdneg : d < 0) (Q R : ReducedFormRep D) :
   have hcomp_prim : comp.IsPrimitive :=
     isPrimitive_composeForm Qf Rf hQR hQprim hRprim hQa hQpos hRpos
   exact reduceForm_mem_enum comp hcomp_disc hcomp_prim hcomp_pos
+
+/-- The computable Gauss multiplication equals the Cox-transported
+class-group law on reduced-form representatives
+(both as `BinaryQuadraticForm` values). -/
+theorem gaussMul_eq_reducedFormRepMul_val
+    (hdneg : d < 0) (Q R : ReducedFormRep D) :
+    gaussMul hdneg Q R = (reducedFormRepMul hdneg Q R).1 := by
+  letI := formClassCommGroup hdneg
+  let Qp : PrimitivePositiveDefiniteForm D := primitivePositiveDefiniteFormOfMemEnum Q.2
+  let Rp : PrimitivePositiveDefiniteForm D := primitivePositiveDefiniteFormOfMemEnum R.2
+  have hQprim : Q.1.IsPrimitive := (of_mem_enumPrimitiveReducedForms Q.2).2.2.2
+  have hRprim : R.1.IsPrimitive := (of_mem_enumPrimitiveReducedForms R.2).2.2.2
+  have hQpos : Q.1.IsPositiveDefinite := (of_mem_enumPrimitiveReducedForms Q.2).2.1
+  have hRpos : R.1.IsPositiveDefinite := (of_mem_enumPrimitiveReducedForms R.2).2.1
+  have hdiscQ : Q.1.disc = D := (of_mem_enumPrimitiveReducedForms Q.2).1
+  have hdiscR : R.1.disc = D := (of_mem_enumPrimitiveReducedForms R.2).1
+  have hQR : Q.1.disc = R.1.disc := by rw [hdiscQ, hdiscR]
+  have hQa : Q.1.a ≠ 0 := ne_of_gt hQpos.1
+  let compP : PrimitivePositiveDefiniteForm D :=
+    composeFormPrimitiveOfCoprime hdneg Qp Rp hQR hRprim hQa hQpos hRpos
+  let G : ReducedFormRep D := ⟨gaussMul hdneg Q R, mem_enum_of_gaussMul hdneg Q R⟩
+  have hG_class :
+      G.formClass =
+        Quotient.mk (primitivePositiveDefiniteFormSetoid D) compP := by
+    apply Quotient.sound
+    change ProperEquivalent (primitivePositiveDefiniteFormOfMemEnum G.2).1 compP.1
+    apply ProperEquivalent.symm
+    unfold G gaussMul compP composeFormPrimitiveOfCoprime Qp Rp
+    simpa using reduceForm_properEquivalent
+      (composeForm Q.1 R.1 hQR hRprim hQa)
+      (by
+        have ha_pos : 0 < (composeForm Q.1 R.1 hQR hRprim hQa).a := by
+          rw [composeForm_a]
+          apply mul_pos hQpos.1
+          rw [unitedRep_a]
+          have hxy_gcd : Int.gcd (coprimeEvalVector R.1 Q.1.a hRprim hQa).1
+              (coprimeEvalVector R.1 Q.1.a hRprim hQa).2 = 1 :=
+            coprimeEvalVector_gcd R.1 Q.1.a hRprim hQa
+          have hxy_nonzero : (coprimeEvalVector R.1 Q.1.a hRprim hQa).1 ≠ 0 ∨
+              (coprimeEvalVector R.1 Q.1.a hRprim hQa).2 ≠ 0 := by
+            by_contra! hboth
+            rcases hboth with ⟨hx, hy⟩
+            rw [hx, hy] at hxy_gcd; simp at hxy_gcd
+          exact eval_pos_of_isPositiveDefinite R.1 hRpos hxy_nonzero
+        have hdisc_lt : (composeForm Q.1 R.1 hQR hRprim hQa).disc < 0 := by
+          rw [disc_composeForm Q.1 R.1 hQR hRprim hQa hQpos hRpos, hdiscQ]
+          exact fieldDiscriminant_neg hdneg
+        exact ⟨ha_pos, hdisc_lt⟩)
+  have hcomp_class :
+      Quotient.mk (primitivePositiveDefiniteFormSetoid D) compP = Q.formClass * R.formClass := by
+    simpa [Qp, Rp, ReducedFormRep.formClass] using
+      composeForm_mk hdneg Qp Rp hQR hRprim hQa hQpos hRpos
+  have hG_product : G.formClass = Q.formClass * R.formClass := hG_class.trans hcomp_class
+  have hG_eq : G = reducedFormRepMul hdneg Q R := by
+    calc
+      G = reducedRepresentativeRep G.formClass := by
+        exact (reducedRepresentativeRep_formClass_leftInverse G).symm
+      _ = reducedRepresentativeRep (Q.formClass * R.formClass) := by
+        rw [hG_product]
+      _ = reducedFormRepMul hdneg Q R := by
+        rfl
+  exact congrArg Subtype.val hG_eq
 
 /-- The computable Gauss multiplication, lifted to `ReducedFormRep`,
 agrees with the Cox-transported law. -/
