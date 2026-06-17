@@ -212,9 +212,8 @@ theorem reducedFormRep_eq_one_of_card_eq_one
     haveI := reducedFormRepCommGroup hdneg
     Q = 1 := by
   letI := reducedFormRepCommGroup hdneg
-  have hsub : Subsingleton (ReducedFormRep (fieldDiscriminant d)) :=
-    Fintype.card_le_one_iff_subsingleton.mp (by omega)
-  exact Subsingleton.elim Q 1
+  rcases Fintype.card_eq_one_iff.mp hcard with ⟨Q0, hQ0⟩
+  exact (hQ0 Q).trans (hQ0 1).symm
 
 /-- Any reduced form representing the product class is the chosen reduced
 product representative. -/

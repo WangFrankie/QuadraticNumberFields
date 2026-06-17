@@ -79,7 +79,7 @@ private theorem cox_zsqrtd_ideal_relation_transform_of_mod_four_ne_one
   have hb_even : Even Q.1.b :=
     even_b_of_hasDiscriminant_fieldDiscriminant_of_mod_four_ne_one hd4 Q.2.1
   have hdisc_transform : (transform Q.1 g).HasDiscriminant (fieldDiscriminant d) := by
-    simpa [HasDiscriminant, disc_transform] using Q.2.1
+    simpa using (PrimitivePositiveDefiniteForm.transform Q g).2.1
   have hb_transform_even : Even (transform Q.1 g).b :=
     even_b_of_hasDiscriminant_fieldDiscriminant_of_mod_four_ne_one hd4 hdisc_transform
   have hu : 2 * ((-Q.1.b) / 2) = -Q.1.b :=
@@ -142,7 +142,7 @@ private theorem cox_zomega_ideal_relation_transform_of_mod_four_eq_one
   have hb_odd : Odd Q.1.b :=
     odd_b_of_hasDiscriminant_fieldDiscriminant_of_mod_four_eq_one hd4 Q.2.1
   have hdisc_transform : (transform Q.1 g).HasDiscriminant (fieldDiscriminant d) := by
-    simpa [HasDiscriminant, disc_transform] using Q.2.1
+    simpa using (PrimitivePositiveDefiniteForm.transform Q g).2.1
   have hb_transform_odd : Odd (transform Q.1 g).b :=
     odd_b_of_hasDiscriminant_fieldDiscriminant_of_mod_four_eq_one hd4 hdisc_transform
   have hu : 2 * (-(Q.1.b + 1) / 2) = -(Q.1.b + 1) :=

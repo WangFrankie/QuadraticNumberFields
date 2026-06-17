@@ -108,23 +108,10 @@ theorem exists_concordant_representatives {D : ℤ}
   obtain ⟨Q', R', ⟨g, hg⟩, ⟨h, hh⟩, hcon⟩ :=
     BinaryQuadraticForm.exists_concordant_of_sameDiscriminant
       Q.2.2.1 R.2.2.1 Q.2.2.2 R.2.2.2 (Q.2.1.trans R.2.1.symm)
-  refine ⟨⟨Q', ?_⟩, ⟨R', ?_⟩, ⟨g, hg⟩, ⟨h, hh⟩, hcon⟩
-  · constructor
-    · rw [← hg]
-      exact (disc_transform Q.1 g).trans Q.2.1
-    · constructor
-      · rw [← hg]
-        exact isPrimitive_transform Q.1 Q.2.2.1 g
-      · rw [← hg]
-        exact isPositiveDefinite_transform Q.1 Q.2.2.2 g
-  · constructor
-    · rw [← hh]
-      exact (disc_transform R.1 h).trans R.2.1
-    · constructor
-      · rw [← hh]
-        exact isPrimitive_transform R.1 R.2.2.1 h
-      · rw [← hh]
-        exact isPositiveDefinite_transform R.1 R.2.2.2 h
+  exact ⟨PrimitivePositiveDefiniteForm.ofProperEquivalent Q ⟨g, hg⟩,
+    PrimitivePositiveDefiniteForm.ofProperEquivalent R ⟨h, hh⟩,
+    PrimitivePositiveDefiniteForm.properEquivalent_ofProperEquivalent Q ⟨g, hg⟩,
+    PrimitivePositiveDefiniteForm.properEquivalent_ofProperEquivalent R ⟨h, hh⟩, hcon⟩
 
 end PrimitivePositiveDefiniteForm
 
