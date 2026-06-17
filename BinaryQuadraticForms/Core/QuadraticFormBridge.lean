@@ -263,10 +263,7 @@ theorem toQuadraticForm_posDef (Q : BinaryQuadraticForm)
 coordinate form is positive definite. -/
 theorem isPositiveDefinite_of_toQuadraticForm_posDef (Q : BinaryQuadraticForm)
     (hQ : (toQuadraticForm Q).PosDef) : Q.IsPositiveDefinite := by
-  have h10_ne : (coordVec 1 0 : Fin 2 → ℤ) ≠ 0 := by
-    intro h
-    have := congr_fun h 0
-    norm_num [coordVec] at this
+  have h10_ne : (coordVec 1 0 : Fin 2 → ℤ) ≠ 0 := by decide
   have ha : 0 < Q.a := by
     have h := hQ (coordVec 1 0) h10_ne
     simpa [toQuadraticForm_coordVec, eval, coordVec] using h

@@ -68,11 +68,7 @@ theorem fieldDiscriminant_of_mod_four_ne_one {d : ℤ} (hd4 : d % 4 ≠ 1) :
 /-- Imaginary squarefree parameters have negative field discriminant. -/
 theorem fieldDiscriminant_neg {d : ℤ} (hdneg : d < 0) :
     fieldDiscriminant d < 0 := by
-  by_cases hd4 : d % 4 = 1
-  · rw [fieldDiscriminant_of_mod_four_eq_one hd4]
-    exact hdneg
-  · rw [fieldDiscriminant_of_mod_four_ne_one hd4]
-    nlinarith
+  by_cases hd4 : d % 4 = 1 <;> simp [fieldDiscriminant, hd4] <;> nlinarith
 
 /-- In the `d % 4 ≠ 1` Cox branch, a form of field discriminant has even
 middle coefficient. This justifies the `-b / 2` coordinate in the `Zsqrtd`

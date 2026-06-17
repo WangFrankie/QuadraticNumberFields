@@ -73,8 +73,7 @@ theorem bCandidates_nodup (a : ℕ) : (bCandidates a).Nodup := by
   refine List.Nodup.map ?_ List.nodup_range
   intro k l hkl
   change (k : ℤ) - (a : ℤ) = (l : ℤ) - (a : ℤ) at hkl
-  have h : (k : ℤ) = l := by omega
-  exact_mod_cast h
+  omega
 
 private def candidateFormsForA (D : ℤ) (a : ℕ) : List BinaryQuadraticForm :=
   (bCandidates a).map fun b : ℤ =>
@@ -129,17 +128,15 @@ def enumPrimitiveReducedForms (D : ℤ) : Finset BinaryQuadraticForm :=
 theorem of_mem_enumPrimitiveReducedFormsList {D : ℤ} {Q : BinaryQuadraticForm}
     (hQ : Q ∈ enumPrimitiveReducedFormsList D) :
     Q.HasDiscriminant D ∧ Q.IsPositiveDefinite ∧ Q.IsReduced ∧ Q.IsPrimitive := by
-  have hfilter : Q ∈ candidateForms D ∧
-      Q.HasDiscriminant D ∧ Q.IsPositiveDefinite ∧ Q.IsReduced ∧ Q.IsPrimitive := by
-    simpa [enumPrimitiveReducedFormsList] using hQ
-  exact hfilter.2
+  exact (show Q ∈ candidateForms D ∧
+      Q.HasDiscriminant D ∧ Q.IsPositiveDefinite ∧ Q.IsReduced ∧ Q.IsPrimitive from by
+    simpa [enumPrimitiveReducedFormsList] using hQ).2
 
 /-- Every finset-enumerated form satisfies the filter predicates. -/
 theorem of_mem_enumPrimitiveReducedForms {D : ℤ} {Q : BinaryQuadraticForm}
     (hQ : Q ∈ enumPrimitiveReducedForms D) :
     Q.HasDiscriminant D ∧ Q.IsPositiveDefinite ∧ Q.IsReduced ∧ Q.IsPrimitive := by
-  apply of_mem_enumPrimitiveReducedFormsList
-  simpa [enumPrimitiveReducedForms] using hQ
+  exact of_mem_enumPrimitiveReducedFormsList (by simpa [enumPrimitiveReducedForms] using hQ)
 
 /-- The positive `a` coefficient of a reduced positive definite form lies in the
 `a`-candidate list of its discriminant. -/
@@ -148,9 +145,8 @@ theorem a_mem_aCandidates_of_reduced {D : ℤ} {Q : BinaryQuadraticForm}
     (hred : Q.IsReduced) :
     Q.a.natAbs ∈ aCandidates D := by
   have hle : Q.a.natAbs ≤ searchBound D := by
-    have h := a_natAbs_le_searchBound Q hpos hred
     have hd : Q.disc = D := hdisc
-    rwa [hd] at h
+    simpa [hd] using a_natAbs_le_searchBound Q hpos hred
   have hpos' : 0 < Q.a.natAbs := Int.natAbs_pos.mpr (ne_of_gt hpos.1)
   simp only [aCandidates, List.mem_filter, List.mem_range, decide_eq_true_eq]
   omega
@@ -200,10 +196,8 @@ filtered reduced-form predicates. -/
 theorem mem_enumPrimitiveReducedForms_iff {D : ℤ} {Q : BinaryQuadraticForm} :
     Q ∈ enumPrimitiveReducedForms D ↔
       Q.HasDiscriminant D ∧ Q.IsPositiveDefinite ∧ Q.IsReduced ∧ Q.IsPrimitive := by
-  constructor
-  · exact of_mem_enumPrimitiveReducedForms
-  · intro hQ
-    exact mem_enumPrimitiveReducedForms_of_reduced hQ.1 hQ.2.1 hQ.2.2.1 hQ.2.2.2
+  exact ⟨of_mem_enumPrimitiveReducedForms,
+    fun hQ => mem_enumPrimitiveReducedForms_of_reduced hQ.1 hQ.2.1 hQ.2.2.1 hQ.2.2.2⟩
 
 /-- View an enumerated reduced primitive positive definite form as a member of
 the restricted Cox carrier. -/

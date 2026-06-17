@@ -147,8 +147,7 @@ theorem isPositiveDefinite_transform (Q : BinaryQuadraticForm)
     have hdet := g.2
     rw [Matrix.det_fin_two] at hdet
     simp [hzero.1, hzero.2] at hdet
-  · rw [disc_transform]
-    exact hQ.2
+  · simpa [disc_transform] using hQ.2
 
 /-- Proper equivalence preserves positive definiteness. -/
 theorem isPositiveDefinite_of_properEquivalent {Q R : BinaryQuadraticForm}

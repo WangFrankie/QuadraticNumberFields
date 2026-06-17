@@ -29,6 +29,12 @@ the `SL(2, ℤ)` action on `ℍ`.
 namespace QuadraticNumberFields
 namespace BinaryQuadraticForm
 
+private theorem disc_lt_zero_real (Q : BinaryQuadraticForm) (hQ : Q.IsPositiveDefinite) :
+    (Q.b : ℝ) ^ 2 - 4 * (Q.a : ℝ) * (Q.c : ℝ) < 0 := by
+  have h := hQ.2
+  unfold disc at h
+  exact_mod_cast h
+
 /-- The root in the upper half-plane of a positive definite form `(a, b, c)`,
 namely `τ = (-b + √(4ac - b²) · i) / (2a)`. -/
 noncomputable def tauOfForm (Q : BinaryQuadraticForm) (hQ : Q.IsPositiveDefinite) :
@@ -36,10 +42,7 @@ noncomputable def tauOfForm (Q : BinaryQuadraticForm) (hQ : Q.IsPositiveDefinite
   ⟨⟨-(Q.b : ℝ) / (2 * (Q.a : ℝ)),
       Real.sqrt (4 * (Q.a : ℝ) * (Q.c : ℝ) - (Q.b : ℝ) ^ 2) / (2 * (Q.a : ℝ))⟩, by
     have ha : 0 < (Q.a : ℝ) := by exact_mod_cast hQ.1
-    have hdR : (Q.b : ℝ) ^ 2 - 4 * (Q.a : ℝ) * (Q.c : ℝ) < 0 := by
-      have h := hQ.2
-      unfold disc at h
-      exact_mod_cast h
+    have hdR := disc_lt_zero_real Q hQ
     have hpos : (0 : ℝ) < 4 * (Q.a : ℝ) * (Q.c : ℝ) - (Q.b : ℝ) ^ 2 := by linarith
     exact div_pos (Real.sqrt_pos.mpr hpos) (by linarith)⟩
 
@@ -55,10 +58,7 @@ analytic shadow of the reduced-form bound `a ≤ c ⟺ 1 ≤ |τ|²`. -/
 theorem normSq_tauOfForm (Q : BinaryQuadraticForm) (hQ : Q.IsPositiveDefinite) :
     Complex.normSq (tauOfForm Q hQ : ℂ) = (Q.c : ℝ) / (Q.a : ℝ) := by
   have ha : (Q.a : ℝ) ≠ 0 := by exact_mod_cast (ne_of_gt hQ.1)
-  have hdR : (Q.b : ℝ) ^ 2 - 4 * (Q.a : ℝ) * (Q.c : ℝ) < 0 := by
-    have h := hQ.2
-    unfold disc at h
-    exact_mod_cast h
+  have hdR := disc_lt_zero_real Q hQ
   have hsq : Real.sqrt (4 * (Q.a : ℝ) * (Q.c : ℝ) - (Q.b : ℝ) ^ 2) *
       Real.sqrt (4 * (Q.a : ℝ) * (Q.c : ℝ) - (Q.b : ℝ) ^ 2) =
       4 * (Q.a : ℝ) * (Q.c : ℝ) - (Q.b : ℝ) ^ 2 :=
@@ -86,9 +86,7 @@ theorem tauOfForm_root (Q : BinaryQuadraticForm) (hQ : Q.IsPositiveDefinite) :
     (Q.a : ℂ) * (tauOfForm Q hQ : ℂ) ^ 2 + (Q.b : ℂ) * (tauOfForm Q hQ : ℂ) + (Q.c : ℂ) = 0 := by
   have ha : (Q.a : ℂ) ≠ 0 := by exact_mod_cast (ne_of_gt hQ.1)
   have hge : (0 : ℝ) ≤ 4 * (Q.a : ℝ) * Q.c - (Q.b : ℝ) ^ 2 := by
-    have h := hQ.2
-    unfold disc at h
-    have h' : (Q.b : ℝ) ^ 2 - 4 * (Q.a : ℝ) * Q.c < 0 := by exact_mod_cast h
+    have hdR := disc_lt_zero_real Q hQ
     linarith
   have hwI : ((Real.sqrt (4 * (Q.a : ℝ) * Q.c - (Q.b : ℝ) ^ 2) : ℝ) : ℂ) ^ 2 * Complex.I ^ 2 =
       (Q.b : ℂ) ^ 2 - 4 * Q.a * Q.c := by
@@ -199,6 +197,7 @@ determines the form. -/
 theorem eq_of_tauOfForm_eq_of_disc_eq (Q R : BinaryQuadraticForm)
     (hQ : Q.IsPositiveDefinite) (hR : R.IsPositiveDefinite) (hdisc : Q.disc = R.disc)
     (htau : tauOfForm Q hQ = tauOfForm R hR) : Q = R := by
+  have hdQ := disc_lt_zero_real Q hQ
   rcases Q with ⟨a, b, c⟩
   rcases R with ⟨A, B, C⟩
   change 0 < a ∧ b ^ 2 - 4 * a * c < 0 at hQ
@@ -208,10 +207,7 @@ theorem eq_of_tauOfForm_eq_of_disc_eq (Q R : BinaryQuadraticForm)
   have hA : (A : ℝ) ≠ 0 := by exact_mod_cast (ne_of_gt hR.1)
   have ha_pos : 0 < (a : ℝ) := by exact_mod_cast hQ.1
   have hA_pos : 0 < (A : ℝ) := by exact_mod_cast hR.1
-  have hdR : (b : ℝ) ^ 2 - 4 * (a : ℝ) * c < 0 := by
-    have h := hQ.2
-    unfold disc at h
-    exact_mod_cast h
+  have hdR : (b : ℝ) ^ 2 - 4 * (a : ℝ) * c < 0 := hdQ
   have hre0 := congrArg UpperHalfPlane.re htau
   have hre : (b : ℝ) * A = (B : ℝ) * a := by
     simp only [tauOfForm_re] at hre0

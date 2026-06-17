@@ -133,6 +133,23 @@ theorem unitedRep_a (Q R : BinaryQuadraticForm) (hR : R.IsPrimitive) (hQa : Q.a 
       R.eval (coprimeEvalVector R Q.a hR hQa).1 (coprimeEvalVector R Q.a hR hQa).2 := by
   simp [unitedRep, transform_sl2z_of_coprime_a]
 
+/-- The computable united representative has positive leading coefficient when
+the original right factor is positive definite. -/
+theorem unitedRep_a_pos (Q R : BinaryQuadraticForm)
+    (hR : R.IsPrimitive) (hQa : Q.a ≠ 0) (hRpos : R.IsPositiveDefinite) :
+    0 < (unitedRep Q R hR hQa).a := by
+  rw [unitedRep_a]
+  have hxy_gcd : Int.gcd (coprimeEvalVector R Q.a hR hQa).1
+      (coprimeEvalVector R Q.a hR hQa).2 = 1 :=
+    coprimeEvalVector_gcd R Q.a hR hQa
+  have hxy_nonzero : (coprimeEvalVector R Q.a hR hQa).1 ≠ 0 ∨
+      (coprimeEvalVector R Q.a hR hQa).2 ≠ 0 := by
+    by_contra! hboth
+    rcases hboth with ⟨hx, hy⟩
+    rw [hx, hy] at hxy_gcd
+    simp at hxy_gcd
+  exact eval_pos_of_isPositiveDefinite R hRpos hxy_nonzero
+
 /-- The leading coefficient of `unitedRep` is coprime to `Q.a`. -/
 theorem gcd_left_a_unitedRep (Q R : BinaryQuadraticForm)
     (hR : R.IsPrimitive) (hQa : Q.a ≠ 0) :
@@ -326,20 +343,8 @@ theorem disc_composeForm (Q R : BinaryQuadraticForm)
       _ = (4 * Q.a * R'.a) * D := by ring
   -- Step 4: exact division ⇒ disc = Q.disc
   rcases h_dvd_prod with ⟨C, hC⟩
-  -- R'.a > 0: it's R.eval(coprimeEvalVector ...) where (x,y) is primitive (gcd=1 ⟹ ≠0)
   have hR'a_pos : 0 < R'.a := by
-    rw [unitedRep_a]
-    have hxy_gcd : Int.gcd (coprimeEvalVector R Q.a hR hQa).1
-        (coprimeEvalVector R Q.a hR hQa).2 = 1 :=
-      coprimeEvalVector_gcd R Q.a hR hQa
-    -- gcd=1 implies (x,y) ≠ (0,0), hence x ≠ 0 ∨ y ≠ 0
-    have hxy_nonzero : (coprimeEvalVector R Q.a hR hQa).1 ≠ 0 ∨
-        (coprimeEvalVector R Q.a hR hQa).2 ≠ 0 := by
-      by_contra! hboth
-      rcases hboth with ⟨hx, hy⟩
-      rw [hx, hy] at hxy_gcd
-      simp at hxy_gcd
-    exact eval_pos_of_isPositiveDefinite R hRpos hxy_nonzero
+    simpa [R'] using unitedRep_a_pos Q R hR hQa hRpos
   have hR'a_ne_zero : R'.a ≠ 0 := ne_of_gt hR'a_pos
   have h_den_nonzero' : (4 * Q.a * R'.a) ≠ 0 := by
     intro hzero
@@ -433,17 +438,7 @@ theorem composeForm_exact_div (Q R : BinaryQuadraticForm)
     · rcases eq_zero_or_eq_zero_of_mul_eq_zero hprod with (hqa | hra)
       · exact hQa hqa
       · have hR'a_pos : 0 < R'.a := by
-          rw [unitedRep_a]
-          have hxy_gcd : Int.gcd (coprimeEvalVector R Q.a hR hQa).1
-              (coprimeEvalVector R Q.a hR hQa).2 = 1 :=
-            coprimeEvalVector_gcd R Q.a hR hQa
-          have hxy_nonzero : (coprimeEvalVector R Q.a hR hQa).1 ≠ 0 ∨
-              (coprimeEvalVector R Q.a hR hQa).2 ≠ 0 := by
-            by_contra! hboth
-            rcases hboth with ⟨hx, hy⟩
-            rw [hx, hy] at hxy_gcd
-            simp at hxy_gcd
-          exact eval_pos_of_isPositiveDefinite R hRpos hxy_nonzero
+          simpa [R'] using unitedRep_a_pos Q R hR hQa hRpos
         exact ne_of_gt hR'a_pos hra
   have h_denom_eq' : 4 * (Q.a * R'.a) = (4 * Q.a * R'.a) := by ring
   calc
@@ -560,19 +555,8 @@ theorem isPrimitive_composeForm (Q R : BinaryQuadraticForm)
         4 * R'.a * (R'.c - k₂ * R'.b + R'.a * k₂ ^ 2) := by ring
     rw [h_factor] at h_exact_div
     have h_cancel : Q.a * S.c = R'.c - k₂ * R'.b + R'.a * k₂ ^ 2 := by
-      have hR'a_ne : R'.a ≠ 0 := by
-        have hR'a_pos : 0 < R'.a := by
-          rw [unitedRep_a]
-          have hxy_gcd : Int.gcd (coprimeEvalVector R Q.a hRprim hQa).1
-              (coprimeEvalVector R Q.a hRprim hQa).2 = 1 :=
-            coprimeEvalVector_gcd R Q.a hRprim hQa
-          have hxy_nonzero : (coprimeEvalVector R Q.a hRprim hQa).1 ≠ 0 ∨
-              (coprimeEvalVector R Q.a hRprim hQa).2 ≠ 0 := by
-            by_contra! hboth
-            rcases hboth with ⟨hx, hy⟩
-            rw [hx, hy] at hxy_gcd; simp at hxy_gcd
-          exact eval_pos_of_isPositiveDefinite R hRpos hxy_nonzero
-        exact ne_of_gt hR'a_pos
+      have hR'a_ne : R'.a ≠ 0 :=
+        ne_of_gt (by simpa [R'] using unitedRep_a_pos Q R hRprim hQa hRpos)
       have h4R'a_ne : 4 * R'.a ≠ 0 := mul_ne_zero (by norm_num) hR'a_ne
       apply mul_left_cancel₀ h4R'a_ne
       calc
