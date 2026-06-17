@@ -5,7 +5,7 @@ Authors: Frankie Wang
 -/
 
 import QuadraticNumberFields.QuadraticField.Basic
-import QuadraticNumberFields.Mathlib.RingTheory.DedekindDomain.Basic
+import QNFMathlib.RingTheory.DedekindDomain.Basic
 import Mathlib.NumberTheory.NumberField.Discriminant.Defs
 import Mathlib.NumberTheory.NumberField.InfinitePlace.TotallyRealComplex
 

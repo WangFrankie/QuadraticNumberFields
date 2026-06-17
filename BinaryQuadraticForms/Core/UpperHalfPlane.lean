@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 
-import QuadraticNumberFields.Forms.Core.Reduction
+import BinaryQuadraticForms.Core.Reduction
 import Mathlib.NumberTheory.Modular
 
 /-!

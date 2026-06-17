@@ -63,7 +63,7 @@ lake build
 - `QuadraticNumberFields/Sketch.lean` collects unfinished modules and theorem
   skeletons.
 - General-purpose facts intended for mathlib live under
-  `QuadraticNumberFields/Mathlib/`.
+  `QNFMathlib/`.
 - The project-owned `Zsqrtd` model is separate from mathlib's `_root_.Zsqrtd`.
   Use `QuadraticNumberFields/Zsqrtd/MathlibBridge.lean` only when an interface
   with mathlib's model is genuinely required.
@@ -73,7 +73,7 @@ lake build
 | Module | Code Lines | Comment Lines | Total Lines |
 |--------|------------|---------------|-------------|
 | `QuadraticNumberFields/Splitting` | 1537 | 478 | 2015 |
-| `QuadraticNumberFields/Mathlib` | 1010 | 386 | 1396 |
+| `QNFMathlib` | 1010 | 386 | 1396 |
 | `QuadraticNumberFields/Zsqrtd` | 661 | 212 | 873 |
 | `QuadraticNumberFields/QuadraticField` | 586 | 397 | 983 |
 | `QuadraticNumberFields/RingOfIntegers` | 528 | 310 | 838 |

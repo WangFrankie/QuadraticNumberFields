@@ -4,8 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 import Mathlib.NumberTheory.DirichletCharacter.Basic
-import QuadraticNumberFields.Mathlib.NumberTheory.LegendreSymbol.KroneckerSymbol
-import QuadraticNumberFields.Mathlib.NumberTheory.LegendreSymbol.KroneckerSymbolPeriodicity
+import QNFMathlib.NumberTheory.LegendreSymbol.KroneckerSymbol
+import QNFMathlib.NumberTheory.LegendreSymbol.KroneckerSymbolPeriodicity
 
 /-!
 # Kronecker Symbol as a Dirichlet Character

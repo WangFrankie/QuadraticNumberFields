@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 
-import QuadraticNumberFields.Mathlib
+import QNFMathlib
 import QuadraticNumberFields.Qsqrtd.Basic
 import QuadraticNumberFields.QuadraticField.Basic
 import QuadraticNumberFields.QuadraticField.Parameters
@@ -41,16 +41,16 @@ import QuadraticNumberFields.Splitting.Qsqrtd.Monogenic
 import QuadraticNumberFields.Splitting.Qsqrtd.OddPrime
 import QuadraticNumberFields.Splitting.Qsqrtd.Two
 import QuadraticNumberFields.Splitting.QuadraticField.Basic
-import QuadraticNumberFields.Forms.Core.Basic
-import QuadraticNumberFields.Forms.Core.Action
-import QuadraticNumberFields.Forms.Core.QuadraticFormBridge
+import BinaryQuadraticForms.Core.Basic
+import BinaryQuadraticForms.Core.Action
+import BinaryQuadraticForms.Core.QuadraticFormBridge
 import QuadraticNumberFields.Forms.Cox.Bridge
 import QuadraticNumberFields.Forms.Cox.LeftInverse
 import QuadraticNumberFields.Forms.Cox.LeftInverseEqOne
 import QuadraticNumberFields.Forms.Cox.RightInverse
 import QuadraticNumberFields.Forms.Cox.Equivalence
-import QuadraticNumberFields.Forms.Core.Enumeration
-import QuadraticNumberFields.Forms.Core.Reduction
+import BinaryQuadraticForms.Core.Enumeration
+import BinaryQuadraticForms.Core.Reduction
 import QuadraticNumberFields.Forms.ClassGroup.ClassNumber
 import QuadraticNumberFields.Forms.ClassGroup.Structure
 import QuadraticNumberFields.Forms.ClassGroup.Law

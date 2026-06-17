@@ -6,7 +6,7 @@ Authors: Frankie Wang
 import QuadraticNumberFields.RingOfIntegers.Classification
 import QuadraticNumberFields.QuadraticField.Basic
 import QuadraticNumberFields.QuadraticField.Conj
-import QuadraticNumberFields.Mathlib.Algebra.QuadraticAlgebra.Basic
+import QNFMathlib.Algebra.QuadraticAlgebra.Basic
 import QuadraticNumberFields.Qsqrtd.TraceNorm
 import QuadraticNumberFields.Zsqrtd.Basic
 import QuadraticNumberFields.ZOnePlusSqrtdOverTwo.Basic

@@ -6,7 +6,7 @@ Authors: Frankie Wang
 
 import QuadraticNumberFields.ClassNumber
 import QuadraticNumberFields.Forms.Cox.Equivalence
-import QuadraticNumberFields.Forms.Core.Enumeration
+import BinaryQuadraticForms.Core.Enumeration
 import QuadraticNumberFields.Heegner.ClassNumberOne
 
 /-!

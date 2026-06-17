@@ -3,7 +3,7 @@ Copyright (c) 2026 Frankie Wang. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
-import QuadraticNumberFields.Mathlib.Data.Int.ModFour
+import QNFMathlib.Data.Int.ModFour
 
 /-!
 # Congruence Criteria Modulo 4
@@ -16,15 +16,15 @@ which determines whether `𝓞(Q(√d))` is `ℤ[√d]` or `ℤ[(1+√d)/2]`.
 
 ### Squarefree Properties
 The basic squarefree integer modulo-four facts are imported from
-`QuadraticNumberFields.Mathlib.Algebra.Squarefree.Basic`.
+`QNFMathlib.Algebra.Squarefree.Basic`.
 
 ### Parity and Squares
 The basic parity facts for squares modulo four are imported from
-`QuadraticNumberFields.Mathlib.Data.Int.ModFour`.
+`QNFMathlib.Data.Int.ModFour`.
 
 ### Divisibility Criteria
 The basic divisibility criteria for `4 ∣ (a'² - d·b'²)` are imported from
-`QuadraticNumberFields.Mathlib.Data.Int.ModFour`.
+`QNFMathlib.Data.Int.ModFour`.
 
 ### Branch Utilities
 * `exists_k_of_mod_four_eq_one`: Extract `k` from `d % 4 = 1` as `d = 1 + 4k`.

@@ -4,9 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 
-import QuadraticNumberFields.Forms.Core.Class
-import QuadraticNumberFields.Forms.Core.ClassReduced
-import QuadraticNumberFields.Forms.Cox.IdealRelation
+import BinaryQuadraticForms.Core.Class
+import BinaryQuadraticForms.Core.ClassReduced
+import BinaryQuadraticForms.Cox.IdealRelation
 import QuadraticNumberFields.RingOfIntegers.Classification
 import Mathlib.LinearAlgebra.Matrix.SpecialLinearGroup
 import Mathlib.RingTheory.ClassGroup

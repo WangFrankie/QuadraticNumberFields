@@ -356,7 +356,7 @@ unit, Minkowski, and real-quadratic family developments.
 ## Contributions to mathlib
 
 Temporary general-purpose facts that are intended for mathlib live under
-`QuadraticNumberFields/Mathlib/`. The project still depends on upstream mathlib
+`QNFMathlib/`. The project still depends on upstream mathlib
 through Lake; these files are local shims, not patches to `.lake/packages/mathlib`.
 
 - [PR #36347](https://github.com/leanprover-community/mathlib4/pull/36347):

@@ -21,11 +21,11 @@ import QuadraticNumberFields.Families.Chowla
 import QuadraticNumberFields.Families.RichaudDegert
 import QuadraticNumberFields.Families.Yokoi
 import QuadraticNumberFields.Forms.Computable.ClassGroup
-import QuadraticNumberFields.Forms.Computable.Composition
-import QuadraticNumberFields.Forms.Computable.Reduction
+import BinaryQuadraticForms.Computable.Composition
+import BinaryQuadraticForms.Computable.Reduction
 import QuadraticNumberFields.Forms.Computable.Structure
 import QuadraticNumberFields.Examples.ClassGroupStructure
-import QuadraticNumberFields.Forms.Gauss.Composition
+import BinaryQuadraticForms.Gauss.Composition
 import QuadraticNumberFields.Forms.Gauss.CompositionClass
 import QuadraticNumberFields.Heegner.StarkHeegner
 import QuadraticNumberFields.Qsqrtd.Automorphism

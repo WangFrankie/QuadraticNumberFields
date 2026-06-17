@@ -4,11 +4,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 
-import QuadraticNumberFields.Forms.Computable.Composition
-import QuadraticNumberFields.Forms.Computable.Reduction
+import BinaryQuadraticForms.Computable.Composition
+import BinaryQuadraticForms.Computable.Reduction
 import QuadraticNumberFields.Forms.ClassGroup.Law
 import QuadraticNumberFields.Forms.ClassGroup.CoxComposition
-import QuadraticNumberFields.Forms.Cox.IdealRelation
+import BinaryQuadraticForms.Cox.IdealRelation
 
 open scoped NumberField
 

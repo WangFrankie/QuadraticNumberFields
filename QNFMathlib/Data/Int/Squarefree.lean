@@ -5,7 +5,7 @@ Authors: Frankie Wang
 -/
 
 import Mathlib.Algebra.Squarefree.Basic
-import QuadraticNumberFields.Mathlib.Algebra.Squarefree.Basic
+import QNFMathlib.Algebra.Squarefree.Basic
 
 /-!
 # Squarefree Integer Helpers

@@ -4,8 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 
-import QuadraticNumberFields.Forms.Core.Class
-import QuadraticNumberFields.Forms.Core.ReducedUniqueness
+import BinaryQuadraticForms.Core.Class
+import BinaryQuadraticForms.Core.ReducedUniqueness
 
 /-!
 # Reduced Representatives of Form Classes

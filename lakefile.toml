@@ -29,6 +29,12 @@ name = "checkdecls"
 git = "https://github.com/PatrickMassot/checkdecls.git"
 
 [[lean_lib]]
+name = "QNFMathlib"
+
+[[lean_lib]]
+name = "BinaryQuadraticForms"
+
+[[lean_lib]]
 name = "QuadraticNumberFields"
 
 [[lean_exe]]

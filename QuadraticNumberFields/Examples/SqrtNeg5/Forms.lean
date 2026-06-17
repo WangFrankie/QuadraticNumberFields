@@ -7,7 +7,7 @@ Authors: Frankie Wang
 import QuadraticNumberFields.RingOfIntegers.CommonInstances
 import QuadraticNumberFields.Examples.SqrtNeg5.ClassNumber
 import QuadraticNumberFields.Forms.ClassGroup.Structure
-import QuadraticNumberFields.Forms.Core.Enumeration
+import BinaryQuadraticForms.Core.Enumeration
 import Mathlib.GroupTheory.SpecificGroups.Cyclic
 
 /-!

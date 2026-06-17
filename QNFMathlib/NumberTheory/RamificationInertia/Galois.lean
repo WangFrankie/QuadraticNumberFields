@@ -6,7 +6,7 @@ Authors: Frankie Wang
 
 import Mathlib.NumberTheory.RamificationInertia.Galois
 import Mathlib.RingTheory.NormalClosure
-import QuadraticNumberFields.Mathlib.FieldTheory.Galois.Basic
+import QNFMathlib.FieldTheory.Galois.Basic
 
 /-!
 # Galois Extensions and Ramification

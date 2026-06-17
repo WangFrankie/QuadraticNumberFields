@@ -8,8 +8,8 @@ import Mathlib.LinearAlgebra.Dimension.Finrank
 import Mathlib.RingTheory.Int.Basic
 import Mathlib.RingTheory.Trace.Basic
 import Mathlib.NumberTheory.NumberField.Basic
-import QuadraticNumberFields.Mathlib.Algebra.Squarefree.Basic
-import QuadraticNumberFields.Mathlib.Algebra.QuadraticAlgebra.Defs
+import QNFMathlib.Algebra.Squarefree.Basic
+import QNFMathlib.Algebra.QuadraticAlgebra.Defs
 
 /-!
 # Basic Definitions for Quadratic Number Fields

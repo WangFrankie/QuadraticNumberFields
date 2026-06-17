@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 
-import QuadraticNumberFields.Forms.Core.Action
+import BinaryQuadraticForms.Core.Action
 import Mathlib.Algebra.CharP.Invertible
 import Mathlib.LinearAlgebra.Matrix.Notation
 import Mathlib.LinearAlgebra.QuadraticForm.Basic

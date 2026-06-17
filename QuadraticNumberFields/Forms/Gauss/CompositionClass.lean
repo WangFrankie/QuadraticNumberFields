@@ -5,7 +5,7 @@ Authors: Frankie Wang
 -/
 
 import QuadraticNumberFields.Forms.Cox.Bridge
-import QuadraticNumberFields.Forms.Gauss.Composition
+import BinaryQuadraticForms.Gauss.Composition
 
 /-!
 # Gauss Composition on Primitive Positive Definite Forms

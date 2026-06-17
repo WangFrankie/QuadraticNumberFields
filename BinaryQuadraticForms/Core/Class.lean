@@ -4,8 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 
-import QuadraticNumberFields.Forms.Core.Action
-import QuadraticNumberFields.Mathlib.Data.Int.ModFour
+import BinaryQuadraticForms.Core.Action
+import QNFMathlib.Data.Int.ModFour
 
 /-!
 # Primitive Positive Definite Form Classes

@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 import QuadraticNumberFields.QuadraticField.Conj
-import QuadraticNumberFields.Mathlib.Algebra.Squarefree.Basic
+import QNFMathlib.Algebra.Squarefree.Basic
 
 /-!
 # Automorphisms of the Standard Model `Q(√d)`

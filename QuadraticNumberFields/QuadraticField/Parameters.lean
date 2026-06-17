@@ -6,7 +6,7 @@ Authors: Frankie Wang
 import Mathlib.Algebra.Squarefree.Basic
 import Mathlib.Tactic
 import QuadraticNumberFields.Qsqrtd.Basic
-import QuadraticNumberFields.Mathlib.Data.Int.Squarefree
+import QNFMathlib.Data.Int.Squarefree
 
 /-!
 # Quadratic Field Parameters
@@ -35,7 +35,7 @@ will be sufficient to pin down a unique quadratic field `ℚ(√d)` up to isomor
 
 The general squarefree-integer helpers used here
 (`not_isSquare_neg_one_rat`, `nat_eq_one_of_squarefree_intcast_of_isSquare`,
-`int_dvd_of_ratio_square`) live under `QuadraticNumberFields.Mathlib.Data.Int.Squarefree`
+`int_dvd_of_ratio_square`) live under `QNFMathlib.Data.Int.Squarefree`
 because they are destined for mathlib.
 -/
 

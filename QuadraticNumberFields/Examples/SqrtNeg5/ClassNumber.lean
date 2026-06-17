@@ -6,7 +6,7 @@ Authors: Frankie Wang
 import QuadraticNumberFields.Forms.ClassGroup.ClassNumber
 import QuadraticNumberFields.Examples.SqrtNeg5.Ideals
 import QuadraticNumberFields.Examples.SqrtNeg5.Invariants
-import QuadraticNumberFields.Mathlib.NumberTheory.NumberField.ClassNumber
+import QNFMathlib.NumberTheory.NumberField.ClassNumber
 import QuadraticNumberFields.RingOfIntegers.Norm
 
 /-!
