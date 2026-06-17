@@ -26,12 +26,13 @@ typeclass inference on the `Quotient` type.
 * The computable Gauss composition pipeline is in `Forms.ComputableComposition`
   (`composeForm`, CRT-adjusted), `Forms.ComputableReduction` (`reduceForm`,
   well-founded recursion), and `Forms.ComputableClassGroup` (`gaussMul`,
-  `composeAndReduce`).  The remaining work is the consistency proof
-  `gaussMul = reducedFormRepMul` (bridge lemma `composeForm_mk` +
-  `reduceForm_properEquivalent` + `reduceForm_isReduced`).
+  `composeAndReduce`).  The consistency theorem
+  `gaussMul_eq_reducedFormRepMul` identifies this executable multiplication
+  with the transported class-group law on reduced representatives.
 
 * Concrete class-group isomorphism types for `-5`, `-23`, `-21` live in
-  `Forms.ClassGroupStructure` (cyclic / Klein four-group identification tools).
+  `Forms.ClassGroupStructure` (standard type descriptions plus cyclic / Klein
+  four-group identification tools).
 
 * The Cox ideal-class bridge for direct concordant Gauss composition is proved in
   `Forms.CoxComposition` (`FormClass.composeConcordantOfRepresentatives_eq_of_mk_eq`).
@@ -52,8 +53,9 @@ variable {d : ℤ} [Fact (Squarefree d)] [Fact (d ≠ 1)]
 the Cox 7.7 equivalence.  This is a `def` (not an `instance`) to avoid
 uncontrolled typeclass inference on the `Quotient` type.
 
-TODO: after `gaussMul = reducedFormRepMul` is proved (see `Forms.ComputableClassGroup`),
-replace this transported multiplication by the explicit computable operation. -/
+The executable representative-level multiplication is `gaussMul`; see
+`Forms.ComputableClassGroup.gaussMul_eq_reducedFormRepMul` for the theorem
+identifying it with the transported operation. -/
 @[reducible]
 noncomputable def formClassCommGroup (hdneg : d < 0) :
     CommGroup (FormClass (fieldDiscriminant d)) :=
@@ -62,9 +64,9 @@ noncomputable def formClassCommGroup (hdneg : d < 0) :
 /-- The Cox 7.7 equivalence preserves multiplication when `FormClass` carries
 the transported group structure.
 
-TODO: after `composeForm_mk` and the reduction correctness proofs are done,
-identify the explicit Gauss composition with this transported multiplication
-(see `Forms.ComputableClassGroup.gaussMul_eq_reducedFormRepMul`). -/
+At the reduced-representative level, `Forms.ComputableClassGroup` identifies
+the explicit Gauss composition and reduction pipeline with this transported
+multiplication. -/
 theorem formClassEquivClassGroup_mul (hdneg : d < 0) (x y : FormClass (fieldDiscriminant d)) :
     haveI := formClassCommGroup hdneg
     formClassEquivClassGroup hdneg (x * y) =

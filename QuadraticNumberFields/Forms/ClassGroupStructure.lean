@@ -39,6 +39,86 @@ concrete imaginary quadratic fields `ℚ(√-5)`, `ℚ(√-23)`, `ℚ(√-21)`.
 namespace QuadraticNumberFields
 namespace BinaryQuadraticForm
 
+/-! ## Standard isomorphism type descriptions -/
+
+/-- A computable, human-readable description of a finite abelian group as a product
+of cyclic groups.
+
+`product []` denotes the trivial group.  `product [n]` denotes `ZMod n`, written
+multiplicatively in the concrete class-group theorems below.  `unknown card`
+records that the current table recognizer did not classify a group of that
+cardinality. -/
+inductive StandardGroupIsoType where
+  | product : List ℕ → StandardGroupIsoType
+  | unknown : ℕ → StandardGroupIsoType
+deriving DecidableEq, Repr
+
+private def positiveIndices (n : ℕ) : List ℕ :=
+  (List.range n).map Nat.succ
+
+private def tablePow {α : Type*} (mul : α → α → α) (one x : α) : ℕ → α
+  | 0 => one
+  | n + 1 => mul (tablePow mul one x n) x
+
+private def tableOrder {α : Type*} [DecidableEq α] (elems : List α)
+    (one : α) (mul : α → α → α) (x : α) : ℕ :=
+  match (positiveIndices elems.length).find? fun n =>
+      decide (tablePow mul one x n = one) with
+  | some n => n
+  | none => 0
+
+private def tableHasCyclicGenerator {α : Type*} [DecidableEq α] (elems : List α)
+    (one : α) (mul : α → α → α) : Bool :=
+  elems.any fun x => decide (tableOrder elems one mul x = elems.length)
+
+private def tableIsElementaryTwo {α : Type*} [DecidableEq α] (elems : List α)
+    (one : α) (mul : α → α → α) : Bool :=
+  elems.all fun x => decide (mul x x = one)
+
+/-- Recognize a few standard finite abelian group shapes directly from a
+multiplication table.
+
+This is intentionally a computable recognizer rather than the full abstract
+finite-abelian-group structure theorem.  It currently recognizes the cases
+needed by the class-group examples in this file: trivial groups, cyclic groups,
+and elementary 2-groups. -/
+def standardIsoTypeOfMulTable {α : Type*} [DecidableEq α] (elems : List α)
+    (one : α) (mul : α → α → α) : StandardGroupIsoType :=
+  let card := elems.length
+  if card = 0 then
+    StandardGroupIsoType.unknown 0
+  else if card = 1 then
+    StandardGroupIsoType.product []
+  else if tableHasCyclicGenerator elems one mul then
+    StandardGroupIsoType.product [card]
+  else if tableIsElementaryTwo elems one mul then
+    StandardGroupIsoType.product (List.replicate (Nat.log2 card) 2)
+  else
+    StandardGroupIsoType.unknown card
+
+/-- The principal reduced form of a negative field discriminant, used as the
+identity element for the executable reduced-form table. -/
+def principalReducedForm (D : ℤ) : BinaryQuadraticForm :=
+  if D % 4 = 0 then
+    BinaryQuadraticForm.mk 1 0 (-(D / 4))
+  else
+    BinaryQuadraticForm.mk 1 1 ((1 - D) / 4)
+
+/-- Compute the standard isomorphism-type description from the reduced-form
+table of discriminant `D`. -/
+def standardIsoTypeOfReducedForms (D : ℤ) : StandardGroupIsoType :=
+  standardIsoTypeOfMulTable (enumPrimitiveReducedFormsList D) (principalReducedForm D)
+    composeAndReduce
+
+/-- Given an integer parameter `d`, compute the standard isomorphism-type
+description of the imaginary quadratic class group detected by reduced forms.
+
+For negative squarefree `d`, this is the executable facade for the reduced-form
+class-group table.  If the current recognizer does not cover the resulting
+finite abelian group, it returns `unknown card`. -/
+def classGroupStandardIsoTypeOfImaginaryParameter (d : ℤ) : StandardGroupIsoType :=
+  standardIsoTypeOfReducedForms (fieldDiscriminant d)
+
 /-! ## Concrete isomorphism types -/
 
 section ConcreteIsomorphisms
@@ -283,6 +363,23 @@ example : composeAndReduce21 f21_id f21_C = f21_C := by native_decide
 example : composeAndReduce21 f21_id f21_id = f21_id := by native_decide
 
 end RegressionConcrete
+
+/-! ## Regression: standard isomorphism type output -/
+
+example :
+    classGroupStandardIsoTypeOfImaginaryParameter (-5) =
+      StandardGroupIsoType.product [2] := by
+  native_decide
+
+example :
+    classGroupStandardIsoTypeOfImaginaryParameter (-23) =
+      StandardGroupIsoType.product [3] := by
+  native_decide
+
+example :
+    classGroupStandardIsoTypeOfImaginaryParameter (-21) =
+      StandardGroupIsoType.product [2, 2] := by
+  native_decide
 
 end BinaryQuadraticForm
 end QuadraticNumberFields
