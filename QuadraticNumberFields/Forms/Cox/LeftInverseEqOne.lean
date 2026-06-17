@@ -69,7 +69,7 @@ noncomputable def coxIdealBasisOKEqOne (hd4 : d % 4 = 1) (_hdneg : d < 0)
   let k := h_odd.choose
   have hk : B = 2 * k + 1 := h_odd.choose_spec
   have hu : 2 * u = -(B + bb) := by
-    dsimp [u, bb]; rw [hk]; omega
+    simpa [u, bb] using Int.two_mul_neg_succ_ediv_two_of_odd h_odd
   have hdisc : B ^ 2 - 4 * A * C = bb ^ 2 + 4 * DD := by
     have hdisc_val : Q.1.disc = d := by
       have hfield : fieldDiscriminant d = d := fieldDiscriminant_of_mod_four_eq_one hd4

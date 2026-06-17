@@ -63,14 +63,8 @@ def coxIdeal (d a b : ℤ) : Ideal (Zsqrtd d) :=
 /-- Helper lemma: `coxBetaZ d b = -⟨-b/2, 1⟩` when `b` is even. -/
 theorem coxBetaZ_eq_neg_of_even {d b : ℤ} (hb : Even b) :
     coxBetaZ d b = -(⟨-b / 2, 1⟩ : Zsqrtd d) := by
-  obtain ⟨k, hk⟩ := hb
-  have hk' : b / 2 = k := by rw [hk]; omega
-  ext
-  · simp only [coxBetaZ_re, hk']
-    calc
-      k = -(-k) := by ring
-      _ = -((-b : ℤ) / 2) := by rw [hk]; omega
-  · simp [coxBetaZ_im]
+  have hb_dvd : (2 : ℤ) ∣ b := by simpa [even_iff_two_dvd] using hb
+  ext <;> simp [coxBetaZ, Int.neg_ediv_of_dvd hb_dvd]
 
 /-! ### The spanning lemma for the Cox ideal -/
 
