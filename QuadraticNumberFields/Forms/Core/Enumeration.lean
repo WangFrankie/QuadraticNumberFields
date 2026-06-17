@@ -4,8 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 
-import QuadraticNumberFields.Forms.Bridge
-import QuadraticNumberFields.Forms.Reduction
+import QuadraticNumberFields.Forms.Core.ClassReduced
+import QuadraticNumberFields.Forms.Core.Reduction
 import Mathlib.Data.Nat.Sqrt
 import Mathlib.Tactic
 
