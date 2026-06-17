@@ -5,8 +5,8 @@ Authors: Frankie Wang
 -/
 
 import QuadraticNumberFields.ClassNumber
-import QuadraticNumberFields.Forms.CoxEquivalence
-import QuadraticNumberFields.Forms.Enumeration
+import QuadraticNumberFields.Forms.Cox.Equivalence
+import QuadraticNumberFields.Forms.Core.Enumeration
 import QuadraticNumberFields.Heegner.ClassNumberOne
 
 /-!

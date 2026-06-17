@@ -4,8 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 
-import QuadraticNumberFields.Forms.GaussCompositionClass
-import QuadraticNumberFields.Forms.Structure
+import QuadraticNumberFields.Forms.Gauss.CompositionClass
+import QuadraticNumberFields.Forms.ClassGroup.Structure
 
 /-!
 # Cox Ideal Multiplicativity for Concordant Gauss Composition

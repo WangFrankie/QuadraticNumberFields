@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 
-import QuadraticNumberFields.Forms.CoxEquivalence
+import QuadraticNumberFields.Forms.Cox.Equivalence
 
 /-!
 # Form class group structure via Cox 7.7 transport
@@ -35,7 +35,7 @@ typeclass inference on the `Quotient` type.
   four-group identification tools).
 
 * The Cox ideal-class bridge for direct concordant Gauss composition is proved in
-  `Forms.CoxComposition` (`FormClass.composeConcordantOfRepresentatives_eq_of_mk_eq`).
+  `Forms.ClassGroup.CoxComposition` (`FormClass.composeConcordantOfRepresentatives_eq_of_mk_eq`).
 -/
 
 open scoped NumberField
