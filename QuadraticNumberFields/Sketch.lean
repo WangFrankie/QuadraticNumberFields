@@ -20,13 +20,13 @@ import QuadraticNumberFields.Families.Basic
 import QuadraticNumberFields.Families.Chowla
 import QuadraticNumberFields.Families.RichaudDegert
 import QuadraticNumberFields.Families.Yokoi
-import QuadraticNumberFields.Forms.ComputableClassGroup
-import QuadraticNumberFields.Forms.ComputableComposition
-import QuadraticNumberFields.Forms.ComputableReduction
-import QuadraticNumberFields.Forms.ClassGroupStructure
+import QuadraticNumberFields.Forms.Computable.ClassGroup
+import QuadraticNumberFields.Forms.Computable.Composition
+import QuadraticNumberFields.Forms.Computable.Reduction
+import QuadraticNumberFields.Forms.Computable.Structure
 import QuadraticNumberFields.Examples.ClassGroupStructure
-import QuadraticNumberFields.Forms.GaussComposition
-import QuadraticNumberFields.Forms.GaussCompositionClass
+import QuadraticNumberFields.Forms.Gauss.Composition
+import QuadraticNumberFields.Forms.Gauss.CompositionClass
 import QuadraticNumberFields.Heegner.StarkHeegner
 import QuadraticNumberFields.Qsqrtd.Automorphism
 import QuadraticNumberFields.Qsqrtd.Basic
@@ -44,15 +44,15 @@ kept out of the stable `QuadraticNumberFields` entry point so that
 
 Current work in progress:
 
-* `Forms.ComputableComposition`: computable Dirichlet composition (`composeForm`,
+* `Forms.Computable.Composition`: computable Dirichlet composition (`composeForm`,
   CRT-adjusted).  Correctness proofs (`disc_composeForm`, `composeForm_mk`) WIP.
-* `Forms.ComputableReduction`: computable Gauss reduction (`reduceForm`,
+* `Forms.Computable.Reduction`: computable Gauss reduction (`reduceForm`,
   well-founded recursion).  Correctness proofs (`reduceForm_isReduced`,
   `reduceForm_properEquivalent`) WIP.
-* `Forms.ComputableClassGroup`: computable Gauss multiplication `gaussMul` /
+* `Forms.Computable.ClassGroup`: computable Gauss multiplication `gaussMul` /
   `composeAndReduce` with Klein-four-group verification for `d=-21`.
   Consistency proof (`gaussMul = reducedFormRepMul`) WIP.
-* `Forms.ClassGroupStructure`: reduced-form class-group output transported to
+* `Forms.Computable.Structure`: reduced-form class-group output transported to
   standard finite-abelian targets; concrete computations live in
   `Examples.ClassGroupStructure`.
 * `Euclidean.Basic`: imaginary-quadratic norm-Euclidean classification skeleton.

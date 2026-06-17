@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 
-import QuadraticNumberFields.Forms.ClassNumber
+import QuadraticNumberFields.Forms.ClassGroup.ClassNumber
 
 /-!
 # Heegner Class Number One via Reduced Forms
