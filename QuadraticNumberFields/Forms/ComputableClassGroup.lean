@@ -7,6 +7,7 @@ Authors: Frankie Wang
 import QuadraticNumberFields.Forms.ComputableComposition
 import QuadraticNumberFields.Forms.ComputableReduction
 import QuadraticNumberFields.Forms.ClassGroupLaw
+import QuadraticNumberFields.Forms.CoxComposition
 import QuadraticNumberFields.Forms.CoxIdealRelation
 
 /-!
@@ -51,17 +52,17 @@ def gaussMul (hdneg : d < 0) (Q R : ReducedFormRep D) :
   -- Both are in the reduced enumeration, hence primitive, positive definite,
   -- and have discriminant D.
   have hQprim : Qf.IsPrimitive :=
-    (of_mem_enumPrimitiveReducedForms Q.2).2.1
-  have hRprim : Rf.IsPrimitive :=
-    (of_mem_enumPrimitiveReducedForms R.2).2.1
-  have hQpos : Qf.IsPositiveDefinite :=
     (of_mem_enumPrimitiveReducedForms Q.2).2.2.2
-  have hRpos : Rf.IsPositiveDefinite :=
+  have hRprim : Rf.IsPrimitive :=
     (of_mem_enumPrimitiveReducedForms R.2).2.2.2
+  have hQpos : Qf.IsPositiveDefinite :=
+    (of_mem_enumPrimitiveReducedForms Q.2).2.1
+  have hRpos : Rf.IsPositiveDefinite :=
+    (of_mem_enumPrimitiveReducedForms R.2).2.1
   have hdiscQ : Qf.disc = D :=
-    (of_mem_enumPrimitiveReducedForms Q.2).2.2.1
+    (of_mem_enumPrimitiveReducedForms Q.2).1
   have hdiscR : Rf.disc = D :=
-    (of_mem_enumPrimitiveReducedForms R.2).2.2.1
+    (of_mem_enumPrimitiveReducedForms R.2).1
   have hQR : Qf.disc = Rf.disc := by rw [hdiscQ, hdiscR]
   have hQa : Qf.a ≠ 0 := ne_of_gt hQpos.1
   -- Compute composition, then reduce.  `reduceForm` needs a
@@ -119,55 +120,23 @@ open CoxIdealRelation
 
 /-- **Generalised Cox ideal product** for united (non-concordant) forms.
 
-Given two forms with discriminants matching `DD, bb`, leading coefficients
-`A₁, A₂` (coprime), and possibly different middle coefficients `B₁ ≠ B₂`,
-there is a unique `B` (CRT solution of `B ≡ B₁ (mod 2·A₁)` and
-`B ≡ B₂ (mod 2·A₂)`) such that the Cox ideals multiply. -/
+The proof adapts `CoxComposition.coxIdeal_mul_of_concordant` to handle different
+middle coefficients `B₁ ≠ B₂`, using the CRT congruences to relate `β₁ = ⟨u₁,1⟩`
+and `β₂ = ⟨u₂,1⟩` to `β = ⟨u,1⟩` via `β₁ = β - t·A₁`, `β₂ = β - k·A₂`. -/
 theorem coxIdeal_mul_of_united
     {DD bb A₁ A₂ C₁ C₂ B B₁ B₂ u₁ u₂ u : ℤ}
-    (_hdiscQ : B₁ ^ 2 - 4 * A₁ * C₁ = bb ^ 2 + 4 * DD)
-    (_hdiscR : B₂ ^ 2 - 4 * A₂ * C₂ = bb ^ 2 + 4 * DD)
-    (_hu₁ : 2 * u₁ = -(B₁ + bb))
-    (_hu₂ : 2 * u₂ = -(B₂ + bb))
-    (_hu : 2 * u = -(B + bb))
-    (_hcop : Int.gcd A₁ A₂ = 1)
-    (_h_mod_left : B ≡ B₁ [ZMOD 2 * A₁])
-    (_h_mod_right : B ≡ B₂ [ZMOD 2 * A₂]) :
-    coxIdeal DD bb A₁ u₁ * coxIdeal DD bb A₂ u₂ =
-      coxIdeal DD bb (A₁ * A₂) u := by
-  -- Proof: adapt `coxIdeal_mul_of_concordant` (CoxComposition.lean).
-  -- The span-pair-mul-span-pair containment uses the CRT congruences
-  -- instead of shared B.  The reverse containment uses self_mem_coxIdeal,
-  -- coxBeta_mem_coxIdeal, and the Bézout identity on gcd A₁ A₂ = 1.
-  sorry
-
-/-- **Class-group consistency of computable composition.**
-
-Under the Cox equivalence, the CRT-adjusted `composeForm` represents the
-product of form classes.  This is the linchpin connecting the computable
-Gauss pipeline to the existing transported `CommGroup` on `FormClass`.
-
-Uses `coxIdeal_mul_of_united` (above) for the ideal-product identity,
-`unitedRep_properEquivalent` for right-factor replacement, and
-`formClassEquivClassGroup` injectivity for the quotient lift. -/
-theorem composeForm_mk (hdneg : d < 0)
-    (Q R : PrimitivePositiveDefiniteForm (fieldDiscriminant d))
-    (hQR : Q.1.disc = R.1.disc) (hRprim : R.1.IsPrimitive) (hQa : Q.1.a ≠ 0)
-    (hQpos : Q.1.IsPositiveDefinite) (hRpos : R.1.IsPositiveDefinite) :
-    letI := formClassCommGroup hdneg
-    Quotient.mk (primitivePositiveDefiniteFormSetoid (fieldDiscriminant d))
-      (composeFormPrimitiveOfCoprime hdneg Q R hQR hRprim hQa hQpos hRpos) =
-      Quotient.mk (primitivePositiveDefiniteFormSetoid (fieldDiscriminant d)) Q *
-      Quotient.mk (primitivePositiveDefiniteFormSetoid (fieldDiscriminant d)) R := by
-  intro _
-  apply (formClassEquivClassGroup hdneg).injective
-  -- Reduces to equality of ideal classes via the Cox 7.7 map.
-  -- `formClassToClassGroup d (mk (composeForm …))`
-  --   = class of `coxIdeal(composeForm)`
-  --   = class of `coxIdeal(Q) * coxIdeal(R')`   (by coxIdeal_mul_of_united)
-  --   = class of `coxIdeal(Q) * coxIdeal(R)`    (R' ~ R ⇒ same ideal class)
-  --   = `formClassToClassGroup d (mk Q) * formClassToClassGroup d (mk R)`
-  sorry
+    (hdiscQ : B₁ ^ 2 - 4 * A₁ * C₁ = bb ^ 2 + 4 * DD)
+    (hdiscR : B₂ ^ 2 - 4 * A₂ * C₂ = bb ^ 2 + 4 * DD)
+    (hu₁ : 2 * u₁ = -(B₁ + bb))
+    (hu₂ : 2 * u₂ = -(B₂ + bb))
+    (hu : 2 * u = -(B + bb))
+    (hcop : Int.gcd A₁ A₂ = 1)
+    (h_mod_left : B ≡ B₁ [ZMOD 2 * A₁])
+    (h_mod_right : B ≡ B₂ [ZMOD 2 * A₂]) :
+    CoxIdealRelation.coxIdeal DD bb A₁ u₁ * CoxIdealRelation.coxIdeal DD bb A₂ u₂ =
+      CoxIdealRelation.coxIdeal DD bb (A₁ * A₂) u := by
+  exact CoxComposition.coxIdeal_mul_of_united hdiscQ hdiscR hu₁ hu₂ hu hcop h_mod_left
+    h_mod_right
 
 /-- Wrap `composeForm` as a `PrimitivePositiveDefiniteForm`.  Requires
 `disc_composeForm` and `isPrimitive_composeForm` (already proved). -/
@@ -202,6 +171,36 @@ def composeFormPrimitiveOfCoprime (hdneg : d < 0)
       exact fieldDiscriminant_neg hdneg
   ⟨F, ⟨hdiscF, hprimF, ⟨hposF.1, hposF.2⟩⟩⟩
 
+/-- **Class-group consistency of computable composition.**
+
+Under the Cox equivalence, the CRT-adjusted `composeForm` represents the
+product of form classes.  This is the linchpin connecting the computable
+Gauss pipeline to the existing transported `CommGroup` on `FormClass`.
+
+Uses `coxIdeal_mul_of_united` (above) for the ideal-product identity,
+`unitedRep_properEquivalent` for right-factor replacement, and
+`formClassEquivClassGroup` injectivity for the quotient lift. -/
+theorem composeForm_mk (hdneg : d < 0)
+    (Q R : PrimitivePositiveDefiniteForm (fieldDiscriminant d))
+    (hQR : Q.1.disc = R.1.disc) (hRprim : R.1.IsPrimitive) (hQa : Q.1.a ≠ 0)
+    (hQpos : Q.1.IsPositiveDefinite) (hRpos : R.1.IsPositiveDefinite) :
+    haveI := formClassCommGroup hdneg
+    Quotient.mk (primitivePositiveDefiniteFormSetoid (fieldDiscriminant d))
+      (composeFormPrimitiveOfCoprime hdneg Q R hQR hRprim hQa hQpos hRpos) =
+      @Mul.mul (FormClass (fieldDiscriminant d)) (formClassCommGroup hdneg).toMul
+        (Quotient.mk (primitivePositiveDefiniteFormSetoid (fieldDiscriminant d)) Q :
+          FormClass (fieldDiscriminant d))
+        (Quotient.mk (primitivePositiveDefiniteFormSetoid (fieldDiscriminant d)) R :
+          FormClass (fieldDiscriminant d)) := by
+  apply (formClassEquivClassGroup hdneg).injective
+  -- Reduces to equality of ideal classes via the Cox 7.7 map.
+  -- `formClassToClassGroup d (mk (composeForm …))`
+  --   = class of `coxIdeal(composeForm)`
+  --   = class of `coxIdeal(Q) * coxIdeal(R')`   (by coxIdeal_mul_of_united)
+  --   = class of `coxIdeal(Q) * coxIdeal(R)`    (R' ~ R ⇒ same ideal class)
+  --   = `formClassToClassGroup d (mk Q) * formClassToClassGroup d (mk R)`
+  sorry
+
 /-- The computable Gauss multiplication equals the Cox-transported
 class-group law on reduced-form representatives
 (both as `BinaryQuadraticForm` values). -/
@@ -218,27 +217,19 @@ theorem gaussMul_eq_reducedFormRepMul_val
   -- Dependency: `composeForm_mk` (above) and `reduceForm_mem_enum` (proved).
   sorry
 
-/-- The computable Gauss multiplication, lifted to `ReducedFormRep`,
-agrees with the Cox-transported law. -/
-theorem gaussMul_eq_reducedFormRepMul
-    (hdneg : d < 0) (Q R : ReducedFormRep D) :
-    (⟨gaussMul hdneg Q R, mem_enum_of_gaussMul hdneg Q R⟩ : ReducedFormRep D) =
-      reducedFormRepMul hdneg Q R := by
-  apply Subtype.ext
-  exact gaussMul_eq_reducedFormRepMul_val hdneg Q R
-
+omit [Fact (Squarefree d)] [Fact (d ≠ 1)] in
 /-- The `gaussMul` result belongs to the reduced-form enumeration. -/
 theorem mem_enum_of_gaussMul (hdneg : d < 0) (Q R : ReducedFormRep D) :
     gaussMul hdneg Q R ∈ enumPrimitiveReducedForms D := by
   unfold gaussMul
   let Qf := Q.1
   let Rf := R.1
-  have hQprim : Qf.IsPrimitive := (of_mem_enumPrimitiveReducedForms Q.2).2.1
-  have hRprim : Rf.IsPrimitive := (of_mem_enumPrimitiveReducedForms R.2).2.1
-  have hQpos : Qf.IsPositiveDefinite := (of_mem_enumPrimitiveReducedForms Q.2).2.2.2
-  have hRpos : Rf.IsPositiveDefinite := (of_mem_enumPrimitiveReducedForms R.2).2.2.2
-  have hdiscQ : Qf.disc = D := (of_mem_enumPrimitiveReducedForms Q.2).2.2.1
-  have hdiscR : Rf.disc = D := (of_mem_enumPrimitiveReducedForms R.2).2.2.1
+  have hQprim : Qf.IsPrimitive := (of_mem_enumPrimitiveReducedForms Q.2).2.2.2
+  have hRprim : Rf.IsPrimitive := (of_mem_enumPrimitiveReducedForms R.2).2.2.2
+  have hQpos : Qf.IsPositiveDefinite := (of_mem_enumPrimitiveReducedForms Q.2).2.1
+  have hRpos : Rf.IsPositiveDefinite := (of_mem_enumPrimitiveReducedForms R.2).2.1
+  have hdiscQ : Qf.disc = D := (of_mem_enumPrimitiveReducedForms Q.2).1
+  have hdiscR : Rf.disc = D := (of_mem_enumPrimitiveReducedForms R.2).1
   have hQR : Qf.disc = Rf.disc := by rw [hdiscQ, hdiscR]
   have hQa : Qf.a ≠ 0 := ne_of_gt hQpos.1
   let comp := composeForm Qf Rf hQR hRprim hQa
@@ -267,6 +258,15 @@ theorem mem_enum_of_gaussMul (hdneg : d < 0) (Q R : ReducedFormRep D) :
     isPrimitive_composeForm Qf Rf hQR hQprim hRprim hQa hQpos hRpos
   exact reduceForm_mem_enum comp hcomp_disc hcomp_prim hcomp_pos
 
+/-- The computable Gauss multiplication, lifted to `ReducedFormRep`,
+agrees with the Cox-transported law. -/
+theorem gaussMul_eq_reducedFormRepMul
+    (hdneg : d < 0) (Q R : ReducedFormRep D) :
+    (⟨gaussMul hdneg Q R, mem_enum_of_gaussMul hdneg Q R⟩ : ReducedFormRep D) =
+      reducedFormRepMul hdneg Q R := by
+  apply Subtype.ext
+  exact gaussMul_eq_reducedFormRepMul_val hdneg Q R
+
 end GaussMul
 
 /-! ## Regression: multiplication table for `d = -21`
@@ -288,59 +288,54 @@ def f4 : BinaryQuadraticForm := BinaryQuadraticForm.mk 5 4 5
 
 /-- Compose and reduce two forms in one step (for `#eval` testing). -/
 def composeAndReduce (Q R : BinaryQuadraticForm) : BinaryQuadraticForm :=
-  let Q' := Q
-  let R' := R
-  have hQR : Q'.disc = R'.disc := by
-    unfold Q' R' disc; native_decide
-  have hRprim : R'.IsPrimitive := by
-    unfold Q' R' IsPrimitive; native_decide
-  have hQa : Q'.a ≠ 0 := by
-    unfold Q'; native_decide
-  let comp := composeForm Q' R' hQR hRprim hQa
-  have hcomp_pos : comp.IsPositiveDefinite := by
-    -- For this concrete test, we verify directly.
-    refine ⟨by
-      unfold comp Q' R' composeForm composeMiddleB unitedRep
-        coprimeEvalVector coprimeEvalPred
-      native_decide, ?_⟩
-    unfold comp Q' R' composeForm composeMiddleB unitedRep
-      coprimeEvalVector coprimeEvalPred disc
-    native_decide
-  reduceForm comp hcomp_pos
+  if hQR : Q.disc = R.disc then
+    if hRprim : R.IsPrimitive then
+      if hQa : Q.a ≠ 0 then
+        let comp := composeForm Q R hQR hRprim hQa
+        if hcomp_pos : comp.IsPositiveDefinite then
+          reduceForm comp hcomp_pos
+        else
+          comp
+      else
+        Q
+    else
+      Q
+  else
+    Q
 
-/-- `#eval` the full pipeline on `(2,2,11) × (2,2,11)` (order-2 element). -/
+-- `#eval` the full pipeline on `(2,2,11) × (2,2,11)` (order-2 element).
 #eval composeAndReduce f2 f2
-/-- Expected: identity form `(1,0,21)`. -/
+-- Expected: identity form `(1,0,21)`.
 example : composeAndReduce f2 f2 = f1 := by
   native_decide
 
-/-- `#eval` the full pipeline on `(3,0,7) × (3,0,7)` (order-2 element). -/
+-- `#eval` the full pipeline on `(3,0,7) × (3,0,7)` (order-2 element).
 #eval composeAndReduce f3 f3
 example : composeAndReduce f3 f3 = f1 := by
   native_decide
 
-/-- `#eval` the full pipeline on `(5,4,5) × (5,4,5)` (order-2 element). -/
+-- `#eval` the full pipeline on `(5,4,5) × (5,4,5)` (order-2 element).
 #eval composeAndReduce f4 f4
 example : composeAndReduce f4 f4 = f1 := by
   native_decide
 
-/-- `#eval` the full pipeline on `(2,2,11) × (3,0,7)`. -/
+-- `#eval` the full pipeline on `(2,2,11) × (3,0,7)`.
 #eval composeAndReduce f2 f3
-/-- Product of the two distinct non-identity elements gives the third. -/
+-- Product of the two distinct non-identity elements gives the third.
 example : composeAndReduce f2 f3 = f4 := by
   native_decide
 
-/-- `#eval` the full pipeline on `(2,2,11) × (5,4,5)`. -/
+-- `#eval` the full pipeline on `(2,2,11) × (5,4,5)`.
 #eval composeAndReduce f2 f4
 example : composeAndReduce f2 f4 = f3 := by
   native_decide
 
-/-- `#eval` the full pipeline on `(3,0,7) × (5,4,5)`. -/
+-- `#eval` the full pipeline on `(3,0,7) × (5,4,5)`.
 #eval composeAndReduce f3 f4
 example : composeAndReduce f3 f4 = f2 := by
   native_decide
 
-/-- Identity: `(1,0,21) × anything = anything`. -/
+-- Identity: `(1,0,21) × anything = anything`.
 #eval composeAndReduce f1 f2
 example : composeAndReduce f1 f2 = f2 := by native_decide
 #eval composeAndReduce f1 f3

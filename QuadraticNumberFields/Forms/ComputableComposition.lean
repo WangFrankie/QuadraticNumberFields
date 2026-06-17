@@ -230,7 +230,7 @@ properly equivalent representative whose leading coefficient is coprime to
 `Q.a`; then the middle coefficient is chosen via the CRT to make the final
 `c`-division exact. -/
 def composeForm (Q R : BinaryQuadraticForm)
-    (hQR : Q.disc = R.disc) (hR : R.IsPrimitive) (hQa : Q.a ≠ 0) :
+    (_hQR : Q.disc = R.disc) (hR : R.IsPrimitive) (hQa : Q.a ≠ 0) :
     BinaryQuadraticForm :=
   let R' := unitedRep Q R hR hQa
   let B := composeMiddleB Q R'
@@ -372,7 +372,7 @@ theorem disc_composeForm (Q R : BinaryQuadraticForm)
 `(4 * Q.a * R'.a) * c = B² - Q.disc`. -/
 theorem composeForm_exact_div (Q R : BinaryQuadraticForm)
     (hQR : Q.disc = R.disc) (hR : R.IsPrimitive) (hQa : Q.a ≠ 0)
-    (hQpos : Q.IsPositiveDefinite) (hRpos : R.IsPositiveDefinite) :
+    (_hQpos : Q.IsPositiveDefinite) (hRpos : R.IsPositiveDefinite) :
     (4 * Q.a * (unitedRep Q R hR hQa).a) * (composeForm Q R hQR hR hQa).c =
       (composeMiddleB Q (unitedRep Q R hR hQa)) ^ 2 - Q.disc := by
   let R' := unitedRep Q R hR hQa
@@ -450,8 +450,8 @@ theorem composeForm_exact_div (Q R : BinaryQuadraticForm)
     (4 * Q.a * R'.a) * (composeForm Q R hQR hR hQa).c
         = (4 * Q.a * R'.a) * ((B ^ 2 - Q.disc) / (4 * (Q.a * R'.a))) := rfl
     _ = (4 * Q.a * R'.a) * C := by
-      rw [h_denom_eq', ← hC, Int.mul_ediv_cancel_left C h_den_nonzero']
-    _ = B ^ 2 - Q.disc := by rw [hC]; ring
+      rw [h_denom_eq', hC, Int.mul_ediv_cancel_left C h_den_nonzero']
+    _ = B ^ 2 - Q.disc := by rw [hC]
 
 /-- **Primitivity preservation for computable composition.**
 Both input forms must be primitive; the composed form is primitive too. -/
