@@ -31,6 +31,8 @@ attribute [-instance] DivisionRing.toRatAlgebra
 open RingOfIntegers
 open Splitting
 
+local notation "𝓞" => _root_.NumberField.RingOfIntegers
+
 /-! ## Class-number-one sieve -/
 
 /-- The number of distinct rational prime factors of the closed discriminant

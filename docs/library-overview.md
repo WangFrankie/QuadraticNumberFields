@@ -244,12 +244,17 @@ Key declarations include `factorization_of_two`,
 File: `QuadraticNumberFields/ClassNumber.lean`
 
 The stable library specializes mathlib's Minkowski ideal-class representative
-bound to `Qsqrtd d`:
+bound to `Qsqrtd d` and owns the unified class-number interface:
 
+- `classNumberQsqrtd`
 - `Qsqrtd.minkowskiBound`
 - `Qsqrtd.exists_ideal_in_class_of_norm_le`
 - `Qsqrtd.exists_ideal_in_class_of_norm_le_imaginary`
 - `Qsqrtd.exists_ideal_in_class_of_norm_le_real`
+
+The Heegner wrappers for this interface live in
+`QuadraticNumberFields/ClassNumber/Heegner.lean`, while the reduced-form
+cardinality bridge lives under `QuadraticNumberFields/Forms/ClassGroup/`.
 
 ## Core Lean Objects
 
@@ -300,11 +305,17 @@ unit, Minkowski, and real-quadratic family developments.
 .
 ├── lakefile.toml
 ├── lean-toolchain
+├── QNFMathlib.lean                   # shared local mathlib-shim re-exports
+├── QNFMathlib/                       # temporary material destined for mathlib
+├── BinaryQuadraticForms.lean         # pure binary-quadratic-form entry point
+├── BinaryQuadraticForms/             # QNF-independent BQF machinery
+│   ├── Core/                         # action, reduction, classes, enumeration
+│   ├── Cox/                          # pure ideal-relation arithmetic
+│   ├── Gauss/                        # pure Gauss composition
+│   └── Computable/                   # executable composition/reduction
 ├── QuadraticNumberFields.lean        # stable, sorry-free public entry point
 ├── QuadraticNumberFields/
 │   ├── Sketch.lean                   # work-in-progress import surface
-│   ├── Mathlib.lean                  # local mathlib-shim re-exports
-│   ├── Mathlib/                      # temporary material destined for mathlib
 │   ├── Qsqrtd/                       # concrete ℚ(√d) coordinate model
 │   │   ├── Basic.lean
 │   │   ├── TraceNorm.lean
@@ -339,8 +350,9 @@ unit, Minkowski, and real-quadratic family developments.
 │   ├── ZOnePlusSqrtOverTwo/
 │   │   └── Basic.lean
 │   ├── Splitting/                    # prime splitting
-│   ├── ClassNumber/                  # class-number interface and scaffolding
+│   ├── ClassNumber/                  # class-number wrappers such as Heegner.lean
 │   ├── ClassGroup/                   # class-group scaffolding
+│   ├── Forms/                        # QNF-dependent BQF/class-group bridge
 │   ├── ContinuedFraction/            # continued-fraction scaffolding
 │   ├── Units/                        # unit and Pell scaffolding
 │   ├── Families/                     # real-quadratic family scaffolding
@@ -356,8 +368,8 @@ unit, Minkowski, and real-quadratic family developments.
 ## Contributions to mathlib
 
 Temporary general-purpose facts that are intended for mathlib live under
-`QNFMathlib/`. The project still depends on upstream mathlib
-through Lake; these files are local shims, not patches to `.lake/packages/mathlib`.
+`QNFMathlib/`. The project still depends on upstream mathlib through Lake; these
+files are local shims, not patches to `.lake/packages/mathlib`.
 
 - [PR #36347](https://github.com/leanprover-community/mathlib4/pull/36347):
   Define quadratic number fields as `QuadraticAlgebra ℚ d 0`

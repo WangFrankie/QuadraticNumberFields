@@ -3,7 +3,7 @@ Copyright (c) 2026 Frankie Wang. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
-import QuadraticNumberFields.Forms.ClassGroup.ClassNumber
+import QuadraticNumberFields.ClassNumber
 import QuadraticNumberFields.Examples.SqrtNeg5.Ideals
 import QuadraticNumberFields.Examples.SqrtNeg5.Invariants
 import QNFMathlib.NumberTheory.NumberField.ClassNumber
@@ -185,10 +185,5 @@ theorem classNumber_eq_two :
 /-- `classNumberQsqrtd (-5) = 2`, the unified-interface form. -/
 theorem classNumberQsqrtd_neg5 : classNumberQsqrtd (-5) = 2 :=
   classNumber_eq_two
-
-/-- Computation-path regression for `ℚ(√-5)`: the class number is obtained from
-the reduced-form enumeration. -/
-theorem classNumberQsqrtd_neg5_by_reducedForms : classNumberQsqrtd (-5) = 2 := by
-  compute_class_number_qsqrtd
 
 end QuadraticNumberFields.Examples.SqrtNeg5

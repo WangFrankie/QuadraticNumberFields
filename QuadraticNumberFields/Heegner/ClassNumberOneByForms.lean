@@ -5,6 +5,7 @@ Authors: Frankie Wang
 -/
 
 import QuadraticNumberFields.Forms.ClassGroup.ClassNumber
+import QuadraticNumberFields.Heegner.ClassNumberOne
 
 /-!
 # Heegner Class Number One via Reduced Forms

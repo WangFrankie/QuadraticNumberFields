@@ -55,6 +55,7 @@ import QuadraticNumberFields.Forms.ClassGroup.ClassNumber
 import QuadraticNumberFields.Forms.ClassGroup.Structure
 import QuadraticNumberFields.Forms.ClassGroup.Law
 import QuadraticNumberFields.ClassNumber
+import QuadraticNumberFields.ClassNumber.Heegner
 import QuadraticNumberFields.Examples.SqrtNeg5.Ideals
 import QuadraticNumberFields.Examples.SqrtNeg5.RamificationInertia
 import QuadraticNumberFields.Examples.SqrtNeg5.Splitting
