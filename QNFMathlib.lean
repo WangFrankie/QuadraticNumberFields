@@ -8,6 +8,7 @@ import QNFMathlib.Algebra.Squarefree.Basic
 import QNFMathlib.Algebra.QuadraticAlgebra.Basic
 import QNFMathlib.Algebra.QuadraticAlgebra.Defs
 import QNFMathlib.Data.Int.ModFour
+import QNFMathlib.Data.Int.Parity
 import QNFMathlib.Data.Int.Squarefree
 import QNFMathlib.FieldTheory.Galois.Basic
 import QNFMathlib.NumberTheory.DirichletCharacter.Kronecker

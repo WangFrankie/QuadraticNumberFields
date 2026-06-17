@@ -175,25 +175,8 @@ theorem reducedFormRepMulForTable_val_eq_composeAndReduce
   have hQR : Q.1.disc = R.1.disc := by rw [hdiscQ, hdiscR]
   have hQa : Q.1.a ≠ 0 := ne_of_gt hQpos.1
   let comp := composeForm Q.1 R.1 hQR hRprim hQa
-  have hcomp_pos : comp.IsPositiveDefinite := by
-    have ha_pos : 0 < comp.a := by
-      rw [composeForm_a]
-      apply mul_pos hQpos.1
-      rw [unitedRep_a]
-      have hxy_gcd : Int.gcd (coprimeEvalVector R.1 Q.1.a hRprim hQa).1
-          (coprimeEvalVector R.1 Q.1.a hRprim hQa).2 = 1 :=
-        coprimeEvalVector_gcd R.1 Q.1.a hRprim hQa
-      have hxy_nonzero : (coprimeEvalVector R.1 Q.1.a hRprim hQa).1 ≠ 0 ∨
-          (coprimeEvalVector R.1 Q.1.a hRprim hQa).2 ≠ 0 := by
-        by_contra! hboth
-        rcases hboth with ⟨hx, hy⟩
-        rw [hx, hy] at hxy_gcd
-        simp at hxy_gcd
-      exact eval_pos_of_isPositiveDefinite R.1 hRpos hxy_nonzero
-    have hdisc_lt : comp.disc < 0 := by
-      rw [disc_composeForm Q.1 R.1 hQR hRprim hQa hQpos hRpos, hdiscQ]
-      exact fieldDiscriminant_neg hdneg
-    exact ⟨ha_pos, hdisc_lt⟩
+  have hcomp_pos : comp.IsPositiveDefinite :=
+    composeForm_isPositiveDefinite Q.1 R.1 hQR hRprim hQa hQpos hRpos
   unfold reducedFormRepMulForTable gaussMul composeAndReduce
   rw [dif_pos hQR, dif_pos hRprim, dif_pos hQa]
   change reduceForm comp _ = (if h : comp.IsPositiveDefinite then reduceForm comp h else comp)

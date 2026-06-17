@@ -373,6 +373,17 @@ theorem disc_composeForm (Q R : BinaryQuadraticForm)
     _ = B ^ 2 - (B ^ 2 - Q.disc) := by rw [← hC]
     _ = Q.disc := by ring
 
+/-- Computable composition of positive definite forms is positive definite. -/
+theorem composeForm_isPositiveDefinite (Q R : BinaryQuadraticForm)
+    (hQR : Q.disc = R.disc) (hR : R.IsPrimitive) (hQa : Q.a ≠ 0)
+    (hQpos : Q.IsPositiveDefinite) (hRpos : R.IsPositiveDefinite) :
+    (composeForm Q R hQR hR hQa).IsPositiveDefinite := by
+  constructor
+  · rw [composeForm_a]
+    exact mul_pos hQpos.1 (unitedRep_a_pos Q R hR hQa hRpos)
+  · rw [disc_composeForm Q R hQR hR hQa hQpos hRpos]
+    exact hQpos.2
+
 /-- The exact division identity for the `c` coefficient of `composeForm`:
 `(4 * Q.a * R'.a) * c = B² - Q.disc`. -/
 theorem composeForm_exact_div (Q R : BinaryQuadraticForm)

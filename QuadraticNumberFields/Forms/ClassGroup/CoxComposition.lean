@@ -6,6 +6,7 @@ Authors: Frankie Wang
 
 import QuadraticNumberFields.Forms.Gauss.CompositionClass
 import QuadraticNumberFields.Forms.ClassGroup.Structure
+import QNFMathlib.Data.Int.Parity
 
 /-!
 # Cox Ideal Multiplicativity for Concordant Gauss Composition
@@ -546,20 +547,6 @@ end CoxComposition
 
 namespace PrimitivePositiveDefiniteForm
 
-/-- Normalise the integer half of `-b` when `b` is even. -/
-theorem two_mul_neg_div_two_of_even {b : ℤ} (hb : Even b) :
-    2 * ((-b) / 2) = -b := by
-  rcases hb with ⟨k, hk⟩
-  rw [hk]
-  omega
-
-/-- Normalise the integer half of `-(b + 1)` when `b` is odd. -/
-theorem two_mul_neg_succ_div_two_of_odd {b : ℤ} (hb : Odd b) :
-    2 * (-(b + 1) / 2) = -(b + 1) := by
-  rcases hb with ⟨k, hk⟩
-  rw [hk]
-  omega
-
 /-- In the non-half-integral branch, Cox ideals multiply under direct
 concordant Gauss composition. -/
 theorem idealOfForm_composeConcordant_of_mod_four_ne_one
@@ -574,7 +561,7 @@ theorem idealOfForm_composeConcordant_of_mod_four_ne_one
   have hb_even : Even Q.1.b :=
     even_b_of_hasDiscriminant_fieldDiscriminant_of_mod_four_ne_one hd4 Q.2.1
   have hu : 2 * u = -(Q.1.b + 0) := by
-    simpa [u] using two_mul_neg_div_two_of_even hb_even
+    simpa [u] using Int.two_mul_neg_ediv_two_of_even hb_even
   have hdiscQ : Q.1.b ^ 2 - 4 * Q.1.a * Q.1.c = 0 ^ 2 + 4 * d := by
     simpa [BinaryQuadraticForm.HasDiscriminant, BinaryQuadraticForm.disc,
       fieldDiscriminant_of_mod_four_ne_one hd4] using Q.2.1
@@ -637,7 +624,7 @@ theorem idealOfForm_composeConcordant_of_mod_four_eq_one
   have hb_odd : Odd Q.1.b :=
     odd_b_of_hasDiscriminant_fieldDiscriminant_of_mod_four_eq_one hd4 Q.2.1
   have hu : 2 * u = -(Q.1.b + 1) := by
-    simpa [u] using two_mul_neg_succ_div_two_of_odd hb_odd
+    simpa [u] using Int.two_mul_neg_succ_ediv_two_of_odd hb_odd
   have hd_eq : d = 1 + 4 * (d / 4) := by omega
   have hdiscQ : Q.1.b ^ 2 - 4 * Q.1.a * Q.1.c = 1 ^ 2 + 4 * (d / 4) := by
     have hdisc_d : Q.1.b ^ 2 - 4 * Q.1.a * Q.1.c = d := by

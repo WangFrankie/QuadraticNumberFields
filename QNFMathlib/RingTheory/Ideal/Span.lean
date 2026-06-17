@@ -50,6 +50,22 @@ theorem span_singleton_mul_span_pair_le {R : Type*} [CommRing R]
   | smul r y _ hy =>
       simpa [mul_assoc, mul_comm, mul_left_comm] using K.mul_mem_left r hy
 
+/-- Pull back a principal ideal span along a ring equivalence. -/
+theorem comap_span_singleton_of_ringEquiv {R S : Type*} [CommRing R] [CommRing S]
+    (e : R ≃+* S) (x : S) :
+    Ideal.comap (e : R →+* S) (span ({x} : Set S)) = span ({e.symm x} : Set R) := by
+  ext z
+  change e z ∈ span ({x} : Set S) ↔ z ∈ span ({e.symm x} : Set R)
+  rw [mem_span_singleton, mem_span_singleton]
+  constructor
+  · rintro ⟨s, hs⟩
+    refine ⟨e.symm s, ?_⟩
+    apply e.injective
+    simp [hs]
+  · rintro ⟨r, hr⟩
+    refine ⟨e r, ?_⟩
+    simpa using congrArg e hr
+
 /-- Pull back a two-generator ideal span along a ring equivalence. -/
 theorem comap_span_pair_of_ringEquiv {R S : Type*} [CommRing R] [CommRing S]
     (e : R ≃+* S) (a b : S) :
@@ -83,5 +99,13 @@ theorem comap_mul_of_ringEquiv {R S : Type*} [CommRing R] [CommRing S]
   rw [Ideal.map_mul]
   rw [Ideal.map_comap_of_surjective (e : R →+* S) e.surjective]
   rw [Ideal.map_comap_of_surjective (e : R →+* S) e.surjective]
+
+/-- Pulling back a product of a principal ideal and another ideal along a ring
+equivalence preserves the principal generator. -/
+theorem comap_span_singleton_mul_of_ringEquiv {R S : Type*} [CommRing R] [CommRing S]
+    (e : R ≃+* S) (x : S) (I : Ideal S) :
+    Ideal.comap (e : R →+* S) (span ({x} : Set S) * I) =
+      span ({e.symm x} : Set R) * Ideal.comap (e : R →+* S) I := by
+  rw [comap_mul_of_ringEquiv, comap_span_singleton_of_ringEquiv]
 
 end Ideal

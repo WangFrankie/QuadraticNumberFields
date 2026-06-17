@@ -7,6 +7,7 @@ Authors: Frankie Wang
 import BinaryQuadraticForms.Core.Class
 import BinaryQuadraticForms.Core.ClassReduced
 import BinaryQuadraticForms.Cox.IdealRelation
+import QNFMathlib.Data.Int.Parity
 import QuadraticNumberFields.RingOfIntegers.Classification
 import Mathlib.LinearAlgebra.Matrix.SpecialLinearGroup
 import Mathlib.RingTheory.ClassGroup
@@ -29,34 +30,6 @@ namespace QuadraticNumberFields
 namespace BinaryQuadraticForm
 
 /-! ## Cox 7.7 class-group bridge -/
-
-private theorem comap_span_singleton_mul_of_ringEquiv {R S : Type*} [CommRing R] [CommRing S]
-    (e : R ≃+* S) (x : S) (I : Ideal S) :
-    Ideal.comap (e : R →+* S) (Ideal.span ({x} : Set S) * I) =
-      Ideal.span ({e.symm x} : Set R) * Ideal.comap (e : R →+* S) I := by
-  have hmap_inj : Function.Injective (fun J : Ideal R => Ideal.map (e : R →+* S) J) := by
-    intro J K hJK
-    have h := congrArg (fun L : Ideal S => Ideal.map (e.symm : S →+* R) L) hJK
-    simpa using h
-  apply hmap_inj
-  change Ideal.map (e : R →+* S)
-      (Ideal.comap (e : R →+* S) (Ideal.span ({x} : Set S) * I)) =
-    Ideal.map (e : R →+* S)
-      (Ideal.span ({e.symm x} : Set R) * Ideal.comap (e : R →+* S) I)
-  rw [Ideal.map_comap_of_surjective (f := (e : R →+* S)) e.surjective]
-  rw [Ideal.map_mul]
-  rw [Ideal.map_comap_of_surjective (f := (e : R →+* S)) e.surjective]
-  rw [Ideal.map_span]
-  simp
-
-private theorem two_mul_neg_div_two_of_even {b : ℤ} (hb : Even b) : 2 * ((-b) / 2) = -b := by
-  rcases hb with ⟨k, hk⟩
-  omega
-
-private theorem two_mul_neg_succ_div_two_of_odd {b : ℤ} (hb : Odd b) :
-    2 * (-(b + 1) / 2) = -(b + 1) := by
-  rcases hb with ⟨k, hk⟩
-  omega
 
 private theorem sl2z_det_fin_two (g : SL2Z) : g 0 0 * g 1 1 - g 0 1 * g 1 0 = 1 := by
   have h := g.2
@@ -110,11 +83,11 @@ private theorem cox_zsqrtd_ideal_relation_transform_of_mod_four_ne_one
   have hb_transform_even : Even (transform Q.1 g).b :=
     even_b_of_hasDiscriminant_fieldDiscriminant_of_mod_four_ne_one hd4 hdisc_transform
   have hu : 2 * ((-Q.1.b) / 2) = -Q.1.b :=
-    two_mul_neg_div_two_of_even hb_even
+    Int.two_mul_neg_ediv_two_of_even hb_even
   have hv : 2 * ((-(transform Q.1 g).b) / 2) =
       -(2 * Q.1.a * g 0 0 * g 0 1 +
         Q.1.b * (g 0 0 * g 1 1 + g 0 1 * g 1 0) + 2 * Q.1.c * g 1 0 * g 1 1) := by
-    simpa [transform_b] using two_mul_neg_div_two_of_even hb_transform_even
+    simpa [transform_b] using Int.two_mul_neg_ediv_two_of_even hb_transform_even
   simpa [transform_a] using
     cox_zsqrtd_ideal_relation (D := d) (A := Q.1.a) (B := Q.1.b) (C := Q.1.c)
       (p := g 0 0) (q := g 0 1) (r := g 1 0) (s := g 1 1)
@@ -173,12 +146,12 @@ private theorem cox_zomega_ideal_relation_transform_of_mod_four_eq_one
   have hb_transform_odd : Odd (transform Q.1 g).b :=
     odd_b_of_hasDiscriminant_fieldDiscriminant_of_mod_four_eq_one hd4 hdisc_transform
   have hu : 2 * (-(Q.1.b + 1) / 2) = -(Q.1.b + 1) :=
-    two_mul_neg_succ_div_two_of_odd hb_odd
+    Int.two_mul_neg_succ_ediv_two_of_odd hb_odd
   have hv : 2 * (-((transform Q.1 g).b + 1) / 2) =
       -(2 * Q.1.a * g 0 0 * g 0 1 +
         Q.1.b * (g 0 0 * g 1 1 + g 0 1 * g 1 0) + 2 * Q.1.c * g 1 0 * g 1 1 +
           1) := by
-    simpa [transform_b] using two_mul_neg_succ_div_two_of_odd hb_transform_odd
+    simpa [transform_b] using Int.two_mul_neg_succ_ediv_two_of_odd hb_transform_odd
   simpa [transform_a] using
     cox_zomega_ideal_relation (k := d / 4) (A := Q.1.a) (B := Q.1.b) (C := Q.1.c)
       (p := g 0 0) (q := g 0 1) (r := g 1 0) (s := g 1 1)
@@ -228,11 +201,11 @@ theorem cox_ringOfIntegers_ideal_relation_transform_of_mod_four_ne_one
   intro e lam
   have hcoord := cox_zsqrtd_ideal_relation_transform_of_mod_four_ne_one hd4 Q g
   have hcomap := congrArg (Ideal.comap (e : 𝓞 (Qsqrtd (d : ℚ)) →+* Zsqrtd d)) hcoord
-  rw [comap_span_singleton_mul_of_ringEquiv e (((transform Q.1 g).a : ℤ) : Zsqrtd d)
+  rw [Ideal.comap_span_singleton_mul_of_ringEquiv e (((transform Q.1 g).a : ℤ) : Zsqrtd d)
       (Ideal.span
         ({((Q.1.a : ℤ) : Zsqrtd d), (⟨(-Q.1.b) / 2, 1⟩ : Zsqrtd d)} :
           Set (Zsqrtd d)))] at hcomap
-  rw [comap_span_singleton_mul_of_ringEquiv e lam
+  rw [Ideal.comap_span_singleton_mul_of_ringEquiv e lam
       (Ideal.span
         ({(((transform Q.1 g).a : ℤ) : Zsqrtd d),
           (⟨(-(transform Q.1 g).b) / 2, 1⟩ : Zsqrtd d)} :
@@ -278,13 +251,13 @@ theorem cox_ringOfIntegers_ideal_relation_transform_of_mod_four_eq_one
   have hcoord := cox_zomega_ideal_relation_transform_of_mod_four_eq_one hd4 Q g
   have hcomap := congrArg
     (Ideal.comap (e : 𝓞 (Qsqrtd (d : ℚ)) →+* ZOnePlusSqrtdOverTwo (d / 4))) hcoord
-  rw [comap_span_singleton_mul_of_ringEquiv e
+  rw [Ideal.comap_span_singleton_mul_of_ringEquiv e
       (((transform Q.1 g).a : ℤ) : ZOnePlusSqrtdOverTwo (d / 4))
       (Ideal.span
         ({((Q.1.a : ℤ) : ZOnePlusSqrtdOverTwo (d / 4)),
           (⟨-(Q.1.b + 1) / 2, 1⟩ : ZOnePlusSqrtdOverTwo (d / 4))} :
           Set (ZOnePlusSqrtdOverTwo (d / 4))))] at hcomap
-  rw [comap_span_singleton_mul_of_ringEquiv e lam
+  rw [Ideal.comap_span_singleton_mul_of_ringEquiv e lam
       (Ideal.span
         ({(((transform Q.1 g).a : ℤ) : ZOnePlusSqrtdOverTwo (d / 4)),
           (⟨-((transform Q.1 g).b + 1) / 2, 1⟩ :
