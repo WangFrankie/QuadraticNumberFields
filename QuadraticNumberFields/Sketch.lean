@@ -24,6 +24,7 @@ import QuadraticNumberFields.Forms.ComputableClassGroup
 import QuadraticNumberFields.Forms.ComputableComposition
 import QuadraticNumberFields.Forms.ComputableReduction
 import QuadraticNumberFields.Forms.ClassGroupStructure
+import QuadraticNumberFields.Examples.ClassGroupStructure
 import QuadraticNumberFields.Forms.GaussComposition
 import QuadraticNumberFields.Forms.GaussCompositionClass
 import QuadraticNumberFields.Heegner.StarkHeegner
@@ -51,9 +52,9 @@ Current work in progress:
 * `Forms.ComputableClassGroup`: computable Gauss multiplication `gaussMul` /
   `composeAndReduce` with Klein-four-group verification for `d=-21`.
   Consistency proof (`gaussMul = reducedFormRepMul`) WIP.
-* `Forms.ClassGroupStructure`: concrete isomorphism types for `-5` (≅ ℤ/2),
-  `-23` (≅ ℤ/3), `-21` (≅ ℤ/2 × ℤ/2) — computational verification complete,
-  formal proofs WIP.
+* `Forms.ClassGroupStructure`: reduced-form class-group output transported to
+  standard finite-abelian targets; concrete computations live in
+  `Examples.ClassGroupStructure`.
 * `Euclidean.Basic`: imaginary-quadratic norm-Euclidean classification skeleton.
 * `Heegner.StarkHeegner`: full Baker–Heegner–Stark statement; the deep
   direction (completeness of the nine Heegner numbers) is still `sorry`.
