@@ -27,7 +27,7 @@ form-class-to-ideal-class map.
 namespace QuadraticNumberFields
 namespace BinaryQuadraticForm
 
-/-- WIP Gauss reduction existence statement for positive definite forms. -/
+/-- Gauss reduction existence statement for positive definite forms. -/
 theorem exists_isReduced_properEquivalent (Q : BinaryQuadraticForm)
     (hQ : Q.IsPositiveDefinite) : ∃ R, R.IsReduced ∧ ProperEquivalent Q R := by
   obtain ⟨g, hgfd⟩ := ModularGroup.exists_smul_mem_fd (tauOfForm Q hQ)
@@ -244,7 +244,7 @@ private theorem transform_T_inv_S_inv_eq_self_of_tau_eq_rho (Q : BinaryQuadratic
   subst c
   exact transform_T_inv_S_inv_self_of_mk_eq a
 
-/-- WIP uniqueness statement for boundary-normalized reduced representatives. -/
+/-- Uniqueness statement for boundary-normalized reduced representatives. -/
 theorem eq_of_isReduced_of_properEquivalent {Q R : BinaryQuadraticForm}
     (hQpos : Q.IsPositiveDefinite) (hQred : Q.IsReduced) (hRred : R.IsReduced)
     (h : ProperEquivalent Q R) : Q = R := by

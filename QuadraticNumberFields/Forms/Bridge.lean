@@ -14,9 +14,9 @@ import Mathlib.RingTheory.ClassGroup
 /-!
 # Cox 7.7 Bridge from Forms to Ideal Classes
 
-This WIP module records the intended imaginary-side Cox 7.7 bridge. It is
-imported only by `Sketch.lean` until the ideal-class proofs close. The
-Gauss-reduction existence and uniqueness inputs live in
+This module builds the imaginary-side Cox 7.7 bridge from primitive positive
+definite form classes to ideal classes of the ring of integers of `ℚ(√d)`.
+The Gauss-reduction existence and uniqueness inputs live in
 `Forms.ReducedUniqueness`; the shared ideal-relation algebra lives in
 `Forms.CoxIdealRelation`.
 -/
@@ -28,7 +28,7 @@ attribute [-instance] DivisionRing.toRatAlgebra
 namespace QuadraticNumberFields
 namespace BinaryQuadraticForm
 
-/-! ## WIP Cox 7.7 class-group bridge -/
+/-! ## Cox 7.7 class-group bridge -/
 
 /-- Primitive positive definite forms of discriminant `D`. This is the
 imaginary-side carrier used by Cox 7.7; negative definite forms of the same
@@ -745,7 +745,7 @@ theorem idealClassOfForm_of_mod_four_eq_one_eq_of_properEquivalent
   rcases hQR with ⟨g, hg⟩
   exact idealClassOfForm_of_mod_four_eq_one_eq_of_transform d hd4 Q R g hg.symm
 
-/-- WIP map from form classes to ideal classes in the `d % 4 ≠ 1` branch. -/
+/-- Map from form classes to ideal classes in the `d % 4 ≠ 1` branch. -/
 noncomputable def formClassToClassGroup_of_mod_four_ne_one
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd4 : d % 4 ≠ 1) :
     FormClass (fieldDiscriminant d) → ClassGroup (𝓞 (Qsqrtd (d : ℚ))) := by
@@ -753,7 +753,7 @@ noncomputable def formClassToClassGroup_of_mod_four_ne_one
   exact Quotient.lift (idealClassOfForm_of_mod_four_ne_one d hd4)
     (idealClassOfForm_of_mod_four_ne_one_eq_of_properEquivalent d hd4)
 
-/-- WIP map from form classes to ideal classes in the `d % 4 = 1` branch. -/
+/-- Map from form classes to ideal classes in the `d % 4 = 1` branch. -/
 noncomputable def formClassToClassGroup_of_mod_four_eq_one
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd4 : d % 4 = 1) :
     FormClass (fieldDiscriminant d) → ClassGroup (𝓞 (Qsqrtd (d : ℚ))) := by
@@ -761,7 +761,7 @@ noncomputable def formClassToClassGroup_of_mod_four_eq_one
   exact Quotient.lift (idealClassOfForm_of_mod_four_eq_one d hd4)
     (idealClassOfForm_of_mod_four_eq_one_eq_of_properEquivalent d hd4)
 
-/-- WIP Cox map from primitive positive definite form classes to ideal classes,
+/-- Cox map from primitive positive definite form classes to ideal classes,
 dispatching between the two integer-ring models by the field discriminant
 congruence. -/
 noncomputable def formClassToClassGroup
