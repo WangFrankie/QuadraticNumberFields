@@ -546,7 +546,8 @@ end CoxComposition
 
 namespace PrimitivePositiveDefiniteForm
 
-private theorem comap_mul_of_ringEquiv {R S : Type*} [CommRing R] [CommRing S]
+/-- Pulling ideals back along a ring equivalence preserves ideal products. -/
+theorem comap_mul_of_ringEquiv {R S : Type*} [CommRing R] [CommRing S]
     (e : R ≃+* S) (I J : Ideal S) :
     Ideal.comap (e : R →+* S) (I * J) =
       Ideal.comap (e : R →+* S) I * Ideal.comap (e : R →+* S) J := by
@@ -562,13 +563,15 @@ private theorem comap_mul_of_ringEquiv {R S : Type*} [CommRing R] [CommRing S]
   rw [Ideal.map_comap_of_surjective (e : R →+* S) e.surjective]
   rw [Ideal.map_comap_of_surjective (e : R →+* S) e.surjective]
 
-private theorem two_mul_neg_div_two_of_even {b : ℤ} (hb : Even b) :
+/-- Normalise the integer half of `-b` when `b` is even. -/
+theorem two_mul_neg_div_two_of_even {b : ℤ} (hb : Even b) :
     2 * ((-b) / 2) = -b := by
   rcases hb with ⟨k, hk⟩
   rw [hk]
   omega
 
-private theorem two_mul_neg_succ_div_two_of_odd {b : ℤ} (hb : Odd b) :
+/-- Normalise the integer half of `-(b + 1)` when `b` is odd. -/
+theorem two_mul_neg_succ_div_two_of_odd {b : ℤ} (hb : Odd b) :
     2 * (-(b + 1) / 2) = -(b + 1) := by
   rcases hb with ⟨k, hk⟩
   rw [hk]
