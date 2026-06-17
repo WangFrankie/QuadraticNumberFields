@@ -502,14 +502,32 @@ theorem composeForm_mk (hdneg : d < 0)
           FormClass (fieldDiscriminant d))
         (Quotient.mk (primitivePositiveDefiniteFormSetoid (fieldDiscriminant d)) R :
           FormClass (fieldDiscriminant d)) := by
+  letI := formClassCommGroup hdneg
   apply (formClassEquivClassGroup hdneg).injective
-  -- Reduces to equality of ideal classes via the Cox 7.7 map.
-  -- `formClassToClassGroup d (mk (composeForm …))`
-  --   = class of `coxIdeal(composeForm)`
-  --   = class of `coxIdeal(Q) * coxIdeal(R')`   (by coxIdeal_mul_of_united)
-  --   = class of `coxIdeal(Q) * coxIdeal(R)`    (R' ~ R ⇒ same ideal class)
-  --   = `formClassToClassGroup d (mk Q) * formClassToClassGroup d (mk R)`
-  sorry
+  let q : FormClass (fieldDiscriminant d) :=
+    Quotient.mk (primitivePositiveDefiniteFormSetoid (fieldDiscriminant d)) Q
+  let r : FormClass (fieldDiscriminant d) :=
+    Quotient.mk (primitivePositiveDefiniteFormSetoid (fieldDiscriminant d)) R
+  change formClassToClassGroup d
+      (Quotient.mk (primitivePositiveDefiniteFormSetoid (fieldDiscriminant d))
+        (composeFormPrimitiveOfCoprime hdneg Q R hQR hRprim hQa hQpos hRpos)) =
+    formClassToClassGroup d
+      (@Mul.mul (FormClass (fieldDiscriminant d)) (formClassCommGroup hdneg).toMul q r)
+  rw [show formClassToClassGroup d
+      (@Mul.mul (FormClass (fieldDiscriminant d)) (formClassCommGroup hdneg).toMul q r) =
+        formClassToClassGroup d q * formClassToClassGroup d r by
+    simpa [q, r] using formClassEquivClassGroup_mul hdneg q r]
+  by_cases hd4 : d % 4 = 1
+  · rw [formClassToClassGroup_mk_eq_of_mod_four_eq_one d hd4]
+    rw [formClassToClassGroup_mk_eq_of_mod_four_eq_one d hd4]
+    rw [formClassToClassGroup_mk_eq_of_mod_four_eq_one d hd4]
+    exact idealClassOfForm_composeForm_of_mod_four_eq_one
+      hdneg hd4 Q R hQR hRprim hQa hQpos hRpos
+  · rw [formClassToClassGroup_mk_eq_of_mod_four_ne_one d hd4]
+    rw [formClassToClassGroup_mk_eq_of_mod_four_ne_one d hd4]
+    rw [formClassToClassGroup_mk_eq_of_mod_four_ne_one d hd4]
+    exact idealClassOfForm_composeForm_of_mod_four_ne_one
+      hdneg hd4 Q R hQR hRprim hQa hQpos hRpos
 
 /-- The computable Gauss multiplication equals the Cox-transported
 class-group law on reduced-form representatives
