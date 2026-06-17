@@ -4,18 +4,18 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 
-import QuadraticNumberFields.Forms.CoxLeftInverse
-import QuadraticNumberFields.Forms.CoxLeftInverseEqOne
-import QuadraticNumberFields.Forms.CoxRightInverse
+import QuadraticNumberFields.Forms.Cox.LeftInverse
+import QuadraticNumberFields.Forms.Cox.LeftInverseEqOne
+import QuadraticNumberFields.Forms.Cox.RightInverse
 
 /-!
 # Cox 7.7 Equivalence Assembly
 
 This file is the assembly layer for the imaginary Cox 7.7 correspondence.  The
-forward map from form classes to ideal classes lives in `Forms.Bridge`; the
+forward map from form classes to ideal classes lives in `Forms.Cox.Bridge`; the
 inverse-direction map from ideal classes to form classes lives in
-`Forms.InverseCox`.  The branch round-trip laws live in `Forms.CoxLeftInverse`,
-`Forms.CoxLeftInverseEqOne`, and `Forms.CoxRightInverse`; this file only holds
+`Forms.Cox.Inverse`.  The branch round-trip laws live in `Forms.Cox.LeftInverse`,
+`Forms.Cox.LeftInverseEqOne`, and `Forms.Cox.RightInverse`; this file only holds
 the representative-reduction interface and the final assembly.
 
 ## Main result

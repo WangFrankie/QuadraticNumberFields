@@ -5,8 +5,8 @@ Authors: Frankie Wang
 -/
 
 import Mathlib.LinearAlgebra.FreeModule.PID
-import QuadraticNumberFields.Forms.InverseCox
-import QuadraticNumberFields.Forms.NormFormBasisChange
+import QuadraticNumberFields.Forms.Cox.Inverse
+import QuadraticNumberFields.Forms.Cox.NormFormBasisChange
 import QuadraticNumberFields.RingOfIntegers.Norm
 import QuadraticNumberFields.Zsqrtd.Basic
 import QuadraticNumberFields.ZOnePlusSqrtdOverTwo.Basic
@@ -17,7 +17,7 @@ import QuadraticNumberFields.ZOnePlusSqrtdOverTwo.Basic
 Round-trip proof
 `classGroupToFormClass (idealClassOfForm_of_mod_four_eq_one Q) = ⟦Q⟧`
 for the half-integral branch, instantiating the generic `CoxIdealRelation`
-core at `bb = 1` (`ZOnePlusSqrtdOverTwo`).  Assembled in `Forms.CoxEquivalence`.
+core at `bb = 1` (`ZOnePlusSqrtdOverTwo`).  Assembled in `Forms.Cox.Equivalence`.
 -/
 
 open scoped NumberField nonZeroDivisors

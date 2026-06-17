@@ -6,7 +6,7 @@ Authors: Frankie Wang
 
 import QuadraticNumberFields.Forms.Core.Class
 import QuadraticNumberFields.Forms.Core.ClassReduced
-import QuadraticNumberFields.Forms.CoxIdealRelation
+import QuadraticNumberFields.Forms.Cox.IdealRelation
 import QuadraticNumberFields.RingOfIntegers.Classification
 import Mathlib.LinearAlgebra.Matrix.SpecialLinearGroup
 import Mathlib.RingTheory.ClassGroup
@@ -18,7 +18,7 @@ This module builds the imaginary-side Cox 7.7 bridge from primitive positive
 definite form classes to ideal classes of the ring of integers of `ℚ(√d)`.
 The form-class carrier and reduction interface live in `Forms.Core.Class` and
 `Forms.Core.ClassReduced`; the shared ideal-relation algebra lives in
-`Forms.CoxIdealRelation`.
+`Forms.Cox.IdealRelation`.
 -/
 
 open scoped NumberField

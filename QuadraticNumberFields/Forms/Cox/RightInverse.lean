@@ -5,8 +5,8 @@ Authors: Frankie Wang
 -/
 
 import Mathlib.LinearAlgebra.FreeModule.PID
-import QuadraticNumberFields.Forms.InverseCox
-import QuadraticNumberFields.Forms.NormFormBasisChange
+import QuadraticNumberFields.Forms.Cox.Inverse
+import QuadraticNumberFields.Forms.Cox.NormFormBasisChange
 import QuadraticNumberFields.RingOfIntegers.Norm
 import QuadraticNumberFields.Zsqrtd.Basic
 import QuadraticNumberFields.ZOnePlusSqrtdOverTwo.Basic
@@ -18,7 +18,7 @@ Proves the right-inverse law
 `formClassToClassGroup (classGroupToFormClass C) = C` at the level of ideal
 representatives, for both the `d % 4 ≠ 1` and `d % 4 = 1` branches, via the
 principal Cox ideal-generator relations.  The final equivalence is assembled
-in `Forms.CoxEquivalence`.
+in `Forms.Cox.Equivalence`.
 -/
 
 open scoped NumberField nonZeroDivisors

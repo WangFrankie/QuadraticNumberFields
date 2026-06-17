@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 
-import QuadraticNumberFields.Forms.Bridge
+import QuadraticNumberFields.Forms.Cox.Bridge
 import QuadraticNumberFields.Qsqrtd.TraceNorm
 import QuadraticNumberFields.RingOfIntegers.Basis
 import QuadraticNumberFields.RingOfIntegers.Discriminant
@@ -29,7 +29,7 @@ Q(x, y) = N_{K/ℚ}(x α + y β) / N(I).
 The orientation condition `(α β' - α' β) / √d > 0` picks the proper-equivalence
 class; changing the oriented basis by `SL₂(ℤ)` yields a properly equivalent form.
 The resulting map `ClassGroup (𝓞 K) → FormClass (fieldDiscriminant d)` is inverse
-to the forward Cox map defined in `QuadraticNumberFields.Forms.Bridge`.
+to the forward Cox map defined in `QuadraticNumberFields.Forms.Cox.Bridge`.
 
 We work almost entirely with integral ideals, using `ClassGroup.mk0_surjective` to
 reduce from fractional ideal classes.
