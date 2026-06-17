@@ -349,6 +349,138 @@ theorem idealClassOfForm_composeForm_of_mod_four_ne_one
         idealClassOfForm_of_mod_four_ne_one d hd4 R := by
           rw [← hRclass]
 
+/-- In the half-integral branch, the computable CRT composition has the
+expected product ideal after replacing the right factor by its coprime
+representative. -/
+theorem idealOfForm_composeForm_of_mod_four_eq_one
+    (hdneg : d < 0) (hd4 : d % 4 = 1)
+    (Q R : PrimitivePositiveDefiniteForm (fieldDiscriminant d))
+    (hQR : Q.1.disc = R.1.disc) (hRprim : R.1.IsPrimitive) (hQa : Q.1.a ≠ 0)
+    (hQpos : Q.1.IsPositiveDefinite) (hRpos : R.1.IsPositiveDefinite) :
+    idealOfForm_of_mod_four_eq_one d hd4
+        (composeFormPrimitiveOfCoprime hdneg Q R hQR hRprim hQa hQpos hRpos) =
+      idealOfForm_of_mod_four_eq_one d hd4 Q *
+        idealOfForm_of_mod_four_eq_one d hd4
+          (unitedRepPrimitiveOfCoprime Q R hRprim hQa) := by
+  let e := RingOfIntegers.ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one d hd4
+  let R'F := unitedRepPrimitiveOfCoprime Q R hRprim hQa
+  let R' := R'F.1
+  let B := composeMiddleB Q.1 R'
+  let u₁ : ℤ := -(Q.1.b + 1) / 2
+  let u₂ : ℤ := -(R'.b + 1) / 2
+  let u : ℤ := -(B + 1) / 2
+  have hcop : Int.gcd Q.1.a R'.a = 1 := by
+    simpa [R'F, R'] using gcd_left_a_unitedRep Q.1 R.1 hRprim hQa
+  have hdisc_eq : Q.1.disc = R'.disc := by
+    simpa [R'F, R'] using
+      hQR.trans (disc_eq_of_properEquivalent
+        (unitedRep_properEquivalent Q.1 R.1 hRprim hQa))
+  have hpar : 2 ∣ R'.b - Q.1.b := by
+    rcases even_sub_b_of_same_discriminant hdisc_eq with ⟨k, hk⟩
+    exact ⟨k, by rw [hk]; ring⟩
+  have h_mod_left : B ≡ Q.1.b [ZMOD 2 * Q.1.a] := by
+    simpa [B] using composeMiddleB_modEq_left Q.1 R'
+  have h_mod_right : B ≡ R'.b [ZMOD 2 * R'.a] := by
+    simpa [B] using composeMiddleB_modEq_right Q.1 R' hcop hpar
+  have hbQ_odd : Odd Q.1.b :=
+    odd_b_of_hasDiscriminant_fieldDiscriminant_of_mod_four_eq_one hd4 Q.2.1
+  have hbR_odd : Odd R'.b :=
+    odd_b_of_hasDiscriminant_fieldDiscriminant_of_mod_four_eq_one hd4 R'F.2.1
+  have hB_odd : Odd B :=
+    odd_of_modEq_odd hbQ_odd h_mod_left
+  have hu₁ : 2 * u₁ = -(Q.1.b + 1) := by
+    simpa [u₁] using
+      PrimitivePositiveDefiniteForm.two_mul_neg_succ_div_two_of_odd hbQ_odd
+  have hu₂ : 2 * u₂ = -(R'.b + 1) := by
+    simpa [u₂] using
+      PrimitivePositiveDefiniteForm.two_mul_neg_succ_div_two_of_odd hbR_odd
+  have hu : 2 * u = -(B + 1) := by
+    simpa [u] using
+      PrimitivePositiveDefiniteForm.two_mul_neg_succ_div_two_of_odd hB_odd
+  have hdiscQ : Q.1.b ^ 2 - 4 * Q.1.a * Q.1.c = 1 ^ 2 + 4 * (d / 4) := by
+    have hdisc_d : Q.1.b ^ 2 - 4 * Q.1.a * Q.1.c = d := by
+      simpa [BinaryQuadraticForm.HasDiscriminant, BinaryQuadraticForm.disc,
+        fieldDiscriminant_of_mod_four_eq_one hd4] using Q.2.1
+    omega
+  have hdiscR : R'.b ^ 2 - 4 * R'.a * R'.c = 1 ^ 2 + 4 * (d / 4) := by
+    have hdisc_d : R'.b ^ 2 - 4 * R'.a * R'.c = d := by
+      simpa [BinaryQuadraticForm.HasDiscriminant, BinaryQuadraticForm.disc,
+        fieldDiscriminant_of_mod_four_eq_one hd4] using R'F.2.1
+    omega
+  have hcoord :
+      CoxIdealRelation.coxIdeal (d / 4) 1 Q.1.a u₁ *
+          CoxIdealRelation.coxIdeal (d / 4) 1 R'.a u₂ =
+        CoxIdealRelation.coxIdeal (d / 4) 1 (Q.1.a * R'.a) u :=
+    coxIdeal_mul_of_united hdiscQ hdiscR hu₁ hu₂ hu hcop h_mod_left h_mod_right
+  calc
+    idealOfForm_of_mod_four_eq_one d hd4
+        (composeFormPrimitiveOfCoprime hdneg Q R hQR hRprim hQa hQpos hRpos)
+        = Ideal.comap (e : 𝓞 (Qsqrtd (d : ℚ)) →+* ZOnePlusSqrtdOverTwo (d / 4))
+            (CoxIdealRelation.coxIdeal (d / 4) 1 (Q.1.a * R'.a) u) := by
+          simp [idealOfForm_of_mod_four_eq_one, composeFormPrimitiveOfCoprime,
+            unitedRepPrimitiveOfCoprime, composeForm, CoxIdealRelation.coxIdeal, Int.cast_mul,
+            e, R'F, R', B, u]
+    _ = Ideal.comap (e : 𝓞 (Qsqrtd (d : ℚ)) →+* ZOnePlusSqrtdOverTwo (d / 4))
+          (CoxIdealRelation.coxIdeal (d / 4) 1 Q.1.a u₁ *
+            CoxIdealRelation.coxIdeal (d / 4) 1 R'.a u₂) := by
+          rw [hcoord]
+    _ = Ideal.comap (e : 𝓞 (Qsqrtd (d : ℚ)) →+* ZOnePlusSqrtdOverTwo (d / 4))
+          (CoxIdealRelation.coxIdeal (d / 4) 1 Q.1.a u₁) *
+        Ideal.comap (e : 𝓞 (Qsqrtd (d : ℚ)) →+* ZOnePlusSqrtdOverTwo (d / 4))
+          (CoxIdealRelation.coxIdeal (d / 4) 1 R'.a u₂) := by
+          rw [PrimitivePositiveDefiniteForm.comap_mul_of_ringEquiv]
+    _ = idealOfForm_of_mod_four_eq_one d hd4 Q *
+        idealOfForm_of_mod_four_eq_one d hd4 R'F := by
+          simp [idealOfForm_of_mod_four_eq_one, CoxIdealRelation.coxIdeal, e, R'F, R',
+            u₁, u₂]
+
+/-- In the half-integral branch, computable CRT composition multiplies Cox
+ideal classes after replacing the right factor by its coprime representative. -/
+theorem idealClassOfForm_composeForm_unitedRep_of_mod_four_eq_one
+    (hdneg : d < 0) (hd4 : d % 4 = 1)
+    (Q R : PrimitivePositiveDefiniteForm (fieldDiscriminant d))
+    (hQR : Q.1.disc = R.1.disc) (hRprim : R.1.IsPrimitive) (hQa : Q.1.a ≠ 0)
+    (hQpos : Q.1.IsPositiveDefinite) (hRpos : R.1.IsPositiveDefinite) :
+    idealClassOfForm_of_mod_four_eq_one d hd4
+        (composeFormPrimitiveOfCoprime hdneg Q R hQR hRprim hQa hQpos hRpos) =
+      idealClassOfForm_of_mod_four_eq_one d hd4 Q *
+        idealClassOfForm_of_mod_four_eq_one d hd4
+          (unitedRepPrimitiveOfCoprime Q R hRprim hQa) := by
+  unfold idealClassOfForm_of_mod_four_eq_one
+  rw [← map_mul]
+  apply congrArg ClassGroup.mk0
+  apply Subtype.ext
+  exact idealOfForm_composeForm_of_mod_four_eq_one hdneg hd4 Q R hQR hRprim hQa hQpos hRpos
+
+/-- In the half-integral branch, computable CRT composition multiplies Cox ideal
+classes. -/
+theorem idealClassOfForm_composeForm_of_mod_four_eq_one
+    (hdneg : d < 0) (hd4 : d % 4 = 1)
+    (Q R : PrimitivePositiveDefiniteForm (fieldDiscriminant d))
+    (hQR : Q.1.disc = R.1.disc) (hRprim : R.1.IsPrimitive) (hQa : Q.1.a ≠ 0)
+    (hQpos : Q.1.IsPositiveDefinite) (hRpos : R.1.IsPositiveDefinite) :
+    idealClassOfForm_of_mod_four_eq_one d hd4
+        (composeFormPrimitiveOfCoprime hdneg Q R hQR hRprim hQa hQpos hRpos) =
+      idealClassOfForm_of_mod_four_eq_one d hd4 Q *
+        idealClassOfForm_of_mod_four_eq_one d hd4 R := by
+  let R'F := unitedRepPrimitiveOfCoprime Q R hRprim hQa
+  have hraw :=
+    idealClassOfForm_composeForm_unitedRep_of_mod_four_eq_one
+      hdneg hd4 Q R hQR hRprim hQa hQpos hRpos
+  have hRclass :
+      idealClassOfForm_of_mod_four_eq_one d hd4 R =
+        idealClassOfForm_of_mod_four_eq_one d hd4 R'F :=
+    idealClassOfForm_of_mod_four_eq_one_eq_of_properEquivalent d hd4 R R'F
+      (unitedRepPrimitiveOfCoprime_properEquivalent Q R hRprim hQa)
+  calc
+    idealClassOfForm_of_mod_four_eq_one d hd4
+        (composeFormPrimitiveOfCoprime hdneg Q R hQR hRprim hQa hQpos hRpos)
+        = idealClassOfForm_of_mod_four_eq_one d hd4 Q *
+          idealClassOfForm_of_mod_four_eq_one d hd4 R'F := hraw
+    _ = idealClassOfForm_of_mod_four_eq_one d hd4 Q *
+        idealClassOfForm_of_mod_four_eq_one d hd4 R := by
+          rw [← hRclass]
+
 /-- **Class-group consistency of computable composition.**
 
 Under the Cox equivalence, the CRT-adjusted `composeForm` represents the
