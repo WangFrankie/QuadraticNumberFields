@@ -166,12 +166,11 @@ theorem reducedFormRepMulForTable_val_eq_composeAndReduce
     {d : ℤ} [Fact (Squarefree d)] [Fact (d ≠ 1)] (hdneg : d < 0)
     (Q R : ReducedFormRep (fieldDiscriminant d)) :
     (reducedFormRepMulForTable hdneg Q R).1 = composeAndReduce Q.1 R.1 := by
-  have hQprim : Q.1.IsPrimitive := (of_mem_enumPrimitiveReducedForms Q.2).2.2.2
-  have hRprim : R.1.IsPrimitive := (of_mem_enumPrimitiveReducedForms R.2).2.2.2
-  have hQpos : Q.1.IsPositiveDefinite := (of_mem_enumPrimitiveReducedForms Q.2).2.1
-  have hRpos : R.1.IsPositiveDefinite := (of_mem_enumPrimitiveReducedForms R.2).2.1
-  have hdiscQ : Q.1.disc = fieldDiscriminant d := (of_mem_enumPrimitiveReducedForms Q.2).1
-  have hdiscR : R.1.disc = fieldDiscriminant d := (of_mem_enumPrimitiveReducedForms R.2).1
+  have hRprim : R.1.IsPrimitive := R.isPrimitive
+  have hQpos : Q.1.IsPositiveDefinite := Q.isPositiveDefinite
+  have hRpos : R.1.IsPositiveDefinite := R.isPositiveDefinite
+  have hdiscQ : Q.1.disc = fieldDiscriminant d := Q.disc_eq
+  have hdiscR : R.1.disc = fieldDiscriminant d := R.disc_eq
   have hQR : Q.1.disc = R.1.disc := by rw [hdiscQ, hdiscR]
   have hQa : Q.1.a ≠ 0 := ne_of_gt hQpos.1
   let comp := composeForm Q.1 R.1 hQR hRprim hQa

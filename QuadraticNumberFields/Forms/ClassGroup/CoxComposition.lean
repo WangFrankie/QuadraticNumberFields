@@ -7,6 +7,7 @@ Authors: Frankie Wang
 import QuadraticNumberFields.Forms.Gauss.CompositionClass
 import QuadraticNumberFields.Forms.ClassGroup.Structure
 import QNFMathlib.Data.Int.Parity
+import QNFMathlib.RingTheory.Ideal.Span
 
 /-!
 # Cox Ideal Multiplicativity for Concordant Gauss Composition
@@ -31,38 +32,6 @@ open QuadraticNumberFields.CoxIdealRelation
 section Generic
 
 variable {DD bb A B C A' C' u : ℤ}
-
-/-- If all four products of a pair of generators lie in an ideal, then the
-product of the two generated pair ideals is contained in that ideal. -/
-private theorem span_pair_mul_span_pair_le {R : Type*} [CommRing R]
-    {a b c d : R} {K : Ideal R}
-    (hac : a * c ∈ K) (had : a * d ∈ K)
-    (hbc : b * c ∈ K) (hbd : b * d ∈ K) :
-    Ideal.span ({a, b} : Set R) * Ideal.span ({c, d} : Set R) ≤ K := by
-  rw [Ideal.mul_le]
-  intro r hr s hs
-  induction hr using Submodule.span_induction with
-  | mem x hx =>
-      rcases hx with rfl | rfl
-      · induction hs using Submodule.span_induction with
-        | mem y hy =>
-            rcases hy with rfl | rfl
-            · exact hac
-            · exact had
-        | zero => simp
-        | add y z _ _ hy hz => simpa [mul_add] using K.add_mem hy hz
-        | smul t y _ hy => simpa [mul_assoc, mul_comm, mul_left_comm] using K.mul_mem_left t hy
-      · induction hs using Submodule.span_induction with
-        | mem y hy =>
-            rcases hy with rfl | rfl
-            · exact hbc
-            · exact hbd
-        | zero => simp
-        | add y z _ _ hy hz => simpa [mul_add] using K.add_mem hy hz
-        | smul t y _ hy => simpa [mul_assoc, mul_comm, mul_left_comm] using K.mul_mem_left t hy
-  | zero => simp
-  | add y z _ _ hy hz => simpa [add_mul] using K.add_mem hy hz
-  | smul t y _ hy => simpa [mul_assoc] using K.mul_mem_left t hy
 
 /-- The product of the two integer generators lies in the product of the two
 Cox ideals. -/
@@ -258,7 +227,7 @@ theorem coxIdeal_mul_of_concordant
       ring
   apply le_antisymm
   · dsimp [CoxIdealRelation.coxIdeal]
-    apply span_pair_mul_span_pair_le
+    apply Ideal.span_pair_mul_span_pair_le
     · change ((A : QuadraticAlgebra ℤ DD bb) * (A' : QuadraticAlgebra ℤ DD bb)) ∈ K
       simpa [Int.cast_mul] using hAA'_mem_K
     · change ((A : QuadraticAlgebra ℤ DD bb) * β) ∈ K
@@ -491,20 +460,22 @@ theorem coxIdeal_mul_of_united
   have h_forward : CoxIdealRelation.coxIdeal DD bb A₁ u₁ *
       CoxIdealRelation.coxIdeal DD bb A₂ u₂ ≤ K := by
     dsimp [CoxIdealRelation.coxIdeal]
-    apply span_pair_mul_span_pair_le
+    apply Ideal.span_pair_mul_span_pair_le
     · -- A₁ · A₂ ∈ K
       simpa [Int.cast_mul] using hAA_mem_K
     · -- A₁ · β₂ ∈ K
       have h_expr : ((A₁ : ℤ) : QuadraticAlgebra ℤ DD bb) * β₂ =
           ((A₁ : ℤ) : QuadraticAlgebra ℤ DD bb) * β -
-            (k : QuadraticAlgebra ℤ DD bb) * (((A₁ * A₂ : ℤ) : QuadraticAlgebra ℤ DD bb)) := by
+            (k : QuadraticAlgebra ℤ DD bb) *
+              (((A₁ * A₂ : ℤ) : QuadraticAlgebra ℤ DD bb)) := by
         rw [hβ₂_eq]; push_cast; ring
       rw [h_expr]
       exact K.sub_mem (K.mul_mem_left _ hβ_mem_K) (K.mul_mem_left _ hAA_mem_K)
     · -- β₁ · A₂ ∈ K
       have h_expr : β₁ * ((A₂ : ℤ) : QuadraticAlgebra ℤ DD bb) =
           β * ((A₂ : ℤ) : QuadraticAlgebra ℤ DD bb) -
-            (t : QuadraticAlgebra ℤ DD bb) * (((A₁ * A₂ : ℤ) : QuadraticAlgebra ℤ DD bb)) := by
+            (t : QuadraticAlgebra ℤ DD bb) *
+              (((A₁ * A₂ : ℤ) : QuadraticAlgebra ℤ DD bb)) := by
         rw [hβ₁_eq]; push_cast; ring
       rw [h_expr]
       exact K.sub_mem (K.mul_mem_right _ hβ_mem_K) (K.mul_mem_left _ hAA_mem_K)
@@ -517,7 +488,8 @@ theorem coxIdeal_mul_of_united
               (((A₁ * A₂ : ℤ) : QuadraticAlgebra ℤ DD bb)) := by
         rw [hβ₁_eq, hβ₂_eq]; push_cast; ring
       rw [h_expr, hβ_sq]
-      -- Goal: (-B·β - C_prod·(A₁·A₂)) - k·(β·A₂) - t·(A₁·β) + (t·k)·(A₁·A₂) ∈ K
+      -- Goal: (-B·β - C_prod·(A₁·A₂)) - k·(β·A₂) - t·(A₁·β)
+      --       + (t·k)·(A₁·A₂) ∈ K
       -- = ((X - Y) - Z) + W
       apply K.add_mem
       · -- X - Y - Z ∈ K

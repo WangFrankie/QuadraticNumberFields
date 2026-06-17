@@ -55,20 +55,18 @@ def gaussMul (hdneg : d < 0) (Q R : ReducedFormRep D) :
   let Qf := Q.1
   let Rf := R.1
   have _hDneg : D < 0 := fieldDiscriminant_neg hdneg
-  -- Both are in the reduced enumeration, hence primitive, positive definite,
-  -- and have discriminant D.
-  have hQprim : Qf.IsPrimitive :=
-    (of_mem_enumPrimitiveReducedForms Q.2).2.2.2
+  -- Both are in the reduced enumeration, hence positive definite and have
+  -- discriminant D; the right factor is primitive for composition.
   have hRprim : Rf.IsPrimitive :=
-    (of_mem_enumPrimitiveReducedForms R.2).2.2.2
+    by simpa [Rf] using R.isPrimitive
   have hQpos : Qf.IsPositiveDefinite :=
-    (of_mem_enumPrimitiveReducedForms Q.2).2.1
+    by simpa [Qf] using Q.isPositiveDefinite
   have hRpos : Rf.IsPositiveDefinite :=
-    (of_mem_enumPrimitiveReducedForms R.2).2.1
+    by simpa [Rf] using R.isPositiveDefinite
   have hdiscQ : Qf.disc = D :=
-    (of_mem_enumPrimitiveReducedForms Q.2).1
+    by simpa [Qf] using Q.disc_eq
   have hdiscR : Rf.disc = D :=
-    (of_mem_enumPrimitiveReducedForms R.2).1
+    by simpa [Rf] using R.disc_eq
   have hQR : Qf.disc = Rf.disc := by rw [hdiscQ, hdiscR]
   have hQa : Qf.a ≠ 0 := ne_of_gt hQpos.1
   -- Compute composition, then reduce.
@@ -469,12 +467,12 @@ theorem mem_enum_of_gaussMul (hdneg : d < 0) (Q R : ReducedFormRep D) :
   unfold gaussMul
   let Qf := Q.1
   let Rf := R.1
-  have hQprim : Qf.IsPrimitive := (of_mem_enumPrimitiveReducedForms Q.2).2.2.2
-  have hRprim : Rf.IsPrimitive := (of_mem_enumPrimitiveReducedForms R.2).2.2.2
-  have hQpos : Qf.IsPositiveDefinite := (of_mem_enumPrimitiveReducedForms Q.2).2.1
-  have hRpos : Rf.IsPositiveDefinite := (of_mem_enumPrimitiveReducedForms R.2).2.1
-  have hdiscQ : Qf.disc = D := (of_mem_enumPrimitiveReducedForms Q.2).1
-  have hdiscR : Rf.disc = D := (of_mem_enumPrimitiveReducedForms R.2).1
+  have hQprim : Qf.IsPrimitive := by simpa [Qf] using Q.isPrimitive
+  have hRprim : Rf.IsPrimitive := by simpa [Rf] using R.isPrimitive
+  have hQpos : Qf.IsPositiveDefinite := by simpa [Qf] using Q.isPositiveDefinite
+  have hRpos : Rf.IsPositiveDefinite := by simpa [Rf] using R.isPositiveDefinite
+  have hdiscQ : Qf.disc = D := by simpa [Qf] using Q.disc_eq
+  have hdiscR : Rf.disc = D := by simpa [Rf] using R.disc_eq
   have hQR : Qf.disc = Rf.disc := by rw [hdiscQ, hdiscR]
   have hQa : Qf.a ≠ 0 := ne_of_gt hQpos.1
   let comp := composeForm Qf Rf hQR hRprim hQa
@@ -496,12 +494,12 @@ theorem gaussMul_eq_reducedFormRepMul_val
   letI := formClassCommGroup hdneg
   let Qp : PrimitivePositiveDefiniteForm D := primitivePositiveDefiniteFormOfMemEnum Q.2
   let Rp : PrimitivePositiveDefiniteForm D := primitivePositiveDefiniteFormOfMemEnum R.2
-  have hQprim : Q.1.IsPrimitive := (of_mem_enumPrimitiveReducedForms Q.2).2.2.2
-  have hRprim : R.1.IsPrimitive := (of_mem_enumPrimitiveReducedForms R.2).2.2.2
-  have hQpos : Q.1.IsPositiveDefinite := (of_mem_enumPrimitiveReducedForms Q.2).2.1
-  have hRpos : R.1.IsPositiveDefinite := (of_mem_enumPrimitiveReducedForms R.2).2.1
-  have hdiscQ : Q.1.disc = D := (of_mem_enumPrimitiveReducedForms Q.2).1
-  have hdiscR : R.1.disc = D := (of_mem_enumPrimitiveReducedForms R.2).1
+  have hQprim : Q.1.IsPrimitive := Q.isPrimitive
+  have hRprim : R.1.IsPrimitive := R.isPrimitive
+  have hQpos : Q.1.IsPositiveDefinite := Q.isPositiveDefinite
+  have hRpos : R.1.IsPositiveDefinite := R.isPositiveDefinite
+  have hdiscQ : Q.1.disc = D := Q.disc_eq
+  have hdiscR : R.1.disc = D := R.disc_eq
   have hQR : Q.1.disc = R.1.disc := by rw [hdiscQ, hdiscR]
   have hQa : Q.1.a ≠ 0 := ne_of_gt hQpos.1
   let compP : PrimitivePositiveDefiniteForm D :=

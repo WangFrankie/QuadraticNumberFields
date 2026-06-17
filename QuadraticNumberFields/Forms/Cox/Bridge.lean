@@ -181,6 +181,37 @@ noncomputable def idealOfForm_of_mod_four_ne_one
       ({((Q.1.a : ℤ) : Zsqrtd d), (⟨(-Q.1.b) / 2, 1⟩ : Zsqrtd d)} :
         Set (Zsqrtd d)))
 
+/-- The second Cox generator in the `d % 4 ≠ 1` branch has `K`-coordinates
+`(-b / 2, 1)`. -/
+theorem cox_zsqrtd_generator_re_im_of_mod_four_ne_one
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd4 : d % 4 ≠ 1)
+    (Q : PrimitivePositiveDefiniteForm (fieldDiscriminant d)) :
+    let e := RingOfIntegers.ringOfIntegers_equiv_zsqrtd_of_mod_four_ne_one d hd4
+    ((e.symm ((⟨(-Q.1.b) / 2, 1⟩ : Zsqrtd d)) : 𝓞 (Qsqrtd (d : ℚ))) :
+        Qsqrtd (d : ℚ)).re = (-(Q.1.b : ℚ)) / 2 ∧
+      ((e.symm ((⟨(-Q.1.b) / 2, 1⟩ : Zsqrtd d)) : 𝓞 (Qsqrtd (d : ℚ))) :
+        Qsqrtd (d : ℚ)).im = 1 := by
+  intro e
+  have hb_even : Even Q.1.b :=
+    even_b_of_hasDiscriminant_fieldDiscriminant_of_mod_four_ne_one hd4 Q.2.1
+  obtain ⟨k, hk⟩ := hb_even
+  have hdiv : (-Q.1.b) / 2 = -k := by
+    rw [hk]
+    omega
+  have hk_rat : (Q.1.b : ℚ) / 2 = k := by
+    rw [hk]
+    norm_num
+  have h_embed (x : 𝓞 (Qsqrtd (d : ℚ))) :
+      ((x : 𝓞 (Qsqrtd (d : ℚ))) : Qsqrtd (d : ℚ)) =
+        Zsqrtd.toQsqrtdHom d (e x) := by
+    simpa [e] using
+      (RingOfIntegers.ringOfIntegers_equiv_zsqrtd_of_mod_four_ne_one_apply d hd4 x).symm
+  rw [h_embed]
+  constructor
+  · simp [e, Zsqrtd.toQsqrtdHom, RingEquiv.apply_symm_apply, hdiv]
+    linarith
+  · simp [e, Zsqrtd.toQsqrtdHom, RingEquiv.apply_symm_apply, hdiv]
+
 /-- The Cox ideal relation in the ring of integers for a proper transform in
 the `d % 4 ≠ 1` branch.  If `R = Q ∘ g`, then the transformed leading
 coefficient and the Cox multiplier `λ` give the principal-ideal identity
@@ -229,6 +260,43 @@ noncomputable def idealOfForm_of_mod_four_eq_one
       ({((Q.1.a : ℤ) : ZOnePlusSqrtdOverTwo (d / 4)),
         (⟨-(Q.1.b + 1) / 2, 1⟩ : ZOnePlusSqrtdOverTwo (d / 4))} :
         Set (ZOnePlusSqrtdOverTwo (d / 4))))
+
+/-- The second Cox generator in the `d % 4 = 1` branch has `K`-coordinates
+`(-b / 2, 1 / 2)`. -/
+theorem cox_zomega_generator_re_im_of_mod_four_eq_one
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd4 : d % 4 = 1)
+    (Q : PrimitivePositiveDefiniteForm (fieldDiscriminant d)) :
+    let e := RingOfIntegers.ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one
+      d hd4
+    ((e.symm (⟨-(Q.1.b + 1) / 2, 1⟩ : ZOnePlusSqrtdOverTwo (d / 4)) :
+        𝓞 (Qsqrtd (d : ℚ))) : Qsqrtd (d : ℚ)).re = (-(Q.1.b : ℚ)) / 2 ∧
+      ((e.symm (⟨-(Q.1.b + 1) / 2, 1⟩ : ZOnePlusSqrtdOverTwo (d / 4)) :
+        𝓞 (Qsqrtd (d : ℚ))) : Qsqrtd (d : ℚ)).im = (1 : ℚ) / 2 := by
+  intro e
+  let betaZ : ZOnePlusSqrtdOverTwo (d / 4) := ⟨-(Q.1.b + 1) / 2, 1⟩
+  let x : 𝓞 (Qsqrtd (d : ℚ)) := e.symm betaZ
+  have hre := RingOfIntegers.ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one_re
+    d hd4 x
+  have him := RingOfIntegers.ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one_im
+    d hd4 x
+  dsimp [x, e] at hre him
+  rw [RingEquiv.apply_symm_apply] at hre him
+  have hodd : Odd Q.1.b :=
+    odd_b_of_hasDiscriminant_fieldDiscriminant_of_mod_four_eq_one hd4 Q.2.1
+  obtain ⟨k, hk⟩ := hodd
+  have hdiv' : ((-1 + -Q.1.b) / 2 : ℤ) = -1 - k := by
+    rw [hk]
+    omega
+  constructor
+  · rw [← hre]
+    calc
+      ((betaZ.re : ℚ) + (betaZ.im : ℚ) / 2) = ((-1 - k : ℤ) : ℚ) + 1 / 2 := by
+        simp [betaZ, hdiv']
+      _ = -(Q.1.b : ℚ) / 2 := by
+        rw [hk]
+        norm_num
+        ring
+  · simpa [betaZ] using him.symm
 
 /-- The Cox ideal relation in the ring of integers for a proper transform in
 the `d % 4 = 1` branch.  This is the half-integral analogue of

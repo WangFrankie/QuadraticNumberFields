@@ -50,6 +50,22 @@ theorem span_singleton_mul_span_pair_le {R : Type*} [CommRing R]
   | smul r y _ hy =>
       simpa [mul_assoc, mul_comm, mul_left_comm] using K.mul_mem_left r hy
 
+/-- If all four products of two pairs of generators lie in an ideal, then the
+product of the two generated pair ideals is contained in that ideal. -/
+theorem span_pair_mul_span_pair_le {R : Type*} [CommRing R]
+    {a b c d : R} {K : Ideal R}
+    (hac : a * c ∈ K) (had : a * d ∈ K)
+    (hbc : b * c ∈ K) (hbd : b * d ∈ K) :
+    span ({a, b} : Set R) * span ({c, d} : Set R) ≤ K := by
+  rw [span_pair_mul_span_pair]
+  refine span_le.mpr ?_
+  intro x hx
+  rcases hx with rfl | rfl | rfl | rfl
+  · exact hac
+  · exact had
+  · exact hbc
+  · exact hbd
+
 /-- Pull back a principal ideal span along a ring equivalence. -/
 theorem comap_span_singleton_of_ringEquiv {R S : Type*} [CommRing R] [CommRing S]
     (e : R ≃+* S) (x : S) :

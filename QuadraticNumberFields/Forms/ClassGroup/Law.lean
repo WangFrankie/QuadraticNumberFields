@@ -32,6 +32,24 @@ forms of discriminant `D`, backed by the enumerator. -/
 abbrev ReducedFormRep (D : ℤ) : Type :=
   { Q : BinaryQuadraticForm // Q ∈ enumPrimitiveReducedForms D }
 
+/-- The discriminant of a reduced representative is the indexing
+discriminant. -/
+theorem ReducedFormRep.disc_eq (Q : ReducedFormRep D) : Q.1.disc = D :=
+  (of_mem_enumPrimitiveReducedForms Q.2).1
+
+/-- A reduced representative is positive definite. -/
+theorem ReducedFormRep.isPositiveDefinite (Q : ReducedFormRep D) :
+    Q.1.IsPositiveDefinite :=
+  (of_mem_enumPrimitiveReducedForms Q.2).2.1
+
+/-- A reduced representative is reduced. -/
+theorem ReducedFormRep.isReduced (Q : ReducedFormRep D) : Q.1.IsReduced :=
+  (of_mem_enumPrimitiveReducedForms Q.2).2.2.1
+
+/-- A reduced representative is primitive. -/
+theorem ReducedFormRep.isPrimitive (Q : ReducedFormRep D) : Q.1.IsPrimitive :=
+  (of_mem_enumPrimitiveReducedForms Q.2).2.2.2
+
 /-- The finite representative type has the same cardinality as the reduced-form
 enumeration backing it. -/
 theorem reducedFormRep_card (D : ℤ) :
@@ -86,7 +104,7 @@ theorem reducedRepresentativeRep_formClass_leftInverse (Q : ReducedFormRep D) :
     reducedRepresentativeRep Q.formClass = Q := by
   apply Subtype.ext
   have hQred : (primitivePositiveDefiniteFormOfMemEnum Q.2).1.IsReduced :=
-    (of_mem_enumPrimitiveReducedForms Q.2).2.2.1
+    Q.isReduced
   have hQ :
       Quotient.mk (primitivePositiveDefiniteFormSetoid D)
         (primitivePositiveDefiniteFormOfMemEnum Q.2) = Q.formClass := rfl
