@@ -43,6 +43,7 @@ import QuadraticNumberFields.Splitting.Qsqrtd.Two
 import QuadraticNumberFields.Splitting.QuadraticField.Basic
 import QuadraticNumberFields.Forms.Core.Basic
 import QuadraticNumberFields.Forms.Core.Action
+import QuadraticNumberFields.Forms.Core.QuadraticFormBridge
 import QuadraticNumberFields.Forms.Cox.Bridge
 import QuadraticNumberFields.Forms.Cox.LeftInverse
 import QuadraticNumberFields.Forms.Cox.LeftInverseEqOne
