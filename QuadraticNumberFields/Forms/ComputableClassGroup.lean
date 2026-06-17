@@ -641,6 +641,18 @@ theorem gaussMul_eq_reducedFormRepMul
   apply Subtype.ext
   exact gaussMul_eq_reducedFormRepMul_val hdneg Q R
 
+/-- Finite reduced-form representatives, with the transported multiplication,
+are multiplicatively equivalent to the ideal class group. -/
+noncomputable def reducedFormRepMulEquivClassGroup (hdneg : d < 0) :
+    letI := reducedFormRepCommGroup hdneg
+    ReducedFormRep (fieldDiscriminant d) ≃* ClassGroup (𝓞 (Qsqrtd (d : ℚ))) := by
+  letI := reducedFormRepCommGroup hdneg
+  refine
+    { toEquiv := reducedFormRepEquivClassGroup hdneg
+      map_mul' := ?_ }
+  intro Q R
+  simp [Equiv.mul_def]
+
 end GaussMul
 
 /-! ## Regression: multiplication table for `d = -21`
