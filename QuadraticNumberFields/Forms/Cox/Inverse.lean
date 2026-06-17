@@ -82,7 +82,7 @@ theorem OrientedBasis.det_eq_natAbs_eq_absNorm {I : Ideal 𝓞K}
     ((RingOfIntegers.ringOfIntegersBasisOfEq k hk).det ((↑) ∘ b.basis)).natAbs = Ideal.absNorm I :=
   Ideal.natAbs_det_basis_change (RingOfIntegers.ringOfIntegersBasisOfEq k hk) I b.basis
 
-/-- Nonzero ideals of `𝓞K` are free `ℤ`-modules of rank 2, so they admit bases. -/
+/-- Nonzero ideals of `𝓞K` are free `ℤ`-modules of rank 2, so they have bases. -/
 noncomputable instance (I : Ideal 𝓞K) (_hI : I ≠ 0) : Module.Free ℤ I := by
   have hfin : Module.Finite ℤ I := inferInstance
   have htors : IsTorsionFree ℤ I := inferInstance

@@ -45,8 +45,8 @@ theorem concordantUnitRepresentative_isConcordant {D : ℤ}
 /-- Direct Gauss composition of concordant primitive positive definite forms.
 
 This is still representative-level composition: the caller supplies concordant
-representatives.  The later quotient-level multiplication must prove that any
-two classes admit concordant representatives and that the output class is
+  representatives.  The later quotient-level multiplication must prove that any
+  two classes have concordant representatives and that the output class is
 independent of those representatives. -/
 def composeConcordant {D : ℤ} (Q R : PrimitivePositiveDefiniteForm D)
     (h : Q.1.IsConcordant R.1) : PrimitivePositiveDefiniteForm D where
@@ -99,7 +99,7 @@ theorem composeConcordant_concordantUnitRepresentative_right {D : ℤ}
   exact BinaryQuadraticForm.composeConcordant_concordantUnitRepresentative_right Q.1
     (ne_of_gt Q.2.2.2.1)
 
-/-- Any two primitive positive definite forms of the same discriminant admit
+/-- Any two primitive positive definite forms of the same discriminant have
 properly equivalent concordant representatives. -/
 theorem exists_concordant_representatives {D : ℤ}
     (Q R : PrimitivePositiveDefiniteForm D) :
@@ -159,7 +159,7 @@ theorem composeConcordantOfRepresentatives_eq_of_concordance_proof {D : ℤ}
   unfold composeConcordantOfRepresentatives
   rw [PrimitivePositiveDefiniteForm.composeConcordant_eq_of_concordance_proof Q R h h']
 
-/-- Any two form classes admit concordant representatives. -/
+/-- Any two form classes have concordant representatives. -/
 theorem exists_concordant_representatives {D : ℤ} (C E : FormClass D) :
     ∃ Q R : PrimitivePositiveDefiniteForm D,
       Quotient.mk (primitivePositiveDefiniteFormSetoid D) Q = C ∧

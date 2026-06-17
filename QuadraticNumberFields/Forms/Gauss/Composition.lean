@@ -127,7 +127,7 @@ theorem IsConcordant.isUnited {Q R : BinaryQuadraticForm}
   exact Nat.dvd_gcd (Nat.gcd_dvd_left _ _)
     (dvd_trans (Nat.gcd_dvd_right _ _) (Nat.gcd_dvd_left _ _))
 
-/-- Concordant forms admit united Bézout data with zero coefficient on
+/-- Concordant forms have united Bézout data with zero coefficient on
 `sigma`. -/
 theorem exists_unitedBezout_of_isConcordant {Q R : BinaryQuadraticForm}
     (h : Q.IsConcordant R) : Nonempty (UnitedBezout Q R) := by
