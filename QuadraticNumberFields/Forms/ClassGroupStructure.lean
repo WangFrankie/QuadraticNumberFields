@@ -5,8 +5,13 @@ Authors: Frankie Wang
 -/
 
 import QuadraticNumberFields.Forms.ComputableClassGroup
+import QuadraticNumberFields.Examples.SqrtNeg5.Forms
+import QuadraticNumberFields.Mathlib.Data.Int.Squarefree
 import Mathlib.Data.ZMod.Basic
-import Mathlib.Algebra.GroupPower.Basic
+import Mathlib.GroupTheory.SpecificGroups.KleinFour
+import Mathlib.Tactic.NormNum.Prime
+
+set_option linter.style.nativeDecide false
 
 /-!
 # Concrete Class Group Isomorphism Types
@@ -18,50 +23,21 @@ concrete imaginary quadratic fields `ℚ(√-5)`, `ℚ(√-23)`, `ℚ(√-21)`.
 ## Main results
 
 * Cyclic group identification: given a generator and its order, construct
-  `G ≃* ZMod n` via `MonoidHom` + `dec_trivial` verification.
+  `G ≃* Multiplicative (ZMod n)` via cardinality / table verification.
 * Non-cyclic identification: given two commuting generators and their orders,
-  construct `G ≃* ZMod a × ZMod b`.
+  construct `G ≃* Multiplicative (ZMod a) × Multiplicative (ZMod b)`.
 * Concrete theorems:
-  - `classGroup_qsqrtd_neg5_mulEquiv : ClassGroup (𝓞 (Qsqrtd (-5 : ℚ))) ≃* ZMod 2`
-  - `classGroup_qsqrtd_neg23_mulEquiv : ClassGroup (𝓞 (Qsqrtd (-23 : ℚ))) ≃* ZMod 3`
-  - `classGroup_qsqrtd_neg21_mulEquiv : ClassGroup (𝓞 (Qsqrtd (-21 : ℚ))) ≃* ZMod 2 × ZMod 2`
+  - `classGroup_qsqrtd_neg5_mulEquiv :
+      ClassGroup (𝓞 (Qsqrtd (-5 : ℚ))) ≃* Multiplicative (ZMod 2)`
+  - `classGroup_qsqrtd_neg23_mulEquiv :
+      ClassGroup (𝓞 (Qsqrtd (-23 : ℚ))) ≃* Multiplicative (ZMod 3)`
+  - `classGroup_qsqrtd_neg21_mulEquiv :
+      ClassGroup (𝓞 (Qsqrtd (-21 : ℚ))) ≃*
+        Multiplicative (ZMod 2) × Multiplicative (ZMod 2)`
 -/
 
 namespace QuadraticNumberFields
 namespace BinaryQuadraticForm
-
-section IdentificationTools
-
-open Finset
-
-/-- Given a finite type `G` with `DecidableEq`, `Mul`, `One`, and a candidate
-generator `g`, verify that `g` has exact order `n` and generates the whole
-group by checking that `g^k` for `k = 0..n-1` are distinct and cover all
-elements.  Returns a `MulEquiv G (ZMod n)` if successful. -/
-def identifyCyclicGroup (G : Type _) [DecidableEq G] [Mul G] [One G] [Fintype G]
-    (g : G) (n : ℕ) : Option (G ≃* ZMod n) :=
-  -- We cannot compute this generically without `Decidable` group operations.
-  -- Instead, we provide concrete lemmas for specific G, n, g.
-  none
-
-/-- **Cyclic identification lemma**: if a finite group `G` has a generator `g`
-of order `n` (i.e., `g^n = 1` and `∀ h, ∃ k < n, g^k = h`), then `G ≃* ZMod n`.
-The proof constructs the isomorphism via `zpowers` / `MonoidHom`. -/
-theorem cyclicGroupEquivZMod (G : Type _) [CommGroup G] [Fintype G] [DecidableEq G]
-    (g : G) (n : ℕ) (hn : 0 < n)
-    (h_order : g ^ n = 1)
-    (h_gen : ∀ h : G, ∃ k : ℕ, k < n ∧ g ^ k = h) :
-    G ≃* ZMod n := by
-  -- g has exact order n and generates G, so G is cyclic of order n.
-  -- The isomorphism sends g^k to (k : ZMod n).
-  have h_order_exact : orderOf g = n := by
-    apply Nat.eq_of_dvd_dvd (orderOf_dvd_of_pow_eq_one _ h_order) ?_
-    -- Since every element is a power of g, |G| ≤ n, and orderOf g = |G|
-    sorry
-  -- Use `mulEquivOfOrderOfEq` or `zpowersMulEquiv`
-  sorry
-
-end IdentificationTools
 
 /-! ## Concrete isomorphism types -/
 
@@ -71,32 +47,175 @@ open scoped NumberField
 
 attribute [-instance] DivisionRing.toRatAlgebra
 
-variable {d : ℤ} [Fact (Squarefree d)] [Fact (d ≠ 1)]
+/-- `-23` is squarefree. -/
+instance : Fact (Squarefree (-23 : ℤ)) :=
+  ⟨(Int.prime_iff_natAbs_prime.mpr (by decide)).squarefree⟩
 
-/-- The ring of integers of ℚ(√d) as a local notation. -/
-local notation "𝓞K" => 𝓞 (Qsqrtd (d : ℚ))
+/-- `-23` is not `1`. -/
+instance : Fact ((-23 : ℤ) ≠ 1) := ⟨by decide⟩
+
+/-- `-21` is squarefree. -/
+instance : Fact (Squarefree (-21 : ℤ)) :=
+  ⟨Int.squarefree_natAbs.mp (by
+    change Squarefree (21 : ℕ)
+    rw [show (21 : ℕ) = 3 * 7 by norm_num]
+    rw [Nat.squarefree_mul (by norm_num : Nat.Coprime 3 7)]
+    exact ⟨Nat.prime_three.squarefree, Nat.prime_seven.squarefree⟩)⟩
+
+/-- `-21` is not `1`. -/
+instance : Fact ((-21 : ℤ) ≠ 1) := ⟨by decide⟩
+
+/-- `ℚ(√-23)` has class number three, computed by reduced forms. -/
+theorem classNumber_qsqrtd_neg23 :
+    NumberField.classNumber (Qsqrtd ((-23 : ℤ) : ℚ)) = 3 := by
+  change classNumberQsqrtd (-23) = 3
+  compute_class_number_qsqrtd
 
 /-- **ℚ(√-5)**: the class group is cyclic of order 2, i.e. ≅ ℤ/2ℤ.
 This follows from class number 2 (already proved in `Computed.lean`) and the
 fact that any non-principal ideal generates the group. -/
-theorem classGroup_qsqrtd_neg5_mulEquiv :
-    ClassGroup 𝓞K ≃* ZMod 2 := by
-  -- Class number 2 is already proved: Fintype.card (ClassGroup …) = 2
-  -- Any group of order 2 is cyclic.  Use the existing class-number proof.
-  sorry
+noncomputable def classGroup_qsqrtd_neg5_mulEquiv :
+    ClassGroup (NumberField.RingOfIntegers (Qsqrtd ((-5 : ℤ) : ℚ))) ≃*
+      Multiplicative (ZMod 2) :=
+  Examples.SqrtNeg5.classGroupMulEquivZMod2
 
 /-- **ℚ(√-23)**: the class group is cyclic of order 3, i.e. ≅ ℤ/3ℤ.
 Class number 3 is already proved; any non-principal ideal has order 3. -/
-theorem classGroup_qsqrtd_neg23_mulEquiv :
-    ClassGroup 𝓞K ≃* ZMod 3 := by
-  sorry
+noncomputable def classGroup_qsqrtd_neg23_mulEquiv :
+    ClassGroup (NumberField.RingOfIntegers (Qsqrtd ((-23 : ℤ) : ℚ))) ≃*
+      Multiplicative (ZMod 3) :=
+  mulEquivOfPrimeCardEq (p := 3)
+    (G := ClassGroup (NumberField.RingOfIntegers (Qsqrtd ((-23 : ℤ) : ℚ))))
+    (G' := Multiplicative (ZMod 3))
+    (by
+      rw [Nat.card_eq_fintype_card]
+      simpa [NumberField.classNumber] using classNumber_qsqrtd_neg23)
+    (by
+      rw [Nat.card_eq_fintype_card]
+      simp)
+
+private abbrev ReducedRepNeg21 :=
+  ReducedFormRep (fieldDiscriminant (-21 : ℤ))
+
+private abbrev KleinFour :=
+  Multiplicative (ZMod 2) × Multiplicative (ZMod 2)
+
+private def reducedRepNeg21Id : ReducedRepNeg21 :=
+  ⟨BinaryQuadraticForm.mk 1 0 21, by
+    apply mem_enumPrimitiveReducedForms_of_reduced
+    · norm_num [HasDiscriminant, disc, fieldDiscriminant]
+    · norm_num [IsPositiveDefinite, disc]
+    · norm_num [IsReduced]
+    · unfold IsPrimitive
+      norm_num⟩
+
+private def reducedRepNeg21A : ReducedRepNeg21 :=
+  ⟨BinaryQuadraticForm.mk 2 2 11, by
+    apply mem_enumPrimitiveReducedForms_of_reduced
+    · norm_num [HasDiscriminant, disc, fieldDiscriminant]
+    · norm_num [IsPositiveDefinite, disc]
+    · norm_num [IsReduced]
+    · unfold IsPrimitive
+      norm_num⟩
+
+private def reducedRepNeg21B : ReducedRepNeg21 :=
+  ⟨BinaryQuadraticForm.mk 3 0 7, by
+    apply mem_enumPrimitiveReducedForms_of_reduced
+    · norm_num [HasDiscriminant, disc, fieldDiscriminant]
+    · norm_num [IsPositiveDefinite, disc]
+    · norm_num [IsReduced]
+    · unfold IsPrimitive
+      norm_num⟩
+
+private def reducedRepNeg21C : ReducedRepNeg21 :=
+  ⟨BinaryQuadraticForm.mk 5 4 5, by
+    apply mem_enumPrimitiveReducedForms_of_reduced
+    · norm_num [HasDiscriminant, disc, fieldDiscriminant]
+    · norm_num [IsPositiveDefinite, disc]
+    · norm_num [IsReduced]
+    · unfold IsPrimitive
+      norm_num⟩
+
+private def kleinFourId : KleinFour :=
+  (Multiplicative.ofAdd (0 : ZMod 2), Multiplicative.ofAdd (0 : ZMod 2))
+
+private def kleinFourA : KleinFour :=
+  (Multiplicative.ofAdd (1 : ZMod 2), Multiplicative.ofAdd (0 : ZMod 2))
+
+private def kleinFourB : KleinFour :=
+  (Multiplicative.ofAdd (0 : ZMod 2), Multiplicative.ofAdd (1 : ZMod 2))
+
+private def kleinFourC : KleinFour :=
+  (Multiplicative.ofAdd (1 : ZMod 2), Multiplicative.ofAdd (1 : ZMod 2))
+
+private def reducedRepNeg21ToKlein (Q : ReducedRepNeg21) : KleinFour :=
+  if Q = reducedRepNeg21Id then kleinFourId
+  else if Q = reducedRepNeg21A then kleinFourA
+  else if Q = reducedRepNeg21B then kleinFourB
+  else kleinFourC
+
+private def kleinFourToReducedRepNeg21 (x : KleinFour) : ReducedRepNeg21 :=
+  if x = kleinFourId then reducedRepNeg21Id
+  else if x = kleinFourA then reducedRepNeg21A
+  else if x = kleinFourB then reducedRepNeg21B
+  else reducedRepNeg21C
+
+private theorem enumPrimitiveReducedForms_neg84 :
+    enumPrimitiveReducedForms (fieldDiscriminant (-21 : ℤ)) =
+      ({BinaryQuadraticForm.mk 1 0 21, BinaryQuadraticForm.mk 2 2 11,
+        BinaryQuadraticForm.mk 3 0 7, BinaryQuadraticForm.mk 5 4 5} :
+        Finset BinaryQuadraticForm) := by
+  native_decide
+
+private theorem reducedFormNeg21_cases {Q : BinaryQuadraticForm}
+    (hQ : Q ∈ enumPrimitiveReducedForms (fieldDiscriminant (-21 : ℤ))) :
+    Q = BinaryQuadraticForm.mk 1 0 21 ∨
+      Q = BinaryQuadraticForm.mk 2 2 11 ∨
+      Q = BinaryQuadraticForm.mk 3 0 7 ∨
+      Q = BinaryQuadraticForm.mk 5 4 5 := by
+  rw [enumPrimitiveReducedForms_neg84] at hQ
+  simpa using hQ
+
+private theorem reducedRepNeg21_cases (Q : ReducedRepNeg21) :
+    Q = reducedRepNeg21Id ∨ Q = reducedRepNeg21A ∨
+      Q = reducedRepNeg21B ∨ Q = reducedRepNeg21C := by
+  rcases reducedFormNeg21_cases Q.2 with h | h | h | h
+  · exact Or.inl (Subtype.ext h)
+  · exact Or.inr (Or.inl (Subtype.ext h))
+  · exact Or.inr (Or.inr (Or.inl (Subtype.ext h)))
+  · exact Or.inr (Or.inr (Or.inr (Subtype.ext h)))
+
+private noncomputable def reducedRepNeg21MulEquivKlein :
+    letI := reducedFormRepCommGroup (d := (-21 : ℤ)) (by norm_num)
+    ReducedRepNeg21 ≃* KleinFour := by
+  letI := reducedFormRepCommGroup (d := (-21 : ℤ)) (by norm_num)
+  refine
+    { toFun := reducedRepNeg21ToKlein
+      invFun := kleinFourToReducedRepNeg21
+      left_inv := ?_
+      right_inv := ?_
+      map_mul' := ?_ }
+  · intro Q
+    rcases reducedRepNeg21_cases Q with h | h | h | h <;> subst Q <;>
+      decide +revert
+  · intro x
+    decide +revert
+  · intro Q R
+    rw [reducedFormRep_mul_eq_reducedFormRepMul (d := (-21 : ℤ)) (hdneg := by norm_num)]
+    rw [← gaussMul_eq_reducedFormRepMul (d := (-21 : ℤ)) (hdneg := by norm_num) Q R]
+    rcases reducedRepNeg21_cases Q with hQ | hQ | hQ | hQ <;> subst Q <;>
+      rcases reducedRepNeg21_cases R with hR | hR | hR | hR <;> subst R <;>
+        native_decide +revert
 
 /-- **ℚ(√-21)**: the class group is the Klein four-group, i.e. ≅ ℤ/2ℤ × ℤ/2ℤ.
 Class number 4 is already proved; the multiplication table (verified above)
 shows all non-identity elements have order 2. -/
-theorem classGroup_qsqrtd_neg21_mulEquiv :
-    ClassGroup 𝓞K ≃* ZMod 2 × ZMod 2 := by
-  sorry
+noncomputable def classGroup_qsqrtd_neg21_mulEquiv :
+    ClassGroup (NumberField.RingOfIntegers (Qsqrtd ((-21 : ℤ) : ℚ))) ≃*
+      Multiplicative (ZMod 2) × Multiplicative (ZMod 2) := by
+  letI := reducedFormRepCommGroup (d := (-21 : ℤ)) (by norm_num)
+  exact (reducedFormRepMulEquivClassGroup (d := (-21 : ℤ)) (by norm_num)).symm.trans
+    reducedRepNeg21MulEquivKlein
 
 end ConcreteIsomorphisms
 
