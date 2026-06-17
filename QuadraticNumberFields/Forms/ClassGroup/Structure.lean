@@ -23,19 +23,20 @@ typeclass inference on the `Quotient` type.
 
 ## TODO
 
-* The computable Gauss composition pipeline is in `Forms.ComputableComposition`
-  (`composeForm`, CRT-adjusted), `Forms.ComputableReduction` (`reduceForm`,
-  well-founded recursion), and `Forms.ComputableClassGroup` (`gaussMul`,
+* The computable Gauss composition pipeline is in `Forms.Computable.Composition`
+  (`composeForm`, CRT-adjusted), `Forms.Computable.Reduction` (`reduceForm`,
+  well-founded recursion), and `Forms.Computable.ClassGroup` (`gaussMul`,
   `composeAndReduce`).  The consistency theorem
   `gaussMul_eq_reducedFormRepMul` identifies this executable multiplication
   with the transported class-group law on reduced representatives.
 
 * Concrete class-group isomorphism types for `-5`, `-23`, `-21` live in
-  `Forms.ClassGroupStructure` (standard type descriptions plus cyclic / Klein
+  `Forms.Computable.Structure` (standard type descriptions plus cyclic / Klein
   four-group identification tools).
 
 * The Cox ideal-class bridge for direct concordant Gauss composition is proved in
-  `Forms.ClassGroup.CoxComposition` (`FormClass.composeConcordantOfRepresentatives_eq_of_mk_eq`).
+  `Forms.ClassGroup.CoxComposition`
+  (`FormClass.composeConcordantOfRepresentatives_eq_of_mk_eq`).
 -/
 
 open scoped NumberField
@@ -54,7 +55,7 @@ the Cox 7.7 equivalence.  This is a `def` (not an `instance`) to avoid
 uncontrolled typeclass inference on the `Quotient` type.
 
 The executable representative-level multiplication is `gaussMul`; see
-`Forms.ComputableClassGroup.gaussMul_eq_reducedFormRepMul` for the theorem
+`Forms.Computable.ClassGroup.gaussMul_eq_reducedFormRepMul` for the theorem
 identifying it with the transported operation. -/
 @[reducible]
 noncomputable def formClassCommGroup (hdneg : d < 0) :
@@ -64,7 +65,7 @@ noncomputable def formClassCommGroup (hdneg : d < 0) :
 /-- The Cox 7.7 equivalence preserves multiplication when `FormClass` carries
 the transported group structure.
 
-At the reduced-representative level, `Forms.ComputableClassGroup` identifies
+At the reduced-representative level, `Forms.Computable.ClassGroup` identifies
 the explicit Gauss composition and reduction pipeline with this transported
 multiplication. -/
 theorem formClassEquivClassGroup_mul (hdneg : d < 0) (x y : FormClass (fieldDiscriminant d)) :

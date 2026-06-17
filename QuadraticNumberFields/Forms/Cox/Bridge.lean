@@ -365,7 +365,8 @@ noncomputable def nonzeroIdealOfForm_of_mod_four_eq_one
       (idealOfForm_of_mod_four_eq_one_ne_zero d hd4 Q)⟩
 
 /-- The ideal class attached to a single primitive positive definite form in the
-`d % 4 ≠ 1` branch. This has not yet been descended to `FormClass`. -/
+`d % 4 ≠ 1` branch, used as the representative-level input for the descended
+`FormClass` map. -/
 noncomputable def idealClassOfForm_of_mod_four_ne_one
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd4 : d % 4 ≠ 1)
     (Q : PrimitivePositiveDefiniteForm (fieldDiscriminant d)) :
@@ -373,7 +374,8 @@ noncomputable def idealClassOfForm_of_mod_four_ne_one
   ClassGroup.mk0 (nonzeroIdealOfForm_of_mod_four_ne_one d hd4 Q)
 
 /-- The ideal class attached to a single primitive positive definite form in the
-`d % 4 = 1` branch. This has not yet been descended to `FormClass`. -/
+`d % 4 = 1` branch, used as the representative-level input for the descended
+`FormClass` map. -/
 noncomputable def idealClassOfForm_of_mod_four_eq_one
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd4 : d % 4 = 1)
     (Q : PrimitivePositiveDefiniteForm (fieldDiscriminant d)) :

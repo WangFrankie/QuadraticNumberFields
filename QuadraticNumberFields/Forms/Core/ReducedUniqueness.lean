@@ -20,8 +20,8 @@ statement that the root lies in the modular fundamental domain `ModularGroup.fd`
 and uniqueness is a case analysis on the `SL₂(ℤ)` elements that fix the
 fundamental domain (the identity, `S`, `T`, and the stabilizers of `ρ`).
 
-These results are consumed by `Forms.Bridge` to define `FormClass` and the
-form-class-to-ideal-class map.
+These results are consumed by `Forms.Core.ClassReduced` and the Cox bridge to
+choose reduced representatives of `FormClass`.
 -/
 
 namespace QuadraticNumberFields

@@ -5,31 +5,39 @@ class groups.
 
 ## Architecture
 
-- `Basic.lean` defines the project-owned computable `(a, b, c)` model of
-  integral binary quadratic forms.
-- `Action.lean`, `UpperHalfPlane.lean`, `Reduction.lean`, and
-  `ReducedUniqueness.lean` provide the `SL₂(ℤ)` action and Gauss reduction
-  facts.
-- `Bridge.lean`, `InverseCox.lean`, `CoxLeftInverse.lean`,
-  `CoxRightInverse.lean`, and `CoxEquivalence.lean` assemble the Cox 7.7
-  equivalence between primitive positive definite form classes and ideal class
-  groups.
-- `Structure.lean` and `ClassGroupLaw.lean` transport the group structure to
+The module graph is layered:
+
+```text
+Core -> Cox -> Gauss -> ClassGroup -> Computable
+```
+
+- `Core/` defines the project-owned computable `(a, b, c)` model, the
+  `SL₂(ℤ)` action, reduction facts, enumeration, and the form-class carrier
+  (`PrimitivePositiveDefiniteForm`, `FormClass`, `fieldDiscriminant`) in
+  `Core/Class.lean` and `Core/ClassReduced.lean`.
+- `Cox/` assembles the Cox 7.7 equivalence between primitive positive definite
+  form classes and ideal class groups.
+- `Gauss/` contains the explicit representative-level Gauss composition layer.
+- `ClassGroup/` transports the ideal class-group structure to form classes and
   reduced-form representatives.
-- `Computable*` and `GaussComposition*` files are the explicit computation and
-  regression surface; keep examples there or under `QuadraticNumberFields/Examples`
-  rather than in core bridge files.
+- `Computable/` contains the executable composition/reduction pipeline,
+  reduced-form multiplication, and standard finite-abelian output.
 
 ## Local Rules
 
 - Keep `FormClass` restricted to primitive positive definite forms for the
   imaginary Cox 7.7 correspondence.
+- Do not add top-level re-export shell files such as `Forms/Core.lean` or
+  `Forms/Cox.lean`; import concrete submodules directly.
+- Keep `Core/` self-contained: it may import other `Core/` modules and external
+  mathlib/project-Mathlib modules, but not `Cox/`, `Gauss/`, `ClassGroup/`, or
+  `Computable/`.
 - Preserve the distinction between the stable transported class-group law and
   the explicit Gauss-composition computation layer.
 - The custom `BinaryQuadraticForm` coordinate model is intentional for
   computable reduced-form enumeration and `native_decide`; add explicit bridge
   lemmas to mathlib `QuadraticForm` when structural APIs are needed.
-- `ClassGroupStructure.lean` depends on the sibling `../FiniteAbelianSmith`
+- `Computable/Structure.lean` depends on the sibling `../FiniteAbelianSmith`
   project for certified finite-abelian standard targets. Keep that dependency
   isolated to the standard-output layer and its examples.
 - Prefer moving concrete discriminant computations to
