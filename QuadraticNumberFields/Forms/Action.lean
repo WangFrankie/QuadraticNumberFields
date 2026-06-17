@@ -150,6 +150,12 @@ theorem isPositiveDefinite_transform (Q : BinaryQuadraticForm)
   · rw [disc_transform]
     exact hQ.2
 
+/-- Proper equivalence preserves positive definiteness. -/
+theorem isPositiveDefinite_of_properEquivalent {Q R : BinaryQuadraticForm}
+    (hQ : Q.IsPositiveDefinite) (hQR : ProperEquivalent Q R) : R.IsPositiveDefinite := by
+  rcases hQR with ⟨g, rfl⟩
+  exact isPositiveDefinite_transform Q hQ g
+
 private theorem dvd_coefficients_of_dvd_transform_coefficients
     (Q : BinaryQuadraticForm) (g : SL2Z) {n : ℕ}
     (ha : (n : ℤ) ∣ (transform Q g).a) (hb : (n : ℤ) ∣ (transform Q g).b)
@@ -197,6 +203,12 @@ theorem isPrimitive_transform (Q : BinaryQuadraticForm)
     Int.dvd_gcd hQdvd.1 (by exact_mod_cast hngcd_bc)
   rw [hQ] at hngcd
   exact Nat.dvd_one.mp hngcd
+
+/-- Proper equivalence preserves primitivity. -/
+theorem isPrimitive_of_properEquivalent {Q R : BinaryQuadraticForm}
+    (hQ : Q.IsPrimitive) (hQR : ProperEquivalent Q R) : R.IsPrimitive := by
+  rcases hQR with ⟨g, rfl⟩
+  exact isPrimitive_transform Q hQ g
 
 end BinaryQuadraticForm
 end QuadraticNumberFields

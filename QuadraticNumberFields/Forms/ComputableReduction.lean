@@ -259,16 +259,6 @@ private theorem isReduced_boundary_flip {Q : BinaryQuadraticForm}
   · intro _
     exact hb_nonneg
 
-private theorem isPositiveDefinite_of_properEquivalent {Q R : BinaryQuadraticForm}
-    (hQ : Q.IsPositiveDefinite) (hQR : ProperEquivalent Q R) : R.IsPositiveDefinite := by
-  rcases hQR with ⟨g, rfl⟩
-  exact isPositiveDefinite_transform Q hQ g
-
-private theorem isPrimitive_of_properEquivalent {Q R : BinaryQuadraticForm}
-    (hQ : Q.IsPrimitive) (hQR : ProperEquivalent Q R) : R.IsPrimitive := by
-  rcases hQR with ⟨g, rfl⟩
-  exact isPrimitive_transform Q hQ g
-
 private theorem reduceForm_eq (Q : BinaryQuadraticForm) (hpos : Q.IsPositiveDefinite) :
     reduceForm Q hpos =
       (have ha_pos : 0 < Q.a := hpos.1

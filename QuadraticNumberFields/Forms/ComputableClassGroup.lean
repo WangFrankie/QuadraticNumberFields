@@ -138,6 +138,34 @@ theorem coxIdeal_mul_of_united
   exact CoxComposition.coxIdeal_mul_of_united hdiscQ hdiscR hu₁ hu₂ hu hcop h_mod_left
     h_mod_right
 
+/-- Wrap the coprime right-factor replacement as a primitive positive definite
+form. -/
+def unitedRepPrimitiveOfCoprime
+    (Q R : PrimitivePositiveDefiniteForm (fieldDiscriminant d))
+    (hRprim : R.1.IsPrimitive) (hQa : Q.1.a ≠ 0) :
+    PrimitivePositiveDefiniteForm (fieldDiscriminant d) :=
+  let R' := unitedRep Q.1 R.1 hRprim hQa
+  have hRpe : ProperEquivalent R.1 R' :=
+    unitedRep_properEquivalent Q.1 R.1 hRprim hQa
+  have hdiscR' : R'.HasDiscriminant (fieldDiscriminant d) := by
+    rw [BinaryQuadraticForm.HasDiscriminant]
+    exact (disc_eq_of_properEquivalent hRpe).symm.trans R.2.1
+  have hprimR' : R'.IsPrimitive :=
+    isPrimitive_of_properEquivalent R.2.2.1 hRpe
+  have hposR' : R'.IsPositiveDefinite :=
+    isPositiveDefinite_of_properEquivalent R.2.2.2 hRpe
+  ⟨R', hdiscR', hprimR', hposR'⟩
+
+omit [Fact (Squarefree d)] [Fact (d ≠ 1)] in
+/-- The wrapped coprime right-factor replacement is properly equivalent to the
+original right factor. -/
+theorem unitedRepPrimitiveOfCoprime_properEquivalent
+    (Q R : PrimitivePositiveDefiniteForm (fieldDiscriminant d))
+    (hRprim : R.1.IsPrimitive) (hQa : Q.1.a ≠ 0) :
+    PrimitivePositiveDefiniteForm.ProperEquivalent R
+      (unitedRepPrimitiveOfCoprime Q R hRprim hQa) := by
+  exact unitedRep_properEquivalent Q.1 R.1 hRprim hQa
+
 /-- Wrap `composeForm` as a `PrimitivePositiveDefiniteForm`.  Requires
 `disc_composeForm` and `isPrimitive_composeForm` (already proved). -/
 def composeFormPrimitiveOfCoprime (hdneg : d < 0)
