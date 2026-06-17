@@ -61,10 +61,7 @@ theorem span_pair_mul_span_pair_le {R : Type*} [CommRing R]
   refine span_le.mpr ?_
   intro x hx
   rcases hx with rfl | rfl | rfl | rfl
-  · exact hac
-  · exact had
-  · exact hbc
-  · exact hbd
+  all_goals simpa
 
 /-- Pull back a principal ideal span along a ring equivalence. -/
 theorem comap_span_singleton_of_ringEquiv {R S : Type*} [CommRing R] [CommRing S]
