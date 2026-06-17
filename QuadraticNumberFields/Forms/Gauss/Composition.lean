@@ -4,8 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 
-import QuadraticNumberFields.Forms.Action
-import QuadraticNumberFields.Forms.Basic
+import QuadraticNumberFields.Forms.Core.Action
+import QuadraticNumberFields.Forms.Core.Basic
 import Mathlib.Data.Int.GCD
 import Mathlib.Data.Int.NatPrime
 import Mathlib.Data.Nat.ChineseRemainder

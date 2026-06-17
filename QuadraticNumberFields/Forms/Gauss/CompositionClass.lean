@@ -4,8 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 
-import QuadraticNumberFields.Forms.Bridge
-import QuadraticNumberFields.Forms.GaussComposition
+import QuadraticNumberFields.Forms.Cox.Bridge
+import QuadraticNumberFields.Forms.Gauss.Composition
 
 /-!
 # Gauss Composition on Primitive Positive Definite Forms
