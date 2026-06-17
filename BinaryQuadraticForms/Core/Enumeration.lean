@@ -16,7 +16,7 @@ This file defines a computable search space for primitive reduced positive
 definite forms of a negative discriminant.
 -/
 
-/-- Close concrete reduced-form list cardinality goals by native enumeration. -/
+/-- Close concrete reduced-form list cardinality goals by executable enumeration. -/
 syntax "reduce_forms_count" : tactic
 
 namespace QuadraticNumberFields

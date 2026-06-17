@@ -14,60 +14,50 @@ the standard product targets and the multiplication-table classifier before any
 quadratic-form data is involved.
 -/
 
-set_option linter.style.nativeDecide false
+set_option linter.hashCommand false
 
 namespace QuadraticNumberFields
 namespace BinaryQuadraticForm
 
 open FiniteAbelianSmith
 
-example : (standardZModProductElems []).length = 1 := by
-  native_decide
+#guard (standardZModProductElems []).length == 1
 
-example : (standardZModProductElems [2, 6]).length = 12 := by
-  native_decide
+#guard (standardZModProductElems [2, 6]).length == 12
 
-example : (StandardGroupIsoType.product [2, 6]).targetElems.length = 12 := by
-  native_decide
+#guard (StandardGroupIsoType.product [2, 6]).targetElems.length == 12
 
-example :
+#guard
     standardZModProductCoords [2, 6]
         (standardZModProductOfCoords [2, 6] [1, 5]) =
-      [1, 5] := by
-  native_decide
+      [1, 5]
 
-example :
+#guard
     (standardZModProductElems [2, 2]).map (standardZModProductCoords [2, 2]) =
-      [[0, 0], [0, 1], [1, 0], [1, 1]] := by
-  native_decide
+      [[0, 0], [0, 1], [1, 0], [1, 1]]
 
-example :
+#guard
     tableMapIsStandardMulEquiv (standardZModProductElems [2, 2])
-        (fun x y => x * y) [2, 2] id = true := by
-  native_decide
+        (fun x y => x * y) [2, 2] id
 
-example :
+#guard
     tableCoordinateMapIsStandardMulEquiv (standardZModProductElems [2, 6])
-        (fun x y => x * y) [2, 6] (standardZModProductCoords [2, 6]) = true := by
-  native_decide
+        (fun x y => x * y) [2, 6] (standardZModProductCoords [2, 6])
 
-example :
+#guard
     standardIsoTypeOfMulTable (standardZModProductElems [2, 2])
         (1 : standardZModProduct [2, 2]) (fun x y => x * y) =
-      StandardGroupIsoType.product [2, 2] := by
-  native_decide
+      StandardGroupIsoType.product [2, 2]
 
-example :
+#guard
     standardIsoTypeOfMulTable (standardZModProductElems [4, 2])
         (1 : standardZModProduct [4, 2]) (fun x y => x * y) =
-      StandardGroupIsoType.product [2, 4] := by
-  native_decide
+      StandardGroupIsoType.product [2, 4]
 
-example :
+#guard
     standardIsoTypeOfMulTable (standardZModProductElems [2, 6])
         (1 : standardZModProduct [2, 6]) (fun x y => x * y) =
-      StandardGroupIsoType.product [2, 6] := by
-  native_decide
+      StandardGroupIsoType.product [2, 6]
 
 end BinaryQuadraticForm
 end QuadraticNumberFields

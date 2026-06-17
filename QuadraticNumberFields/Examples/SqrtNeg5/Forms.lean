@@ -30,9 +30,9 @@ different layer of the project.
 All lemmas are sorry-free.
 -/
 
-set_option linter.style.nativeDecide false
-
 open scoped NumberField
+
+set_option linter.hashCommand false
 
 attribute [-instance] DivisionRing.toRatAlgebra
 
@@ -68,43 +68,40 @@ end Invariants
 
 section ReducedForms
 
-/-- There are exactly two primitive reduced positive definite forms of the field
-discriminant `-20`. -/
-example : (enumPrimitiveReducedForms (fieldDiscriminant (-5 : ℤ))).card = 2 := by
-  have hd4 : (-5 : ℤ) % 4 ≠ 1 := by decide
-  rw [fieldDiscriminant_of_mod_four_ne_one hd4]
-  native_decide
+-- There are exactly two primitive reduced positive definite forms of the field
+-- discriminant `-20`.
+#guard (enumPrimitiveReducedForms (fieldDiscriminant (-5 : ℤ))).card == 2
 
 /-- The principal form `x² + 5y²` is primitive, positive definite, reduced,
 and has discriminant -20. -/
 example : (BinaryQuadraticForm.mk 1 0 5).disc = -20 := by
-  native_decide
+  norm_num [disc]
 
 example : (BinaryQuadraticForm.mk 1 0 5).IsPrimitive := by
-  native_decide
+  norm_num [IsPrimitive]
 
 example : (BinaryQuadraticForm.mk 1 0 5).IsPositiveDefinite := by
-  native_decide
+  norm_num [IsPositiveDefinite, disc]
 
 example : (BinaryQuadraticForm.mk 1 0 5).IsReduced := by
-  native_decide
+  norm_num [BinaryQuadraticForm.IsReduced]
 
 /-- The non-principal reduced form is `2x² + 2xy + 3y²`. -/
 example : (BinaryQuadraticForm.mk 2 2 3).disc = -20 := by
-  native_decide
+  norm_num [disc]
 
 example : (BinaryQuadraticForm.mk 2 2 3).IsPrimitive := by
-  native_decide
+  norm_num [IsPrimitive]
 
 example : (BinaryQuadraticForm.mk 2 2 3).IsPositiveDefinite := by
-  native_decide
+  norm_num [IsPositiveDefinite, disc]
 
 example : (BinaryQuadraticForm.mk 2 2 3).IsReduced := by
-  native_decide
+  norm_num [BinaryQuadraticForm.IsReduced]
 
 /-- The two reduced forms are distinct. -/
 example : (BinaryQuadraticForm.mk 1 0 5) ≠ (BinaryQuadraticForm.mk 2 2 3) := by
-  native_decide
+  decide
 
 end ReducedForms
 

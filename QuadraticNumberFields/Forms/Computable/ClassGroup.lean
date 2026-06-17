@@ -690,47 +690,43 @@ def composeAndReduce (Q R : BinaryQuadraticForm) : BinaryQuadraticForm :=
     Q
 
 -- `#eval` the full pipeline on `(2,2,11) × (2,2,11)` (order-2 element).
+set_option linter.hashCommand false
+
 #eval composeAndReduce f2 f2
 -- Expected: identity form `(1,0,21)`.
-example : composeAndReduce f2 f2 = f1 := by
-  native_decide
+#guard composeAndReduce f2 f2 == f1
 
 -- `#eval` the full pipeline on `(3,0,7) × (3,0,7)` (order-2 element).
 #eval composeAndReduce f3 f3
-example : composeAndReduce f3 f3 = f1 := by
-  native_decide
+#guard composeAndReduce f3 f3 == f1
 
 -- `#eval` the full pipeline on `(5,4,5) × (5,4,5)` (order-2 element).
 #eval composeAndReduce f4 f4
-example : composeAndReduce f4 f4 = f1 := by
-  native_decide
+#guard composeAndReduce f4 f4 == f1
 
 -- `#eval` the full pipeline on `(2,2,11) × (3,0,7)`.
 #eval composeAndReduce f2 f3
 -- Product of the two distinct non-identity elements gives the third.
-example : composeAndReduce f2 f3 = f4 := by
-  native_decide
+#guard composeAndReduce f2 f3 == f4
 
 -- `#eval` the full pipeline on `(2,2,11) × (5,4,5)`.
 #eval composeAndReduce f2 f4
-example : composeAndReduce f2 f4 = f3 := by
-  native_decide
+#guard composeAndReduce f2 f4 == f3
 
 -- `#eval` the full pipeline on `(3,0,7) × (5,4,5)`.
 #eval composeAndReduce f3 f4
-example : composeAndReduce f3 f4 = f2 := by
-  native_decide
+#guard composeAndReduce f3 f4 == f2
 
 -- Identity: `(1,0,21) × anything = anything`.
 #eval composeAndReduce f1 f2
-example : composeAndReduce f1 f2 = f2 := by native_decide
+#guard composeAndReduce f1 f2 == f2
 #eval composeAndReduce f1 f3
-example : composeAndReduce f1 f3 = f3 := by native_decide
+#guard composeAndReduce f1 f3 == f3
 #eval composeAndReduce f1 f4
-example : composeAndReduce f1 f4 = f4 := by native_decide
+#guard composeAndReduce f1 f4 == f4
 
-/-- Full Klein four-group verified: all 10 non-trivial table entries match. -/
-example : composeAndReduce f1 f1 = f1 := by native_decide
+-- Full Klein four-group verified: all 10 non-trivial table entries match.
+#guard composeAndReduce f1 f1 == f1
 
 end Regression_d21
 

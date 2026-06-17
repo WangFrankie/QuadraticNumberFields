@@ -600,6 +600,8 @@ The CRT-adjusted middle coefficient guarantees exact division, so the
 output discriminant equals `Q.disc` unconditionally.  The `example` blocks
 double-check the full form triple and its discriminant. -/
 
+set_option linter.hashCommand false
+
 /-- Regression: `composeForm` on `(1,0,21)` × `(2,2,11)`.
 Principal form × non-principal gives the non-principal form back
 (class-group identity law).  CRT-adjusted output: `(11, -2, 2)`, disc = `-84`. -/
@@ -615,13 +617,12 @@ def testComposeFormIdentity : BinaryQuadraticForm :=
 
 #eval testComposeFormIdentity
 
-/-- The output triple matches the CRT algorithm's expected values. -/
-example : testComposeFormIdentity.a = 11 := by native_decide
-example : testComposeFormIdentity.b = -2 := by native_decide
-example : testComposeFormIdentity.c = 2 := by native_decide
-/-- Discriminant preserved. -/
-example : testComposeFormIdentity.disc = -84 := by
-  unfold testComposeFormIdentity disc; native_decide
+-- The output triple matches the CRT algorithm's expected values.
+#guard testComposeFormIdentity.a == 11
+#guard testComposeFormIdentity.b == -2
+#guard testComposeFormIdentity.c == 2
+-- Discriminant preserved.
+#guard testComposeFormIdentity.disc == -84
 
 /-- `composeForm` with the principal form `(1,0,21)` and `(5,4,5)`.
 CRT-adjusted output: `(5, -4, 5)`, disc = `-84`. -/
@@ -637,11 +638,10 @@ def testComposeFormPrincipal2 : BinaryQuadraticForm :=
 
 #eval testComposeFormPrincipal2
 
-example : testComposeFormPrincipal2.a = 5 := by native_decide
-example : testComposeFormPrincipal2.b = -4 := by native_decide
-example : testComposeFormPrincipal2.c = 5 := by native_decide
-example : testComposeFormPrincipal2.disc = -84 := by
-  unfold testComposeFormPrincipal2 disc; native_decide
+#guard testComposeFormPrincipal2.a == 5
+#guard testComposeFormPrincipal2.b == -4
+#guard testComposeFormPrincipal2.c == 5
+#guard testComposeFormPrincipal2.disc == -84
 
 /-- `composeForm` of `(3,0,7)` with itself (order-2 element).
 CRT-adjusted output: `(21, 0, 1)`, disc = `-84`. -/
@@ -657,22 +657,21 @@ def testComposeFormOrder2 : BinaryQuadraticForm :=
 
 #eval testComposeFormOrder2
 
-example : testComposeFormOrder2.a = 21 := by native_decide
-example : testComposeFormOrder2.b = 0 := by native_decide
-example : testComposeFormOrder2.c = 1 := by native_decide
-example : testComposeFormOrder2.disc = -84 := by
-  unfold testComposeFormOrder2 disc; native_decide
+#guard testComposeFormOrder2.a == 21
+#guard testComposeFormOrder2.b == 0
+#guard testComposeFormOrder2.c == 1
+#guard testComposeFormOrder2.disc == -84
 
 /-- Verify that all four reduced forms of discriminant `-84` have equal
 discriminant (a precondition for composition). -/
 example : (BinaryQuadraticForm.mk 1 0 21).disc = -84 := by
-  unfold disc; native_decide
+  norm_num [disc]
 example : (BinaryQuadraticForm.mk 2 2 11).disc = -84 := by
-  unfold disc; native_decide
+  norm_num [disc]
 example : (BinaryQuadraticForm.mk 3 0 7).disc = -84 := by
-  unfold disc; native_decide
+  norm_num [disc]
 example : (BinaryQuadraticForm.mk 5 4 5).disc = -84 := by
-  unfold disc; native_decide
+  norm_num [disc]
 
 /-- All four forms are primitive. -/
 example : (BinaryQuadraticForm.mk 1 0 21).IsPrimitive := by

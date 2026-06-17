@@ -14,7 +14,7 @@ the concrete reduced-form table checks separate from the final transport to the
 ideal class group.
 -/
 
-set_option linter.style.nativeDecide false
+set_option linter.hashCommand false
 
 namespace QuadraticNumberFields
 namespace BinaryQuadraticForm
@@ -27,16 +27,15 @@ def f5_id : BinaryQuadraticForm := BinaryQuadraticForm.mk 1 0 5
 /-- The non-principal reduced form for discriminant `-20`. -/
 def f5_non : BinaryQuadraticForm := BinaryQuadraticForm.mk 2 2 3
 
-example : f5_id.disc = -20 := by native_decide
-example : f5_non.disc = -20 := by native_decide
-example : f5_id.IsPrimitive := by unfold IsPrimitive; native_decide
-example : f5_non.IsPrimitive := by unfold IsPrimitive; native_decide
+example : f5_id.disc = -20 := by norm_num [f5_id, disc]
+example : f5_non.disc = -20 := by norm_num [f5_non, disc]
+example : f5_id.IsPrimitive := by norm_num [f5_id, IsPrimitive]
+example : f5_non.IsPrimitive := by norm_num [f5_non, IsPrimitive]
 
 /-- Order-two relation for the non-principal class over `ℚ(√-5)`. -/
 def composeAndReduce5 := @composeAndReduce
 
-example : composeAndReduce5 f5_non f5_non = f5_id := by
-  native_decide
+#guard composeAndReduce5 f5_non f5_non == f5_id
 
 /-! ## Discriminant `-23`: `ℚ(√-23)` -/
 
@@ -49,24 +48,20 @@ def f23_a : BinaryQuadraticForm := BinaryQuadraticForm.mk 2 1 3
 /-- Second non-principal reduced form for discriminant `-23`. -/
 def f23_b : BinaryQuadraticForm := BinaryQuadraticForm.mk 2 (-1) 3
 
-example : f23_id.disc = -23 := by native_decide
-example : f23_a.disc = -23 := by native_decide
-example : f23_b.disc = -23 := by native_decide
+example : f23_id.disc = -23 := by norm_num [f23_id, disc]
+example : f23_a.disc = -23 := by norm_num [f23_a, disc]
+example : f23_b.disc = -23 := by norm_num [f23_b, disc]
 
 /-- Composition on the reduced forms of discriminant `-23`. -/
 def composeAndReduce23 := @composeAndReduce
 
-example : composeAndReduce23 f23_a (composeAndReduce23 f23_a f23_a) = f23_id := by
-  native_decide
+#guard composeAndReduce23 f23_a (composeAndReduce23 f23_a f23_a) == f23_id
 
-example : composeAndReduce23 f23_b (composeAndReduce23 f23_b f23_b) = f23_id := by
-  native_decide
+#guard composeAndReduce23 f23_b (composeAndReduce23 f23_b f23_b) == f23_id
 
-example : composeAndReduce23 f23_a f23_a = f23_b := by
-  native_decide
+#guard composeAndReduce23 f23_a f23_a == f23_b
 
-example : composeAndReduce23 f23_a f23_b = f23_id := by
-  native_decide
+#guard composeAndReduce23 f23_a f23_b == f23_id
 
 /-! ## Discriminant `-84`: `ℚ(√-21)` -/
 
@@ -85,16 +80,16 @@ def f21_C : BinaryQuadraticForm := BinaryQuadraticForm.mk 5 4 5
 /-- Composition on the reduced forms of discriminant `-84`. -/
 def composeAndReduce21 := @composeAndReduce
 
-example : composeAndReduce21 f21_A f21_A = f21_id := by native_decide
-example : composeAndReduce21 f21_B f21_B = f21_id := by native_decide
-example : composeAndReduce21 f21_C f21_C = f21_id := by native_decide
-example : composeAndReduce21 f21_A f21_B = f21_C := by native_decide
-example : composeAndReduce21 f21_A f21_C = f21_B := by native_decide
-example : composeAndReduce21 f21_B f21_C = f21_A := by native_decide
-example : composeAndReduce21 f21_id f21_A = f21_A := by native_decide
-example : composeAndReduce21 f21_id f21_B = f21_B := by native_decide
-example : composeAndReduce21 f21_id f21_C = f21_C := by native_decide
-example : composeAndReduce21 f21_id f21_id = f21_id := by native_decide
+#guard composeAndReduce21 f21_A f21_A == f21_id
+#guard composeAndReduce21 f21_B f21_B == f21_id
+#guard composeAndReduce21 f21_C f21_C == f21_id
+#guard composeAndReduce21 f21_A f21_B == f21_C
+#guard composeAndReduce21 f21_A f21_C == f21_B
+#guard composeAndReduce21 f21_B f21_C == f21_A
+#guard composeAndReduce21 f21_id f21_A == f21_A
+#guard composeAndReduce21 f21_id f21_B == f21_B
+#guard composeAndReduce21 f21_id f21_C == f21_C
+#guard composeAndReduce21 f21_id f21_id == f21_id
 
 end BinaryQuadraticForm
 end QuadraticNumberFields
