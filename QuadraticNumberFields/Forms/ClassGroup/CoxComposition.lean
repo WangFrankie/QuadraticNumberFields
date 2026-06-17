@@ -546,23 +546,6 @@ end CoxComposition
 
 namespace PrimitivePositiveDefiniteForm
 
-/-- Pulling ideals back along a ring equivalence preserves ideal products. -/
-theorem comap_mul_of_ringEquiv {R S : Type*} [CommRing R] [CommRing S]
-    (e : R ≃+* S) (I J : Ideal S) :
-    Ideal.comap (e : R →+* S) (I * J) =
-      Ideal.comap (e : R →+* S) I * Ideal.comap (e : R →+* S) J := by
-  apply_fun Ideal.map (e : R →+* S) using fun A B h =>
-    calc
-      A = Ideal.comap (e : R →+* S) (Ideal.map (e : R →+* S) A) := by
-        rw [Ideal.comap_map_of_bijective (f := (e : R →+* S)) e.bijective]
-      _ = Ideal.comap (e : R →+* S) (Ideal.map (e : R →+* S) B) := by rw [h]
-      _ = B := by
-        rw [Ideal.comap_map_of_bijective (f := (e : R →+* S)) e.bijective]
-  rw [Ideal.map_comap_of_surjective (e : R →+* S) e.surjective]
-  rw [Ideal.map_mul]
-  rw [Ideal.map_comap_of_surjective (e : R →+* S) e.surjective]
-  rw [Ideal.map_comap_of_surjective (e : R →+* S) e.surjective]
-
 /-- Normalise the integer half of `-b` when `b` is even. -/
 theorem two_mul_neg_div_two_of_even {b : ℤ} (hb : Even b) :
     2 * ((-b) / 2) = -b := by
@@ -619,7 +602,7 @@ theorem idealOfForm_composeConcordant_of_mod_four_ne_one
           (CoxIdealRelation.coxIdeal d 0 Q.1.a u) *
         Ideal.comap (e : 𝓞 (Qsqrtd (d : ℚ)) →+* Zsqrtd d)
           (CoxIdealRelation.coxIdeal d 0 R.1.a u) := by
-          rw [comap_mul_of_ringEquiv]
+          rw [Ideal.comap_mul_of_ringEquiv]
     _ = idealOfForm_of_mod_four_ne_one d hd4 Q *
         idealOfForm_of_mod_four_ne_one d hd4 R := by
           simp [idealOfForm_of_mod_four_ne_one, CoxIdealRelation.coxIdeal, e, u, ← h.2.1]
@@ -686,7 +669,7 @@ theorem idealOfForm_composeConcordant_of_mod_four_eq_one
           (CoxIdealRelation.coxIdeal (d / 4) 1 Q.1.a u) *
         Ideal.comap (e : 𝓞 (Qsqrtd (d : ℚ)) →+* ZOnePlusSqrtdOverTwo (d / 4))
           (CoxIdealRelation.coxIdeal (d / 4) 1 R.1.a u) := by
-          rw [comap_mul_of_ringEquiv]
+          rw [Ideal.comap_mul_of_ringEquiv]
     _ = idealOfForm_of_mod_four_eq_one d hd4 Q *
         idealOfForm_of_mod_four_eq_one d hd4 R := by
           simp [idealOfForm_of_mod_four_eq_one, CoxIdealRelation.coxIdeal, e, u, ← h.2.1]

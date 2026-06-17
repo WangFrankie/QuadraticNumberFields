@@ -467,24 +467,8 @@ theorem basis_first_mul_cox_ideal_le_span_a_mul_ideal_of_mod_four_ne_one
   have hbeta : (b.basis 0 : 𝓞K) * e.symm betaZ ∈ target := by
     simpa [Q, e, betaZ, target] using
       basis_first_mul_cox_ideal_generator_mem_span_a_mul_ideal_of_mod_four_ne_one hdneg hd4 I b
-  rw [Ideal.span_singleton_mul_le_iff]
-  intro z hz
-  have hz' : e z ∈ Ideal.span ({aZ, betaZ} : Set (Zsqrtd d)) := by
-    simpa [idealOfForm_of_mod_four_ne_one, e, aZ, betaZ] using hz
-  rcases ((Ideal.mem_span_pair (x := aZ) (y := betaZ)).mp hz') with ⟨u, v, huv⟩
-  have hz_eq : z = e.symm (u * aZ + v * betaZ) := by
-    apply e.injective
-    simp [huv]
-  rw [hz_eq]
-  have hsplit :
-      (b.basis 0 : 𝓞K) * e.symm (u * aZ + v * betaZ) =
-        e.symm u * ((b.basis 0 : 𝓞K) * e.symm aZ) +
-          e.symm v * ((b.basis 0 : 𝓞K) * e.symm betaZ) := by
-    simp
-    ring
-  rw [hsplit]
-  exact target.add_mem (target.mul_mem_left (e.symm u) hscalar)
-    (target.mul_mem_left (e.symm v) hbeta)
+  rw [idealOfForm_of_mod_four_ne_one, Ideal.comap_span_pair_of_ringEquiv e aZ betaZ]
+  exact Ideal.span_singleton_mul_span_pair_le hscalar hbeta
 
 /-- In the `d % 4 = 1` branch, the two Cox generator membership lemmas assemble
 to the inclusion `(b₀) · J(Q_b) ≤ (a_Q) · I`. -/
@@ -509,24 +493,8 @@ theorem basis_first_mul_cox_ideal_le_span_a_mul_ideal_of_mod_four_eq_one
   have hbeta : (b.basis 0 : 𝓞K) * e.symm betaZ ∈ target := by
     simpa [Q, e, betaZ, target] using
       basis_first_mul_cox_ideal_generator_mem_span_a_mul_ideal_of_mod_four_eq_one hdneg hd4 I b
-  rw [Ideal.span_singleton_mul_le_iff]
-  intro z hz
-  have hz' : e z ∈ Ideal.span ({aZ, betaZ} : Set (ZOnePlusSqrtdOverTwo (d / 4))) := by
-    simpa [idealOfForm_of_mod_four_eq_one, e, aZ, betaZ] using hz
-  rcases ((Ideal.mem_span_pair (x := aZ) (y := betaZ)).mp hz') with ⟨u, v, huv⟩
-  have hz_eq : z = e.symm (u * aZ + v * betaZ) := by
-    apply e.injective
-    simp [huv]
-  rw [hz_eq]
-  have hsplit :
-      (b.basis 0 : 𝓞K) * e.symm (u * aZ + v * betaZ) =
-        e.symm u * ((b.basis 0 : 𝓞K) * e.symm aZ) +
-          e.symm v * ((b.basis 0 : 𝓞K) * e.symm betaZ) := by
-    simp
-    ring
-  rw [hsplit]
-  exact target.add_mem (target.mul_mem_left (e.symm u) hscalar)
-    (target.mul_mem_left (e.symm v) hbeta)
+  rw [idealOfForm_of_mod_four_eq_one, Ideal.comap_span_pair_of_ringEquiv e aZ betaZ]
+  exact Ideal.span_singleton_mul_span_pair_le hscalar hbeta
 
 /-- In the `d % 4 ≠ 1` branch, the oriented basis decomposition of `I` gives
 the reverse inclusion `(a_Q) · I ≤ (b₀) · J(Q_b)`. -/

@@ -122,26 +122,6 @@ The existing `coxIdeal_mul_of_concordant` in `CoxComposition.lean` handles
 
 open CoxIdealRelation
 
-/-- **Generalised Cox ideal product** for united (non-concordant) forms.
-
-The proof adapts `CoxComposition.coxIdeal_mul_of_concordant` to handle different
-middle coefficients `B₁ ≠ B₂`, using the CRT congruences to relate `β₁ = ⟨u₁,1⟩`
-and `β₂ = ⟨u₂,1⟩` to `β = ⟨u,1⟩` via `β₁ = β - t·A₁`, `β₂ = β - k·A₂`. -/
-theorem coxIdeal_mul_of_united
-    {DD bb A₁ A₂ C₁ C₂ B B₁ B₂ u₁ u₂ u : ℤ}
-    (hdiscQ : B₁ ^ 2 - 4 * A₁ * C₁ = bb ^ 2 + 4 * DD)
-    (hdiscR : B₂ ^ 2 - 4 * A₂ * C₂ = bb ^ 2 + 4 * DD)
-    (hu₁ : 2 * u₁ = -(B₁ + bb))
-    (hu₂ : 2 * u₂ = -(B₂ + bb))
-    (hu : 2 * u = -(B + bb))
-    (hcop : Int.gcd A₁ A₂ = 1)
-    (h_mod_left : B ≡ B₁ [ZMOD 2 * A₁])
-    (h_mod_right : B ≡ B₂ [ZMOD 2 * A₂]) :
-    CoxIdealRelation.coxIdeal DD bb A₁ u₁ * CoxIdealRelation.coxIdeal DD bb A₂ u₂ =
-      CoxIdealRelation.coxIdeal DD bb (A₁ * A₂) u := by
-  exact CoxComposition.coxIdeal_mul_of_united hdiscQ hdiscR hu₁ hu₂ hu hcop h_mod_left
-    h_mod_right
-
 private theorem even_of_modEq_even {B b a : ℤ} (hb : Even b)
     (hB : B ≡ b [ZMOD 2 * a]) : Even B := by
   rcases hb with ⟨m, hm⟩
@@ -279,7 +259,8 @@ theorem idealOfForm_composeForm_of_mod_four_ne_one
       CoxIdealRelation.coxIdeal d 0 Q.1.a u₁ *
           CoxIdealRelation.coxIdeal d 0 R'.a u₂ =
         CoxIdealRelation.coxIdeal d 0 (Q.1.a * R'.a) u :=
-    coxIdeal_mul_of_united hdiscQ hdiscR hu₁ hu₂ hu hcop h_mod_left h_mod_right
+    CoxComposition.coxIdeal_mul_of_united hdiscQ hdiscR hu₁ hu₂ hu hcop h_mod_left
+      h_mod_right
   calc
     idealOfForm_of_mod_four_ne_one d hd4
         (composeFormPrimitiveOfCoprime hdneg Q R hQR hRprim hQa hQpos hRpos)
@@ -296,7 +277,7 @@ theorem idealOfForm_composeForm_of_mod_four_ne_one
           (CoxIdealRelation.coxIdeal d 0 Q.1.a u₁) *
         Ideal.comap (e : 𝓞 (Qsqrtd (d : ℚ)) →+* Zsqrtd d)
           (CoxIdealRelation.coxIdeal d 0 R'.a u₂) := by
-          rw [PrimitivePositiveDefiniteForm.comap_mul_of_ringEquiv]
+          rw [Ideal.comap_mul_of_ringEquiv]
     _ = idealOfForm_of_mod_four_ne_one d hd4 Q *
         idealOfForm_of_mod_four_ne_one d hd4 R'F := by
           simp [idealOfForm_of_mod_four_ne_one, CoxIdealRelation.coxIdeal, e, R'F, R',
@@ -411,7 +392,8 @@ theorem idealOfForm_composeForm_of_mod_four_eq_one
       CoxIdealRelation.coxIdeal (d / 4) 1 Q.1.a u₁ *
           CoxIdealRelation.coxIdeal (d / 4) 1 R'.a u₂ =
         CoxIdealRelation.coxIdeal (d / 4) 1 (Q.1.a * R'.a) u :=
-    coxIdeal_mul_of_united hdiscQ hdiscR hu₁ hu₂ hu hcop h_mod_left h_mod_right
+    CoxComposition.coxIdeal_mul_of_united hdiscQ hdiscR hu₁ hu₂ hu hcop h_mod_left
+      h_mod_right
   calc
     idealOfForm_of_mod_four_eq_one d hd4
         (composeFormPrimitiveOfCoprime hdneg Q R hQR hRprim hQa hQpos hRpos)
@@ -428,7 +410,7 @@ theorem idealOfForm_composeForm_of_mod_four_eq_one
           (CoxIdealRelation.coxIdeal (d / 4) 1 Q.1.a u₁) *
         Ideal.comap (e : 𝓞 (Qsqrtd (d : ℚ)) →+* ZOnePlusSqrtdOverTwo (d / 4))
           (CoxIdealRelation.coxIdeal (d / 4) 1 R'.a u₂) := by
-          rw [PrimitivePositiveDefiniteForm.comap_mul_of_ringEquiv]
+          rw [Ideal.comap_mul_of_ringEquiv]
     _ = idealOfForm_of_mod_four_eq_one d hd4 Q *
         idealOfForm_of_mod_four_eq_one d hd4 R'F := by
           simp [idealOfForm_of_mod_four_eq_one, CoxIdealRelation.coxIdeal, e, R'F, R',
@@ -487,7 +469,7 @@ Under the Cox equivalence, the CRT-adjusted `composeForm` represents the
 product of form classes.  This is the linchpin connecting the computable
 Gauss pipeline to the existing transported `CommGroup` on `FormClass`.
 
-Uses `coxIdeal_mul_of_united` (above) for the ideal-product identity,
+Uses `CoxComposition.coxIdeal_mul_of_united` for the ideal-product identity,
 `unitedRep_properEquivalent` for right-factor replacement, and
 `formClassEquivClassGroup` injectivity for the quotient lift. -/
 theorem composeForm_mk (hdneg : d < 0)

@@ -164,13 +164,10 @@ theorem exists_concordant_representatives {D : ℤ} (C E : FormClass D) :
     ∃ Q R : PrimitivePositiveDefiniteForm D,
       Quotient.mk (primitivePositiveDefiniteFormSetoid D) Q = C ∧
       Quotient.mk (primitivePositiveDefiniteFormSetoid D) R = E ∧ Q.1.IsConcordant R.1 := by
-  induction C using Quotient.inductionOn with
-  | h Q =>
-      induction E using Quotient.inductionOn with
-      | h R =>
-          obtain ⟨Q', R', hQ, hR, hcon⟩ :=
-            PrimitivePositiveDefiniteForm.exists_concordant_representatives Q R
-          exact ⟨Q', R', (Quotient.sound hQ).symm, (Quotient.sound hR).symm, hcon⟩
+  exact Quotient.inductionOn₂ C E fun Q R => by
+    obtain ⟨Q', R', hQ, hR, hcon⟩ :=
+      PrimitivePositiveDefiniteForm.exists_concordant_representatives Q R
+    exact ⟨Q', R', (Quotient.sound hQ).symm, (Quotient.sound hR).symm, hcon⟩
 
 end FormClass
 

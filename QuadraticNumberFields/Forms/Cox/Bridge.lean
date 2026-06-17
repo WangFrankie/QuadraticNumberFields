@@ -58,6 +58,11 @@ private theorem two_mul_neg_succ_div_two_of_odd {b : ℤ} (hb : Odd b) :
   rcases hb with ⟨k, hk⟩
   omega
 
+private theorem sl2z_det_fin_two (g : SL2Z) : g 0 0 * g 1 1 - g 0 1 * g 1 0 = 1 := by
+  have h := g.2
+  rw [Matrix.det_fin_two] at h
+  simpa using h
+
 private theorem cox_zsqrtd_lam_ne_zero {D A p q r s u : ℤ}
     (hA : A ≠ 0) (hdet : p * s - q * r = 1) :
     (((p * A : ℤ) : Zsqrtd D) - (r : Zsqrtd D) * (⟨u, 1⟩ : Zsqrtd D)) ≠ 0 :=
@@ -95,10 +100,7 @@ private theorem cox_zsqrtd_ideal_relation_transform_of_mod_four_ne_one
         ({(((transform Q.1 g).a : ℤ) : Zsqrtd d),
           (⟨(-(transform Q.1 g).b) / 2, 1⟩ : Zsqrtd d)} :
           Set (Zsqrtd d)) := by
-  have hdet : g 0 0 * g 1 1 - g 0 1 * g 1 0 = 1 := by
-    have h := g.2
-    rw [Matrix.det_fin_two] at h
-    simpa using h
+  have hdet : g 0 0 * g 1 1 - g 0 1 * g 1 0 = 1 := sl2z_det_fin_two g
   have hdisc : Q.1.b ^ 2 - 4 * Q.1.a * Q.1.c = 4 * d := by
     simpa [HasDiscriminant, disc, fieldDiscriminant, hd4] using Q.2.1
   have hb_even : Even Q.1.b :=
@@ -158,10 +160,7 @@ private theorem cox_zomega_ideal_relation_transform_of_mod_four_eq_one
         ({(((transform Q.1 g).a : ℤ) : ZOnePlusSqrtdOverTwo (d / 4)),
           (⟨-((transform Q.1 g).b + 1) / 2, 1⟩ : ZOnePlusSqrtdOverTwo (d / 4))} :
           Set (ZOnePlusSqrtdOverTwo (d / 4))) := by
-  have hdet : g 0 0 * g 1 1 - g 0 1 * g 1 0 = 1 := by
-    have h := g.2
-    rw [Matrix.det_fin_two] at h
-    simpa using h
+  have hdet : g 0 0 * g 1 1 - g 0 1 * g 1 0 = 1 := sl2z_det_fin_two g
   have hdisc_d : Q.1.b ^ 2 - 4 * Q.1.a * Q.1.c = d := by
     simpa [HasDiscriminant, disc, fieldDiscriminant, hd4] using Q.2.1
   have hd_eq : d = 1 + 4 * (d / 4) := by omega
@@ -405,10 +404,7 @@ theorem idealClassOfForm_of_mod_four_ne_one_eq_of_transform
     have ha0 : R.1.a = 0 := by
       exact_mod_cast congrArg QuadraticAlgebra.re hxZ
     exact (ne_of_gt R.2.2.2.1) ha0
-  have hdet : g 0 0 * g 1 1 - g 0 1 * g 1 0 = 1 := by
-    have h := g.2
-    rw [Matrix.det_fin_two] at h
-    simpa using h
+  have hdet : g 0 0 * g 1 1 - g 0 1 * g 1 0 = 1 := sl2z_det_fin_two g
   have hlam : lam ≠ 0 :=
     cox_zsqrtd_lam_ne_zero (D := d) (A := Q.1.a) (p := g 0 0)
       (q := g 0 1) (r := g 1 0) (s := g 1 1) (u := (-Q.1.b) / 2)
@@ -461,10 +457,7 @@ theorem idealClassOfForm_of_mod_four_eq_one_eq_of_transform
     have ha0 : R.1.a = 0 := by
       exact_mod_cast congrArg QuadraticAlgebra.re hxZ
     exact (ne_of_gt R.2.2.2.1) ha0
-  have hdet : g 0 0 * g 1 1 - g 0 1 * g 1 0 = 1 := by
-    have h := g.2
-    rw [Matrix.det_fin_two] at h
-    simpa using h
+  have hdet : g 0 0 * g 1 1 - g 0 1 * g 1 0 = 1 := sl2z_det_fin_two g
   have hlam : lam ≠ 0 :=
     cox_zomega_lam_ne_zero (k := d / 4) (A := Q.1.a) (p := g 0 0)
       (q := g 0 1) (r := g 1 0) (s := g 1 1) (u := -(Q.1.b + 1) / 2)

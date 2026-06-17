@@ -309,18 +309,15 @@ theorem normFormOfBasis_eq_of_norms {I : Ideal 𝓞K} (hI : I ≠ 0) (b : Orient
       Q.a ^ 2 + Q.a * Q.b + Q.a * Q.c) :
     normFormOfBasis hI b = Q := by
   ext
-  · have h := normFormOfBasis_a_mul_absNorm hI b
-    rw [hN, hn0] at h
-    have hcancel : (normFormOfBasis hI b).a * Q.a = Q.a * Q.a := by rw [h]; ring
-    exact mul_right_cancel₀ ha hcancel
-  · have h := normFormOfBasis_b_mul_absNorm hI b
-    rw [hN, hns, hn0, hn1] at h
-    have hcancel : (normFormOfBasis hI b).b * Q.a = Q.b * Q.a := by rw [h]; ring
-    exact mul_right_cancel₀ ha hcancel
-  · have h := normFormOfBasis_c_mul_absNorm hI b
-    rw [hN, hn1] at h
-    have hcancel : (normFormOfBasis hI b).c * Q.a = Q.c * Q.a := by rw [h]; ring
-    exact mul_right_cancel₀ ha hcancel
+  · apply mul_right_cancel₀ ha
+    rw [← hN, normFormOfBasis_a_mul_absNorm hI b, hn0, hN]
+    ring
+  · apply mul_right_cancel₀ ha
+    rw [← hN, normFormOfBasis_b_mul_absNorm hI b, hns, hn0, hn1, hN]
+    ring
+  · apply mul_right_cancel₀ ha
+    rw [← hN, normFormOfBasis_c_mul_absNorm hI b, hn1, hN]
+    ring
 
 /-- The integral norm of `x : 𝓞K`, viewed in `ℚ`, is the quadratic form
 `re² − d · im²` of its coordinates in `K`. This bridges `Algebra.norm ℤ` to the
@@ -446,12 +443,7 @@ theorem normFormOfBasis_eval_eq_zero_iff (hdneg : d < 0) {I : Ideal 𝓞K} (hI :
   constructor
   · intro h
     by_contra hxy0
-    have hxy : x ≠ 0 ∨ y ≠ 0 := by
-      by_cases hx : x = 0
-      · right
-        intro hy
-        exact hxy0 ⟨hx, hy⟩
-      · exact Or.inl hx
+    have hxy : x ≠ 0 ∨ y ≠ 0 := not_and_or.mp hxy0
     have hpos := normFormOfBasis_eval_pos_of_ne_zero hdneg hI b hxy
     omega
   · rintro ⟨rfl, rfl⟩
