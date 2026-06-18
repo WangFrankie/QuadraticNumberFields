@@ -1,7 +1,7 @@
 name = "QuadraticNumberFields"
 version = "0.1.0"
 keywords = ["math", "number-theory", "quadratic-fields"]
-defaultTargets = ["QNFMathlib", "QuadraticNumberFields"]
+defaultTargets = ["QNFMathlib", "BinaryQuadraticForms", "QuadraticNumberFields"]
 lintDriver = "runLinter"
 
 [leanOptions]
@@ -26,6 +26,9 @@ git = "https://github.com/PatrickMassot/checkdecls.git"
 
 [[lean_lib]]
 name = "QNFMathlib"
+
+[[lean_lib]]
+name = "BinaryQuadraticForms"
 
 [[lean_lib]]
 name = "QuadraticNumberFields"
