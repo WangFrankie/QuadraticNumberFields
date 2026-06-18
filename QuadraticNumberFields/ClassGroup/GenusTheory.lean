@@ -845,6 +845,38 @@ theorem oddGenusCharacterProductToRelationSubgroup_apply
       oddGenusCharacterProductOnSquareClassQuotient d hd_neg hdata C := by
   rfl
 
+/-- Surjectivity of the relation-subgroup-valued odd genus-character product gives
+the genus-theory divisibility needed by the class-number-one sieve. -/
+theorem genus_divisibility_of_oddGenusCharacterProduct_surjective
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd_neg : d < 0)
+    (hdata : OddGenusCharacterData d)
+    (hrel : oddGenusProductRelation d hd_neg hdata)
+    (hsurj : Function.Surjective (oddGenusCharacterProductToRelationSubgroup d hd_neg hdata hrel))
+    (hcard : Nat.card (oddGenusSignRelationSubgroup d) =
+      2 ^ (primeDiscriminantFactorCount d - 1)) :
+    2 ^ (primeDiscriminantFactorCount d - 1) ∣
+      NumberField.classNumber (Qsqrtd (d : ℚ)) := by
+  let φ : ClassGroup (𝓞 (Qsqrtd (d : ℚ))) →* oddGenusSignRelationSubgroup d :=
+    (oddGenusCharacterProductToRelationSubgroup d hd_neg hdata hrel).comp
+      (QuotientGroup.mk' (squareClassSubgroup d))
+  refine genus_divisibility_of_surjective_quotient d (oddGenusSignRelationSubgroup d)
+    hcard φ ?_
+  exact hsurj.comp (QuotientGroup.mk'_surjective (squareClassSubgroup d))
+
+/-- In the odd field-discriminant branch, surjectivity of the odd genus-character product
+already gives the genus-theory divisibility needed by the class-number-one sieve. -/
+theorem genus_divisibility_of_oddGenusCharacterProduct_surjective_of_discr_odd
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd_neg : d < 0)
+    (hodd : RingOfIntegers.discrFormula d % 2 ≠ 0)
+    (hdata : OddGenusCharacterData d)
+    (hrel : oddGenusProductRelation d hd_neg hdata)
+    (hsurj :
+      Function.Surjective (oddGenusCharacterProductToRelationSubgroup d hd_neg hdata hrel)) :
+    2 ^ (primeDiscriminantFactorCount d - 1) ∣
+      NumberField.classNumber (Qsqrtd (d : ℚ)) :=
+  genus_divisibility_of_oddGenusCharacterProduct_surjective d hd_neg hdata hrel hsurj
+    (card_oddGenusSignRelationSubgroup_of_discr_odd d hodd)
+
 /-- The standard genus formula for the principal-genus quotient
 `Cl(𝓞(ℚ(√d))) / Cl(𝓞(ℚ(√d)))²`: its cardinality is `2 ^ (t - 1)`, where `t` is the
 number of prime-discriminant factors. In the literature this is the statement that
@@ -1038,6 +1070,27 @@ theorem discriminant_prime_shape_of_genus_divisibility
   discriminant_prime_shape_of_primeDiscriminantFactorCount_le_one d hd
     (primeDiscriminantFactorCount_le_one_of_genus_divisibility d hdiv hclass)
 
+/-- In the odd field-discriminant branch, genus divisibility plus class number one
+leaves only the prime-discriminant family. -/
+theorem classNumber_eq_one_imp_exists_prime_of_odd_discr_of_genus_divisibility
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : d < 0)
+    (hodd : RingOfIntegers.discrFormula d % 2 ≠ 0)
+    (hdiv : 2 ^ (primeDiscriminantFactorCount d - 1) ∣
+      NumberField.classNumber (Qsqrtd (d : ℚ)))
+    (h : NumberField.classNumber (Qsqrtd (d : ℚ)) = 1) :
+    ∃ p : ℕ, Nat.Prime p ∧ p % 4 = 3 ∧ d = -(p : ℤ) := by
+  rcases discriminant_prime_shape_of_genus_divisibility d hd hdiv h with
+    hneg1 | hneg2 | hprime
+  · exfalso
+    subst hneg1
+    have hd4 := (RingOfIntegers.discrFormula_odd_iff_mod_four_eq_one (-1)).mp hodd
+    norm_num at hd4
+  · exfalso
+    subst hneg2
+    have hd4 := (RingOfIntegers.discrFormula_odd_iff_mod_four_eq_one (-2)).mp hodd
+    norm_num at hd4
+  · exact hprime
+
 /-- **Genus-theory sieve for class number one.** Assuming the standard genus
 cardinality formula `genusFormula d`, if an imaginary quadratic field
 `ℚ(√d)` has class number one, then its squarefree parameter has prime shape:
@@ -1067,17 +1120,22 @@ theorem classNumber_eq_one_imp_exists_prime_of_odd_discr
     (hgenus : genusFormula d)
     (h : NumberField.classNumber (Qsqrtd (d : ℚ)) = 1) :
     ∃ p : ℕ, Nat.Prime p ∧ p % 4 = 3 ∧ d = -(p : ℤ) := by
-  rcases classNumber_eq_one_imp_discriminant_prime_shape d hd hgenus h with
-    hneg1 | hneg2 | hprime
-  · exfalso
-    subst hneg1
-    have hd4 := (RingOfIntegers.discrFormula_odd_iff_mod_four_eq_one (-1)).mp hodd
-    norm_num at hd4
-  · exfalso
-    subst hneg2
-    have hd4 := (RingOfIntegers.discrFormula_odd_iff_mod_four_eq_one (-2)).mp hodd
-    norm_num at hd4
-  · exact hprime
+  exact classNumber_eq_one_imp_exists_prime_of_odd_discr_of_genus_divisibility d hd hodd
+    (genus_divisibility_of_squareClassSubgroup_quotient_card d hgenus) h
+
+/-- In the odd field-discriminant branch, surjectivity of the odd-prime genus-character
+product already reduces class number one to the prime-discriminant family. -/
+theorem classNumber_eq_one_imp_exists_prime_of_oddGenusCharacterProduct_surjective
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : d < 0)
+    (hodd : RingOfIntegers.discrFormula d % 2 ≠ 0)
+    (hdata : OddGenusCharacterData d)
+    (hrel : oddGenusProductRelation d hd hdata)
+    (hsurj : Function.Surjective (oddGenusCharacterProductToRelationSubgroup d hd hdata hrel))
+    (h : NumberField.classNumber (Qsqrtd (d : ℚ)) = 1) :
+    ∃ p : ℕ, Nat.Prime p ∧ p % 4 = 3 ∧ d = -(p : ℤ) :=
+  classNumber_eq_one_imp_exists_prime_of_odd_discr_of_genus_divisibility d hd hodd
+    (genus_divisibility_of_oddGenusCharacterProduct_surjective_of_discr_odd
+      d hd hodd hdata hrel hsurj) h
 
 /-- In the odd field-discriminant branch, the odd-prime genus-character interface
 is enough to reduce class number one to the prime-discriminant family. -/
