@@ -4,9 +4,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 import QuadraticNumberFields.RingOfIntegers.Classification
+import QuadraticNumberFields.QuadraticField.Basic
+import QuadraticNumberFields.QuadraticField.Conj
 import QNFMathlib.Algebra.QuadraticAlgebra.Basic
+import QuadraticNumberFields.Qsqrtd.TraceNorm
 import QuadraticNumberFields.Zsqrtd.Basic
 import QuadraticNumberFields.ZOnePlusSqrtdOverTwo.Basic
+import Mathlib.NumberTheory.NumberField.Basic
+import Mathlib.RingTheory.Ideal.Norm.AbsNorm
 
 /-!
 # Norm Multiplicativity
@@ -17,6 +22,8 @@ classification-dependent statements.
 -/
 
 open scoped NumberField
+
+attribute [-instance] DivisionRing.toRatAlgebra
 
 namespace QuadraticNumberFields
 
@@ -30,6 +37,55 @@ theorem norm_mul (d : ℚ) (x y : Qsqrtd d) :
 /-- The norm maps `1` to `1`. -/
 theorem norm_one (d : ℚ) : Qsqrtd.norm (1 : Qsqrtd d) = 1 :=
   QuadraticAlgebra.norm.map_one
+
+namespace Qsqrtd
+
+/-- For the project's `Algebra ℚ` structure, the field norm equals the
+coordinate norm `Qsqrtd.norm`. -/
+theorem algebraNorm_eq_qsqrtdNorm
+    {d : ℤ} [Fact (Squarefree d)] [Fact (d ≠ 1)] (y : Qsqrtd (d : ℚ)) :
+    @Algebra.norm ℚ _ _ _ QuadraticAlgebra.instAlgebra y = Qsqrtd.norm y := by
+  haveI : Fact (¬ IsSquare ((d : ℤ) : ℚ)) :=
+    ⟨not_isSquare_ratCast_of_squarefree_ne_one (Fact.out : Squarefree d) (Fact.out : d ≠ 1)⟩
+  have hmul := QuadraticField.mul_conj_eq_norm_image y
+  have hstar := RingOfIntegers.TraceNorm.Qsqrtd.norm_image_eq_mul_star y
+  have hconj : QuadraticField.conjAut (Qsqrtd (d : ℚ)) y = star y := rfl
+  apply (algebraMap ℚ (Qsqrtd (d : ℚ))).injective
+  rw [← hmul, hstar, hconj]
+
+/-- For mathlib's canonical `Algebra ℚ` structure, the field norm equals the
+coordinate norm `Qsqrtd.norm`. -/
+theorem algebraNorm_ratAlgebra_eq_qsqrtdNorm
+    {d : ℤ} [Fact (Squarefree d)] [Fact (d ≠ 1)] (y : Qsqrtd (d : ℚ)) :
+    @Algebra.norm ℚ _ _ _ DivisionRing.toRatAlgebra y = Qsqrtd.norm y := by
+  rw [show (@Algebra.norm ℚ (Qsqrtd (d : ℚ)) _ _ DivisionRing.toRatAlgebra)
+        = @Algebra.norm ℚ _ _ _ QuadraticAlgebra.instAlgebra from by
+        congr 1
+        exact Subsingleton.elim _ _]
+  exact algebraNorm_eq_qsqrtdNorm y
+
+/-- The standard quadratic field `Qsqrtd d`, with mathlib's default
+`ℚ`-algebra structure, has degree two over `ℚ`. -/
+theorem finrank_defaultRatAlgebra_eq_two
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
+    @Module.finrank ℚ (Qsqrtd (d : ℚ)) _ _
+      (@Algebra.toModule ℚ (Qsqrtd (d : ℚ)) _ _ DivisionRing.toRatAlgebra) = 2 := by
+  haveI : Fact (¬ IsSquare ((d : ℤ) : ℚ)) :=
+    ⟨not_isSquare_ratCast_of_squarefree_ne_one (Fact.out : Squarefree d) (Fact.out : d ≠ 1)⟩
+  have hcompare :
+      @Module.finrank ℚ (Qsqrtd (d : ℚ)) _ _
+        (@Algebra.toModule ℚ (Qsqrtd (d : ℚ)) _ _ DivisionRing.toRatAlgebra) =
+        @Module.finrank ℚ (Qsqrtd (d : ℚ)) _ _
+          (@Algebra.toModule ℚ (Qsqrtd (d : ℚ)) _ _ QuadraticAlgebra.instAlgebra) := by
+    symm
+    refine @Algebra.finrank_eq_of_equiv_equiv ℚ (Qsqrtd (d : ℚ)) _ _
+      QuadraticAlgebra.instAlgebra ℚ (Qsqrtd (d : ℚ)) _ _ DivisionRing.toRatAlgebra
+      (RingEquiv.refl ℚ) (RingEquiv.refl (Qsqrtd (d : ℚ))) ?_
+    exact RingHom.ext_rat _ _
+  rw [hcompare]
+  exact QuadraticAlgebra.finrank_eq_two (d : ℚ) 0
+
+end Qsqrtd
 
 namespace RingOfIntegers
 
@@ -118,6 +174,41 @@ theorem norm_mem_ringOfIntegers (α : 𝓞 (Qsqrtd (d : ℚ))) :
   · -- d % 4 ≠ 1 branch: 𝓞 ≃ ℤ[√d]
     rw [← ringOfIntegers_equiv_zsqrtd_of_mod_four_ne_one_apply d hd4 α]
     exact norm_mem_zsqrtd d _
+
+/-- On the `d % 4 ≠ 1` branch, the integer norm of an algebraic integer agrees
+with the explicit `Zsqrtd` norm after transporting to `ℤ[√d]`. -/
+theorem algebraNorm_eq_zsqrtd_norm_of_mod_four_ne_one
+    [NumberField (Qsqrtd (d : ℚ))] (hd4 : d % 4 ≠ 1) (α : 𝓞 (Qsqrtd (d : ℚ))) :
+    Algebra.norm ℤ α =
+      Zsqrtd.norm ((ringOfIntegers_equiv_zsqrtd_of_mod_four_ne_one d hd4) α) := by
+  apply Int.cast_injective (α := ℚ)
+  rw [Algebra.coe_norm_int (K := Qsqrtd (d : ℚ)),
+    Qsqrtd.algebraNorm_ratAlgebra_eq_qsqrtdNorm]
+  rw [← ringOfIntegers_equiv_zsqrtd_of_mod_four_ne_one_apply d hd4 α]
+  exact norm_zsqrtd_toQsqrtd d _
+
+end SquarefreeIntegerParameter
+
+/-! ## Absolute norms of principal integer ideals -/
+
+section SquarefreeIntegerParameter
+
+variable (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+
+/-- In the quadratic ring of integers `𝓞(Q(√d))`, the absolute norm of the
+principal ideal `(n)` is `|n²|`. -/
+theorem absNorm_span_intCast [NumberField (Qsqrtd (d : ℚ))] (n : ℤ) :
+    Ideal.absNorm (Ideal.span ({(n : 𝓞 (Qsqrtd (d : ℚ)))} : Set (𝓞 (Qsqrtd (d : ℚ))))) =
+      (n ^ 2).natAbs := by
+  rw [Ideal.absNorm_span_singleton]
+  change (Algebra.norm ℤ (algebraMap ℤ (𝓞 (Qsqrtd (d : ℚ))) n)).natAbs = (n ^ 2).natAbs
+  have hnorm :
+      Algebra.norm ℤ (algebraMap ℤ (𝓞 (Qsqrtd (d : ℚ))) n) =
+        n ^ Module.finrank ℤ (𝓞 (Qsqrtd (d : ℚ))) :=
+    (Algebra.norm_algebraMap_of_basis
+      (NumberField.RingOfIntegers.basis (Qsqrtd (d : ℚ))) n).trans (by
+        rw [← Module.finrank_eq_card_chooseBasisIndex])
+  rw [hnorm, NumberField.RingOfIntegers.rank, Qsqrtd.finrank_defaultRatAlgebra_eq_two d]
 
 end SquarefreeIntegerParameter
 
