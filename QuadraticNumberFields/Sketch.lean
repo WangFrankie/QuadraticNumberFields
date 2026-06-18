@@ -28,7 +28,8 @@ import QuadraticNumberFields.Examples.ClassGroupStructure
 import BinaryQuadraticForms.Gauss.Composition
 import QuadraticNumberFields.Forms.Gauss.CompositionClass
 import QuadraticNumberFields.Heegner.Diophantine
-import QuadraticNumberFields.Heegner.WeberData
+import QuadraticNumberFields.Heegner.WeberData.Core
+import QuadraticNumberFields.Heegner.WeberData.FormsProvider
 import QuadraticNumberFields.Heegner.Framework
 import QuadraticNumberFields.Heegner.StarkHeegner
 import QuadraticNumberFields.Qsqrtd.Automorphism
@@ -59,10 +60,11 @@ Current work in progress:
   standard finite-abelian targets; concrete computations live in
   `Examples.ClassGroupStructure`.
 * `Euclidean.Basic`: imaginary-quadratic norm-Euclidean classification skeleton.
-* `Heegner.Diophantine`, `Heegner.WeberData`, `Heegner.Framework`, and
+* `Heegner.Diophantine`, `Heegner.WeberData.Core`,
+  `Heegner.WeberData.FormsProvider`, `Heegner.Framework`, and
   `Heegner.StarkHeegner`: proof-framework layers for the Baker–Heegner–Stark
-  statement; the named genus, Weber/CM, and Diophantine inputs are still
-  `sorry`.
+  statement; the named genus, Weber/CM, Forms-provider, and Diophantine inputs
+  are still `sorry`.
 * `Families.*`, `ContinuedFraction.*`, and `ClassGroup.*`: research
   scaffolding for real quadratic class-number problems.
 

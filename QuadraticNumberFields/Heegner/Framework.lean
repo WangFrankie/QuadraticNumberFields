@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 import QuadraticNumberFields.Heegner.ClassNumberOne
-import QuadraticNumberFields.Heegner.WeberData
+import QuadraticNumberFields.Heegner.WeberData.Core
 
 /-!
 # Framework Layer for the Baker-Heegner-Stark Proof
