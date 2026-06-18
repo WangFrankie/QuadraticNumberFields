@@ -284,6 +284,18 @@ noncomputable def genusCharacterOfPrimeToNormDescent
         exact map_mul (genusCharacterRawOnPrimeToNormIdeals d p)
           (Classical.choose (hsurj C)) (Classical.choose (hsurj D))
 
+/-- The descended genus character agrees with the raw genus character on the
+class represented by a prime-to-`p` ideal. -/
+theorem genusCharacterOfPrimeToNormDescent_apply_mk0OnPrimeToNormIdeals
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (p : ℕ) [Fact p.Prime]
+    (hsurj : Function.Surjective (mk0OnPrimeToNormIdeals d p))
+    (hdesc : genusCharacterRawDescendsOnPrimeToNormIdeals d p)
+    (I : idealsPrimeToNormSubmonoid d p) :
+    genusCharacterOfPrimeToNormDescent d p hsurj hdesc (mk0OnPrimeToNormIdeals d p I) =
+      genusCharacterRawUnit d p I := by
+  exact hdesc (Classical.choose (hsurj (mk0OnPrimeToNormIdeals d p I))) I
+    (Classical.choose_spec (hsurj (mk0OnPrimeToNormIdeals d p I)))
+
 /-- From `p ∈ oddPrimeDiscriminantDivisors d` (so `p` is an odd prime), deduce
 `(p : ℤ) ∣ d`. For `d % 4 = 1`, `discrFormula d = d` directly. For `d % 4 ≠ 1`,
 `discrFormula d = 4*d`; since `p` is an odd prime, `p ∤ 4`, so `p ∣ d`. -/
@@ -482,6 +494,21 @@ noncomputable def genusCharacterOfPrincipalMultiplierData
   genusCharacterOfPrimeToNormDescent d p hsurj
     (genusCharacterRawDescendsOnPrimeToNormIdeals_of_principalMultiplierData d p hd_neg hp_disc
       hdata)
+
+/-- The genus character obtained from principal-multiplier descent agrees with
+the raw genus character on prime-to-`p` ideal representatives. -/
+theorem genusCharacterOfPrincipalMultiplierData_apply_mk0OnPrimeToNormIdeals
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (p : ℕ) [Fact p.Prime]
+    (hd_neg : d < 0) (hp_disc : p ∈ oddPrimeDiscriminantDivisors d)
+    (hsurj : Function.Surjective (mk0OnPrimeToNormIdeals d p))
+    (hdata : HasPrimeToNormPrincipalMultiplierData d p)
+    (I : idealsPrimeToNormSubmonoid d p) :
+    genusCharacterOfPrincipalMultiplierData d p hd_neg hp_disc hsurj hdata
+        (mk0OnPrimeToNormIdeals d p I) =
+      genusCharacterRawUnit d p I := by
+  exact genusCharacterOfPrimeToNormDescent_apply_mk0OnPrimeToNormIdeals d p hsurj
+    (genusCharacterRawDescendsOnPrimeToNormIdeals_of_principalMultiplierData d p hd_neg hp_disc
+      hdata) I
 
 /-! ## Class-number-one sieve (continued) -/
 
