@@ -101,7 +101,8 @@ noncomputable def genusCharacterRaw (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠
   legendreSym p (Ideal.absNorm I : ℤ)
 
 /-- The raw genus character is multiplicative: `χ_p(I·J) = χ_p(I)·χ_p(J)`. -/
-theorem genusCharacterRaw_mul (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (p : ℕ) [Fact p.Prime]
+theorem genusCharacterRaw_mul
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (p : ℕ) [Fact p.Prime]
     (I J : Ideal (𝓞 (Qsqrtd (d : ℚ)))) :
     genusCharacterRaw d p (I * J) = genusCharacterRaw d p I * genusCharacterRaw d p J := by
   dsimp [genusCharacterRaw]
@@ -221,20 +222,20 @@ theorem genusCharacterRaw_span_eq_one_of_algebraNorm_nonneg
 
 /-- The key well-definedness lemma: for an imaginary quadratic field `ℚ(√d)` (`d < 0`),
 an odd prime `p` dividing the discriminant, and a principal ideal `I = (α)` with
-`p ∤ absNorm I`, the genus character `χ_p(I)` equals `1`.
-
-TODO: complete this proof. The argument:
-1. Choose a generator using `exists_generator_norm_not_dvd_of_isPrincipal`.
-2. Prove the algebra norm of that generator is nonnegative when `d < 0`.
-3. Rewrite `I` as the span of the generator and apply
-   `genusCharacterRaw_span_eq_one_of_algebraNorm_nonneg`. -/
+`p ∤ absNorm I`, the genus character `χ_p(I)` equals `1`. -/
 theorem genusCharacterRaw_eq_one_of_isPrincipal_of_norm_not_dvd_of_neg
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (p : ℕ) [Fact p.Prime]
     (hd_neg : d < 0) (hp_disc : p ∈ oddPrimeDiscriminantDivisors d)
     {I : Ideal (𝓞 (Qsqrtd (d : ℚ)))}
     (hI_principal : I.IsPrincipal) (hp_norm : ¬ (p : ℤ) ∣ (Ideal.absNorm I : ℤ)) :
     genusCharacterRaw d p I = 1 := by
-  sorry
+  obtain ⟨α, hspan, _⟩ :=
+    RingOfIntegers.exists_generator_norm_not_dvd_of_isPrincipal (d := d) hI_principal hp_norm
+  have hp_span : ¬ (p : ℤ) ∣ (Ideal.absNorm (Ideal.span {α}) : ℤ) := by
+    simpa [← hspan] using hp_norm
+  rw [hspan]
+  exact genusCharacterRaw_span_eq_one_of_algebraNorm_nonneg d p hp_disc
+    (RingOfIntegers.algebraNorm_nonneg_of_neg (d := d) hd_neg α) hp_span
 
 /-! ## Class-number-one sieve (continued) -/
 

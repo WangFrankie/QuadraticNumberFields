@@ -64,6 +64,13 @@ theorem algebraNorm_ratAlgebra_eq_qsqrtdNorm
         exact Subsingleton.elim _ _]
   exact algebraNorm_eq_qsqrtdNorm y
 
+/-- If `d < 0`, the coordinate norm on `Q(√d)` is nonnegative. -/
+theorem norm_nonneg_of_neg {d : ℤ} (hd : d < 0) (x : Qsqrtd (d : ℚ)) :
+    0 ≤ Qsqrtd.norm x := by
+  have hdq : ((d : ℤ) : ℚ) < 0 := by exact_mod_cast hd
+  rw [RingOfIntegers.TraceNorm.norm_eq_sqr_minus_d_sqr]
+  nlinarith [sq_nonneg x.re, sq_nonneg x.im]
+
 /-- The standard quadratic field `Qsqrtd d`, with mathlib's default
 `ℚ`-algebra structure, has degree two over `ℚ`. -/
 theorem finrank_defaultRatAlgebra_eq_two
@@ -201,6 +208,17 @@ theorem algebraNorm_eq_zOnePlusSqrtOverTwo_norm_of_eq
     Qsqrtd.algebraNorm_ratAlgebra_eq_qsqrtdNorm]
   rw [← ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_eq_apply k α]
   exact norm_zOnePlusSqrtOverTwo_toQsqrtd k _
+
+/-- If `d < 0`, the algebra norm of an algebraic integer in `𝓞(Q(√d))` is
+nonnegative. -/
+theorem algebraNorm_nonneg_of_neg
+    [NumberField (Qsqrtd (d : ℚ))] (hd : d < 0) (α : 𝓞 (Qsqrtd (d : ℚ))) :
+    0 ≤ Algebra.norm ℤ α := by
+  have hcast : (0 : ℚ) ≤ (Algebra.norm ℤ α : ℚ) := by
+    rw [Algebra.coe_norm_int (K := Qsqrtd (d : ℚ)),
+      Qsqrtd.algebraNorm_ratAlgebra_eq_qsqrtdNorm]
+    exact Qsqrtd.norm_nonneg_of_neg hd α
+  exact_mod_cast hcast
 
 end SquarefreeIntegerParameter
 
