@@ -581,6 +581,20 @@ noncomputable def squareClassSubgroup (d : ℤ) [Fact (Squarefree d)] [Fact (d �
     Subgroup (ClassGroup (𝓞 (Qsqrtd (d : ℚ)))) :=
   (powMonoidHom (α := ClassGroup (𝓞 (Qsqrtd (d : ℚ)))) 2).range
 
+/-- The quotient `Cl / Cl²` has the same cardinality as the kernel of the square map on
+the class group. This is the finite-group algebra behind the two-torsion formulation
+of genus theory. -/
+theorem card_squareClassSubgroup_quotient_eq_card_powMonoidHom_ker
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
+    Nat.card (ClassGroup (𝓞 (Qsqrtd (d : ℚ))) ⧸ squareClassSubgroup d) =
+      Nat.card (powMonoidHom (α := ClassGroup (𝓞 (Qsqrtd (d : ℚ)))) 2).ker := by
+  letI := _root_.NumberField.RingOfIntegers.instFintypeClassGroup (Qsqrtd (d : ℚ))
+  haveI : (powMonoidHom (α := ClassGroup (𝓞 (Qsqrtd (d : ℚ)))) 2).ker.FiniteIndex :=
+    Subgroup.finiteIndex_of_finite
+  rw [← Subgroup.index_eq_card]
+  rw [squareClassSubgroup]
+  rw [Subgroup.index_range]
+
 /-! ## Squares lie in the principal genus -/
 
 /-- The prime-to-`p` raw genus character takes values of order dividing two. -/
@@ -839,6 +853,15 @@ or equivalently `#Cl[2] = 2 ^ (t - 1)`. -/
 def genusFormula (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] : Prop :=
   Nat.card (ClassGroup (𝓞 (Qsqrtd (d : ℚ))) ⧸ squareClassSubgroup d) =
     2 ^ (primeDiscriminantFactorCount d - 1)
+
+/-- The genus formula is equivalent to the corresponding cardinality statement for
+the kernel of the square map on the ideal class group. -/
+theorem genusFormula_iff_card_powMonoidHom_ker
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
+    genusFormula d ↔
+      Nat.card (powMonoidHom (α := ClassGroup (𝓞 (Qsqrtd (d : ℚ)))) 2).ker =
+        2 ^ (primeDiscriminantFactorCount d - 1) := by
+  rw [genusFormula, card_squareClassSubgroup_quotient_eq_card_powMonoidHom_ker d]
 
 /-- If the relation-subgroup-valued odd genus-character product is bijective and
 the relation subgroup has the expected cardinality, then the standard genus
