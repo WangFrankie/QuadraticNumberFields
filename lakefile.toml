@@ -17,7 +17,7 @@ rev = "v4.30.0-rc2"
 
 [[require]]
 name = "FiniteAbelianSmith"
-path = "../FiniteAbelianSmith"
+git = "https://github.com/WangFrankie/FiniteAbelianSmith"
 
 [[require]]
 name = "repl"
