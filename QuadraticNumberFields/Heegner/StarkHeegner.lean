@@ -5,6 +5,7 @@ Authors: Frankie Wang
 -/
 import QuadraticNumberFields.ClassGroup.GenusTheory
 import QuadraticNumberFields.Heegner.ClassNumberOne
+import QuadraticNumberFields.Heegner.IdealReductions
 
 /-!
 # The Baker–Heegner–Stark Theorem (Statement)
@@ -36,6 +37,17 @@ open scoped NumberField
 namespace QuadraticNumberFields
 namespace Heegner
 
+/-- **Elementary non-half-integral branch of Baker-Heegner-Stark.** If
+`d % 4 ≠ 1`, then the ideal-theoretic ramification-at-`2` argument already
+forces `d = -1` or `d = -2`, hence `d` is a Heegner number. -/
+theorem classNumber_eq_one_imp_mem_heegnerSet_of_mod_four_ne_one
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : d < 0) (hd4 : d % 4 ≠ 1)
+    (h : NumberField.classNumber (Qsqrtd (d : ℚ)) = 1) :
+    d ∈ heegnerSet := by
+  rcases eq_neg_one_or_eq_neg_two_of_classNumber_eq_one_of_mod_four_ne_one
+      d hd hd4 h with rfl | rfl <;>
+    simp [heegnerSet]
+
 /-- **Baker-Heegner-Stark prime-family step.** After the genus-theory sieve has
 reduced the class-number-one problem to `d = -1`, `d = -2`, or `d = -p` with
 `p ≡ 3 (mod 4)` prime, the deep Heegner/Baker/Stark theorem says that the
@@ -63,7 +75,9 @@ theorem classNumber_eq_one_iff_mem_heegnerSet
     NumberField.classNumber (Qsqrtd (d : ℚ)) = 1 ↔ d ∈ heegnerSet := by
   constructor
   · intro h
-    sorry
+    by_cases hd4 : d % 4 = 1
+    · sorry
+    · exact classNumber_eq_one_imp_mem_heegnerSet_of_mod_four_ne_one d hd hd4 h
   · exact fun h => classNumber_eq_one_of_mem_heegnerSet h
 
 end Heegner
