@@ -200,5 +200,10 @@ theorem classNumber_eq_one_of_mem_heegnerSet
   · exact classNumber_eq_one_neg67
   · exact classNumber_eq_one_neg163
 
+-- theorem classNumber_eq_one_of_mem_heegnerSet'
+--     {d : ℤ} [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : d ∈ heegnerSet) :
+--     NumberField.classNumber (Qsqrtd (d : ℚ)) = 1 := by
+--   fin_cases hd <;> compute_class_number_qsqrtd
+
 end Heegner
 end QuadraticNumberFields

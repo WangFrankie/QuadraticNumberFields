@@ -56,18 +56,23 @@ import QuadraticNumberFields.Forms.ClassGroup.ClassNumber
 import QuadraticNumberFields.Forms.ClassGroup.Structure
 import QuadraticNumberFields.Forms.ClassGroup.Law
 import QuadraticNumberFields.ClassNumber
+import QuadraticNumberFields.ClassNumber.Heegner
 import QuadraticNumberFields.Examples.SqrtNeg5.Ideals
 import QuadraticNumberFields.Examples.SqrtNeg5.RamificationInertia
 import QuadraticNumberFields.Examples.SqrtNeg5.Splitting
 import QuadraticNumberFields.Examples.SqrtNeg5.Invariants
+import QuadraticNumberFields.Examples.SqrtNeg5.ClassNumber
+import QuadraticNumberFields.Examples.SqrtNeg5.Forms
 import QuadraticNumberFields.Examples.Sqrt17.Splitting
 import QuadraticNumberFields.Examples.Sqrt17.Invariants
+import QuadraticNumberFields.Examples.Sqrt17.ClassNumber
 import QuadraticNumberFields.Qsqrtd.TotallyRealComplex
 import QuadraticNumberFields.Units.Pell
 import QuadraticNumberFields.Units.Imaginary
 import QuadraticNumberFields.Units.Fundamental
 import QuadraticNumberFields.Units.Families
 import QuadraticNumberFields.Heegner.ClassNumberOne
+import QuadraticNumberFields.Heegner.ClassNumberOneByForms
 
 /-!
 # Quadratic Number Fields
