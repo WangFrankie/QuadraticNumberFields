@@ -13,6 +13,8 @@ import BinaryQuadraticForms.Core.QuadraticFormBridge
 import BinaryQuadraticForms.Core.ReducedUniqueness
 import BinaryQuadraticForms.Core.Reduction
 import BinaryQuadraticForms.Core.UpperHalfPlane
+import BinaryQuadraticForms.Cox.IdealRelation
+import BinaryQuadraticForms.Gauss.Composition
 
 /-!
 # Binary Quadratic Forms
