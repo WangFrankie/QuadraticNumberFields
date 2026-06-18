@@ -20,7 +20,7 @@ them in the final assembly file.
 * `RingClassNumberConductorTwoData`: structured placeholder for the conductor-`2`
   ring-class-number jump.
 * `ConductorTwoFormClassNumberThreeData`: Forms-side class-number-three input for
-  primitive reduced forms of discriminant `-4p`.
+  primitive reduced forms of discriminant `-4p` in the `p ≠ 3` inert branch.
 * `heegnerGammaPrimePairs`: the finite Cox-Heegner table relating inert primes
   to gamma values.
 * `IsAssociatedHeegnerGamma`: the table relation between a prime `p` and the
@@ -116,10 +116,11 @@ theorem hasRingClassNumberThreeAtConductorTwo_of_forms
 
 /-- **Cox forms class-number input.** In the inert prime family `d = -p`, class
 number one for `ℚ(√-p)` gives Forms-side class-number-three data for primitive
-positive definite forms of conductor-`2` discriminant `-4p`. -/
+positive definite forms of conductor-`2` discriminant `-4p`, away from the
+unit-exception case `p = 3`. -/
 theorem conductor_two_form_class_number_three
     (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
-    (hp : Nat.Prime p) (hp8 : p % 8 = 3)
+    (hp : Nat.Prime p) (hp8 : p % 8 = 3) (hp_ne_three : p ≠ 3)
     (hclass : classNumberQsqrtd (-(p : ℤ)) = 1) :
     HasConductorTwoFormClassNumberThreeData p := by
   -- Alternative routes for this bridge:
@@ -140,14 +141,14 @@ def IsAssociatedHeegnerGamma (p : ℕ) (gamma : ℤ) : Prop :=
 
 /-- **Conductor-two ring-class-number input.** In the inert prime family
 `d = -p`, class number one for `ℚ(√-p)` gives the conductor-`2` ring class
-number datum used by Cox's proof. -/
+number datum used by Cox's proof, away from the `p = 3` unit exception. -/
 theorem conductor_two_class_number_three
     (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
-    (hp : Nat.Prime p) (hp8 : p % 8 = 3)
+    (hp : Nat.Prime p) (hp8 : p % 8 = 3) (hp_ne_three : p ≠ 3)
     (hclass : classNumberQsqrtd (-(p : ℤ)) = 1) :
     HasRingClassNumberThreeAtConductorTwo p := by
   exact hasRingClassNumberThreeAtConductorTwo_of_forms
-    (conductor_two_form_class_number_three p hp hp8 hclass)
+    (conductor_two_form_class_number_three p hp hp8 hp_ne_three hclass)
 
 /-- Algebraic data extracted from the Weber/CM construction in the inert-prime
 Baker-Heegner-Stark core. -/
@@ -183,10 +184,10 @@ def HasConductorTwoClassNumberThreeWeberData (p : ℕ) : Prop :=
 /-- **Deep Weber/CM input from ring-class-number three.** The conductor-`2`
 ring-class-number-three datum supplies the refined Weber data: a concrete
 Heegner equation solution, the associated gamma value, and its finite-table
-association with `p`. -/
+association with `p`, in the non-exceptional inert branch `p ≠ 3`. -/
 theorem conductor_two_weber_data_of_ring_class_number_three
     (p : ℕ) (hp : Nat.Prime p) (hp8 : p % 8 = 3)
-    (horder : HasRingClassNumberThreeAtConductorTwo p) :
+    (hp_ne_three : p ≠ 3) (horder : HasRingClassNumberThreeAtConductorTwo p) :
     HasConductorTwoClassNumberThreeWeberData p := by
   sorry
 
@@ -202,20 +203,22 @@ ring-class-number datum yields the algebraic point and gamma value used in the
 inert-prime core. -/
 theorem exists_weber_data_of_conductor_two_class_number_three
     (p : ℕ) (hp : Nat.Prime p) (hp8 : p % 8 = 3)
+    (hp_ne_three : p ≠ 3)
     (horder : HasRingClassNumberThreeAtConductorTwo p) :
     Nonempty (StarkHeegnerAlgebraicData p) := by
   exact exists_weber_data_of_conductor_two_weber_data
-    (conductor_two_weber_data_of_ring_class_number_three p hp hp8 horder)
+    (conductor_two_weber_data_of_ring_class_number_three p hp hp8 hp_ne_three horder)
 
-/-- **Weber/CM existence input from class number one.** In the inert prime family
-`d = -p`, class number one supplies the Stark-Heegner algebraic data. -/
+/-- **Weber/CM existence input from class number one.** In the non-exceptional
+inert prime family `d = -p`, class number one supplies the Stark-Heegner
+algebraic data. -/
 theorem exists_weber_data_of_classNumber_one_inert_prime
     (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
-    (hp : Nat.Prime p) (hp8 : p % 8 = 3)
+    (hp : Nat.Prime p) (hp8 : p % 8 = 3) (hp_ne_three : p ≠ 3)
     (hclass : classNumberQsqrtd (-(p : ℤ)) = 1) :
     Nonempty (StarkHeegnerAlgebraicData p) := by
-  exact exists_weber_data_of_conductor_two_class_number_three p hp hp8
-    (conductor_two_class_number_three p hp hp8 hclass)
+  exact exists_weber_data_of_conductor_two_class_number_three p hp hp8 hp_ne_three
+    (conductor_two_class_number_three p hp hp8 hp_ne_three hclass)
 
 end Heegner
 end QuadraticNumberFields

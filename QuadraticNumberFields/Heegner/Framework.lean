@@ -56,18 +56,22 @@ after the elementary ideal-theoretic reductions and the genus-theory sieve: for
 the inert-at-`2` prime family `d = -p`, `p ≡ 3 (mod 8)`, class number one
 forces `d` to be a Heegner number.
 
-The proof skeleton factors through the named Weber/CM data interface and the
-finite Diophantine/gamma lookup. -/
+The proof skeleton handles `p = 3` directly, and otherwise factors through the
+named Weber/CM data interface and the finite Diophantine/gamma lookup. -/
 theorem baker_heegner_stark_inert_prime_core
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : d < 0)
     (p : ℕ) (hp : Nat.Prime p) (hp8 : p % 8 = 3) (hdp : d = -(p : ℤ))
     (h : NumberField.classNumber (Qsqrtd (d : ℚ)) = 1) :
     d ∈ heegnerSet := by
   subst d
-  change classNumberQsqrtd (-(p : ℤ)) = 1 at h
-  rcases exists_weber_data_of_classNumber_one_inert_prime p hp hp8 h with ⟨hdata⟩
-  exact inert_prime_core_of_weber_data (-(p : ℤ)) p hp hp8 rfl
-    hdata
+  by_cases hp_ne_three : p ≠ 3
+  · change classNumberQsqrtd (-(p : ℤ)) = 1 at h
+    rcases exists_weber_data_of_classNumber_one_inert_prime p hp hp8 hp_ne_three h with ⟨hdata⟩
+    exact inert_prime_core_of_weber_data (-(p : ℤ)) p hp hp8 rfl
+      hdata
+  · have hp_eq_three : p = 3 := by omega
+    subst p
+    norm_num [heegnerSet]
 
 end Heegner
 end QuadraticNumberFields
