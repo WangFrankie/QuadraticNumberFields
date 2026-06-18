@@ -18,6 +18,7 @@ solutions to the Heegner gamma list is proved here.
 ## Main definitions
 
 * `HeegnerXYEquation`: the equation `Y ^ 2 = 2 * X * (X ^ 3 + 1)`.
+* `heegnerXYSolutionSet`: the six known integral solutions.
 * `heegnerGammaValue`: the gamma value obtained from a solution `(X, Y)`.
 * `heegnerGammaSet`: the six gamma values arising from the known solutions.
 * `heegnerPrimeSet`: the six positive odd Heegner primes in the inert branch.
@@ -30,6 +31,10 @@ namespace Heegner
 Cox-Weber proof of the inert-prime Baker-Heegner-Stark core. -/
 def HeegnerXYEquation (X Y : ℤ) : Prop :=
   Y ^ 2 = 2 * X * (X ^ 3 + 1)
+
+/-- The six integral solutions of `HeegnerXYEquation`. -/
+def heegnerXYSolutionSet : Finset (ℤ × ℤ) :=
+  {((0 : ℤ), 0), (-1, 0), (1, 2), (1, -2), (2, 6), (2, -6)}
 
 /-- The six gamma values attached to the integral solutions of
 `HeegnerXYEquation`. -/
@@ -49,16 +54,20 @@ def heegnerGammaValue (X Y : ℤ) : ℤ :=
   -((b ^ 2 - 4 * a) ^ 2) - 8 * (2 * b - a ^ 2)
 
 /-- **Heegner integer-equation input.** The only integer solutions of
-`Y ^ 2 = 2 * X * (X ^ 3 + 1)` are the six listed pairs. -/
+`Y ^ 2 = 2 * X * (X ^ 3 + 1)` are the pairs in `heegnerXYSolutionSet`. -/
 theorem heegner_xy_solutions
     {X Y : ℤ} (h : HeegnerXYEquation X Y) :
-    (X, Y) = (0, 0) ∨
-    (X, Y) = (-1, 0) ∨
-    (X, Y) = (1, 2) ∨
-    (X, Y) = (1, -2) ∨
-    (X, Y) = (2, 6) ∨
-    (X, Y) = (2, -6) := by
+    (X, Y) ∈ heegnerXYSolutionSet := by
   sorry
+
+/-- Every pair in `heegnerXYSolutionSet` satisfies the Heegner integer equation. -/
+theorem heegnerXYEquation_of_mem_heegnerXYSolutionSet
+    {X Y : ℤ} (hmem : (X, Y) ∈ heegnerXYSolutionSet) :
+    HeegnerXYEquation X Y := by
+  norm_num [heegnerXYSolutionSet] at hmem
+  rcases hmem with h | h | h | h | h | h <;>
+    rcases h with ⟨rfl, rfl⟩ <;>
+    norm_num [HeegnerXYEquation]
 
 /-- Any gamma value produced from a solution of `HeegnerXYEquation` belongs to
 the finite Heegner gamma set. -/
@@ -67,8 +76,10 @@ theorem gamma_mem_heegnerGammaSet_of_xy_solution
     (hgamma : gamma = heegnerGammaValue X Y) :
     gamma ∈ heegnerGammaSet := by
   subst gamma
-  rcases heegner_xy_solutions hxy with h | h | h | h | h | h <;>
-    rcases Prod.ext_iff.mp h with ⟨rfl, rfl⟩ <;>
+  have hmem : (X, Y) ∈ heegnerXYSolutionSet := heegner_xy_solutions hxy
+  norm_num [heegnerXYSolutionSet] at hmem
+  rcases hmem with h | h | h | h | h | h <;>
+    rcases h with ⟨rfl, rfl⟩ <;>
     norm_num [heegnerGammaValue, heegnerGammaSet]
 
 end Heegner

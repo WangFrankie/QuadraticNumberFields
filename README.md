@@ -83,7 +83,7 @@ lake build
 | `QuadraticNumberFields/RingOfIntegers` | 794 | 375 | 1169 |
 | `QuadraticNumberFields/Zsqrtd` | 663 | 214 | 877 |
 | `QuadraticNumberFields/QuadraticField` | 586 | 397 | 983 |
-| `QuadraticNumberFields/Heegner` | 550 | 252 | 802 |
+| `QuadraticNumberFields/Heegner` | 556 | 255 | 811 |
 | `QuadraticNumberFields/Qsqrtd` | 531 | 283 | 814 |
 | `QuadraticNumberFields` | 412 | 115 | 527 |
 | `QuadraticNumberFields/Units` | 303 | 148 | 451 |
@@ -93,7 +93,7 @@ lake build
 | `QuadraticNumberFields/Families` | 38 | 49 | 87 |
 | `QuadraticNumberFields/ClassNumber` | 26 | 20 | 46 |
 | `QuadraticNumberFields/ContinuedFraction` | 21 | 36 | 57 |
-| **Total** | **16873** | **5411** | **22284** |
+| **Total** | **16879** | **5414** | **22293** |
 
 ## History
 
