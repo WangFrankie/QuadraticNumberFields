@@ -4,8 +4,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 import Mathlib.NumberTheory.Multiplicity
+import Mathlib.NumberTheory.NumberField.ClassNumber
 import QuadraticNumberFields.QuadraticField.Basic
 import QuadraticNumberFields.RingOfIntegers.Norm
+import QuadraticNumberFields.Splitting.Factorization
+import QuadraticNumberFields.Splitting.Qsqrtd.Two
 
 /-!
 # Ideal-Theoretic Reductions for the Heegner Class-Number-One Problem
@@ -38,6 +41,11 @@ private theorem int_sq_ne_two (a : ℤ) : a ^ 2 ≠ 2 := by
     have ha4 : a ^ 2 % 4 = 1 := Int.sq_mod_four_eq_one_of_odd hodd
     omega
 
+private theorem nat_eq_two_of_sq_eq_four {n : ℕ} (h : 4 = n ^ 2) (hn : n ≠ 0) :
+    n = 2 := by
+  have hnle : n ≤ 4 := by nlinarith [sq_nonneg (n : ℤ)]
+  interval_cases n <;> simp_all
+
 private theorem eq_neg_one_or_eq_neg_two_of_zsqrtd_norm_eq_two
     {d : ℤ} (hdneg : d < 0) {z : Zsqrtd d} (hnorm : Zsqrtd.norm z = 2) :
     d = -1 ∨ d = -2 := by
@@ -69,6 +77,67 @@ theorem eq_neg_one_or_eq_neg_two_of_exists_absNorm_eq_two
     rw [← RingOfIntegers.algebraNorm_eq_zsqrtd_norm_of_mod_four_ne_one d hd4 α]
     exact hnorm_eq_two
   exact eq_neg_one_or_eq_neg_two_of_zsqrtd_norm_eq_two hdneg hz_norm
+
+/-- In the `d % 4 ≠ 1` branch, class number one forces a norm-`2` algebraic
+integer.  The proof uses only ideal theory: `(2)` ramifies, so its lift is
+`P ^ 2`; class number one makes `P` principal, and `absNorm P = 2` gives a
+principal generator of algebra norm absolute value `2`. -/
+theorem exists_algebraNorm_natAbs_eq_two_of_classNumber_eq_one_of_mod_four_ne_one
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd4 : d % 4 ≠ 1)
+    (hclass : NumberField.classNumber (Qsqrtd (d : ℚ)) = 1) :
+    ∃ α : 𝓞 (Qsqrtd (d : ℚ)), (Algebra.norm ℤ α).natAbs = 2 := by
+  let O := 𝓞 (Qsqrtd (d : ℚ))
+  let p : Ideal ℤ := Ideal.span ({(2 : ℤ)} : Set ℤ)
+  have hchar : ringChar ℤ ≠ 2 := by simp [ringChar.eq_zero]
+  have hpbot : p ≠ ⊥ := by
+    dsimp [p]
+    intro h
+    have htwo : (2 : ℤ) = 0 := Ideal.span_singleton_eq_bot.mp h
+    norm_num at htwo
+  haveI : p.IsMaximal := by
+    dsimp [p]
+    exact PrincipalIdealRing.isMaximal_of_irreducible
+      ((Nat.prime_iff_prime_int.mp Nat.prime_two).irreducible)
+  have hram : Ideal.IsRamifiedIn p O := by
+    simpa [p, O] using Splitting.isRamified_two_of_mod_four_ne_one d hd4
+  obtain ⟨P, hPover, hmap⟩ := Ideal.map_eq_sq_of_isRamifiedIn p O hchar hpbot hram
+  have hP_principal : P.IsPrincipal := by
+    have hPID : IsPrincipalIdealRing O :=
+      (NumberField.classNumber_eq_one_iff (K := Qsqrtd (d : ℚ))).mp hclass
+    letI : IsPrincipalIdealRing O := hPID
+    exact IsPrincipalIdealRing.principal P
+  obtain ⟨α, _hspan, hnorm⟩ :=
+    RingOfIntegers.absNorm_eq_natAbs_algebraNorm_of_isPrincipal (d := d) hP_principal
+  refine ⟨α, ?_⟩
+  have hP_abs : Ideal.absNorm P = 2 := by
+    have hnorm_map := congrArg Ideal.absNorm hmap
+    have hleft : Ideal.absNorm (Ideal.map (algebraMap ℤ O) p) = 4 := by
+      dsimp [p]
+      rw [Ideal.map_span, Set.image_singleton]
+      simpa using RingOfIntegers.absNorm_span_intCast (d := d) 2
+    have hright : Ideal.absNorm (P ^ 2) = Ideal.absNorm P ^ 2 := by
+      simp
+    rw [hleft, hright] at hnorm_map
+    have hPne : Ideal.absNorm P ≠ 0 := by
+      rw [Ne, Ideal.absNorm_eq_zero_iff]
+      intro hPbot
+      letI : P.LiesOver p := hPover.2
+      have hover : p = Ideal.under ℤ P := Ideal.LiesOver.over
+      have hunder : Ideal.under ℤ P = ⊥ := by
+        rw [hPbot]
+        exact Ideal.comap_bot_of_injective (algebraMap ℤ O) (RingHom.injective_int _)
+      exact hpbot (hover.trans hunder)
+    exact nat_eq_two_of_sq_eq_four hnorm_map hPne
+  exact hnorm.symm.trans hP_abs
+
+/-- In the `d % 4 ≠ 1` branch of the imaginary class-number-one problem, the only
+possibilities are the Gaussian and `√-2` fields. -/
+theorem eq_neg_one_or_eq_neg_two_of_classNumber_eq_one_of_mod_four_ne_one
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hdneg : d < 0) (hd4 : d % 4 ≠ 1)
+    (hclass : NumberField.classNumber (Qsqrtd (d : ℚ)) = 1) :
+    d = -1 ∨ d = -2 :=
+  eq_neg_one_or_eq_neg_two_of_exists_absNorm_eq_two d hdneg hd4
+    (exists_algebraNorm_natAbs_eq_two_of_classNumber_eq_one_of_mod_four_ne_one d hd4 hclass)
 
 end Heegner
 end QuadraticNumberFields
