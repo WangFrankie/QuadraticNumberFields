@@ -133,6 +133,71 @@ theorem genusCharacterRaw_sq_eq_one_of_norm_not_dvd
     exact hp_norm ((ZMod.intCast_zmod_eq_zero_iff_dvd (Ideal.absNorm I : ℤ) p).mp hzero)
   exact legendreSym.sq_one p hnorm_ne
 
+/-- The unit ideal has absolute norm prime to any rational prime `p`. -/
+theorem not_dvd_absNorm_one
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (p : ℕ) [Fact p.Prime] :
+    ¬ (p : ℤ) ∣ (Ideal.absNorm (1 : Ideal (𝓞 (Qsqrtd (d : ℚ)))) : ℤ) := by
+  simpa [Ideal.absNorm_top] using
+    (show ¬ (p : ℤ) ∣ ((1 : ℕ) : ℤ) by
+      exact_mod_cast (Nat.Prime.not_dvd_one (Fact.out : p.Prime)))
+
+/-- Ideals whose absolute norms are prime to `p` are closed under multiplication. -/
+theorem not_dvd_absNorm_mul_of_not_dvd_absNorm
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (p : ℕ) [Fact p.Prime]
+    {I J : Ideal (𝓞 (Qsqrtd (d : ℚ)))}
+    (hI : ¬ (p : ℤ) ∣ (Ideal.absNorm I : ℤ))
+    (hJ : ¬ (p : ℤ) ∣ (Ideal.absNorm J : ℤ)) :
+    ¬ (p : ℤ) ∣ (Ideal.absNorm (I * J) : ℤ) := by
+  intro hmul
+  have hmul_nat : p ∣ Ideal.absNorm I * Ideal.absNorm J := by
+    have hmul' : (p : ℤ) ∣ ((Ideal.absNorm I * Ideal.absNorm J : ℕ) : ℤ) := by
+      simpa [Ideal.absNorm.map_mul, Nat.cast_mul] using hmul
+    exact_mod_cast hmul'
+  rcases (Fact.out : p.Prime).dvd_mul.mp hmul_nat with hpI | hpJ
+  · exact hI (by exact_mod_cast hpI)
+  · exact hJ (by exact_mod_cast hpJ)
+
+/-- Ideals of `𝓞(ℚ(√d))` whose absolute norm is prime to `p`, as a multiplicative
+submonoid. This is the honest domain on which the raw genus character takes
+values in the integer units. -/
+def idealsPrimeToNormSubmonoid
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (p : ℕ) [Fact p.Prime] :
+    Submonoid (Ideal (𝓞 (Qsqrtd (d : ℚ)))) where
+  carrier := {I | ¬ (p : ℤ) ∣ (Ideal.absNorm I : ℤ)}
+  one_mem' := not_dvd_absNorm_one d p
+  mul_mem' := by
+    intro I J hI hJ
+    exact not_dvd_absNorm_mul_of_not_dvd_absNorm d p hI hJ
+
+/-- The raw genus character, restricted to ideals whose norm is prime to `p`,
+as an integer unit. The inverse is the same value because the character squares
+to `1` on this domain. -/
+noncomputable def genusCharacterRawUnit
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (p : ℕ) [Fact p.Prime]
+    (I : idealsPrimeToNormSubmonoid d p) : ℤˣ :=
+  let x := genusCharacterRaw d p (I : Ideal (𝓞 (Qsqrtd (d : ℚ))))
+  { val := x
+    inv := x
+    val_inv := by
+      simpa [x, pow_two] using genusCharacterRaw_sq_eq_one_of_norm_not_dvd d p I I.2
+    inv_val := by
+      simpa [x, pow_two] using genusCharacterRaw_sq_eq_one_of_norm_not_dvd d p I I.2 }
+
+/-- The raw genus character as a monoid homomorphism on ideals whose absolute
+norm is prime to `p`. This records the multiplicative part of genus theory before
+quotienting by principal ideals. -/
+noncomputable def genusCharacterRawOnPrimeToNormIdeals
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (p : ℕ) [Fact p.Prime] :
+    idealsPrimeToNormSubmonoid d p →* ℤˣ where
+  toFun I := genusCharacterRawUnit d p I
+  map_one' := by
+    ext
+    simp [genusCharacterRawUnit, genusCharacterRaw, Ideal.absNorm_top, legendreSym.at_one]
+  map_mul' I J := by
+    ext
+    exact genusCharacterRaw_mul d p (I : Ideal (𝓞 (Qsqrtd (d : ℚ))))
+      (J : Ideal (𝓞 (Qsqrtd (d : ℚ))))
+
 /-- From `p ∈ oddPrimeDiscriminantDivisors d` (so `p` is an odd prime), deduce
 `(p : ℤ) ∣ d`. For `d % 4 = 1`, `discrFormula d = d` directly. For `d % 4 ≠ 1`,
 `discrFormula d = 4*d`; since `p` is an odd prime, `p ∤ 4`, so `p ∣ d`. -/
