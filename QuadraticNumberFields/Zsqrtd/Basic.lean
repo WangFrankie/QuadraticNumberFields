@@ -48,6 +48,11 @@ abbrev sqrtd : Zsqrtd d := ⟨0, 1⟩
 /-- Conjugation `(a + b√d) ↦ (a - b√d)`. -/
 abbrev conj (z : Zsqrtd d) : Zsqrtd d := star z
 
+/-- Extensionality: two elements of `Zsqrtd d` are equal if and only if
+their real and imaginary parts are equal. -/
+@[ext] theorem ext {x y : Zsqrtd d} (hre : x.re = y.re) (him : x.im = y.im) : x = y :=
+  QuadraticAlgebra.ext hre him
+
 /-- Trace API on `Zsqrtd`. -/
 abbrev trace (z : Zsqrtd d) : ℤ := z.re + (star z).re
 

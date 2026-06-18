@@ -3,6 +3,7 @@ Copyright (c) 2026 Frankie Wang. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
+import QuadraticNumberFields.RingOfIntegers.Basis
 import QuadraticNumberFields.RingOfIntegers.CommonInstances
 import QuadraticNumberFields.RingOfIntegers.Classification
 import QuadraticNumberFields.QuadraticField.Classification
@@ -50,13 +51,6 @@ theorem discr_zOnePlusSqrtOverTwo_basis (k : ℤ) :
       Module.Basis (Fin 2) ℤ (ZOnePlusSqrtdOverTwo k)) = 1 + 4 * k := by
   rw [QuadraticAlgebra.discr_basis_int]
   ring
-
-/-- Any ring equivalence between `ℤ`-algebras is automatically an `AlgEquiv ℤ`. -/
-private def ringEquivToIntAlgEquiv
-    {R S : Type*} [CommRing R] [Algebra ℤ R] [CommRing S] [Algebra ℤ S]
-    (e : R ≃+* S) : R ≃ₐ[ℤ] S :=
-  AlgEquiv.ofRingEquiv (f := e) (fun n => by
-    simp only [eq_intCast, map_intCast])
 
 /-! ## Transport to NumberField.discr -/
 

@@ -123,6 +123,36 @@ noncomputable def ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_eq
     (fun _ hx => exists_zOnePlusSqrtOverTwo_of_isIntegral_of_one_mod_four k hd_sf hd_ne' hx)
     (fun z => isIntegral_toQsqrtd_of_zOnePlusSqrtOverTwo k z)
 
+/-- `ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_eq` commutes with the embedding
+back into `ℚ(√(1 + 4k))`: applied to `e α`, the embedding recovers
+`(α : ℚ(√(1 + 4k)))`. -/
+lemma ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_eq_apply
+    (k : ℤ) [Fact (Squarefree (1 + 4 * k))] [Fact ((1 + 4 * k) ≠ 1)]
+    (α : 𝓞 (Qsqrtd (((1 + 4 * k : ℤ) : ℚ)))) :
+    ZOnePlusSqrtdOverTwo.toQsqrtdHom k
+        (ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_eq (1 + 4 * k) k rfl α) =
+      (α : Qsqrtd (((1 + 4 * k : ℤ) : ℚ))) := by
+  unfold ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_eq
+  rw [ringOfIntegers_equiv_of_embedding_apply]
+
+/-- The `re` coordinate of `ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_eq`. -/
+theorem ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_eq_re
+    (k : ℤ) (hk : d = 1 + 4 * k) (α : 𝓞 (Qsqrtd (d : ℚ))) :
+    let e := ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_eq d k hk
+    ((e α).re : ℚ) + ((e α).im : ℚ) / 2 = (α : Qsqrtd (d : ℚ)).re := by
+  subst hk
+  simpa using congrArg QuadraticAlgebra.re
+    (ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_eq_apply k α)
+
+/-- The `im` coordinate of `ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_eq`. -/
+theorem ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_eq_im
+    (k : ℤ) (hk : d = 1 + 4 * k) (α : 𝓞 (Qsqrtd (d : ℚ))) :
+    let e := ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_eq d k hk
+    ((e α).im : ℚ) / 2 = (α : Qsqrtd (d : ℚ)).im := by
+  subst hk
+  simpa using congrArg QuadraticAlgebra.im
+    (ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_eq_apply k α)
+
 /-- If `d % 4 = 1`, then `𝓞(ℚ(√d)) ≃+* ℤ[(1+√d)/2]`, using the canonical witness
 `k := d / 4` (so `d = 1 + 4 * (d / 4)`).  This is a thin wrapper over the
 explicit-parameter `ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_eq`.
@@ -132,6 +162,20 @@ noncomputable def ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one
     (hd4 : d % 4 = 1) :
     𝓞 (Qsqrtd (d : ℚ)) ≃+* ZOnePlusSqrtdOverTwo (d / 4) :=
   ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_eq d (d / 4) (by omega)
+
+/-- The `re` coordinate of the `d % 4 = 1` ring-of-integers equivalence. -/
+theorem ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one_re
+    (hd4 : d % 4 = 1) (α : 𝓞 (Qsqrtd (d : ℚ))) :
+    let e := ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one d hd4
+    ((e α).re : ℚ) + ((e α).im : ℚ) / 2 = (α : Qsqrtd (d : ℚ)).re := by
+  exact ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_eq_re d (d / 4) (by omega) α
+
+/-- The `im` coordinate of the `d % 4 = 1` ring-of-integers equivalence. -/
+theorem ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one_im
+    (hd4 : d % 4 = 1) (α : 𝓞 (Qsqrtd (d : ℚ))) :
+    let e := ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one d hd4
+    ((e α).im : ℚ) / 2 = (α : Qsqrtd (d : ℚ)).im := by
+  exact ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_eq_im d (d / 4) (by omega) α
 
 /-! ## Combined Classification -/
 
