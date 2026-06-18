@@ -176,6 +176,58 @@ theorem exists_algebraNorm_natAbs_eq_two_of_classNumber_eq_one_of_mod_four_ne_on
     exact nat_eq_two_of_sq_eq_four hnorm_map hPne
   exact hnorm.symm.trans hP_abs
 
+/-- In the `d % 8 = 1` split branch, class number one forces a norm-`2`
+algebraic integer.  The proof uses only ideal theory: a prime above `2` has
+residue degree one, class number one makes it principal, and its absolute norm
+is `2`. -/
+theorem exists_algebraNorm_natAbs_eq_two_of_classNumber_eq_one_of_mod_eight_eq_one
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd8 : d % 8 = 1)
+    (hclass : NumberField.classNumber (Qsqrtd (d : ℚ)) = 1) :
+    ∃ α : 𝓞 (Qsqrtd (d : ℚ)), (Algebra.norm ℤ α).natAbs = 2 := by
+  let O := 𝓞 (Qsqrtd (d : ℚ))
+  let p : Ideal ℤ := Ideal.span ({(2 : ℤ)} : Set ℤ)
+  have hchar : ringChar ℤ ≠ 2 := by simp [ringChar.eq_zero]
+  have hpbot : p ≠ ⊥ := by
+    dsimp [p]
+    intro h
+    have htwo : (2 : ℤ) = 0 := Ideal.span_singleton_eq_bot.mp h
+    norm_num at htwo
+  haveI : p.IsMaximal := by
+    dsimp [p]
+    exact PrincipalIdealRing.isMaximal_of_irreducible
+      ((Nat.prime_iff_prime_int.mp Nat.prime_two).irreducible)
+  have hsplit : Ideal.IsSplitIn p O := by
+    simpa [p, O] using Splitting.isSplit_two_of_mod_eight_eq_one (d := d) hd8
+  obtain ⟨P, hP, _P2, _hP2, _hne, _hmap⟩ :=
+    Ideal.map_eq_of_isSplitIn p O hchar hpbot hsplit
+  have hPover_span : P.LiesOver (Ideal.span ({(2 : ℤ)} : Set ℤ)) := by
+    simpa [p] using hP.2
+  letI : P.LiesOver (Ideal.span ({(2 : ℤ)} : Set ℤ)) := hPover_span
+  have hfP : (Ideal.span ({(2 : ℤ)} : Set ℤ)).inertiaDeg P = 1 := by
+    letI := Ring.instAlgebraFractionRing
+    letI := IsIntegralClosure.MulSemiringAction ℤ (FractionRing ℤ) (FractionRing O) O
+    letI := Algebra.IsQuadraticExtension.isGaloisGroup (R := ℤ) (S := O) hchar
+    have hf := Ideal.inertiaDegIn_eq_of_mem p O Gal(FractionRing O / FractionRing ℤ) hP
+    have hf1 : Ideal.inertiaDegIn p O = 1 := hsplit.2
+    rw [hf1] at hf
+    simpa [p] using hf.symm
+  have hP_principal : P.IsPrincipal := by
+    have hPID : IsPrincipalIdealRing O :=
+      (NumberField.classNumber_eq_one_iff (K := Qsqrtd (d : ℚ))).mp hclass
+    letI : IsPrincipalIdealRing O := hPID
+    exact IsPrincipalIdealRing.principal P
+  obtain ⟨α, _hspan, hnorm⟩ :=
+    RingOfIntegers.absNorm_eq_natAbs_algebraNorm_of_isPrincipal (d := d) hP_principal
+  refine ⟨α, ?_⟩
+  have hP_abs : Ideal.absNorm P = 2 := by
+    have hnormP := Ideal.absNorm_eq_pow_inertiaDeg' (P := P) Nat.prime_two
+    have hfP_nat : (Ideal.span ({((2 : ℕ) : ℤ)} : Set ℤ)).inertiaDeg P = 1 := by
+      simpa using hfP
+    rw [hfP_nat] at hnormP
+    norm_num at hnormP
+    exact hnormP
+  exact hnorm.symm.trans hP_abs
+
 /-- In the `d % 4 ≠ 1` branch of the imaginary class-number-one problem, the only
 possibilities are the Gaussian and `√-2` fields. -/
 theorem eq_neg_one_or_eq_neg_two_of_classNumber_eq_one_of_mod_four_ne_one
@@ -184,6 +236,15 @@ theorem eq_neg_one_or_eq_neg_two_of_classNumber_eq_one_of_mod_four_ne_one
     d = -1 ∨ d = -2 :=
   eq_neg_one_or_eq_neg_two_of_exists_absNorm_eq_two d hdneg hd4
     (exists_algebraNorm_natAbs_eq_two_of_classNumber_eq_one_of_mod_four_ne_one d hd4 hclass)
+
+/-- In the `d % 8 = 1` split half-integral branch of the imaginary
+class-number-one problem, the only possibility is the `√-7` field. -/
+theorem eq_neg_seven_of_classNumber_eq_one_of_mod_eight_eq_one
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hdneg : d < 0) (hd8 : d % 8 = 1)
+    (hclass : NumberField.classNumber (Qsqrtd (d : ℚ)) = 1) :
+    d = -7 :=
+  eq_neg_seven_of_exists_absNorm_eq_two_of_mod_eight_eq_one d hdneg hd8
+    (exists_algebraNorm_natAbs_eq_two_of_classNumber_eq_one_of_mod_eight_eq_one d hd8 hclass)
 
 end Heegner
 end QuadraticNumberFields
