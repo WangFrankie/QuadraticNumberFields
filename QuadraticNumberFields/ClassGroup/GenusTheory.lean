@@ -714,5 +714,29 @@ theorem classNumber_eq_one_imp_discriminant_prime_shape
     genus_divisibility_of_squareClassSubgroup_quotient_card d hgenus
   exact discriminant_prime_shape_of_genus_divisibility d hd hdiv h
 
+/-- In the odd field-discriminant branch, the genus-theory sieve leaves only
+the prime-discriminant family: `d = -p` for a rational prime `p ≡ 3 (mod 4)`.
+
+This is the part of Cox Theorem 12.34 where genus theory is used.  The even
+field-discriminant branch is handled separately by Landau's reduced-form
+classification of the discriminants `-4n` with class number one. -/
+theorem classNumber_eq_one_imp_exists_prime_of_odd_discr
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : d < 0)
+    (hodd : RingOfIntegers.discrFormula d % 2 ≠ 0)
+    (hgenus : genusFormula d)
+    (h : NumberField.classNumber (Qsqrtd (d : ℚ)) = 1) :
+    ∃ p : ℕ, Nat.Prime p ∧ p % 4 = 3 ∧ d = -(p : ℤ) := by
+  rcases classNumber_eq_one_imp_discriminant_prime_shape d hd hgenus h with
+    hneg1 | hneg2 | hprime
+  · exfalso
+    subst hneg1
+    exact hodd (by
+      norm_num [RingOfIntegers.discrFormula, RingOfIntegers.discrFormula_of_mod_four_ne_one])
+  · exfalso
+    subst hneg2
+    exact hodd (by
+      norm_num [RingOfIntegers.discrFormula, RingOfIntegers.discrFormula_of_mod_four_ne_one])
+  · exact hprime
+
 end ClassGroup
 end QuadraticNumberFields
