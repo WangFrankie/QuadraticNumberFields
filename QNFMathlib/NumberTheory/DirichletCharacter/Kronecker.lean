@@ -4,8 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 import Mathlib.NumberTheory.DirichletCharacter.Basic
-import QuadraticNumberFields.Mathlib.NumberTheory.LegendreSymbol.KroneckerSymbol
-import QuadraticNumberFields.Mathlib.NumberTheory.LegendreSymbol.KroneckerSymbolPeriodicity
+import QNFMathlib.NumberTheory.LegendreSymbol.KroneckerSymbol
+import QNFMathlib.NumberTheory.LegendreSymbol.KroneckerSymbolPeriodicity
 
 /-!
 # Kronecker Symbol as a Dirichlet Character
@@ -141,16 +141,22 @@ noncomputable def kroneckerCharacter (D : ℤ) [Fact (D % 4 = 0 ∨ D % 4 = 1)] 
     kroneckerCharacter D x = kroneckerSymNat D x.val := rfl
 
 /-- Evaluation of the Kronecker character at a natural representative reproduces
-`kroneckerSymNat D n`. -/
-@[simp] theorem kroneckerCharacter_apply_natCast (D : ℤ) [Fact (D % 4 = 0 ∨ D % 4 = 1)]
+`kroneckerSymNat D n`.
+
+Not a `simp` lemma: `kroneckerCharacter_apply` already rewrites the left-hand
+side, so this would never be in simp-normal form; it is used via `rw`. -/
+theorem kroneckerCharacter_apply_natCast (D : ℤ) [Fact (D % 4 = 0 ∨ D % 4 = 1)]
     (n : ℕ) :
     kroneckerCharacter D ((n : ℕ) : ZMod D.natAbs) = kroneckerSymNat D n := by
   rw [kroneckerCharacter_apply, ZMod.val_natCast]
   exact kroneckerSymNat_mod_natAbs_eq D n
 
 /-- The Kronecker character value at `-1` is the sign factor in the Kronecker
-symbol convention. -/
-@[simp] theorem kroneckerCharacter_neg_one (D : ℤ) [Fact (D % 4 = 0 ∨ D % 4 = 1)] :
+symbol convention.
+
+Not a `simp` lemma: `kroneckerCharacter_apply` already rewrites the left-hand
+side, so this would never be in simp-normal form; it is used via `rw`. -/
+theorem kroneckerCharacter_neg_one (D : ℤ) [Fact (D % 4 = 0 ∨ D % 4 = 1)] :
     kroneckerCharacter D (-1 : ZMod D.natAbs) = if D < 0 then -1 else 1 := by
   rcases eq_or_ne D.natAbs 0 with hD0 | hD0
   · have hD : D = 0 := by omega
@@ -166,8 +172,11 @@ symbol convention. -/
     exact kroneckerSymNat_natAbs_sub_one_eq_sign D hD0
 
 /-- Evaluation of the Kronecker character at an integer representative reproduces
-`kroneckerSym D n`. -/
-@[simp] theorem kroneckerCharacter_apply_intCast (D : ℤ) [Fact (D % 4 = 0 ∨ D % 4 = 1)]
+`kroneckerSym D n`.
+
+Not a `simp` lemma: `kroneckerCharacter_apply` already rewrites the left-hand
+side, so this would never be in simp-normal form; it is used via `rw`. -/
+theorem kroneckerCharacter_apply_intCast (D : ℤ) [Fact (D % 4 = 0 ∨ D % 4 = 1)]
     (n : ℤ) :
     kroneckerCharacter D ((n : ℤ) : ZMod D.natAbs) = kroneckerSym D n := by
   rcases Int.eq_nat_or_neg n with ⟨m, rfl | rfl⟩

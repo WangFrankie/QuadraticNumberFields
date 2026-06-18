@@ -5,7 +5,7 @@ Authors: Frankie Wang
 -/
 
 import Mathlib.Algebra.Squarefree.Basic
-import QuadraticNumberFields.Mathlib.Algebra.Squarefree.Basic
+import QNFMathlib.Algebra.Squarefree.Basic
 
 /-!
 # Squarefree Integer Helpers
@@ -56,3 +56,25 @@ lemma int_dvd_of_ratio_square (d₁ d₂ : ℤ) (hd₂ : d₂ ≠ 0)
   have hden1_nat : ((d₁ : ℚ) / (d₂ : ℚ)).den = 1 :=
     nat_eq_one_of_squarefree_intcast_of_isSquare _ hsqf_den_int hsq_den_int
   exact (Rat.den_div_intCast_eq_one_iff d₁ d₂ hd₂).1 hden1_nat
+
+instance (d : ℤ) [Fact (Prime d)] : Fact (Squarefree d) :=
+  ⟨(Fact.out : Prime d).squarefree⟩
+
+
+instance (d : ℤ) [Fact (Squarefree d)] : Fact (Squarefree (-d)) := by
+  have h_sqfree : Squarefree d := Fact.out
+  have h_assoc : Associated d (-d) := ⟨-1, by simp⟩
+  exact ⟨h_assoc.squarefree_iff.mp h_sqfree⟩
+
+
+instance (d : ℤ) [Fact (Prime d)] : Fact (d ≠ 1) :=
+  ⟨(Fact.out : Prime d).ne_one⟩
+
+instance (d : ℤ) [Fact (Prime d)] : Fact (-d ≠ 1) := by
+  have hp : Prime d := Fact.out
+  refine ⟨by
+    intro h
+    have hd : d = -1 := by omega
+    have h_unit : IsUnit (-1 : ℤ) := by simp
+    have h_u : IsUnit d := by rwa [hd]
+    exact hp.not_unit h_u⟩

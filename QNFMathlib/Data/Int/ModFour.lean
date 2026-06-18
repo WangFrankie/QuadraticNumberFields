@@ -5,8 +5,8 @@ Authors: Frankie Wang
 -/
 
 import Mathlib.Data.Int.Basic
-import Mathlib.Tactic
-import QuadraticNumberFields.Mathlib.Algebra.Squarefree.Basic
+import Mathlib.Tactic.Ring
+import QNFMathlib.Algebra.Squarefree.Basic
 
 /-!
 # Integer Congruences Modulo Four

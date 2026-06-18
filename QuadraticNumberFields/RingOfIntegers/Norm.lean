@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 import QuadraticNumberFields.RingOfIntegers.Classification
-import QuadraticNumberFields.Mathlib.Algebra.QuadraticAlgebra.Basic
+import QNFMathlib.Algebra.QuadraticAlgebra.Basic
 import QuadraticNumberFields.Zsqrtd.Basic
 import QuadraticNumberFields.ZOnePlusSqrtdOverTwo.Basic
 

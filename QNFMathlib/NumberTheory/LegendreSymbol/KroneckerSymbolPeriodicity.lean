@@ -6,7 +6,7 @@ Authors: Frankie Wang
 import Mathlib.Data.Nat.Factorization.Basic
 import Mathlib.NumberTheory.LegendreSymbol.JacobiSymbol
 import Mathlib.NumberTheory.LegendreSymbol.QuadraticReciprocity
-import QuadraticNumberFields.Mathlib.NumberTheory.LegendreSymbol.KroneckerSymbol
+import QNFMathlib.NumberTheory.LegendreSymbol.KroneckerSymbol
 
 /-!
 # Periodicity, Multiplicativity, and Vanishing for the Kronecker Symbol
@@ -27,7 +27,7 @@ as a `MulChar` on `ZMod D.natAbs`:
   `-1` in `ZMod D.natAbs`.
 
 All three shims depend only on
-`QuadraticNumberFields.Mathlib.NumberTheory.LegendreSymbol.KroneckerSymbol` and
+`QNFMathlib.NumberTheory.LegendreSymbol.KroneckerSymbol` and
 mathlib; they are project-quadratic-field-independent.
 -/
 

@@ -8,7 +8,7 @@ import Mathlib.NumberTheory.RamificationInertia.Galois
 import Mathlib.RingTheory.Ideal.Over
 import Mathlib.Data.Fintype.EquivFin
 import Mathlib.NumberTheory.NumberField.Basic
-import QuadraticNumberFields.Mathlib.NumberTheory.RamificationInertia.Galois
+import QNFMathlib.NumberTheory.RamificationInertia.Galois
 
 /-!
 # Splitting Definitions and Trichotomy
