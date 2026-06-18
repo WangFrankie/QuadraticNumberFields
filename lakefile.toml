@@ -1,7 +1,7 @@
 name = "QuadraticNumberFields"
 version = "0.1.0"
 keywords = ["math", "number-theory", "quadratic-fields"]
-defaultTargets = ["QNFMathlib", "QuadraticNumberFields"]
+defaultTargets = ["QNFMathlib", "BinaryQuadraticForms", "QuadraticNumberFields"]
 lintDriver = "runLinter"
 
 [leanOptions]
