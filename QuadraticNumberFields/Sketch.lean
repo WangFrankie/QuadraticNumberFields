@@ -61,8 +61,8 @@ Current work in progress:
 * `Euclidean.Basic`: imaginary-quadratic norm-Euclidean classification skeleton.
 * `Heegner.Diophantine`, `Heegner.WeberData`, `Heegner.Framework`, and
   `Heegner.StarkHeegner`: proof-framework layers for the Baker–Heegner–Stark
-  statement; the named genus, Weber/CM, gamma-lookup, and Diophantine inputs are
-  still `sorry`.
+  statement; the named genus, Weber/CM, and Diophantine inputs are still
+  `sorry`.
 * `Families.*`, `ContinuedFraction.*`, and `ClassGroup.*`: research
   scaffolding for real quadratic class-number problems.
 

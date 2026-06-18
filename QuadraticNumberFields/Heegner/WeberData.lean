@@ -18,8 +18,10 @@ them in the final assembly file.
 
 * `HasRingClassNumberThreeAtConductorTwo`: placeholder for the conductor-`2`
   ring-class-number jump.
-* `IsAssociatedHeegnerGamma`: placeholder relating a prime `p` to the gamma
-  value obtained from the Weber/CM construction.
+* `heegnerGammaPrimePairs`: the finite Cox-Heegner table relating inert primes
+  to gamma values.
+* `IsAssociatedHeegnerGamma`: the table relation between a prime `p` and the
+  gamma value obtained from the Weber/CM construction.
 * `StarkHeegnerAlgebraicData`: the algebraic data needed by the elementary
   framework layer.
 -/
@@ -36,10 +38,15 @@ namespace Heegner
 def HasRingClassNumberThreeAtConductorTwo (p : ℕ) : Prop :=
   p = p
 
-/-- Placeholder saying that `gamma` is the gamma value associated to the
-inert prime `p` by the Weber/CM construction. -/
+/-- The finite Cox-Heegner table matching positive inert Heegner primes with
+the corresponding Weber gamma values. -/
+def heegnerGammaPrimePairs : Finset (ℤ × ℤ) :=
+  {((3 : ℤ), 0), (11, -32), (19, -96), (43, -960), (67, -5280), (163, -640320)}
+
+/-- The Weber/CM gamma value `gamma` is associated to the inert prime `p` by
+the finite Cox-Heegner gamma-prime table. -/
 def IsAssociatedHeegnerGamma (p : ℕ) (gamma : ℤ) : Prop :=
-  (p : ℤ) = (p : ℤ) ∧ gamma = gamma
+  ((p : ℤ), gamma) ∈ heegnerGammaPrimePairs
 
 /-- **Conductor-two ring-class-number input.** In the inert prime family
 `d = -p`, class number one for `ℚ(√-p)` gives the conductor-`2` ring class

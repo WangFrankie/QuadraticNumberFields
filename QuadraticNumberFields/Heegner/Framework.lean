@@ -26,10 +26,11 @@ namespace Heegner
 an inert prime lies in the Heegner gamma list, then the prime is one of the six
 positive odd Heegner primes. -/
 theorem prime_mem_heegnerPrimeSet_of_associatedGamma
-    (p : ℕ) (hp : Nat.Prime p) (hp8 : p % 8 = 3) {gamma : ℤ}
-    (hassoc : IsAssociatedHeegnerGamma p gamma) (hgamma : gamma ∈ heegnerGammaSet) :
+    (p : ℕ) (_hp : Nat.Prime p) (_hp8 : p % 8 = 3) {gamma : ℤ}
+    (hassoc : IsAssociatedHeegnerGamma p gamma) (_hgamma : gamma ∈ heegnerGammaSet) :
     (p : ℤ) ∈ heegnerPrimeSet := by
-  sorry
+  norm_num [IsAssociatedHeegnerGamma, heegnerGammaPrimePairs, heegnerPrimeSet] at hassoc ⊢
+  omega
 
 /-- If `p` is one of the positive odd Heegner primes, then `-p` is one of the
 nine Heegner numbers. -/
