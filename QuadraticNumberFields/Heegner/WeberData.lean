@@ -24,6 +24,8 @@ them in the final assembly file.
   gamma value obtained from the Weber/CM construction.
 * `StarkHeegnerAlgebraicData`: the algebraic data needed by the elementary
   framework layer.
+* `ConductorTwoClassNumberThreeWeberData`: refined conductor-`2` Weber/CM data
+  bundling the ring-class-number input with the extracted Stark-Heegner data.
 -/
 
 attribute [-instance] DivisionRing.toRatAlgebra
@@ -92,6 +94,38 @@ structure StarkHeegnerAlgebraicData (p : ℕ) where
   /-- The gamma value is associated to the prime `p` by the Weber/CM construction. -/
   associatedGamma : IsAssociatedHeegnerGamma p gamma
 
+/-- Refined conductor-`2`, ring-class-number-three Weber/CM data.
+
+This interface is the precise deep input needed after the conductor-`2`
+ring-class-number jump: it records both the quadratic-order datum and the
+Stark-Heegner algebraic data extracted from the Weber construction. -/
+structure ConductorTwoClassNumberThreeWeberData (p : ℕ) where
+  /-- The conductor-`2` ring-class-number datum feeding the Weber/CM construction. -/
+  ringClassNumberData : RingClassNumberConductorTwoData p
+  /-- The Stark-Heegner algebraic data extracted from the Weber/CM construction. -/
+  starkHeegnerData : StarkHeegnerAlgebraicData p
+
+/-- There is refined conductor-`2`, ring-class-number-three Weber/CM data. -/
+def HasConductorTwoClassNumberThreeWeberData (p : ℕ) : Prop :=
+  Nonempty (ConductorTwoClassNumberThreeWeberData p)
+
+/-- **Deep Weber/CM input from ring-class-number three.** The conductor-`2`
+ring-class-number-three datum supplies the refined Weber data: a concrete
+Heegner equation solution, the associated gamma value, and its finite-table
+association with `p`. -/
+theorem conductor_two_weber_data_of_ring_class_number_three
+    (p : ℕ) (hp : Nat.Prime p) (hp8 : p % 8 = 3)
+    (horder : HasRingClassNumberThreeAtConductorTwo p) :
+    HasConductorTwoClassNumberThreeWeberData p := by
+  sorry
+
+/-- Refined conductor-`2` Weber data projects to the Stark-Heegner algebraic
+data needed by the elementary framework layer. -/
+theorem exists_weber_data_of_conductor_two_weber_data
+    {p : ℕ} (hweber : HasConductorTwoClassNumberThreeWeberData p) :
+    Nonempty (StarkHeegnerAlgebraicData p) := by
+  exact Nonempty.map ConductorTwoClassNumberThreeWeberData.starkHeegnerData hweber
+
 /-- **Weber/CM existence input from conductor-two data.** The conductor-`2`
 ring-class-number datum yields the algebraic point and gamma value used in the
 inert-prime core. -/
@@ -99,7 +133,8 @@ theorem exists_weber_data_of_conductor_two_class_number_three
     (p : ℕ) (hp : Nat.Prime p) (hp8 : p % 8 = 3)
     (horder : HasRingClassNumberThreeAtConductorTwo p) :
     Nonempty (StarkHeegnerAlgebraicData p) := by
-  sorry
+  exact exists_weber_data_of_conductor_two_weber_data
+    (conductor_two_weber_data_of_ring_class_number_three p hp hp8 horder)
 
 /-- **Weber/CM existence input from class number one.** In the inert prime family
 `d = -p`, class number one supplies the Stark-Heegner algebraic data. -/

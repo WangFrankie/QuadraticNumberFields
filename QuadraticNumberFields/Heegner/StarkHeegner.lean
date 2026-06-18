@@ -129,9 +129,28 @@ theorem classNumber_eq_one_iff_mem_heegnerSet_of_genusFormula
   · exact classNumber_eq_one_imp_mem_heegnerSet_of_genusFormula d hd hgenus
   · exact fun h => classNumber_eq_one_of_mem_heegnerSet h
 
+/-- **Odd-discriminant genus formula from the existing genus-character
+interface.** In the odd field-discriminant branch, the genus formula follows
+from the current `ClassGroup.GenusTheory` data interface: construction of the
+odd genus characters, their single product relation, and bijectivity onto the
+relation subgroup. -/
+theorem genusFormula_of_oddGenusCharacterData
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : d < 0)
+    (hodd : RingOfIntegers.discrFormula d % 2 ≠ 0)
+    (hdata : ClassGroup.OddGenusCharacterData d)
+    (hrel : ClassGroup.oddGenusProductRelation d hd hdata)
+    (hbij :
+      Function.Bijective
+        (ClassGroup.oddGenusCharacterProductToRelationSubgroup d hd hdata hrel)) :
+    ClassGroup.genusFormula d :=
+  ClassGroup.genusFormula_of_oddGenusCharacterProductToRelationSubgroup_bijective_of_discr_odd
+    d hd hodd hdata hrel hbij
+
 /-- **Genus-theory input for Baker-Heegner-Stark.** The full genus formula for
-negative squarefree quadratic fields is kept as a named algebraic-number-theory
-input, separate from the final assembly theorem. -/
+negative squarefree quadratic fields is kept as the named algebraic-number-theory
+input not supplied by the final assembly theorem. The odd-discriminant branch can
+instead use `genusFormula_of_oddGenusCharacterData` once the genus-character data
+and bijectivity are available. -/
 theorem genusFormula_of_negative_squarefree
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : d < 0) :
     ClassGroup.genusFormula d := by

@@ -53,6 +53,10 @@ def heegnerGammaValue (X Y : ℤ) : ℤ :=
   let b := 4 * X ^ 2 + 2 * Y;
   -((b ^ 2 - 4 * a) ^ 2) - 8 * (2 * b - a ^ 2)
 
+/-- The image of the known integral solutions under `heegnerGammaValue`. -/
+def heegnerGammaImageSet : Finset ℤ :=
+  heegnerXYSolutionSet.image fun xy => heegnerGammaValue xy.1 xy.2
+
 /-- **Heegner integer-equation input.** The only integer solutions of
 `Y ^ 2 = 2 * X * (X ^ 3 + 1)` are the pairs in `heegnerXYSolutionSet`. -/
 theorem heegner_xy_solutions
@@ -69,6 +73,22 @@ theorem heegnerXYEquation_of_mem_heegnerXYSolutionSet
     rcases h with ⟨rfl, rfl⟩ <;>
     norm_num [HeegnerXYEquation]
 
+/-- The finite gamma table computed from `heegnerXYSolutionSet` is exactly
+`heegnerGammaSet`. -/
+theorem heegnerGammaImageSet_eq_heegnerGammaSet :
+    heegnerGammaImageSet = heegnerGammaSet := by
+  ext gamma
+  norm_num [heegnerGammaImageSet, heegnerXYSolutionSet, heegnerGammaValue, heegnerGammaSet]
+  tauto
+
+/-- The gamma value attached to any listed integral solution belongs to
+`heegnerGammaSet`. -/
+theorem heegnerGammaValue_mem_heegnerGammaSet_of_mem_heegnerXYSolutionSet
+    {X Y : ℤ} (hmem : (X, Y) ∈ heegnerXYSolutionSet) :
+    heegnerGammaValue X Y ∈ heegnerGammaSet := by
+  rw [← heegnerGammaImageSet_eq_heegnerGammaSet]
+  exact Finset.mem_image.mpr ⟨(X, Y), hmem, rfl⟩
+
 /-- Any gamma value produced from a solution of `HeegnerXYEquation` belongs to
 the finite Heegner gamma set. -/
 theorem gamma_mem_heegnerGammaSet_of_xy_solution
@@ -76,11 +96,8 @@ theorem gamma_mem_heegnerGammaSet_of_xy_solution
     (hgamma : gamma = heegnerGammaValue X Y) :
     gamma ∈ heegnerGammaSet := by
   subst gamma
-  have hmem : (X, Y) ∈ heegnerXYSolutionSet := heegner_xy_solutions hxy
-  norm_num [heegnerXYSolutionSet] at hmem
-  rcases hmem with h | h | h | h | h | h <;>
-    rcases h with ⟨rfl, rfl⟩ <;>
-    norm_num [heegnerGammaValue, heegnerGammaSet]
+  exact heegnerGammaValue_mem_heegnerGammaSet_of_mem_heegnerXYSolutionSet
+    (heegner_xy_solutions hxy)
 
 end Heegner
 end QuadraticNumberFields
