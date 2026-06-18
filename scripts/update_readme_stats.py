@@ -12,6 +12,16 @@ from typing import NamedTuple
 import sys
 
 
+README_LEAN_ROOTS = [
+    "QNFMathlib.lean",
+    "QNFMathlib",
+    "BinaryQuadraticForms.lean",
+    "BinaryQuadraticForms",
+    "QuadraticNumberFields.lean",
+    "QuadraticNumberFields",
+]
+
+
 class LineCount(NamedTuple):
     total: int
     code: int
@@ -59,21 +69,28 @@ def count_lean_lines(file_path: Path) -> LineCount:
     return LineCount(total=code + comment, code=code, comment=comment, blank=blank)
 
 
-def walk_lean_files(root_dir: str, exclude_dirs: list[str] | None = None) -> list[Path]:
+def walk_lean_files(root_dirs: str | list[str], exclude_dirs: list[str] | None = None) -> list[Path]:
     """Walk through all Lean files"""
     if exclude_dirs is None:
         exclude_dirs = ['.lake', 'node_modules', '.git']
     
     lean_files: list[Path] = []
-    root = Path(root_dir)
-    
-    for dirpath, dirnames, filenames in os.walk(root):
-        dirnames[:] = [d for d in dirnames if d not in exclude_dirs]
-        
-        for filename in filenames:
-            if filename.endswith('.lean'):
-                lean_files.append(Path(dirpath) / filename)
-    
+    roots = [root_dirs] if isinstance(root_dirs, str) else root_dirs
+
+    for root_dir in roots:
+        root = Path(root_dir)
+        if not root.exists():
+            continue
+        if root.is_file():
+            if root.suffix == ".lean":
+                lean_files.append(root)
+            continue
+        for dirpath, dirnames, filenames in os.walk(root):
+            dirnames[:] = [d for d in dirnames if d not in exclude_dirs]
+            for filename in filenames:
+                if filename.endswith('.lean'):
+                    lean_files.append(Path(dirpath) / filename)
+
     return lean_files
 
 
@@ -88,7 +105,11 @@ def get_module_stats(files: list[Path]) -> dict[str, LineCount]:
         rel_path = f.relative_to(Path('.'))
         parts = rel_path.parts
         
-        if len(parts) >= 3 and parts[0] == 'QuadraticNumberFields':
+        if len(parts) == 1 and rel_path.suffix == ".lean":
+            module = rel_path.stem
+        elif parts[0] in {"QNFMathlib", "BinaryQuadraticForms"}:
+            module = parts[0]
+        elif len(parts) >= 3 and parts[0] == 'QuadraticNumberFields':
             # File in a top-level subpackage: one row per subpackage.
             module = f"QuadraticNumberFields/{parts[1]}"
         elif len(parts) == 2 and parts[0] == 'QuadraticNumberFields':
@@ -138,7 +159,7 @@ def update_readme(readme_path: str = "README.md") -> None:
     """Update README.md with current code statistics"""
     exclude_dirs = ['.git', 'node_modules', '.lake']
     
-    files = walk_lean_files('QuadraticNumberFields', exclude_dirs)
+    files = walk_lean_files(README_LEAN_ROOTS, exclude_dirs)
     
     if not files:
         print("No .lean files found")
@@ -183,7 +204,7 @@ def main():
     args = parser.parse_args()
     
     exclude_dirs = ['.git', 'node_modules', '.lake']
-    files = walk_lean_files('QuadraticNumberFields', exclude_dirs)
+    files = walk_lean_files(README_LEAN_ROOTS, exclude_dirs)
     
     if not files:
         print("No .lean files found")
