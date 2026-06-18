@@ -82,7 +82,7 @@ lake build
 | `QuadraticNumberFields/Examples` | 898 | 507 | 1405 |
 | `QuadraticNumberFields/RingOfIntegers` | 794 | 375 | 1169 |
 | `QuadraticNumberFields/Zsqrtd` | 663 | 214 | 877 |
-| `QuadraticNumberFields/Heegner` | 650 | 332 | 982 |
+| `QuadraticNumberFields/Heegner` | 650 | 356 | 1006 |
 | `QuadraticNumberFields/QuadraticField` | 586 | 397 | 983 |
 | `QuadraticNumberFields/Qsqrtd` | 531 | 283 | 814 |
 | `QuadraticNumberFields` | 413 | 116 | 529 |
@@ -93,7 +93,7 @@ lake build
 | `QuadraticNumberFields/Families` | 38 | 49 | 87 |
 | `QuadraticNumberFields/ClassNumber` | 26 | 20 | 46 |
 | `QuadraticNumberFields/ContinuedFraction` | 21 | 36 | 57 |
-| **Total** | **16974** | **5492** | **22466** |
+| **Total** | **16974** | **5516** | **22490** |
 
 ## History
 

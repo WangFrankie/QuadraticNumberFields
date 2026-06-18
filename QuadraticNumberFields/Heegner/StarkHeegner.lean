@@ -36,6 +36,22 @@ open scoped NumberField
 namespace QuadraticNumberFields
 namespace Heegner
 
+/-
+TODO roadmap for the remaining forward direction:
+
+* Genus route: prove `ClassGroup.genusFormula d`, first for odd fundamental
+  discriminants via the existing odd-genus-character interface, then for the
+  even branches.
+* Weber/CM route: keep the inert-prime core routed through
+  `Heegner.WeberData.Core`; this file should not import reduced forms directly.
+* Forms-provider route: use `Heegner.WeberData.FormsProvider` only as an
+  optional proof of the conductor-`2` class-number input `h(-4 * p) = 3`.
+* Order/Picard route: a later quadratic-order/Picard-group proof of Cox 7.24
+  or Corollary 7.28 can replace the Forms provider without changing this file.
+* Alternative deep route: Stark's no-Weber variant or Baker's logarithmic route
+  should be added as separate providers for the same named inert-core input.
+-/
+
 /-- **Elementary non-half-integral branch of Baker-Heegner-Stark.** If
 `d % 4 ≠ 1`, then the ideal-theoretic ramification-at-`2` argument already
 forces `d = -1` or `d = -2`, hence `d` is a Heegner number. -/
@@ -90,6 +106,8 @@ theorem classNumber_eq_one_imp_mem_heegnerSet_of_mod_eight_eq_five
     (hgenus : ClassGroup.genusFormula d)
     (h : NumberField.classNumber (Qsqrtd (d : ℚ)) = 1) :
     d ∈ heegnerSet := by
+  -- TODO(genus): Once the prime-shape sieve is closed without assumptions,
+  -- this theorem should become the branch-specific wrapper around that result.
   rcases ClassGroup.classNumber_eq_one_imp_discriminant_prime_shape d hd hgenus h with
     hneg1 | hneg2 | ⟨p, hp, _hp4, hdp⟩
   · subst hneg1
@@ -154,6 +172,10 @@ and bijectivity are available. -/
 theorem genusFormula_of_negative_squarefree
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : d < 0) :
     ClassGroup.genusFormula d := by
+  -- TODO(genus): Split this into odd and even discriminant files once the
+  -- current odd-genus-character interface has the missing construction and
+  -- bijectivity proofs.  The odd branch should route through
+  -- `genusFormula_of_oddGenusCharacterData`.
   sorry
 
 /-- **Baker–Heegner–Stark theorem.** A negative squarefree integer `d` gives an
@@ -167,6 +189,10 @@ inputs are the genus formula and the inert-prime Baker-Heegner-Stark core. -/
 theorem classNumber_eq_one_iff_mem_heegnerSet
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : d < 0) :
     NumberField.classNumber (Qsqrtd (d : ℚ)) = 1 ↔ d ∈ heegnerSet := by
+  -- TODO(interface): Keep the top-level theorem as a thin assembly layer.
+  -- Do not import `WeberData.FormsProvider` here; reduced forms, Picard/order
+  -- theory, and Stark/Baker alternatives should all feed the named inputs
+  -- used by `classNumber_eq_one_iff_mem_heegnerSet_of_genusFormula`.
   exact classNumber_eq_one_iff_mem_heegnerSet_of_genusFormula d hd
     (genusFormula_of_negative_squarefree d hd)
 
