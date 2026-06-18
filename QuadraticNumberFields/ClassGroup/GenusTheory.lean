@@ -730,12 +730,12 @@ theorem classNumber_eq_one_imp_exists_prime_of_odd_discr
     hneg1 | hneg2 | hprime
   · exfalso
     subst hneg1
-    exact hodd (by
-      norm_num [RingOfIntegers.discrFormula, RingOfIntegers.discrFormula_of_mod_four_ne_one])
+    have hd4 := (RingOfIntegers.discrFormula_odd_iff_mod_four_eq_one (-1)).mp hodd
+    norm_num at hd4
   · exfalso
     subst hneg2
-    exact hodd (by
-      norm_num [RingOfIntegers.discrFormula, RingOfIntegers.discrFormula_of_mod_four_ne_one])
+    have hd4 := (RingOfIntegers.discrFormula_odd_iff_mod_four_eq_one (-2)).mp hodd
+    norm_num at hd4
   · exact hprime
 
 end ClassGroup

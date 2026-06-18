@@ -83,6 +83,19 @@ theorem discrFormula_emod_four_eq_zero_or_one (d : ℤ) :
   · left
     rw [discrFormula_of_mod_four_ne_one h, Int.mul_emod_right]
 
+/-- The closed quadratic discriminant formula is odd exactly in the half-integral
+branch `d % 4 = 1`. -/
+theorem discrFormula_odd_iff_mod_four_eq_one (d : ℤ) :
+    discrFormula d % 2 ≠ 0 ↔ d % 4 = 1 := by
+  constructor
+  · intro hodd
+    by_contra hd4
+    rw [discrFormula_of_mod_four_ne_one hd4] at hodd
+    exact hodd (by omega)
+  · intro hd4
+    rw [discrFormula_of_mod_four_eq_one hd4]
+    omega
+
 /-- **Discriminant of `Q(√d)` when `d % 4 ≠ 1`.**
 
 When `d % 4 ≠ 1`, the ring of integers is `𝓞 ≅ ℤ[√d]` with ℤ-basis `{1, √d}`,
