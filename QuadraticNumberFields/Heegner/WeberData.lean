@@ -3,6 +3,7 @@ Copyright (c) 2026 Frankie Wang. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
+import QuadraticNumberFields.Forms.ClassGroup.ClassNumber
 import QuadraticNumberFields.Heegner.ClassNumberOne
 import QuadraticNumberFields.Heegner.Diophantine
 
@@ -18,6 +19,8 @@ them in the final assembly file.
 
 * `RingClassNumberConductorTwoData`: structured placeholder for the conductor-`2`
   ring-class-number jump.
+* `ConductorTwoFormClassNumberThreeData`: Forms-side class-number-three input for
+  primitive reduced forms of discriminant `-4p`.
 * `heegnerGammaPrimePairs`: the finite Cox-Heegner table relating inert primes
   to gamma values.
 * `IsAssociatedHeegnerGamma`: the table relation between a prime `p` and the
@@ -58,6 +61,73 @@ structure RingClassNumberConductorTwoData (p : ℕ) where
 def HasRingClassNumberThreeAtConductorTwo (p : ℕ) : Prop :=
   Nonempty (RingClassNumberConductorTwoData p)
 
+/-- Forms-side class-number-three data for the conductor-`2` discriminant `-4p`.
+
+This is the Cox/reduced-forms route into the conductor-`2` ring-class-number
+input. It deliberately records only the computable primitive reduced form count,
+leaving the still-missing Cox order class-number formula as the named bridge. -/
+structure ConductorTwoFormClassNumberThreeData (p : ℕ) where
+  /-- The discriminant whose primitive positive definite form classes are counted. -/
+  discriminant : ℤ
+  /-- The conductor-`2` discriminant is `-4p`. -/
+  discriminant_eq_neg_four_mul : discriminant = -(4 * (p : ℤ))
+  /-- The Forms-side class number, counted by primitive reduced forms. -/
+  reducedFormClassNumber : ℕ
+  /-- The Forms-side class number is the cardinality of the reduced-form enumeration. -/
+  reducedFormClassNumber_eq_card :
+    reducedFormClassNumber =
+      (BinaryQuadraticForm.enumPrimitiveReducedForms discriminant).card
+  /-- Cox's conductor-`2` class-number jump gives Forms-side class number `3`. -/
+  reducedFormClassNumber_eq_three : reducedFormClassNumber = 3
+
+/-- There is Forms-side class-number-three data for the conductor-`2`
+discriminant `-4p`. -/
+def HasConductorTwoFormClassNumberThreeData (p : ℕ) : Prop :=
+  Nonempty (ConductorTwoFormClassNumberThreeData p)
+
+/-- A concrete reduced-form cardinality computation supplies the Forms-side
+conductor-`2` class-number-three data. -/
+theorem hasConductorTwoFormClassNumberThreeData_of_reducedForms_card
+    (p : ℕ)
+    (hcard :
+      (BinaryQuadraticForm.enumPrimitiveReducedForms (-(4 * (p : ℤ)))).card = 3) :
+    HasConductorTwoFormClassNumberThreeData p := by
+  exact ⟨{
+    discriminant := -(4 * (p : ℤ))
+    discriminant_eq_neg_four_mul := rfl
+    reducedFormClassNumber :=
+      (BinaryQuadraticForm.enumPrimitiveReducedForms (-(4 * (p : ℤ)))).card
+    reducedFormClassNumber_eq_card := rfl
+    reducedFormClassNumber_eq_three := hcard }⟩
+
+/-- Forms-side class-number-three data supplies the conductor-`2`
+ring-class-number input used by the Weber/CM layer. -/
+theorem hasRingClassNumberThreeAtConductorTwo_of_forms
+    {p : ℕ} (hforms : HasConductorTwoFormClassNumberThreeData p) :
+    HasRingClassNumberThreeAtConductorTwo p := by
+  rcases hforms with ⟨hforms⟩
+  exact ⟨{
+    conductor := 2
+    conductor_eq_two := rfl
+    discriminant := hforms.discriminant
+    discriminant_eq := hforms.discriminant_eq_neg_four_mul
+    orderClassNumber := hforms.reducedFormClassNumber
+    orderClassNumber_eq_three := hforms.reducedFormClassNumber_eq_three }⟩
+
+/-- **Cox forms class-number input.** In the inert prime family `d = -p`, class
+number one for `ℚ(√-p)` gives Forms-side class-number-three data for primitive
+positive definite forms of conductor-`2` discriminant `-4p`. -/
+theorem conductor_two_form_class_number_three
+    (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
+    (hp : Nat.Prime p) (hp8 : p % 8 = 3)
+    (hclass : classNumberQsqrtd (-(p : ℤ)) = 1) :
+    HasConductorTwoFormClassNumberThreeData p := by
+  -- Alternative routes for this bridge:
+  -- * prove Cox's order class-number formula via Picard groups of quadratic orders;
+  -- * build the conductor-`2` Picard group directly and avoid reduced-form enumeration;
+  -- * follow Stark's no-Weber variant, replacing this downstream input entirely.
+  sorry
+
 /-- The finite Cox-Heegner table matching positive inert Heegner primes with
 the corresponding Weber gamma values. -/
 def heegnerGammaPrimePairs : Finset (ℤ × ℤ) :=
@@ -76,7 +146,8 @@ theorem conductor_two_class_number_three
     (hp : Nat.Prime p) (hp8 : p % 8 = 3)
     (hclass : classNumberQsqrtd (-(p : ℤ)) = 1) :
     HasRingClassNumberThreeAtConductorTwo p := by
-  sorry
+  exact hasRingClassNumberThreeAtConductorTwo_of_forms
+    (conductor_two_form_class_number_three p hp hp8 hclass)
 
 /-- Algebraic data extracted from the Weber/CM construction in the inert-prime
 Baker-Heegner-Stark core. -/
