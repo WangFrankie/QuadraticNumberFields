@@ -44,6 +44,8 @@ import BinaryQuadraticForms.Core.Basic
 import BinaryQuadraticForms.Core.Action
 import BinaryQuadraticForms.Core.Class
 import BinaryQuadraticForms.Core.QuadraticFormBridge
+import BinaryQuadraticForms.Core.Enumeration
+import BinaryQuadraticForms.Core.Reduction
 import QuadraticNumberFields.ClassNumber
 import QuadraticNumberFields.Examples.SqrtNeg5.Ideals
 import QuadraticNumberFields.Examples.SqrtNeg5.RamificationInertia
