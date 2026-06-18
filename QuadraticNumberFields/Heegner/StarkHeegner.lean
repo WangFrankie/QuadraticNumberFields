@@ -60,40 +60,104 @@ theorem classNumber_eq_one_imp_mem_heegnerSet_of_mod_eight_eq_one
   rw [hd_eq]
   simp [heegnerSet]
 
+/-- **Baker-Heegner-Stark inert prime core.** This is the genuinely deep
+remaining input after the elementary ideal-theoretic reductions and the
+genus-theory sieve: for the inert-at-`2` prime family `d = -p`,
+`p ≡ 3 (mod 8)`, class number one forces `d` to be a Heegner number.
+
+Equivalently, this is the Heegner/Baker/Stark step that eliminates all
+`p ≡ 3 (mod 8)` except `p = 3, 11, 19, 43, 67, 163`. -/
+theorem baker_heegner_stark_inert_prime_core
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : d < 0)
+    (p : ℕ) (hp : Nat.Prime p) (hp8 : p % 8 = 3) (hdp : d = -(p : ℤ))
+    (h : NumberField.classNumber (Qsqrtd (d : ℚ)) = 1) :
+    d ∈ heegnerSet := by
+  sorry
+
 /-- **Baker-Heegner-Stark prime-family step.** After the genus-theory sieve has
 reduced the class-number-one problem to `d = -1`, `d = -2`, or `d = -p` with
-`p ≡ 3 (mod 4)` prime, the deep Heegner/Baker/Stark theorem says that the
-remaining class-number-one cases are exactly the Heegner numbers.
-
-This is the genuinely deep step: it eliminates the infinite prime family
-`d = -p`, leaving only `p = 3, 7, 11, 19, 43, 67, 163`. -/
+`p ≡ 3 (mod 4)` prime, the only deep input needed is the inert prime core
+`p ≡ 3 (mod 8)`.  The complementary case `p ≡ 7 (mod 8)` is the elementary
+split-at-`2` branch, which has already been handled ideal-theoretically. -/
 theorem classNumber_eq_one_imp_mem_heegnerSet_of_discriminant_prime_shape
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : d < 0)
     (hshape :
       d = -1 ∨ d = -2 ∨ ∃ p : ℕ, Nat.Prime p ∧ p % 4 = 3 ∧ d = -(p : ℤ))
     (h : NumberField.classNumber (Qsqrtd (d : ℚ)) = 1) :
     d ∈ heegnerSet := by
-  sorry
+  rcases hshape with rfl | rfl | ⟨p, hp, hp4, hdp⟩
+  · simp [heegnerSet]
+  · simp [heegnerSet]
+  · have hp8_cases : p % 8 = 3 ∨ p % 8 = 7 := by omega
+    rcases hp8_cases with hp8 | hp8
+    · exact baker_heegner_stark_inert_prime_core d hd p hp hp8 hdp h
+    · have hd8 : d % 8 = 1 := by
+        subst hdp
+        omega
+      exact classNumber_eq_one_imp_mem_heegnerSet_of_mod_eight_eq_one d hd hd8 h
+
+/-- **Genus-sieved inert half-integral branch of Baker-Heegner-Stark.** In the
+`d % 8 = 5` branch, the genus-theory sieve reduces class number one to
+`d = -p` with `p ≡ 3 (mod 8)`, so the only remaining input is
+`baker_heegner_stark_inert_prime_core`. -/
+theorem classNumber_eq_one_imp_mem_heegnerSet_of_mod_eight_eq_five
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : d < 0) (hd8 : d % 8 = 5)
+    (hgenus : ClassGroup.genusFormula d)
+    (h : NumberField.classNumber (Qsqrtd (d : ℚ)) = 1) :
+    d ∈ heegnerSet := by
+  rcases ClassGroup.classNumber_eq_one_imp_discriminant_prime_shape d hd hgenus h with
+    hneg1 | hneg2 | ⟨p, hp, _hp4, hdp⟩
+  · subst hneg1
+    norm_num at hd8
+  · subst hneg2
+    norm_num at hd8
+  · have hp8 : p % 8 = 3 := by
+      subst hdp
+      omega
+    exact baker_heegner_stark_inert_prime_core d hd p hp hp8 hdp h
+
+/-- **Baker-Heegner-Stark forward direction with genus theory as an explicit
+input.** The elementary ideal-theoretic branches are closed directly, and the
+inert half-integral branch is routed through the genus sieve and the inert
+prime core. -/
+theorem classNumber_eq_one_imp_mem_heegnerSet_of_genusFormula
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : d < 0)
+    (hgenus : ClassGroup.genusFormula d)
+    (h : NumberField.classNumber (Qsqrtd (d : ℚ)) = 1) :
+    d ∈ heegnerSet := by
+  by_cases hd4 : d % 4 = 1
+  · have hd8_cases : d % 8 = 1 ∨ d % 8 = 5 := by omega
+    rcases hd8_cases with hd8 | hd8
+    · exact classNumber_eq_one_imp_mem_heegnerSet_of_mod_eight_eq_one d hd hd8 h
+    · exact classNumber_eq_one_imp_mem_heegnerSet_of_mod_eight_eq_five d hd hd8 hgenus h
+  · exact classNumber_eq_one_imp_mem_heegnerSet_of_mod_four_ne_one d hd hd4 h
+
+/-- **Baker–Heegner–Stark theorem with genus theory as an explicit input.** This
+version isolates the remaining analytic/deep input to
+`baker_heegner_stark_inert_prime_core`; the algebraic genus-theory formula is
+assumed through `hgenus`. -/
+theorem classNumber_eq_one_iff_mem_heegnerSet_of_genusFormula
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : d < 0)
+    (hgenus : ClassGroup.genusFormula d) :
+    NumberField.classNumber (Qsqrtd (d : ℚ)) = 1 ↔ d ∈ heegnerSet := by
+  constructor
+  · exact classNumber_eq_one_imp_mem_heegnerSet_of_genusFormula d hd hgenus
+  · exact fun h => classNumber_eq_one_of_mem_heegnerSet h
 
 /-- **Baker–Heegner–Stark theorem.** A negative squarefree integer `d` gives an
 imaginary quadratic field `ℚ(√d)` of class number one if and only if `d` is one
 of the nine Heegner numbers `-1, -2, -3, -7, -11, -19, -43, -67, -163`.
 
 The reverse implication is `classNumber_eq_one_of_mem_heegnerSet`. The forward
-implication (completeness of the list) is the deep theorem of Heegner, Baker,
-and Stark and is not yet formalised. -/
+implication now factors through the explicit-genus wrapper
+`classNumber_eq_one_iff_mem_heegnerSet_of_genusFormula`; the remaining WIP
+inputs are the genus formula and the inert-prime Baker-Heegner-Stark core. -/
 theorem classNumber_eq_one_iff_mem_heegnerSet
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : d < 0) :
     NumberField.classNumber (Qsqrtd (d : ℚ)) = 1 ↔ d ∈ heegnerSet := by
-  constructor
-  · intro h
-    by_cases hd4 : d % 4 = 1
-    · have hd8_cases : d % 8 = 1 ∨ d % 8 = 5 := by omega
-      rcases hd8_cases with hd8 | hd8
-      · exact classNumber_eq_one_imp_mem_heegnerSet_of_mod_eight_eq_one d hd hd8 h
-      · sorry
-    · exact classNumber_eq_one_imp_mem_heegnerSet_of_mod_four_ne_one d hd hd4 h
-  · exact fun h => classNumber_eq_one_of_mem_heegnerSet h
+  have hgenus : ClassGroup.genusFormula d := by
+    sorry
+  exact classNumber_eq_one_iff_mem_heegnerSet_of_genusFormula d hd hgenus
 
 end Heegner
 end QuadraticNumberFields
