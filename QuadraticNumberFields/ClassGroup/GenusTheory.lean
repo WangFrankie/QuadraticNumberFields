@@ -24,7 +24,7 @@ discriminant to have only one prime-discriminant factor.
 namespace QuadraticNumberFields
 namespace ClassGroup
 
-open scoped NumberField
+open scoped NumberField nonZeroDivisors
 
 attribute [-instance] DivisionRing.toRatAlgebra
 
@@ -198,6 +198,92 @@ noncomputable def genusCharacterRawOnPrimeToNormIdeals
     exact genusCharacterRaw_mul d p (I : Ideal (𝓞 (Qsqrtd (d : ℚ))))
       (J : Ideal (𝓞 (Qsqrtd (d : ℚ))))
 
+/-- If `p` does not divide the absolute norm of an ideal, then the ideal is nonzero. -/
+theorem mem_nonZeroDivisors_of_not_dvd_absNorm
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (p : ℕ) [Fact p.Prime]
+    {I : Ideal (𝓞 (Qsqrtd (d : ℚ)))}
+    (hI : ¬ (p : ℤ) ∣ (Ideal.absNorm I : ℤ)) :
+    I ∈ (Ideal (𝓞 (Qsqrtd (d : ℚ))))⁰ := by
+  rw [mem_nonZeroDivisors_iff_ne_zero]
+  intro hzero
+  exact hI (by simp [hzero, Ideal.absNorm_bot])
+
+/-- The forgetful monoid hom from ideals with norm prime to `p` to nonzero ideals. -/
+def primeToNormIdealNonzeroMonoidHom
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (p : ℕ) [Fact p.Prime] :
+    idealsPrimeToNormSubmonoid d p →* (Ideal (𝓞 (Qsqrtd (d : ℚ))))⁰ where
+  toFun I := ⟨I, mem_nonZeroDivisors_of_not_dvd_absNorm d p I.2⟩
+  map_one' := by
+    ext
+    rfl
+  map_mul' I J := by
+    ext
+    rfl
+
+/-- The class-group map restricted to ideals whose absolute norm is prime to `p`. -/
+noncomputable def mk0OnPrimeToNormIdeals
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (p : ℕ) [Fact p.Prime] :
+    idealsPrimeToNormSubmonoid d p →* ClassGroup (𝓞 (Qsqrtd (d : ℚ))) :=
+  ClassGroup.mk0.comp (primeToNormIdealNonzeroMonoidHom d p)
+
+/-- The raw genus character descends along the restricted `mk0` map if it is constant
+on the fibers of `mk0OnPrimeToNormIdeals`. -/
+def genusCharacterRawDescendsOnPrimeToNormIdeals
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (p : ℕ) [Fact p.Prime] : Prop :=
+  ∀ I J : idealsPrimeToNormSubmonoid d p,
+    mk0OnPrimeToNormIdeals d p I = mk0OnPrimeToNormIdeals d p J →
+      genusCharacterRawUnit d p I = genusCharacterRawUnit d p J
+
+/-- Principal-multiplier data sufficient for the raw genus character to descend along
+`mk0OnPrimeToNormIdeals`: whenever two prime-to-`p` integral ideals have the same
+class, they can be related by principal multipliers whose norms are also prime to `p`. -/
+def HasPrimeToNormPrincipalMultiplierData
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (p : ℕ) [Fact p.Prime] : Prop :=
+  ∀ I J : idealsPrimeToNormSubmonoid d p,
+    mk0OnPrimeToNormIdeals d p I = mk0OnPrimeToNormIdeals d p J →
+      ∃ x y : 𝓞 (Qsqrtd (d : ℚ)),
+        ¬ (p : ℤ) ∣ (Ideal.absNorm (Ideal.span {x}) : ℤ) ∧
+        ¬ (p : ℤ) ∣ (Ideal.absNorm (Ideal.span {y}) : ℤ) ∧
+        Ideal.span {x} * (I : Ideal (𝓞 (Qsqrtd (d : ℚ)))) =
+          Ideal.span {y} * (J : Ideal (𝓞 (Qsqrtd (d : ℚ))))
+
+/-- If the restricted `mk0` map is surjective and the raw genus character is constant
+on its fibers, then the raw genus character induces a genuine class-group character. -/
+noncomputable def genusCharacterOfPrimeToNormDescent
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (p : ℕ) [Fact p.Prime]
+    (hsurj : Function.Surjective (mk0OnPrimeToNormIdeals d p))
+    (hdesc : genusCharacterRawDescendsOnPrimeToNormIdeals d p) :
+    ClassGroup (𝓞 (Qsqrtd (d : ℚ))) →* ℤˣ where
+  toFun C := genusCharacterRawUnit d p (Classical.choose (hsurj C))
+  map_one' := by
+    have hmk : mk0OnPrimeToNormIdeals d p (Classical.choose (hsurj 1)) =
+        mk0OnPrimeToNormIdeals d p 1 := by
+      rw [Classical.choose_spec (hsurj 1)]
+      simp
+    calc
+      genusCharacterRawUnit d p (Classical.choose (hsurj 1)) =
+          genusCharacterRawUnit d p 1 :=
+        hdesc (Classical.choose (hsurj 1)) 1 hmk
+      _ = 1 := by
+        exact map_one (genusCharacterRawOnPrimeToNormIdeals d p)
+  map_mul' C D := by
+    have hmk : mk0OnPrimeToNormIdeals d p (Classical.choose (hsurj (C * D))) =
+        mk0OnPrimeToNormIdeals d p
+          (Classical.choose (hsurj C) * Classical.choose (hsurj D)) := by
+      rw [Classical.choose_spec (hsurj (C * D))]
+      rw [map_mul]
+      rw [Classical.choose_spec (hsurj C), Classical.choose_spec (hsurj D)]
+    calc
+      genusCharacterRawUnit d p (Classical.choose (hsurj (C * D))) =
+          genusCharacterRawUnit d p
+            (Classical.choose (hsurj C) * Classical.choose (hsurj D)) :=
+        hdesc (Classical.choose (hsurj (C * D)))
+          (Classical.choose (hsurj C) * Classical.choose (hsurj D)) hmk
+      _ = genusCharacterRawUnit d p (Classical.choose (hsurj C)) *
+          genusCharacterRawUnit d p (Classical.choose (hsurj D)) := by
+        exact map_mul (genusCharacterRawOnPrimeToNormIdeals d p)
+          (Classical.choose (hsurj C)) (Classical.choose (hsurj D))
+
 /-- From `p ∈ oddPrimeDiscriminantDivisors d` (so `p` is an odd prime), deduce
 `(p : ℤ) ∣ d`. For `d % 4 = 1`, `discrFormula d = d` directly. For `d % 4 ≠ 1`,
 `discrFormula d = 4*d`; since `p` is an odd prime, `p ∤ 4`, so `p ∣ d`. -/
@@ -370,6 +456,32 @@ theorem genusCharacterRaw_eq_of_span_mul_eq_span_mul_of_norm_not_dvd_of_neg
     genusCharacterRaw d p I = genusCharacterRaw d p (Ideal.span {x} * I) := hleft.symm
     _ = genusCharacterRaw d p (Ideal.span {y} * J) := by rw [hxy]
     _ = genusCharacterRaw d p J := hright
+
+/-- Prime-to-`p` principal-multiplier data is enough to make the raw genus character
+constant on the fibers of the restricted class-group map. -/
+theorem genusCharacterRawDescendsOnPrimeToNormIdeals_of_principalMultiplierData
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (p : ℕ) [Fact p.Prime]
+    (hd_neg : d < 0) (hp_disc : p ∈ oddPrimeDiscriminantDivisors d)
+    (hdata : HasPrimeToNormPrincipalMultiplierData d p) :
+    genusCharacterRawDescendsOnPrimeToNormIdeals d p := by
+  intro I J hmk
+  obtain ⟨x, y, hx, hy, hxy⟩ := hdata I J hmk
+  ext
+  exact genusCharacterRaw_eq_of_span_mul_eq_span_mul_of_norm_not_dvd_of_neg d p hd_neg hp_disc
+    hx hy hxy
+
+/-- A genuine genus character on the class group, conditional on the two remaining
+ideal-avoidance inputs: every class has a representative whose norm is prime to `p`,
+and equal classes have prime-to-`p` principal multipliers. -/
+noncomputable def genusCharacterOfPrincipalMultiplierData
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (p : ℕ) [Fact p.Prime]
+    (hd_neg : d < 0) (hp_disc : p ∈ oddPrimeDiscriminantDivisors d)
+    (hsurj : Function.Surjective (mk0OnPrimeToNormIdeals d p))
+    (hdata : HasPrimeToNormPrincipalMultiplierData d p) :
+    ClassGroup (𝓞 (Qsqrtd (d : ℚ))) →* ℤˣ :=
+  genusCharacterOfPrimeToNormDescent d p hsurj
+    (genusCharacterRawDescendsOnPrimeToNormIdeals_of_principalMultiplierData d p hd_neg hp_disc
+      hdata)
 
 /-! ## Class-number-one sieve (continued) -/
 
