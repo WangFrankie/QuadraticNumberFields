@@ -59,6 +59,29 @@ private theorem eq_neg_one_or_eq_neg_two_of_zsqrtd_norm_eq_two
     have hnegd_le : -d ≤ 2 := by nlinarith [sq_nonneg z.re, him_sq_pos]
     omega
 
+private theorem eq_neg_seven_of_zOnePlusSqrtOverTwo_norm_eq_two
+    {k d : ℤ} (hdk : d = 1 + 4 * k) (hdneg : d < 0) (hd8 : d % 8 = 1)
+    {z : ZOnePlusSqrtdOverTwo k} (hnorm : QuadraticAlgebra.norm z = 2) :
+    d = -7 := by
+  have hcoord : z.re ^ 2 + z.re * z.im - k * z.im ^ 2 = 2 := by
+    cases z
+    simpa [ZOnePlusSqrtdOverTwo.norm_mk] using hnorm
+  have hquad : (2 * z.re + z.im) ^ 2 - d * z.im ^ 2 = 8 := by
+    rw [hdk]
+    nlinarith
+  by_cases him : z.im = 0
+  · have hre_sq : z.re ^ 2 = 2 := by
+      rw [him] at hcoord
+      simpa using hcoord
+    exact False.elim (int_sq_ne_two z.re hre_sq)
+  · have him_sq_pos : 0 < z.im ^ 2 := sq_pos_of_ne_zero him
+    have him_sq_ge_one : 1 ≤ z.im ^ 2 := by omega
+    have hnegd_pos : 0 < -d := by omega
+    have hnegd_le_prod : -d ≤ (-d) * z.im ^ 2 := by nlinarith
+    have hprod_le : (-d) * z.im ^ 2 ≤ 8 := by nlinarith [sq_nonneg (2 * z.re + z.im)]
+    have hnegd_le : -d ≤ 8 := le_trans hnegd_le_prod hprod_le
+    omega
+
 /-- In the `d % 4 ≠ 1` branch of an imaginary quadratic field, an algebraic integer
 of norm absolute value `2` can exist only for `d = -1` or `d = -2`. -/
 theorem eq_neg_one_or_eq_neg_two_of_exists_absNorm_eq_two
@@ -77,6 +100,29 @@ theorem eq_neg_one_or_eq_neg_two_of_exists_absNorm_eq_two
     rw [← RingOfIntegers.algebraNorm_eq_zsqrtd_norm_of_mod_four_ne_one d hd4 α]
     exact hnorm_eq_two
   exact eq_neg_one_or_eq_neg_two_of_zsqrtd_norm_eq_two hdneg hz_norm
+
+/-- In the `d % 8 = 1` split half-integral branch, an algebraic integer of norm
+absolute value `2` can exist only for `d = -7`. -/
+theorem eq_neg_seven_of_exists_absNorm_eq_two_of_mod_eight_eq_one
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hdneg : d < 0) (hd8 : d % 8 = 1)
+    (h : ∃ α : 𝓞 (Qsqrtd (d : ℚ)), (Algebra.norm ℤ α).natAbs = 2) :
+    d = -7 := by
+  rcases h with ⟨α, hα⟩
+  have hnorm_nonneg : 0 ≤ Algebra.norm ℤ α :=
+    RingOfIntegers.algebraNorm_nonneg_of_neg d hdneg α
+  have hnorm_eq_two : Algebra.norm ℤ α = 2 := by
+    have hnat := Int.natAbs_of_nonneg hnorm_nonneg
+    omega
+  let k : ℤ := d / 4
+  have hdk : d = 1 + 4 * k := by
+    dsimp [k]
+    omega
+  have hz_norm :
+      QuadraticAlgebra.norm
+        (RingOfIntegers.ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_eq d k hdk α) = 2 := by
+    rw [← RingOfIntegers.algebraNorm_eq_zOnePlusSqrtOverTwo_norm_of_eq d k hdk α]
+    exact hnorm_eq_two
+  exact eq_neg_seven_of_zOnePlusSqrtOverTwo_norm_eq_two hdk hdneg hd8 hz_norm
 
 /-- In the `d % 4 ≠ 1` branch, class number one forces a norm-`2` algebraic
 integer.  The proof uses only ideal theory: `(2)` ramifies, so its lift is
