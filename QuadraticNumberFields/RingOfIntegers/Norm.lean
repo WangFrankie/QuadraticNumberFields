@@ -187,6 +187,21 @@ theorem algebraNorm_eq_zsqrtd_norm_of_mod_four_ne_one
   rw [← ringOfIntegers_equiv_zsqrtd_of_mod_four_ne_one_apply d hd4 α]
   exact norm_zsqrtd_toQsqrtd d _
 
+/-- On the `d = 1 + 4 * k` branch, the integer norm of an algebraic integer agrees
+with the explicit `ZOnePlusSqrtdOverTwo` norm after transporting to
+`ℤ[(1+√d)/2]`. -/
+theorem algebraNorm_eq_zOnePlusSqrtOverTwo_norm_of_eq
+    [NumberField (Qsqrtd (d : ℚ))] (k : ℤ) (hk : d = 1 + 4 * k)
+    (α : 𝓞 (Qsqrtd (d : ℚ))) :
+    Algebra.norm ℤ α =
+      QuadraticAlgebra.norm ((ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_eq d k hk) α) := by
+  subst hk
+  apply Int.cast_injective (α := ℚ)
+  rw [Algebra.coe_norm_int (K := Qsqrtd (((1 + 4 * k : ℤ) : ℚ))),
+    Qsqrtd.algebraNorm_ratAlgebra_eq_qsqrtdNorm]
+  rw [← ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_eq_apply k α]
+  exact norm_zOnePlusSqrtOverTwo_toQsqrtd k _
+
 end SquarefreeIntegerParameter
 
 /-! ## Absolute norms of principal integer ideals -/
@@ -194,6 +209,38 @@ end SquarefreeIntegerParameter
 section SquarefreeIntegerParameter
 
 variable (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+
+/-- A principal ideal in `𝓞(Q(√d))` has absolute norm equal to the absolute value
+of the algebra norm of a principal generator. -/
+theorem absNorm_eq_natAbs_algebraNorm_of_isPrincipal
+    [NumberField (Qsqrtd (d : ℚ))]
+    {I : Ideal (𝓞 (Qsqrtd (d : ℚ)))} (hI : I.IsPrincipal) :
+    ∃ α : 𝓞 (Qsqrtd (d : ℚ)),
+      I = Ideal.span ({α} : Set (𝓞 (Qsqrtd (d : ℚ)))) ∧
+        Ideal.absNorm I = (Algebra.norm ℤ α).natAbs := by
+  letI : I.IsPrincipal := hI
+  refine ⟨Submodule.IsPrincipal.generator I, ?_, ?_⟩
+  · exact (Ideal.span_singleton_generator I).symm
+  · exact (congrArg Ideal.absNorm (Ideal.span_singleton_generator I).symm).trans
+      (Ideal.absNorm_span_singleton _)
+
+/-- If `(p : ℤ)` does not divide the absolute norm of a principal ideal, then one can
+choose a principal generator whose algebra norm is also not divisible by `(p : ℤ)`. -/
+theorem exists_generator_norm_not_dvd_of_isPrincipal
+    [NumberField (Qsqrtd (d : ℚ))] {p : ℕ}
+    {I : Ideal (𝓞 (Qsqrtd (d : ℚ)))} (hI : I.IsPrincipal)
+    (hp_norm : ¬ (p : ℤ) ∣ (Ideal.absNorm I : ℤ)) :
+    ∃ α : 𝓞 (Qsqrtd (d : ℚ)),
+      I = Ideal.span ({α} : Set (𝓞 (Qsqrtd (d : ℚ)))) ∧
+        ¬ (p : ℤ) ∣ Algebra.norm ℤ α := by
+  obtain ⟨α, hspan, hnorm⟩ :=
+    absNorm_eq_natAbs_algebraNorm_of_isPrincipal (d := d) hI
+  refine ⟨α, hspan, ?_⟩
+  intro hdiv
+  have hnat : p ∣ (Algebra.norm ℤ α).natAbs := Int.natCast_dvd.mp hdiv
+  apply hp_norm
+  rw [hnorm]
+  exact_mod_cast hnat
 
 /-- In the quadratic ring of integers `𝓞(Q(√d))`, the absolute norm of the
 principal ideal `(n)` is `|n²|`. -/
