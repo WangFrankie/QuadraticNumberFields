@@ -5,6 +5,7 @@ Authors: Frankie Wang
 -/
 import QuadraticNumberFields.ClassGroup.GenusTheory
 import QuadraticNumberFields.Heegner.ClassNumberOne
+import QuadraticNumberFields.Heegner.Framework
 import QuadraticNumberFields.Heegner.IdealReductions
 
 /-!
@@ -15,13 +16,11 @@ Stark–Heegner theorem): an imaginary quadratic field `ℚ(√d)` (with `d < 0`
 squarefree) has class number one if and only if `d` is one of the nine
 Heegner numbers `-1, -2, -3, -7, -11, -19, -43, -67, -163`.
 
-The easy direction — each Heegner number gives class number one — is fully
-proved in `QuadraticNumberFields.Heegner.ClassNumberOne` via Minkowski bounds
-and inertness of small primes. The deep direction — there are **no further**
-imaginary quadratic fields of class number one — was conjectured by Gauss and
-proved by Heegner (1952), Baker (1966), and Stark (1967); its formalisation
-(e.g. via the theory of modular functions or linear forms in logarithms) is far
-beyond the current scope and is recorded here as a `sorry`.
+The easy direction — each Heegner number gives class number one — is proved in
+`QuadraticNumberFields.Heegner.ClassNumberOne` via Minkowski bounds and
+inertness of small primes. The forward direction is assembled from named
+interfaces: elementary ideal-theoretic reductions, a genus-theory formula, and
+the Cox-Weber inert-prime core in `QuadraticNumberFields.Heegner.Framework`.
 
 ## Reference
 
@@ -59,20 +58,6 @@ theorem classNumber_eq_one_imp_mem_heegnerSet_of_mod_eight_eq_one
     eq_neg_seven_of_classNumber_eq_one_of_mod_eight_eq_one d hd hd8 h
   rw [hd_eq]
   simp [heegnerSet]
-
-/-- **Baker-Heegner-Stark inert prime core.** This is the genuinely deep
-remaining input after the elementary ideal-theoretic reductions and the
-genus-theory sieve: for the inert-at-`2` prime family `d = -p`,
-`p ≡ 3 (mod 8)`, class number one forces `d` to be a Heegner number.
-
-Equivalently, this is the Heegner/Baker/Stark step that eliminates all
-`p ≡ 3 (mod 8)` except `p = 3, 11, 19, 43, 67, 163`. -/
-theorem baker_heegner_stark_inert_prime_core
-    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : d < 0)
-    (p : ℕ) (hp : Nat.Prime p) (hp8 : p % 8 = 3) (hdp : d = -(p : ℤ))
-    (h : NumberField.classNumber (Qsqrtd (d : ℚ)) = 1) :
-    d ∈ heegnerSet := by
-  sorry
 
 /-- **Baker-Heegner-Stark prime-family step.** After the genus-theory sieve has
 reduced the class-number-one problem to `d = -1`, `d = -2`, or `d = -p` with
@@ -144,6 +129,14 @@ theorem classNumber_eq_one_iff_mem_heegnerSet_of_genusFormula
   · exact classNumber_eq_one_imp_mem_heegnerSet_of_genusFormula d hd hgenus
   · exact fun h => classNumber_eq_one_of_mem_heegnerSet h
 
+/-- **Genus-theory input for Baker-Heegner-Stark.** The full genus formula for
+negative squarefree quadratic fields is kept as a named algebraic-number-theory
+input, separate from the final assembly theorem. -/
+theorem genusFormula_of_negative_squarefree
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : d < 0) :
+    ClassGroup.genusFormula d := by
+  sorry
+
 /-- **Baker–Heegner–Stark theorem.** A negative squarefree integer `d` gives an
 imaginary quadratic field `ℚ(√d)` of class number one if and only if `d` is one
 of the nine Heegner numbers `-1, -2, -3, -7, -11, -19, -43, -67, -163`.
@@ -155,9 +148,8 @@ inputs are the genus formula and the inert-prime Baker-Heegner-Stark core. -/
 theorem classNumber_eq_one_iff_mem_heegnerSet
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : d < 0) :
     NumberField.classNumber (Qsqrtd (d : ℚ)) = 1 ↔ d ∈ heegnerSet := by
-  have hgenus : ClassGroup.genusFormula d := by
-    sorry
-  exact classNumber_eq_one_iff_mem_heegnerSet_of_genusFormula d hd hgenus
+  exact classNumber_eq_one_iff_mem_heegnerSet_of_genusFormula d hd
+    (genusFormula_of_negative_squarefree d hd)
 
 end Heegner
 end QuadraticNumberFields
