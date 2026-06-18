@@ -63,8 +63,8 @@ Current work in progress:
 * `Heegner.Diophantine`, `Heegner.WeberData.Core`,
   `Heegner.WeberData.FormsProvider`, `Heegner.Framework`, and
   `Heegner.StarkHeegner`: proof-framework layers for the Baker–Heegner–Stark
-  statement; the named genus, Weber/CM, Forms-provider, and Diophantine inputs
-  are still `sorry`.
+  statement; the core Weber data interface is sorry-free, while the named genus,
+  Forms-provider, and Diophantine inputs are still `sorry`.
 * `Families.*`, `ContinuedFraction.*`, and `ClassGroup.*`: research
   scaffolding for real quadratic class-number problems.
 

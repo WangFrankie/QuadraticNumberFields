@@ -22,6 +22,8 @@ binary quadratic forms.
   primitive reduced forms of discriminant `-4p` in the `p ≠ 3` inert branch.
 * `hasRingClassNumberThreeAtConductorTwo_of_forms`: the bridge from the Forms
   provider to the core ring-class-number interface.
+* `formsInertPrimeWeberDataProvider`: the reduced-forms route packaged as the
+  core inert-prime provider interface.
 -/
 
 attribute [-instance] DivisionRing.toRatAlgebra
@@ -108,6 +110,41 @@ theorem conductor_two_class_number_three_of_forms
     HasRingClassNumberThreeAtConductorTwo p := by
   exact hasRingClassNumberThreeAtConductorTwo_of_forms
     (conductor_two_form_class_number_three p hp hp8 hp_ne_three hclass)
+
+/-- **Deep Weber/CM input from ring-class-number three, via the Forms provider.**
+The conductor-`2` ring-class-number-three datum supplies the refined Weber data:
+a concrete Heegner equation solution, the associated gamma value, and its
+finite-table association with `p`, in the non-exceptional inert branch `p ≠ 3`. -/
+theorem conductor_two_weber_data_of_ring_class_number_three_of_forms
+    (p : ℕ) (hp : Nat.Prime p) (hp8 : p % 8 = 3)
+    (hp_ne_three : p ≠ 3) (horder : HasRingClassNumberThreeAtConductorTwo p) :
+    HasConductorTwoClassNumberThreeWeberData p := by
+  sorry
+
+/-- The Forms provider turns conductor-`2` ring-class-number-three data into
+Stark-Heegner algebraic data. -/
+theorem exists_weber_data_of_conductor_two_class_number_three_of_forms
+    (p : ℕ) (hp : Nat.Prime p) (hp8 : p % 8 = 3)
+    (hp_ne_three : p ≠ 3)
+    (horder : HasRingClassNumberThreeAtConductorTwo p) :
+    Nonempty (StarkHeegnerAlgebraicData p) := by
+  exact exists_weber_data_of_conductor_two_weber_data
+    (conductor_two_weber_data_of_ring_class_number_three_of_forms p hp hp8 hp_ne_three horder)
+
+/-- The reduced-forms route supplies Weber/CM algebraic data from class number
+one in the non-exceptional inert branch. -/
+theorem exists_weber_data_of_classNumber_one_inert_prime_of_forms
+    (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
+    (hp : Nat.Prime p) (hp8 : p % 8 = 3) (hp_ne_three : p ≠ 3)
+    (hclass : classNumberQsqrtd (-(p : ℤ)) = 1) :
+    Nonempty (StarkHeegnerAlgebraicData p) := by
+  exact exists_weber_data_of_conductor_two_class_number_three_of_forms p hp hp8 hp_ne_three
+    (conductor_two_class_number_three_of_forms p hp hp8 hp_ne_three hclass)
+
+/-- The reduced-forms route packaged as the core provider interface. -/
+def formsInertPrimeWeberDataProvider : InertPrimeWeberDataProvider where
+  exists_weber_data p _ _ hp hp8 hp_ne_three hclass :=
+    exists_weber_data_of_classNumber_one_inert_prime_of_forms p hp hp8 hp_ne_three hclass
 
 end Heegner
 end QuadraticNumberFields

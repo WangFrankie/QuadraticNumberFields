@@ -10,9 +10,9 @@ import QuadraticNumberFields.Heegner.WeberData.Core
 # Framework Layer for the Baker-Heegner-Stark Proof
 
 This file assembles the inert-prime branch of the Baker-Heegner-Stark theorem
-from named interfaces: Weber/CM data, the integer-equation solution theorem, and
-the finite gamma-to-prime lookup.  The final statement file imports this module
-instead of carrying the inert-prime proof skeleton inline.
+from named interfaces: a Weber/CM provider, the integer-equation solution
+theorem, and the finite gamma-to-prime lookup.  The final statement file imports
+this module instead of carrying the inert-prime proof skeleton inline.
 -/
 
 attribute [-instance] DivisionRing.toRatAlgebra
@@ -59,6 +59,7 @@ forces `d` to be a Heegner number.
 The proof skeleton handles `p = 3` directly, and otherwise factors through the
 named Weber/CM data interface and the finite Diophantine/gamma lookup. -/
 theorem baker_heegner_stark_inert_prime_core
+    (hprovider : InertPrimeWeberDataProvider)
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : d < 0)
     (p : ℕ) (hp : Nat.Prime p) (hp8 : p % 8 = 3) (hdp : d = -(p : ℤ))
     (h : NumberField.classNumber (Qsqrtd (d : ℚ)) = 1) :
@@ -66,7 +67,8 @@ theorem baker_heegner_stark_inert_prime_core
   subst d
   by_cases hp_ne_three : p ≠ 3
   · change classNumberQsqrtd (-(p : ℤ)) = 1 at h
-    rcases exists_weber_data_of_classNumber_one_inert_prime p hp hp8 hp_ne_three h with ⟨hdata⟩
+    rcases exists_weber_data_of_classNumber_one_inert_prime
+      hprovider p hp hp8 hp_ne_three h with ⟨hdata⟩
     exact inert_prime_core_of_weber_data (-(p : ℤ)) p hp hp8 rfl
       hdata
   · have hp_eq_three : p = 3 := by omega

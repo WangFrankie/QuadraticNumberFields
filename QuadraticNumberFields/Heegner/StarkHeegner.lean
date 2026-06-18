@@ -81,6 +81,7 @@ reduced the class-number-one problem to `d = -1`, `d = -2`, or `d = -p` with
 `p ≡ 3 (mod 8)`.  The complementary case `p ≡ 7 (mod 8)` is the elementary
 split-at-`2` branch, which has already been handled ideal-theoretically. -/
 theorem classNumber_eq_one_imp_mem_heegnerSet_of_discriminant_prime_shape
+    (hprovider : InertPrimeWeberDataProvider)
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : d < 0)
     (hshape :
       d = -1 ∨ d = -2 ∨ ∃ p : ℕ, Nat.Prime p ∧ p % 4 = 3 ∧ d = -(p : ℤ))
@@ -91,7 +92,7 @@ theorem classNumber_eq_one_imp_mem_heegnerSet_of_discriminant_prime_shape
   · simp [heegnerSet]
   · have hp8_cases : p % 8 = 3 ∨ p % 8 = 7 := by omega
     rcases hp8_cases with hp8 | hp8
-    · exact baker_heegner_stark_inert_prime_core d hd p hp hp8 hdp h
+    · exact baker_heegner_stark_inert_prime_core hprovider d hd p hp hp8 hdp h
     · have hd8 : d % 8 = 1 := by
         subst hdp
         omega
@@ -102,6 +103,7 @@ theorem classNumber_eq_one_imp_mem_heegnerSet_of_discriminant_prime_shape
 `d = -p` with `p ≡ 3 (mod 8)`, so the only remaining input is
 `baker_heegner_stark_inert_prime_core`. -/
 theorem classNumber_eq_one_imp_mem_heegnerSet_of_mod_eight_eq_five
+    (hprovider : InertPrimeWeberDataProvider)
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : d < 0) (hd8 : d % 8 = 5)
     (hgenus : ClassGroup.genusFormula d)
     (h : NumberField.classNumber (Qsqrtd (d : ℚ)) = 1) :
@@ -117,13 +119,14 @@ theorem classNumber_eq_one_imp_mem_heegnerSet_of_mod_eight_eq_five
   · have hp8 : p % 8 = 3 := by
       subst hdp
       omega
-    exact baker_heegner_stark_inert_prime_core d hd p hp hp8 hdp h
+    exact baker_heegner_stark_inert_prime_core hprovider d hd p hp hp8 hdp h
 
 /-- **Baker-Heegner-Stark forward direction with genus theory as an explicit
 input.** The elementary ideal-theoretic branches are closed directly, and the
 inert half-integral branch is routed through the genus sieve and the inert
 prime core. -/
 theorem classNumber_eq_one_imp_mem_heegnerSet_of_genusFormula
+    (hprovider : InertPrimeWeberDataProvider)
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : d < 0)
     (hgenus : ClassGroup.genusFormula d)
     (h : NumberField.classNumber (Qsqrtd (d : ℚ)) = 1) :
@@ -132,19 +135,21 @@ theorem classNumber_eq_one_imp_mem_heegnerSet_of_genusFormula
   · have hd8_cases : d % 8 = 1 ∨ d % 8 = 5 := by omega
     rcases hd8_cases with hd8 | hd8
     · exact classNumber_eq_one_imp_mem_heegnerSet_of_mod_eight_eq_one d hd hd8 h
-    · exact classNumber_eq_one_imp_mem_heegnerSet_of_mod_eight_eq_five d hd hd8 hgenus h
+    · exact classNumber_eq_one_imp_mem_heegnerSet_of_mod_eight_eq_five
+        hprovider d hd hd8 hgenus h
   · exact classNumber_eq_one_imp_mem_heegnerSet_of_mod_four_ne_one d hd hd4 h
 
-/-- **Baker–Heegner–Stark theorem with genus theory as an explicit input.** This
-version isolates the remaining analytic/deep input to
-`baker_heegner_stark_inert_prime_core`; the algebraic genus-theory formula is
-assumed through `hgenus`. -/
+/-- **Baker–Heegner–Stark theorem with genus theory and inert-prime Weber/CM data
+as explicit inputs.** This version isolates the remaining analytic/deep input to
+`InertPrimeWeberDataProvider`; the algebraic genus-theory formula is assumed
+through `hgenus`. -/
 theorem classNumber_eq_one_iff_mem_heegnerSet_of_genusFormula
+    (hprovider : InertPrimeWeberDataProvider)
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : d < 0)
     (hgenus : ClassGroup.genusFormula d) :
     NumberField.classNumber (Qsqrtd (d : ℚ)) = 1 ↔ d ∈ heegnerSet := by
   constructor
-  · exact classNumber_eq_one_imp_mem_heegnerSet_of_genusFormula d hd hgenus
+  · exact classNumber_eq_one_imp_mem_heegnerSet_of_genusFormula hprovider d hd hgenus
   · exact fun h => classNumber_eq_one_of_mem_heegnerSet h
 
 /-- **Odd-discriminant genus formula from the existing genus-character
@@ -185,15 +190,16 @@ of the nine Heegner numbers `-1, -2, -3, -7, -11, -19, -43, -67, -163`.
 The reverse implication is `classNumber_eq_one_of_mem_heegnerSet`. The forward
 implication now factors through the explicit-genus wrapper
 `classNumber_eq_one_iff_mem_heegnerSet_of_genusFormula`; the remaining WIP
-inputs are the genus formula and the inert-prime Baker-Heegner-Stark core. -/
+inputs are the genus formula and an inert-prime Weber/CM provider. -/
 theorem classNumber_eq_one_iff_mem_heegnerSet
+    (hprovider : InertPrimeWeberDataProvider)
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : d < 0) :
     NumberField.classNumber (Qsqrtd (d : ℚ)) = 1 ↔ d ∈ heegnerSet := by
   -- TODO(interface): Keep the top-level theorem as a thin assembly layer.
   -- Do not import `WeberData.FormsProvider` here; reduced forms, Picard/order
   -- theory, and Stark/Baker alternatives should all feed the named inputs
   -- used by `classNumber_eq_one_iff_mem_heegnerSet_of_genusFormula`.
-  exact classNumber_eq_one_iff_mem_heegnerSet_of_genusFormula d hd
+  exact classNumber_eq_one_iff_mem_heegnerSet_of_genusFormula hprovider d hd
     (genusFormula_of_negative_squarefree d hd)
 
 end Heegner
