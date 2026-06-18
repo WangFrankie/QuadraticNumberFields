@@ -3,6 +3,7 @@ Copyright (c) 2026 Frankie Wang. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
+import QuadraticNumberFields.ClassGroup.GenusTheory
 import QuadraticNumberFields.Heegner.ClassNumberOne
 
 /-!
@@ -35,6 +36,21 @@ open scoped NumberField
 namespace QuadraticNumberFields
 namespace Heegner
 
+/-- **Baker-Heegner-Stark prime-family step.** After the genus-theory sieve has
+reduced the class-number-one problem to `d = -1`, `d = -2`, or `d = -p` with
+`p ≡ 3 (mod 4)` prime, the deep Heegner/Baker/Stark theorem says that the
+remaining class-number-one cases are exactly the Heegner numbers.
+
+This is the genuinely deep step: it eliminates the infinite prime family
+`d = -p`, leaving only `p = 3, 7, 11, 19, 43, 67, 163`. -/
+theorem classNumber_eq_one_imp_mem_heegnerSet_of_discriminant_prime_shape
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : d < 0)
+    (hshape :
+      d = -1 ∨ d = -2 ∨ ∃ p : ℕ, Nat.Prime p ∧ p % 4 = 3 ∧ d = -(p : ℤ))
+    (h : NumberField.classNumber (Qsqrtd (d : ℚ)) = 1) :
+    d ∈ heegnerSet := by
+  sorry
+
 /-- **Baker–Heegner–Stark theorem.** A negative squarefree integer `d` gives an
 imaginary quadratic field `ℚ(√d)` of class number one if and only if `d` is one
 of the nine Heegner numbers `-1, -2, -3, -7, -11, -19, -43, -67, -163`.
@@ -46,9 +62,7 @@ theorem classNumber_eq_one_iff_mem_heegnerSet
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : d < 0) :
     NumberField.classNumber (Qsqrtd (d : ℚ)) = 1 ↔ d ∈ heegnerSet := by
   constructor
-  · -- The deep direction: no tenth imaginary quadratic field of class number
-    -- one exists. Proved by Heegner (1952), Baker (1966), and Stark (1967).
-    intro h
+  · intro h
     sorry
   · exact fun h => classNumber_eq_one_of_mem_heegnerSet h
 

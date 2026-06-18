@@ -32,6 +32,24 @@ forms of discriminant `D`, backed by the enumerator. -/
 abbrev ReducedFormRep (D : ℤ) : Type :=
   { Q : BinaryQuadraticForm // Q ∈ enumPrimitiveReducedForms D }
 
+/-- The discriminant of a reduced representative is the indexing
+discriminant. -/
+theorem ReducedFormRep.disc_eq (Q : ReducedFormRep D) : Q.1.disc = D :=
+  (of_mem_enumPrimitiveReducedForms Q.2).1
+
+/-- A reduced representative is positive definite. -/
+theorem ReducedFormRep.isPositiveDefinite (Q : ReducedFormRep D) :
+    Q.1.IsPositiveDefinite :=
+  (of_mem_enumPrimitiveReducedForms Q.2).2.1
+
+/-- A reduced representative is reduced. -/
+theorem ReducedFormRep.isReduced (Q : ReducedFormRep D) : Q.1.IsReduced :=
+  (of_mem_enumPrimitiveReducedForms Q.2).2.2.1
+
+/-- A reduced representative is primitive. -/
+theorem ReducedFormRep.isPrimitive (Q : ReducedFormRep D) : Q.1.IsPrimitive :=
+  (of_mem_enumPrimitiveReducedForms Q.2).2.2.2
+
 /-- The finite representative type has the same cardinality as the reduced-form
 enumeration backing it. -/
 theorem reducedFormRep_card (D : ℤ) :
@@ -86,7 +104,7 @@ theorem reducedRepresentativeRep_formClass_leftInverse (Q : ReducedFormRep D) :
     reducedRepresentativeRep Q.formClass = Q := by
   apply Subtype.ext
   have hQred : (primitivePositiveDefiniteFormOfMemEnum Q.2).1.IsReduced :=
-    (of_mem_enumPrimitiveReducedForms Q.2).2.2.1
+    Q.isReduced
   have hQ :
       Quotient.mk (primitivePositiveDefiniteFormSetoid D)
         (primitivePositiveDefiniteFormOfMemEnum Q.2) = Q.formClass := rfl
@@ -212,9 +230,8 @@ theorem reducedFormRep_eq_one_of_card_eq_one
     haveI := reducedFormRepCommGroup hdneg
     Q = 1 := by
   letI := reducedFormRepCommGroup hdneg
-  have hsub : Subsingleton (ReducedFormRep (fieldDiscriminant d)) :=
-    Fintype.card_le_one_iff_subsingleton.mp (by omega)
-  exact Subsingleton.elim Q 1
+  rcases Fintype.card_eq_one_iff.mp hcard with ⟨Q0, hQ0⟩
+  exact (hQ0 Q).trans (hQ0 1).symm
 
 /-- Any reduced form representing the product class is the chosen reduced
 product representative. -/

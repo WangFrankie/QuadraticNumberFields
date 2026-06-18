@@ -6,10 +6,10 @@ Authors: Frankie Wang
 
 import Mathlib.Algebra.QuadraticAlgebra.Basic
 import Mathlib.LinearAlgebra.FreeModule.PID
-import Mathlib.RingTheory.Ideal.Operations
 import Mathlib.Tactic.LinearCombination
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Push
+import QNFMathlib.RingTheory.Ideal.Span
 
 /-!
 # Generic Cox 7.7 ideal relation for `QuadraticAlgebra ℤ DD bb`
@@ -178,23 +178,6 @@ theorem lam_ne_zero (hA : A ≠ 0) (hdet : p * s - q * r = 1) :
 
 /-! ## Ideal relation -/
 
-/-- If `x · a` and `x · b` both lie in `K`, then the product of the principal
-ideal `(x)` and the pair ideal `(a, b)` is contained in `K`. -/
-theorem span_singleton_mul_span_pair_le {R : Type*} [CommRing R]
-    {x a b : R} {K : Ideal R} (ha : x * a ∈ K) (hb : x * b ∈ K) :
-    Ideal.span ({x} : Set R) * Ideal.span ({a, b} : Set R) ≤ K := by
-  rw [Ideal.span_singleton_mul_le_iff]
-  intro z hz
-  induction hz using Submodule.span_induction with
-  | mem y hy =>
-      rcases hy with rfl | rfl
-      · exact ha
-      · exact hb
-  | zero => simp
-  | add y z _ _ hy hz => simpa [mul_add] using K.add_mem hy hz
-  | smul r y _ hy =>
-      simpa [mul_assoc, mul_comm, mul_left_comm] using K.mul_mem_left r hy
-
 /-- The Cox 7.7 ideal identity in `QuadraticAlgebra ℤ DD bb`:
 
 `(A') · (A, β) = (λ) · (A', β')`,
@@ -261,12 +244,12 @@ theorem ideal_relation (hdet : p * s - q * r = 1)
     I.sub_mem (I.mul_mem_left (s : QuadraticAlgebra ℤ DD bb) hβ_mem_I)
       (I.mul_mem_left (q : QuadraticAlgebra ℤ DD bb) hA_mem_I)
   apply le_antisymm
-  · apply span_singleton_mul_span_pair_le
+  · apply Ideal.span_singleton_mul_span_pair_le
     · rw [← hconj]
       exact Ideal.mul_mem_mul (Ideal.subset_span (by simp [lam])) hsα_add_rβ'_mem_J
     · rw [← hbeta]
       exact Ideal.mul_mem_mul (Ideal.subset_span (by simp [lam])) hpβ'_add_qα_mem_J
-  · apply span_singleton_mul_span_pair_le
+  · apply Ideal.span_singleton_mul_span_pair_le
     · have hα_mem_left : α * lam ∈ Ideal.span ({α} : Set (QuadraticAlgebra ℤ DD bb)) * I :=
         Ideal.mul_mem_mul (Ideal.subset_span (by simp [α])) hlam_mem_I
       simpa [mul_comm] using hα_mem_left

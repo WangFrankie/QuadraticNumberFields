@@ -35,6 +35,49 @@ def ProperEquivalent {D : ℤ}
     (Q R : PrimitivePositiveDefiniteForm D) : Prop :=
   BinaryQuadraticForm.ProperEquivalent Q.1 R.1
 
+/-- Transport a primitive positive definite form across proper equivalence. -/
+def ofProperEquivalent {D : ℤ} (Q : PrimitivePositiveDefiniteForm D)
+    {R : BinaryQuadraticForm} (hQR : BinaryQuadraticForm.ProperEquivalent Q.1 R) :
+    PrimitivePositiveDefiniteForm D where
+  val := R
+  property := by
+    refine ⟨?_, ?_, ?_⟩
+    · calc
+        R.disc = Q.1.disc := (BinaryQuadraticForm.disc_eq_of_properEquivalent hQR).symm
+        _ = D := Q.2.1
+    · exact BinaryQuadraticForm.isPrimitive_of_properEquivalent Q.2.2.1 hQR
+    · exact BinaryQuadraticForm.isPositiveDefinite_of_properEquivalent Q.2.2.2 hQR
+
+@[simp]
+theorem ofProperEquivalent_val {D : ℤ} (Q : PrimitivePositiveDefiniteForm D)
+    {R : BinaryQuadraticForm} (hQR : BinaryQuadraticForm.ProperEquivalent Q.1 R) :
+    (Q.ofProperEquivalent hQR).1 = R :=
+  rfl
+
+/-- The restricted form obtained from a proper-equivalent raw form remains
+properly equivalent to the original restricted form. -/
+theorem properEquivalent_ofProperEquivalent {D : ℤ} (Q : PrimitivePositiveDefiniteForm D)
+    {R : BinaryQuadraticForm} (hQR : BinaryQuadraticForm.ProperEquivalent Q.1 R) :
+    ProperEquivalent Q (Q.ofProperEquivalent hQR) :=
+  hQR
+
+/-- Apply an `SL₂(ℤ)` coordinate transform inside the restricted primitive
+positive definite carrier. -/
+def transform {D : ℤ} (Q : PrimitivePositiveDefiniteForm D) (g : SL2Z) :
+    PrimitivePositiveDefiniteForm D :=
+  Q.ofProperEquivalent ⟨g, rfl⟩
+
+@[simp]
+theorem transform_val {D : ℤ} (Q : PrimitivePositiveDefiniteForm D) (g : SL2Z) :
+    (Q.transform g).1 = BinaryQuadraticForm.transform Q.1 g :=
+  rfl
+
+/-- The restricted `SL₂(ℤ)` transform is properly equivalent to the original
+restricted form. -/
+theorem properEquivalent_transform {D : ℤ} (Q : PrimitivePositiveDefiniteForm D) (g : SL2Z) :
+    ProperEquivalent Q (Q.transform g) :=
+  ⟨g, rfl⟩
+
 end PrimitivePositiveDefiniteForm
 
 /-- Setoid on primitive positive definite forms given by proper equivalence. -/
@@ -68,11 +111,7 @@ theorem fieldDiscriminant_of_mod_four_ne_one {d : ℤ} (hd4 : d % 4 ≠ 1) :
 /-- Imaginary squarefree parameters have negative field discriminant. -/
 theorem fieldDiscriminant_neg {d : ℤ} (hdneg : d < 0) :
     fieldDiscriminant d < 0 := by
-  by_cases hd4 : d % 4 = 1
-  · rw [fieldDiscriminant_of_mod_four_eq_one hd4]
-    exact hdneg
-  · rw [fieldDiscriminant_of_mod_four_ne_one hd4]
-    nlinarith
+  by_cases hd4 : d % 4 = 1 <;> simp [fieldDiscriminant, hd4] <;> nlinarith
 
 /-- In the `d % 4 ≠ 1` Cox branch, a form of field discriminant has even
 middle coefficient. This justifies the `-b / 2` coordinate in the `Zsqrtd`

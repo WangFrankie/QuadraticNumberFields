@@ -6,6 +6,8 @@ Authors: Frankie Wang
 
 import QuadraticNumberFields.Forms.Gauss.CompositionClass
 import QuadraticNumberFields.Forms.ClassGroup.Structure
+import QNFMathlib.Data.Int.Parity
+import QNFMathlib.RingTheory.Ideal.Span
 
 /-!
 # Cox Ideal Multiplicativity for Concordant Gauss Composition
@@ -30,38 +32,6 @@ open QuadraticNumberFields.CoxIdealRelation
 section Generic
 
 variable {DD bb A B C A' C' u : ℤ}
-
-/-- If all four products of a pair of generators lie in an ideal, then the
-product of the two generated pair ideals is contained in that ideal. -/
-private theorem span_pair_mul_span_pair_le {R : Type*} [CommRing R]
-    {a b c d : R} {K : Ideal R}
-    (hac : a * c ∈ K) (had : a * d ∈ K)
-    (hbc : b * c ∈ K) (hbd : b * d ∈ K) :
-    Ideal.span ({a, b} : Set R) * Ideal.span ({c, d} : Set R) ≤ K := by
-  rw [Ideal.mul_le]
-  intro r hr s hs
-  induction hr using Submodule.span_induction with
-  | mem x hx =>
-      rcases hx with rfl | rfl
-      · induction hs using Submodule.span_induction with
-        | mem y hy =>
-            rcases hy with rfl | rfl
-            · exact hac
-            · exact had
-        | zero => simp
-        | add y z _ _ hy hz => simpa [mul_add] using K.add_mem hy hz
-        | smul t y _ hy => simpa [mul_assoc, mul_comm, mul_left_comm] using K.mul_mem_left t hy
-      · induction hs using Submodule.span_induction with
-        | mem y hy =>
-            rcases hy with rfl | rfl
-            · exact hbc
-            · exact hbd
-        | zero => simp
-        | add y z _ _ hy hz => simpa [mul_add] using K.add_mem hy hz
-        | smul t y _ hy => simpa [mul_assoc, mul_comm, mul_left_comm] using K.mul_mem_left t hy
-  | zero => simp
-  | add y z _ _ hy hz => simpa [add_mul] using K.add_mem hy hz
-  | smul t y _ hy => simpa [mul_assoc] using K.mul_mem_left t hy
 
 /-- The product of the two integer generators lies in the product of the two
 Cox ideals. -/
@@ -257,7 +227,7 @@ theorem coxIdeal_mul_of_concordant
       ring
   apply le_antisymm
   · dsimp [CoxIdealRelation.coxIdeal]
-    apply span_pair_mul_span_pair_le
+    apply Ideal.span_pair_mul_span_pair_le
     · change ((A : QuadraticAlgebra ℤ DD bb) * (A' : QuadraticAlgebra ℤ DD bb)) ∈ K
       simpa [Int.cast_mul] using hAA'_mem_K
     · change ((A : QuadraticAlgebra ℤ DD bb) * β) ∈ K
@@ -490,20 +460,22 @@ theorem coxIdeal_mul_of_united
   have h_forward : CoxIdealRelation.coxIdeal DD bb A₁ u₁ *
       CoxIdealRelation.coxIdeal DD bb A₂ u₂ ≤ K := by
     dsimp [CoxIdealRelation.coxIdeal]
-    apply span_pair_mul_span_pair_le
+    apply Ideal.span_pair_mul_span_pair_le
     · -- A₁ · A₂ ∈ K
       simpa [Int.cast_mul] using hAA_mem_K
     · -- A₁ · β₂ ∈ K
       have h_expr : ((A₁ : ℤ) : QuadraticAlgebra ℤ DD bb) * β₂ =
           ((A₁ : ℤ) : QuadraticAlgebra ℤ DD bb) * β -
-            (k : QuadraticAlgebra ℤ DD bb) * (((A₁ * A₂ : ℤ) : QuadraticAlgebra ℤ DD bb)) := by
+            (k : QuadraticAlgebra ℤ DD bb) *
+              (((A₁ * A₂ : ℤ) : QuadraticAlgebra ℤ DD bb)) := by
         rw [hβ₂_eq]; push_cast; ring
       rw [h_expr]
       exact K.sub_mem (K.mul_mem_left _ hβ_mem_K) (K.mul_mem_left _ hAA_mem_K)
     · -- β₁ · A₂ ∈ K
       have h_expr : β₁ * ((A₂ : ℤ) : QuadraticAlgebra ℤ DD bb) =
           β * ((A₂ : ℤ) : QuadraticAlgebra ℤ DD bb) -
-            (t : QuadraticAlgebra ℤ DD bb) * (((A₁ * A₂ : ℤ) : QuadraticAlgebra ℤ DD bb)) := by
+            (t : QuadraticAlgebra ℤ DD bb) *
+              (((A₁ * A₂ : ℤ) : QuadraticAlgebra ℤ DD bb)) := by
         rw [hβ₁_eq]; push_cast; ring
       rw [h_expr]
       exact K.sub_mem (K.mul_mem_right _ hβ_mem_K) (K.mul_mem_left _ hAA_mem_K)
@@ -516,7 +488,8 @@ theorem coxIdeal_mul_of_united
               (((A₁ * A₂ : ℤ) : QuadraticAlgebra ℤ DD bb)) := by
         rw [hβ₁_eq, hβ₂_eq]; push_cast; ring
       rw [h_expr, hβ_sq]
-      -- Goal: (-B·β - C_prod·(A₁·A₂)) - k·(β·A₂) - t·(A₁·β) + (t·k)·(A₁·A₂) ∈ K
+      -- Goal: (-B·β - C_prod·(A₁·A₂)) - k·(β·A₂) - t·(A₁·β)
+      --       + (t·k)·(A₁·A₂) ∈ K
       -- = ((X - Y) - Z) + W
       apply K.add_mem
       · -- X - Y - Z ∈ K
@@ -546,37 +519,6 @@ end CoxComposition
 
 namespace PrimitivePositiveDefiniteForm
 
-/-- Pulling ideals back along a ring equivalence preserves ideal products. -/
-theorem comap_mul_of_ringEquiv {R S : Type*} [CommRing R] [CommRing S]
-    (e : R ≃+* S) (I J : Ideal S) :
-    Ideal.comap (e : R →+* S) (I * J) =
-      Ideal.comap (e : R →+* S) I * Ideal.comap (e : R →+* S) J := by
-  apply_fun Ideal.map (e : R →+* S) using fun A B h =>
-    calc
-      A = Ideal.comap (e : R →+* S) (Ideal.map (e : R →+* S) A) := by
-        rw [Ideal.comap_map_of_bijective (f := (e : R →+* S)) e.bijective]
-      _ = Ideal.comap (e : R →+* S) (Ideal.map (e : R →+* S) B) := by rw [h]
-      _ = B := by
-        rw [Ideal.comap_map_of_bijective (f := (e : R →+* S)) e.bijective]
-  rw [Ideal.map_comap_of_surjective (e : R →+* S) e.surjective]
-  rw [Ideal.map_mul]
-  rw [Ideal.map_comap_of_surjective (e : R →+* S) e.surjective]
-  rw [Ideal.map_comap_of_surjective (e : R →+* S) e.surjective]
-
-/-- Normalise the integer half of `-b` when `b` is even. -/
-theorem two_mul_neg_div_two_of_even {b : ℤ} (hb : Even b) :
-    2 * ((-b) / 2) = -b := by
-  rcases hb with ⟨k, hk⟩
-  rw [hk]
-  omega
-
-/-- Normalise the integer half of `-(b + 1)` when `b` is odd. -/
-theorem two_mul_neg_succ_div_two_of_odd {b : ℤ} (hb : Odd b) :
-    2 * (-(b + 1) / 2) = -(b + 1) := by
-  rcases hb with ⟨k, hk⟩
-  rw [hk]
-  omega
-
 /-- In the non-half-integral branch, Cox ideals multiply under direct
 concordant Gauss composition. -/
 theorem idealOfForm_composeConcordant_of_mod_four_ne_one
@@ -591,7 +533,7 @@ theorem idealOfForm_composeConcordant_of_mod_four_ne_one
   have hb_even : Even Q.1.b :=
     even_b_of_hasDiscriminant_fieldDiscriminant_of_mod_four_ne_one hd4 Q.2.1
   have hu : 2 * u = -(Q.1.b + 0) := by
-    simpa [u] using two_mul_neg_div_two_of_even hb_even
+    simpa [u] using Int.two_mul_neg_ediv_two_of_even hb_even
   have hdiscQ : Q.1.b ^ 2 - 4 * Q.1.a * Q.1.c = 0 ^ 2 + 4 * d := by
     simpa [BinaryQuadraticForm.HasDiscriminant, BinaryQuadraticForm.disc,
       fieldDiscriminant_of_mod_four_ne_one hd4] using Q.2.1
@@ -619,7 +561,7 @@ theorem idealOfForm_composeConcordant_of_mod_four_ne_one
           (CoxIdealRelation.coxIdeal d 0 Q.1.a u) *
         Ideal.comap (e : 𝓞 (Qsqrtd (d : ℚ)) →+* Zsqrtd d)
           (CoxIdealRelation.coxIdeal d 0 R.1.a u) := by
-          rw [comap_mul_of_ringEquiv]
+          rw [Ideal.comap_mul_of_ringEquiv]
     _ = idealOfForm_of_mod_four_ne_one d hd4 Q *
         idealOfForm_of_mod_four_ne_one d hd4 R := by
           simp [idealOfForm_of_mod_four_ne_one, CoxIdealRelation.coxIdeal, e, u, ← h.2.1]
@@ -654,7 +596,7 @@ theorem idealOfForm_composeConcordant_of_mod_four_eq_one
   have hb_odd : Odd Q.1.b :=
     odd_b_of_hasDiscriminant_fieldDiscriminant_of_mod_four_eq_one hd4 Q.2.1
   have hu : 2 * u = -(Q.1.b + 1) := by
-    simpa [u] using two_mul_neg_succ_div_two_of_odd hb_odd
+    simpa [u] using Int.two_mul_neg_succ_ediv_two_of_odd hb_odd
   have hd_eq : d = 1 + 4 * (d / 4) := by omega
   have hdiscQ : Q.1.b ^ 2 - 4 * Q.1.a * Q.1.c = 1 ^ 2 + 4 * (d / 4) := by
     have hdisc_d : Q.1.b ^ 2 - 4 * Q.1.a * Q.1.c = d := by
@@ -686,7 +628,7 @@ theorem idealOfForm_composeConcordant_of_mod_four_eq_one
           (CoxIdealRelation.coxIdeal (d / 4) 1 Q.1.a u) *
         Ideal.comap (e : 𝓞 (Qsqrtd (d : ℚ)) →+* ZOnePlusSqrtdOverTwo (d / 4))
           (CoxIdealRelation.coxIdeal (d / 4) 1 R.1.a u) := by
-          rw [comap_mul_of_ringEquiv]
+          rw [Ideal.comap_mul_of_ringEquiv]
     _ = idealOfForm_of_mod_four_eq_one d hd4 Q *
         idealOfForm_of_mod_four_eq_one d hd4 R := by
           simp [idealOfForm_of_mod_four_eq_one, CoxIdealRelation.coxIdeal, e, u, ← h.2.1]

@@ -70,11 +70,7 @@ example : (BinaryQuadraticForm.mk 1 1 1).IsReduced := by
   norm_num [IsReduced]
 
 example : ¬ (BinaryQuadraticForm.mk 1 (-1) 1).IsReduced := by
-  intro h
-  rcases h with ⟨_, _, hb, _⟩
-  have : (|-1| : ℤ) = 1 := by norm_num
-  have hnonneg := hb this
-  norm_num at hnonneg
+  norm_num [IsReduced]
 
 end BinaryQuadraticForm
 end QuadraticNumberFields

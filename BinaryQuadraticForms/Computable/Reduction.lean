@@ -71,43 +71,34 @@ private theorem normalizeB_k_eq_div2 (a b : ℤ) (ha : 0 < a) (h : ¬ b % (2 * a
     normalizeB_k a b ha = ((b % (2 * a) - 2 * a) - b) / (2 * a) := by
   unfold normalizeB_k; rw [normalizeB_b_eq_r_sub a b ha h]
 
-/-- Key modular identity: `b + d * ((b % d - b) / d) = b % d`.
-Proof: `b%d - b = d*(-(b/d))`, and `(d*k)/d = k` since `d ≠ 0`. -/
-private theorem mod_cancel (b d : ℤ) (hd : d ≠ 0) : b + d * ((b % d - b) / d) = b % d := by
-  have hem : (b / d) * d + b % d = b := by
-    simpa [mul_comm] using Int.mul_ediv_add_emod b d
-  have hsub : b % d - b = d * (-(b / d)) := by linarith
-  have hdiv : (b % d - b) / d = -(b / d) := by
-    rw [hsub, Int.mul_ediv_cancel_left _ hd]
+/-- Exact-division cancellation for the expression that shifts `b` to a congruent value `r`. -/
+private theorem add_mul_ediv_sub_of_dvd {b r d : ℤ} (h : d ∣ r - b) :
+    b + d * ((r - b) / d) = r := by
   calc
-    b + d * ((b % d - b) / d) = b + d * (-(b / d)) := by rw [hdiv]
-    _ = b - d * (b / d) := by ring
-    _ = b % d := by linarith
+    b + d * ((r - b) / d) = b + (r - b) := by rw [Int.mul_ediv_cancel_of_dvd h]
+    _ = r := by ring
+
+/-- Key modular identity: `b + d * ((b % d - b) / d) = b % d`. -/
+private theorem mod_cancel (b d : ℤ) : b + d * ((b % d - b) / d) = b % d := by
+  exact add_mul_ediv_sub_of_dvd (by simpa using (Int.dvd_emod_sub_self (x := b) (m := d)))
 
 /-- Modular identity with shift: `b + d * (((b % d - d) - b) / d) = b % d - d`. -/
-private theorem mod_cancel_sub (b d : ℤ) (hd : d ≠ 0) :
+private theorem mod_cancel_sub (b d : ℤ) :
     b + d * (((b % d - d) - b) / d) = b % d - d := by
-  have hem : (b / d) * d + b % d = b := by
-    simpa [mul_comm] using Int.mul_ediv_add_emod b d
-  have hsub : (b % d - d) - b = d * (-(b / d) - 1) := by linarith
-  have hdiv : ((b % d - d) - b) / d = -(b / d) - 1 := by
-    rw [hsub, Int.mul_ediv_cancel_left _ hd]
-  calc
-    b + d * (((b % d - d) - b) / d) = b + d * (-(b / d) - 1) := by rw [hdiv]
-    _ = b - d * (b / d) - d := by ring
-    _ = b % d - d := by linarith
+  refine add_mul_ediv_sub_of_dvd ?_
+  have h : d ∣ b % d - b := by simpa using (Int.dvd_emod_sub_self (x := b) (m := d))
+  simpa [sub_eq_add_neg, add_assoc, add_comm, add_left_comm] using dvd_sub h dvd_rfl
 
 /-- The middle coefficient after normalisation equals the modular-adjusted value. -/
 theorem normalizeB_b_eq (Q : BinaryQuadraticForm) (ha : 0 < Q.a) :
     (normalizeB Q ha).b = normalizeB_b Q.a Q.b ha := by
-  have hd_ne_zero : 2 * Q.a ≠ 0 := by nlinarith
   set d := 2 * Q.a
   rw [normalizeB, transform_translate_b]
   by_cases h : Q.b % d ≤ Q.a
   · rw [normalizeB_k_eq_div1 Q.a Q.b ha h, normalizeB_b_eq_r Q.a Q.b ha h]
-    exact mod_cancel Q.b d hd_ne_zero
+    exact mod_cancel Q.b d
   · rw [normalizeB_k_eq_div2 Q.a Q.b ha h, normalizeB_b_eq_r_sub Q.a Q.b ha h]
-    exact mod_cancel_sub Q.b d hd_ne_zero
+    exact mod_cancel_sub Q.b d
 
 /-- The middle coefficient after normalisation lies in `(-a, a]`. -/
 theorem normalizeB_bounds (Q : BinaryQuadraticForm) (ha : 0 < Q.a) :
@@ -144,6 +135,16 @@ theorem c_pos_of_isPositiveDefinite {Q : BinaryQuadraticForm}
   have hsq_nonneg : 0 ≤ Q.b ^ 2 := pow_two_nonneg _
   nlinarith
 
+private theorem swap_isPositiveDefinite {Q : BinaryQuadraticForm}
+    (hpos : Q.IsPositiveDefinite) :
+    (BinaryQuadraticForm.mk Q.c (-Q.b) Q.a).IsPositiveDefinite := by
+  refine ⟨c_pos_of_isPositiveDefinite hpos, ?_⟩
+  calc
+    (BinaryQuadraticForm.mk Q.c (-Q.b) Q.a).disc = Q.disc := by
+      simp [disc]
+      ring
+    _ < 0 := hpos.2
+
 /-- Computable Gauss reduction for positive-definite binary quadratic forms.
 
 Termination: the swap step replaces `a` with `c` where `a > c`.  Since
@@ -163,25 +164,12 @@ def reduceForm (Q : BinaryQuadraticForm) (hpos : Q.IsPositiveDefinite) :
   have ha₁_eq : Q₁.a = Q.a := normalizeB_a Q ha_pos
   -- Q₁.a > 0
   have ha₁_pos : 0 < Q₁.a := by rw [ha₁_eq]; exact ha_pos
-  -- from disc < 0 and a > 0, deduce c > 0 for any such form
-  have hc₁_pos_of_disc_lt : 0 < Q₁.c := by
-    have hdisc_form : Q₁.b ^ 2 - 4 * Q₁.a * Q₁.c < 0 := by
-      simpa [disc] using hdisc₁
-    have hsq_nonneg : 0 ≤ Q₁.b ^ 2 := pow_two_nonneg _
-    nlinarith
+  have hpos₁ : Q₁.IsPositiveDefinite := ⟨ha₁_pos, hdisc₁⟩
   if h_swap : Q₁.a > Q₁.c then
     -- Swap a ↔ c and negate b, then recurse.
     let Q₂ : BinaryQuadraticForm := ⟨Q₁.c, -Q₁.b, Q₁.a⟩
     have hpos₂ : Q₂.IsPositiveDefinite := by
-      have ha₂ : 0 < Q₂.a := by
-        simpa [Q₂] using hc₁_pos_of_disc_lt
-      have hdisc₂ : Q₂.disc < 0 := by
-        calc
-          Q₂.disc = (-Q₁.b) ^ 2 - 4 * Q₁.c * Q₁.a := rfl
-          _ = Q₁.b ^ 2 - 4 * Q₁.a * Q₁.c := by ring
-          _ < 0 := by
-            simpa [disc] using hdisc₁
-      exact ⟨ha₂, hdisc₂⟩
+      simpa [Q₂] using swap_isPositiveDefinite hpos₁
     reduceForm Q₂ hpos₂
   else
     -- No swap needed: check the boundary condition a = c ∧ b < 0
@@ -192,7 +180,7 @@ def reduceForm (Q : BinaryQuadraticForm) (hpos : Q.IsPositiveDefinite) :
 termination_by Q.a.natAbs
 decreasing_by
   -- Goal: Q₂.a.natAbs < Q.a.natAbs, i.e., Q₁.c.natAbs < Q.a.natAbs
-  have hc₁_pos : 0 < Q₁.c := hc₁_pos_of_disc_lt
+  have hc₁_pos : 0 < Q₁.c := c_pos_of_isPositiveDefinite hpos₁
   have h_lt : Q₁.c < Q.a := by
     calc
       Q₁.c < Q₁.a := h_swap
@@ -269,26 +257,14 @@ private theorem reduceForm_eq (Q : BinaryQuadraticForm) (hpos : Q.IsPositiveDefi
          rw [h_eq]
          exact hpos.2
        have ha₁_eq : Q₁.a = Q.a := normalizeB_a Q ha_pos
-       have _ha₁_pos : 0 < Q₁.a := by
+       have ha₁_pos : 0 < Q₁.a := by
          rw [ha₁_eq]
          exact ha_pos
-       have hc₁_pos_of_disc_lt : 0 < Q₁.c := by
-         have hdisc_form : Q₁.b ^ 2 - 4 * Q₁.a * Q₁.c < 0 := by
-           simpa [disc] using hdisc₁
-         have _hsq_nonneg : 0 ≤ Q₁.b ^ 2 := pow_two_nonneg _
-         nlinarith
+       have hpos₁ : Q₁.IsPositiveDefinite := ⟨ha₁_pos, hdisc₁⟩
        if _h_swap : Q₁.a > Q₁.c then
          let Q₂ : BinaryQuadraticForm := ⟨Q₁.c, -Q₁.b, Q₁.a⟩
          have hpos₂ : Q₂.IsPositiveDefinite := by
-           have ha₂ : 0 < Q₂.a := by
-             simpa [Q₂] using hc₁_pos_of_disc_lt
-           have hdisc₂ : Q₂.disc < 0 := by
-             calc
-               Q₂.disc = (-Q₁.b) ^ 2 - 4 * Q₁.c * Q₁.a := rfl
-               _ = Q₁.b ^ 2 - 4 * Q₁.a * Q₁.c := by ring
-               _ < 0 := by
-                 simpa [disc] using hdisc₁
-           exact ⟨ha₂, hdisc₂⟩
+           simpa [Q₂] using swap_isPositiveDefinite hpos₁
          reduceForm Q₂ hpos₂
        else
          if Q₁.a = Q₁.c ∧ Q₁.b < 0 then
@@ -316,11 +292,9 @@ private theorem reduceForm_correct (Q : BinaryQuadraticForm) (hpos : Q.IsPositiv
         rw [h_eq]
         exact hpos.2
       have ha₁_eq : Q₁.a = Q.a := normalizeB_a Q ha_pos
-      have hc₁_pos : 0 < Q₁.c := by
-        have hdisc_form : Q₁.b ^ 2 - 4 * Q₁.a * Q₁.c < 0 := by
-          simpa [disc] using hdisc₁
-        have hsq_nonneg : 0 ≤ Q₁.b ^ 2 := pow_two_nonneg _
-        nlinarith
+      have ha₁_pos : 0 < Q₁.a := by rw [ha₁_eq]; exact ha_pos
+      have hpos₁ : Q₁.IsPositiveDefinite := ⟨ha₁_pos, hdisc₁⟩
+      have hc₁_pos : 0 < Q₁.c := c_pos_of_isPositiveDefinite hpos₁
       have hbounds : -Q.a < Q₁.b ∧ Q₁.b ≤ Q.a := by
         have := normalizeB_bounds Q ha_pos
         simpa [Q₁] using this
@@ -337,16 +311,7 @@ private theorem reduceForm_correct (Q : BinaryQuadraticForm) (hpos : Q.IsPositiv
       · rw [dif_pos h_swap]
         let Q₂ : BinaryQuadraticForm := ⟨Q₁.c, -Q₁.b, Q₁.a⟩
         have hpos₂ : Q₂.IsPositiveDefinite := by
-          have ha₂ : 0 < Q₂.a := by
-            simpa [Q₂] using hc₁_pos
-          have hdisc₂ : Q₂.disc < 0 := by
-            calc
-              Q₂.disc = (-Q₁.b) ^ 2 - 4 * Q₁.c * Q₁.a := rfl
-              _ = Q₁.b ^ 2 - 4 * Q₁.a * Q₁.c := by
-                ring
-              _ < 0 := by
-                simpa [disc] using hdisc₁
-          exact ⟨ha₂, hdisc₂⟩
+          simpa [Q₂] using swap_isPositiveDefinite hpos₁
         have hmeasure : Q₂.a.natAbs < n := by
           have hnat : Q₁.c.natAbs < Q.a.natAbs := by
             apply Int.ofNat_lt.mp

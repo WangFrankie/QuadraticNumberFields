@@ -705,15 +705,9 @@ equal to `Q.eval x y`. -/
 theorem transform_sl2z_of_coprime_a (Q : BinaryQuadraticForm) (x y : ℤ)
     (h : Int.gcd x y = 1) :
     (transform Q (sl2z_of_coprime x y h)).a = Q.eval x y := by
-  -- Compute directly: the first column of the matrix is (x, y)
   have h00 : (sl2z_of_coprime x y h : Matrix (Fin 2) (Fin 2) ℤ) 0 0 = x := rfl
   have h10 : (sl2z_of_coprime x y h : Matrix (Fin 2) (Fin 2) ℤ) 1 0 = y := rfl
-  -- The leading coefficient after SL₂(ℤ) transform is Q.eval at the first column
-  have hcalc : (transform Q (sl2z_of_coprime x y h)).a =
-      Q.eval ((sl2z_of_coprime x y h : Matrix (Fin 2) (Fin 2) ℤ) 0 0)
-             ((sl2z_of_coprime x y h : Matrix (Fin 2) (Fin 2) ℤ) 1 0) := by
-    simp [transform, eval]
-  rw [hcalc, h00, h10]
+  simp [transform, eval, h00, h10]
 
 /-- The transform of a form by `sl2z_of_coprime x y h` preserves the discriminant
 and primitivity (inherited from `Action.lean`). -/
@@ -724,9 +718,7 @@ theorem properEquivalent_sl2z_of_coprime (Q : BinaryQuadraticForm) (x y : ℤ)
 /-- The translation matrix `T^n = [[1,n],[0,1]]`. -/
 def translateSL2Z (n : ℤ) : SL2Z := by
   refine ⟨![![1, n], ![0, 1]], ?_⟩
-  rw [Matrix.det_fin_two]
-  change 1 * 1 - n * 0 = 1
-  ring
+  norm_num [Matrix.det_fin_two]
 
 @[simp] theorem translateSL2Z_apply_00 (n : ℤ) :
     (translateSL2Z n : Matrix (Fin 2) (Fin 2) ℤ) 0 0 = 1 :=

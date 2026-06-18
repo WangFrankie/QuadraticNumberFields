@@ -228,23 +228,7 @@ theorem basis_first_mul_cox_ideal_generator_eq_neg_normForm_a_mul_basis_second_o
       ((e.symm ((⟨(-Q.1.b) / 2, 1⟩ : Zsqrtd d)) : 𝓞K) : K).re =
         (-(Q.1.b : ℚ)) / 2 ∧
       ((e.symm ((⟨(-Q.1.b) / 2, 1⟩ : Zsqrtd d)) : 𝓞K) : K).im = 1 := by
-    have hb_even : Even Q.1.b :=
-      even_b_of_hasDiscriminant_fieldDiscriminant_of_mod_four_ne_one hd4 Q.2.1
-    obtain ⟨k, hk⟩ := hb_even
-    have hdiv : (-Q.1.b) / 2 = -k := by
-      rw [hk]
-      omega
-    have hk_rat : (Q.1.b : ℚ) / 2 = k := by
-      rw [hk]
-      norm_num
-    have h_embed (x : 𝓞K) : ((x : 𝓞K) : K) = Zsqrtd.toQsqrtdHom d (e x) := by
-      simpa [e] using
-        (RingOfIntegers.ringOfIntegers_equiv_zsqrtd_of_mod_four_ne_one_apply d hd4 x).symm
-    rw [h_embed]
-    constructor
-    · simp [e, Zsqrtd.toQsqrtdHom, RingEquiv.apply_symm_apply, hdiv]
-      linarith
-    · simp [e, Zsqrtd.toQsqrtdHom, RingEquiv.apply_symm_apply, hdiv]
+    simpa [e] using cox_zsqrtd_generator_re_im_of_mod_four_ne_one d hd4 Q
   have ha : ((Q.1.a : ℤ) : ℚ) =
       (((b.basis 0 : 𝓞K) : K).re ^ 2 -
         (d : ℚ) * ((b.basis 0 : 𝓞K) : K).im ^ 2) /
@@ -321,33 +305,7 @@ theorem basis_first_mul_cox_ideal_generator_eq_neg_normForm_a_mul_basis_second_o
           𝓞K) : K).re = (-(Q.1.b : ℚ)) / 2 ∧
       ((e.symm (⟨-(Q.1.b + 1) / 2, 1⟩ : ZOnePlusSqrtdOverTwo (d / 4)) :
           𝓞K) : K).im = (1 : ℚ) / 2 := by
-    let betaZ : ZOnePlusSqrtdOverTwo (d / 4) := ⟨-(Q.1.b + 1) / 2, 1⟩
-    let x : 𝓞K := e.symm betaZ
-    have hre := RingOfIntegers.ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one_re
-      d hd4 x
-    have him := RingOfIntegers.ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one_im
-      d hd4 x
-    dsimp [x, e] at hre him
-    rw [RingEquiv.apply_symm_apply] at hre him
-    have hodd : Odd Q.1.b :=
-      odd_b_of_hasDiscriminant_fieldDiscriminant_of_mod_four_eq_one hd4 Q.2.1
-    obtain ⟨k, hk⟩ := hodd
-    have hdiv : (-(Q.1.b + 1) / 2 : ℤ) = -(k + 1) := by
-      rw [hk]
-      omega
-    have hdiv' : ((-1 + -Q.1.b) / 2 : ℤ) = -1 - k := by
-      rw [hk]
-      omega
-    constructor
-    · rw [← hre]
-      calc
-        ((betaZ.re : ℚ) + (betaZ.im : ℚ) / 2) = ((-1 - k : ℤ) : ℚ) + 1 / 2 := by
-          simp [betaZ, hdiv']
-        _ = -(Q.1.b : ℚ) / 2 := by
-          rw [hk]
-          norm_num
-          ring
-    · simpa [betaZ] using him.symm
+    simpa [e] using cox_zomega_generator_re_im_of_mod_four_eq_one d hd4 Q
   have ha : ((Q.1.a : ℤ) : ℚ) =
       (((b.basis 0 : 𝓞K) : K).re ^ 2 -
         (d : ℚ) * ((b.basis 0 : 𝓞K) : K).im ^ 2) /
@@ -467,24 +425,8 @@ theorem basis_first_mul_cox_ideal_le_span_a_mul_ideal_of_mod_four_ne_one
   have hbeta : (b.basis 0 : 𝓞K) * e.symm betaZ ∈ target := by
     simpa [Q, e, betaZ, target] using
       basis_first_mul_cox_ideal_generator_mem_span_a_mul_ideal_of_mod_four_ne_one hdneg hd4 I b
-  rw [Ideal.span_singleton_mul_le_iff]
-  intro z hz
-  have hz' : e z ∈ Ideal.span ({aZ, betaZ} : Set (Zsqrtd d)) := by
-    simpa [idealOfForm_of_mod_four_ne_one, e, aZ, betaZ] using hz
-  rcases ((Ideal.mem_span_pair (x := aZ) (y := betaZ)).mp hz') with ⟨u, v, huv⟩
-  have hz_eq : z = e.symm (u * aZ + v * betaZ) := by
-    apply e.injective
-    simp [huv]
-  rw [hz_eq]
-  have hsplit :
-      (b.basis 0 : 𝓞K) * e.symm (u * aZ + v * betaZ) =
-        e.symm u * ((b.basis 0 : 𝓞K) * e.symm aZ) +
-          e.symm v * ((b.basis 0 : 𝓞K) * e.symm betaZ) := by
-    simp
-    ring
-  rw [hsplit]
-  exact target.add_mem (target.mul_mem_left (e.symm u) hscalar)
-    (target.mul_mem_left (e.symm v) hbeta)
+  rw [idealOfForm_of_mod_four_ne_one, Ideal.comap_span_pair_of_ringEquiv e aZ betaZ]
+  exact Ideal.span_singleton_mul_span_pair_le hscalar hbeta
 
 /-- In the `d % 4 = 1` branch, the two Cox generator membership lemmas assemble
 to the inclusion `(b₀) · J(Q_b) ≤ (a_Q) · I`. -/
@@ -509,24 +451,8 @@ theorem basis_first_mul_cox_ideal_le_span_a_mul_ideal_of_mod_four_eq_one
   have hbeta : (b.basis 0 : 𝓞K) * e.symm betaZ ∈ target := by
     simpa [Q, e, betaZ, target] using
       basis_first_mul_cox_ideal_generator_mem_span_a_mul_ideal_of_mod_four_eq_one hdneg hd4 I b
-  rw [Ideal.span_singleton_mul_le_iff]
-  intro z hz
-  have hz' : e z ∈ Ideal.span ({aZ, betaZ} : Set (ZOnePlusSqrtdOverTwo (d / 4))) := by
-    simpa [idealOfForm_of_mod_four_eq_one, e, aZ, betaZ] using hz
-  rcases ((Ideal.mem_span_pair (x := aZ) (y := betaZ)).mp hz') with ⟨u, v, huv⟩
-  have hz_eq : z = e.symm (u * aZ + v * betaZ) := by
-    apply e.injective
-    simp [huv]
-  rw [hz_eq]
-  have hsplit :
-      (b.basis 0 : 𝓞K) * e.symm (u * aZ + v * betaZ) =
-        e.symm u * ((b.basis 0 : 𝓞K) * e.symm aZ) +
-          e.symm v * ((b.basis 0 : 𝓞K) * e.symm betaZ) := by
-    simp
-    ring
-  rw [hsplit]
-  exact target.add_mem (target.mul_mem_left (e.symm u) hscalar)
-    (target.mul_mem_left (e.symm v) hbeta)
+  rw [idealOfForm_of_mod_four_eq_one, Ideal.comap_span_pair_of_ringEquiv e aZ betaZ]
+  exact Ideal.span_singleton_mul_span_pair_le hscalar hbeta
 
 /-- In the `d % 4 ≠ 1` branch, the oriented basis decomposition of `I` gives
 the reverse inclusion `(a_Q) · I ≤ (b₀) · J(Q_b)`. -/
