@@ -100,7 +100,7 @@ noncomputable def idealFin2Basis' (I : Ideal 𝓞K) (hI : I ≠ 0) :
         (RingOfIntegers.ringEquivToIntAlgEquiv e.symm).toLinearEquiv
       rw [Module.finrank_eq_card_basis ((QuadraticAlgebra.basis k 1).map f)]
       simp [Fintype.card_fin]
-    · let e := RingOfIntegers.ringOfIntegers_equiv_zsqrtd_of_mod_four_ne_one d (by omega)
+    · let e := RingOfIntegers.ringOfIntegers_equiv_zsqrtd_of_mod_four_ne_one d hd4
       let f : Zsqrtd d ≃ₗ[ℤ] 𝓞 (Qsqrtd (d : ℚ)) :=
         (RingOfIntegers.ringEquivToIntAlgEquiv e.symm).toLinearEquiv
       rw [Module.finrank_eq_card_basis ((QuadraticAlgebra.basis d 0).map f)]
@@ -145,8 +145,6 @@ noncomputable def orientedBasisOfNeZero (I : Ideal 𝓞K) (hI : I ≠ 0) :
   · exact ⟨b, horiented⟩
   · let b' := Basis.reindex b (Equiv.swap 0 1)
     have himPartRatio_sub (x y : K) : imPartRatio (x - y) = imPartRatio x - imPartRatio y := by
-      unfold imPartRatio; simp
-    have himPartRatio_neg (x : K) : imPartRatio (-x) = -imPartRatio x := by
       unfold imPartRatio; simp
     have horiented' : orient b' > 0 := by
       have hswap : orient b' = -orient b := by
@@ -309,18 +307,15 @@ theorem normFormOfBasis_eq_of_norms {I : Ideal 𝓞K} (hI : I ≠ 0) (b : Orient
       Q.a ^ 2 + Q.a * Q.b + Q.a * Q.c) :
     normFormOfBasis hI b = Q := by
   ext
-  · have h := normFormOfBasis_a_mul_absNorm hI b
-    rw [hN, hn0] at h
-    have hcancel : (normFormOfBasis hI b).a * Q.a = Q.a * Q.a := by rw [h]; ring
-    exact mul_right_cancel₀ ha hcancel
-  · have h := normFormOfBasis_b_mul_absNorm hI b
-    rw [hN, hns, hn0, hn1] at h
-    have hcancel : (normFormOfBasis hI b).b * Q.a = Q.b * Q.a := by rw [h]; ring
-    exact mul_right_cancel₀ ha hcancel
-  · have h := normFormOfBasis_c_mul_absNorm hI b
-    rw [hN, hn1] at h
-    have hcancel : (normFormOfBasis hI b).c * Q.a = Q.c * Q.a := by rw [h]; ring
-    exact mul_right_cancel₀ ha hcancel
+  · apply mul_right_cancel₀ ha
+    rw [← hN, normFormOfBasis_a_mul_absNorm hI b, hn0, hN]
+    ring
+  · apply mul_right_cancel₀ ha
+    rw [← hN, normFormOfBasis_b_mul_absNorm hI b, hns, hn0, hn1, hN]
+    ring
+  · apply mul_right_cancel₀ ha
+    rw [← hN, normFormOfBasis_c_mul_absNorm hI b, hn1, hN]
+    ring
 
 /-- The integral norm of `x : 𝓞K`, viewed in `ℚ`, is the quadratic form
 `re² − d · im²` of its coordinates in `K`. This bridges `Algebra.norm ℤ` to the
@@ -446,14 +441,9 @@ theorem normFormOfBasis_eval_eq_zero_iff (hdneg : d < 0) {I : Ideal 𝓞K} (hI :
   constructor
   · intro h
     by_contra hxy0
-    have hxy : x ≠ 0 ∨ y ≠ 0 := by
-      by_cases hx : x = 0
-      · right
-        intro hy
-        exact hxy0 ⟨hx, hy⟩
-      · exact Or.inl hx
+    have hxy : x ≠ 0 ∨ y ≠ 0 := not_and_or.mp hxy0
     have hpos := normFormOfBasis_eval_pos_of_ne_zero hdneg hI b hxy
-    omega
+    exact (ne_of_gt hpos) h
   · rintro ⟨rfl, rfl⟩
     simp [BinaryQuadraticForm.eval]
 

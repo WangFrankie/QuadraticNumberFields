@@ -9,6 +9,7 @@ import BinaryQuadraticForms.Computable.Reduction
 import QuadraticNumberFields.Forms.ClassGroup.Law
 import QuadraticNumberFields.Forms.ClassGroup.CoxComposition
 import BinaryQuadraticForms.Cox.IdealRelation
+import QNFMathlib.Data.Int.Parity
 
 open scoped NumberField
 
@@ -53,45 +54,25 @@ def gaussMul (hdneg : d < 0) (Q R : ReducedFormRep D) :
     BinaryQuadraticForm :=
   let Qf := Q.1
   let Rf := R.1
-  -- Both are in the reduced enumeration, hence primitive, positive definite,
-  -- and have discriminant D.
-  have hQprim : Qf.IsPrimitive :=
-    (of_mem_enumPrimitiveReducedForms Q.2).2.2.2
+  have _hDneg : D < 0 := fieldDiscriminant_neg hdneg
+  -- Both are in the reduced enumeration, hence positive definite and have
+  -- discriminant D; the right factor is primitive for composition.
   have hRprim : Rf.IsPrimitive :=
-    (of_mem_enumPrimitiveReducedForms R.2).2.2.2
+    by simpa [Rf] using R.isPrimitive
   have hQpos : Qf.IsPositiveDefinite :=
-    (of_mem_enumPrimitiveReducedForms Q.2).2.1
+    by simpa [Qf] using Q.isPositiveDefinite
   have hRpos : Rf.IsPositiveDefinite :=
-    (of_mem_enumPrimitiveReducedForms R.2).2.1
+    by simpa [Rf] using R.isPositiveDefinite
   have hdiscQ : Qf.disc = D :=
-    (of_mem_enumPrimitiveReducedForms Q.2).1
+    by simpa [Qf] using Q.disc_eq
   have hdiscR : Rf.disc = D :=
-    (of_mem_enumPrimitiveReducedForms R.2).1
+    by simpa [Rf] using R.disc_eq
   have hQR : Qf.disc = Rf.disc := by rw [hdiscQ, hdiscR]
   have hQa : Qf.a ≠ 0 := ne_of_gt hQpos.1
-  -- Compute composition, then reduce.  `reduceForm` needs a
-  -- positive-definite proof for the composed form; this follows from
-  -- discriminant preservation (a > 0 by construction, disc < 0 shown below).
+  -- Compute composition, then reduce.
   let comp := composeForm Qf Rf hQR hRprim hQa
-  have hcomp_pos : comp.IsPositiveDefinite := by
-    have ha_pos : 0 < comp.a := by
-      rw [composeForm_a]
-      apply mul_pos hQpos.1
-      -- R'.a = Rf.eval(coprimeEvalVector Rf Qf.a hRprim hQa), positive by
-      -- eval_pos_of_isPositiveDefinite from Action.lean
-      rw [unitedRep_a]
-      have hxy_nonzero : (coprimeEvalVector Rf Qf.a hRprim hQa).1 ≠ 0 ∨
-          (coprimeEvalVector Rf Qf.a hRprim hQa).2 ≠ 0 := by
-        have hgcd := coprimeEvalVector_gcd Rf Qf.a hRprim hQa
-        by_contra! hboth
-        rcases hboth with ⟨hx, hy⟩
-        rw [hx, hy] at hgcd; simp at hgcd
-      exact eval_pos_of_isPositiveDefinite Rf hRpos hxy_nonzero
-    have hdisc_lt : comp.disc < 0 := by
-      rw [disc_composeForm Qf Rf hQR hRprim hQa hQpos hRpos]
-      rw [hdiscQ]
-      exact fieldDiscriminant_neg hdneg
-    exact ⟨ha_pos, hdisc_lt⟩
+  have hcomp_pos : comp.IsPositiveDefinite :=
+    composeForm_isPositiveDefinite Qf Rf hQR hRprim hQa hQpos hRpos
   reduceForm comp hcomp_pos
 
 /-! ## Class-group bridge
@@ -121,44 +102,6 @@ The existing `coxIdeal_mul_of_concordant` in `CoxComposition.lean` handles
   constructing it requires the full Gauss composition algebra. -/
 
 open CoxIdealRelation
-
-/-- **Generalised Cox ideal product** for united (non-concordant) forms.
-
-The proof adapts `CoxComposition.coxIdeal_mul_of_concordant` to handle different
-middle coefficients `B₁ ≠ B₂`, using the CRT congruences to relate `β₁ = ⟨u₁,1⟩`
-and `β₂ = ⟨u₂,1⟩` to `β = ⟨u,1⟩` via `β₁ = β - t·A₁`, `β₂ = β - k·A₂`. -/
-theorem coxIdeal_mul_of_united
-    {DD bb A₁ A₂ C₁ C₂ B B₁ B₂ u₁ u₂ u : ℤ}
-    (hdiscQ : B₁ ^ 2 - 4 * A₁ * C₁ = bb ^ 2 + 4 * DD)
-    (hdiscR : B₂ ^ 2 - 4 * A₂ * C₂ = bb ^ 2 + 4 * DD)
-    (hu₁ : 2 * u₁ = -(B₁ + bb))
-    (hu₂ : 2 * u₂ = -(B₂ + bb))
-    (hu : 2 * u = -(B + bb))
-    (hcop : Int.gcd A₁ A₂ = 1)
-    (h_mod_left : B ≡ B₁ [ZMOD 2 * A₁])
-    (h_mod_right : B ≡ B₂ [ZMOD 2 * A₂]) :
-    CoxIdealRelation.coxIdeal DD bb A₁ u₁ * CoxIdealRelation.coxIdeal DD bb A₂ u₂ =
-      CoxIdealRelation.coxIdeal DD bb (A₁ * A₂) u := by
-  exact CoxComposition.coxIdeal_mul_of_united hdiscQ hdiscR hu₁ hu₂ hu hcop h_mod_left
-    h_mod_right
-
-private theorem even_of_modEq_even {B b a : ℤ} (hb : Even b)
-    (hB : B ≡ b [ZMOD 2 * a]) : Even B := by
-  rcases hb with ⟨m, hm⟩
-  rcases Int.modEq_iff_dvd.mp hB with ⟨k, hk⟩
-  use m - a * k
-  have hB_eq : B = b - 2 * a * k := by linarith
-  rw [hB_eq, hm]
-  ring
-
-private theorem odd_of_modEq_odd {B b a : ℤ} (hb : Odd b)
-    (hB : B ≡ b [ZMOD 2 * a]) : Odd B := by
-  rcases hb with ⟨m, hm⟩
-  rcases Int.modEq_iff_dvd.mp hB with ⟨k, hk⟩
-  use m - a * k
-  have hB_eq : B = b - 2 * a * k := by linarith
-  rw [hB_eq, hm]
-  ring
 
 /-- Wrap the coprime right-factor replacement as a primitive positive definite
 form. -/
@@ -195,6 +138,7 @@ def composeFormPrimitiveOfCoprime (hdneg : d < 0)
     (hQR : Q.1.disc = R.1.disc) (hRprim : R.1.IsPrimitive) (hQa : Q.1.a ≠ 0)
     (hQpos : Q.1.IsPositiveDefinite) (hRpos : R.1.IsPositiveDefinite) :
     PrimitivePositiveDefiniteForm (fieldDiscriminant d) :=
+  have _hDneg : fieldDiscriminant d < 0 := fieldDiscriminant_neg hdneg
   have hQprim : Q.1.IsPrimitive := Q.2.2.1
   let F := composeForm Q.1 R.1 hQR hRprim hQa
   have hdiscF : F.HasDiscriminant (fieldDiscriminant d) := by
@@ -202,23 +146,8 @@ def composeFormPrimitiveOfCoprime (hdneg : d < 0)
     rw [disc_composeForm Q.1 R.1 hQR hRprim hQa hQpos hRpos, Q.2.1]
   have hprimF : F.IsPrimitive :=
     isPrimitive_composeForm Q.1 R.1 hQR hQprim hRprim hQa hQpos hRpos
-  have hposF : F.IsPositiveDefinite := by
-    refine ⟨?_, ?_⟩
-    · rw [composeForm_a]
-      have hR'a_pos : 0 < (unitedRep Q.1 R.1 hRprim hQa).a := by
-        rw [unitedRep_a]
-        have hxy_gcd : Int.gcd (coprimeEvalVector R.1 Q.1.a hRprim hQa).1
-            (coprimeEvalVector R.1 Q.1.a hRprim hQa).2 = 1 :=
-          coprimeEvalVector_gcd R.1 Q.1.a hRprim hQa
-        have hxy_nonzero : (coprimeEvalVector R.1 Q.1.a hRprim hQa).1 ≠ 0 ∨
-            (coprimeEvalVector R.1 Q.1.a hRprim hQa).2 ≠ 0 := by
-          by_contra! hboth
-          rcases hboth with ⟨hx, hy⟩
-          rw [hx, hy] at hxy_gcd; simp at hxy_gcd
-        exact eval_pos_of_isPositiveDefinite R.1 hRpos hxy_nonzero
-      exact mul_pos hQpos.1 hR'a_pos
-    · rw [disc_composeForm Q.1 R.1 hQR hRprim hQa hQpos hRpos, Q.2.1]
-      exact fieldDiscriminant_neg hdneg
+  have hposF : F.IsPositiveDefinite :=
+    composeForm_isPositiveDefinite Q.1 R.1 hQR hRprim hQa hQpos hRpos
   ⟨F, ⟨hdiscF, hprimF, ⟨hposF.1, hposF.2⟩⟩⟩
 
 /-- In the non-half-integral branch, the computable CRT composition has the
@@ -259,16 +188,16 @@ theorem idealOfForm_composeForm_of_mod_four_ne_one
   have hbR_even : Even R'.b :=
     even_b_of_hasDiscriminant_fieldDiscriminant_of_mod_four_ne_one hd4 R'F.2.1
   have hB_even : Even B :=
-    even_of_modEq_even hbQ_even h_mod_left
+    Int.even_of_modEq_even hbQ_even h_mod_left
   have hu₁ : 2 * u₁ = -(Q.1.b + 0) := by
     simpa [u₁] using
-      PrimitivePositiveDefiniteForm.two_mul_neg_div_two_of_even hbQ_even
+      Int.two_mul_neg_ediv_two_of_even hbQ_even
   have hu₂ : 2 * u₂ = -(R'.b + 0) := by
     simpa [u₂] using
-      PrimitivePositiveDefiniteForm.two_mul_neg_div_two_of_even hbR_even
+      Int.two_mul_neg_ediv_two_of_even hbR_even
   have hu : 2 * u = -(B + 0) := by
     simpa [u] using
-      PrimitivePositiveDefiniteForm.two_mul_neg_div_two_of_even hB_even
+      Int.two_mul_neg_ediv_two_of_even hB_even
   have hdiscQ : Q.1.b ^ 2 - 4 * Q.1.a * Q.1.c = 0 ^ 2 + 4 * d := by
     simpa [BinaryQuadraticForm.HasDiscriminant, BinaryQuadraticForm.disc,
       fieldDiscriminant_of_mod_four_ne_one hd4] using Q.2.1
@@ -279,7 +208,8 @@ theorem idealOfForm_composeForm_of_mod_four_ne_one
       CoxIdealRelation.coxIdeal d 0 Q.1.a u₁ *
           CoxIdealRelation.coxIdeal d 0 R'.a u₂ =
         CoxIdealRelation.coxIdeal d 0 (Q.1.a * R'.a) u :=
-    coxIdeal_mul_of_united hdiscQ hdiscR hu₁ hu₂ hu hcop h_mod_left h_mod_right
+    CoxComposition.coxIdeal_mul_of_united hdiscQ hdiscR hu₁ hu₂ hu hcop h_mod_left
+      h_mod_right
   calc
     idealOfForm_of_mod_four_ne_one d hd4
         (composeFormPrimitiveOfCoprime hdneg Q R hQR hRprim hQa hQpos hRpos)
@@ -296,7 +226,7 @@ theorem idealOfForm_composeForm_of_mod_four_ne_one
           (CoxIdealRelation.coxIdeal d 0 Q.1.a u₁) *
         Ideal.comap (e : 𝓞 (Qsqrtd (d : ℚ)) →+* Zsqrtd d)
           (CoxIdealRelation.coxIdeal d 0 R'.a u₂) := by
-          rw [PrimitivePositiveDefiniteForm.comap_mul_of_ringEquiv]
+          rw [Ideal.comap_mul_of_ringEquiv]
     _ = idealOfForm_of_mod_four_ne_one d hd4 Q *
         idealOfForm_of_mod_four_ne_one d hd4 R'F := by
           simp [idealOfForm_of_mod_four_ne_one, CoxIdealRelation.coxIdeal, e, R'F, R',
@@ -387,16 +317,16 @@ theorem idealOfForm_composeForm_of_mod_four_eq_one
   have hbR_odd : Odd R'.b :=
     odd_b_of_hasDiscriminant_fieldDiscriminant_of_mod_four_eq_one hd4 R'F.2.1
   have hB_odd : Odd B :=
-    odd_of_modEq_odd hbQ_odd h_mod_left
+    Int.odd_of_modEq_odd hbQ_odd h_mod_left
   have hu₁ : 2 * u₁ = -(Q.1.b + 1) := by
     simpa [u₁] using
-      PrimitivePositiveDefiniteForm.two_mul_neg_succ_div_two_of_odd hbQ_odd
+      Int.two_mul_neg_succ_ediv_two_of_odd hbQ_odd
   have hu₂ : 2 * u₂ = -(R'.b + 1) := by
     simpa [u₂] using
-      PrimitivePositiveDefiniteForm.two_mul_neg_succ_div_two_of_odd hbR_odd
+      Int.two_mul_neg_succ_ediv_two_of_odd hbR_odd
   have hu : 2 * u = -(B + 1) := by
     simpa [u] using
-      PrimitivePositiveDefiniteForm.two_mul_neg_succ_div_two_of_odd hB_odd
+      Int.two_mul_neg_succ_ediv_two_of_odd hB_odd
   have hdiscQ : Q.1.b ^ 2 - 4 * Q.1.a * Q.1.c = 1 ^ 2 + 4 * (d / 4) := by
     have hdisc_d : Q.1.b ^ 2 - 4 * Q.1.a * Q.1.c = d := by
       simpa [BinaryQuadraticForm.HasDiscriminant, BinaryQuadraticForm.disc,
@@ -411,7 +341,8 @@ theorem idealOfForm_composeForm_of_mod_four_eq_one
       CoxIdealRelation.coxIdeal (d / 4) 1 Q.1.a u₁ *
           CoxIdealRelation.coxIdeal (d / 4) 1 R'.a u₂ =
         CoxIdealRelation.coxIdeal (d / 4) 1 (Q.1.a * R'.a) u :=
-    coxIdeal_mul_of_united hdiscQ hdiscR hu₁ hu₂ hu hcop h_mod_left h_mod_right
+    CoxComposition.coxIdeal_mul_of_united hdiscQ hdiscR hu₁ hu₂ hu hcop h_mod_left
+      h_mod_right
   calc
     idealOfForm_of_mod_four_eq_one d hd4
         (composeFormPrimitiveOfCoprime hdneg Q R hQR hRprim hQa hQpos hRpos)
@@ -428,7 +359,7 @@ theorem idealOfForm_composeForm_of_mod_four_eq_one
           (CoxIdealRelation.coxIdeal (d / 4) 1 Q.1.a u₁) *
         Ideal.comap (e : 𝓞 (Qsqrtd (d : ℚ)) →+* ZOnePlusSqrtdOverTwo (d / 4))
           (CoxIdealRelation.coxIdeal (d / 4) 1 R'.a u₂) := by
-          rw [PrimitivePositiveDefiniteForm.comap_mul_of_ringEquiv]
+          rw [Ideal.comap_mul_of_ringEquiv]
     _ = idealOfForm_of_mod_four_eq_one d hd4 Q *
         idealOfForm_of_mod_four_eq_one d hd4 R'F := by
           simp [idealOfForm_of_mod_four_eq_one, CoxIdealRelation.coxIdeal, e, R'F, R',
@@ -487,7 +418,7 @@ Under the Cox equivalence, the CRT-adjusted `composeForm` represents the
 product of form classes.  This is the linchpin connecting the computable
 Gauss pipeline to the existing transported `CommGroup` on `FormClass`.
 
-Uses `coxIdeal_mul_of_united` (above) for the ideal-product identity,
+Uses `CoxComposition.coxIdeal_mul_of_united` for the ideal-product identity,
 `unitedRep_properEquivalent` for right-factor replacement, and
 `formClassEquivClassGroup` injectivity for the quotient lift. -/
 theorem composeForm_mk (hdneg : d < 0)
@@ -536,33 +467,17 @@ theorem mem_enum_of_gaussMul (hdneg : d < 0) (Q R : ReducedFormRep D) :
   unfold gaussMul
   let Qf := Q.1
   let Rf := R.1
-  have hQprim : Qf.IsPrimitive := (of_mem_enumPrimitiveReducedForms Q.2).2.2.2
-  have hRprim : Rf.IsPrimitive := (of_mem_enumPrimitiveReducedForms R.2).2.2.2
-  have hQpos : Qf.IsPositiveDefinite := (of_mem_enumPrimitiveReducedForms Q.2).2.1
-  have hRpos : Rf.IsPositiveDefinite := (of_mem_enumPrimitiveReducedForms R.2).2.1
-  have hdiscQ : Qf.disc = D := (of_mem_enumPrimitiveReducedForms Q.2).1
-  have hdiscR : Rf.disc = D := (of_mem_enumPrimitiveReducedForms R.2).1
+  have hQprim : Qf.IsPrimitive := by simpa [Qf] using Q.isPrimitive
+  have hRprim : Rf.IsPrimitive := by simpa [Rf] using R.isPrimitive
+  have hQpos : Qf.IsPositiveDefinite := by simpa [Qf] using Q.isPositiveDefinite
+  have hRpos : Rf.IsPositiveDefinite := by simpa [Rf] using R.isPositiveDefinite
+  have hdiscQ : Qf.disc = D := by simpa [Qf] using Q.disc_eq
+  have hdiscR : Rf.disc = D := by simpa [Rf] using R.disc_eq
   have hQR : Qf.disc = Rf.disc := by rw [hdiscQ, hdiscR]
   have hQa : Qf.a ≠ 0 := ne_of_gt hQpos.1
   let comp := composeForm Qf Rf hQR hRprim hQa
-  have hcomp_pos : comp.IsPositiveDefinite := by
-    have ha_pos : 0 < comp.a := by
-      rw [composeForm_a]
-      apply mul_pos hQpos.1
-      rw [unitedRep_a]
-      have hxy_gcd : Int.gcd (coprimeEvalVector Rf Qf.a hRprim hQa).1
-          (coprimeEvalVector Rf Qf.a hRprim hQa).2 = 1 :=
-        coprimeEvalVector_gcd Rf Qf.a hRprim hQa
-      have hxy_nonzero : (coprimeEvalVector Rf Qf.a hRprim hQa).1 ≠ 0 ∨
-          (coprimeEvalVector Rf Qf.a hRprim hQa).2 ≠ 0 := by
-        by_contra! hboth
-        rcases hboth with ⟨hx, hy⟩
-        rw [hx, hy] at hxy_gcd; simp at hxy_gcd
-      exact eval_pos_of_isPositiveDefinite Rf hRpos hxy_nonzero
-    have hdisc_lt : comp.disc < 0 := by
-      rw [disc_composeForm Qf Rf hQR hRprim hQa hQpos hRpos, hdiscQ]
-      exact fieldDiscriminant_neg hdneg
-    exact ⟨ha_pos, hdisc_lt⟩
+  have hcomp_pos : comp.IsPositiveDefinite :=
+    composeForm_isPositiveDefinite Qf Rf hQR hRprim hQa hQpos hRpos
   have hcomp_disc : comp.HasDiscriminant D := by
     rw [BinaryQuadraticForm.HasDiscriminant,
       disc_composeForm Qf Rf hQR hRprim hQa hQpos hRpos, hdiscQ]
@@ -579,12 +494,12 @@ theorem gaussMul_eq_reducedFormRepMul_val
   letI := formClassCommGroup hdneg
   let Qp : PrimitivePositiveDefiniteForm D := primitivePositiveDefiniteFormOfMemEnum Q.2
   let Rp : PrimitivePositiveDefiniteForm D := primitivePositiveDefiniteFormOfMemEnum R.2
-  have hQprim : Q.1.IsPrimitive := (of_mem_enumPrimitiveReducedForms Q.2).2.2.2
-  have hRprim : R.1.IsPrimitive := (of_mem_enumPrimitiveReducedForms R.2).2.2.2
-  have hQpos : Q.1.IsPositiveDefinite := (of_mem_enumPrimitiveReducedForms Q.2).2.1
-  have hRpos : R.1.IsPositiveDefinite := (of_mem_enumPrimitiveReducedForms R.2).2.1
-  have hdiscQ : Q.1.disc = D := (of_mem_enumPrimitiveReducedForms Q.2).1
-  have hdiscR : R.1.disc = D := (of_mem_enumPrimitiveReducedForms R.2).1
+  have hQprim : Q.1.IsPrimitive := Q.isPrimitive
+  have hRprim : R.1.IsPrimitive := R.isPrimitive
+  have hQpos : Q.1.IsPositiveDefinite := Q.isPositiveDefinite
+  have hRpos : R.1.IsPositiveDefinite := R.isPositiveDefinite
+  have hdiscQ : Q.1.disc = D := Q.disc_eq
+  have hdiscR : R.1.disc = D := R.disc_eq
   have hQR : Q.1.disc = R.1.disc := by rw [hdiscQ, hdiscR]
   have hQa : Q.1.a ≠ 0 := ne_of_gt hQpos.1
   let compP : PrimitivePositiveDefiniteForm D :=
@@ -599,24 +514,7 @@ theorem gaussMul_eq_reducedFormRepMul_val
     unfold G gaussMul compP composeFormPrimitiveOfCoprime Qp Rp
     simpa using reduceForm_properEquivalent
       (composeForm Q.1 R.1 hQR hRprim hQa)
-      (by
-        have ha_pos : 0 < (composeForm Q.1 R.1 hQR hRprim hQa).a := by
-          rw [composeForm_a]
-          apply mul_pos hQpos.1
-          rw [unitedRep_a]
-          have hxy_gcd : Int.gcd (coprimeEvalVector R.1 Q.1.a hRprim hQa).1
-              (coprimeEvalVector R.1 Q.1.a hRprim hQa).2 = 1 :=
-            coprimeEvalVector_gcd R.1 Q.1.a hRprim hQa
-          have hxy_nonzero : (coprimeEvalVector R.1 Q.1.a hRprim hQa).1 ≠ 0 ∨
-              (coprimeEvalVector R.1 Q.1.a hRprim hQa).2 ≠ 0 := by
-            by_contra! hboth
-            rcases hboth with ⟨hx, hy⟩
-            rw [hx, hy] at hxy_gcd; simp at hxy_gcd
-          exact eval_pos_of_isPositiveDefinite R.1 hRpos hxy_nonzero
-        have hdisc_lt : (composeForm Q.1 R.1 hQR hRprim hQa).disc < 0 := by
-          rw [disc_composeForm Q.1 R.1 hQR hRprim hQa hQpos hRpos, hdiscQ]
-          exact fieldDiscriminant_neg hdneg
-        exact ⟨ha_pos, hdisc_lt⟩)
+      (composeForm_isPositiveDefinite Q.1 R.1 hQR hRprim hQa hQpos hRpos)
   have hcomp_class :
       Quotient.mk (primitivePositiveDefiniteFormSetoid D) compP = Q.formClass * R.formClass := by
     simpa [Qp, Rp, ReducedFormRep.formClass] using

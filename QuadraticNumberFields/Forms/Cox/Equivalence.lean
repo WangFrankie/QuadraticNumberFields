@@ -62,8 +62,7 @@ theorem formClassToClassGroup_leftInverse_of_representatives (hdneg : d < 0)
     ∀ C : FormClass (fieldDiscriminant d),
       classGroupToFormClass hdneg (formClassToClassGroup d C) = C := by
   intro C
-  induction C using Quotient.inductionOn with
-  | h Q => exact hrep Q
+  exact Quotient.inductionOn C hrep
 
 /-- It is enough to prove the right inverse law on nonzero integral ideal
 representatives. -/

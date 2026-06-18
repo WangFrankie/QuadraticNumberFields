@@ -491,24 +491,8 @@ theorem basis_first_mul_cox_ideal_le_span_a_mul_ideal {O : Type*} [CommRing O]
   have hbeta : (b.basis 0 : 𝓞K) * e.symm betaO ∈ target := by
     simpa [target] using
       basis_first_mul_cox_ideal_generator_mem_span_a_mul_ideal b Q e betaO hrel
-  rw [Ideal.span_singleton_mul_le_iff]
-  intro z hz
-  have hz' : e z ∈ Ideal.span ({aO, betaO} : Set O) := by
-    simpa [aO] using hz
-  rcases ((Ideal.mem_span_pair (x := aO) (y := betaO)).mp hz') with ⟨u, v, huv⟩
-  have hz_eq : z = e.symm (u * aO + v * betaO) := by
-    apply e.injective
-    simp [huv]
-  rw [hz_eq]
-  have hsplit :
-      (b.basis 0 : 𝓞K) * e.symm (u * aO + v * betaO) =
-        e.symm u * ((b.basis 0 : 𝓞K) * e.symm aO) +
-          e.symm v * ((b.basis 0 : 𝓞K) * e.symm betaO) := by
-    simp
-    ring
-  rw [hsplit]
-  exact target.add_mem (target.mul_mem_left (e.symm u) hscalar)
-    (target.mul_mem_left (e.symm v) hbeta)
+  rw [Ideal.comap_span_pair_of_ringEquiv e aO betaO]
+  exact Ideal.span_singleton_mul_span_pair_le hscalar hbeta
 
 /-- The oriented-basis decomposition gives the reverse principal-relation
 inclusion `(a_Q) · I ≤ (b₀) · J(Q_b)`, independently of the order model. -/

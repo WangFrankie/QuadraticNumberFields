@@ -26,13 +26,8 @@ theorem exists_isReduced_primitivePositiveDefiniteForm_properEquivalent
     ∃ R : PrimitivePositiveDefiniteForm D, R.1.IsReduced ∧
       PrimitivePositiveDefiniteForm.ProperEquivalent Q R := by
   obtain ⟨R, hRred, hQR⟩ := exists_isReduced_properEquivalent Q.1 Q.2.2.2
-  rcases hQR with ⟨g, rfl⟩
-  refine ⟨⟨transform Q.1 g, ?_⟩, hRred, ⟨g, rfl⟩⟩
-  constructor
-  · exact (disc_transform Q.1 g).trans Q.2.1
-  · constructor
-    · exact isPrimitive_transform Q.1 Q.2.2.1 g
-    · exact isPositiveDefinite_transform Q.1 Q.2.2.2 g
+  exact ⟨PrimitivePositiveDefiniteForm.ofProperEquivalent Q hQR, hRred,
+    PrimitivePositiveDefiniteForm.properEquivalent_ofProperEquivalent Q hQR⟩
 
 /-- Boundary-normalized reduced representatives are unique within the
 restricted primitive positive definite carrier. -/

@@ -63,14 +63,8 @@ def coxIdeal (d a b : ℤ) : Ideal (Zsqrtd d) :=
 /-- Helper lemma: `coxBetaZ d b = -⟨-b/2, 1⟩` when `b` is even. -/
 theorem coxBetaZ_eq_neg_of_even {d b : ℤ} (hb : Even b) :
     coxBetaZ d b = -(⟨-b / 2, 1⟩ : Zsqrtd d) := by
-  obtain ⟨k, hk⟩ := hb
-  have hk' : b / 2 = k := by rw [hk]; omega
-  ext
-  · simp only [coxBetaZ_re, hk']
-    calc
-      k = -(-k) := by ring
-      _ = -((-b : ℤ) / 2) := by rw [hk]; omega
-  · simp [coxBetaZ_im]
+  have hb_dvd : (2 : ℤ) ∣ b := by simpa [even_iff_two_dvd] using hb
+  ext <;> simp [coxBetaZ, Int.neg_ediv_of_dvd hb_dvd]
 
 /-! ### The spanning lemma for the Cox ideal -/
 
@@ -332,14 +326,7 @@ theorem classGroupToFormClass_idealClassOfForm_leftInverse_of_mod_four_ne_one
   have hI_ne_zero : (I : Ideal 𝓞K) ≠ 0 := mem_nonZeroDivisors_iff_ne_zero.mp I.2
   have h_idealClass : idealClassOfForm_of_mod_four_ne_one d hd4 Q = ClassGroup.mk0 I := rfl
   rw [h_idealClass]
-  have h_class_eq : classGroupToFormClass hdneg (ClassGroup.mk0 I) =
-      formClassOfNonzeroIdeal hdneg I := by
-    dsimp [classGroupToFormClass]
-    let J := Classical.choose (ClassGroup.mk0_surjective (ClassGroup.mk0 I))
-    have hJ_mk0 : ClassGroup.mk0 J = ClassGroup.mk0 I :=
-      Classical.choose_spec (ClassGroup.mk0_surjective (ClassGroup.mk0 I))
-    exact formClassOfNonzeroIdeal_eq_of_mk0_eq hdneg J I hJ_mk0
-  rw [h_class_eq]
+  rw [classGroupToFormClass_mk0_eq_formClassOfNonzeroIdeal hdneg I]
   rw [formClassOfNonzeroIdeal_eq_mk hdneg I
     (b := orientedBasisOfNeZero (I : Ideal 𝓞K) hI_ne_zero)]
   rcases coxIdealBasisOK_K_re_im hd4 hdneg Q with ⟨h0_re, h0_im, h1_re, h1_im⟩

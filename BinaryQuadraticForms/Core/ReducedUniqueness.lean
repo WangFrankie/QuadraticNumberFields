@@ -138,16 +138,12 @@ private theorem a_eq_c_of_tauOfForm_norm_eq_one (Q : BinaryQuadraticForm)
 private theorem b_eq_a_of_tauOfForm_eq_rho (Q : BinaryQuadraticForm)
     (hQ : Q.IsPositiveDefinite) (h : tauOfForm Q hQ = UpperHalfPlane.ρ) :
     Q.b = Q.a := by
-  apply b_eq_a_of_tauOfForm_re_eq_neg_half Q hQ
-  rw [h]
-  norm_num [UpperHalfPlane.ρ]
+  exact b_eq_a_of_tauOfForm_re_eq_neg_half Q hQ (by rw [h]; norm_num [UpperHalfPlane.ρ])
 
 private theorem b_eq_neg_a_of_tauOfForm_eq_one_vadd_rho (Q : BinaryQuadraticForm)
     (hQ : Q.IsPositiveDefinite) (h : tauOfForm Q hQ = (1 : ℝ) +ᵥ UpperHalfPlane.ρ) :
     Q.b = -Q.a := by
-  apply b_eq_neg_a_of_tauOfForm_re_eq_half Q hQ
-  rw [h]
-  norm_num [UpperHalfPlane.ρ]
+  exact b_eq_neg_a_of_tauOfForm_re_eq_half Q hQ (by rw [h]; norm_num [UpperHalfPlane.ρ])
 
 private theorem a_eq_c_of_tauOfForm_eq_rho (Q : BinaryQuadraticForm)
     (hQ : Q.IsPositiveDefinite) (h : tauOfForm Q hQ = UpperHalfPlane.ρ) :
