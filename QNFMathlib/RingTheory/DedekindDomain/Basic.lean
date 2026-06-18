@@ -7,7 +7,7 @@ Authors: Frankie Wang
 import Mathlib.RingTheory.DedekindDomain.Basic
 import Mathlib.RingTheory.IntegralClosure.IntegrallyClosed
 import Mathlib.RingTheory.Noetherian.Basic
-import QuadraticNumberFields.Mathlib.RingTheory.Krull
+import QNFMathlib.RingTheory.Krull
 
 /-!
 # Dedekind-Domain Transport Across Ring Equivalences

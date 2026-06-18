@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 
-import QuadraticNumberFields.Mathlib
+import QNFMathlib
 import QuadraticNumberFields.Qsqrtd.Basic
 import QuadraticNumberFields.QuadraticField.Basic
 import QuadraticNumberFields.QuadraticField.Parameters

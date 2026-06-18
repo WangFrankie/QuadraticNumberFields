@@ -7,7 +7,7 @@ General ideal membership, primality, and quotient results for the project-owned
 `Zsqrtd d` (i.e., `QuadraticAlgebra ℤ d 0`).
 -/
 import QuadraticNumberFields.Zsqrtd.Basic
-import QuadraticNumberFields.Mathlib.RingTheory.Ideal.Span
+import QNFMathlib.RingTheory.Ideal.Span
 import Mathlib.RingTheory.Ideal.Operations
 import Mathlib.RingTheory.Ideal.Norm.AbsNorm
 import Mathlib.Tactic.NormNum
@@ -43,7 +43,7 @@ This module provides the general ideal-span results for the project-owned
 ### Utility lemmas
 
 The general ideal-span helper used in this file is imported from
-`QuadraticNumberFields.Mathlib.RingTheory.Ideal.Span`.
+`QNFMathlib.RingTheory.Ideal.Span`.
 -/
 
 open Ideal

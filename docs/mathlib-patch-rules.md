@@ -1,14 +1,14 @@
 # mathlib Patch Rules
 
 This repository keeps temporary upstream-style material under
-`QuadraticNumberFields/Mathlib/`. These files are local patches for facts that
+`QNFMathlib/`. These files are local patches for facts that
 belong in mathlib but are not yet available in the pinned dependency.
 
 ## Placement
 
 - Prefer patching a local mirror of an existing mathlib file.
   If a declaration belongs in `Mathlib/Foo/Bar.lean`, put the local patch in
-  `QuadraticNumberFields/Mathlib/Foo/Bar.lean`.
+  `QNFMathlib/Foo/Bar.lean`.
 - Do not create a new local mathlib file unless the corresponding new file
   would also be the right upstream mathlib file.
 - Place declarations by mathematical ownership, not by the project file that
@@ -42,7 +42,7 @@ belong in mathlib but are not yet available in the pinned dependency.
 - Avoid introducing heavy downstream imports into an upstream-layer mirror when
   only one declaration needs them. Put that declaration in the lower layer that
   already owns those imports.
-- Re-export local mathlib patches from `QuadraticNumberFields/Mathlib.lean`
+- Re-export local mathlib patches from `QNFMathlib.lean`
   once they are intended for use outside their immediate file.
 
 ## Style
