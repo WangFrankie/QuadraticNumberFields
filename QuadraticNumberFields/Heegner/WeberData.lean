@@ -16,7 +16,7 @@ them in the final assembly file.
 
 ## Main definitions
 
-* `HasRingClassNumberThreeAtConductorTwo`: placeholder for the conductor-`2`
+* `RingClassNumberConductorTwoData`: structured placeholder for the conductor-`2`
   ring-class-number jump.
 * `heegnerGammaPrimePairs`: the finite Cox-Heegner table relating inert primes
   to gamma values.
@@ -33,10 +33,28 @@ open scoped NumberField
 namespace QuadraticNumberFields
 namespace Heegner
 
-/-- Placeholder for the order-class-number statement
-`h(-p) = 1 -> h(-4p) = 3` in the Cox-Heegner route. -/
+/-- Structured conductor-`2` ring-class-number data in the Cox-Heegner route.
+
+This is intentionally a small interface rather than a real theory of quadratic
+orders.  The future replacement should identify `orderClassNumber` with the
+class number of the quadratic order of conductor `2` and discriminant `-4p`. -/
+structure RingClassNumberConductorTwoData (p : ℕ) where
+  /-- The conductor of the quadratic order. -/
+  conductor : ℕ
+  /-- This framework layer is specifically about conductor `2`. -/
+  conductor_eq_two : conductor = 2
+  /-- The discriminant of the conductor-`2` order in `ℚ(√-p)`. -/
+  discriminant : ℤ
+  /-- The discriminant is `-4p`. -/
+  discriminant_eq : discriminant = -(4 * (p : ℤ))
+  /-- The ring class number of this quadratic order. -/
+  orderClassNumber : ℕ
+  /-- Cox's class-number jump gives ring class number `3`. -/
+  orderClassNumber_eq_three : orderClassNumber = 3
+
+/-- The conductor-`2` ring-class-number input used by the Weber/CM layer. -/
 def HasRingClassNumberThreeAtConductorTwo (p : ℕ) : Prop :=
-  p = p
+  Nonempty (RingClassNumberConductorTwoData p)
 
 /-- The finite Cox-Heegner table matching positive inert Heegner primes with
 the corresponding Weber gamma values. -/
