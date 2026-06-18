@@ -62,8 +62,10 @@ lake build
 - `QuadraticNumberFields.lean` re-exports completed, sorry-free public modules.
 - `QuadraticNumberFields/Sketch.lean` collects unfinished modules and theorem
   skeletons.
+- `BinaryQuadraticForms.lean` re-exports the QNF-independent binary-quadratic-form
+  machinery used by the class-group bridge.
 - General-purpose facts intended for mathlib live under
-  `QuadraticNumberFields/Mathlib/`.
+  `QNFMathlib/`.
 - The project-owned `Zsqrtd` model is separate from mathlib's `_root_.Zsqrtd`.
   Use `QuadraticNumberFields/Zsqrtd/MathlibBridge.lean` only when an interface
   with mathlib's model is genuinely required.
@@ -72,23 +74,26 @@ lake build
 
 | Module | Code Lines | Comment Lines | Total Lines |
 |--------|------------|---------------|-------------|
+| `QuadraticNumberFields/Forms` | 5112 | 981 | 6093 |
+| `BinaryQuadraticForms` | 3373 | 708 | 4081 |
 | `QuadraticNumberFields/Splitting` | 1537 | 478 | 2015 |
-| `QuadraticNumberFields/Mathlib` | 1010 | 386 | 1396 |
-| `QuadraticNumberFields/Zsqrtd` | 661 | 212 | 873 |
+| `QuadraticNumberFields/Examples` | 1160 | 512 | 1672 |
+| `QNFMathlib` | 1055 | 419 | 1474 |
+| `QuadraticNumberFields/RingOfIntegers` | 734 | 363 | 1097 |
+| `QuadraticNumberFields/Zsqrtd` | 663 | 214 | 877 |
 | `QuadraticNumberFields/QuadraticField` | 586 | 397 | 983 |
-| `QuadraticNumberFields/RingOfIntegers` | 528 | 310 | 838 |
-| `QuadraticNumberFields/Qsqrtd` | 488 | 264 | 752 |
-| `QuadraticNumberFields/Examples` | 410 | 233 | 643 |
+| `QuadraticNumberFields/Qsqrtd` | 531 | 283 | 814 |
+| `QuadraticNumberFields` | 408 | 113 | 521 |
+| `QuadraticNumberFields/ClassGroup` | 402 | 202 | 604 |
 | `QuadraticNumberFields/Units` | 303 | 148 | 451 |
-| `QuadraticNumberFields` | 284 | 75 | 359 |
-| `QuadraticNumberFields/Heegner` | 148 | 76 | 224 |
-| `QuadraticNumberFields/ZOnePlusSqrtdOverTwo` | 103 | 50 | 153 |
+| `QuadraticNumberFields/Heegner` | 167 | 98 | 265 |
+| `QuadraticNumberFields/ZOnePlusSqrtdOverTwo` | 127 | 50 | 177 |
 | `QuadraticNumberFields/Counterexamples` | 82 | 24 | 106 |
 | `QuadraticNumberFields/Euclidean` | 52 | 25 | 77 |
-| `QuadraticNumberFields/ClassGroup` | 49 | 75 | 124 |
 | `QuadraticNumberFields/Families` | 38 | 49 | 87 |
+| `QuadraticNumberFields/ClassNumber` | 26 | 20 | 46 |
 | `QuadraticNumberFields/ContinuedFraction` | 21 | 36 | 57 |
-| **Total** | **6300** | **2838** | **9138** |
+| **Total** | **16377** | **5120** | **21497** |
 
 ## History
 
