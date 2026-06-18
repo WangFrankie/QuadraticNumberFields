@@ -869,6 +869,18 @@ theorem genusFormula_of_oddGenusCharacterProductToRelationSubgroup_bijective_of_
   genusFormula_of_oddGenusCharacterProductToRelationSubgroup_bijective d hd_neg hdata hrel hbij
     (card_oddGenusSignRelationSubgroup_of_discr_odd d hodd)
 
+/-- In the odd field-discriminant branch, the existing odd-prime genus-character
+interface implies the standard genus formula. -/
+theorem genusFormula_of_oddGenusCharacterData
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd_neg : d < 0)
+    (hodd : RingOfIntegers.discrFormula d % 2 ≠ 0)
+    (hdata : OddGenusCharacterData d)
+    (hrel : oddGenusProductRelation d hd_neg hdata)
+    (hbij : Function.Bijective (oddGenusCharacterProductToRelationSubgroup d hd_neg hdata hrel)) :
+    genusFormula d :=
+  genusFormula_of_oddGenusCharacterProductToRelationSubgroup_bijective_of_discr_odd
+    d hd_neg hodd hdata hrel hbij
+
 /-- If the principal-genus quotient has the standard genus-theory cardinality,
 then the standard genus-theory divisibility follows from Lagrange's theorem. -/
 theorem genus_divisibility_of_squareClassSubgroup_quotient_card
@@ -1043,6 +1055,19 @@ theorem classNumber_eq_one_imp_exists_prime_of_odd_discr
     have hd4 := (RingOfIntegers.discrFormula_odd_iff_mod_four_eq_one (-2)).mp hodd
     norm_num at hd4
   · exact hprime
+
+/-- In the odd field-discriminant branch, the odd-prime genus-character interface
+is enough to reduce class number one to the prime-discriminant family. -/
+theorem classNumber_eq_one_imp_exists_prime_of_oddGenusCharacterData
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : d < 0)
+    (hodd : RingOfIntegers.discrFormula d % 2 ≠ 0)
+    (hdata : OddGenusCharacterData d)
+    (hrel : oddGenusProductRelation d hd hdata)
+    (hbij : Function.Bijective (oddGenusCharacterProductToRelationSubgroup d hd hdata hrel))
+    (h : NumberField.classNumber (Qsqrtd (d : ℚ)) = 1) :
+    ∃ p : ℕ, Nat.Prime p ∧ p % 4 = 3 ∧ d = -(p : ℤ) :=
+  classNumber_eq_one_imp_exists_prime_of_odd_discr d hd hodd
+    (genusFormula_of_oddGenusCharacterData d hd hodd hdata hrel hbij) h
 
 end ClassGroup
 end QuadraticNumberFields
