@@ -108,6 +108,31 @@ theorem genusCharacterRaw_mul
   dsimp [genusCharacterRaw]
   rw [Ideal.absNorm.map_mul, Nat.cast_mul, legendreSym.mul]
 
+/-- If `p` does not divide the absolute norm of `I`, the raw genus character is
+nonzero. -/
+theorem genusCharacterRaw_ne_zero_of_norm_not_dvd
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (p : ℕ) [Fact p.Prime]
+    (I : Ideal (𝓞 (Qsqrtd (d : ℚ))))
+    (hp_norm : ¬ (p : ℤ) ∣ (Ideal.absNorm I : ℤ)) :
+    genusCharacterRaw d p I ≠ 0 := by
+  dsimp [genusCharacterRaw]
+  rw [legendreSym.eq_zero_iff]
+  intro hzero
+  exact hp_norm ((ZMod.intCast_zmod_eq_zero_iff_dvd (Ideal.absNorm I : ℤ) p).mp hzero)
+
+/-- If `p` does not divide the absolute norm of `I`, the raw genus character has
+order dividing two. -/
+theorem genusCharacterRaw_sq_eq_one_of_norm_not_dvd
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (p : ℕ) [Fact p.Prime]
+    (I : Ideal (𝓞 (Qsqrtd (d : ℚ))))
+    (hp_norm : ¬ (p : ℤ) ∣ (Ideal.absNorm I : ℤ)) :
+    genusCharacterRaw d p I ^ 2 = 1 := by
+  dsimp [genusCharacterRaw]
+  have hnorm_ne : (((Ideal.absNorm I : ℕ) : ℤ) : ZMod p) ≠ 0 := by
+    intro hzero
+    exact hp_norm ((ZMod.intCast_zmod_eq_zero_iff_dvd (Ideal.absNorm I : ℤ) p).mp hzero)
+  exact legendreSym.sq_one p hnorm_ne
+
 /-- From `p ∈ oddPrimeDiscriminantDivisors d` (so `p` is an odd prime), deduce
 `(p : ℤ) ∣ d`. For `d % 4 = 1`, `discrFormula d = d` directly. For `d % 4 ≠ 1`,
 `discrFormula d = 4*d`; since `p` is an odd prime, `p ∤ 4`, so `p ∣ d`. -/
@@ -236,6 +261,50 @@ theorem genusCharacterRaw_eq_one_of_isPrincipal_of_norm_not_dvd_of_neg
   rw [hspan]
   exact genusCharacterRaw_span_eq_one_of_algebraNorm_nonneg d p hp_disc
     (RingOfIntegers.algebraNorm_nonneg_of_neg (d := d) hd_neg α) hp_span
+
+/-- Right multiplication by a principal ideal whose norm is prime to `p` does not
+change the raw genus character. -/
+theorem genusCharacterRaw_mul_isPrincipal_of_norm_not_dvd_of_neg
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (p : ℕ) [Fact p.Prime]
+    (hd_neg : d < 0) (hp_disc : p ∈ oddPrimeDiscriminantDivisors d)
+    (I P : Ideal (𝓞 (Qsqrtd (d : ℚ))))
+    (hP_principal : P.IsPrincipal) (hp_P : ¬ (p : ℤ) ∣ (Ideal.absNorm P : ℤ)) :
+    genusCharacterRaw d p (I * P) = genusCharacterRaw d p I := by
+  rw [genusCharacterRaw_mul]
+  rw [genusCharacterRaw_eq_one_of_isPrincipal_of_norm_not_dvd_of_neg d p hd_neg hp_disc
+    hP_principal hp_P]
+  ring
+
+/-- Left multiplication by a principal ideal whose norm is prime to `p` does not
+change the raw genus character. -/
+theorem genusCharacterRaw_isPrincipal_mul_of_norm_not_dvd_of_neg
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (p : ℕ) [Fact p.Prime]
+    (hd_neg : d < 0) (hp_disc : p ∈ oddPrimeDiscriminantDivisors d)
+    (P I : Ideal (𝓞 (Qsqrtd (d : ℚ))))
+    (hP_principal : P.IsPrincipal) (hp_P : ¬ (p : ℤ) ∣ (Ideal.absNorm P : ℤ)) :
+    genusCharacterRaw d p (P * I) = genusCharacterRaw d p I := by
+  rw [mul_comm P I]
+  exact genusCharacterRaw_mul_isPrincipal_of_norm_not_dvd_of_neg d p hd_neg hp_disc I P
+    hP_principal hp_P
+
+/-- If two ideal representatives become equal after multiplying by principal ideals
+whose norms are prime to `p`, then they have the same raw genus character. -/
+theorem genusCharacterRaw_eq_of_span_mul_eq_span_mul_of_norm_not_dvd_of_neg
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (p : ℕ) [Fact p.Prime]
+    (hd_neg : d < 0) (hp_disc : p ∈ oddPrimeDiscriminantDivisors d)
+    {I J : Ideal (𝓞 (Qsqrtd (d : ℚ)))} {x y : 𝓞 (Qsqrtd (d : ℚ))}
+    (hx : ¬ (p : ℤ) ∣ (Ideal.absNorm (Ideal.span {x}) : ℤ))
+    (hy : ¬ (p : ℤ) ∣ (Ideal.absNorm (Ideal.span {y}) : ℤ))
+    (hxy : Ideal.span {x} * I = Ideal.span {y} * J) :
+    genusCharacterRaw d p I = genusCharacterRaw d p J := by
+  have hleft := genusCharacterRaw_isPrincipal_mul_of_norm_not_dvd_of_neg d p hd_neg hp_disc
+    (Ideal.span {x}) I ⟨x, rfl⟩ hx
+  have hright := genusCharacterRaw_isPrincipal_mul_of_norm_not_dvd_of_neg d p hd_neg hp_disc
+    (Ideal.span {y}) J ⟨y, rfl⟩ hy
+  calc
+    genusCharacterRaw d p I = genusCharacterRaw d p (Ideal.span {x} * I) := hleft.symm
+    _ = genusCharacterRaw d p (Ideal.span {y} * J) := by rw [hxy]
+    _ = genusCharacterRaw d p J := hright
 
 /-! ## Class-number-one sieve (continued) -/
 
