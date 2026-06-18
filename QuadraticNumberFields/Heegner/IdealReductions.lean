@@ -59,6 +59,29 @@ private theorem eq_neg_one_or_eq_neg_two_of_zsqrtd_norm_eq_two
     have hnegd_le : -d ≤ 2 := by nlinarith [sq_nonneg z.re, him_sq_pos]
     omega
 
+private theorem eq_neg_seven_of_zOnePlusSqrtOverTwo_norm_eq_two
+    {k d : ℤ} (hdk : d = 1 + 4 * k) (hdneg : d < 0) (hd8 : d % 8 = 1)
+    {z : ZOnePlusSqrtdOverTwo k} (hnorm : QuadraticAlgebra.norm z = 2) :
+    d = -7 := by
+  have hcoord : z.re ^ 2 + z.re * z.im - k * z.im ^ 2 = 2 := by
+    cases z
+    simpa [ZOnePlusSqrtdOverTwo.norm_mk] using hnorm
+  have hquad : (2 * z.re + z.im) ^ 2 - d * z.im ^ 2 = 8 := by
+    rw [hdk]
+    nlinarith
+  by_cases him : z.im = 0
+  · have hre_sq : z.re ^ 2 = 2 := by
+      rw [him] at hcoord
+      simpa using hcoord
+    exact False.elim (int_sq_ne_two z.re hre_sq)
+  · have him_sq_pos : 0 < z.im ^ 2 := sq_pos_of_ne_zero him
+    have him_sq_ge_one : 1 ≤ z.im ^ 2 := by omega
+    have hnegd_pos : 0 < -d := by omega
+    have hnegd_le_prod : -d ≤ (-d) * z.im ^ 2 := by nlinarith
+    have hprod_le : (-d) * z.im ^ 2 ≤ 8 := by nlinarith [sq_nonneg (2 * z.re + z.im)]
+    have hnegd_le : -d ≤ 8 := le_trans hnegd_le_prod hprod_le
+    omega
+
 /-- In the `d % 4 ≠ 1` branch of an imaginary quadratic field, an algebraic integer
 of norm absolute value `2` can exist only for `d = -1` or `d = -2`. -/
 theorem eq_neg_one_or_eq_neg_two_of_exists_absNorm_eq_two
@@ -77,6 +100,29 @@ theorem eq_neg_one_or_eq_neg_two_of_exists_absNorm_eq_two
     rw [← RingOfIntegers.algebraNorm_eq_zsqrtd_norm_of_mod_four_ne_one d hd4 α]
     exact hnorm_eq_two
   exact eq_neg_one_or_eq_neg_two_of_zsqrtd_norm_eq_two hdneg hz_norm
+
+/-- In the `d % 8 = 1` split half-integral branch, an algebraic integer of norm
+absolute value `2` can exist only for `d = -7`. -/
+theorem eq_neg_seven_of_exists_absNorm_eq_two_of_mod_eight_eq_one
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hdneg : d < 0) (hd8 : d % 8 = 1)
+    (h : ∃ α : 𝓞 (Qsqrtd (d : ℚ)), (Algebra.norm ℤ α).natAbs = 2) :
+    d = -7 := by
+  rcases h with ⟨α, hα⟩
+  have hnorm_nonneg : 0 ≤ Algebra.norm ℤ α :=
+    RingOfIntegers.algebraNorm_nonneg_of_neg d hdneg α
+  have hnorm_eq_two : Algebra.norm ℤ α = 2 := by
+    have hnat := Int.natAbs_of_nonneg hnorm_nonneg
+    omega
+  let k : ℤ := d / 4
+  have hdk : d = 1 + 4 * k := by
+    dsimp [k]
+    omega
+  have hz_norm :
+      QuadraticAlgebra.norm
+        (RingOfIntegers.ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_eq d k hdk α) = 2 := by
+    rw [← RingOfIntegers.algebraNorm_eq_zOnePlusSqrtOverTwo_norm_of_eq d k hdk α]
+    exact hnorm_eq_two
+  exact eq_neg_seven_of_zOnePlusSqrtOverTwo_norm_eq_two hdk hdneg hd8 hz_norm
 
 /-- In the `d % 4 ≠ 1` branch, class number one forces a norm-`2` algebraic
 integer.  The proof uses only ideal theory: `(2)` ramifies, so its lift is
@@ -130,6 +176,58 @@ theorem exists_algebraNorm_natAbs_eq_two_of_classNumber_eq_one_of_mod_four_ne_on
     exact nat_eq_two_of_sq_eq_four hnorm_map hPne
   exact hnorm.symm.trans hP_abs
 
+/-- In the `d % 8 = 1` split branch, class number one forces a norm-`2`
+algebraic integer.  The proof uses only ideal theory: a prime above `2` has
+residue degree one, class number one makes it principal, and its absolute norm
+is `2`. -/
+theorem exists_algebraNorm_natAbs_eq_two_of_classNumber_eq_one_of_mod_eight_eq_one
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd8 : d % 8 = 1)
+    (hclass : NumberField.classNumber (Qsqrtd (d : ℚ)) = 1) :
+    ∃ α : 𝓞 (Qsqrtd (d : ℚ)), (Algebra.norm ℤ α).natAbs = 2 := by
+  let O := 𝓞 (Qsqrtd (d : ℚ))
+  let p : Ideal ℤ := Ideal.span ({(2 : ℤ)} : Set ℤ)
+  have hchar : ringChar ℤ ≠ 2 := by simp [ringChar.eq_zero]
+  have hpbot : p ≠ ⊥ := by
+    dsimp [p]
+    intro h
+    have htwo : (2 : ℤ) = 0 := Ideal.span_singleton_eq_bot.mp h
+    norm_num at htwo
+  haveI : p.IsMaximal := by
+    dsimp [p]
+    exact PrincipalIdealRing.isMaximal_of_irreducible
+      ((Nat.prime_iff_prime_int.mp Nat.prime_two).irreducible)
+  have hsplit : Ideal.IsSplitIn p O := by
+    simpa [p, O] using Splitting.isSplit_two_of_mod_eight_eq_one (d := d) hd8
+  obtain ⟨P, hP, _P2, _hP2, _hne, _hmap⟩ :=
+    Ideal.map_eq_of_isSplitIn p O hchar hpbot hsplit
+  have hPover_span : P.LiesOver (Ideal.span ({(2 : ℤ)} : Set ℤ)) := by
+    simpa [p] using hP.2
+  letI : P.LiesOver (Ideal.span ({(2 : ℤ)} : Set ℤ)) := hPover_span
+  have hfP : (Ideal.span ({(2 : ℤ)} : Set ℤ)).inertiaDeg P = 1 := by
+    letI := Ring.instAlgebraFractionRing
+    letI := IsIntegralClosure.MulSemiringAction ℤ (FractionRing ℤ) (FractionRing O) O
+    letI := Algebra.IsQuadraticExtension.isGaloisGroup (R := ℤ) (S := O) hchar
+    have hf := Ideal.inertiaDegIn_eq_of_mem p O Gal(FractionRing O / FractionRing ℤ) hP
+    have hf1 : Ideal.inertiaDegIn p O = 1 := hsplit.2
+    rw [hf1] at hf
+    simpa [p] using hf.symm
+  have hP_principal : P.IsPrincipal := by
+    have hPID : IsPrincipalIdealRing O :=
+      (NumberField.classNumber_eq_one_iff (K := Qsqrtd (d : ℚ))).mp hclass
+    letI : IsPrincipalIdealRing O := hPID
+    exact IsPrincipalIdealRing.principal P
+  obtain ⟨α, _hspan, hnorm⟩ :=
+    RingOfIntegers.absNorm_eq_natAbs_algebraNorm_of_isPrincipal (d := d) hP_principal
+  refine ⟨α, ?_⟩
+  have hP_abs : Ideal.absNorm P = 2 := by
+    have hnormP := Ideal.absNorm_eq_pow_inertiaDeg' (P := P) Nat.prime_two
+    have hfP_nat : (Ideal.span ({((2 : ℕ) : ℤ)} : Set ℤ)).inertiaDeg P = 1 := by
+      simpa using hfP
+    rw [hfP_nat] at hnormP
+    norm_num at hnormP
+    exact hnormP
+  exact hnorm.symm.trans hP_abs
+
 /-- In the `d % 4 ≠ 1` branch of the imaginary class-number-one problem, the only
 possibilities are the Gaussian and `√-2` fields. -/
 theorem eq_neg_one_or_eq_neg_two_of_classNumber_eq_one_of_mod_four_ne_one
@@ -138,6 +236,15 @@ theorem eq_neg_one_or_eq_neg_two_of_classNumber_eq_one_of_mod_four_ne_one
     d = -1 ∨ d = -2 :=
   eq_neg_one_or_eq_neg_two_of_exists_absNorm_eq_two d hdneg hd4
     (exists_algebraNorm_natAbs_eq_two_of_classNumber_eq_one_of_mod_four_ne_one d hd4 hclass)
+
+/-- In the `d % 8 = 1` split half-integral branch of the imaginary
+class-number-one problem, the only possibility is the `√-7` field. -/
+theorem eq_neg_seven_of_classNumber_eq_one_of_mod_eight_eq_one
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hdneg : d < 0) (hd8 : d % 8 = 1)
+    (hclass : NumberField.classNumber (Qsqrtd (d : ℚ)) = 1) :
+    d = -7 :=
+  eq_neg_seven_of_exists_absNorm_eq_two_of_mod_eight_eq_one d hdneg hd8
+    (exists_algebraNorm_natAbs_eq_two_of_classNumber_eq_one_of_mod_eight_eq_one d hd8 hclass)
 
 end Heegner
 end QuadraticNumberFields
