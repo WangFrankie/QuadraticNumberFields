@@ -181,6 +181,18 @@ theorem mul_re_sub_im_eq (a b : Zsqrtd d) :
   simp only [QuadraticAlgebra.re_mul, QuadraticAlgebra.im_mul]
   ring
 
+/-- The real part of `(a + b√d) ^ 3` in the project `Zsqrtd` model. -/
+theorem re_cube_mk (d a b : ℤ) :
+    ((⟨a, b⟩ : Zsqrtd d) ^ 3).re = a ^ 3 + 3 * d * a * b ^ 2 := by
+  simp [pow_succ]
+  ring
+
+/-- The imaginary part of `(a + b√d) ^ 3` in the project `Zsqrtd` model. -/
+theorem im_cube_mk (d a b : ℤ) :
+    ((⟨a, b⟩ : Zsqrtd d) ^ 3).im = 3 * a ^ 2 * b + d * b ^ 3 := by
+  simp [pow_succ]
+  ring
+
 /-! ### Domain and no-zero-divisors for `d < 0` -/
 
 /-- Explicit formula for the norm on `Zsqrtd d`: `‖(a, b)‖ = a² - d·b²`. -/
@@ -200,6 +212,13 @@ theorem norm_mk (x y : ℤ) : Zsqrtd.norm (⟨x, y⟩ : Zsqrtd d) = x ^ 2 - d * 
 theorem norm_mul (a b : Zsqrtd d) :
     Zsqrtd.norm (a * b) = Zsqrtd.norm a * Zsqrtd.norm b :=
   MonoidHom.map_mul (M := Zsqrtd d) QuadraticAlgebra.norm a b
+
+/-- Divisibility in `Zsqrtd d` descends to divisibility of integer norms. -/
+theorem norm_dvd_norm_of_dvd {a b : Zsqrtd d} (h : a ∣ b) :
+    Zsqrtd.norm a ∣ Zsqrtd.norm b := by
+  rcases h with ⟨c, rfl⟩
+  rw [Zsqrtd.norm_mul]
+  exact dvd_mul_right _ _
 
 /-- For `d < 0`, the norm of `z` is zero iff `z = 0`. -/
 theorem norm_eq_zero_iff (hd : d < 0) (z : Zsqrtd d) :

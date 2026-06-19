@@ -62,6 +62,128 @@ theorem isUnit_zsqrtd_neg_one_iff (z : Zsqrtd (-1)) :
     · rw [isUnit_iff_norm_isUnit]
       simp [norm_def, re_one, im_one]
 
+private lemma sq_add_sq_eq_one_of_im_cube_eq_one {a b : ℤ}
+    (h : b * (3 * a ^ 2 - b ^ 2) = 1) :
+    a ^ 2 + b ^ 2 = 1 := by
+  rcases Int.mul_eq_one_iff_eq_one_or_neg_one.mp h with ⟨hb, hf⟩ | ⟨hb, hf⟩
+  · subst b
+    nlinarith [sq_nonneg a]
+  · subst b
+    nlinarith [sq_nonneg a]
+
+private lemma sq_add_sq_eq_one_of_im_cube_eq_neg_one {a b : ℤ}
+    (h : b * (3 * a ^ 2 - b ^ 2) = -1) :
+    a ^ 2 + b ^ 2 = 1 := by
+  have hneg : (-b) * (3 * a ^ 2 - b ^ 2) = 1 := by nlinarith
+  rcases Int.mul_eq_one_iff_eq_one_or_neg_one.mp hneg with ⟨hb, hf⟩ | ⟨hb, hf⟩ <;>
+    nlinarith [sq_nonneg a]
+
+private lemma sq_add_sq_eq_one_of_re_cube_eq_one {a b : ℤ}
+    (h : a * (a ^ 2 - 3 * b ^ 2) = 1) :
+    a ^ 2 + b ^ 2 = 1 := by
+  rcases Int.mul_eq_one_iff_eq_one_or_neg_one.mp h with ⟨ha, hf⟩ | ⟨ha, hf⟩
+  · subst a
+    nlinarith [sq_nonneg b]
+  · subst a
+    nlinarith [sq_nonneg b]
+
+private lemma sq_add_sq_eq_one_of_re_cube_eq_neg_one {a b : ℤ}
+    (h : a * (a ^ 2 - 3 * b ^ 2) = -1) :
+    a ^ 2 + b ^ 2 = 1 := by
+  have hneg : (-a) * (a ^ 2 - 3 * b ^ 2) = 1 := by nlinarith
+  rcases Int.mul_eq_one_iff_eq_one_or_neg_one.mp hneg with ⟨ha, hf⟩ | ⟨ha, hf⟩ <;>
+    nlinarith [sq_nonneg b]
+
+private lemma sq_add_two_mul_sq_eq_one_of_re_cube_neg_two_eq_one {a b : ℤ}
+    (h : a * (a ^ 2 - 6 * b ^ 2) = 1) :
+    a ^ 2 + 2 * b ^ 2 = 1 := by
+  rcases Int.mul_eq_one_iff_eq_one_or_neg_one.mp h with ⟨ha, hf⟩ | ⟨ha, hf⟩
+  · subst a
+    nlinarith [sq_nonneg b]
+  · subst a
+    nlinarith [sq_nonneg b]
+
+private lemma sq_add_two_mul_sq_eq_one_of_re_cube_neg_two_eq_neg_one {a b : ℤ}
+    (h : a * (a ^ 2 - 6 * b ^ 2) = -1) :
+    a ^ 2 + 2 * b ^ 2 = 1 := by
+  have hneg : (-a) * (a ^ 2 - 6 * b ^ 2) = 1 := by nlinarith
+  rcases Int.mul_eq_one_iff_eq_one_or_neg_one.mp hneg with ⟨ha, hf⟩ | ⟨ha, hf⟩ <;>
+    nlinarith [sq_nonneg b]
+
+/-- If a cube in `Zsqrtd (-1)` is associated to an element with imaginary part
+`1`, then the base of the cube has norm `1`. -/
+-- Repository use: Cox's negative-square auxiliary equation factors
+-- `n ^ 3 = z ^ 2 + 1` in the project-owned Gaussian order `Zsqrtd (-1)`.
+theorem zsqrtd_neg_one_norm_eq_one_of_associated_cube_of_im_eq_one
+    {w z : Zsqrtd (-1)} (h : Associated (w ^ 3) z) (hz : z.im = 1) :
+    Zsqrtd.norm w = 1 := by
+  obtain ⟨u, hu⟩ := h
+  obtain ⟨a, b⟩ := w
+  rcases (isUnit_zsqrtd_neg_one_iff (u : Zsqrtd (-1))).mp u.isUnit with
+    hu1 | hum1 | hui | huni
+  · rw [hu1] at hu
+    have him : b * (3 * a ^ 2 - b ^ 2) = 1 := by
+      have hraw := congrArg QuadraticAlgebra.im hu
+      have hraw' : (a * a + -(b * b)) * b + (a * b + b * a) * a = 1 := by
+        simpa [hz, Zsqrtd.sqrtd, pow_succ] using hraw
+      nlinarith
+    have hnorm := sq_add_sq_eq_one_of_im_cube_eq_one him
+    simpa [Zsqrtd.norm_mk, pow_two] using hnorm
+  · rw [hum1] at hu
+    have him : b * (3 * a ^ 2 - b ^ 2) = -1 := by
+      have hraw := congrArg QuadraticAlgebra.im hu
+      have hraw' : -((a * b + b * a) * a) + -((a * a + -(b * b)) * b) = 1 := by
+        simpa [hz, Zsqrtd.sqrtd, pow_succ] using hraw
+      nlinarith
+    have hnorm := sq_add_sq_eq_one_of_im_cube_eq_neg_one him
+    simpa [Zsqrtd.norm_mk, pow_two] using hnorm
+  · rw [hui] at hu
+    have hre : a * (a ^ 2 - 3 * b ^ 2) = 1 := by
+      have hraw := congrArg QuadraticAlgebra.im hu
+      have hraw' : (a * a + -(b * b)) * a + (-(b * a) + -(a * b)) * b = 1 := by
+        simpa [hz, Zsqrtd.sqrtd, pow_succ] using hraw
+      nlinarith
+    have hnorm := sq_add_sq_eq_one_of_re_cube_eq_one hre
+    simpa [Zsqrtd.norm_mk, pow_two] using hnorm
+  · rw [huni] at hu
+    have hre : a * (a ^ 2 - 3 * b ^ 2) = -1 := by
+      have hraw := congrArg QuadraticAlgebra.im hu
+      have hraw' :
+          -((-(b * a) + -(a * b)) * b) + -((a * a + -(b * b)) * a) = 1 := by
+        simpa [hz, Zsqrtd.sqrtd, pow_succ] using hraw
+      nlinarith
+    have hnorm := sq_add_sq_eq_one_of_re_cube_eq_neg_one hre
+    simpa [Zsqrtd.norm_mk, pow_two] using hnorm
+
+/-- If a cube in `Zsqrtd (-2)` is associated to an element with real part `1`,
+then the base of the cube has norm `1`. -/
+-- Repository use: Cox's `ℤ[√-2]` auxiliary equation factors
+-- `n ^ 3 = 2 * z ^ 2 + 1` in the project-owned order `Zsqrtd (-2)`.
+theorem zsqrtd_neg_two_norm_eq_one_of_associated_cube_of_re_eq_one
+    {w z : Zsqrtd (-2)} (h : Associated (w ^ 3) z) (hz : z.re = 1) :
+    Zsqrtd.norm w = 1 := by
+  obtain ⟨u, hu⟩ := h
+  obtain ⟨a, b⟩ := w
+  rcases (isUnit_zsqrtd_iff_of_lt_neg_one (by norm_num : (-2 : ℤ) < -1)
+      (u : Zsqrtd (-2))).mp u.isUnit with hu1 | hum1
+  · rw [hu1] at hu
+    have hre : a * (a ^ 2 - 6 * b ^ 2) = 1 := by
+      have hraw := congrArg QuadraticAlgebra.re hu
+      have hraw' : (a * a + -(2 * b * b)) * a + -(2 * (a * b + b * a) * b) = 1 := by
+        simpa [hz, pow_succ] using hraw
+      nlinarith
+    have hnorm := sq_add_two_mul_sq_eq_one_of_re_cube_neg_two_eq_one hre
+    simpa [Zsqrtd.norm_mk, pow_two] using hnorm
+  · rw [hum1] at hu
+    have hre : a * (a ^ 2 - 6 * b ^ 2) = -1 := by
+      have hraw := congrArg QuadraticAlgebra.re hu
+      have hraw' :
+          2 * (a * b + b * a) * b + -((a * a + -(2 * b * b)) * a) = 1 := by
+        simpa [hz, pow_succ] using hraw
+      nlinarith
+    have hnorm := sq_add_two_mul_sq_eq_one_of_re_cube_neg_two_eq_neg_one hre
+    simpa [Zsqrtd.norm_mk, pow_two] using hnorm
+
 end Zsqrtd
 
 section ZOnePlusSqrtdOverTwo
