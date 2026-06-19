@@ -196,6 +196,26 @@ def idealsPrimeToNormSubmonoid
     intro I J hI hJ
     exact not_dvd_absNorm_mul_of_not_dvd_absNorm d p hI hJ
 
+/-- Membership in the prime-to-norm ideal submonoid can be checked as
+coprimality of the absolute norm with `p`. This is the shape used by many
+mathlib ideal-theoretic APIs. -/
+theorem mem_idealsPrimeToNormSubmonoid_iff_absNorm_coprime
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (p : ℕ) [Fact p.Prime]
+    (I : Ideal (𝓞 (Qsqrtd (d : ℚ)))) :
+    I ∈ idealsPrimeToNormSubmonoid d p ↔ (Ideal.absNorm I).Coprime p := by
+  dsimp [idealsPrimeToNormSubmonoid]
+  constructor
+  · intro hI
+    rw [Nat.coprime_comm]
+    exact (Fact.out : Nat.Prime p).coprime_iff_not_dvd.mpr (by
+      intro hp
+      exact hI (by exact_mod_cast hp))
+  · intro hI hp
+    have hp_nat : p ∣ Ideal.absNorm I := by
+      exact_mod_cast hp
+    rw [Nat.coprime_comm] at hI
+    exact ((Fact.out : Nat.Prime p).coprime_iff_not_dvd.mp hI) hp_nat
+
 /-- The raw genus character, restricted to ideals whose norm is prime to `p`,
 as an integer unit. The inverse is the same value because the character squares
 to `1` on this domain. -/
