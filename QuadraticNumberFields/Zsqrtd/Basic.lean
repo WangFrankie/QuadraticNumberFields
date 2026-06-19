@@ -181,6 +181,18 @@ theorem mul_re_sub_im_eq (a b : Zsqrtd d) :
   simp only [QuadraticAlgebra.re_mul, QuadraticAlgebra.im_mul]
   ring
 
+/-- The real part of `(a + b√d) ^ 3` in the project `Zsqrtd` model. -/
+theorem re_cube_mk (d a b : ℤ) :
+    ((⟨a, b⟩ : Zsqrtd d) ^ 3).re = a ^ 3 + 3 * d * a * b ^ 2 := by
+  simp [pow_succ]
+  ring
+
+/-- The imaginary part of `(a + b√d) ^ 3` in the project `Zsqrtd` model. -/
+theorem im_cube_mk (d a b : ℤ) :
+    ((⟨a, b⟩ : Zsqrtd d) ^ 3).im = 3 * a ^ 2 * b + d * b ^ 3 := by
+  simp [pow_succ]
+  ring
+
 /-! ### Domain and no-zero-divisors for `d < 0` -/
 
 /-- Explicit formula for the norm on `Zsqrtd d`: `‖(a, b)‖ = a² - d·b²`. -/
