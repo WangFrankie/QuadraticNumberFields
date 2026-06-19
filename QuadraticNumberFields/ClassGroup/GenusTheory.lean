@@ -947,6 +947,40 @@ theorem genusFormula_of_oddGenusCharacterProduct_surjective_of_card_le
   dsimp [genusFormula]
   rw [hcard, card_oddGenusSignRelationSubgroup_of_discr_odd d hodd]
 
+/-- In the odd field-discriminant branch, surjectivity and injectivity of the
+relation-subgroup-valued odd genus-character product prove the standard genus formula. -/
+theorem genusFormula_of_oddGenusCharacterProduct_surjective_of_injective
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd_neg : d < 0)
+    (hodd : RingOfIntegers.discrFormula d % 2 ≠ 0)
+    (hdata : OddGenusCharacterData d)
+    (hrel : oddGenusProductRelation d hd_neg hdata)
+    (hsurj :
+      Function.Surjective (oddGenusCharacterProductToRelationSubgroup d hd_neg hdata hrel))
+    (hinj :
+      Function.Injective (oddGenusCharacterProductToRelationSubgroup d hd_neg hdata hrel)) :
+    genusFormula d := by
+  exact genusFormula_of_oddGenusCharacterProduct_surjective_of_card_le
+    d hd_neg hodd hdata hrel hsurj (Nat.card_le_card_of_injective _ hinj)
+
+/-- In the odd field-discriminant branch, the standard genus formula follows once the
+odd genus-character product is surjective and has trivial kernel on `Cl / Cl²`. This
+is the kernel form of the principal-genus theorem for the odd-prime characters. -/
+theorem genusFormula_of_oddGenusCharacterProduct_surjective_of_ker_eq_bot
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd_neg : d < 0)
+    (hodd : RingOfIntegers.discrFormula d % 2 ≠ 0)
+    (hdata : OddGenusCharacterData d)
+    (hrel : oddGenusProductRelation d hd_neg hdata)
+    (hsurj :
+      Function.Surjective (oddGenusCharacterProductToRelationSubgroup d hd_neg hdata hrel))
+    (hker : (oddGenusCharacterProductToRelationSubgroup d hd_neg hdata hrel).ker = ⊥) :
+    genusFormula d := by
+  have hinj :
+      Function.Injective (oddGenusCharacterProductToRelationSubgroup d hd_neg hdata hrel) :=
+    (MonoidHom.ker_eq_bot_iff
+      (oddGenusCharacterProductToRelationSubgroup d hd_neg hdata hrel)).mp hker
+  exact genusFormula_of_oddGenusCharacterProduct_surjective_of_injective
+    d hd_neg hodd hdata hrel hsurj hinj
+
 /-- For odd fundamental discriminants (`d % 4 = 1`), surjectivity of the
 relation-subgroup-valued odd genus-character product proves the standard genus formula
 once the reverse cardinality inequality for the principal-genus quotient is known. -/
@@ -965,6 +999,23 @@ theorem genusFormula_of_oddGenusCharacterProduct_surjective_of_mod_four_eq_one
     omega
   exact genusFormula_of_oddGenusCharacterProduct_surjective_of_card_le
     d hd_neg hodd hdata hrel hsurj hle
+
+/-- For odd fundamental discriminants (`d % 4 = 1`), the standard genus formula follows
+once the odd genus-character product is surjective and has trivial kernel on `Cl / Cl²`. -/
+theorem genusFormula_of_oddGenusCharacterProduct_surjective_of_ker_eq_bot_of_mod_four_eq_one
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd_neg : d < 0)
+    (hd4 : d % 4 = 1)
+    (hdata : OddGenusCharacterData d)
+    (hrel : oddGenusProductRelation d hd_neg hdata)
+    (hsurj :
+      Function.Surjective (oddGenusCharacterProductToRelationSubgroup d hd_neg hdata hrel))
+    (hker : (oddGenusCharacterProductToRelationSubgroup d hd_neg hdata hrel).ker = ⊥) :
+    genusFormula d := by
+  have hodd : RingOfIntegers.discrFormula d % 2 ≠ 0 := by
+    rw [RingOfIntegers.discrFormula_of_mod_four_eq_one hd4]
+    omega
+  exact genusFormula_of_oddGenusCharacterProduct_surjective_of_ker_eq_bot
+    d hd_neg hodd hdata hrel hsurj hker
 
 /-- In the odd field-discriminant branch, the existing odd-prime genus-character
 interface implies the standard genus formula. -/
