@@ -5,6 +5,7 @@ Authors: Frankie Wang
 -/
 
 import QNFMathlib.NumberTheory.LegendreSymbol.JacobiSymbol
+import QNFMathlib.NumberTheory.LegendreSymbol.KroneckerSymbolPeriodicity
 import QuadraticNumberFields.RingOfIntegers.Discriminant
 
 /-!
@@ -85,6 +86,15 @@ theorem jacobiSym_natAbs_eq_prod_oddPrimeDiscriminantDivisors_of_mod_four_eq_one
   rw [jacobiSym.eq_prod_primeFactors_of_squarefree a (Int.squarefree_natAbs.mpr hsq)]
   rw [oddPrimeDiscriminantDivisors_eq_primeFactors_of_discr_odd d hodd]
   rw [RingOfIntegers.discrFormula_of_mod_four_eq_one hd4]
+
+/-- In the odd fundamental-discriminant branch, the Jacobi symbol modulo `|d|`
+is the Kronecker symbol of the field discriminant. This is the form that connects
+the odd product relation to splitting and ideal-norm arguments. -/
+theorem jacobiSym_natAbs_eq_kroneckerSymNat_discrFormula_of_mod_four_eq_one
+    (d : ℤ) (n : ℕ) (hd4 : d % 4 = 1) :
+    jacobiSym (n : ℤ) d.natAbs = kroneckerSymNat (RingOfIntegers.discrFormula d) n := by
+  rw [RingOfIntegers.discrFormula_of_mod_four_eq_one hd4]
+  exact (kroneckerSymNat_eq_jacobiSym_natAbs_of_emod_four_eq_one d hd4 n).symm
 
 /-- Characterization of membership in `oddPrimeDiscriminantDivisors`. -/
 theorem mem_oddPrimeDiscriminantDivisors_iff (d : ℤ) (p : ℕ) :

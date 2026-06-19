@@ -354,6 +354,34 @@ theorem oddGenusProductRelation_of_jacobiSym_absNorm_eq_one_of_mod_four_eq_one
     (Fact.out : Squarefree d) hd4]
   exact hjac I hI
 
+/-- In the odd fundamental-discriminant branch, the product relation follows from
+a Kronecker-symbol norm-one statement for a simultaneous prime-to-discriminant
+representative of each ideal class.
+
+This is the product-relation interface most directly compatible with the
+splitting classification, where prime ideal factors of an ideal norm are read
+through the Kronecker symbol of the field discriminant. -/
+theorem oddGenusProductRelation_of_kroneckerSymNat_absNorm_eq_one_of_mod_four_eq_one
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd_neg : d < 0)
+    (hd4 : d % 4 = 1)
+    (hdata : OddGenusCharacterData d)
+    (hrep : ∀ C : ClassGroup (𝓞 (Qsqrtd (d : ℚ))),
+      ∃ I : (Ideal (𝓞 (Qsqrtd (d : ℚ))))⁰,
+        ClassGroup.mk0 I = C ∧
+          ∀ P : {p // p ∈ oddPrimeDiscriminantDivisors d},
+            ¬ (P.1 : ℤ) ∣ (Ideal.absNorm (I : Ideal (𝓞 (Qsqrtd (d : ℚ)))) : ℤ))
+    (hkron : ∀ I : (Ideal (𝓞 (Qsqrtd (d : ℚ))))⁰,
+      (∀ P : {p // p ∈ oddPrimeDiscriminantDivisors d},
+        ¬ (P.1 : ℤ) ∣ (Ideal.absNorm (I : Ideal (𝓞 (Qsqrtd (d : ℚ)))) : ℤ)) →
+        kroneckerSymNat (RingOfIntegers.discrFormula d)
+          (Ideal.absNorm (I : Ideal (𝓞 (Qsqrtd (d : ℚ))))) = 1) :
+    oddGenusProductRelation d hd_neg hdata :=
+  oddGenusProductRelation_of_jacobiSym_absNorm_eq_one_of_mod_four_eq_one
+    d hd_neg hd4 hdata hrep fun I hI => by
+      rw [jacobiSym_natAbs_eq_kroneckerSymNat_discrFormula_of_mod_four_eq_one
+        d (Ideal.absNorm (I : Ideal (𝓞 (Qsqrtd (d : ℚ))))) hd4]
+      exact hkron I hI
+
 /-- The product of the odd-prime genus characters, with codomain restricted to the
 single-relation sign subgroup. -/
 noncomputable def oddGenusCharacterProductToRelationSubgroup
