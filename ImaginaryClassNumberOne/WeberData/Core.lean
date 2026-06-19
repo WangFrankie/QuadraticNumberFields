@@ -20,7 +20,7 @@ class numbers, should live in separate files.
 
 ## Main definitions
 
-* `RingClassNumberConductorTwoData`: structured placeholder for the conductor-`2`
+* `RingClassNumberConductorTwoEqualsThree`: plain Prop for the conductor-`2`
   ring-class-number jump.
 * `heegnerGammaPrimePairs`: the finite Cox-Heegner table relating inert primes
   to gamma values.
@@ -41,28 +41,14 @@ open scoped NumberField
 namespace QuadraticNumberFields
 namespace Heegner
 
-/-- Structured conductor-`2` ring-class-number data in the Cox-Heegner route.
+/-- The conductor-`2` ring-class-number input used by the Weber/CM layer.
 
-This is intentionally a small interface rather than a real theory of quadratic
-orders.  The future replacement should identify `orderClassNumber` with the
-class number of the quadratic order of conductor `2` and discriminant `-4p`. -/
-structure RingClassNumberConductorTwoData (p : ℕ) where
-  /-- The conductor of the quadratic order. -/
-  conductor : ℕ
-  /-- This framework layer is specifically about conductor `2`. -/
-  conductor_eq_two : conductor = 2
-  /-- The discriminant of the conductor-`2` order in `ℚ(√-p)`. -/
-  discriminant : ℤ
-  /-- The discriminant is `-4p`. -/
-  discriminant_eq : discriminant = -(4 * (p : ℤ))
-  /-- The ring class number of this quadratic order. -/
-  orderClassNumber : ℕ
-  /-- Cox's class-number jump gives ring class number `3`. -/
-  orderClassNumber_eq_three : orderClassNumber = 3
-
-/-- The conductor-`2` ring-class-number input used by the Weber/CM layer. -/
-def HasRingClassNumberThreeAtConductorTwo (p : ℕ) : Prop :=
-  Nonempty (RingClassNumberConductorTwoData p)
+This remains a route-neutral Prop until the project has a real quadratic-order
+class-number API.  It records only the conductor-`2` order discriminant and the
+resulting order class number. -/
+def RingClassNumberConductorTwoEqualsThree (p : ℕ) : Prop :=
+  ∃ discriminant : ℤ, discriminant = -(4 * (p : ℤ)) ∧
+    ∃ orderClassNumber : ℕ, orderClassNumber = 3
 
 /-- The finite Cox-Heegner table matching positive inert Heegner primes with
 the corresponding Weber gamma values. -/
@@ -112,19 +98,15 @@ This interface is the precise deep input needed after the conductor-`2`
 ring-class-number jump: it records both the quadratic-order datum and the
 Stark-Heegner algebraic data extracted from the Weber construction. -/
 structure ConductorTwoClassNumberThreeWeberData (p : ℕ) where
-  /-- The conductor-`2` ring-class-number datum feeding the Weber/CM construction. -/
-  ringClassNumberData : RingClassNumberConductorTwoData p
+  /-- The conductor-`2` ring-class-number input feeding the Weber/CM construction. -/
+  ringClassNumber : RingClassNumberConductorTwoEqualsThree p
   /-- The Stark-Heegner algebraic data extracted from the Weber/CM construction. -/
   starkHeegnerData : StarkHeegnerAlgebraicData p
-
-/-- There is refined conductor-`2`, ring-class-number-three Weber/CM data. -/
-def HasConductorTwoClassNumberThreeWeberData (p : ℕ) : Prop :=
-  Nonempty (ConductorTwoClassNumberThreeWeberData p)
 
 /-- Refined conductor-`2` Weber data projects to the Stark-Heegner algebraic
 data needed by the elementary framework layer. -/
 theorem exists_weber_data_of_conductor_two_weber_data
-    {p : ℕ} (hweber : HasConductorTwoClassNumberThreeWeberData p) :
+    {p : ℕ} (hweber : Nonempty (ConductorTwoClassNumberThreeWeberData p)) :
     Nonempty (StarkHeegnerAlgebraicData p) := by
   exact Nonempty.map ConductorTwoClassNumberThreeWeberData.starkHeegnerData hweber
 
