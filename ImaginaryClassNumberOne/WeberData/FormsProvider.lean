@@ -57,6 +57,15 @@ discriminant `-4p`. -/
 def HasConductorTwoFormClassNumberThreeData (p : ℕ) : Prop :=
   Nonempty (ConductorTwoFormClassNumberThreeData p)
 
+/-- In the inert-prime branch `p ≡ 3 (mod 8)`, the conductor-`2` order
+discriminant is `2 ^ 2` times the field discriminant, namely `-4p`. -/
+theorem conductor_two_order_discriminant_eq_neg_four_mul
+    (p : ℕ) (hp8 : p % 8 = 3) :
+    (2 : ℤ) ^ 2 * BinaryQuadraticForm.fieldDiscriminant (-(p : ℤ)) =
+      -(4 * (p : ℤ)) := by
+  rw [BinaryQuadraticForm.fieldDiscriminant_neg_natCast_of_nat_mod_eight_eq_three hp8]
+  ring
+
 /-- A concrete reduced-form cardinality computation supplies the Forms-side
 conductor-`2` class-number-three data. -/
 theorem hasConductorTwoFormClassNumberThreeData_of_reducedForms_card
@@ -72,6 +81,19 @@ theorem hasConductorTwoFormClassNumberThreeData_of_reducedForms_card
     reducedFormClassNumber_eq_card := rfl
     reducedFormClassNumber_eq_three := hcard }⟩
 
+/-- The Forms-side conductor-`2` data is equivalent to the reduced-form
+cardinality statement at discriminant `-4p`. -/
+theorem hasConductorTwoFormClassNumberThreeData_iff_reducedForms_card
+    (p : ℕ) :
+    HasConductorTwoFormClassNumberThreeData p ↔
+      (BinaryQuadraticForm.enumPrimitiveReducedForms (-(4 * (p : ℤ)))).card = 3 := by
+  constructor
+  · rintro ⟨hforms⟩
+    rw [← hforms.discriminant_eq_neg_four_mul]
+    rw [← hforms.reducedFormClassNumber_eq_card]
+    exact hforms.reducedFormClassNumber_eq_three
+  · exact hasConductorTwoFormClassNumberThreeData_of_reducedForms_card p
+
 /-- Forms-side class-number-three data supplies the conductor-`2`
 ring-class-number input used by the Weber/CM layer. -/
 theorem hasRingClassNumberThreeAtConductorTwo_of_forms
@@ -86,6 +108,36 @@ theorem hasRingClassNumberThreeAtConductorTwo_of_forms
     orderClassNumber := hforms.reducedFormClassNumber
     orderClassNumber_eq_three := hforms.reducedFormClassNumber_eq_three }⟩
 
+/-- A reduced-form cardinality computation at discriminant `-4p` supplies the
+core conductor-`2` ring-class-number input. -/
+theorem hasRingClassNumberThreeAtConductorTwo_of_reducedForms_card
+    (p : ℕ)
+    (hcard :
+      (BinaryQuadraticForm.enumPrimitiveReducedForms (-(4 * (p : ℤ)))).card = 3) :
+    HasRingClassNumberThreeAtConductorTwo p :=
+  hasRingClassNumberThreeAtConductorTwo_of_forms
+    (hasConductorTwoFormClassNumberThreeData_of_reducedForms_card p hcard)
+
+/-- **Cox/order class-number formula, conductor `2`.** In the inert prime family
+`d = -p`, class number one for `ℚ(√-p)` gives three primitive reduced positive
+definite forms of the conductor-`2` discriminant `-4p`, away from the
+unit-exception case `p = 3`.
+
+This is the remaining mathematical input for the conductor-`2`
+ring/order/forms bridge.  It should ultimately be replaced by Cox's order
+class-number formula, an equivalent Picard-group computation for the quadratic
+order of conductor `2`, or a direct proof of the reduced-form cardinality. -/
+theorem conductor_two_reduced_forms_card_eq_three_of_classNumber_one
+    (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
+    (hp : Nat.Prime p) (hp8 : p % 8 = 3) (hp_ne_three : p ≠ 3)
+    (hclass : classNumberQsqrtd (-(p : ℤ)) = 1) :
+    (BinaryQuadraticForm.enumPrimitiveReducedForms (-(4 * (p : ℤ)))).card = 3 := by
+  -- The closed lemma `conductor_two_order_discriminant_eq_neg_four_mul`
+  -- identifies the conductor-`2` discriminant.  What remains is the actual
+  -- Cox/order class-number jump from the maximal order class number `h(-p) = 1`
+  -- to the conductor-`2` order class number.
+  sorry
+
 /-- **Cox forms class-number input.** In the inert prime family `d = -p`, class
 number one for `ℚ(√-p)` gives Forms-side class-number-three data for primitive
 positive definite forms of conductor-`2` discriminant `-4p`, away from the
@@ -95,11 +147,9 @@ theorem conductor_two_form_class_number_three
     (hp : Nat.Prime p) (hp8 : p % 8 = 3) (hp_ne_three : p ≠ 3)
     (hclass : classNumberQsqrtd (-(p : ℤ)) = 1) :
     HasConductorTwoFormClassNumberThreeData p := by
-  -- Alternative routes for this bridge:
-  -- * prove Cox's order class-number formula via Picard groups of quadratic orders;
-  -- * build the conductor-`2` Picard group directly and avoid reduced-form enumeration;
-  -- * follow Stark's no-Weber variant, replacing this downstream input entirely.
-  sorry
+  exact hasConductorTwoFormClassNumberThreeData_of_reducedForms_card p
+    (conductor_two_reduced_forms_card_eq_three_of_classNumber_one
+      p hp hp8 hp_ne_three hclass)
 
 /-- The reduced-forms provider supplies the core conductor-`2` ring-class-number
 input in the non-exceptional inert branch. -/

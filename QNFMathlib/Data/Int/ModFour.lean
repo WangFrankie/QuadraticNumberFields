@@ -30,6 +30,16 @@ lemma Int.sq_emod_four_of_odd (n : ℤ) (h : ¬ 2 ∣ n) : n ^ 2 % 4 = 1 := by
   ring_nf
   omega
 
+/-- If a natural number is `3 mod 8`, then its negative is `1 mod 4`
+as an integer. -/
+-- Repository use: conductor-`2` discriminants in the Heegner Weber-data provider.
+lemma Int.neg_natCast_emod_four_eq_one_of_nat_mod_eight_eq_three
+    {n : ℕ} (hn : n % 8 = 3) :
+    (-(n : ℤ)) % 4 = 1 := by
+  have hn_eq : (n : ℤ) = 8 * (n / 8 : ℤ) + 3 := by omega
+  rw [hn_eq]
+  omega
+
 private lemma div4_iff_mod (a' b' d : ℤ) :
     4 ∣ (a' ^ 2 - d * b' ^ 2) ↔ (a' ^ 2 - d * b' ^ 2) % 4 = 0 := by
   omega

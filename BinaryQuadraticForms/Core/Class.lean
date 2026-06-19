@@ -140,6 +140,14 @@ theorem fieldDiscriminant_of_mod_four_ne_one {d : ℤ} (hd4 : d % 4 ≠ 1) :
     fieldDiscriminant d = 4 * d := by
   simp [fieldDiscriminant, hd4]
 
+/-- If `p ≡ 3 (mod 8)`, then `-p ≡ 1 (mod 4)`, so the field discriminant
+of `ℚ(√-p)` is `-p`. -/
+theorem fieldDiscriminant_neg_natCast_of_nat_mod_eight_eq_three
+    {p : ℕ} (hp8 : p % 8 = 3) :
+    fieldDiscriminant (-(p : ℤ)) = -(p : ℤ) :=
+  fieldDiscriminant_of_mod_four_eq_one
+    (Int.neg_natCast_emod_four_eq_one_of_nat_mod_eight_eq_three hp8)
+
 /-- Imaginary squarefree parameters have negative field discriminant. -/
 theorem fieldDiscriminant_neg {d : ℤ} (hdneg : d < 0) :
     fieldDiscriminant d < 0 := by
