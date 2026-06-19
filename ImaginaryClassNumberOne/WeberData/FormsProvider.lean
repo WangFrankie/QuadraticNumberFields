@@ -23,6 +23,10 @@ binary quadratic forms.
 
 * `ConductorTwoFormClassNumberThreeData`: Forms-side class-number-three input for
   primitive reduced forms of discriminant `-4p` in the `p ≠ 3` inert branch.
+* `conductor_two_zsqrtd_basis_discriminant_eq_neg_four_mul`: the concrete
+  `Zsqrtd (-p)` conductor-`2` order has basis discriminant `-4p`.
+* `conductor_two_zsqrtd_basis_discriminant_eq_conductor_square_mul_fieldDiscriminant`:
+  the same discriminant equals `2 ^ 2` times the field discriminant.
 * `conductor_two_reduced_forms_card_eq_three_of_mem_heegnerPrimeSet`: the
   finite-table reduced-form computation for the non-exceptional inert Heegner
   primes.
@@ -83,6 +87,29 @@ theorem conductor_two_order_discriminant_eq_neg_four_mul
       -(4 * (p : ℤ)) := by
   rw [BinaryQuadraticForm.fieldDiscriminant_neg_natCast_of_nat_mod_eight_eq_three hp8]
   ring
+
+/-- The concrete order `Zsqrtd (-p)` has standard-basis discriminant `-4p`.
+
+For `p ≡ 3 (mod 8)`, the maximal order in `ℚ(√-p)` is half-integral, so this
+is the expected conductor-`2` quadratic order.  The statement deliberately
+records only the basis discriminant; the Picard/order class-number formula is
+kept as the separate Cox boundary below. -/
+theorem conductor_two_zsqrtd_basis_discriminant_eq_neg_four_mul (p : ℕ) :
+    Algebra.discr ℤ (QuadraticAlgebra.basis (-(p : ℤ)) 0 :
+      Module.Basis (Fin 2) ℤ (Zsqrtd (-(p : ℤ)))) =
+      -(4 * (p : ℤ)) := by
+  rw [RingOfIntegers.discr_zsqrtd_basis]
+  ring
+
+/-- The concrete conductor-`2` order model `Zsqrtd (-p)` has discriminant
+`2 ^ 2` times the field discriminant in the inert branch. -/
+theorem conductor_two_zsqrtd_basis_discriminant_eq_conductor_square_mul_fieldDiscriminant
+    (p : ℕ) (hp8 : p % 8 = 3) :
+    Algebra.discr ℤ (QuadraticAlgebra.basis (-(p : ℤ)) 0 :
+      Module.Basis (Fin 2) ℤ (Zsqrtd (-(p : ℤ)))) =
+      (2 : ℤ) ^ 2 * BinaryQuadraticForm.fieldDiscriminant (-(p : ℤ)) := by
+  rw [conductor_two_zsqrtd_basis_discriminant_eq_neg_four_mul,
+    conductor_two_order_discriminant_eq_neg_four_mul p hp8]
 
 /-- The conductor-`2` local factor in Cox's order class-number formula is `3`
 for the inert-prime branch `p ≡ 3 (mod 8)`. -/
