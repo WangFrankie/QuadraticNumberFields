@@ -14,6 +14,7 @@ import QNFMathlib.Data.Int.Square
 import QNFMathlib.Data.Int.Squarefree
 import QNFMathlib.FieldTheory.Galois.Basic
 import QNFMathlib.GroupTheory.Index
+import QNFMathlib.NumberTheory.CoxEuler
 import QNFMathlib.NumberTheory.DirichletCharacter.Kronecker
 import QNFMathlib.NumberTheory.LegendreSymbol.JacobiSymbol
 import QNFMathlib.NumberTheory.LegendreSymbol.KroneckerSymbol

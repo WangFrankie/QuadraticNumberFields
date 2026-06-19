@@ -12,9 +12,11 @@ import QuadraticNumberFields.Units.Imaginary
 import QuadraticNumberFields.Zsqrtd.Gaussian
 import QNFMathlib.Data.Int.Parity
 import QNFMathlib.Data.Int.Square
+import QNFMathlib.NumberTheory.CoxEuler
 import QNFMathlib.RingTheory.Coprime
 import QNFMathlib.RingTheory.PrincipalIdealDomain
 
+-- Avoid the `Algebra ℚ` diamond for quadratic-algebra numerals in this file.
 attribute [-instance] DivisionRing.toRatAlgebra
 
 /-!
@@ -213,7 +215,7 @@ theorem heegner_x_coordinate_of_cube_add_one_eq_sq {X Z : ℤ}
     dsimp [c]
     rw [← h]
     ring
-  rcases Int.eq_or_three_dvd_of_pos_isCoprime_mul_quadratic_eq_sq
+  rcases Int.CoxEuler.eq_or_three_dvd_of_pos_isCoprime_mul_quadratic_eq_sq
       (b := (1 : ℤ)) (c := c) (z := Z) (by norm_num) hcpos isCoprime_one_left hprod with
     hc_eq_one | hthree_dvd_c
   · have hX_eq_zero : X = 0 := by
@@ -232,7 +234,7 @@ theorem heegner_x_coordinate_of_cube_add_one_eq_sq {X Z : ℤ}
       rw [hX_eq]
       ring
     obtain ⟨u, hu⟩ := Int.exists_eq_sq_of_nine_mul_eq_sq hdiv9
-    rcases Int.eq_or_three_dvd_of_pos_isCoprime_mul_quadratic_eq_sq
+    rcases Int.CoxEuler.eq_or_three_dvd_of_pos_isCoprime_mul_quadratic_eq_sq
         (b := d) (c := (1 : ℤ)) (z := u) hdpos (by norm_num) isCoprime_one_right hu with
       hone_eq_d | hthree_dvd_one
     · have hd_eq_one : d = 1 := by omega
