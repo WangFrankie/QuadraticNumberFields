@@ -273,6 +273,12 @@ theorem reducedFormClasses_card (D : ℤ) :
     exact Subtype.ext hval
   · simp
 
+/-- The finite type of primitive positive definite form classes has cardinality
+equal to the reduced-form enumeration. -/
+theorem formClass_card_eq_enumPrimitiveReducedForms_card (D : ℤ) :
+    Fintype.card (FormClass D) = (enumPrimitiveReducedForms D).card := by
+  rw [← reducedFormClasses_card, ← Finset.card_univ, ← reducedFormClasses_eq_univ D]
+
 /-- The list view of the reduced-form enumeration has no duplicates. -/
 theorem enumPrimitiveReducedFormsList_nodup (D : ℤ) :
     (enumPrimitiveReducedFormsList D).Nodup := by
