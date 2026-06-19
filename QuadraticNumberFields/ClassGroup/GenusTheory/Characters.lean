@@ -192,6 +192,31 @@ noncomputable def mk0OnPrimeToNormIdeals
     idealsPrimeToNormSubmonoid d p →* ClassGroup (𝓞 (Qsqrtd (d : ℚ))) :=
   ClassGroup.mk0.comp (primeToNormIdealNonzeroMonoidHom d p)
 
+/-- Equality in the restricted class-group map is exactly the usual principal-multiplier
+relation between the underlying nonzero integral ideals.
+
+The remaining ideal-avoidance content in `HasPrimeToNormPrincipalMultiplierData` is the
+extra requirement that the multipliers can be chosen with norms still prime to `p`. -/
+theorem mk0OnPrimeToNormIdeals_eq_iff_exists_principal_multipliers
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (p : ℕ) [Fact p.Prime]
+    (I J : idealsPrimeToNormSubmonoid d p) :
+    mk0OnPrimeToNormIdeals d p I = mk0OnPrimeToNormIdeals d p J ↔
+      ∃ x y : 𝓞 (Qsqrtd (d : ℚ)), x ≠ 0 ∧ y ≠ 0 ∧
+        Ideal.span {x} * (I : Ideal (𝓞 (Qsqrtd (d : ℚ)))) =
+          Ideal.span {y} * (J : Ideal (𝓞 (Qsqrtd (d : ℚ)))) := by
+  constructor
+  · intro hmk
+    change ClassGroup.mk0 (primeToNormIdealNonzeroMonoidHom d p I) =
+      ClassGroup.mk0 (primeToNormIdealNonzeroMonoidHom d p J) at hmk
+    rw [ClassGroup.mk0_eq_mk0_iff] at hmk
+    rcases hmk with ⟨x, y, hx, hy, hxy⟩
+    exact ⟨x, y, hx, hy, hxy⟩
+  · rintro ⟨x, y, hx, hy, hxy⟩
+    change ClassGroup.mk0 (primeToNormIdealNonzeroMonoidHom d p I) =
+      ClassGroup.mk0 (primeToNormIdealNonzeroMonoidHom d p J)
+    rw [ClassGroup.mk0_eq_mk0_iff]
+    exact ⟨x, y, hx, hy, hxy⟩
+
 /-- The raw genus character descends along the restricted `mk0` map if it is constant
 on the fibers of `mk0OnPrimeToNormIdeals`. -/
 def genusCharacterRawDescendsOnPrimeToNormIdeals
