@@ -40,6 +40,27 @@ structure OddGenusCharacterData (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
     ∀ (p : ℕ) [Fact p.Prime], p ∈ oddPrimeDiscriminantDivisors d →
       HasPrimeToNormPrincipalMultiplierData d p
 
+/-- Construct odd genus-character data from a simultaneous representative theorem
+for all odd discriminant primes, plus the principal-multiplier descent data. -/
+theorem OddGenusCharacterData.of_forall_mk0_eq_of_forall_not_dvd_absNorm
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (hrep : ∀ C : ClassGroup (𝓞 (Qsqrtd (d : ℚ))),
+      ∃ I : (Ideal (𝓞 (Qsqrtd (d : ℚ))))⁰,
+        ClassGroup.mk0 I = C ∧
+          ∀ P : {p // p ∈ oddPrimeDiscriminantDivisors d},
+            ¬ (P.1 : ℤ) ∣ (Ideal.absNorm (I : Ideal (𝓞 (Qsqrtd (d : ℚ)))) : ℤ))
+    (hprincipalMultiplier :
+      ∀ (p : ℕ) [Fact p.Prime], p ∈ oddPrimeDiscriminantDivisors d →
+        HasPrimeToNormPrincipalMultiplierData d p) :
+    OddGenusCharacterData d where
+  surjective := by
+    intro p hp hp_disc
+    exact mk0OnPrimeToNormIdeals_surjective_of_forall_mk0_eq_of_not_dvd_absNorm d p
+      (fun C => by
+        rcases hrep C with ⟨I, hC, hI⟩
+        exact ⟨I, hC, hI ⟨p, hp_disc⟩⟩)
+  principalMultiplier := hprincipalMultiplier
+
 /-- The product of all odd-prime genus characters on the principal-genus quotient.
 
 The remaining genus-theory relation and independence statements identify the image of
@@ -296,6 +317,42 @@ theorem oddGenusProductRelation_iff_forall_mk'
     rcases QuotientGroup.mk'_surjective (squareClassSubgroup d) C with ⟨C, rfl⟩
     rw [oddGenusCharacterProductOnSquareClassQuotient_prod_apply_mk']
     exact hrel C
+
+/-- In the odd fundamental-discriminant branch, the product relation follows if
+each class has a single ideal representative whose norm is prime to every odd
+discriminant prime and whose absolute norm has Jacobi symbol `1` modulo `|d|`.
+
+This isolates the remaining ideal-theoretic content needed to prove the product
+relation from the already formalized Legendre/Jacobi product computation. -/
+theorem oddGenusProductRelation_of_jacobiSym_absNorm_eq_one_of_mod_four_eq_one
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd_neg : d < 0)
+    (hd4 : d % 4 = 1)
+    (hdata : OddGenusCharacterData d)
+    (hrep : ∀ C : ClassGroup (𝓞 (Qsqrtd (d : ℚ))),
+      ∃ I : (Ideal (𝓞 (Qsqrtd (d : ℚ))))⁰,
+        ClassGroup.mk0 I = C ∧
+          ∀ P : {p // p ∈ oddPrimeDiscriminantDivisors d},
+            ¬ (P.1 : ℤ) ∣ (Ideal.absNorm (I : Ideal (𝓞 (Qsqrtd (d : ℚ)))) : ℤ))
+    (hjac : ∀ I : (Ideal (𝓞 (Qsqrtd (d : ℚ))))⁰,
+      (∀ P : {p // p ∈ oddPrimeDiscriminantDivisors d},
+        ¬ (P.1 : ℤ) ∣ (Ideal.absNorm (I : Ideal (𝓞 (Qsqrtd (d : ℚ)))) : ℤ)) →
+        jacobiSym (Ideal.absNorm (I : Ideal (𝓞 (Qsqrtd (d : ℚ)))) : ℤ) d.natAbs = 1) :
+    oddGenusProductRelation d hd_neg hdata := by
+  rw [oddGenusProductRelation_iff_forall_mk']
+  intro C
+  rcases hrep C with ⟨I, hC, hI⟩
+  apply Units.ext
+  change ((Finset.univ.prod
+    (fun P : {p // p ∈ oddPrimeDiscriminantDivisors d} => by
+      haveI : Fact P.1.Prime := ⟨prime_of_mem_oddPrimeDiscriminantDivisors P.2⟩
+      exact genusCharacterOfPrincipalMultiplierData d P.1 hd_neg P.2
+        (hdata.surjective P.1 P.2) (hdata.principalMultiplier P.1 P.2) C) : ℤˣ) : ℤ) = 1
+  rw [oddGenusCharacterProduct_prod_apply_eq_prod_legendreSym_of_mk0
+    d hd_neg hdata C I hC hI]
+  rw [← jacobiSym_natAbs_eq_prod_oddPrimeDiscriminantDivisors_of_mod_four_eq_one
+    d ((Ideal.absNorm (I : Ideal (𝓞 (Qsqrtd (d : ℚ))))) : ℤ)
+    (Fact.out : Squarefree d) hd4]
+  exact hjac I hI
 
 /-- The product of the odd-prime genus characters, with codomain restricted to the
 single-relation sign subgroup. -/

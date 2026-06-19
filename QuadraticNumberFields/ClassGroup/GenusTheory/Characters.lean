@@ -142,7 +142,8 @@ theorem mem_idealsPrimeToNormSubmonoid_of_sup_span_natCast_eq_top
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (p : ℕ) [Fact p.Prime]
     {I : Ideal (𝓞 (Qsqrtd (d : ℚ)))}
     (hI_ne : I ≠ ⊥)
-    (hcop : I ⊔ Ideal.span ({(p : 𝓞 (Qsqrtd (d : ℚ)))} : Set (𝓞 (Qsqrtd (d : ℚ)))) = ⊤) :
+    (hcop :
+      I ⊔ Ideal.span ({(p : 𝓞 (Qsqrtd (d : ℚ)))} : Set (𝓞 (Qsqrtd (d : ℚ)))) = ⊤) :
     I ∈ idealsPrimeToNormSubmonoid d p := by
   rw [mem_idealsPrimeToNormSubmonoid_iff_absNorm_coprime]
   exact Ideal.absNorm_coprime_of_sup_span_natCast_eq_top I p hI_ne hcop
@@ -203,6 +204,21 @@ noncomputable def mk0OnPrimeToNormIdeals
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (p : ℕ) [Fact p.Prime] :
     idealsPrimeToNormSubmonoid d p →* ClassGroup (𝓞 (Qsqrtd (d : ℚ))) :=
   ClassGroup.mk0.comp (primeToNormIdealNonzeroMonoidHom d p)
+
+/-- To prove surjectivity of the restricted class-group map, it suffices to
+choose, in every class, a nonzero integral ideal representative whose absolute
+norm is prime to `p`. -/
+theorem mk0OnPrimeToNormIdeals_surjective_of_forall_mk0_eq_of_not_dvd_absNorm
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (p : ℕ) [Fact p.Prime]
+    (hrep : ∀ C : ClassGroup (𝓞 (Qsqrtd (d : ℚ))),
+      ∃ I : (Ideal (𝓞 (Qsqrtd (d : ℚ))))⁰,
+        ClassGroup.mk0 I = C ∧
+          ¬ (p : ℤ) ∣ (Ideal.absNorm (I : Ideal (𝓞 (Qsqrtd (d : ℚ)))) : ℤ)) :
+    Function.Surjective (mk0OnPrimeToNormIdeals d p) := by
+  intro C
+  rcases hrep C with ⟨I, hC, hI⟩
+  refine ⟨⟨(I : Ideal (𝓞 (Qsqrtd (d : ℚ)))), hI⟩, ?_⟩
+  simpa [mk0OnPrimeToNormIdeals, primeToNormIdealNonzeroMonoidHom] using hC
 
 /-- Equality in the restricted class-group map is exactly the usual principal-multiplier
 relation between the underlying nonzero integral ideals.
