@@ -177,6 +177,68 @@ theorem ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one_im
     ((e α).im : ℚ) / 2 = (α : Qsqrtd (d : ℚ)).im := by
   exact ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_eq_im d (d / 4) (by omega) α
 
+/-- If `d ≡ 1 (mod 4)`, the quotient `𝓞(ℚ(√d))/(2)` is the corresponding
+quotient of the half-integral coordinate model. -/
+noncomputable def ringOfIntegers_quotient_span_two_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one
+    (hd4 : d % 4 = 1) :
+    (𝓞 (Qsqrtd (d : ℚ)) ⧸
+      Ideal.span ({(2 : 𝓞 (Qsqrtd (d : ℚ)))} : Set _)) ≃+*
+      (ZOnePlusSqrtdOverTwo (d / 4) ⧸
+        Ideal.span ({(2 : ZOnePlusSqrtdOverTwo (d / 4))} : Set _)) := by
+  let e := ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one d hd4
+  let I : Ideal (𝓞 (Qsqrtd (d : ℚ))) :=
+    Ideal.span ({(2 : 𝓞 (Qsqrtd (d : ℚ)))} : Set _)
+  let J : Ideal (ZOnePlusSqrtdOverTwo (d / 4)) :=
+    Ideal.span ({(2 : ZOnePlusSqrtdOverTwo (d / 4))} : Set _)
+  have he_two : e (2 : 𝓞 (Qsqrtd (d : ℚ))) = (2 : ZOnePlusSqrtdOverTwo (d / 4)) := by
+    exact map_ofNat e 2
+  have hmap :
+      J = Ideal.map (e : 𝓞 (Qsqrtd (d : ℚ)) →+* ZOnePlusSqrtdOverTwo (d / 4)) I := by
+    simp [I, J, Ideal.map_span, he_two]
+  exact Ideal.quotientEquiv I J e hmap
+
+/-- If `d ≡ 1 (mod 4)`, the quotient `𝓞(ℚ(√d))/(2)` is finite. -/
+@[reducible]
+noncomputable def ringOfIntegers_quotient_span_two_fintype_of_mod_four_eq_one
+    (hd4 : d % 4 = 1) :
+    Fintype (𝓞 (Qsqrtd (d : ℚ)) ⧸
+      Ideal.span ({(2 : 𝓞 (Qsqrtd (d : ℚ)))} : Set _)) :=
+  Fintype.ofEquiv
+    (ZOnePlusSqrtdOverTwo (d / 4) ⧸
+      Ideal.span ({(2 : ZOnePlusSqrtdOverTwo (d / 4))} : Set _))
+    (ringOfIntegers_quotient_span_two_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one
+      d hd4).symm.toEquiv
+
+/-- If `d ≡ 1 (mod 4)`, the unit group of `𝓞(ℚ(√d))/(2)` has at most three
+elements. -/
+theorem ringOfIntegers_quotient_span_two_units_card_le_three_of_mod_four_eq_one
+    (hd4 : d % 4 = 1) :
+    Nat.card (𝓞 (Qsqrtd (d : ℚ)) ⧸
+      Ideal.span ({(2 : 𝓞 (Qsqrtd (d : ℚ)))} : Set _))ˣ ≤ 3 := by
+  let e := ringOfIntegers_quotient_span_two_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one
+    d hd4
+  rw [Nat.card_congr (Units.mapEquiv e.toMulEquiv).toEquiv]
+  exact ZOnePlusSqrtdOverTwo.quotient_span_two_units_card_le_three (d / 4)
+
+/-- If `d ≡ 5 (mod 8)`, the unit group of `𝓞(ℚ(√d))/(2)` has exactly three
+elements. -/
+theorem ringOfIntegers_quotient_span_two_units_card_eq_three_of_mod_eight_eq_five
+    (hd8 : d % 8 = 5) :
+    Nat.card (𝓞 (Qsqrtd (d : ℚ)) ⧸
+      Ideal.span ({(2 : 𝓞 (Qsqrtd (d : ℚ)))} : Set _))ˣ = 3 := by
+  have hd4 : d % 4 = 1 := by omega
+  let e := ringOfIntegers_quotient_span_two_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one
+    d hd4
+  have hodd : Odd (d / 4) := by
+    rw [Int.odd_iff]
+    omega
+  have hmod : (((d / 4 : ℤ) : ZMod 2) = 1) := by
+    rw [Odd.intCast_zmod_two]
+    exact hodd
+  rw [Nat.card_congr (Units.mapEquiv e.toMulEquiv).toEquiv]
+  exact ZOnePlusSqrtdOverTwo.quotient_span_two_units_card_eq_three_of_intCast_eq_one
+    (d / 4) hmod
+
 /-! ## Combined Classification -/
 
 /-- **Classification of the ring of integers of `ℚ(√d)`.**

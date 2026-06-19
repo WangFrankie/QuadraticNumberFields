@@ -634,6 +634,25 @@ theorem conductorTwoRingOfIntegersIdealClassOfFormClass_mk
       conductorTwoRingOfIntegersIdealClassOfForm p hp8 Q :=
   rfl
 
+/-- In the inert conductor-`2` branch, the unit group of `𝓞(ℚ(√-p))/(2)` has
+exactly three elements. -/
+theorem conductor_two_ringOfIntegers_quotient_span_two_units_card_eq_three
+    (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
+    (hp8 : p % 8 = 3) :
+    Nat.card (𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ)) ⧸
+      Ideal.span ({(2 : 𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ)))} : Set _))ˣ = 3 := by
+  exact RingOfIntegers.ringOfIntegers_quotient_span_two_units_card_eq_three_of_mod_eight_eq_five
+    (-(p : ℤ)) (Int.neg_natCast_emod_eight_eq_five_of_nat_mod_eight_eq_three hp8)
+
+/-- In the inert conductor-`2` branch, the unit group of `𝓞(ℚ(√-p))/(2)` has
+at most three elements. -/
+theorem conductor_two_ringOfIntegers_quotient_span_two_units_card_le_three
+    (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
+    (hp8 : p % 8 = 3) :
+    Nat.card (𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ)) ⧸
+      Ideal.span ({(2 : 𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ)))} : Set _))ˣ ≤ 3 := by
+  exact le_of_eq (conductor_two_ringOfIntegers_quotient_span_two_units_card_eq_three p hp8)
+
 /-- The conductor-`2` local factor in Cox's order class-number formula is `3`
 for the inert-prime branch `p ≡ 3 (mod 8)`. -/
 theorem conductor_two_order_class_number_formula_factor_eq_three
@@ -891,24 +910,20 @@ structure ConductorTwoIdealClassCoverData
 
 /-- Picard-exact-sequence-shaped kernel data for the conductor-`2` extension map.
 
-The intended kernel is the local quotient in Cox's order class-number formula at
-the conductor prime `2`.  Proving this data is the remaining order/Picard input;
-the finite-cardinality bridge from this data to the fiber bound is closed below. -/
+The local target is the concrete unit group `(𝓞K / 2𝓞K)ˣ`.  The remaining
+order/Picard input is the fiber injection into this local quotient; the inert
+branch cardinal bound for the target is proved separately below. -/
 structure ConductorTwoIdealClassKernelData
     (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
     (hp8 : p % 8 = 3) where
-  /-- The local kernel type controlling fibers of the maximal-order extension map. -/
-  kernel : Type
-  /-- The local kernel is finite. -/
-  finite_kernel : Finite kernel
-  /-- The conductor-`2` inert local kernel has at most three elements. -/
-  kernel_card_le_three : Nat.card kernel ≤ 3
   /-- Every fiber of the conductor-`2` extension map injects into the local
-  kernel. -/
+  quotient `(𝓞K / 2𝓞K)ˣ`. -/
   fiberEmbedding :
     ∀ C : ClassGroup (𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ))),
       { Q : BinaryQuadraticForm.FormClass (-(4 * (p : ℤ))) //
-        conductorTwoRingOfIntegersIdealClassOfFormClass p hp8 Q = C } ↪ kernel
+        conductorTwoRingOfIntegersIdealClassOfFormClass p hp8 Q = C } ↪
+          (𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ)) ⧸
+            Ideal.span ({(2 : 𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ)))} : Set _))ˣ
 
 /-- Kernel data gives the ideal-class fiber bound for the canonical
 conductor-`2` extension map. -/
@@ -919,11 +934,12 @@ theorem conductor_two_ideal_class_fiber_card_le_three_of_kernel_data
     Nat.card
       { Q : BinaryQuadraticForm.FormClass (-(4 * (p : ℤ))) //
         conductorTwoRingOfIntegersIdealClassOfFormClass p hp8 Q = C } ≤ 3 := by
-  haveI := hkernel.finite_kernel
+  letI := RingOfIntegers.ringOfIntegers_quotient_span_two_fintype_of_mod_four_eq_one
+    (-(p : ℤ)) (Int.neg_natCast_emod_four_eq_one_of_nat_mod_eight_eq_three hp8)
   exact le_trans
     (Nat.card_le_card_of_injective (hkernel.fiberEmbedding C)
       (hkernel.fiberEmbedding C).injective)
-    hkernel.kernel_card_le_three
+    (conductor_two_ringOfIntegers_quotient_span_two_units_card_le_three p hp8)
 
 /-- Ideal-class-level conductor-`2` cover data supplies the quotient-level
 form-class cover by transporting maximal-order ideal classes back to

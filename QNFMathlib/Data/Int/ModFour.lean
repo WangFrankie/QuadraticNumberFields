@@ -40,6 +40,16 @@ lemma Int.neg_natCast_emod_four_eq_one_of_nat_mod_eight_eq_three
   rw [hn_eq]
   omega
 
+/-- If a natural number is `3 mod 8`, then its negative is `5 mod 8`
+as an integer. -/
+-- Repository use: inertness of `2` in the conductor-`2` Weber-data branch.
+lemma Int.neg_natCast_emod_eight_eq_five_of_nat_mod_eight_eq_three
+    {n : ℕ} (hn : n % 8 = 3) :
+    (-(n : ℤ)) % 8 = 5 := by
+  have hn_eq : (n : ℤ) = 8 * (n / 8 : ℤ) + 3 := by omega
+  rw [hn_eq]
+  omega
+
 /-- If a natural number is `3 mod 8`, then its negative is `1 + 4 * (-n / 4)`
 as an integer. -/
 -- Repository use: identifies the half-integral order parameter for
