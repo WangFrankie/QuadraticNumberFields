@@ -174,39 +174,30 @@ theorem heegner_auxiliary_equation_of_solution {X Y : ℤ}
       ring
   · exact Or.inr (Or.inr (Or.inr ⟨Z, hZ⟩))
 
-/-- In Cox's `W ^ 6 + 1 = 2 * Z ^ 2` branch, `W ^ 2 + 1` cannot itself be
-a square. -/
-theorem not_exists_sq_add_one_eq_sq_of_sixth_add_one_eq_two_mul_sq
-    {W Z : ℤ} (h : W ^ 6 + 1 = 2 * Z ^ 2) :
-    ¬ ∃ U : ℤ, W ^ 2 + 1 = U ^ 2 := by
-  rintro ⟨U, hU⟩
-  have hW0 : W = 0 := Int.eq_zero_of_sq_add_one_eq_sq hU
-  subst W
-  norm_num at h
-  omega
+/-- **Cox auxiliary Diophantine input.** Exercises 12.28-12.29 classify the
+square branch `X ^ 3 + 1 = Z ^ 2`. -/
+theorem heegner_x_coordinate_of_cube_add_one_eq_sq {X Z : ℤ}
+    (h : X ^ 3 + 1 = Z ^ 2) :
+    X = 0 ∨ X = -1 ∨ X = 2 := by
+  sorry
 
-/-- If the second integer factor in Cox's `W ^ 6 + 1` branch is a square,
-then `W` is `0`, `1`, or `-1`. -/
-theorem W_eq_zero_or_eq_one_or_neg_one_of_quartic_sub_sq_add_one_eq_sq
-    {W K : ℤ} (h : W ^ 4 - W ^ 2 + 1 = K ^ 2) :
-    W = 0 ∨ W = 1 ∨ W = -1 := by
-  have hquad : (W ^ 2) ^ 2 - W ^ 2 + 1 = K ^ 2 := by
-    convert h using 1
-    ring
-  rcases Int.eq_zero_or_eq_one_of_nonneg_of_sq_sub_self_add_one_eq_sq
-      (sq_nonneg W) hquad with hWsq | hWsq
-  · left
-    nlinarith [sq_nonneg W]
-  · right
-    have hmul : W * W = 1 := by
-      simpa [pow_two] using hWsq
-    rcases Int.mul_eq_one_iff_eq_one_or_neg_one.mp hmul with ⟨h1, _⟩ | ⟨h1, _⟩
-    · exact Or.inl h1
-    · exact Or.inr h1
+/-- **Cox auxiliary Diophantine input.** Exercise 12.27(a) rules out the
+negative-square branch except for the degenerate root `X = -1`. -/
+theorem heegner_x_coordinate_of_cube_add_one_eq_neg_sq {X Z : ℤ}
+    (h : X ^ 3 + 1 = -Z ^ 2) :
+    X = -1 := by
+  sorry
 
-/-- **Cox auxiliary Diophantine classification input.** Exercises 12.27-12.29
-classify the auxiliary equations and leave only the `X`-coordinates
-`0`, `-1`, `1`, and `2`. -/
+/-- **Cox auxiliary Diophantine input.** The `ℤ[√-2]` branch of Cox's
+argument rules out `X ^ 3 + 1 = -2 * Z ^ 2` except for `X = -1`. -/
+theorem heegner_x_coordinate_of_cube_add_one_eq_neg_two_mul_sq {X Z : ℤ}
+    (h : X ^ 3 + 1 = -2 * Z ^ 2) :
+    X = -1 := by
+  sorry
+
+/-- Cox auxiliary Diophantine classification after the four branches have been
+isolated.  The `W ^ 6 + 1 = 2 * Z ^ 2` branch is proved here from the generic
+integer square API; the remaining hard branches are the named Cox inputs above. -/
 theorem heegner_x_coordinate_of_auxiliary_equations {X : ℤ}
     (haux :
       (∃ Z : ℤ, X ^ 3 + 1 = Z ^ 2) ∨
@@ -214,7 +205,22 @@ theorem heegner_x_coordinate_of_auxiliary_equations {X : ℤ}
         (∃ W Z : ℤ, X = W ^ 2 ∧ W ^ 6 + 1 = 2 * Z ^ 2) ∨
         (∃ Z : ℤ, X ^ 3 + 1 = -2 * Z ^ 2)) :
     X = 0 ∨ X = -1 ∨ X = 1 ∨ X = 2 := by
-  sorry
+  rcases haux with ⟨Z, hZ⟩ | ⟨Z, hZ⟩ | ⟨W, Z, hX, hW⟩ | ⟨Z, hZ⟩
+  · rcases heegner_x_coordinate_of_cube_add_one_eq_sq hZ with hX | hX | hX
+    · exact Or.inl hX
+    · exact Or.inr (Or.inl hX)
+    · exact Or.inr (Or.inr (Or.inr hX))
+  · have hX : X = -1 := heegner_x_coordinate_of_cube_add_one_eq_neg_sq hZ
+    exact Or.inr (Or.inl hX)
+  · rcases Int.eq_one_or_neg_one_of_sixth_add_one_eq_two_mul_sq hW with hW1 | hWm1
+    · subst W
+      have hX1 : X = 1 := by simpa using hX
+      exact Or.inr (Or.inr (Or.inl hX1))
+    · subst W
+      have hX1 : X = 1 := by simpa using hX
+      exact Or.inr (Or.inr (Or.inl hX1))
+  · have hX : X = -1 := heegner_x_coordinate_of_cube_add_one_eq_neg_two_mul_sq hZ
+    exact Or.inr (Or.inl hX)
 
 /-- The `X`-coordinate classification for solutions of Cox's Heegner equation,
 after reducing to the auxiliary Diophantine equations. -/
