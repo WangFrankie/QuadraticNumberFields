@@ -79,6 +79,57 @@ theorem Quotient.coe_unitOfSpanSupEqTop {R : Type*} [CommRing R]
     (Quotient.unitOfSpanSupEqTop I x h : R ⧸ I) = Quotient.mk I x :=
   IsUnit.unit_spec _
 
+/-- An ideal maps to the unit ideal in the quotient by `I` iff it is coprime to
+`I`. -/
+theorem Quotient.map_eq_top_iff_sup_eq_top {R : Type*} [CommRing R]
+    (I J : Ideal R) :
+    J.map (Quotient.mk I) = ⊤ ↔ I ⊔ J = ⊤ := by
+  constructor
+  · intro h
+    have hcomap : (J.map (Quotient.mk I)).comap (Quotient.mk I) = ⊤ := by
+      rw [h, Ideal.comap_top]
+    simpa [Ideal.comap_map_quotientMk] using hcomap
+  · intro h
+    have hcomap : (J.map (Quotient.mk I)).comap (Quotient.mk I) = ⊤ := by
+      rw [Ideal.comap_map_quotientMk, h]
+    exact Ideal.comap_eq_top_iff.mp hcomap
+
+/-- A representative is a quotient unit iff its principal ideal maps to the unit
+ideal in the quotient. -/
+theorem Quotient.isUnit_mk_iff_map_span_singleton_eq_top
+    {R : Type*} [CommRing R] (I : Ideal R) (x : R) :
+    IsUnit (Quotient.mk I x) ↔
+      (span ({x} : Set R)).map (Quotient.mk I) = ⊤ := by
+  rw [Quotient.isUnit_mk_iff_span_sup_eq_top]
+  rw [Quotient.map_eq_top_iff_sup_eq_top]
+  rw [sup_comm]
+
+/-- If two principal multiples of ideals become equal and the two ideals map to
+`⊤` in the quotient, then the two principal ideals have the same quotient
+image. -/
+theorem Quotient.map_span_singleton_eq_of_span_mul_eq_of_maps_eq_top
+    {R : Type*} [CommRing R] (I J K : Ideal R) {x y : R}
+    (hJ : J.map (Quotient.mk I) = ⊤)
+    (hK : K.map (Quotient.mk I) = ⊤)
+    (hxy : span ({x} : Set R) * J = span ({y} : Set R) * K) :
+    (span ({x} : Set R)).map (Quotient.mk I) =
+      (span ({y} : Set R)).map (Quotient.mk I) := by
+  have hmap := congrArg (fun L => L.map (Quotient.mk I)) hxy
+  simpa [Ideal.map_mul, hJ, hK] using hmap
+
+/-- Under the same quotient-coprime hypotheses, a principal multiplier is a unit
+modulo `I` iff the matching multiplier is. -/
+theorem Quotient.isUnit_mk_iff_isUnit_mk_of_span_mul_eq_of_maps_eq_top
+    {R : Type*} [CommRing R] (I J K : Ideal R) {x y : R}
+    (hJ : J.map (Quotient.mk I) = ⊤)
+    (hK : K.map (Quotient.mk I) = ⊤)
+    (hxy : span ({x} : Set R) * J = span ({y} : Set R) * K) :
+    IsUnit (Quotient.mk I x) ↔ IsUnit (Quotient.mk I y) := by
+  have hspan :=
+    Quotient.map_span_singleton_eq_of_span_mul_eq_of_maps_eq_top I J K hJ hK hxy
+  rw [Quotient.isUnit_mk_iff_map_span_singleton_eq_top,
+    Quotient.isUnit_mk_iff_map_span_singleton_eq_top, hspan]
+
 /-- A span is contained in a principal span iff each generator is divisible by
 the principal generator. -/
 -- Repository use: support theorem for `span_le_span_singleton_of_forall_dvd`.

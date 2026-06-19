@@ -624,6 +624,19 @@ theorem span_two_sup_conductorTwoRingOfIntegersIdealOfForm_eq_top_of_odd_a
   rw [h_one]
   exact Ideal.sub_mem _ ha_mem_sup (Ideal.mul_mem_left _ (k : O) h2_mem_sup)
 
+/-- If the chosen conductor-`2` form representative has odd leading
+coefficient, then its extended ideal maps to `⊤` modulo `(2)`. -/
+theorem map_conductorTwoRingOfIntegersIdealOfForm_quotient_span_two_eq_top_of_odd_a
+    (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
+    (hp8 : p % 8 = 3)
+    (Q : BinaryQuadraticForm.PrimitivePositiveDefiniteForm (-(4 * (p : ℤ))))
+    (ha : Odd Q.1.a) :
+    (conductorTwoRingOfIntegersIdealOfForm p hp8 Q).map
+      (Ideal.Quotient.mk
+        (Ideal.span ({(2 : 𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ)))} : Set _))) = ⊤ := by
+  exact (Ideal.Quotient.map_eq_top_iff_sup_eq_top _ _).2
+    (span_two_sup_conductorTwoRingOfIntegersIdealOfForm_eq_top_of_odd_a p hp8 Q ha)
+
 /-- Every conductor-`2` form has a properly equivalent representative whose
 extended maximal-order ideal is coprime to `(2)`. -/
 theorem exists_properEquivalent_span_two_sup_conductorTwoRingOfIntegersIdealOfForm_eq_top
@@ -1520,6 +1533,32 @@ noncomputable def conductor_two_form_class_cover_data_of_kernel_data
     ConductorTwoFormClassCoverData p :=
   conductor_two_form_class_cover_data_of_ideal_class_cover p hp hp8
     (conductor_two_ideal_class_cover_data_of_kernel_data p hp8 hkernel)
+
+/-- Explicit conductor-`2` kernel data and maximal-order class number one give
+exactly three conductor-`2` primitive reduced forms. -/
+theorem conductor_two_reduced_forms_card_eq_three_of_classNumber_one_of_kernel_data
+    (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
+    (hp : Nat.Prime p) (hp8 : p % 8 = 3) (hp_ne_three : p ≠ 3)
+    (hclass : classNumberQsqrtd (-(p : ℤ)) = 1)
+    (hkernel : ConductorTwoIdealClassKernelData p hp8) :
+    (BinaryQuadraticForm.enumPrimitiveReducedForms (-(4 * (p : ℤ)))).card = 3 :=
+  conductor_two_reduced_forms_card_eq_three_of_classNumber_one_of_class_cover
+    p hp hp8 hp_ne_three hclass
+    (conductor_two_form_class_cover_data_of_kernel_data p hp hp8 hkernel)
+
+/-- In the class-number-one branch, explicit conductor-`2` kernel data supplies
+the Cox formula equality needed by the Forms provider. -/
+theorem conductor_two_order_class_number_formula_of_classNumber_one_of_kernel_data
+    (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
+    (hp : Nat.Prime p) (hp8 : p % 8 = 3) (hp_ne_three : p ≠ 3)
+    (hclass : classNumberQsqrtd (-(p : ℤ)) = 1)
+    (hkernel : ConductorTwoIdealClassKernelData p hp8) :
+    ConductorTwoOrderClassNumberFormula p hp8 hp_ne_three := by
+  unfold ConductorTwoOrderClassNumberFormula
+  rw [conductor_two_reduced_forms_card_eq_three_of_classNumber_one_of_kernel_data
+    p hp hp8 hp_ne_three hclass hkernel, hclass,
+    conductor_two_order_class_number_formula_factor_eq_three p hp8]
+  norm_num
 
 /-- Once the conductor-`2` order class-number formula is available, class
 number one for the maximal order and the inert local factor `3` give exactly
