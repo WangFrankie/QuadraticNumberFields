@@ -57,12 +57,151 @@ def heegnerGammaValue (X Y : ℤ) : ℤ :=
 def heegnerGammaImageSet : Finset ℤ :=
   heegnerXYSolutionSet.image fun xy => heegnerGammaValue xy.1 xy.2
 
-/-- **Heegner integer-equation input.** The only integer solutions of
-`Y ^ 2 = 2 * X * (X ^ 3 + 1)` are the pairs in `heegnerXYSolutionSet`. -/
+/-- If an integer cube is `-1`, then the integer is `-1`. -/
+theorem eq_neg_one_of_cube_add_one_eq_zero {X : ℤ} (hX : X ^ 3 + 1 = 0) :
+    X = -1 := by
+  have hpow : X ^ 3 = (-1 : ℤ) ^ 3 := by
+    nlinarith
+  exact (Odd.pow_inj (by norm_num : Odd 3)).mp hpow
+
+/-- The two factors `X` and `X ^ 3 + 1` in Cox's equation are coprime. -/
+theorem isCoprime_X_X_cube_add_one (X : ℤ) :
+    IsCoprime X (X ^ 3 + 1) := by
+  have h0 : IsCoprime X (1 : ℤ) := isCoprime_one_right
+  convert IsCoprime.add_mul_right_right h0 (X ^ 2) using 1
+  ring
+
+/-- If `X` is even, then `2 * X` is still coprime to `X ^ 3 + 1`. -/
+theorem isCoprime_two_mul_X_X_cube_add_one {X : ℤ} (hXeven : Even X) :
+    IsCoprime (2 * X) (X ^ 3 + 1) := by
+  have hodd : Odd (X ^ 3 + 1) := by
+    rcases hXeven with ⟨k, rfl⟩
+    use 4 * k ^ 3
+    ring
+  have hcop2 : IsCoprime (2 : ℤ) (X ^ 3 + 1) := by
+    exact (Int.isCoprime_two_right.mpr hodd).symm
+  exact hcop2.mul_left (isCoprime_X_X_cube_add_one X)
+
+/-- If `X` is odd, then `X` is coprime to `2 * (X ^ 3 + 1)`. -/
+theorem isCoprime_X_two_mul_X_cube_add_one {X : ℤ} (hXodd : Odd X) :
+    IsCoprime X (2 * (X ^ 3 + 1)) := by
+  have hcop2 : IsCoprime X (2 : ℤ) := Int.isCoprime_two_right.mpr hXodd
+  exact hcop2.mul_right (isCoprime_X_X_cube_add_one X)
+
+/-- If twice an integer is a square, then the integer is twice a square. -/
+theorem exists_eq_two_mul_sq_of_two_mul_eq_sq {A z : ℤ}
+    (h : 2 * A = z ^ 2) :
+    ∃ w : ℤ, A = 2 * w ^ 2 := by
+  have hz_even_sq : Even (z ^ 2) := by
+    rw [← h]
+    exact even_two_mul A
+  have hz_even : Even z :=
+    (Int.even_pow' (m := z) (n := 2) (by norm_num)).mp hz_even_sq
+  rcases hz_even with ⟨w, hw⟩
+  use w
+  subst z
+  nlinarith
+
+/-- If twice an integer is the negative of a square, then the integer is
+negative twice a square. -/
+theorem exists_eq_neg_two_mul_sq_of_two_mul_eq_neg_sq {A z : ℤ}
+    (h : 2 * A = -z ^ 2) :
+    ∃ w : ℤ, A = -2 * w ^ 2 := by
+  have hneg : 2 * (-A) = z ^ 2 := by
+    nlinarith
+  obtain ⟨w, hw⟩ := exists_eq_two_mul_sq_of_two_mul_eq_sq hneg
+  use w
+  nlinarith
+
+/-- Cox's first reduction: from the Heegner equation, `X ^ 3 + 1` is a square,
+the negative of a square, twice a square, or negative twice a square. -/
+theorem heegner_cube_add_one_square_or_twice_square {X Y : ℤ}
+    (h : HeegnerXYEquation X Y) :
+    ∃ Z : ℤ,
+      X ^ 3 + 1 = Z ^ 2 ∨ X ^ 3 + 1 = -Z ^ 2 ∨
+        X ^ 3 + 1 = 2 * Z ^ 2 ∨ X ^ 3 + 1 = -2 * Z ^ 2 := by
+  rw [HeegnerXYEquation] at h
+  rcases Int.even_or_odd X with hXeven | hXodd
+  · have hprod : (2 * X) * (X ^ 3 + 1) = Y ^ 2 := by
+      nlinarith [h]
+    obtain ⟨Z, hZ | hZ⟩ := Int.sq_of_isCoprime
+      (a := X ^ 3 + 1) (b := 2 * X) (c := Y)
+      (isCoprime_two_mul_X_X_cube_add_one hXeven).symm
+      (by simpa [mul_comm] using hprod)
+    · exact ⟨Z, Or.inl hZ⟩
+    · exact ⟨Z, Or.inr (Or.inl hZ)⟩
+  · have hprod : X * (2 * (X ^ 3 + 1)) = Y ^ 2 := by
+      nlinarith [h]
+    obtain ⟨Z, hZ | hZ⟩ := Int.sq_of_isCoprime
+      (a := 2 * (X ^ 3 + 1)) (b := X) (c := Y)
+      (isCoprime_X_two_mul_X_cube_add_one hXodd).symm
+      (by simpa [mul_comm] using hprod)
+    · obtain ⟨W, hW⟩ := exists_eq_two_mul_sq_of_two_mul_eq_sq hZ
+      exact ⟨W, Or.inr (Or.inr (Or.inl hW))⟩
+    · obtain ⟨W, hW⟩ := exists_eq_neg_two_mul_sq_of_two_mul_eq_neg_sq hZ
+      exact ⟨W, Or.inr (Or.inr (Or.inr hW))⟩
+
+/-- **Cox auxiliary Diophantine classification input.** Exercises 12.27-12.29,
+together with the square-`X` condition in the twice-square branch, classify the
+`X`-coordinates of solutions to Cox's Heegner equation. -/
+theorem heegner_x_coordinate_of_solution {X Y : ℤ}
+    (h : HeegnerXYEquation X Y) :
+    X = 0 ∨ X = -1 ∨ X = 1 ∨ X = 2 := by
+  sorry
+
+/-- The zero-`Y` branch of the Heegner integer equation. -/
+theorem heegner_xy_solutions_of_Y_eq_zero
+    {X : ℤ} (h : HeegnerXYEquation X 0) :
+    (X, 0) ∈ heegnerXYSolutionSet := by
+  rw [HeegnerXYEquation] at h
+  norm_num at h
+  have hcase : X = 0 ∨ X = -1 := by
+    rcases h with hX | hX3
+    · exact Or.inl hX
+    · exact Or.inr (eq_neg_one_of_cube_add_one_eq_zero hX3)
+  norm_num [heegnerXYSolutionSet]
+  exact hcase
+
+/-- Once Cox's Diophantine argument has restricted the `X`-coordinate to
+`0`, `-1`, `1`, or `2`, the equation determines the listed `Y`-coordinates. -/
+theorem heegner_xy_solutions_of_X_coordinate
+    {X Y : ℤ} (h : HeegnerXYEquation X Y)
+    (hX : X = 0 ∨ X = -1 ∨ X = 1 ∨ X = 2) :
+    (X, Y) ∈ heegnerXYSolutionSet := by
+  rcases hX with hX | hX | hX | hX
+  · subst X
+    rw [HeegnerXYEquation] at h
+    norm_num at h
+    subst Y
+    norm_num [heegnerXYSolutionSet]
+  · subst X
+    rw [HeegnerXYEquation] at h
+    norm_num at h
+    subst Y
+    norm_num [heegnerXYSolutionSet]
+  · subst X
+    have hY : Y = 2 ∨ Y = -2 := by
+      rw [HeegnerXYEquation] at h
+      norm_num at h
+      exact sq_eq_sq_iff_eq_or_eq_neg.mp h
+    rcases hY with rfl | rfl <;> norm_num [heegnerXYSolutionSet]
+  · subst X
+    have hY : Y = 6 ∨ Y = -6 := by
+      rw [HeegnerXYEquation] at h
+      norm_num at h
+      exact sq_eq_sq_iff_eq_or_eq_neg.mp h
+    rcases hY with rfl | rfl <;> norm_num [heegnerXYSolutionSet]
+
+/-- The only integer solutions of `Y ^ 2 = 2 * X * (X ^ 3 + 1)` are the pairs
+in `heegnerXYSolutionSet`, assuming Cox's auxiliary coordinate classification. -/
 theorem heegner_xy_solutions
     {X Y : ℤ} (h : HeegnerXYEquation X Y) :
     (X, Y) ∈ heegnerXYSolutionSet := by
-  sorry
+  by_cases hY : Y = 0
+  · subst Y
+    exact heegner_xy_solutions_of_Y_eq_zero h
+  · exact heegner_xy_solutions_of_X_coordinate h
+      (heegner_x_coordinate_of_solution h)
 
 /-- Every pair in `heegnerXYSolutionSet` satisfies the Heegner integer equation. -/
 theorem heegnerXYEquation_of_mem_heegnerXYSolutionSet
