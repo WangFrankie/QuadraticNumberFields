@@ -10,6 +10,7 @@ import Mathlib.Algebra.Ring.Int.Parity
 import Mathlib.Data.Int.Basic
 import Mathlib.Data.Rat.Lemmas
 import Mathlib.RingTheory.Int.Basic
+import Mathlib.Tactic.FieldSimp
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Ring
 
@@ -150,6 +151,24 @@ theorem exists_eq_sq_of_nine_mul_eq_sq {A z : ℤ} (h : 9 * A = z ^ 2) :
   ring_nf at h ⊢
   nlinarith
 
+/-- If a nonzero square factor times `A` is a square, then `A` is a square. -/
+theorem exists_eq_sq_of_sq_mul_eq_sq {A d z : ℤ} (hd : d ≠ 0)
+    (h : d ^ 2 * A = z ^ 2) :
+    ∃ w : ℤ, A = w ^ 2 := by
+  have hrat : (A : ℚ) = ((z : ℚ) / d) ^ 2 := by
+    have hcast : ((d : ℚ) ^ 2) * A = (z : ℚ) ^ 2 := by
+      exact_mod_cast h
+    have hdq : (d : ℚ) ≠ 0 := by exact_mod_cast hd
+    field_simp [hdq] at hcast ⊢
+    nlinarith
+  have hsquare_rat : IsSquare (A : ℚ) := by
+    rw [isSquare_iff_exists_sq]
+    exact ⟨(z : ℚ) / d, hrat⟩
+  rw [Rat.isSquare_intCast_iff] at hsquare_rat
+  rw [isSquare_iff_exists_sq] at hsquare_rat
+  obtain ⟨w, hw⟩ := hsquare_rat
+  exact ⟨w, by exact_mod_cast hw⟩
+
 /-- If an integer is not divisible by `3`, then it is coprime to `3`. -/
 theorem isCoprime_three_of_not_dvd {n : ℤ} (h : ¬ (3 : ℤ) ∣ n) :
     IsCoprime n (3 : ℤ) := by
@@ -250,6 +269,30 @@ theorem exists_pos_isCoprime_mul_eq_mul_of_pos {a b : ℤ} (ha : 0 < a) (hb : 0 
     obtain ⟨t, ha_t, hb_t⟩ := Rat.num_den_mk hb.ne' hr
     rw [ha_t, hb_t]
     ring
+
+/-- A positive integer pair has a positive coprime reduction. -/
+theorem exists_pos_isCoprime_eq_mul_of_pos {a b : ℤ} (ha : 0 < a) (hb : 0 < b) :
+    ∃ d m n : ℤ, 0 < d ∧ 0 < m ∧ 0 < n ∧ IsCoprime m n ∧
+      a = d * m ∧ b = d * n := by
+  let r : ℚ := (a : ℚ) / b
+  have hrpos : 0 < r := by
+    dsimp [r]
+    exact div_pos (by exact_mod_cast ha) (by exact_mod_cast hb)
+  have hmpos : 0 < r.num := by
+    have hnum_nonneg : 0 ≤ r.num := Rat.num_nonneg.mpr hrpos.le
+    have hnum_ne : r.num ≠ 0 := Rat.num_ne_zero.mpr (ne_of_gt hrpos)
+    omega
+  have hnpos : 0 < (r.den : ℤ) := by exact_mod_cast r.den_pos
+  have hr : r = Rat.divInt a b := by
+    dsimp [r]
+    exact (Rat.divInt_eq_div a b).symm
+  obtain ⟨d, ha_d, hb_d⟩ := Rat.num_den_mk hb.ne' hr
+  have hdpos : 0 < d := by
+    rw [ha_d] at ha
+    nlinarith
+  refine ⟨d, r.num, (r.den : ℤ), hdpos, hmpos, hnpos, ?_, ha_d, hb_d⟩
+  rw [Int.isCoprime_iff_nat_coprime]
+  simpa using r.reduced
 
 /-- Cox-Euler parameterization step: from
 `k² = c² - 3bc + 3b²`, choose coprime positive `m,n` representing
@@ -518,23 +561,152 @@ theorem not_sq_eq_three_mul_sq_sub_sq_of_not_three_dvd {C r n : ℤ}
     · exact Or.inr (sq_emod_three_eq_one_of_emod_eq_two hC)
   rcases hC_sq with hC_sq | hC_sq <;> omega
 
-/-- **Euler descent input, Cox Exercise 12.28.**  If `b` and `c` are positive
-coprime integers and `b * c * (c ^ 2 - 3 * b * c + 3 * b ^ 2)` is a square,
-then either `c = b` or `3 ∣ c`.
+/-- In the `3 ∤ m` branch of Cox's Euler descent, choose a positive
+`p = m ± C` that is not divisible by `3`. -/
+theorem exists_pos_not_three_dvd_param_of_sq_sub
+    {m n C : ℤ} (hm : 0 < m) (hn : 0 < n) (h3m : ¬ (3 : ℤ) ∣ m)
+    (hC : C ^ 2 = m ^ 2 - 3 * n ^ 2) :
+    ∃ p : ℤ, 0 < p ∧ ¬ (3 : ℤ) ∣ p ∧ p ^ 2 + 3 * n ^ 2 = 2 * m * p := by
+  have hn_ne : n ≠ 0 := ne_of_gt hn
+  have hn_sq_pos : 0 < n ^ 2 := sq_pos_of_ne_zero hn_ne
+  have hC_lt : C ^ 2 < m ^ 2 := by nlinarith
+  have h_abs_lt : |C| < m := by
+    have htmp := sq_lt_sq.mp hC_lt
+    simpa [abs_of_pos hm] using htmp
+  have hC_lt_m : C < m := lt_of_le_of_lt (le_abs_self C) h_abs_lt
+  have hnegC_lt_m : -C < m := by
+    have hle : -C ≤ |C| := neg_le_abs C
+    exact lt_of_le_of_lt hle h_abs_lt
+  have hplus_pos : 0 < m + C := by nlinarith
+  have hminus_pos : 0 < m - C := by nlinarith
+  by_cases hplus : (3 : ℤ) ∣ m + C
+  · have hminus_not : ¬ (3 : ℤ) ∣ m - C := by
+      intro hminus
+      have hsum : (3 : ℤ) ∣ (m + C) + (m - C) := dvd_add hplus hminus
+      have h2m : (3 : ℤ) ∣ 2 * m := by
+        convert hsum using 1
+        ring
+      rcases Int.Prime.dvd_mul' Nat.prime_three h2m with h32 | h3m'
+      · norm_num at h32
+      · exact h3m h3m'
+    refine ⟨m - C, hminus_pos, hminus_not, ?_⟩
+    nlinarith
+  · refine ⟨m + C, hplus_pos, hplus, ?_⟩
+    nlinarith
 
-This is the reusable integer core of Euler's infinite descent for the rational
-points on `X ^ 3 + 1 = Z ^ 2`. -/
--- Repository use: Cox's Exercise 12.29 applies this twice to classify the
--- square branch `X ^ 3 + 1 = Z ^ 2`.
-theorem eq_or_three_dvd_of_pos_isCoprime_mul_quadratic_eq_sq
+/-- In the `3 ∤ m` branch of Cox's Euler descent, the unreduced new product
+is a square. -/
+theorem exists_sq_unreduced_descent_product
+    {b B m n p : ℤ} (hn : 0 < n) (hB : b = B ^ 2)
+    (hb : b = 2 * m * n - 3 * n ^ 2) (hp : p ^ 2 + 3 * n ^ 2 = 2 * m * p) :
+    ∃ w : ℤ, p * n * (p ^ 2 - 3 * p * n + 3 * n ^ 2) = w ^ 2 := by
+  have hn_ne : n ≠ 0 := ne_of_gt hn
+  have hsqmul : n ^ 2 * (p * n * (p ^ 2 - 3 * p * n + 3 * n ^ 2)) =
+      (B * p * n) ^ 2 := by
+    rw [hB] at hb
+    apply sub_eq_zero.mp
+    calc
+      n ^ 2 * (p * n * (p ^ 2 - 3 * p * n + 3 * n ^ 2)) - (B * p * n) ^ 2
+          = n ^ 3 * p * (p ^ 2 + 3 * n ^ 2 - 2 * m * p) := by
+            ring_nf
+            rw [hb]
+            ring
+      _ = 0 := by
+        rw [hp]
+        ring
+  exact exists_eq_sq_of_sq_mul_eq_sq hn_ne hsqmul
+
+/-- If the unreduced Cox-Euler descent product is a square, then the product
+after reducing the positive pair is still a square. -/
+theorem exists_sq_reduced_descent_product
+    {p n d p0 q0 w : ℤ} (hd : d ≠ 0)
+    (hp : p = d * p0) (hn : n = d * q0)
+    (hsq : p * n * (p ^ 2 - 3 * p * n + 3 * n ^ 2) = w ^ 2) :
+    ∃ w0 : ℤ, p0 * q0 * (p0 ^ 2 - 3 * p0 * q0 + 3 * q0 ^ 2) = w0 ^ 2 := by
+  have hd2_ne : d ^ 2 ≠ 0 := pow_ne_zero 2 hd
+  have hscaled : (d ^ 2) ^ 2 * (p0 * q0 * (p0 ^ 2 - 3 * p0 * q0 + 3 * q0 ^ 2)) =
+      w ^ 2 := by
+    rw [← hsq]
+    rw [hp, hn]
+    ring
+  exact exists_eq_sq_of_sq_mul_eq_sq hd2_ne hscaled
+
+/-- The reduced denominator in Cox's Euler descent is strictly smaller than
+the original `b`. -/
+theorem reduced_descent_den_lt
+    {b c m n d q0 : ℤ} (hb : 0 < b) (hc : 0 < c) (hn : 0 < n) (hd : 0 < d)
+    (hq0 : 0 < q0) (hn_dvd_b : n ∣ b)
+    (hbA : b = 2 * m * n - 3 * n ^ 2) (hcD : c = m ^ 2 - 3 * n ^ 2)
+    (hn_eq : n = d * q0) (hcb : ¬ c = b) :
+    q0 < b := by
+  have hq0_dvd_n : q0 ∣ n := by
+    refine ⟨d, ?_⟩
+    rw [hn_eq]
+    ring
+  have hq0_dvd_b : q0 ∣ b := hq0_dvd_n.trans hn_dvd_b
+  have hq0_le_b : q0 ≤ b := by
+    obtain ⟨t, ht⟩ := hq0_dvd_b
+    have htpos : 0 < t := by nlinarith
+    nlinarith
+  have hq0_ne_b : q0 ≠ b := by
+    intro hq0b
+    have hn_le_b : n ≤ b := by
+      obtain ⟨t, ht⟩ := hn_dvd_b
+      have htpos : 0 < t := by nlinarith
+      nlinarith
+    have hq0_le_n : q0 ≤ n := by
+      rw [hn_eq]
+      nlinarith
+    have hn_eq_b : n = b := by omega
+    have h2m : 2 * m = 3 * b + 1 := by
+      rw [hn_eq_b] at hbA
+      nlinarith
+    have hc_eq_bvar : c = m ^ 2 - 3 * b ^ 2 := by
+      rw [hn_eq_b] at hcD
+      exact hcD
+    have hcb_eq : c = b := by
+      have hb1 : b = 1 := by
+        have h4c : 4 * c = -3 * b ^ 2 + 6 * b + 1 := by nlinarith
+        have hb_lt3 : b < 3 := by
+          nlinarith [sq_nonneg (b - 1)]
+        have hodd : b % 2 = 1 := by omega
+        omega
+      subst b
+      have hm : m = 2 := by omega
+      subst m
+      nlinarith
+    exact hcb hcb_eq
+  exact lt_of_le_of_ne hq0_le_b hq0_ne_b
+
+/-- The reduced numerator and denominator produced by Cox's Euler descent are
+not equal, unless the original pair was already the excluded diagonal case. -/
+theorem reduced_descent_num_ne_den
+    {b c m n d p p0 q0 : ℤ} (hn : 0 < n)
+    (hp_id : p ^ 2 + 3 * n ^ 2 = 2 * m * p)
+    (hbA : b = 2 * m * n - 3 * n ^ 2) (hcD : c = m ^ 2 - 3 * n ^ 2)
+    (hp_eq : p = d * p0) (hn_eq : n = d * q0) (hcb : ¬ c = b) :
+    p0 ≠ q0 := by
+  intro hp0q0
+  have hp_eq_n : p = n := by
+    rw [hp_eq, hn_eq, hp0q0]
+  have hm_eq : m = 2 * n := by
+    rw [hp_eq_n] at hp_id
+    nlinarith
+  have hcb_eq : c = b := by
+    rw [hm_eq] at hbA hcD
+    nlinarith
+  exact hcb hcb_eq
+
+/-- Cox's Euler descent step: every counterexample to Exercise 12.28 yields a
+strictly smaller counterexample. -/
+private theorem exists_smaller_euler_counterexample
     {b c z : ℤ} (hb : 0 < b) (hc : 0 < c) (hcop : IsCoprime b c)
+    (hcb : ¬ c = b) (h3c : ¬ (3 : ℤ) ∣ c)
     (hprod : b * c * (c ^ 2 - 3 * b * c + 3 * b ^ 2) = z ^ 2) :
-    c = b ∨ (3 : ℤ) ∣ c := by
-  by_cases hcb : c = b
-  · exact Or.inl hcb
-  by_cases h3c : (3 : ℤ) ∣ c
-  · exact Or.inr h3c
-  exfalso
+    ∃ b' c' z' : ℤ,
+      0 < b' ∧ 0 < c' ∧ IsCoprime b' c' ∧ c' ≠ b' ∧ ¬ (3 : ℤ) ∣ c' ∧
+        b' * c' * (c' ^ 2 - 3 * b' * c' + 3 * b' ^ 2) = z' ^ 2 ∧
+          b'.natAbs < b.natAbs := by
   let q : ℤ := c ^ 2 - 3 * b * c + 3 * b ^ 2
   have hqpos : 0 < q := by
     simpa [q] using quadratic_factor_pos (b := b) (c := c) hb
@@ -601,7 +773,7 @@ theorem eq_or_three_dvd_of_pos_isCoprime_mul_quadratic_eq_sq
     have hCsq : C ^ 2 = 3 * r ^ 2 - n ^ 2 := by
       dsimp [D3] at hcD3
       nlinarith
-    exact not_sq_eq_three_mul_sq_sub_sq_of_not_three_dvd h3n hCsq
+    exact False.elim (not_sq_eq_three_mul_sq_sub_sq_of_not_three_dvd h3n hCsq)
   · have hAD : IsCoprime A D := by
       simpa [A, D] using isCoprime_param_num_den_of_not_three_dvd hmn_cop h3m
     have hbD_eq_Ac : b * D = A * c := by
@@ -610,7 +782,72 @@ theorem eq_or_three_dvd_of_pos_isCoprime_mul_quadratic_eq_sq
     have hbc_eq_AD : b = A ∧ c = D :=
       eq_of_pos_isCoprime_mul_eq_mul hc hDpos hcop hAD hbD_eq_Ac
     obtain ⟨hbA, hcD⟩ := hbc_eq_AD
-    sorry
+    have hCsub : C ^ 2 = m ^ 2 - 3 * n ^ 2 := by
+      nlinarith
+    obtain ⟨p, hp_pos, h3p, hp_id⟩ :=
+      exists_pos_not_three_dvd_param_of_sq_sub hmpos hnpos h3m hCsub
+    obtain ⟨w, hw⟩ :=
+      exists_sq_unreduced_descent_product hnpos hB hbA hp_id
+    obtain ⟨d, p0, q0, hdpos, hp0pos, hq0pos, hp0q0_cop, hp_eq, hn_eq⟩ :=
+      exists_pos_isCoprime_eq_mul_of_pos hp_pos hnpos
+    have hd_ne : d ≠ 0 := ne_of_gt hdpos
+    have h3p0 : ¬ (3 : ℤ) ∣ p0 := by
+      intro h3p0
+      have h3p' : (3 : ℤ) ∣ p := by
+        rw [hp_eq]
+        obtain ⟨t, ht⟩ := h3p0
+        refine ⟨d * t, ?_⟩
+        rw [ht]
+        ring
+      exact h3p h3p'
+    obtain ⟨w0, hw0⟩ :=
+      exists_sq_reduced_descent_product hd_ne hp_eq hn_eq hw
+    have hn_dvd_mb : n ∣ m * b := ⟨k + c, hmn⟩
+    have hn_dvd_b : n ∣ b := hmn_cop.symm.dvd_of_dvd_mul_left hn_dvd_mb
+    have hq0_lt_b : q0 < b :=
+      reduced_descent_den_lt hb hc hnpos hdpos hq0pos hn_dvd_b hbA hcD hn_eq hcb
+    have hp0_ne_q0 : p0 ≠ q0 :=
+      reduced_descent_num_ne_den hnpos hp_id hbA hcD hp_eq hn_eq hcb
+    have hprod_new : q0 * p0 * (p0 ^ 2 - 3 * q0 * p0 + 3 * q0 ^ 2) = w0 ^ 2 := by
+      convert hw0 using 1
+      ring
+    refine ⟨q0, p0, w0, hq0pos, hp0pos, hp0q0_cop.symm, hp0_ne_q0, h3p0, ?_, ?_⟩
+    · exact hprod_new
+    · exact Int.natAbs_lt_natAbs_of_nonneg_of_lt hq0pos.le hq0_lt_b
+
+/-- **Euler descent input, Cox Exercise 12.28.**  If `b` and `c` are positive
+coprime integers and `b * c * (c ^ 2 - 3 * b * c + 3 * b ^ 2)` is a square,
+then either `c = b` or `3 ∣ c`.
+
+This is the reusable integer core of Euler's infinite descent for the rational
+points on `X ^ 3 + 1 = Z ^ 2`. -/
+-- Repository use: Cox's Exercise 12.29 applies this twice to classify the
+-- square branch `X ^ 3 + 1 = Z ^ 2`.
+theorem eq_or_three_dvd_of_pos_isCoprime_mul_quadratic_eq_sq
+    {b c z : ℤ} (hb : 0 < b) (hc : 0 < c) (hcop : IsCoprime b c)
+    (hprod : b * c * (c ^ 2 - 3 * b * c + 3 * b ^ 2) = z ^ 2) :
+    c = b ∨ (3 : ℤ) ∣ c := by
+  by_contra h
+  have hcb : ¬ c = b := fun hcb => h (Or.inl hcb)
+  have h3c : ¬ (3 : ℤ) ∣ c := fun h3c => h (Or.inr h3c)
+  let Bad : ℤ → ℤ → ℤ → Prop := fun b c z =>
+    0 < b ∧ 0 < c ∧ IsCoprime b c ∧ c ≠ b ∧ ¬ (3 : ℤ) ∣ c ∧
+      b * c * (c ^ 2 - 3 * b * c + 3 * b ^ 2) = z ^ 2
+  have step : ∀ {b c z : ℤ}, Bad b c z →
+      ∃ b' c' z' : ℤ, Bad b' c' z' ∧ b'.natAbs < b.natAbs := by
+    intro b c z hbad
+    rcases hbad with ⟨hb, hc, hcop, hcb, h3c, hprod⟩
+    obtain ⟨b', c', z', hb', hc', hcop', hcb', h3c', hprod', hlt⟩ :=
+      exists_smaller_euler_counterexample hb hc hcop hcb h3c hprod
+    exact ⟨b', c', z', ⟨hb', hc', hcop', hcb', h3c', hprod'⟩, hlt⟩
+  have no_bad : ∀ n : ℕ, ¬ ∃ b c z : ℤ, Bad b c z ∧ b.natAbs = n := by
+    intro n
+    induction n using Nat.strong_induction_on with
+    | h n ih =>
+        rintro ⟨b, c, z, hbad, hbabs⟩
+        obtain ⟨b', c', z', hbad', hlt⟩ := step hbad
+        exact ih b'.natAbs (by rw [← hbabs]; exact hlt) ⟨b', c', z', hbad', rfl⟩
+  exact no_bad b.natAbs ⟨b, c, z, ⟨hb, hc, hcop, hcb, h3c, hprod⟩, rfl⟩
 
 /-- If two positive coprime integers multiply to twice a square, then one is a
 square and the other is twice a square. -/
