@@ -19,11 +19,15 @@ When `d = 1 + 4k`, we have `𝓞(Q(√d)) ≅ ℤ[(1+√d)/2]`.
 * `Qsqrtd.omega k`: The generator `ω = (1 + √(1+4k))/2` in `Q(√(1+4k))`.
 * `Qsqrtd.Zomega k`: The subalgebra `ℤ[ω]` as a `Subalgebra`.
 * `ZOnePlusSqrtdOverTwo.toQsqrtdHom`: Ring hom embedding into `Q(√(1+4k))`.
+* `ZOnePlusSqrtdOverTwo.ofZsqrtdHom`: The inclusion
+  `ℤ[√(1+4k)] ↪ ℤ[(1+√(1+4k))/2]`.
 * `ZOnePlusSqrtdOverTwo.carrierSet`: The image as a set.
 
 ## Main Theorems
 
 * `ZOnePlusSqrtdOverTwo.toQsqrtdHom_injective`: The embedding is injective.
+* `ZOnePlusSqrtdOverTwo.mem_range_ofZsqrtdHom_iff_even_im`: The suborder
+  `ℤ[√(1+4k)]` is the even-`ω`-coefficient part of `ℤ[ω]`.
 * `ZOnePlusSqrtdOverTwo.halfInt_mem_carrierSet_iff_same_parity`:
   A half-integer is in the carrier iff its coordinates have the same parity.
 -/
@@ -161,6 +165,54 @@ theorem toQsqrtdHom_injective (d : ℤ) : Function.Injective (toQsqrtdHom d) := 
   ext
   · exact_mod_cast hreQ
   · exact_mod_cast himQ
+
+/-- The natural inclusion `ℤ[√(1+4k)] ↪ ℤ[(1+√(1+4k))/2]`.
+
+It sends `a + b√(1+4k)` to `(a - b) + 2bω`, using `√(1+4k) = 2ω - 1`.
+This is the abstract conductor-`2` suborder inside the half-integral order. -/
+def ofZsqrtdHom (k : ℤ) : Zsqrtd (1 + 4 * k) →+* ZOnePlusSqrtdOverTwo k where
+  toFun := fun z => ⟨z.re - z.im, 2 * z.im⟩
+  map_one' := by
+    ext <;> simp [QuadraticAlgebra.re_one, QuadraticAlgebra.im_one]
+  map_mul' := by
+    intro x y
+    ext <;> simp [QuadraticAlgebra.re_mul, QuadraticAlgebra.im_mul] <;> ring
+  map_zero' := by
+    ext <;> simp [QuadraticAlgebra.re_zero, QuadraticAlgebra.im_zero]
+  map_add' := by
+    intro x y
+    ext <;> simp [QuadraticAlgebra.re_add, QuadraticAlgebra.im_add] <;> ring
+
+/-- The inclusion `ofZsqrtdHom` is compatible with the two ambient embeddings
+into `Q(√(1+4k))`. -/
+theorem toQsqrtdHom_ofZsqrtdHom (k : ℤ) (z : Zsqrtd (1 + 4 * k)) :
+    toQsqrtdHom k (ofZsqrtdHom k z) =
+      Zsqrtd.toQsqrtdHom (1 + 4 * k) z := by
+  ext <;> simp [ofZsqrtdHom, toQsqrtdHom, toQsqrtdFun, Zsqrtd.toQsqrtdHom]
+
+/-- The inclusion `ℤ[√(1+4k)] ↪ ℤ[(1+√(1+4k))/2]` is injective. -/
+theorem ofZsqrtdHom_injective (k : ℤ) : Function.Injective (ofZsqrtdHom k) := by
+  intro x y hxy
+  ext
+  · have hre : x.re - x.im = y.re - y.im := by
+      simpa [ofZsqrtdHom] using congrArg QuadraticAlgebra.re hxy
+    have him : 2 * x.im = 2 * y.im := by
+      simpa [ofZsqrtdHom] using congrArg QuadraticAlgebra.im hxy
+    omega
+  · have him : 2 * x.im = 2 * y.im := by
+      simpa [ofZsqrtdHom] using congrArg QuadraticAlgebra.im hxy
+    omega
+
+/-- The image of `ℤ[√(1+4k)]` inside `ℤ[(1+√(1+4k))/2]` consists exactly of
+the elements with even `ω`-coefficient. -/
+theorem mem_range_ofZsqrtdHom_iff_even_im (k : ℤ) (w : ZOnePlusSqrtdOverTwo k) :
+    (∃ z : Zsqrtd (1 + 4 * k), ofZsqrtdHom k z = w) ↔ 2 ∣ w.im := by
+  constructor
+  · rintro ⟨z, rfl⟩
+    exact ⟨z.im, rfl⟩
+  · rintro ⟨b, hb⟩
+    refine ⟨⟨w.re + b, b⟩, ?_⟩
+    ext <;> simp [ofZsqrtdHom, hb]
 
 /-- Candidate carrier set of `ℤ[(1 + √(1 + 4d))/2]` inside `Q(√(1 + 4d))`. -/
 def carrierSet (d : ℤ) : Set (Qsqrtd (qParam d)) := Set.range (toQsqrtdFun d)
