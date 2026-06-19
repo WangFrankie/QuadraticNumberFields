@@ -28,6 +28,8 @@ binary quadratic forms.
   `Zsqrtd (-p)` conductor-`2` order has basis discriminant `-4p`.
 * `conductor_two_zsqrtd_basis_discriminant_eq_conductor_square_mul_fieldDiscriminant`:
   the same discriminant equals `2 ^ 2` times the field discriminant.
+* `fieldDiscriminant_eq_numberField_discr_neg_natCast_of_nat_mod_eight_eq_three`:
+  the forms-side and number-field discriminants agree for `d = -p`.
 * `conductor_two_zsqrtd_basis_discriminant_eq_conductor_square_mul_numberField_discr`:
   the same bridge stated using `NumberField.discr`.
 * `conductor_two_reduced_forms_card_eq_three_of_mem_heegnerPrimeSet`: the
@@ -91,6 +93,17 @@ theorem conductor_two_order_discriminant_eq_neg_four_mul
   rw [BinaryQuadraticForm.fieldDiscriminant_neg_natCast_of_nat_mod_eight_eq_three hp8]
   ring
 
+/-- In the inert branch `p % 8 = 3`, the forms-side field discriminant at `-p`
+agrees with the number-field discriminant of `ℚ(√-p)`. -/
+theorem fieldDiscriminant_eq_numberField_discr_neg_natCast_of_nat_mod_eight_eq_three
+    (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
+    (hp8 : p % 8 = 3) :
+    BinaryQuadraticForm.fieldDiscriminant (-(p : ℤ)) =
+      NumberField.discr (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ)) := by
+  rw [BinaryQuadraticForm.fieldDiscriminant_neg_natCast_of_nat_mod_eight_eq_three hp8,
+    RingOfIntegers.discr_of_mod_four_eq_one (-(p : ℤ))
+      (Int.neg_natCast_emod_four_eq_one_of_nat_mod_eight_eq_three hp8)]
+
 /-- The concrete order `Zsqrtd (-p)` has standard-basis discriminant `-4p`.
 
 For `p ≡ 3 (mod 8)`, the maximal order in `ℚ(√-p)` is half-integral, so this
@@ -122,10 +135,8 @@ theorem conductor_two_zsqrtd_basis_discriminant_eq_conductor_square_mul_numberFi
     Algebra.discr ℤ (QuadraticAlgebra.basis (-(p : ℤ)) 0 :
       Module.Basis (Fin 2) ℤ (Zsqrtd (-(p : ℤ)))) =
       (2 : ℤ) ^ 2 * NumberField.discr (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ)) := by
-  rw [conductor_two_zsqrtd_basis_discriminant_eq_neg_four_mul,
-    RingOfIntegers.discr_of_mod_four_eq_one (-(p : ℤ))
-      (Int.neg_natCast_emod_four_eq_one_of_nat_mod_eight_eq_three hp8)]
-  ring
+  rw [conductor_two_zsqrtd_basis_discriminant_eq_conductor_square_mul_fieldDiscriminant p hp8,
+    fieldDiscriminant_eq_numberField_discr_neg_natCast_of_nat_mod_eight_eq_three p hp8]
 
 /-- The conductor-`2` local factor in Cox's order class-number formula is `3`
 for the inert-prime branch `p ≡ 3 (mod 8)`. -/
