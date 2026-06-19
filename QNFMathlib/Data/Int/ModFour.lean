@@ -40,6 +40,17 @@ lemma Int.neg_natCast_emod_four_eq_one_of_nat_mod_eight_eq_three
   rw [hn_eq]
   omega
 
+/-- If a natural number is `3 mod 8`, then its negative is `1 + 4 * (-n / 4)`
+as an integer. -/
+-- Repository use: identifies the half-integral order parameter for
+-- conductor-`2` orders in the Heegner Weber-data provider.
+lemma Int.neg_natCast_eq_one_add_four_mul_div_four_of_nat_mod_eight_eq_three
+    {n : ℕ} (hn : n % 8 = 3) :
+    -(n : ℤ) = 1 + 4 * (-(n : ℤ) / 4) := by
+  have hmod : (-(n : ℤ)) % 4 = 1 :=
+    Int.neg_natCast_emod_four_eq_one_of_nat_mod_eight_eq_three hn
+  omega
+
 private lemma div4_iff_mod (a' b' d : ℤ) :
     4 ∣ (a' ^ 2 - d * b' ^ 2) ↔ (a' ^ 2 - d * b' ^ 2) % 4 = 0 := by
   omega

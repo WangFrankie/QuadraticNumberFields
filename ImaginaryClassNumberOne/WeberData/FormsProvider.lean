@@ -32,6 +32,8 @@ binary quadratic forms.
   the forms-side and number-field discriminants agree for `d = -p`.
 * `conductor_two_zsqrtd_basis_discriminant_eq_conductor_square_mul_numberField_discr`:
   the same bridge stated using `NumberField.discr`.
+* `conductorTwoSuborderHom`: the concrete conductor-`2` suborder inclusion
+  `Zsqrtd (-p) ↪ ZOnePlusSqrtdOverTwo (-p / 4)` in the inert branch.
 * `conductor_two_reduced_forms_card_eq_three_of_mem_heegnerPrimeSet`: the
   finite-table reduced-form computation for the non-exceptional inert Heegner
   primes.
@@ -139,6 +141,65 @@ theorem conductor_two_zsqrtd_basis_discriminant_eq_conductor_square_mul_numberFi
       (2 : ℤ) ^ 2 * NumberField.discr (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ)) := by
   rw [conductor_two_zsqrtd_basis_discriminant_eq_conductor_square_mul_fieldDiscriminant p hp8,
     fieldDiscriminant_eq_numberField_discr_neg_natCast_of_nat_mod_eight_eq_three p hp8]
+
+/-- In the inert branch `p % 8 = 3`, the half-integral maximal-order parameter
+`-p / 4` satisfies `1 + 4 * (-p / 4) = -p`. -/
+theorem conductor_two_half_integral_parameter_eq_neg_natCast
+    (p : ℕ) (hp8 : p % 8 = 3) :
+    1 + 4 * (-(p : ℤ) / 4) = -(p : ℤ) :=
+  (Int.neg_natCast_eq_one_add_four_mul_div_four_of_nat_mod_eight_eq_three hp8).symm
+
+/-- The concrete conductor-`2` suborder inclusion in the inert branch.
+
+For `p % 8 = 3`, the maximal order of `ℚ(√-p)` is modeled by
+`ZOnePlusSqrtdOverTwo (-p / 4)`.  This homomorphism realizes
+`Zsqrtd (-p)` as the conductor-`2` suborder whose `ω`-coefficient is even. -/
+def conductorTwoSuborderHom (p : ℕ) (hp8 : p % 8 = 3) :
+    Zsqrtd (-(p : ℤ)) →+* ZOnePlusSqrtdOverTwo (-(p : ℤ) / 4) where
+  toFun := fun z => ⟨z.re - z.im, 2 * z.im⟩
+  map_one' := by
+    ext <;> simp [QuadraticAlgebra.re_one, QuadraticAlgebra.im_one]
+  map_mul' := by
+    intro x y
+    have hparam : -(p : ℤ) = 1 + 4 * (-(p : ℤ) / 4) :=
+      Int.neg_natCast_eq_one_add_four_mul_div_four_of_nat_mod_eight_eq_three hp8
+    ext
+    · simp only [QuadraticAlgebra.re_mul, QuadraticAlgebra.im_mul]
+      linear_combination hparam * x.im * y.im
+    · simp only [QuadraticAlgebra.im_mul]
+      ring
+  map_zero' := by
+    ext <;> simp [QuadraticAlgebra.re_zero, QuadraticAlgebra.im_zero]
+  map_add' := by
+    intro x y
+    ext <;> simp [QuadraticAlgebra.re_add, QuadraticAlgebra.im_add] <;> ring
+
+/-- The concrete conductor-`2` suborder inclusion is injective. -/
+theorem conductorTwoSuborderHom_injective (p : ℕ) (hp8 : p % 8 = 3) :
+    Function.Injective (conductorTwoSuborderHom p hp8) := by
+  intro x y hxy
+  ext
+  · have hre : x.re - x.im = y.re - y.im := by
+      simpa [conductorTwoSuborderHom] using congrArg QuadraticAlgebra.re hxy
+    have him : 2 * x.im = 2 * y.im := by
+      simpa [conductorTwoSuborderHom] using congrArg QuadraticAlgebra.im hxy
+    omega
+  · have him : 2 * x.im = 2 * y.im := by
+      simpa [conductorTwoSuborderHom] using congrArg QuadraticAlgebra.im hxy
+    omega
+
+/-- The image of the concrete conductor-`2` suborder inside the half-integral
+maximal-order model is exactly the even-`ω`-coefficient part. -/
+theorem mem_range_conductorTwoSuborderHom_iff_even_im
+    (p : ℕ) (hp8 : p % 8 = 3) (w : ZOnePlusSqrtdOverTwo (-(p : ℤ) / 4)) :
+    (∃ z : Zsqrtd (-(p : ℤ)), conductorTwoSuborderHom p hp8 z = w) ↔
+      2 ∣ w.im := by
+  constructor
+  · rintro ⟨z, rfl⟩
+    exact ⟨z.im, rfl⟩
+  · rintro ⟨b, hb⟩
+    refine ⟨⟨w.re + b, b⟩, ?_⟩
+    ext <;> simp [conductorTwoSuborderHom, hb]
 
 /-- The conductor-`2` local factor in Cox's order class-number formula is `3`
 for the inert-prime branch `p ≡ 3 (mod 8)`. -/
