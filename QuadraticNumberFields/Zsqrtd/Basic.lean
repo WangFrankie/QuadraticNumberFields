@@ -213,6 +213,13 @@ theorem norm_mul (a b : Zsqrtd d) :
     Zsqrtd.norm (a * b) = Zsqrtd.norm a * Zsqrtd.norm b :=
   MonoidHom.map_mul (M := Zsqrtd d) QuadraticAlgebra.norm a b
 
+/-- Divisibility in `Zsqrtd d` descends to divisibility of integer norms. -/
+theorem norm_dvd_norm_of_dvd {a b : Zsqrtd d} (h : a ∣ b) :
+    Zsqrtd.norm a ∣ Zsqrtd.norm b := by
+  rcases h with ⟨c, rfl⟩
+  rw [Zsqrtd.norm_mul]
+  exact dvd_mul_right _ _
+
 /-- For `d < 0`, the norm of `z` is zero iff `z = 0`. -/
 theorem norm_eq_zero_iff (hd : d < 0) (z : Zsqrtd d) :
     Zsqrtd.norm z = 0 ↔ z = 0 := by

@@ -6,6 +6,8 @@ Authors: Frankie Wang
 import Mathlib.Data.Finset.Basic
 import Mathlib.Data.Int.Basic
 import Mathlib.Tactic
+import QuadraticNumberFields.Units.Imaginary
+import QuadraticNumberFields.Zsqrtd.Gaussian
 import QNFMathlib.Data.Int.Parity
 import QNFMathlib.Data.Int.Square
 import QNFMathlib.RingTheory.Coprime
@@ -186,7 +188,35 @@ negative-square branch except for the degenerate root `X = -1`. -/
 theorem heegner_x_coordinate_of_cube_add_one_eq_neg_sq {X Z : ℤ}
     (h : X ^ 3 + 1 = -Z ^ 2) :
     X = -1 := by
-  sorry
+  let n : ℤ := -X
+  have hn : n ^ 3 = Z ^ 2 + 1 := by
+    dsimp [n]
+    nlinarith
+  obtain ⟨w, hw⟩ := Zsqrtd.exists_associated_cube_mk_im_one_of_cube_eq_sq_add_one hn
+  have hnormw : Zsqrtd.norm w = 1 :=
+    Units.zsqrtd_neg_one_norm_eq_one_of_associated_cube_of_im_eq_one hw rfl
+  have hw_unit : IsUnit w := by
+    rw [QuadraticAlgebra.isUnit_iff_norm_isUnit]
+    change IsUnit (Zsqrtd.norm w)
+    rw [hnormw]
+    exact isUnit_one
+  have hα_unit : IsUnit (⟨Z, 1⟩ : Zsqrtd (-1)) := by
+    rw [← Associated.isUnit_iff hw]
+    exact hw_unit.pow 3
+  have hnormα_unit : IsUnit (Zsqrtd.norm (⟨Z, 1⟩ : Zsqrtd (-1))) := by
+    rw [← QuadraticAlgebra.isUnit_iff_norm_isUnit]
+    exact hα_unit
+  rw [Zsqrtd.norm_mk] at hnormα_unit
+  rw [Int.isUnit_iff] at hnormα_unit
+  have hn3 : n ^ 3 = 1 := by
+    rcases hnormα_unit with hnormα | hnormα
+    · nlinarith [hnormα, hn]
+    · nlinarith [hnormα, sq_nonneg Z]
+  have hn1 : n = 1 := by
+    have hpow : n ^ 3 = (1 : ℤ) ^ 3 := by simpa using hn3
+    exact (Odd.pow_inj (by norm_num : Odd 3)).mp hpow
+  dsimp [n] at hn1
+  nlinarith
 
 /-- **Cox auxiliary Diophantine input.** The `ℤ[√-2]` branch of Cox's
 argument rules out `X ^ 3 + 1 = -2 * Z ^ 2` except for `X = -1`. -/
