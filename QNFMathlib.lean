@@ -19,6 +19,7 @@ import QNFMathlib.NumberTheory.RamificationInertia.Galois
 import QNFMathlib.NumberTheory.Zsqrtd.Basic
 import QNFMathlib.RingTheory.PrincipalIdealDomain
 import QNFMathlib.RingTheory.Ideal.Span
+import QNFMathlib.RingTheory.Ideal.Norm.AbsNorm
 import QNFMathlib.RingTheory.Krull
 import QNFMathlib.RingTheory.DedekindDomain.Basic
 import QNFMathlib.RingTheory.DedekindDomain.Ideal

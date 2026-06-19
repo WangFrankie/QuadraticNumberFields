@@ -5,6 +5,7 @@ Authors: Frankie Wang
 -/
 
 import Mathlib.NumberTheory.LegendreSymbol.Basic
+import QNFMathlib.RingTheory.Ideal.Norm.AbsNorm
 import QuadraticNumberFields.ClassGroup.GenusTheory.Discriminant
 import QuadraticNumberFields.ClassGroup.Torsion
 import QuadraticNumberFields.ClassNumber
@@ -134,6 +135,17 @@ theorem mem_idealsPrimeToNormSubmonoid_iff_absNorm_coprime
       exact_mod_cast hp
     rw [Nat.coprime_comm] at hI
     exact ((Fact.out : Nat.Prime p).coprime_iff_not_dvd.mp hI) hp_nat
+
+/-- If an ideal is nonzero and coprime to the rational prime ideal `(p)`, then
+it lies in the prime-to-norm submonoid used by the raw genus character. -/
+theorem mem_idealsPrimeToNormSubmonoid_of_sup_span_natCast_eq_top
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (p : ℕ) [Fact p.Prime]
+    {I : Ideal (𝓞 (Qsqrtd (d : ℚ)))}
+    (hI_ne : I ≠ ⊥)
+    (hcop : I ⊔ Ideal.span ({(p : 𝓞 (Qsqrtd (d : ℚ)))} : Set (𝓞 (Qsqrtd (d : ℚ)))) = ⊤) :
+    I ∈ idealsPrimeToNormSubmonoid d p := by
+  rw [mem_idealsPrimeToNormSubmonoid_iff_absNorm_coprime]
+  exact Ideal.absNorm_coprime_of_sup_span_natCast_eq_top I p hI_ne hcop
 
 /-- The raw genus character, restricted to ideals whose norm is prime to `p`,
 as an integer unit. The inverse is the same value because the character squares
