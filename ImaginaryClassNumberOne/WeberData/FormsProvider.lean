@@ -26,6 +26,9 @@ binary quadratic forms.
   primes.
 * `three_le_conductor_two_reduced_forms_card`: the explicit lower bound coming
   from three conductor-`2` reduced forms.
+* `ConductorTwoReducedFormCoverData`: the remaining forms-side upper-bound
+  interface, expressed as a finite-fiber cover of conductor-`2` reduced forms by
+  field-discriminant reduced forms.
 * `conductor_two_reduced_forms_card_order_class_number_formula`: the explicit
   Cox/order class-number formula boundary for the conductor-`2` route.
 * `hasRingClassNumberThreeAtConductorTwo_of_forms`: the bridge from the Forms
@@ -228,6 +231,92 @@ theorem conductor_two_reduced_forms_card_eq_three_of_classNumber_one_of_card_le_
   have _hfield :=
     field_reduced_forms_card_eq_one_of_classNumber_one p hp hp8 hclass
   exact conductor_two_reduced_forms_card_eq_three_of_card_le_three p hp hp8 hp_ne_three hupper
+
+/-- Forms-side cover data for the conductor-`2` upper-bound step.
+
+This is the explicit remaining finite-fiber interface behind the upper bound
+`h(-4p) ≤ 3 * h(-p)`: every conductor-`2` reduced form maps to a field
+discriminant reduced form, and each field reduced form has at most three
+conductor-`2` reduced-form preimages.  Constructing this map can be done either
+by a direct form-theoretic conductor-lowering argument or by the corresponding
+quadratic-order/Picard-group map. -/
+structure ConductorTwoReducedFormCoverData (p : ℕ) where
+  /-- The conductor-lowering map on raw reduced-form representatives. -/
+  toFieldForm : BinaryQuadraticForm → BinaryQuadraticForm
+  /-- The map sends conductor-`2` reduced forms of discriminant `-4p` to field
+  reduced forms of discriminant `-p`. -/
+  maps_mem : ∀ {Q : BinaryQuadraticForm},
+    Q ∈ BinaryQuadraticForm.enumPrimitiveReducedForms (-(4 * (p : ℤ))) →
+      toFieldForm Q ∈ BinaryQuadraticForm.enumPrimitiveReducedForms (-(p : ℤ))
+  /-- Every field-discriminant reduced form has at most three conductor-`2`
+  reduced-form preimages. -/
+  fiber_card_le_three : ∀ {R : BinaryQuadraticForm},
+    R ∈ BinaryQuadraticForm.enumPrimitiveReducedForms (-(p : ℤ)) →
+      ((BinaryQuadraticForm.enumPrimitiveReducedForms (-(4 * (p : ℤ)))).filter
+        fun Q => toFieldForm Q = R).card ≤ 3
+
+/-- There is conductor-`2` reduced-form cover data for `p`. -/
+def HasConductorTwoReducedFormCoverData (p : ℕ) : Prop :=
+  Nonempty (ConductorTwoReducedFormCoverData p)
+
+/-- If the field reduced-form enumeration is a singleton and the conductor-`2`
+cover has fibers of size at most three, then the conductor-`2` reduced-form
+enumeration has size at most three. -/
+theorem conductor_two_reduced_forms_card_le_three_of_field_card_eq_one_of_cover
+    (p : ℕ)
+    (hfield : (BinaryQuadraticForm.enumPrimitiveReducedForms (-(p : ℤ))).card = 1)
+    (hcover : ConductorTwoReducedFormCoverData p) :
+    (BinaryQuadraticForm.enumPrimitiveReducedForms (-(4 * (p : ℤ)))).card ≤ 3 := by
+  classical
+  let S := BinaryQuadraticForm.enumPrimitiveReducedForms (-(4 * (p : ℤ)))
+  let T := BinaryQuadraticForm.enumPrimitiveReducedForms (-(p : ℤ))
+  obtain ⟨R, hT_eq⟩ : ∃ R, T = {R} := Finset.card_eq_one.mp (by simpa [T] using hfield)
+  have hR : R ∈ T := by simp [hT_eq]
+  have hsubset : S ⊆ S.filter (fun Q => hcover.toFieldForm Q = R) := by
+    intro Q hQ
+    simp only [Finset.mem_filter]
+    refine ⟨hQ, ?_⟩
+    have hmap : hcover.toFieldForm Q ∈ T := hcover.maps_mem (by simpa [S] using hQ)
+    rw [hT_eq] at hmap
+    simpa using hmap
+  exact (Finset.card_le_card hsubset).trans (hcover.fiber_card_le_three (by simpa [T] using hR))
+
+/-- Class number one plus conductor-`2` cover data gives the exact conductor-`2`
+reduced-form count. -/
+theorem conductor_two_reduced_forms_card_eq_three_of_classNumber_one_of_cover
+    (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
+    (hp : Nat.Prime p) (hp8 : p % 8 = 3) (hp_ne_three : p ≠ 3)
+    (hclass : classNumberQsqrtd (-(p : ℤ)) = 1)
+    (hcover : ConductorTwoReducedFormCoverData p) :
+    (BinaryQuadraticForm.enumPrimitiveReducedForms (-(4 * (p : ℤ)))).card = 3 := by
+  exact conductor_two_reduced_forms_card_eq_three_of_classNumber_one_of_card_le_three
+    p hp hp8 hp_ne_three hclass
+    (conductor_two_reduced_forms_card_le_three_of_field_card_eq_one_of_cover p
+      (field_reduced_forms_card_eq_one_of_classNumber_one p hp hp8 hclass) hcover)
+
+/-- Class number one plus conductor-`2` cover data supplies Forms-side
+class-number-three data. -/
+theorem conductor_two_form_class_number_three_of_classNumber_one_of_cover
+    (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
+    (hp : Nat.Prime p) (hp8 : p % 8 = 3) (hp_ne_three : p ≠ 3)
+    (hclass : classNumberQsqrtd (-(p : ℤ)) = 1)
+    (hcover : ConductorTwoReducedFormCoverData p) :
+    HasConductorTwoFormClassNumberThreeData p :=
+  hasConductorTwoFormClassNumberThreeData_of_reducedForms_card p
+    (conductor_two_reduced_forms_card_eq_three_of_classNumber_one_of_cover
+      p hp hp8 hp_ne_three hclass hcover)
+
+/-- Class number one plus conductor-`2` cover data supplies the core
+ring-class-number input. -/
+theorem conductor_two_class_number_three_of_classNumber_one_of_cover
+    (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
+    (hp : Nat.Prime p) (hp8 : p % 8 = 3) (hp_ne_three : p ≠ 3)
+    (hclass : classNumberQsqrtd (-(p : ℤ)) = 1)
+    (hcover : ConductorTwoReducedFormCoverData p) :
+    HasRingClassNumberThreeAtConductorTwo p :=
+  hasRingClassNumberThreeAtConductorTwo_of_forms
+    (conductor_two_form_class_number_three_of_classNumber_one_of_cover
+      p hp hp8 hp_ne_three hclass hcover)
 
 /-- The finite inert-Heegner-prime reduced-form computation supplies
 Forms-side conductor-`2` class-number-three data. -/
