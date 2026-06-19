@@ -21,6 +21,9 @@ binary quadratic forms.
 
 * `ConductorTwoFormClassNumberThreeData`: Forms-side class-number-three input for
   primitive reduced forms of discriminant `-4p` in the `p ≠ 3` inert branch.
+* `conductor_two_reduced_forms_card_eq_three_of_mem_heegnerPrimeSet`: the
+  finite-table reduced-form computation for the non-exceptional inert Heegner
+  primes.
 * `conductor_two_reduced_forms_card_order_class_number_formula`: the explicit
   Cox/order class-number formula boundary for the conductor-`2` route.
 * `hasRingClassNumberThreeAtConductorTwo_of_forms`: the bridge from the Forms
@@ -128,6 +131,72 @@ theorem hasRingClassNumberThreeAtConductorTwo_of_reducedForms_card
     HasRingClassNumberThreeAtConductorTwo p :=
   hasRingClassNumberThreeAtConductorTwo_of_forms
     (hasConductorTwoFormClassNumberThreeData_of_reducedForms_card p hcard)
+
+/-- For the non-exceptional inert Heegner primes, the conductor-`2`
+discriminant `-4p` has exactly three primitive reduced positive definite forms.
+
+This is the finite-table reduced-form computation behind the conductor-`2`
+ring/order/forms bridge. It intentionally avoids the `p = 3` unit-exception
+case, where the order class-number formula has a different unit index. -/
+theorem conductor_two_reduced_forms_card_eq_three_of_mem_heegnerPrimeSet
+    (p : ℕ) (hp_mem : (p : ℤ) ∈ heegnerPrimeSet) (hp_ne_three : p ≠ 3) :
+    (BinaryQuadraticForm.enumPrimitiveReducedForms (-(4 * (p : ℤ)))).card = 3 := by
+  rw [BinaryQuadraticForm.enumPrimitiveReducedForms_card_eq_length]
+  norm_num [heegnerPrimeSet] at hp_mem
+  rcases hp_mem with hp | hp | hp | hp | hp | hp
+  · omega
+  · have hp' : p = 11 := by exact_mod_cast hp
+    subst p
+    exact BinaryQuadraticForm.enumPrimitiveReducedFormsList_neg44_length
+  · have hp' : p = 19 := by exact_mod_cast hp
+    subst p
+    exact BinaryQuadraticForm.enumPrimitiveReducedFormsList_neg76_length
+  · have hp' : p = 43 := by exact_mod_cast hp
+    subst p
+    exact BinaryQuadraticForm.enumPrimitiveReducedFormsList_neg172_length
+  · have hp' : p = 67 := by exact_mod_cast hp
+    subst p
+    exact BinaryQuadraticForm.enumPrimitiveReducedFormsList_neg268_length
+  · have hp' : p = 163 := by exact_mod_cast hp
+    subst p
+    exact BinaryQuadraticForm.enumPrimitiveReducedFormsList_neg652_length
+
+/-- The finite inert-Heegner-prime reduced-form computation supplies
+Forms-side conductor-`2` class-number-three data. -/
+theorem conductor_two_form_class_number_three_of_mem_heegnerPrimeSet
+    (p : ℕ) (hp_mem : (p : ℤ) ∈ heegnerPrimeSet) (hp_ne_three : p ≠ 3) :
+    HasConductorTwoFormClassNumberThreeData p :=
+  hasConductorTwoFormClassNumberThreeData_of_reducedForms_card p
+    (conductor_two_reduced_forms_card_eq_three_of_mem_heegnerPrimeSet
+      p hp_mem hp_ne_three)
+
+/-- The finite inert-Heegner-prime reduced-form computation supplies the core
+conductor-`2` ring-class-number-three input. -/
+theorem conductor_two_class_number_three_of_mem_heegnerPrimeSet
+    (p : ℕ) (hp_mem : (p : ℤ) ∈ heegnerPrimeSet) (hp_ne_three : p ≠ 3) :
+    HasRingClassNumberThreeAtConductorTwo p :=
+  hasRingClassNumberThreeAtConductorTwo_of_forms
+    (conductor_two_form_class_number_three_of_mem_heegnerPrimeSet
+      p hp_mem hp_ne_three)
+
+/-- On the finite non-exceptional inert Heegner-prime table, the conductor-`2`
+reduced-form count agrees with the specialized order class-number formula. -/
+theorem conductor_two_reduced_forms_card_order_class_number_formula_of_mem_heegnerPrimeSet
+    (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
+    (hp8 : p % 8 = 3) (hp_mem : (p : ℤ) ∈ heegnerPrimeSet) (hp_ne_three : p ≠ 3) :
+    ((BinaryQuadraticForm.enumPrimitiveReducedForms (-(4 * (p : ℤ)))).card : ℚ) =
+      (classNumberQsqrtd (-(p : ℤ)) : ℚ) *
+        ((2 : ℚ) * (1 - (kroneckerTwo (-(p : ℤ)) : ℚ) / 2)) := by
+  have hcard :=
+    conductor_two_reduced_forms_card_eq_three_of_mem_heegnerPrimeSet p hp_mem hp_ne_three
+  have hclass : classNumberQsqrtd (-(p : ℤ)) = 1 := by
+    unfold classNumberQsqrtd
+    apply classNumber_eq_one_of_mem_heegnerSet
+    norm_num [heegnerSet, heegnerPrimeSet] at hp_mem ⊢
+    omega
+  have hfactor := conductor_two_order_class_number_formula_factor_eq_three p hp8
+  rw [hcard, hclass, hfactor]
+  norm_num
 
 /-- **Cox/order class-number formula, conductor `2`, reduced-form version.** In
 the inert prime family `d = -p`, the primitive reduced forms of discriminant
