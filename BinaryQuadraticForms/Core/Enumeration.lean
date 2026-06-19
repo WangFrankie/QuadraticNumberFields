@@ -201,6 +201,22 @@ theorem mem_enumPrimitiveReducedForms_iff {D : ℤ} {Q : BinaryQuadraticForm} :
   exact ⟨of_mem_enumPrimitiveReducedForms,
     fun hQ => mem_enumPrimitiveReducedForms_of_reduced hQ.1 hQ.2.1 hQ.2.2.1 hQ.2.2.2⟩
 
+/-- An enumerated primitive reduced form of conductor-`2` discriminant `-4p`
+has even middle coefficient. -/
+theorem even_b_of_mem_enumPrimitiveReducedForms_neg_four_mul_natCast
+    {p : ℕ} {Q : BinaryQuadraticForm}
+    (hQ : Q ∈ enumPrimitiveReducedForms (-(4 * (p : ℤ)))) : Even Q.b := by
+  exact even_b_of_hasDiscriminant_neg_four_mul_natCast
+    (of_mem_enumPrimitiveReducedForms hQ).1
+
+/-- In the inert branch `p % 8 = 3`, an enumerated primitive reduced form of
+field discriminant `-p` has odd middle coefficient. -/
+theorem odd_b_of_mem_enumPrimitiveReducedForms_neg_natCast_of_nat_mod_eight_eq_three
+    {p : ℕ} (hp8 : p % 8 = 3) {Q : BinaryQuadraticForm}
+    (hQ : Q ∈ enumPrimitiveReducedForms (-(p : ℤ))) : Odd Q.b := by
+  exact odd_b_of_hasDiscriminant_neg_natCast_of_nat_mod_eight_eq_three hp8
+    (of_mem_enumPrimitiveReducedForms hQ).1
+
 /-- View an enumerated reduced primitive positive definite form as a member of
 the restricted Cox carrier. -/
 def primitivePositiveDefiniteFormOfMemEnum {D : ℤ} {Q : BinaryQuadraticForm}

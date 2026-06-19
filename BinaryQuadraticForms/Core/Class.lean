@@ -148,6 +148,21 @@ theorem fieldDiscriminant_neg_natCast_of_nat_mod_eight_eq_three
   fieldDiscriminant_of_mod_four_eq_one
     (Int.neg_natCast_emod_four_eq_one_of_nat_mod_eight_eq_three hp8)
 
+/-- A form of conductor-`2` discriminant `-4p` has even middle coefficient. -/
+theorem even_b_of_hasDiscriminant_neg_four_mul_natCast
+    {p : ℕ} {Q : BinaryQuadraticForm}
+    (hdisc : Q.HasDiscriminant (-(4 * (p : ℤ)))) : Even Q.b := by
+  rw [even_iff_two_dvd]
+  by_contra hb_not_dvd
+  have hb2dvd : (4 : ℤ) ∣ Q.b ^ 2 := by
+    refine ⟨Q.a * Q.c - (p : ℤ), ?_⟩
+    have hdisc' : Q.b ^ 2 - 4 * Q.a * Q.c = -(4 * (p : ℤ)) := by
+      simpa [HasDiscriminant, disc] using hdisc
+    nlinarith
+  have hb2mod0 : Q.b ^ 2 % 4 = 0 := (Int.dvd_iff_emod_eq_zero).mp hb2dvd
+  have hb2mod1 : Q.b ^ 2 % 4 = 1 := Int.sq_emod_four_of_odd Q.b hb_not_dvd
+  omega
+
 /-- Imaginary squarefree parameters have negative field discriminant. -/
 theorem fieldDiscriminant_neg {d : ℤ} (hdneg : d < 0) :
     fieldDiscriminant d < 0 := by
@@ -189,6 +204,15 @@ theorem odd_b_of_hasDiscriminant_fieldDiscriminant_of_mod_four_eq_one
         Int.add_mul_emod_self_left]
     simpa [hd4] using hmod
   omega
+
+/-- In the inert branch `p % 8 = 3`, a form of field discriminant `-p` has odd
+middle coefficient. -/
+theorem odd_b_of_hasDiscriminant_neg_natCast_of_nat_mod_eight_eq_three
+    {p : ℕ} (hp8 : p % 8 = 3) {Q : BinaryQuadraticForm}
+    (hdisc : Q.HasDiscriminant (-(p : ℤ))) : Odd Q.b := by
+  exact odd_b_of_hasDiscriminant_fieldDiscriminant_of_mod_four_eq_one
+    (Int.neg_natCast_emod_four_eq_one_of_nat_mod_eight_eq_three hp8)
+    (by simpa [fieldDiscriminant_neg_natCast_of_nat_mod_eight_eq_three hp8] using hdisc)
 
 private theorem dvd_disc_of_dvd_coefficients (Q : BinaryQuadraticForm) {n : ℕ}
     (ha : (n : ℤ) ∣ Q.a) (hb : (n : ℤ) ∣ Q.b) (hc : (n : ℤ) ∣ Q.c) :
