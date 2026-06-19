@@ -7,6 +7,7 @@ Authors: Frankie Wang
 import Mathlib.Algebra.Group.Int.Even
 import Mathlib.Data.Int.ModEq
 import Mathlib.Tactic.Linarith
+import Mathlib.Tactic.NormNum
 import Mathlib.Tactic.Ring
 
 /-!
@@ -51,3 +52,34 @@ theorem Int.odd_of_modEq_odd {B b a : ℤ} (hb : Odd b) (hB : B ≡ b [ZMOD 2 * 
   have hB_eq : B = b - 2 * a * k := by linarith
   rw [hB_eq, hm]
   ring
+
+/-- If twice an integer is a square, then the integer is twice a square. -/
+-- Repository use: Heegner's Diophantine reduction uses this in the odd
+-- `X` branch to pass from `2 * (X ^ 3 + 1)` being a square to
+-- `X ^ 3 + 1` being twice a square.
+theorem Int.exists_eq_two_mul_sq_of_two_mul_eq_sq {A z : ℤ}
+    (h : 2 * A = z ^ 2) :
+    ∃ w : ℤ, A = 2 * w ^ 2 := by
+  have hz_even_sq : Even (z ^ 2) := by
+    rw [← h]
+    exact even_two_mul A
+  have hz_even : Even z :=
+    (Int.even_pow' (m := z) (n := 2) (by norm_num)).mp hz_even_sq
+  rcases hz_even with ⟨w, hw⟩
+  use w
+  subst z
+  nlinarith
+
+/-- If twice an integer is the negative of a square, then the integer is
+negative twice a square. -/
+-- Repository use: Heegner's Diophantine reduction uses this in the odd
+-- `X` branch to pass from `2 * (X ^ 3 + 1)` being a negative square to
+-- `X ^ 3 + 1` being negative twice a square.
+theorem Int.exists_eq_neg_two_mul_sq_of_two_mul_eq_neg_sq {A z : ℤ}
+    (h : 2 * A = -z ^ 2) :
+    ∃ w : ℤ, A = -2 * w ^ 2 := by
+  have hneg : 2 * (-A) = z ^ 2 := by
+    nlinarith
+  obtain ⟨w, hw⟩ := Int.exists_eq_two_mul_sq_of_two_mul_eq_sq hneg
+  use w
+  nlinarith

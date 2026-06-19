@@ -6,6 +6,7 @@ Authors: Frankie Wang
 import Mathlib.Data.Finset.Basic
 import Mathlib.Data.Int.Basic
 import Mathlib.Tactic
+import QNFMathlib.Data.Int.Parity
 
 /-!
 # Diophantine Layer for the Baker-Heegner-Stark Proof
@@ -88,31 +89,6 @@ theorem isCoprime_X_two_mul_X_cube_add_one {X : ℤ} (hXodd : Odd X) :
   have hcop2 : IsCoprime X (2 : ℤ) := Int.isCoprime_two_right.mpr hXodd
   exact hcop2.mul_right (isCoprime_X_X_cube_add_one X)
 
-/-- If twice an integer is a square, then the integer is twice a square. -/
-theorem exists_eq_two_mul_sq_of_two_mul_eq_sq {A z : ℤ}
-    (h : 2 * A = z ^ 2) :
-    ∃ w : ℤ, A = 2 * w ^ 2 := by
-  have hz_even_sq : Even (z ^ 2) := by
-    rw [← h]
-    exact even_two_mul A
-  have hz_even : Even z :=
-    (Int.even_pow' (m := z) (n := 2) (by norm_num)).mp hz_even_sq
-  rcases hz_even with ⟨w, hw⟩
-  use w
-  subst z
-  nlinarith
-
-/-- If twice an integer is the negative of a square, then the integer is
-negative twice a square. -/
-theorem exists_eq_neg_two_mul_sq_of_two_mul_eq_neg_sq {A z : ℤ}
-    (h : 2 * A = -z ^ 2) :
-    ∃ w : ℤ, A = -2 * w ^ 2 := by
-  have hneg : 2 * (-A) = z ^ 2 := by
-    nlinarith
-  obtain ⟨w, hw⟩ := exists_eq_two_mul_sq_of_two_mul_eq_sq hneg
-  use w
-  nlinarith
-
 /-- Cox's first reduction: from the Heegner equation, `X ^ 3 + 1` is a square,
 the negative of a square, twice a square, or negative twice a square. -/
 theorem heegner_cube_add_one_square_or_twice_square {X Y : ℤ}
@@ -136,18 +112,88 @@ theorem heegner_cube_add_one_square_or_twice_square {X Y : ℤ}
       (a := 2 * (X ^ 3 + 1)) (b := X) (c := Y)
       (isCoprime_X_two_mul_X_cube_add_one hXodd).symm
       (by simpa [mul_comm] using hprod)
-    · obtain ⟨W, hW⟩ := exists_eq_two_mul_sq_of_two_mul_eq_sq hZ
+    · obtain ⟨W, hW⟩ := Int.exists_eq_two_mul_sq_of_two_mul_eq_sq hZ
       exact ⟨W, Or.inr (Or.inr (Or.inl hW))⟩
-    · obtain ⟨W, hW⟩ := exists_eq_neg_two_mul_sq_of_two_mul_eq_neg_sq hZ
+    · obtain ⟨W, hW⟩ := Int.exists_eq_neg_two_mul_sq_of_two_mul_eq_neg_sq hZ
       exact ⟨W, Or.inr (Or.inr (Or.inr hW))⟩
 
-/-- **Cox auxiliary Diophantine classification input.** Exercises 12.27-12.29,
-together with the square-`X` condition in the twice-square branch, classify the
-`X`-coordinates of solutions to Cox's Heegner equation. -/
-theorem heegner_x_coordinate_of_solution {X Y : ℤ}
+/-- If `X ^ 3 + 1` is twice a square along a solution of the Heegner equation,
+then either this is the degenerate `X = -1` case, or `X` is itself a square.
+This is the extra condition Cox uses to rewrite this branch as
+`W ^ 6 + 1 = 2 * Z ^ 2`. -/
+theorem heegner_x_eq_neg_one_or_square_of_cube_add_one_eq_two_mul_sq
+    {X Y Z : ℤ} (h : HeegnerXYEquation X Y)
+    (hZ : X ^ 3 + 1 = 2 * Z ^ 2) :
+    X = -1 ∨ ∃ W : ℤ, X = W ^ 2 := by
+  by_cases hZ0 : Z = 0
+  · left
+    apply eq_neg_one_of_cube_add_one_eq_zero
+    rw [hZ, hZ0]
+    norm_num
+  · right
+    have hprod : X * (4 * Z ^ 2) = Y ^ 2 := by
+      rw [HeegnerXYEquation] at h
+      rw [h, hZ]
+      ring
+    have hcop4Z : IsCoprime X (4 * Z ^ 2) := by
+      have hcop2Z : IsCoprime X (2 * Z ^ 2) := by
+        simpa [hZ] using isCoprime_X_X_cube_add_one X
+      have hparts := IsCoprime.mul_right_iff.mp hcop2Z
+      have hcop2 : IsCoprime X (2 : ℤ) := hparts.1
+      convert hcop2.mul_right hcop2Z using 1
+      ring
+    obtain ⟨W, hW | hW⟩ := Int.sq_of_isCoprime hcop4Z hprod
+    · exact ⟨W, hW⟩
+    · by_cases hW0 : W = 0
+      · subst W
+        subst X
+        have hZsq_pos : 0 < Z ^ 2 := sq_pos_of_ne_zero hZ0
+        nlinarith [hZ, hZsq_pos]
+      · have hWsq_pos : 0 < W ^ 2 := sq_pos_of_ne_zero hW0
+        have hZsq_pos : 0 < Z ^ 2 := sq_pos_of_ne_zero hZ0
+        nlinarith [sq_nonneg Y, hprod, hW, hWsq_pos, hZsq_pos]
+
+/-- Cox's auxiliary-equation split for a solution of the Heegner equation.
+The twice-square branch is rewritten with the square `X = W ^ 2` condition,
+which gives the equation `W ^ 6 + 1 = 2 * Z ^ 2`. -/
+theorem heegner_auxiliary_equation_of_solution {X Y : ℤ}
     (h : HeegnerXYEquation X Y) :
+    (∃ Z : ℤ, X ^ 3 + 1 = Z ^ 2) ∨
+      (∃ Z : ℤ, X ^ 3 + 1 = -Z ^ 2) ∨
+      (∃ W Z : ℤ, X = W ^ 2 ∧ W ^ 6 + 1 = 2 * Z ^ 2) ∨
+      (∃ Z : ℤ, X ^ 3 + 1 = -2 * Z ^ 2) := by
+  obtain ⟨Z, hZ | hZ | hZ | hZ⟩ := heegner_cube_add_one_square_or_twice_square h
+  · exact Or.inl ⟨Z, hZ⟩
+  · exact Or.inr (Or.inl ⟨Z, hZ⟩)
+  · rcases heegner_x_eq_neg_one_or_square_of_cube_add_one_eq_two_mul_sq h hZ with
+      hXm1 | ⟨W, hW⟩
+    · subst X
+      exact Or.inl ⟨0, by norm_num⟩
+    · subst X
+      refine Or.inr (Or.inr (Or.inl ⟨W, Z, rfl, ?_⟩))
+      convert hZ using 1
+      ring
+  · exact Or.inr (Or.inr (Or.inr ⟨Z, hZ⟩))
+
+/-- **Cox auxiliary Diophantine classification input.** Exercises 12.27-12.29
+classify the auxiliary equations and leave only the `X`-coordinates
+`0`, `-1`, `1`, and `2`. -/
+theorem heegner_x_coordinate_of_auxiliary_equations {X : ℤ}
+    (haux :
+      (∃ Z : ℤ, X ^ 3 + 1 = Z ^ 2) ∨
+        (∃ Z : ℤ, X ^ 3 + 1 = -Z ^ 2) ∨
+        (∃ W Z : ℤ, X = W ^ 2 ∧ W ^ 6 + 1 = 2 * Z ^ 2) ∨
+        (∃ Z : ℤ, X ^ 3 + 1 = -2 * Z ^ 2)) :
     X = 0 ∨ X = -1 ∨ X = 1 ∨ X = 2 := by
   sorry
+
+/-- The `X`-coordinate classification for solutions of Cox's Heegner equation,
+after reducing to the auxiliary Diophantine equations. -/
+theorem heegner_x_coordinate_of_solution {X Y : ℤ}
+    (h : HeegnerXYEquation X Y) :
+    X = 0 ∨ X = -1 ∨ X = 1 ∨ X = 2 :=
+  heegner_x_coordinate_of_auxiliary_equations
+    (heegner_auxiliary_equation_of_solution h)
 
 /-- The zero-`Y` branch of the Heegner integer equation. -/
 theorem heegner_xy_solutions_of_Y_eq_zero
