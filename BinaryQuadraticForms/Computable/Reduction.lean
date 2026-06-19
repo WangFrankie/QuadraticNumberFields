@@ -191,22 +191,6 @@ decreasing_by
     _ < Q.a := h_lt
     _ = (Q.a.natAbs : ℤ) := (Int.natAbs_of_nonneg (le_of_lt hpos.1)).symm
 
-/-- The swap matrix `(x, y) ↦ (y, -x)` used in the recursive reduction step. -/
-private def swapSL2Z : SL2Z := by
-  refine ⟨![![0, 1], ![-1, 0]], ?_⟩
-  norm_num [Matrix.det_fin_two]
-
-@[simp] private theorem transform_swapSL2Z (Q : BinaryQuadraticForm) :
-    transform Q swapSL2Z = ⟨Q.c, -Q.b, Q.a⟩ := by
-  ext
-  · change Q.a * 0 ^ 2 + Q.b * 0 * (-1) + Q.c * (-1) ^ 2 = Q.c
-    norm_num
-  · change 2 * Q.a * 0 * 1 + Q.b * (0 * 0 + 1 * (-1)) + 2 * Q.c * (-1) * 0 =
-      -Q.b
-    norm_num
-  · change Q.a * 1 ^ 2 + Q.b * 1 * 0 + Q.c * 0 ^ 2 = Q.a
-    norm_num
-
 private theorem normalizeB_properEquivalent (Q : BinaryQuadraticForm) (ha : 0 < Q.a) :
     ProperEquivalent Q (normalizeB Q ha) :=
   ⟨translateSL2Z (normalizeB_k Q.a Q.b ha), rfl⟩

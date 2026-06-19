@@ -431,6 +431,22 @@ theorem self_mem_conductorTwoRingOfIntegersIdealOfForm
   rw [RingEquiv.apply_symm_apply]
   exact self_mem_conductorTwoMaximalOrderIdealOfForm p hp8 Q
 
+/-- The integer leading coefficient itself belongs to the ring-of-integers
+ideal attached to a conductor-`2` form. -/
+theorem intCast_a_mem_conductorTwoRingOfIntegersIdealOfForm
+    (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
+    (hp8 : p % 8 = 3)
+    (Q : BinaryQuadraticForm.PrimitivePositiveDefiniteForm (-(4 * (p : ℤ)))) :
+    ((Q.1.a : ℤ) : 𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ))) ∈
+      conductorTwoRingOfIntegersIdealOfForm p hp8 Q := by
+  let e := RingOfIntegers.ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one
+    (-(p : ℤ)) (Int.neg_natCast_emod_four_eq_one_of_nat_mod_eight_eq_three hp8)
+  have h := self_mem_conductorTwoRingOfIntegersIdealOfForm p hp8 Q
+  change e.symm ((Q.1.a : ℤ) : ZOnePlusSqrtdOverTwo (-(p : ℤ) / 4)) ∈
+    conductorTwoRingOfIntegersIdealOfForm p hp8 Q at h
+  convert h using 1
+  exact (map_intCast e.symm Q.1.a).symm
+
 /-- The transported second Cox/order generator belongs to the ring-of-integers
 ideal attached to a conductor-`2` form. -/
 theorem generator_mem_conductorTwoRingOfIntegersIdealOfForm
@@ -517,6 +533,51 @@ theorem conductorTwoRingOfIntegersIdealOfForm_ne_zero
   have ha0 : Q.1.a = 0 := by
     simpa using congrArg QuadraticAlgebra.re haZ
   exact (ne_of_gt Q.2.2.2.1) ha0
+
+/-- If the chosen conductor-`2` form representative has odd leading coefficient,
+then its extended maximal-order ideal is coprime to `(2)`. -/
+theorem span_two_sup_conductorTwoRingOfIntegersIdealOfForm_eq_top_of_odd_a
+    (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
+    (hp8 : p % 8 = 3)
+    (Q : BinaryQuadraticForm.PrimitivePositiveDefiniteForm (-(4 * (p : ℤ))))
+    (ha : Odd Q.1.a) :
+    Ideal.span ({(2 : 𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ)))} : Set _) ⊔
+        conductorTwoRingOfIntegersIdealOfForm p hp8 Q = ⊤ := by
+  rw [Ideal.eq_top_iff_one]
+  let O := 𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ))
+  have h2_mem : (2 : O) ∈ Ideal.span ({(2 : O)} : Set _) :=
+    Ideal.subset_span (by simp)
+  have h2_mem_sup : (2 : O) ∈ Ideal.span ({(2 : O)} : Set _) ⊔
+      conductorTwoRingOfIntegersIdealOfForm p hp8 Q :=
+    Ideal.mem_sup_left h2_mem
+  have ha_mem : ((Q.1.a : ℤ) : O) ∈ conductorTwoRingOfIntegersIdealOfForm p hp8 Q :=
+    intCast_a_mem_conductorTwoRingOfIntegersIdealOfForm p hp8 Q
+  have ha_mem_sup : ((Q.1.a : ℤ) : O) ∈ Ideal.span ({(2 : O)} : Set _) ⊔
+      conductorTwoRingOfIntegersIdealOfForm p hp8 Q :=
+    Ideal.mem_sup_right ha_mem
+  rcases ha with ⟨k, hk⟩
+  have h_one : (1 : O) = ((Q.1.a : ℤ) : O) - (k : O) * (2 : O) := by
+    rw [hk]
+    rw [Int.cast_add, Int.cast_mul]
+    norm_num
+    ring
+  rw [h_one]
+  exact Ideal.sub_mem _ ha_mem_sup (Ideal.mul_mem_left _ (k : O) h2_mem_sup)
+
+/-- Every conductor-`2` form has a properly equivalent representative whose
+extended maximal-order ideal is coprime to `(2)`. -/
+theorem exists_properEquivalent_span_two_sup_conductorTwoRingOfIntegersIdealOfForm_eq_top
+    (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
+    (hp8 : p % 8 = 3)
+    (Q : BinaryQuadraticForm.PrimitivePositiveDefiniteForm (-(4 * (p : ℤ)))) :
+    ∃ R : BinaryQuadraticForm.PrimitivePositiveDefiniteForm (-(4 * (p : ℤ))),
+      BinaryQuadraticForm.PrimitivePositiveDefiniteForm.ProperEquivalent Q R ∧
+        Ideal.span ({(2 : 𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ)))} : Set _) ⊔
+          conductorTwoRingOfIntegersIdealOfForm p hp8 R = ⊤ := by
+  rcases BinaryQuadraticForm.exists_properEquivalent_odd_a_of_discriminant_neg_four_mul_natCast
+      Q with ⟨R, hQR, hRa⟩
+  exact ⟨R, hQR,
+    span_two_sup_conductorTwoRingOfIntegersIdealOfForm_eq_top_of_odd_a p hp8 R hRa⟩
 
 /-- The ring-of-integers ideal attached to a conductor-`2` form, packaged as a
 nonzero ideal for `ClassGroup.mk0`. -/
@@ -633,6 +694,30 @@ theorem conductorTwoRingOfIntegersIdealClassOfFormClass_mk
         (Quotient.mk (BinaryQuadraticForm.primitivePositiveDefiniteFormSetoid _) Q) =
       conductorTwoRingOfIntegersIdealClassOfForm p hp8 Q :=
   rfl
+
+/-- Equality of the maximal-order ideal classes attached to two conductor-`2`
+forms is equivalent to the classical principal-span relation between the two
+extended ideals. -/
+theorem conductorTwoRingOfIntegersIdealClassOfForm_eq_iff_exists_span_mul
+    (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
+    (hp8 : p % 8 = 3)
+    (Q R : BinaryQuadraticForm.PrimitivePositiveDefiniteForm (-(4 * (p : ℤ)))) :
+    conductorTwoRingOfIntegersIdealClassOfForm p hp8 Q =
+        conductorTwoRingOfIntegersIdealClassOfForm p hp8 R ↔
+      ∃ x y : 𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ)), x ≠ 0 ∧ y ≠ 0 ∧
+        Ideal.span ({x} : Set (𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ)))) *
+            conductorTwoRingOfIntegersIdealOfForm p hp8 Q =
+          Ideal.span ({y} : Set (𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ)))) *
+            conductorTwoRingOfIntegersIdealOfForm p hp8 R := by
+  unfold conductorTwoRingOfIntegersIdealClassOfForm
+  rw [ClassGroup.mk0_eq_mk0_iff]
+  constructor
+  · rintro ⟨x, y, hx, hy, hxy⟩
+    exact ⟨x, y, hx, hy, by
+      simpa [conductorTwoRingOfIntegersNonzeroIdealOfForm] using hxy⟩
+  · rintro ⟨x, y, hx, hy, hxy⟩
+    exact ⟨x, y, hx, hy, by
+      simpa [conductorTwoRingOfIntegersNonzeroIdealOfForm] using hxy⟩
 
 /-- In the inert conductor-`2` branch, the unit group of `𝓞(ℚ(√-p))/(2)` has
 exactly three elements. -/

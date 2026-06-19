@@ -163,6 +163,41 @@ theorem even_b_of_hasDiscriminant_neg_four_mul_natCast
   have hb2mod1 : Q.b ^ 2 % 4 = 1 := Int.sq_emod_four_of_odd Q.b hb_not_dvd
   omega
 
+/-- Every primitive positive definite form of discriminant `-4p` is properly
+equivalent to one whose leading coefficient is odd.  If the leading coefficient
+is even, the middle coefficient is even and primitivity forces the trailing
+coefficient to be odd; the swap matrix then exchanges the two. -/
+theorem exists_properEquivalent_odd_a_of_discriminant_neg_four_mul_natCast
+    {p : ℕ} (Q : PrimitivePositiveDefiniteForm (-(4 * (p : ℤ)))) :
+    ∃ R : PrimitivePositiveDefiniteForm (-(4 * (p : ℤ))),
+      PrimitivePositiveDefiniteForm.ProperEquivalent Q R ∧ Odd R.1.a := by
+  by_cases ha : Odd Q.1.a
+  · exact ⟨Q, ProperEquivalent.refl Q.1, ha⟩
+  · have ha_even : Even Q.1.a := by
+      by_contra hne
+      exact ha (Int.not_even_iff_odd.mp hne)
+    have hb_even : Even Q.1.b :=
+      even_b_of_hasDiscriminant_neg_four_mul_natCast Q.2.1
+    have hc_odd : Odd Q.1.c := by
+      by_contra hc_not_odd
+      have hc_even : Even Q.1.c := by
+        by_contra hce
+        exact hc_not_odd (Int.not_even_iff_odd.mp hce)
+      have ha_dvd : (2 : ℤ) ∣ Q.1.a := by simpa [even_iff_two_dvd] using ha_even
+      have hb_dvd : (2 : ℤ) ∣ Q.1.b := by simpa [even_iff_two_dvd] using hb_even
+      have hc_dvd : (2 : ℤ) ∣ Q.1.c := by simpa [even_iff_two_dvd] using hc_even
+      have hbc_dvd : (2 : ℤ) ∣ (Int.gcd Q.1.b Q.1.c : ℤ) := by
+        exact_mod_cast Int.dvd_gcd hb_dvd hc_dvd
+      have h_gcd : (2 : ℕ) ∣ Int.gcd Q.1.a (Int.gcd Q.1.b Q.1.c) := by
+        exact_mod_cast Int.dvd_gcd ha_dvd hbc_dvd
+      have hprimitive : Int.gcd Q.1.a (Int.gcd Q.1.b Q.1.c) = 1 := Q.2.2.1
+      rw [hprimitive] at h_gcd
+      norm_num at h_gcd
+    let R := Q.transform swapSL2Z
+    refine ⟨R, PrimitivePositiveDefiniteForm.properEquivalent_transform Q swapSL2Z, ?_⟩
+    change Odd (transform Q.1 swapSL2Z).a
+    simpa using hc_odd
+
 /-- Imaginary squarefree parameters have negative field discriminant. -/
 theorem fieldDiscriminant_neg {d : ℤ} (hdneg : d < 0) :
     fieldDiscriminant d < 0 := by
