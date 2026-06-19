@@ -49,8 +49,8 @@ binary quadratic forms.
 * `conductor_two_reduced_forms_card_le_three_mul_classNumber_of_cover`: the
   finite-fiber cover bridge from conductor-`2` reduced forms to the maximal-order
   class number.
-* `conductor_two_reduced_forms_card_order_class_number_formula`: the explicit
-  Cox/order class-number formula boundary for the conductor-`2` route.
+* `has_conductor_two_form_class_cover_data`: the remaining quotient-level
+  conductor-lowering cover-map boundary for the conductor-`2` route.
 * `hasConductorTwoFormClassNumberThreeData_of_order_class_number_formula`: the
   bridge from the Cox/order formula equality to Forms-side class-number data.
 * `hasRingClassNumberThreeAtConductorTwo_of_forms`: the bridge from the Forms
@@ -770,24 +770,21 @@ theorem conductor_two_reduced_forms_card_order_class_number_formula_of_mem_heegn
   rw [hcard, hclass, hfactor]
   norm_num
 
-/-- **Cox/order class-number formula, conductor `2`, reduced-form version.** In
-the inert prime family `d = -p`, the primitive reduced forms of discriminant
-`-4p` are counted by the maximal-order class number times the conductor-`2`
-local factor.
+/-- **Conductor-lowering form-class cover, conductor `2`.** In the inert prime
+family `d = -p`, conductor-`2` form classes of discriminant `-4p` should map to
+field-discriminant form classes of discriminant `-p` with fibers of size at most
+three.
 
 This is the remaining mathematical input for the conductor-`2` ring/order/forms
-bridge.  It should ultimately be replaced by Cox's order class-number formula
-or an equivalent Picard-group computation for the quadratic order of conductor
-`2`. -/
-theorem conductor_two_reduced_forms_card_order_class_number_formula
-    (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
-    (hp : Nat.Prime p) (hp8 : p % 8 = 3) (hp_ne_three : p ≠ 3) :
-    ((BinaryQuadraticForm.enumPrimitiveReducedForms (-(4 * (p : ℤ)))).card : ℚ) =
-      (classNumberQsqrtd (-(p : ℤ)) : ℚ) *
-        ((2 : ℚ) * (1 - (kroneckerTwo (-(p : ℤ)) : ℚ) / 2)) := by
+bridge.  It is the quotient-level cover map supplied by Cox's order
+class-number formula, Corollary 7.28, or an equivalent quadratic-order
+Picard-group computation for the order of conductor `2`. -/
+theorem has_conductor_two_form_class_cover_data
+    (p : ℕ) (hp : Nat.Prime p) (hp8 : p % 8 = 3) (hp_ne_three : p ≠ 3) :
+    HasConductorTwoFormClassCoverData p := by
   -- Cox 7.24 / Corollary 7.28, or an equivalent quadratic-order Picard-group
-  -- computation, belongs here. The discriminant and local Kronecker factor
-  -- specializations are already closed above.
+  -- construction, belongs here. The finite-cardinality consequences of such a
+  -- cover are already closed above.
   sorry
 
 /-- Once the conductor-`2` order class-number formula is available, class
@@ -847,9 +844,9 @@ theorem conductor_two_reduced_forms_card_eq_three_of_classNumber_one
     (hp : Nat.Prime p) (hp8 : p % 8 = 3) (hp_ne_three : p ≠ 3)
     (hclass : classNumberQsqrtd (-(p : ℤ)) = 1) :
     (BinaryQuadraticForm.enumPrimitiveReducedForms (-(4 * (p : ℤ)))).card = 3 := by
-  exact conductor_two_reduced_forms_card_eq_three_of_order_class_number_formula p
-    (conductor_two_reduced_forms_card_order_class_number_formula p hp hp8 hp_ne_three)
-    (conductor_two_order_class_number_formula_factor_eq_three p hp8) hclass
+  exact conductor_two_reduced_forms_card_eq_three_of_classNumber_one_of_class_cover
+    p hp hp8 hp_ne_three hclass
+    (Classical.choice (has_conductor_two_form_class_cover_data p hp hp8 hp_ne_three))
 
 /-- **Cox forms class-number input.** In the inert prime family `d = -p`, class
 number one for `ℚ(√-p)` gives Forms-side class-number-three data for primitive
@@ -860,9 +857,9 @@ theorem conductor_two_form_class_number_three
     (hp : Nat.Prime p) (hp8 : p % 8 = 3) (hp_ne_three : p ≠ 3)
     (hclass : classNumberQsqrtd (-(p : ℤ)) = 1) :
     HasConductorTwoFormClassNumberThreeData p := by
-  exact hasConductorTwoFormClassNumberThreeData_of_order_class_number_formula p
-    (conductor_two_reduced_forms_card_order_class_number_formula p hp hp8 hp_ne_three)
-    (conductor_two_order_class_number_formula_factor_eq_three p hp8) hclass
+  exact conductor_two_form_class_number_three_of_classNumber_one_of_class_cover
+    p hp hp8 hp_ne_three hclass
+    (Classical.choice (has_conductor_two_form_class_cover_data p hp hp8 hp_ne_three))
 
 /-- The reduced-forms provider supplies the core conductor-`2` ring-class-number
 input in the non-exceptional inert branch. -/
