@@ -28,6 +28,8 @@ sign convention at `-1` and `0`.
 * `kroneckerSymNat_two`: `(D / 2)` is the supplementary value.
 * `kroneckerTwo_eq_zero_iff`, `kroneckerTwo_eq_one_iff`,
   `kroneckerTwo_eq_neg_one_iff`: the mod-8 supplementary law.
+* `kroneckerTwo_neg_natCast_eq_neg_one_of_nat_mod_eight_eq_three`: the
+  conductor-`2` inert-prime specialization.
 * `kroneckerSym_natCast`: at natural denominators the two interfaces agree.
 * `kroneckerSymNat_eq_legendreSym_of_ne_two`: for an odd prime `p`, `(D / p)` is
   the Legendre symbol `legendreSym p D`.
@@ -78,6 +80,17 @@ theorem kroneckerTwo_eq_neg_one_iff (D : ℤ) :
     kroneckerTwo D = -1 ↔ D % 8 = 3 ∨ D % 8 = 5 := by
   unfold kroneckerTwo
   split_ifs <;> simp_all <;> omega
+
+/-- If `p ≡ 3 (mod 8)`, then the supplementary Kronecker value `(-p / 2)`
+is `-1`. -/
+theorem kroneckerTwo_neg_natCast_eq_neg_one_of_nat_mod_eight_eq_three
+    {p : ℕ} (hp8 : p % 8 = 3) :
+    kroneckerTwo (-(p : ℤ)) = -1 := by
+  rw [kroneckerTwo_eq_neg_one_iff]
+  right
+  have hp_eq : (p : ℤ) = 8 * (p / 8 : ℤ) + 3 := by omega
+  rw [hp_eq]
+  omega
 
 /-- At a natural denominator, the integer-denominator Kronecker symbol agrees with
 the natural-denominator interface. -/

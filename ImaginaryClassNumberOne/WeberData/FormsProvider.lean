@@ -5,6 +5,7 @@ Authors: Frankie Wang
 -/
 import FormClassGroup.ClassGroup.ClassNumber
 import ImaginaryClassNumberOne.WeberData.Core
+import QNFMathlib.NumberTheory.LegendreSymbol.KroneckerSymbol
 
 /-!
 # Forms Provider for the Weber Data Interface
@@ -65,6 +66,14 @@ theorem conductor_two_order_discriminant_eq_neg_four_mul
       -(4 * (p : ℤ)) := by
   rw [BinaryQuadraticForm.fieldDiscriminant_neg_natCast_of_nat_mod_eight_eq_three hp8]
   ring
+
+/-- The conductor-`2` local factor in Cox's order class-number formula is `3`
+for the inert-prime branch `p ≡ 3 (mod 8)`. -/
+theorem conductor_two_order_class_number_formula_factor_eq_three
+    (p : ℕ) (hp8 : p % 8 = 3) :
+    (2 : ℚ) * (1 - (kroneckerTwo (-(p : ℤ)) : ℚ) / 2) = 3 := by
+  rw [kroneckerTwo_neg_natCast_eq_neg_one_of_nat_mod_eight_eq_three hp8]
+  norm_num
 
 /-- A concrete reduced-form cardinality computation supplies the Forms-side
 conductor-`2` class-number-three data. -/
@@ -135,7 +144,8 @@ theorem conductor_two_reduced_forms_card_eq_three_of_classNumber_one
   -- The closed lemma `conductor_two_order_discriminant_eq_neg_four_mul`
   -- identifies the conductor-`2` discriminant.  What remains is the actual
   -- Cox/order class-number jump from the maximal order class number `h(-p) = 1`
-  -- to the conductor-`2` order class number.
+  -- to the conductor-`2` order class number; the local Kronecker factor is
+  -- already closed by `conductor_two_order_class_number_formula_factor_eq_three`.
   sorry
 
 /-- **Cox forms class-number input.** In the inert prime family `d = -p`, class
