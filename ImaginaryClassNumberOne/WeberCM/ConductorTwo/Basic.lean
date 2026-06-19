@@ -12,7 +12,7 @@ import QuadraticNumberFields.RingOfIntegers.Discriminant
 # Basic Conductor-Two Weber/CM Setup
 
 This file contains the route-independent conductor-`2` statements used by the
-Weber/CM assembly: the forms-side class-number-three Prop, discriminant bridges,
+Weber/CM assembly: the class-number-three Prop, discriminant bridges,
 and the specialized order class-number formula interface.
 -/
 
@@ -23,12 +23,13 @@ open scoped NumberField
 namespace QuadraticNumberFields
 namespace Heegner
 
-/-- Forms-side class-number-three statement for the conductor-`2` discriminant `-4p`.
+/-- Class-number-three statement for the conductor-`2` discriminant `-4p`.
 
-This is the Cox/reduced-forms route into the conductor-`2` ring-class-number
-input. It records only the computable primitive reduced form count, leaving the
-still-missing Cox order class-number formula as the named bridge. -/
-def ConductorTwoFormClassNumberThree (p : ℕ) : Prop :=
+This is the conductor-`2` class-number-three statement used by the Weber/CM
+route, stated as the primitive reduced-form cardinality at discriminant `-4p`.
+The current proof route establishes it through reduced forms, while the
+quadratic-order/Picard interpretation remains the Cox boundary. -/
+def ConductorTwoClassNumberThree (p : ℕ) : Prop :=
   (BinaryQuadraticForm.enumPrimitiveReducedForms (-(4 * (p : ℤ)))).card = 3
 
 /-- In the inert-prime branch `p ≡ 3 (mod 8)`, the conductor-`2` order

@@ -5,6 +5,7 @@ Authors: Frankie Wang
 -/
 import ImaginaryClassNumberOne.ClassNumberOne
 import ImaginaryClassNumberOne.Diophantine
+import ImaginaryClassNumberOne.WeberCM.ConductorTwo.Basic
 
 /-!
 # Weber/CM Interface for the Baker-Heegner-Stark Proof
@@ -20,8 +21,8 @@ reduced-forms backend.  Optional conductor-`2` assembly routes, such as the
 
 ## Main definitions
 
-* `RingClassNumberConductorTwoEqualsThree`: plain Prop for the conductor-`2`
-  ring-class-number jump.
+* `ConductorTwoClassNumberThree`: plain Prop for the conductor-`2`
+  class-number-three input.
 * `heegnerGammaPrimePairs`: the finite Cox-Heegner table relating inert primes
   to gamma values.
 * `IsAssociatedHeegnerGamma`: the table relation between a prime `p` and the
@@ -31,7 +32,7 @@ reduced-forms backend.  Optional conductor-`2` assembly routes, such as the
 * `HasInertPrimeWeberCM`: a named input for the deep inert-prime
   Weber/CM input from class number one.
 * `ConductorTwoWeberCertificate`: refined conductor-`2` Weber/CM certificate
-  bundling the ring-class-number input with the extracted Stark-Heegner certificate.
+  bundling the class-number-three input with the extracted Stark-Heegner certificate.
 -/
 
 attribute [-instance] DivisionRing.toRatAlgebra
@@ -40,15 +41,6 @@ open scoped NumberField
 
 namespace QuadraticNumberFields
 namespace Heegner
-
-/-- The conductor-`2` ring-class-number input used by the Weber/CM layer.
-
-This remains a route-neutral Prop until the project has a real quadratic-order
-class-number API.  It records only the conductor-`2` order discriminant and the
-resulting order class number. -/
-def RingClassNumberConductorTwoEqualsThree (p : ℕ) : Prop :=
-  ∃ discriminant : ℤ, discriminant = -(4 * (p : ℤ)) ∧
-    ∃ orderClassNumber : ℕ, orderClassNumber = 3
 
 /-- The finite Cox-Heegner table matching positive inert Heegner primes with
 the corresponding Weber gamma values. -/
@@ -89,14 +81,14 @@ def HasInertPrimeWeberCM : Prop :=
     classNumberQsqrtd (-(p : ℤ)) = 1 →
     Nonempty (StarkHeegnerAlgebraicCertificate p)
 
-/-- Refined conductor-`2`, ring-class-number-three Weber/CM certificate.
+/-- Refined conductor-`2`, class-number-three Weber/CM certificate.
 
 This interface is the precise deep input needed after the conductor-`2`
-ring-class-number jump: it records both the quadratic-order input and the
+class-number-three step: it records both the quadratic-order input and the
 Stark-Heegner algebraic certificate extracted from the Weber construction. -/
 structure ConductorTwoWeberCertificate (p : ℕ) where
-  /-- The conductor-`2` ring-class-number input feeding the Weber/CM construction. -/
-  ringClassNumber : RingClassNumberConductorTwoEqualsThree p
+  /-- The conductor-`2` class-number-three input feeding the Weber/CM construction. -/
+  classNumberThree : ConductorTwoClassNumberThree p
   /-- The Stark-Heegner algebraic certificate extracted from the Weber/CM construction. -/
   starkHeegner : StarkHeegnerAlgebraicCertificate p
 

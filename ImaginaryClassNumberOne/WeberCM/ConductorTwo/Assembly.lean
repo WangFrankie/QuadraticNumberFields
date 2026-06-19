@@ -3,6 +3,7 @@ Copyright (c) 2026 Frankie Wang. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
+import ImaginaryClassNumberOne.WeberCM.ConductorTwo.Basic
 import ImaginaryClassNumberOne.WeberCM.ConductorTwo.Forms
 import ImaginaryClassNumberOne.WeberCM.Core
 
@@ -24,32 +25,13 @@ open scoped NumberField
 namespace QuadraticNumberFields
 namespace Heegner
 
-/-- Forms-side class-number-three input supplies the conductor-`2`
-ring-class-number input used by the Weber/CM layer. -/
-theorem ringClassNumberConductorTwoEqualsThree_of_forms
-    {p : ℕ} (hforms : ConductorTwoFormClassNumberThree p) :
-    RingClassNumberConductorTwoEqualsThree p := by
-  -- This is the remaining order/forms class-number bridge: it should identify
-  -- the primitive reduced-form count for discriminant `-4p` with the ring
-  -- class number of the conductor-`2` order.
-  sorry
-
 /-- The finite inert-Heegner-prime reduced-form computation supplies
-Forms-side conductor-`2` class-number-three input. -/
-theorem conductor_two_form_class_number_three_of_mem_heegnerPrimeSet
-    (p : ℕ) (hp_mem : (p : ℤ) ∈ heegnerPrimeSet) (hp_ne_three : p ≠ 3) :
-    ConductorTwoFormClassNumberThree p :=
-  conductorTwoFormClassNumberThree_of_reducedForms_card p
-    (conductor_two_reduced_forms_card_eq_three_of_mem_heegnerPrimeSet
-      p hp_mem hp_ne_three)
-
-/-- The finite inert-Heegner-prime reduced-form computation supplies the core
-conductor-`2` ring-class-number-three input. -/
+conductor-`2` class-number-three input. -/
 theorem conductor_two_class_number_three_of_mem_heegnerPrimeSet
     (p : ℕ) (hp_mem : (p : ℤ) ∈ heegnerPrimeSet) (hp_ne_three : p ≠ 3) :
-    RingClassNumberConductorTwoEqualsThree p :=
-  ringClassNumberConductorTwoEqualsThree_of_forms
-    (conductor_two_form_class_number_three_of_mem_heegnerPrimeSet
+    ConductorTwoClassNumberThree p :=
+  conductorTwoClassNumberThree_of_reducedForms_card p
+    (conductor_two_reduced_forms_card_eq_three_of_mem_heegnerPrimeSet
       p hp_mem hp_ne_three)
 
 /-- On the finite non-exceptional inert Heegner-prime table, the conductor-`2`
@@ -212,28 +194,16 @@ theorem conductor_two_reduced_forms_card_eq_three_of_order_class_number_formula_
   conductor_two_reduced_forms_card_eq_three_of_order_class_number_formula p
     hformula (conductor_two_order_class_number_formula_factor_eq_three p hp8) hclass
 
-/-- The order class-number formula and class number one supply the Forms-side
+/-- The order class-number formula and class number one supply the conductor-`2`
 class-number-three statement. -/
-theorem conductorTwoFormClassNumberThree_of_order_class_number_formula
+theorem conductorTwoClassNumberThree_of_order_class_number_formula
     (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
     (hp8 : p % 8 = 3) (hp_ne_three : p ≠ 3)
     (hformula : ConductorTwoOrderClassNumberFormula p hp8 hp_ne_three)
     (hclass : classNumberQsqrtd (-(p : ℤ)) = 1) :
-    ConductorTwoFormClassNumberThree p :=
-  conductorTwoFormClassNumberThree_of_reducedForms_card p
+    ConductorTwoClassNumberThree p :=
+  conductorTwoClassNumberThree_of_reducedForms_card p
     (conductor_two_reduced_forms_card_eq_three_of_order_class_number_formula_prop
-      p hp8 hp_ne_three hformula hclass)
-
-/-- The order class-number formula and class number one supply the core
-ring-class-number input. -/
-theorem ringClassNumberConductorTwoEqualsThree_of_order_class_number_formula
-    (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
-    (hp8 : p % 8 = 3) (hp_ne_three : p ≠ 3)
-    (hformula : ConductorTwoOrderClassNumberFormula p hp8 hp_ne_three)
-    (hclass : classNumberQsqrtd (-(p : ℤ)) = 1) :
-    RingClassNumberConductorTwoEqualsThree p :=
-  ringClassNumberConductorTwoEqualsThree_of_forms
-    (conductorTwoFormClassNumberThree_of_order_class_number_formula
       p hp8 hp_ne_three hformula hclass)
 
 /-- **Cox order class-number formula input, conductor `2`.** In the
@@ -284,77 +254,75 @@ theorem conductor_two_reduced_forms_card_eq_three_of_classNumber_one_of_prime
   exact conductor_two_reduced_forms_card_eq_three_of_classNumber_one
     p hp hp8 hp_ne_three hclass
 
-/-- **Cox forms class-number input.** In the inert prime family `d = -p`, class
-number one for `ℚ(√-p)` gives Forms-side class-number-three input for primitive
+/-- **Cox conductor-two class-number input.** In the inert prime family `d = -p`,
+class number one for `ℚ(√-p)` gives class-number-three input for primitive
 positive definite forms of conductor-`2` discriminant `-4p`, away from the
 unit-exception case `p = 3`. -/
-theorem conductor_two_form_class_number_three
+theorem conductor_two_class_number_three
     (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
     (hp : Nat.Prime p) (hp8 : p % 8 = 3) (hp_ne_three : p ≠ 3)
     (hclass : classNumberQsqrtd (-(p : ℤ)) = 1) :
-    ConductorTwoFormClassNumberThree p := by
-  exact conductorTwoFormClassNumberThree_of_order_class_number_formula
+    ConductorTwoClassNumberThree p := by
+  exact conductorTwoClassNumberThree_of_order_class_number_formula
     p hp8 hp_ne_three (conductor_two_order_class_number_formula p hp hp8 hp_ne_three)
     hclass
 
-/-- Target-shaped Forms-side conductor-`2` class-number statement.
+/-- Target-shaped conductor-`2` class-number statement.
 
 This wrapper removes the auxiliary `Fact` parameters by deriving them from
 `Nat.Prime p`.  The remaining mathematical input is still Cox 7.24 / Corollary
 7.28, isolated by `conductor_two_order_class_number_formula`. -/
-theorem conductor_two_form_class_number_three_of_prime
+theorem conductor_two_class_number_three_of_prime
     (p : ℕ) (hp : Nat.Prime p) (hp8 : p % 8 = 3) (hp_ne_three : p ≠ 3)
     (hclass :
       (letI : Fact (Squarefree (-(p : ℤ))) := ⟨Int.squarefree_neg_natCast_of_nat_prime hp⟩
        letI : Fact ((-(p : ℤ)) ≠ 1) := ⟨Int.neg_natCast_ne_one p⟩
        classNumberQsqrtd (-(p : ℤ)) = 1)) :
-    ConductorTwoFormClassNumberThree p := by
-  exact conductorTwoFormClassNumberThree_of_reducedForms_card p
+    ConductorTwoClassNumberThree p := by
+  exact conductorTwoClassNumberThree_of_reducedForms_card p
     (conductor_two_reduced_forms_card_eq_three_of_classNumber_one_of_prime
       p hp hp8 hp_ne_three hclass)
 
-/-- The reduced-forms route supplies the core conductor-`2` ring-class-number
-input in the non-exceptional inert branch. -/
-theorem conductor_two_class_number_three_of_forms
+/-- The reduced-forms route supplies the conductor-`2` class-number-three
+statement in the non-exceptional inert branch. -/
+theorem conductor_two_class_number_three_of_classNumber_one
     (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
     (hp : Nat.Prime p) (hp8 : p % 8 = 3) (hp_ne_three : p ≠ 3)
     (hclass : classNumberQsqrtd (-(p : ℤ)) = 1) :
-    RingClassNumberConductorTwoEqualsThree p := by
-  exact ringClassNumberConductorTwoEqualsThree_of_forms
-    (conductor_two_form_class_number_three p hp hp8 hp_ne_three hclass)
+    ConductorTwoClassNumberThree p := by
+  exact conductor_two_class_number_three p hp hp8 hp_ne_three hclass
 
-/-- Target-shaped core conductor-`2` ring-class-number statement supplied by the
-Forms route. -/
-theorem conductor_two_class_number_three_of_forms_of_prime
+/-- Target-shaped conductor-`2` class-number statement supplied by the
+reduced-forms route. -/
+theorem conductor_two_class_number_three_of_classNumber_one_of_prime
     (p : ℕ) (hp : Nat.Prime p) (hp8 : p % 8 = 3) (hp_ne_three : p ≠ 3)
     (hclass :
       (letI : Fact (Squarefree (-(p : ℤ))) := ⟨Int.squarefree_neg_natCast_of_nat_prime hp⟩
        letI : Fact ((-(p : ℤ)) ≠ 1) := ⟨Int.neg_natCast_ne_one p⟩
        classNumberQsqrtd (-(p : ℤ)) = 1)) :
-    RingClassNumberConductorTwoEqualsThree p := by
-  exact ringClassNumberConductorTwoEqualsThree_of_forms
-    (conductor_two_form_class_number_three_of_prime p hp hp8 hp_ne_three hclass)
+    ConductorTwoClassNumberThree p := by
+  exact conductor_two_class_number_three_of_prime p hp hp8 hp_ne_three hclass
 
-/-- **Deep Weber/CM input from ring-class-number three, via the Forms route.**
-The conductor-`2` ring-class-number-three input supplies the refined Weber certificate:
+/-- **Deep Weber/CM input from conductor-two class number three.**
+The conductor-`2` class-number-three input supplies the refined Weber certificate:
 a concrete Heegner equation solution, the associated gamma value, and its
 finite-table association with `p`, in the non-exceptional inert branch `p ≠ 3`. -/
-theorem conductor_two_weber_certificate_of_ring_class_number_three_of_forms
+theorem conductor_two_weber_certificate_of_conductor_two_class_number_three
     (p : ℕ) (hp : Nat.Prime p) (hp8 : p % 8 = 3)
-    (hp_ne_three : p ≠ 3) (horder : RingClassNumberConductorTwoEqualsThree p) :
+    (hp_ne_three : p ≠ 3) (hclass_three : ConductorTwoClassNumberThree p) :
     Nonempty (ConductorTwoWeberCertificate p) := by
   sorry
 
-/-- The Forms route turns conductor-`2` ring-class-number-three input into
+/-- The Weber/CM boundary turns conductor-`2` class-number-three input into
 Stark-Heegner algebraic certificates. -/
-theorem exists_weber_certificate_of_conductor_two_class_number_three_of_forms
+theorem exists_weber_certificate_of_conductor_two_class_number_three
     (p : ℕ) (hp : Nat.Prime p) (hp8 : p % 8 = 3)
     (hp_ne_three : p ≠ 3)
-    (horder : RingClassNumberConductorTwoEqualsThree p) :
+    (hclass_three : ConductorTwoClassNumberThree p) :
     Nonempty (StarkHeegnerAlgebraicCertificate p) := by
   exact exists_weber_certificate_of_conductor_two_weber_certificate
-    (conductor_two_weber_certificate_of_ring_class_number_three_of_forms
-      p hp hp8 hp_ne_three horder)
+    (conductor_two_weber_certificate_of_conductor_two_class_number_three
+      p hp hp8 hp_ne_three hclass_three)
 
 /-- The reduced-forms route supplies Weber/CM algebraic certificates from class number
 one in the non-exceptional inert branch. -/
@@ -363,9 +331,9 @@ theorem exists_weber_certificate_of_classNumber_one_inert_prime_of_forms
     (hp : Nat.Prime p) (hp8 : p % 8 = 3) (hp_ne_three : p ≠ 3)
     (hclass : classNumberQsqrtd (-(p : ℤ)) = 1) :
     Nonempty (StarkHeegnerAlgebraicCertificate p) := by
-  exact exists_weber_certificate_of_conductor_two_class_number_three_of_forms
+  exact exists_weber_certificate_of_conductor_two_class_number_three
     p hp hp8 hp_ne_three
-    (conductor_two_class_number_three_of_forms p hp hp8 hp_ne_three hclass)
+    (conductor_two_class_number_three_of_classNumber_one p hp hp8 hp_ne_three hclass)
 
 /-- The reduced-forms route packaged as the core Weber/CM input. -/
 theorem hasInertPrimeWeberCM_of_forms : HasInertPrimeWeberCM := by

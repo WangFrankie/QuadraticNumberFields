@@ -6,6 +6,7 @@ Authors: Frankie Wang
 import Mathlib.Algebra.Order.BigOperators.Group.Finset
 import ImaginaryClassNumberOne.ClassNumberOne
 import ImaginaryClassNumberOne.Diophantine
+import ImaginaryClassNumberOne.WeberCM.ConductorTwo.Basic
 import ImaginaryClassNumberOne.WeberCM.ConductorTwo.Residue
 
 /-!
@@ -22,20 +23,20 @@ open scoped NumberField
 namespace QuadraticNumberFields
 namespace Heegner
 
-/-- A concrete reduced-form cardinality computation supplies the Forms-side
-conductor-`2` class-number-three statement. -/
-theorem conductorTwoFormClassNumberThree_of_reducedForms_card
+/-- A concrete reduced-form cardinality computation supplies the conductor-`2`
+class-number-three statement. -/
+theorem conductorTwoClassNumberThree_of_reducedForms_card
     (p : ℕ)
     (hcard :
       (BinaryQuadraticForm.enumPrimitiveReducedForms (-(4 * (p : ℤ)))).card = 3) :
-    ConductorTwoFormClassNumberThree p :=
+    ConductorTwoClassNumberThree p :=
   hcard
 
-/-- The Forms-side conductor-`2` statement is equivalent to the reduced-form
+/-- The conductor-`2` statement is equivalent to the reduced-form
 cardinality statement at discriminant `-4p`. -/
-theorem conductorTwoFormClassNumberThree_iff_reducedForms_card
+theorem conductorTwoClassNumberThree_iff_reducedForms_card
     (p : ℕ) :
-    ConductorTwoFormClassNumberThree p ↔
+    ConductorTwoClassNumberThree p ↔
       (BinaryQuadraticForm.enumPrimitiveReducedForms (-(4 * (p : ℤ)))).card = 3 := by
   rfl
 
