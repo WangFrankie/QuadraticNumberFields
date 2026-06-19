@@ -24,6 +24,10 @@ that future proof.
 * `QuadraticOrder.Picard.relativeKernel`: the kernel of that extension map.
 * `QuadraticOrder.Picard.KernelEmbedsInto`: a named Prop for the kernel
   embedding supplied by conductor/residue-unit theory.
+* `QuadraticOrder.Picard.KernelEquiv`: a named Prop for identifying the kernel
+  with a concrete local group.
+* `QuadraticOrder.Picard.ExtensionSurjective`: a named Prop for surjectivity of
+  the extension map.
 -/
 
 namespace QuadraticNumberFields
@@ -51,10 +55,29 @@ def KernelEmbedsInto {O S U : Type*} [CommRing O] [CommRing S] [Group U]
     (i : O →+* S) : Prop :=
   Nonempty (relativeKernel i ↪ U)
 
+/-- The stronger conductor/residue-unit input needed for an exact class-number
+formula: the relative Picard kernel is identified with a concrete local group
+`U`. -/
+def KernelEquiv {O S U : Type*} [CommRing O] [CommRing S] [Group U]
+    (i : O →+* S) : Prop :=
+  Nonempty (relativeKernel i ≃* U)
+
+/-- A kernel identification supplies a kernel embedding. -/
+theorem kernelEmbedsInto_of_kernelEquiv
+    {O S U : Type*} [CommRing O] [CommRing S] [Group U]
+    (i : O →+* S) (h : KernelEquiv (U := U) i) : KernelEmbedsInto (U := U) i := by
+  rcases h with ⟨e⟩
+  exact ⟨e.toEmbedding⟩
+
 /-- A named Prop for injectivity of the Picard extension map. -/
 def ExtensionInjective {O S : Type*} [CommRing O] [CommRing S]
     (i : O →+* S) : Prop :=
   Function.Injective (extensionMap i)
+
+/-- A named Prop for surjectivity of the Picard extension map. -/
+def ExtensionSurjective {O S : Type*} [CommRing O] [CommRing S]
+    (i : O →+* S) : Prop :=
+  Function.Surjective (extensionMap i)
 
 /-- An embedding of the relative Picard kernel into a finite group bounds the
 kernel cardinality. -/
