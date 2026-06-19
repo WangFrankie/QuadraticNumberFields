@@ -218,6 +218,25 @@ theorem conductor_two_reduced_forms_card_order_class_number_formula
   -- specializations are already closed above.
   sorry
 
+/-- Once the conductor-`2` order class-number formula is available, class
+number one for the maximal order and the inert local factor `3` give exactly
+three conductor-`2` primitive reduced forms. -/
+theorem conductor_two_reduced_forms_card_eq_three_of_order_class_number_formula
+    (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
+    (hformula :
+      ((BinaryQuadraticForm.enumPrimitiveReducedForms (-(4 * (p : ℤ)))).card : ℚ) =
+        (classNumberQsqrtd (-(p : ℤ)) : ℚ) *
+          ((2 : ℚ) * (1 - (kroneckerTwo (-(p : ℤ)) : ℚ) / 2)))
+    (hfactor : (2 : ℚ) * (1 - (kroneckerTwo (-(p : ℤ)) : ℚ) / 2) = 3)
+    (hclass : classNumberQsqrtd (-(p : ℤ)) = 1) :
+    (BinaryQuadraticForm.enumPrimitiveReducedForms (-(4 * (p : ℤ)))).card = 3 := by
+  have hcard_rat :
+      ((BinaryQuadraticForm.enumPrimitiveReducedForms (-(4 * (p : ℤ)))).card : ℚ) =
+        3 := by
+    rw [hformula, hclass, hfactor]
+    norm_num
+  exact_mod_cast hcard_rat
+
 /-- In the inert prime family `d = -p`, class number one for `ℚ(√-p)` gives
 three primitive reduced positive definite forms of conductor-`2` discriminant
 `-4p`, away from the unit-exception case `p = 3`. -/
@@ -226,15 +245,9 @@ theorem conductor_two_reduced_forms_card_eq_three_of_classNumber_one
     (hp : Nat.Prime p) (hp8 : p % 8 = 3) (hp_ne_three : p ≠ 3)
     (hclass : classNumberQsqrtd (-(p : ℤ)) = 1) :
     (BinaryQuadraticForm.enumPrimitiveReducedForms (-(4 * (p : ℤ)))).card = 3 := by
-  have hfactor := conductor_two_order_class_number_formula_factor_eq_three p hp8
-  have hformula :=
-    conductor_two_reduced_forms_card_order_class_number_formula p hp hp8 hp_ne_three
-  have hcard_rat :
-      ((BinaryQuadraticForm.enumPrimitiveReducedForms (-(4 * (p : ℤ)))).card : ℚ) =
-        3 := by
-    rw [hformula, hclass, hfactor]
-    norm_num
-  exact_mod_cast hcard_rat
+  exact conductor_two_reduced_forms_card_eq_three_of_order_class_number_formula p
+    (conductor_two_reduced_forms_card_order_class_number_formula p hp hp8 hp_ne_three)
+    (conductor_two_order_class_number_formula_factor_eq_three p hp8) hclass
 
 /-- **Cox forms class-number input.** In the inert prime family `d = -p`, class
 number one for `ℚ(√-p)` gives Forms-side class-number-three data for primitive
