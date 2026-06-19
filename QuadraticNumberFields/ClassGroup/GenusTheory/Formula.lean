@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 
+import QNFMathlib.GroupTheory.Index
 import QuadraticNumberFields.ClassGroup.GenusTheory.OddProduct
 
 /-!
@@ -195,8 +196,10 @@ theorem genusFormula_of_oddGenusCharacterProduct_surjective_of_injective
     (hinj :
       Function.Injective (oddGenusCharacterProductToRelationSubgroup d hd_neg hdata hrel)) :
     genusFormula d := by
-  exact genusFormula_of_oddGenusCharacterProduct_surjective_of_card_le
-    d hd_neg hodd hdata hrel hsurj (Nat.card_le_card_of_injective _ hinj)
+  have hcard := (MonoidHom.injective_iff_nat_card_eq_of_surjective
+    (oddGenusCharacterProductToRelationSubgroup d hd_neg hdata hrel) hsurj).mp hinj
+  dsimp [genusFormula]
+  rw [hcard, card_oddGenusSignRelationSubgroup_of_discr_odd d hodd]
 
 /-- In the odd field-discriminant branch, the standard genus formula follows once the
 odd genus-character product is surjective and has trivial kernel on `Cl / Cl²`. This
@@ -210,12 +213,10 @@ theorem genusFormula_of_oddGenusCharacterProduct_surjective_of_ker_eq_bot
       Function.Surjective (oddGenusCharacterProductToRelationSubgroup d hd_neg hdata hrel))
     (hker : (oddGenusCharacterProductToRelationSubgroup d hd_neg hdata hrel).ker = ⊥) :
     genusFormula d := by
-  have hinj :
-      Function.Injective (oddGenusCharacterProductToRelationSubgroup d hd_neg hdata hrel) :=
-    (MonoidHom.ker_eq_bot_iff
-      (oddGenusCharacterProductToRelationSubgroup d hd_neg hdata hrel)).mp hker
-  exact genusFormula_of_oddGenusCharacterProduct_surjective_of_injective
-    d hd_neg hodd hdata hrel hsurj hinj
+  have hcard := (MonoidHom.ker_eq_bot_iff_nat_card_eq_of_surjective
+    (oddGenusCharacterProductToRelationSubgroup d hd_neg hdata hrel) hsurj).mp hker
+  dsimp [genusFormula]
+  rw [hcard, card_oddGenusSignRelationSubgroup_of_discr_odd d hodd]
 
 /-- In the odd field-discriminant branch, once the relation-subgroup-valued odd
 genus-character product is surjective, the standard genus formula is equivalent to
@@ -236,14 +237,13 @@ theorem genusFormula_iff_oddGenusCharacterProduct_ker_eq_bot_of_surjective
           Nat.card (oddGenusSignRelationSubgroup d) := by
       dsimp [genusFormula] at hgenus
       rw [hgenus, card_oddGenusSignRelationSubgroup_of_discr_odd d hodd]
-    have hbij :
-        Function.Bijective (oddGenusCharacterProductToRelationSubgroup d hd_neg hdata hrel) :=
-      hsurj.bijective_of_nat_card_le (le_of_eq hcard)
-    exact (MonoidHom.ker_eq_bot_iff
-      (oddGenusCharacterProductToRelationSubgroup d hd_neg hdata hrel)).mpr hbij.1
+    exact (MonoidHom.ker_eq_bot_iff_nat_card_eq_of_surjective
+      (oddGenusCharacterProductToRelationSubgroup d hd_neg hdata hrel) hsurj).mpr hcard
   · intro hker
-    exact genusFormula_of_oddGenusCharacterProduct_surjective_of_ker_eq_bot
-      d hd_neg hodd hdata hrel hsurj hker
+    have hcard := (MonoidHom.ker_eq_bot_iff_nat_card_eq_of_surjective
+      (oddGenusCharacterProductToRelationSubgroup d hd_neg hdata hrel) hsurj).mp hker
+    dsimp [genusFormula]
+    rw [hcard, card_oddGenusSignRelationSubgroup_of_discr_odd d hodd]
 
 /-- In the odd field-discriminant branch, once the relation-subgroup-valued odd
 genus-character product is surjective, the standard genus formula is equivalent to
@@ -263,6 +263,23 @@ theorem genusFormula_iff_oddGenusPrincipalKernel_of_surjective
   rw [genusFormula_iff_oddGenusCharacterProduct_ker_eq_bot_of_surjective
     d hd_neg hodd hdata hrel hsurj]
   rw [oddGenusCharacterProductToRelationSubgroup_ker_eq_bot_iff]
+
+/-- In the odd field-discriminant branch, surjectivity of the odd genus-character
+product and the principal-kernel theorem prove the standard genus formula. -/
+theorem genusFormula_of_oddGenusCharacterProduct_surjective_of_principalKernel
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd_neg : d < 0)
+    (hodd : RingOfIntegers.discrFormula d % 2 ≠ 0)
+    (hdata : OddGenusCharacterData d)
+    (hrel : oddGenusProductRelation d hd_neg hdata)
+    (hsurj :
+      Function.Surjective (oddGenusCharacterProductToRelationSubgroup d hd_neg hdata hrel))
+    (hprincipal :
+      ∀ C : ClassGroup (𝓞 (Qsqrtd (d : ℚ))) ⧸ squareClassSubgroup d,
+        (∀ P : {p // p ∈ oddPrimeDiscriminantDivisors d},
+          oddGenusCharacterProductOnSquareClassQuotient d hd_neg hdata C P = 1) → C = 1) :
+    genusFormula d :=
+  (genusFormula_iff_oddGenusPrincipalKernel_of_surjective d hd_neg hodd hdata hrel hsurj).2
+    hprincipal
 
 /-- In the odd field-discriminant branch, complete odd genus-formula data proves
 the standard genus formula. -/
@@ -347,6 +364,24 @@ theorem genusFormula_iff_oddGenusPrincipalKernel_of_surjective_of_mod_four_eq_on
     omega
   exact genusFormula_iff_oddGenusPrincipalKernel_of_surjective
     d hd_neg hodd hdata hrel hsurj
+
+/-- For odd fundamental discriminants (`d % 4 = 1`), surjectivity of the odd
+genus-character product and the principal-kernel theorem prove the standard
+genus formula. -/
+theorem genusFormula_of_oddGenusCharacterProduct_surjective_of_principalKernel_of_mod_four_eq_one
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd_neg : d < 0)
+    (hd4 : d % 4 = 1)
+    (hdata : OddGenusCharacterData d)
+    (hrel : oddGenusProductRelation d hd_neg hdata)
+    (hsurj :
+      Function.Surjective (oddGenusCharacterProductToRelationSubgroup d hd_neg hdata hrel))
+    (hprincipal :
+      ∀ C : ClassGroup (𝓞 (Qsqrtd (d : ℚ))) ⧸ squareClassSubgroup d,
+        (∀ P : {p // p ∈ oddPrimeDiscriminantDivisors d},
+          oddGenusCharacterProductOnSquareClassQuotient d hd_neg hdata C P = 1) → C = 1) :
+    genusFormula d :=
+  (genusFormula_iff_oddGenusPrincipalKernel_of_surjective_of_mod_four_eq_one
+    d hd_neg hd4 hdata hrel hsurj).2 hprincipal
 
 /-- For odd fundamental discriminants (`d % 4 = 1`), complete odd genus-formula data
 proves the standard genus formula. -/

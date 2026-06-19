@@ -67,6 +67,42 @@ theorem oddGenusCharacterProductOnSquareClassQuotient_apply
         (hdata.surjective P.1 P.2) (hdata.principalMultiplier P.1 P.2) C := by
   rfl
 
+/-- On a representative class, each coordinate of the odd genus-character product
+is the corresponding descended odd-prime genus character. -/
+theorem oddGenusCharacterProductOnSquareClassQuotient_apply_mk'
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd_neg : d < 0)
+    (hdata : OddGenusCharacterData d)
+    (C : ClassGroup (𝓞 (Qsqrtd (d : ℚ))))
+    (P : {p // p ∈ oddPrimeDiscriminantDivisors d}) :
+    oddGenusCharacterProductOnSquareClassQuotient d hd_neg hdata
+        ((QuotientGroup.mk' (squareClassSubgroup d)) C) P = by
+      haveI : Fact P.1.Prime := ⟨prime_of_mem_oddPrimeDiscriminantDivisors P.2⟩
+      exact genusCharacterOfPrincipalMultiplierData d P.1 hd_neg P.2
+        (hdata.surjective P.1 P.2) (hdata.principalMultiplier P.1 P.2) C := by
+  haveI : Fact P.1.Prime := ⟨prime_of_mem_oddPrimeDiscriminantDivisors P.2⟩
+  rw [oddGenusCharacterProductOnSquareClassQuotient_apply]
+  exact genusCharacterOnSquareClassQuotient_apply d P.1 hd_neg P.2
+    (hdata.surjective P.1 P.2) (hdata.principalMultiplier P.1 P.2) C
+
+/-- On a representative class, the coordinate product of the odd genus-character
+product is the product of the corresponding descended odd-prime genus characters. -/
+theorem oddGenusCharacterProductOnSquareClassQuotient_prod_apply_mk'
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd_neg : d < 0)
+    (hdata : OddGenusCharacterData d)
+    (C : ClassGroup (𝓞 (Qsqrtd (d : ℚ)))) :
+    Finset.univ.prod
+        (fun P : {p // p ∈ oddPrimeDiscriminantDivisors d} =>
+          oddGenusCharacterProductOnSquareClassQuotient d hd_neg hdata
+            ((QuotientGroup.mk' (squareClassSubgroup d)) C) P) =
+      Finset.univ.prod
+        (fun P : {p // p ∈ oddPrimeDiscriminantDivisors d} => by
+          haveI : Fact P.1.Prime := ⟨prime_of_mem_oddPrimeDiscriminantDivisors P.2⟩
+          exact genusCharacterOfPrincipalMultiplierData d P.1 hd_neg P.2
+            (hdata.surjective P.1 P.2) (hdata.principalMultiplier P.1 P.2) C) := by
+  apply Finset.prod_congr rfl
+  intro P _
+  exact oddGenusCharacterProductOnSquareClassQuotient_apply_mk' d hd_neg hdata C P
+
 /-- Product of all coordinates of an odd-prime sign vector. -/
 noncomputable def oddGenusSignProductHom (d : ℤ) :
     (((P : {p // p ∈ oddPrimeDiscriminantDivisors d}) → ℤˣ) →* ℤˣ) where
@@ -181,6 +217,45 @@ def oddGenusProductRelation
   ∀ C : ClassGroup (𝓞 (Qsqrtd (d : ℚ))) ⧸ squareClassSubgroup d,
     oddGenusCharacterProductOnSquareClassQuotient d hd_neg hdata C ∈
       oddGenusSignRelationSubgroup d
+
+/-- The product-relation assertion is equivalently the statement that, for every
+class in `Cl / Cl²`, the product of all odd-prime genus-character coordinates is
+`1`. -/
+theorem oddGenusProductRelation_iff
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd_neg : d < 0)
+    (hdata : OddGenusCharacterData d) :
+    oddGenusProductRelation d hd_neg hdata ↔
+      ∀ C : ClassGroup (𝓞 (Qsqrtd (d : ℚ))) ⧸ squareClassSubgroup d,
+        Finset.univ.prod
+          (fun P : {p // p ∈ oddPrimeDiscriminantDivisors d} =>
+            oddGenusCharacterProductOnSquareClassQuotient d hd_neg hdata C P) = 1 := by
+  constructor
+  · intro hrel C
+    exact (mem_oddGenusSignRelationSubgroup_iff d _).mp (hrel C)
+  · intro hrel C
+    exact (mem_oddGenusSignRelationSubgroup_iff d _).mpr (hrel C)
+
+/-- The product-relation assertion can be checked on representatives in the
+class group instead of arbitrary quotient classes in `Cl / Cl²`. -/
+theorem oddGenusProductRelation_iff_forall_mk'
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd_neg : d < 0)
+    (hdata : OddGenusCharacterData d) :
+    oddGenusProductRelation d hd_neg hdata ↔
+      ∀ C : ClassGroup (𝓞 (Qsqrtd (d : ℚ))),
+        (Finset.univ.prod
+          (fun P : {p // p ∈ oddPrimeDiscriminantDivisors d} => by
+            haveI : Fact P.1.Prime := ⟨prime_of_mem_oddPrimeDiscriminantDivisors P.2⟩
+            exact genusCharacterOfPrincipalMultiplierData d P.1 hd_neg P.2
+              (hdata.surjective P.1 P.2) (hdata.principalMultiplier P.1 P.2) C) : ℤˣ) = 1 := by
+  rw [oddGenusProductRelation_iff]
+  constructor
+  · intro hrel C
+    rw [← oddGenusCharacterProductOnSquareClassQuotient_prod_apply_mk' d hd_neg hdata C]
+    exact hrel ((QuotientGroup.mk' (squareClassSubgroup d)) C)
+  · intro hrel C
+    rcases QuotientGroup.mk'_surjective (squareClassSubgroup d) C with ⟨C, rfl⟩
+    rw [oddGenusCharacterProductOnSquareClassQuotient_prod_apply_mk']
+    exact hrel C
 
 /-- The product of the odd-prime genus characters, with codomain restricted to the
 single-relation sign subgroup. -/
