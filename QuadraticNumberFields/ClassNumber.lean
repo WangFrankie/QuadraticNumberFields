@@ -6,6 +6,7 @@ Authors: Frankie Wang
 
 import Mathlib.NumberTheory.NumberField.ClassNumber
 import QNFMathlib.RingTheory.DedekindDomain.Ideal
+import QNFMathlib.RingTheory.Ideal.Norm.AbsNorm
 import QuadraticNumberFields.Qsqrtd.TotallyRealComplex
 import QuadraticNumberFields.QuadraticField.RingOfIntegers
 import QuadraticNumberFields.RingOfIntegers.Discriminant
@@ -279,29 +280,7 @@ private lemma exists_nat_prime_comap_eq_p_and_dvd_absNorm
     ∃ p : ℕ, p.Prime ∧
       Ideal.comap (algebraMap ℤ (𝓞 (Qsqrtd (d : ℚ)))) P = 𝔭(p) ∧
         p ∣ Ideal.absNorm P := by
-  have habs0 : Ideal.absNorm P ≠ 0 := by
-    rwa [Ne, Ideal.absNorm_eq_zero_iff]
-  obtain ⟨q, hq⟩ := (IsPrincipalIdealRing.principal
-    (Ideal.comap (algebraMap ℤ (𝓞 (Qsqrtd (d : ℚ)))) P)).principal
-  rw [Ideal.submodule_span_eq] at hq
-  have hmem : ((Ideal.absNorm P : ℤ)) ∈
-      Ideal.comap (algebraMap ℤ (𝓞 (Qsqrtd (d : ℚ)))) P := by
-    simpa using Ideal.absNorm_mem P
-  have hq0 : q ≠ 0 := by
-    rintro rfl
-    rw [hq, Ideal.span_singleton_eq_bot.mpr rfl, Ideal.mem_bot,
-      Nat.cast_eq_zero] at hmem
-    exact habs0 hmem
-  have hqprime : Prime q := by
-    rw [← Ideal.span_singleton_prime hq0, ← hq]
-    exact hP.comap _
-  have hp : q.natAbs.Prime := Int.prime_iff_natAbs_prime.mp hqprime
-  have hspan : (𝔭(q.natAbs)) = Ideal.span ({q} : Set ℤ) :=
-    Ideal.span_singleton_eq_span_singleton.mpr (Int.associated_natAbs q).symm
-  have hpP : (q.natAbs : ℤ) ∣ (Ideal.absNorm P : ℤ) := by
-    rw [← Ideal.mem_span_singleton, hspan, ← hq]
-    exact hmem
-  exact ⟨q.natAbs, hp, hq.trans hspan.symm, by exact_mod_cast hpP⟩
+  exact Ideal.exists_nat_prime_comap_eq_span_and_dvd_absNorm_of_isPrime hP hP0
 
 private lemma isPrincipal_of_isInertIn_of_comap_eq_p
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]

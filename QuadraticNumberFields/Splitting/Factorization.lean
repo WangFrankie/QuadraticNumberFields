@@ -60,6 +60,20 @@ private theorem ramificationIdx_eq_ramificationIdxIn
   exact (ramificationIdxIn_eq_of_mem p S
     Gal(FractionRing S / FractionRing R) hP').symm
 
+/-- Bridge from per-prime `inertiaDeg` to the Galois-uniform `inertiaDegIn`
+for a quadratic extension, using `Algebra.IsQuadraticExtension.isGaloisGroup`. -/
+private theorem inertiaDeg_eq_inertiaDegIn
+    [Nontrivial R] [IsDedekindDomain R] [IsDedekindDomain S]
+    [Algebra.IsQuadraticExtension R S]
+    (hchar : ringChar R ≠ 2) [p.IsMaximal]
+    {P' : Ideal S} (hP' : P' ∈ P(p)) :
+    inertiaDeg p P' = inertiaDegIn p S := by
+  letI := Ring.instAlgebraFractionRing
+  letI := IsIntegralClosure.MulSemiringAction R (FractionRing R) (FractionRing S) S
+  letI := Algebra.IsQuadraticExtension.isGaloisGroup (R := R) (S := S) hchar
+  exact (inertiaDegIn_eq_of_mem p S
+    Gal(FractionRing S / FractionRing R) hP').symm
+
 /-- The factorisation `map p = ∏ P ^ e(P)` specialised via Galois uniformity:
 every exponent equals `ramificationIdxIn p S`. -/
 private theorem map_eq_prod_pow_ramificationIdxIn
@@ -115,6 +129,19 @@ theorem map_eq_of_isSplitIn
     ∃ P₁ ∈ P(p), ∃ P₂ ∈ P(p), P₁ ≠ P₂ ∧ mapP(p) = P₁ * P₂ :=
   map_eq_of_ramificationIdxIn_eq_one_of_inertiaDegIn_eq_one p S hchar hp hs
 
+/-- In a split quadratic Dedekind extension, every prime above `p` has inertia
+degree `1`. -/
+theorem inertiaDeg_eq_one_of_isSplitIn
+    [Nontrivial R] [IsDedekindDomain R] [IsDedekindDomain S]
+    [Algebra.IsQuadraticExtension R S]
+    (hchar : ringChar R ≠ 2) [p.IsMaximal]
+    {P' : Ideal S} [P'.IsPrime] [P'.LiesOver p]
+    (hs : IsSplitIn p S) :
+    inertiaDeg p P' = 1 := by
+  have hP' : P' ∈ P(p) := ⟨inferInstance, inferInstance⟩
+  rw [inertiaDeg_eq_inertiaDegIn p S hchar hP']
+  exact hs.2
+
 /-- In a degree-2 Dedekind extension, the numerical inert condition
 `g = 1 ∧ e = 1` means the lifted ideal is itself prime. -/
 theorem map_isPrime_of_ncard_primesOver_eq_one_of_ramificationIdxIn_eq_one
@@ -146,6 +173,32 @@ theorem map_isPrime_of_isInertIn
     (hi : IsInertIn p S) :
     mapP(p).IsPrime :=
   map_isPrime_of_ncard_primesOver_eq_one_of_ramificationIdxIn_eq_one p S hchar hp hi
+
+/-- In an inert quadratic Dedekind extension, the unique prime above `p` has
+inertia degree `2`. -/
+theorem inertiaDeg_eq_two_of_isInertIn
+    [Nontrivial R] [IsDedekindDomain R] [IsDedekindDomain S]
+    [Algebra.IsQuadraticExtension R S]
+    (hchar : ringChar R ≠ 2) (hp : p ≠ ⊥) [p.IsMaximal]
+    {P' : Ideal S} [P'.IsPrime] [P'.LiesOver p]
+    (hi : IsInertIn p S) :
+    inertiaDeg p P' = 2 := by
+  have hP' : P' ∈ P(p) := ⟨inferInstance, inferInstance⟩
+  rw [inertiaDeg_eq_inertiaDegIn p S hchar hP']
+  exact ((ncard_primesOver_eq_one_and_ramificationIdxIn_eq_one_iff_efg p S hchar hp).mp hi).2.2
+
+/-- In a ramified quadratic Dedekind extension, the unique prime above `p` has
+inertia degree `1`. -/
+theorem inertiaDeg_eq_one_of_isRamifiedIn
+    [Nontrivial R] [IsDedekindDomain R] [IsDedekindDomain S]
+    [Algebra.IsQuadraticExtension R S]
+    (hchar : ringChar R ≠ 2) (hp : p ≠ ⊥) [p.IsMaximal]
+    {P' : Ideal S} [P'.IsPrime] [P'.LiesOver p]
+    (hr : IsRamifiedIn p S) :
+    inertiaDeg p P' = 1 := by
+  have hP' : P' ∈ P(p) := ⟨inferInstance, inferInstance⟩
+  rw [inertiaDeg_eq_inertiaDegIn p S hchar hP']
+  exact ((one_lt_ramificationIdxIn_iff_efg p S hchar hp).mp hr).2.2
 
 /-- In a degree-2 Dedekind extension, the numerical ramified condition
 `1 < e` means the lifted ideal is the square of a prime: `map p = P²`. -/

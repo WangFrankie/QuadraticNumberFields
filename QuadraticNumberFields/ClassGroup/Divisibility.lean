@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 
-import QuadraticNumberFields.ClassGroup.GenusTheory
+import QuadraticNumberFields.ClassGroup.GenusTheory.Formula
 
 /-!
 # Class Number Divisibility

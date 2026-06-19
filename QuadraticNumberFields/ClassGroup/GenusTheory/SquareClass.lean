@@ -1,0 +1,153 @@
+/-
+Copyright (c) 2026 Frankie Wang. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Frankie Wang
+-/
+
+import Mathlib.GroupTheory.Index
+import QuadraticNumberFields.ClassGroup.GenusTheory.Characters
+
+/-!
+# Genus-Theory Square Classes
+
+This file contains the square-class subgroup `Cl²`, the principal-genus quotient
+`Cl / Cl²`, and the descent of odd-prime genus characters to that quotient.
+-/
+
+namespace QuadraticNumberFields
+namespace ClassGroup
+
+open scoped NumberField nonZeroDivisors
+
+attribute [-instance] DivisionRing.toRatAlgebra
+
+open RingOfIntegers
+open Splitting
+
+local notation "𝓞" => _root_.NumberField.RingOfIntegers
+
+/-! ## Class-number-one sieve (continued) -/
+
+private theorem le_one_of_two_pow_sub_one_dvd_one {t : ℕ} (h : 2 ^ (t - 1) ∣ 1) :
+    t ≤ 1 := by
+  have hpow : 2 ^ (t - 1) = 1 := Nat.dvd_one.mp h
+  by_contra hle
+  have hsub_ne : t - 1 ≠ 0 := by omega
+  have hpow_gt : 1 < 2 ^ (t - 1) :=
+    one_lt_pow₀ (by norm_num : 1 < (2 : ℕ)) hsub_ne
+  omega
+
+/-- Once genus theory supplies the standard divisibility
+`2 ^ (t - 1) ∣ h(d)`, class number one forces `t ≤ 1`. This isolates the
+elementary arithmetic endpoint of the genus-theory sieve from the missing
+genus-theory divisibility proof. -/
+theorem primeDiscriminantFactorCount_le_one_of_genus_divisibility
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (hdiv : 2 ^ (primeDiscriminantFactorCount d - 1) ∣
+      NumberField.classNumber (Qsqrtd (d : ℚ)))
+    (hclass : NumberField.classNumber (Qsqrtd (d : ℚ)) = 1) :
+    primeDiscriminantFactorCount d ≤ 1 :=
+  le_one_of_two_pow_sub_one_dvd_one (by simpa [hclass] using hdiv)
+
+/-- A finite quotient of the ideal class group with cardinality `2 ^ (t - 1)`
+gives the standard genus-theory divisibility `2 ^ (t - 1) ∣ h(d)`.
+
+The missing genus-theory construction is exactly the production of such a
+surjective quotient map, with `t = primeDiscriminantFactorCount d`. -/
+theorem genus_divisibility_of_surjective_quotient
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (A : Type*) [Group A] [Finite A]
+    (hcard : Nat.card A = 2 ^ (primeDiscriminantFactorCount d - 1))
+    (φ : ClassGroup (𝓞 (Qsqrtd (d : ℚ))) →* A) (hφ : Function.Surjective φ) :
+    2 ^ (primeDiscriminantFactorCount d - 1) ∣
+      NumberField.classNumber (Qsqrtd (d : ℚ)) := by
+  rw [← hcard]
+  simpa [NumberField.classNumber] using Subgroup.card_dvd_of_surjective φ hφ
+
+/-- The subgroup of ideal classes that are squares. In genus theory this is the
+principal genus, and the quotient `Cl / Cl²` is the genus quotient. -/
+noncomputable def squareClassSubgroup (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
+    Subgroup (ClassGroup (𝓞 (Qsqrtd (d : ℚ)))) :=
+  (powMonoidHom (α := ClassGroup (𝓞 (Qsqrtd (d : ℚ)))) 2).range
+
+/-- The quotient `Cl / Cl²` has the same cardinality as the kernel of the square map on
+the class group. This is the finite-group algebra behind the two-torsion formulation
+of genus theory. -/
+theorem card_squareClassSubgroup_quotient_eq_card_powMonoidHom_ker
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
+    Nat.card (ClassGroup (𝓞 (Qsqrtd (d : ℚ))) ⧸ squareClassSubgroup d) =
+      Nat.card (powMonoidHom (α := ClassGroup (𝓞 (Qsqrtd (d : ℚ)))) 2).ker := by
+  letI := _root_.NumberField.RingOfIntegers.instFintypeClassGroup (Qsqrtd (d : ℚ))
+  haveI : (powMonoidHom (α := ClassGroup (𝓞 (Qsqrtd (d : ℚ)))) 2).ker.FiniteIndex :=
+    Subgroup.finiteIndex_of_finite
+  rw [← Subgroup.index_eq_card]
+  rw [squareClassSubgroup]
+  rw [Subgroup.index_range]
+
+/-! ## Squares lie in the principal genus -/
+
+/-- The prime-to-`p` raw genus character takes values of order dividing two. -/
+theorem genusCharacterRawUnit_sq_eq_one
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (p : ℕ) [Fact p.Prime]
+    (I : idealsPrimeToNormSubmonoid d p) :
+    genusCharacterRawUnit d p I ^ 2 = 1 := by
+  ext
+  exact genusCharacterRaw_sq_eq_one_of_norm_not_dvd d p I I.2
+
+/-- A descended genus character takes values of order dividing two on every class. -/
+theorem genusCharacterOfPrincipalMultiplierData_sq_eq_one
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (p : ℕ) [Fact p.Prime]
+    (hd_neg : d < 0) (hp_disc : p ∈ oddPrimeDiscriminantDivisors d)
+    (hsurj : Function.Surjective (mk0OnPrimeToNormIdeals d p))
+    (hdata : HasPrimeToNormPrincipalMultiplierData d p)
+    (C : ClassGroup (𝓞 (Qsqrtd (d : ℚ)))) :
+    genusCharacterOfPrincipalMultiplierData d p hd_neg hp_disc hsurj hdata C ^ 2 = 1 := by
+  let I := Classical.choose (hsurj C)
+  have hI : mk0OnPrimeToNormIdeals d p I = C := Classical.choose_spec (hsurj C)
+  have happly := genusCharacterOfPrincipalMultiplierData_apply_mk0OnPrimeToNormIdeals
+    d p hd_neg hp_disc hsurj hdata I
+  rw [hI] at happly
+  rw [happly]
+  exact genusCharacterRawUnit_sq_eq_one d p I
+
+/-- Every descended genus character kills the square-class subgroup `Cl²`. This is the
+formal `Cl² ⊆ principal genus` direction for the odd-prime genus characters. -/
+theorem squareClassSubgroup_le_genusCharacterOfPrincipalMultiplierData_ker
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (p : ℕ) [Fact p.Prime]
+    (hd_neg : d < 0) (hp_disc : p ∈ oddPrimeDiscriminantDivisors d)
+    (hsurj : Function.Surjective (mk0OnPrimeToNormIdeals d p))
+    (hdata : HasPrimeToNormPrincipalMultiplierData d p) :
+    squareClassSubgroup d ≤
+      (genusCharacterOfPrincipalMultiplierData d p hd_neg hp_disc hsurj hdata).ker := by
+  intro C hC
+  rcases hC with ⟨D, rfl⟩
+  rw [MonoidHom.mem_ker, powMonoidHom_apply, map_pow]
+  exact genusCharacterOfPrincipalMultiplierData_sq_eq_one d p hd_neg hp_disc hsurj hdata D
+
+/-- A descended odd-prime genus character as a character on the principal-genus
+quotient `Cl / Cl²`. -/
+noncomputable def genusCharacterOnSquareClassQuotient
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (p : ℕ) [Fact p.Prime]
+    (hd_neg : d < 0) (hp_disc : p ∈ oddPrimeDiscriminantDivisors d)
+    (hsurj : Function.Surjective (mk0OnPrimeToNormIdeals d p))
+    (hdata : HasPrimeToNormPrincipalMultiplierData d p) :
+    ClassGroup (𝓞 (Qsqrtd (d : ℚ))) ⧸ squareClassSubgroup d →* ℤˣ :=
+  QuotientGroup.lift (squareClassSubgroup d)
+    (genusCharacterOfPrincipalMultiplierData d p hd_neg hp_disc hsurj hdata)
+    (squareClassSubgroup_le_genusCharacterOfPrincipalMultiplierData_ker
+      d p hd_neg hp_disc hsurj hdata)
+
+/-- The character on `Cl / Cl²` agrees with the descended genus character after
+composing with the quotient map. -/
+theorem genusCharacterOnSquareClassQuotient_apply
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (p : ℕ) [Fact p.Prime]
+    (hd_neg : d < 0) (hp_disc : p ∈ oddPrimeDiscriminantDivisors d)
+    (hsurj : Function.Surjective (mk0OnPrimeToNormIdeals d p))
+    (hdata : HasPrimeToNormPrincipalMultiplierData d p)
+    (C : ClassGroup (𝓞 (Qsqrtd (d : ℚ)))) :
+    genusCharacterOnSquareClassQuotient d p hd_neg hp_disc hsurj hdata C =
+      genusCharacterOfPrincipalMultiplierData d p hd_neg hp_disc hsurj hdata C := by
+  rfl
+
+end ClassGroup
+end QuadraticNumberFields
