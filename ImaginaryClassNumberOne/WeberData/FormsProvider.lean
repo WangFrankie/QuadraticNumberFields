@@ -8,6 +8,7 @@ import FormClassGroup.ClassGroup.ClassNumber
 import FormClassGroup.ClassGroup.Law
 import ImaginaryClassNumberOne.WeberData.Core
 import Mathlib.Algebra.Order.BigOperators.Group.Finset
+import QNFMathlib.Data.Int.Squarefree
 import QuadraticNumberFields.RingOfIntegers.Discriminant
 import QNFMathlib.NumberTheory.LegendreSymbol.KroneckerSymbol
 
@@ -1470,6 +1471,25 @@ theorem conductor_two_reduced_forms_card_eq_three_of_classNumber_one
     p hp8 hp_ne_three (conductor_two_order_class_number_formula p hp hp8 hp_ne_three)
     hclass
 
+/-- Target-shaped conductor-`2` reduced-form class-number statement.
+
+This version derives the squarefree parameter facts from the prime hypothesis,
+so its assumptions match the Baker-Heegner-Stark inert branch:
+`h(-p) = 1`, `p` prime, `p % 8 = 3`, and `p ≠ 3`. -/
+theorem conductor_two_reduced_forms_card_eq_three_of_classNumber_one_of_prime
+    (p : ℕ) (hp : Nat.Prime p) (hp8 : p % 8 = 3) (hp_ne_three : p ≠ 3)
+    (hclass :
+      (letI : Fact (Squarefree (-(p : ℤ))) := ⟨Int.squarefree_neg_natCast_of_nat_prime hp⟩
+       letI : Fact ((-(p : ℤ)) ≠ 1) := ⟨Int.neg_natCast_ne_one p⟩
+       classNumberQsqrtd (-(p : ℤ)) = 1)) :
+    (BinaryQuadraticForm.enumPrimitiveReducedForms (-(4 * (p : ℤ)))).card = 3 := by
+  haveI : Fact (Squarefree (-(p : ℤ))) :=
+    ⟨Int.squarefree_neg_natCast_of_nat_prime hp⟩
+  haveI : Fact ((-(p : ℤ)) ≠ 1) :=
+    ⟨Int.neg_natCast_ne_one p⟩
+  exact conductor_two_reduced_forms_card_eq_three_of_classNumber_one
+    p hp hp8 hp_ne_three hclass
+
 /-- **Cox forms class-number input.** In the inert prime family `d = -p`, class
 number one for `ℚ(√-p)` gives Forms-side class-number-three data for primitive
 positive definite forms of conductor-`2` discriminant `-4p`, away from the
@@ -1483,6 +1503,22 @@ theorem conductor_two_form_class_number_three
     p hp8 hp_ne_three (conductor_two_order_class_number_formula p hp hp8 hp_ne_three)
     hclass
 
+/-- Target-shaped Forms-side conductor-`2` class-number statement.
+
+This wrapper removes the auxiliary `Fact` parameters by deriving them from
+`Nat.Prime p`.  The remaining mathematical input is still Cox 7.24 / Corollary
+7.28, isolated by `conductor_two_order_class_number_formula`. -/
+theorem conductor_two_form_class_number_three_of_prime
+    (p : ℕ) (hp : Nat.Prime p) (hp8 : p % 8 = 3) (hp_ne_three : p ≠ 3)
+    (hclass :
+      (letI : Fact (Squarefree (-(p : ℤ))) := ⟨Int.squarefree_neg_natCast_of_nat_prime hp⟩
+       letI : Fact ((-(p : ℤ)) ≠ 1) := ⟨Int.neg_natCast_ne_one p⟩
+       classNumberQsqrtd (-(p : ℤ)) = 1)) :
+    ConductorTwoFormClassNumberThree p := by
+  exact conductorTwoFormClassNumberThree_of_reducedForms_card p
+    (conductor_two_reduced_forms_card_eq_three_of_classNumber_one_of_prime
+      p hp hp8 hp_ne_three hclass)
+
 /-- The reduced-forms provider supplies the core conductor-`2` ring-class-number
 input in the non-exceptional inert branch. -/
 theorem conductor_two_class_number_three_of_forms
@@ -1492,6 +1528,18 @@ theorem conductor_two_class_number_three_of_forms
     RingClassNumberConductorTwoEqualsThree p := by
   exact ringClassNumberConductorTwoEqualsThree_of_forms
     (conductor_two_form_class_number_three p hp hp8 hp_ne_three hclass)
+
+/-- Target-shaped core conductor-`2` ring-class-number statement supplied by the
+Forms route. -/
+theorem conductor_two_class_number_three_of_forms_of_prime
+    (p : ℕ) (hp : Nat.Prime p) (hp8 : p % 8 = 3) (hp_ne_three : p ≠ 3)
+    (hclass :
+      (letI : Fact (Squarefree (-(p : ℤ))) := ⟨Int.squarefree_neg_natCast_of_nat_prime hp⟩
+       letI : Fact ((-(p : ℤ)) ≠ 1) := ⟨Int.neg_natCast_ne_one p⟩
+       classNumberQsqrtd (-(p : ℤ)) = 1)) :
+    RingClassNumberConductorTwoEqualsThree p := by
+  exact ringClassNumberConductorTwoEqualsThree_of_forms
+    (conductor_two_form_class_number_three_of_prime p hp hp8 hp_ne_three hclass)
 
 /-- **Deep Weber/CM input from ring-class-number three, via the Forms provider.**
 The conductor-`2` ring-class-number-three datum supplies the refined Weber data:
