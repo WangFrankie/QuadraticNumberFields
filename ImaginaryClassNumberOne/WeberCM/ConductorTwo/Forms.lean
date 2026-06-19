@@ -142,10 +142,10 @@ theorem conductor_two_reduced_forms_card_eq_three_of_classNumber_one_of_card_le_
     field_reduced_forms_card_eq_one_of_classNumber_one p hp hp8 hclass
   exact conductor_two_reduced_forms_card_eq_three_of_card_le_three p hp hp8 hp_ne_three hupper
 
-/-- Quotient-level conductor-`2` finite-fiber cover data gives the upper bound
+/-- Quotient-level conductor-`2` finite-fiber cover gives the upper bound
 on finite form-class cardinalities. -/
 theorem conductor_two_formClass_card_le_three_mul_field_formClass_card_of_class_cover
-    (p : ℕ) (hcover : ConductorTwoFormClassCoverData p) :
+    (p : ℕ) (hcover : ConductorTwoFormClassCover p) :
     Fintype.card (BinaryQuadraticForm.FormClass (-(4 * (p : ℤ)))) ≤
       3 * Fintype.card (BinaryQuadraticForm.FormClass (-(p : ℤ))) := by
   classical
@@ -169,10 +169,10 @@ theorem conductor_two_formClass_card_le_three_mul_field_formClass_card_of_class_
     exact Finset.card_le_mul_card_image_of_maps_to hmaps 3 hfiber
   simpa [S, T] using hbound
 
-/-- Quotient-level conductor-`2` finite-fiber cover data gives the upper bound
+/-- Quotient-level conductor-`2` finite-fiber cover gives the upper bound
 `#forms(-4p) ≤ 3 * #forms(-p)` on reduced-form enumerations. -/
 theorem conductor_two_reduced_forms_card_le_three_mul_field_reduced_forms_card_of_class_cover
-    (p : ℕ) (hcover : ConductorTwoFormClassCoverData p) :
+    (p : ℕ) (hcover : ConductorTwoFormClassCover p) :
     (BinaryQuadraticForm.enumPrimitiveReducedForms (-(4 * (p : ℤ)))).card ≤
       3 * (BinaryQuadraticForm.enumPrimitiveReducedForms (-(p : ℤ))).card := by
   have hbound :=
@@ -180,13 +180,13 @@ theorem conductor_two_reduced_forms_card_le_three_mul_field_reduced_forms_card_o
       p hcover
   simpa [BinaryQuadraticForm.formClass_card_eq_enumPrimitiveReducedForms_card] using hbound
 
-/-- Quotient-level conductor-`2` finite-fiber cover data gives the upper bound
+/-- Quotient-level conductor-`2` finite-fiber cover gives the upper bound
 `#forms(-4p) ≤ 3 * h(-p)` after transporting the field reduced-form count to
 `classNumberQsqrtd`. -/
 theorem conductor_two_reduced_forms_card_le_three_mul_classNumber_of_class_cover
     (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
     (hp : Nat.Prime p) (hp8 : p % 8 = 3)
-    (hcover : ConductorTwoFormClassCoverData p) :
+    (hcover : ConductorTwoFormClassCover p) :
     (BinaryQuadraticForm.enumPrimitiveReducedForms (-(4 * (p : ℤ)))).card ≤
       3 * classNumberQsqrtd (-(p : ℤ)) := by
   have hbound :=
@@ -194,13 +194,13 @@ theorem conductor_two_reduced_forms_card_le_three_mul_classNumber_of_class_cover
       p hcover
   rwa [field_reduced_forms_card_eq_classNumberQsqrtd p hp hp8] at hbound
 
-/-- Class number one plus quotient-level conductor-`2` cover data gives the exact
+/-- Class number one plus quotient-level conductor-`2` cover gives the exact
 conductor-`2` reduced-form count. -/
 theorem conductor_two_reduced_forms_card_eq_three_of_classNumber_one_of_class_cover
     (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
     (hp : Nat.Prime p) (hp8 : p % 8 = 3) (hp_ne_three : p ≠ 3)
     (hclass : classNumberQsqrtd (-(p : ℤ)) = 1)
-    (hcover : ConductorTwoFormClassCoverData p) :
+    (hcover : ConductorTwoFormClassCover p) :
     (BinaryQuadraticForm.enumPrimitiveReducedForms (-(4 * (p : ℤ)))).card = 3 := by
   exact conductor_two_reduced_forms_card_eq_three_of_classNumber_one_of_card_le_three
     p hp hp8 hp_ne_three hclass

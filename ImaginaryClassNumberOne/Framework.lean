@@ -10,7 +10,7 @@ import ImaginaryClassNumberOne.WeberCM.Core
 # Framework Layer for the Baker-Heegner-Stark Proof
 
 This file assembles the inert-prime branch of the Baker-Heegner-Stark theorem
-from named interfaces: a Weber/CM provider, the integer-equation solution
+from named interfaces: a Weber/CM input, the integer-equation solution
 theorem, and the finite gamma-to-prime lookup.  The final statement file imports
 this module instead of carrying the inert-prime proof skeleton inline.
 -/
@@ -40,16 +40,16 @@ theorem neg_natCast_mem_heegnerSet_of_natCast_mem_heegnerPrimeSet
   norm_num [heegnerPrimeSet, heegnerSet] at hp ⊢
   omega
 
-/-- The inert-prime core follows from the Weber/CM algebraic data and the
+/-- The inert-prime core follows from the Weber/CM algebraic certificate and the
 finite Diophantine/gamma lookup. -/
-theorem inert_prime_core_of_weber_data
+theorem inert_prime_core_of_weber_certificate
     (d : ℤ) (p : ℕ) (hp : Nat.Prime p) (hp8 : p % 8 = 3) (hdp : d = -(p : ℤ))
-    (hdata : StarkHeegnerAlgebraicData p) :
+    (hcert : StarkHeegnerAlgebraicCertificate p) :
     d ∈ heegnerSet := by
   rw [hdp]
   exact neg_natCast_mem_heegnerSet_of_natCast_mem_heegnerPrimeSet
-    (prime_mem_heegnerPrimeSet_of_associatedGamma p hp hp8 hdata.associatedGamma
-      (gamma_mem_heegnerGammaSet_of_xy_solution hdata.xyEquation hdata.gamma_eq))
+    (prime_mem_heegnerPrimeSet_of_associatedGamma p hp hp8 hcert.associatedGamma
+      (gamma_mem_heegnerGammaSet_of_xy_solution hcert.xyEquation hcert.gamma_eq))
 
 /-- **Baker-Heegner-Stark inert prime core.** This is the deep remaining input
 after the elementary ideal-theoretic reductions and the odd prime-shape sieve: for
@@ -57,9 +57,9 @@ the inert-at-`2` prime family `d = -p`, `p ≡ 3 (mod 8)`, class number one
 forces `d` to be a Heegner number.
 
 The proof skeleton handles `p = 3` directly, and otherwise factors through the
-named Weber/CM data interface and the finite Diophantine/gamma lookup. -/
+named Weber/CM certificate input and the finite Diophantine/gamma lookup. -/
 theorem baker_heegner_stark_inert_prime_core
-    (hprovider : InertPrimeWeberDataProvider)
+    (hweber : HasInertPrimeWeberCM)
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : d < 0)
     (p : ℕ) (hp : Nat.Prime p) (hp8 : p % 8 = 3) (hdp : d = -(p : ℤ))
     (h : NumberField.classNumber (Qsqrtd (d : ℚ)) = 1) :
@@ -67,10 +67,10 @@ theorem baker_heegner_stark_inert_prime_core
   subst d
   by_cases hp_ne_three : p ≠ 3
   · change classNumberQsqrtd (-(p : ℤ)) = 1 at h
-    rcases exists_weber_data_of_classNumber_one_inert_prime
-      hprovider p hp hp8 hp_ne_three h with ⟨hdata⟩
-    exact inert_prime_core_of_weber_data (-(p : ℤ)) p hp hp8 rfl
-      hdata
+    rcases exists_weber_certificate_of_classNumber_one_inert_prime
+      hweber p hp hp8 hp_ne_three h with ⟨hcert⟩
+    exact inert_prime_core_of_weber_certificate (-(p : ℤ)) p hp hp8 rfl
+      hcert
   · have hp_eq_three : p = 3 := by omega
     subst p
     norm_num [heegnerSet]

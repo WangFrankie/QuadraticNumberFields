@@ -26,12 +26,12 @@ reduced-forms backend.  Optional conductor-`2` assembly routes, such as the
   to gamma values.
 * `IsAssociatedHeegnerGamma`: the table relation between a prime `p` and the
   gamma value obtained from the Weber/CM construction.
-* `StarkHeegnerAlgebraicData`: the algebraic data needed by the elementary
+* `StarkHeegnerAlgebraicCertificate`: the algebraic certificate needed by the elementary
   framework layer.
-* `InertPrimeWeberDataProvider`: a provider interface for the deep inert-prime
+* `HasInertPrimeWeberCM`: a named input for the deep inert-prime
   Weber/CM input from class number one.
-* `ConductorTwoClassNumberThreeWeberData`: refined conductor-`2` Weber/CM data
-  bundling the ring-class-number input with the extracted Stark-Heegner data.
+* `ConductorTwoWeberCertificate`: refined conductor-`2` Weber/CM certificate
+  bundling the ring-class-number input with the extracted Stark-Heegner certificate.
 -/
 
 attribute [-instance] DivisionRing.toRatAlgebra
@@ -60,9 +60,9 @@ the finite Cox-Heegner gamma-prime table. -/
 def IsAssociatedHeegnerGamma (p : ℕ) (gamma : ℤ) : Prop :=
   ((p : ℤ), gamma) ∈ heegnerGammaPrimePairs
 
-/-- Algebraic data extracted from the Weber/CM construction in the inert-prime
+/-- Algebraic certificate extracted from the Weber/CM construction in the inert-prime
 Baker-Heegner-Stark core. -/
-structure StarkHeegnerAlgebraicData (p : ℕ) where
+structure StarkHeegnerAlgebraicCertificate (p : ℕ) where
   /-- The `X` coordinate of the integral point on `Y ^ 2 = 2 * X * (X ^ 3 + 1)`. -/
   X : ℤ
   /-- The `Y` coordinate of the integral point on `Y ^ 2 = 2 * X * (X ^ 3 + 1)`. -/
@@ -76,50 +76,47 @@ structure StarkHeegnerAlgebraicData (p : ℕ) where
   /-- The gamma value is associated to the prime `p` by the Weber/CM construction. -/
   associatedGamma : IsAssociatedHeegnerGamma p gamma
 
-/-- Provider interface for the deep non-exceptional inert-prime Weber/CM input.
+/-- Named input for the deep non-exceptional inert-prime Weber/CM input.
 
 The core file records only the shape of the input.  A reduced-forms route,
 quadratic-order/Picard proof, Stark no-Weber argument, or Baker logarithmic
-argument may provide this structure in a separate file. -/
-structure InertPrimeWeberDataProvider where
-  /-- In the non-exceptional inert family `d = -p`, class number one supplies the
-  Stark-Heegner algebraic data needed by the elementary framework layer. -/
-  exists_weber_data :
-    ∀ (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)],
-      Nat.Prime p →
-      p % 8 = 3 →
-      p ≠ 3 →
-      classNumberQsqrtd (-(p : ℤ)) = 1 →
-      Nonempty (StarkHeegnerAlgebraicData p)
+argument may supply this named Prop in a separate file. -/
+def HasInertPrimeWeberCM : Prop :=
+  ∀ (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)],
+    Nat.Prime p →
+    p % 8 = 3 →
+    p ≠ 3 →
+    classNumberQsqrtd (-(p : ℤ)) = 1 →
+    Nonempty (StarkHeegnerAlgebraicCertificate p)
 
-/-- Refined conductor-`2`, ring-class-number-three Weber/CM data.
+/-- Refined conductor-`2`, ring-class-number-three Weber/CM certificate.
 
 This interface is the precise deep input needed after the conductor-`2`
-ring-class-number jump: it records both the quadratic-order datum and the
-Stark-Heegner algebraic data extracted from the Weber construction. -/
-structure ConductorTwoClassNumberThreeWeberData (p : ℕ) where
+ring-class-number jump: it records both the quadratic-order input and the
+Stark-Heegner algebraic certificate extracted from the Weber construction. -/
+structure ConductorTwoWeberCertificate (p : ℕ) where
   /-- The conductor-`2` ring-class-number input feeding the Weber/CM construction. -/
   ringClassNumber : RingClassNumberConductorTwoEqualsThree p
-  /-- The Stark-Heegner algebraic data extracted from the Weber/CM construction. -/
-  starkHeegnerData : StarkHeegnerAlgebraicData p
+  /-- The Stark-Heegner algebraic certificate extracted from the Weber/CM construction. -/
+  starkHeegner : StarkHeegnerAlgebraicCertificate p
 
-/-- Refined conductor-`2` Weber data projects to the Stark-Heegner algebraic
-data needed by the elementary framework layer. -/
-theorem exists_weber_data_of_conductor_two_weber_data
-    {p : ℕ} (hweber : Nonempty (ConductorTwoClassNumberThreeWeberData p)) :
-    Nonempty (StarkHeegnerAlgebraicData p) := by
-  exact Nonempty.map ConductorTwoClassNumberThreeWeberData.starkHeegnerData hweber
+/-- Refined conductor-`2` Weber certificates project to the Stark-Heegner
+algebraic certificate needed by the elementary framework layer. -/
+theorem exists_weber_certificate_of_conductor_two_weber_certificate
+    {p : ℕ} (hweber : Nonempty (ConductorTwoWeberCertificate p)) :
+    Nonempty (StarkHeegnerAlgebraicCertificate p) := by
+  exact Nonempty.map ConductorTwoWeberCertificate.starkHeegner hweber
 
 /-- **Weber/CM existence input from class number one.** In the non-exceptional
 inert prime family `d = -p`, class number one supplies the Stark-Heegner
-algebraic data. -/
-theorem exists_weber_data_of_classNumber_one_inert_prime
-    (hprovider : InertPrimeWeberDataProvider)
+algebraic certificate. -/
+theorem exists_weber_certificate_of_classNumber_one_inert_prime
+    (hweber : HasInertPrimeWeberCM)
     (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
     (hp : Nat.Prime p) (hp8 : p % 8 = 3) (hp_ne_three : p ≠ 3)
     (hclass : classNumberQsqrtd (-(p : ℤ)) = 1) :
-    Nonempty (StarkHeegnerAlgebraicData p) := by
-  exact hprovider.exists_weber_data p hp hp8 hp_ne_three hclass
+    Nonempty (StarkHeegnerAlgebraicCertificate p) := by
+  exact hweber p hp hp8 hp_ne_three hclass
 
 end Heegner
 end QuadraticNumberFields

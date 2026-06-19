@@ -12,7 +12,7 @@ import QNFMathlib.RingTheory.Ideal.Span
 # Residue and Cover Machinery for the Conductor-Two Route
 
 This file contains the concrete conductor-`2` order inclusion, ideals, residue
-units, ideal-class fibers, kernel data, and cover bridges used by the Weber/CM
+units, ideal-class fibers, kernel certificates, and cover bridges used by the Weber/CM
 conductor-`2` route.
 -/
 
@@ -86,7 +86,7 @@ theorem mem_range_conductorTwoSuborderHom_iff_even_im
 attached to a primitive positive definite form of discriminant `-4p`.
 
 This is the order-level object whose extension to the maximal order should
-underlie the quotient-level cover map `ConductorTwoFormClassCoverData`. -/
+underlie the quotient-level cover map `ConductorTwoFormClassCover`. -/
 noncomputable def conductorTwoOrderIdealOfForm
     (p : ℕ) (Q : BinaryQuadraticForm.PrimitivePositiveDefiniteForm (-(4 * (p : ℤ)))) :
     Ideal (Zsqrtd (-(p : ℤ))) :=
@@ -800,13 +800,13 @@ noncomputable def inertFieldFormClassEquivClassGroup
       (BinaryQuadraticForm.fieldDiscriminant_neg_natCast_of_nat_mod_eight_eq_three hp8))).symm.trans
       (BinaryQuadraticForm.formClassEquivClassGroup (d := -(p : ℤ)) hdneg)
 
-/-- Quotient-level conductor-`2` finite-cover data.
+/-- Quotient-level conductor-`2` finite cover.
 
 This is the most natural Forms-side target for a future Cox/order or
 Picard-group construction: a map from primitive positive definite form classes
 of order discriminant `-4p` to the field-discriminant form classes of
 discriminant `-p`, with fibers of size at most three. -/
-structure ConductorTwoFormClassCoverData (p : ℕ) where
+structure ConductorTwoFormClassCover (p : ℕ) where
   /-- The conductor-lowering map on primitive positive definite form classes. -/
   toFieldClass :
     BinaryQuadraticForm.FormClass (-(4 * (p : ℤ))) →
@@ -818,7 +818,7 @@ structure ConductorTwoFormClassCoverData (p : ℕ) where
       Nat.card
         { Q : BinaryQuadraticForm.FormClass (-(4 * (p : ℤ))) // toFieldClass Q = R } ≤ 3
 
-/-- Ideal-class-level conductor-`2` finite-cover data.
+/-- Ideal-class-level conductor-`2` finite cover.
 
 This is the order/Picard-shaped version of the remaining upper-bound step:
 the canonical maximal-order ideal class obtained by extending conductor-`2`
@@ -826,7 +826,7 @@ Cox/order ideals has fibers of size at most three.  The quotient descent for
 this canonical map is already proved by
 `conductorTwoRingOfIntegersIdealClassOfFormClass`; the remaining input is only
 the order/Picard fiber bound. -/
-structure ConductorTwoIdealClassCoverData
+structure ConductorTwoIdealClassCover
     (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
     (hp8 : p % 8 = 3) where
   /-- Every maximal-order ideal class has at most three conductor-`2` form-class
@@ -963,12 +963,12 @@ theorem conductorTwoIdealClassFiberResidueUnit_injective_of_formClass_eq
   · exact quotient_mk_intCast_a_eq_of_conductorTwoIdealClassFiberResidueUnit_eq
       p hp8 C Q R hres
 
-/-- Picard-exact-sequence-shaped kernel data for the conductor-`2` extension map.
+/-- Picard-exact-sequence-shaped kernel certificate for the conductor-`2` extension map.
 
 The local target is the concrete unit group `(𝓞K / 2𝓞K)ˣ`.  The remaining
 order/Picard input is the fiber injection into this local quotient; the inert
 branch cardinal bound for the target is proved separately below. -/
-structure ConductorTwoIdealClassKernelData
+structure ConductorTwoIdealClassKernelCertificate
     (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
     (hp8 : p % 8 = 3) where
   /-- Every fiber of the conductor-`2` extension map injects into the local
@@ -981,20 +981,20 @@ structure ConductorTwoIdealClassKernelData
             Ideal.span ({(2 : 𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ)))} : Set _))ˣ
 
 /-- Injectivity of the explicit residue-unit map on every ideal-class fiber
-constructs the conductor-`2` kernel data. -/
-noncomputable def conductor_two_ideal_class_kernel_data_of_fiberResidueUnit_injective
+constructs the conductor-`2` kernel certificate. -/
+noncomputable def conductor_two_ideal_class_kernel_certificate_of_fiberResidueUnit_injective
     (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
     (hp8 : p % 8 = 3)
     (hinj : ∀ C : ClassGroup (𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ))),
       Function.Injective (conductorTwoIdealClassFiberResidueUnit p hp8 C)) :
-    ConductorTwoIdealClassKernelData p hp8 where
+    ConductorTwoIdealClassKernelCertificate p hp8 where
   fiberEmbedding := fun C =>
     { toFun := conductorTwoIdealClassFiberResidueUnit p hp8 C
       inj' := hinj C }
 
 /-- The representative-level reconstruction criterion constructs the
-conductor-`2` kernel data. -/
-noncomputable def conductor_two_ideal_class_kernel_data_of_formClass_eq
+conductor-`2` kernel certificate. -/
+noncomputable def conductor_two_ideal_class_kernel_certificate_of_formClass_eq
     (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
     (hp8 : p % 8 = 3)
     (hform : ∀ Q R : BinaryQuadraticForm.FormClass (-(4 * (p : ℤ))),
@@ -1011,15 +1011,15 @@ noncomputable def conductor_two_ideal_class_kernel_data_of_formClass_eq
           ((((conductorTwoFormClassOddRepresentative p R).1.a : ℤ) :
             𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ)))) →
       Q = R) :
-    ConductorTwoIdealClassKernelData p hp8 :=
-  conductor_two_ideal_class_kernel_data_of_fiberResidueUnit_injective p hp8
+    ConductorTwoIdealClassKernelCertificate p hp8 :=
+  conductor_two_ideal_class_kernel_certificate_of_fiberResidueUnit_injective p hp8
     (conductorTwoIdealClassFiberResidueUnit_injective_of_formClass_eq p hp8 hform)
 
-/-- Kernel data gives the ideal-class fiber bound for the canonical
+/-- Kernel certificate gives the ideal-class fiber bound for the canonical
 conductor-`2` extension map. -/
-theorem conductor_two_ideal_class_fiber_card_le_three_of_kernel_data
+theorem conductor_two_ideal_class_fiber_card_le_three_of_kernel_certificate
     (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
-    (hp8 : p % 8 = 3) (hkernel : ConductorTwoIdealClassKernelData p hp8)
+    (hp8 : p % 8 = 3) (hkernel : ConductorTwoIdealClassKernelCertificate p hp8)
     (C : ClassGroup (𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ)))) :
     Nat.card
       { Q : BinaryQuadraticForm.FormClass (-(4 * (p : ℤ))) //
@@ -1031,14 +1031,14 @@ theorem conductor_two_ideal_class_fiber_card_le_three_of_kernel_data
       (hkernel.fiberEmbedding C).injective)
     (conductor_two_ringOfIntegers_quotient_span_two_units_card_le_three p hp8)
 
-/-- Ideal-class-level conductor-`2` cover data supplies the quotient-level
+/-- Ideal-class-level conductor-`2` cover supplies the quotient-level
 form-class cover by transporting maximal-order ideal classes back to
 field-discriminant form classes via Cox's equivalence. -/
-noncomputable def conductor_two_form_class_cover_data_of_ideal_class_cover
+noncomputable def conductor_two_form_class_cover_of_ideal_class_cover
     (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
     (hp : Nat.Prime p) (hp8 : p % 8 = 3)
-    (hcover : ConductorTwoIdealClassCoverData p hp8) :
-    ConductorTwoFormClassCoverData p where
+    (hcover : ConductorTwoIdealClassCover p hp8) :
+    ConductorTwoFormClassCover p where
   toFieldClass := fun Q =>
     (inertFieldFormClassEquivClassGroup p hp hp8).symm
       (conductorTwoRingOfIntegersIdealClassOfFormClass p hp8 Q)
@@ -1077,27 +1077,27 @@ noncomputable def conductor_two_form_class_cover_data_of_ideal_class_cover
     exact hcover.fiber_card_le_three (e R)
 
 /-- The canonical conductor-`2` ideal-class extension map supplies the
-ideal-class cover data once explicit kernel data is available. -/
-def conductor_two_ideal_class_cover_data_of_kernel_data
+ideal-class cover once an explicit kernel certificate is available. -/
+def conductor_two_ideal_class_cover_of_kernel_certificate
     (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
-    (hp8 : p % 8 = 3) (hkernel : ConductorTwoIdealClassKernelData p hp8) :
-    ConductorTwoIdealClassCoverData p hp8 := by
+    (hp8 : p % 8 = 3) (hkernel : ConductorTwoIdealClassKernelCertificate p hp8) :
+    ConductorTwoIdealClassCover p hp8 := by
   exact {
     fiber_card_le_three := fun C =>
-      conductor_two_ideal_class_fiber_card_le_three_of_kernel_data
+      conductor_two_ideal_class_fiber_card_le_three_of_kernel_certificate
         p hp8 hkernel C }
 
 /-- **Conductor-lowering form-class cover, conductor `2`.** In the inert prime
 family `d = -p`, conductor-`2` form classes of discriminant `-4p` map to
 field-discriminant form classes of discriminant `-p` with fibers of size at most
-three, once explicit ideal-class kernel data is available. -/
-noncomputable def conductor_two_form_class_cover_data_of_kernel_data
+three, once an explicit ideal-class kernel certificate is available. -/
+noncomputable def conductor_two_form_class_cover_of_kernel_certificate
     (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
     (hp : Nat.Prime p) (hp8 : p % 8 = 3)
-    (hkernel : ConductorTwoIdealClassKernelData p hp8) :
-    ConductorTwoFormClassCoverData p :=
-  conductor_two_form_class_cover_data_of_ideal_class_cover p hp hp8
-    (conductor_two_ideal_class_cover_data_of_kernel_data p hp8 hkernel)
+    (hkernel : ConductorTwoIdealClassKernelCertificate p hp8) :
+    ConductorTwoFormClassCover p :=
+  conductor_two_form_class_cover_of_ideal_class_cover p hp hp8
+    (conductor_two_ideal_class_cover_of_kernel_certificate p hp8 hkernel)
 
 end Heegner
 end QuadraticNumberFields

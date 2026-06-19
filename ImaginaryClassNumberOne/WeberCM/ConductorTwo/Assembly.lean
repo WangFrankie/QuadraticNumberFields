@@ -24,7 +24,7 @@ open scoped NumberField
 namespace QuadraticNumberFields
 namespace Heegner
 
-/-- Forms-side class-number-three data supplies the conductor-`2`
+/-- Forms-side class-number-three input supplies the conductor-`2`
 ring-class-number input used by the Weber/CM layer. -/
 theorem ringClassNumberConductorTwoEqualsThree_of_forms
     {p : ℕ} (hforms : ConductorTwoFormClassNumberThree p) :
@@ -35,7 +35,7 @@ theorem ringClassNumberConductorTwoEqualsThree_of_forms
   sorry
 
 /-- The finite inert-Heegner-prime reduced-form computation supplies
-Forms-side conductor-`2` class-number-three data. -/
+Forms-side conductor-`2` class-number-three input. -/
 theorem conductor_two_form_class_number_three_of_mem_heegnerPrimeSet
     (p : ℕ) (hp_mem : (p : ℤ) ∈ heegnerPrimeSet) (hp_ne_three : p ≠ 3) :
     ConductorTwoFormClassNumberThree p :=
@@ -80,28 +80,28 @@ theorem conductor_two_order_class_number_formula_of_mem_heegnerPrimeSet
   conductor_two_reduced_forms_card_order_class_number_formula_of_mem_heegnerPrimeSet
     p hp8 hp_mem hp_ne_three
 
-/-- Explicit conductor-`2` kernel data and maximal-order class number one give
+/-- Explicit conductor-`2` kernel certificates and maximal-order class number one give
 exactly three conductor-`2` primitive reduced forms. -/
-theorem conductor_two_reduced_forms_card_eq_three_of_classNumber_one_of_kernel_data
+theorem conductor_two_reduced_forms_card_eq_three_of_classNumber_one_of_kernel_certificate
     (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
     (hp : Nat.Prime p) (hp8 : p % 8 = 3) (hp_ne_three : p ≠ 3)
     (hclass : classNumberQsqrtd (-(p : ℤ)) = 1)
-    (hkernel : ConductorTwoIdealClassKernelData p hp8) :
+    (hkernel : ConductorTwoIdealClassKernelCertificate p hp8) :
     (BinaryQuadraticForm.enumPrimitiveReducedForms (-(4 * (p : ℤ)))).card = 3 :=
   conductor_two_reduced_forms_card_eq_three_of_classNumber_one_of_class_cover
     p hp hp8 hp_ne_three hclass
-    (conductor_two_form_class_cover_data_of_kernel_data p hp hp8 hkernel)
+    (conductor_two_form_class_cover_of_kernel_certificate p hp hp8 hkernel)
 
-/-- In the class-number-one branch, explicit conductor-`2` kernel data supplies
-the Cox formula equality needed by the Forms provider. -/
-theorem conductor_two_order_class_number_formula_of_classNumber_one_of_kernel_data
+/-- In the class-number-one branch, explicit conductor-`2` kernel certificates supply
+the Cox formula equality needed by the Forms route. -/
+theorem conductor_two_order_class_number_formula_of_classNumber_one_of_kernel_certificate
     (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
     (hp : Nat.Prime p) (hp8 : p % 8 = 3) (hp_ne_three : p ≠ 3)
     (hclass : classNumberQsqrtd (-(p : ℤ)) = 1)
-    (hkernel : ConductorTwoIdealClassKernelData p hp8) :
+    (hkernel : ConductorTwoIdealClassKernelCertificate p hp8) :
     ConductorTwoOrderClassNumberFormula p hp8 hp_ne_three := by
   unfold ConductorTwoOrderClassNumberFormula
-  rw [conductor_two_reduced_forms_card_eq_three_of_classNumber_one_of_kernel_data
+  rw [conductor_two_reduced_forms_card_eq_three_of_classNumber_one_of_kernel_certificate
     p hp hp8 hp_ne_three hclass hkernel, hclass,
     conductor_two_order_class_number_formula_factor_eq_three p hp8]
   norm_num
@@ -115,12 +115,12 @@ theorem conductor_two_reduced_forms_card_eq_three_of_classNumber_one_of_fiberRes
     (hinj : ∀ C : ClassGroup (𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ))),
       Function.Injective (conductorTwoIdealClassFiberResidueUnit p hp8 C)) :
     (BinaryQuadraticForm.enumPrimitiveReducedForms (-(4 * (p : ℤ)))).card = 3 :=
-  conductor_two_reduced_forms_card_eq_three_of_classNumber_one_of_kernel_data
+  conductor_two_reduced_forms_card_eq_three_of_classNumber_one_of_kernel_certificate
     p hp hp8 hp_ne_three hclass
-    (conductor_two_ideal_class_kernel_data_of_fiberResidueUnit_injective p hp8 hinj)
+    (conductor_two_ideal_class_kernel_certificate_of_fiberResidueUnit_injective p hp8 hinj)
 
 /-- In the class-number-one branch, injectivity of the explicit residue-unit map
-on every fiber supplies the Cox formula equality needed by the Forms provider. -/
+on every fiber supplies the Cox formula equality needed by the Forms route. -/
 theorem conductor_two_order_class_number_formula_of_classNumber_one_of_fiberResidueUnit_injective
     (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
     (hp : Nat.Prime p) (hp8 : p % 8 = 3) (hp_ne_three : p ≠ 3)
@@ -128,9 +128,9 @@ theorem conductor_two_order_class_number_formula_of_classNumber_one_of_fiberResi
     (hinj : ∀ C : ClassGroup (𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ))),
       Function.Injective (conductorTwoIdealClassFiberResidueUnit p hp8 C)) :
     ConductorTwoOrderClassNumberFormula p hp8 hp_ne_three :=
-  conductor_two_order_class_number_formula_of_classNumber_one_of_kernel_data
+  conductor_two_order_class_number_formula_of_classNumber_one_of_kernel_certificate
     p hp hp8 hp_ne_three hclass
-    (conductor_two_ideal_class_kernel_data_of_fiberResidueUnit_injective p hp8 hinj)
+    (conductor_two_ideal_class_kernel_certificate_of_fiberResidueUnit_injective p hp8 hinj)
 
 /-- The representative-level reconstruction criterion gives exactly three
 conductor-`2` primitive reduced forms in the class-number-one branch. -/
@@ -153,12 +153,12 @@ theorem conductor_two_reduced_forms_card_eq_three_of_classNumber_one_of_formClas
             𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ)))) →
       Q = R) :
     (BinaryQuadraticForm.enumPrimitiveReducedForms (-(4 * (p : ℤ)))).card = 3 :=
-  conductor_two_reduced_forms_card_eq_three_of_classNumber_one_of_kernel_data
+  conductor_two_reduced_forms_card_eq_three_of_classNumber_one_of_kernel_certificate
     p hp hp8 hp_ne_three hclass
-    (conductor_two_ideal_class_kernel_data_of_formClass_eq p hp8 hform)
+    (conductor_two_ideal_class_kernel_certificate_of_formClass_eq p hp8 hform)
 
 /-- In the class-number-one branch, the representative-level reconstruction
-criterion supplies the Cox formula equality needed by the Forms provider. -/
+criterion supplies the Cox formula equality needed by the Forms route. -/
 theorem conductor_two_order_class_number_formula_of_classNumber_one_of_formClass_eq
     (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
     (hp : Nat.Prime p) (hp8 : p % 8 = 3) (hp_ne_three : p ≠ 3)
@@ -178,9 +178,9 @@ theorem conductor_two_order_class_number_formula_of_classNumber_one_of_formClass
             𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ)))) →
       Q = R) :
     ConductorTwoOrderClassNumberFormula p hp8 hp_ne_three :=
-  conductor_two_order_class_number_formula_of_classNumber_one_of_kernel_data
+  conductor_two_order_class_number_formula_of_classNumber_one_of_kernel_certificate
     p hp hp8 hp_ne_three hclass
-    (conductor_two_ideal_class_kernel_data_of_formClass_eq p hp8 hform)
+    (conductor_two_ideal_class_kernel_certificate_of_formClass_eq p hp8 hform)
 
 /-- Once the conductor-`2` order class-number formula is available, class
 number one for the maximal order and the inert local factor `3` give exactly
@@ -242,7 +242,7 @@ the conductor-`2` reduced-form count with the maximal-order class number times
 the local factor at `2`.
 
 This is now the remaining conductor-`2` mathematical input for the Forms
-provider.  It should be supplied by Cox 7.24 / Corollary 7.28, or by an
+route.  It should be supplied by Cox 7.24 / Corollary 7.28, or by an
 equivalent quadratic-order/Picard-group computation. -/
 theorem conductor_two_order_class_number_formula
     (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
@@ -285,7 +285,7 @@ theorem conductor_two_reduced_forms_card_eq_three_of_classNumber_one_of_prime
     p hp hp8 hp_ne_three hclass
 
 /-- **Cox forms class-number input.** In the inert prime family `d = -p`, class
-number one for `ℚ(√-p)` gives Forms-side class-number-three data for primitive
+number one for `ℚ(√-p)` gives Forms-side class-number-three input for primitive
 positive definite forms of conductor-`2` discriminant `-4p`, away from the
 unit-exception case `p = 3`. -/
 theorem conductor_two_form_class_number_three
@@ -313,7 +313,7 @@ theorem conductor_two_form_class_number_three_of_prime
     (conductor_two_reduced_forms_card_eq_three_of_classNumber_one_of_prime
       p hp hp8 hp_ne_three hclass)
 
-/-- The reduced-forms provider supplies the core conductor-`2` ring-class-number
+/-- The reduced-forms route supplies the core conductor-`2` ring-class-number
 input in the non-exceptional inert branch. -/
 theorem conductor_two_class_number_three_of_forms
     (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
@@ -335,40 +335,43 @@ theorem conductor_two_class_number_three_of_forms_of_prime
   exact ringClassNumberConductorTwoEqualsThree_of_forms
     (conductor_two_form_class_number_three_of_prime p hp hp8 hp_ne_three hclass)
 
-/-- **Deep Weber/CM input from ring-class-number three, via the Forms provider.**
-The conductor-`2` ring-class-number-three datum supplies the refined Weber data:
+/-- **Deep Weber/CM input from ring-class-number three, via the Forms route.**
+The conductor-`2` ring-class-number-three input supplies the refined Weber certificate:
 a concrete Heegner equation solution, the associated gamma value, and its
 finite-table association with `p`, in the non-exceptional inert branch `p ≠ 3`. -/
-theorem conductor_two_weber_data_of_ring_class_number_three_of_forms
+theorem conductor_two_weber_certificate_of_ring_class_number_three_of_forms
     (p : ℕ) (hp : Nat.Prime p) (hp8 : p % 8 = 3)
     (hp_ne_three : p ≠ 3) (horder : RingClassNumberConductorTwoEqualsThree p) :
-    Nonempty (ConductorTwoClassNumberThreeWeberData p) := by
+    Nonempty (ConductorTwoWeberCertificate p) := by
   sorry
 
-/-- The Forms provider turns conductor-`2` ring-class-number-three data into
-Stark-Heegner algebraic data. -/
-theorem exists_weber_data_of_conductor_two_class_number_three_of_forms
+/-- The Forms route turns conductor-`2` ring-class-number-three input into
+Stark-Heegner algebraic certificates. -/
+theorem exists_weber_certificate_of_conductor_two_class_number_three_of_forms
     (p : ℕ) (hp : Nat.Prime p) (hp8 : p % 8 = 3)
     (hp_ne_three : p ≠ 3)
     (horder : RingClassNumberConductorTwoEqualsThree p) :
-    Nonempty (StarkHeegnerAlgebraicData p) := by
-  exact exists_weber_data_of_conductor_two_weber_data
-    (conductor_two_weber_data_of_ring_class_number_three_of_forms p hp hp8 hp_ne_three horder)
+    Nonempty (StarkHeegnerAlgebraicCertificate p) := by
+  exact exists_weber_certificate_of_conductor_two_weber_certificate
+    (conductor_two_weber_certificate_of_ring_class_number_three_of_forms
+      p hp hp8 hp_ne_three horder)
 
-/-- The reduced-forms route supplies Weber/CM algebraic data from class number
+/-- The reduced-forms route supplies Weber/CM algebraic certificates from class number
 one in the non-exceptional inert branch. -/
-theorem exists_weber_data_of_classNumber_one_inert_prime_of_forms
+theorem exists_weber_certificate_of_classNumber_one_inert_prime_of_forms
     (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
     (hp : Nat.Prime p) (hp8 : p % 8 = 3) (hp_ne_three : p ≠ 3)
     (hclass : classNumberQsqrtd (-(p : ℤ)) = 1) :
-    Nonempty (StarkHeegnerAlgebraicData p) := by
-  exact exists_weber_data_of_conductor_two_class_number_three_of_forms p hp hp8 hp_ne_three
+    Nonempty (StarkHeegnerAlgebraicCertificate p) := by
+  exact exists_weber_certificate_of_conductor_two_class_number_three_of_forms
+    p hp hp8 hp_ne_three
     (conductor_two_class_number_three_of_forms p hp hp8 hp_ne_three hclass)
 
-/-- The reduced-forms route packaged as the core provider interface. -/
-def formsInertPrimeWeberDataProvider : InertPrimeWeberDataProvider where
-  exists_weber_data p _ _ hp hp8 hp_ne_three hclass :=
-    exists_weber_data_of_classNumber_one_inert_prime_of_forms p hp hp8 hp_ne_three hclass
+/-- The reduced-forms route packaged as the core Weber/CM input. -/
+theorem hasInertPrimeWeberCM_of_forms : HasInertPrimeWeberCM := by
+  intro p _ _ hp hp8 hp_ne_three hclass
+  exact exists_weber_certificate_of_classNumber_one_inert_prime_of_forms
+    p hp hp8 hp_ne_three hclass
 
 
 end Heegner

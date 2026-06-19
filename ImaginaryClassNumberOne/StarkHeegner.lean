@@ -22,7 +22,7 @@ The easy direction — each Heegner number gives class number one — is proved 
 inertness of small primes. The forward direction is assembled from elementary
 ideal-theoretic reductions and the Cox-Weber inert-prime core in
 `QuadraticNumberFields.Heegner.Framework`. The inert-prime core still depends on
-two named inputs: the Weber/CM data provider and the Diophantine endgame
+two named inputs: the Weber/CM certificate input and the Diophantine endgame
 `heegner_xy_solutions` for `Y ^ 2 = 2 * X * (X ^ 3 + 1)`.
 
 ## Reference
@@ -48,8 +48,8 @@ TODO roadmap for the remaining forward direction:
 * Weber/CM route: keep the inert-prime core routed through
   `Heegner.WeberCM.Core`; this file should not import reduced forms directly.
 * Diophantine route: close `Heegner.Diophantine.heegner_xy_solutions`, the
-  remaining integer-equation endgame used after the Weber/CM provider supplies
-  `StarkHeegnerAlgebraicData`.
+  remaining integer-equation endgame used after the Weber/CM route supplies
+  `StarkHeegnerAlgebraicCertificate`.
 * Conductor-`2` assembly route: use
   `Heegner.WeberCM.ConductorTwo.Assembly` only as an optional proof of the
   conductor-`2` class-number input `h(-4 * p) = 3`.
@@ -57,7 +57,7 @@ TODO roadmap for the remaining forward direction:
   or Corollary 7.28 can replace the conductor-`2` assembly route without
   changing this file.
 * Alternative deep route: Stark's no-Weber variant or Baker's logarithmic route
-  should be added as separate providers for the same named inert-core input.
+  should be added as separate proofs of the same named inert-core input.
 -/
 
 /-- **Elementary non-half-integral branch of Baker-Heegner-Stark.** If
@@ -89,7 +89,7 @@ reduced the class-number-one problem to `d = -1`, `d = -2`, or `d = -p` with
 `p ≡ 3 (mod 8)`.  The complementary case `p ≡ 7 (mod 8)` is the elementary
 split-at-`2` branch, which has already been handled ideal-theoretically. -/
 theorem classNumber_eq_one_imp_mem_heegnerSet_of_discriminant_prime_shape
-    (hprovider : InertPrimeWeberDataProvider)
+    (hweber : HasInertPrimeWeberCM)
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : d < 0)
     (hshape :
       d = -1 ∨ d = -2 ∨ ∃ p : ℕ, Nat.Prime p ∧ p % 4 = 3 ∧ d = -(p : ℤ))
@@ -100,7 +100,7 @@ theorem classNumber_eq_one_imp_mem_heegnerSet_of_discriminant_prime_shape
   · simp [heegnerSet]
   · have hp8_cases : p % 8 = 3 ∨ p % 8 = 7 := by omega
     rcases hp8_cases with hp8 | hp8
-    · exact baker_heegner_stark_inert_prime_core hprovider d hd p hp hp8 hdp h
+    · exact baker_heegner_stark_inert_prime_core hweber d hd p hp hp8 hdp h
     · have hd8 : d % 8 = 1 := by
         subst hdp
         omega
@@ -108,9 +108,9 @@ theorem classNumber_eq_one_imp_mem_heegnerSet_of_discriminant_prime_shape
 
 /-- **Odd genus-formula-data branch of Baker-Heegner-Stark.** For odd fundamental
 discriminants, complete odd genus-formula data feeds the prime-shape sieve and leaves
-only the existing inert-prime provider. -/
+only the existing inert-prime Weber/CM input. -/
 theorem classNumber_eq_one_imp_mem_heegnerSet_of_oddGenusFormulaData_of_mod_four_eq_one
-    (hprovider : InertPrimeWeberDataProvider)
+    (hweber : HasInertPrimeWeberCM)
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : d < 0)
     (hd4 : d % 4 = 1)
     (hdata : ClassGroup.OddGenusFormulaData d hd)
@@ -119,14 +119,14 @@ theorem classNumber_eq_one_imp_mem_heegnerSet_of_oddGenusFormulaData_of_mod_four
   have hprime :=
     ClassGroup.classNumber_eq_one_imp_exists_prime_of_oddGenusFormulaData_of_mod_four_eq_one
       d hd hd4 hdata h
-  exact classNumber_eq_one_imp_mem_heegnerSet_of_discriminant_prime_shape hprovider d hd
+  exact classNumber_eq_one_imp_mem_heegnerSet_of_discriminant_prime_shape hweber d hd
     (Or.inr (Or.inr hprime)) h
 
 /-- **Odd genus-character branch of Baker-Heegner-Stark.** For odd fundamental
 discriminants, the existing odd genus-character interface with bijective product
-character feeds the prime-shape sieve and leaves only the inert-prime provider. -/
+character feeds the prime-shape sieve and leaves only the inert-prime Weber/CM input. -/
 theorem classNumber_eq_one_imp_mem_heegnerSet_of_oddGenusCharacterData_of_mod_four_eq_one
-    (hprovider : InertPrimeWeberDataProvider)
+    (hweber : HasInertPrimeWeberCM)
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : d < 0)
     (hd4 : d % 4 = 1)
     (hdata : ClassGroup.OddGenusCharacterData d)
@@ -139,7 +139,7 @@ theorem classNumber_eq_one_imp_mem_heegnerSet_of_oddGenusCharacterData_of_mod_fo
   have hprime :=
     ClassGroup.classNumber_eq_one_imp_exists_prime_of_oddGenusCharacterData_of_mod_four_eq_one
       d hd hd4 hdata hrel hbij h
-  exact classNumber_eq_one_imp_mem_heegnerSet_of_discriminant_prime_shape hprovider d hd
+  exact classNumber_eq_one_imp_mem_heegnerSet_of_discriminant_prime_shape hweber d hd
     (Or.inr (Or.inr hprime)) h
 
 /-- **Inert half-integral branch of Baker-Heegner-Stark.** In the `d % 8 = 5`
@@ -147,7 +147,7 @@ branch, the ideal-theoretic odd prime-shape sieve reduces class number one to
 `d = -p` with `p ≡ 3 (mod 8)`, so the only remaining input is
 `baker_heegner_stark_inert_prime_core`. -/
 theorem classNumber_eq_one_imp_mem_heegnerSet_of_mod_eight_eq_five
-    (hprovider : InertPrimeWeberDataProvider)
+    (hweber : HasInertPrimeWeberCM)
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : d < 0) (hd8 : d % 8 = 5)
     (h : NumberField.classNumber (Qsqrtd (d : ℚ)) = 1) :
     d ∈ heegnerSet := by
@@ -157,13 +157,13 @@ theorem classNumber_eq_one_imp_mem_heegnerSet_of_mod_eight_eq_five
   have hp8 : p % 8 = 3 := by
     subst hdp
     omega
-  exact baker_heegner_stark_inert_prime_core hprovider d hd p hp hp8 hdp h
+  exact baker_heegner_stark_inert_prime_core hweber d hd p hp hp8 hdp h
 
 /-- **Baker-Heegner-Stark forward direction.** The elementary ideal-theoretic
 branches are closed directly, and the inert half-integral branch is routed
 through the odd prime-shape sieve and the inert prime core. -/
 theorem classNumber_eq_one_imp_mem_heegnerSet
-    (hprovider : InertPrimeWeberDataProvider)
+    (hweber : HasInertPrimeWeberCM)
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : d < 0)
     (h : NumberField.classNumber (Qsqrtd (d : ℚ)) = 1) :
     d ∈ heegnerSet := by
@@ -172,7 +172,7 @@ theorem classNumber_eq_one_imp_mem_heegnerSet
     rcases hd8_cases with hd8 | hd8
     · exact classNumber_eq_one_imp_mem_heegnerSet_of_mod_eight_eq_one d hd hd8 h
     · exact classNumber_eq_one_imp_mem_heegnerSet_of_mod_eight_eq_five
-        hprovider d hd hd8 h
+        hweber d hd hd8 h
   · exact classNumber_eq_one_imp_mem_heegnerSet_of_mod_four_ne_one d hd hd4 h
 
 /-- **Baker–Heegner–Stark theorem.** A negative squarefree integer `d` gives an
@@ -181,14 +181,14 @@ of the nine Heegner numbers `-1, -2, -3, -7, -11, -19, -43, -67, -163`.
 
 The reverse implication is `classNumber_eq_one_of_mem_heegnerSet`. The forward
 implication now factors through the ideal-theoretic prime-shape sieve; the
-remaining WIP inputs are the inert-prime Weber/CM provider and the Diophantine
+remaining WIP inputs are the inert-prime Weber/CM certificate input and the Diophantine
 endgame `heegner_xy_solutions`. -/
 theorem classNumber_eq_one_iff_mem_heegnerSet
-    (hprovider : InertPrimeWeberDataProvider)
+    (hweber : HasInertPrimeWeberCM)
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : d < 0) :
     NumberField.classNumber (Qsqrtd (d : ℚ)) = 1 ↔ d ∈ heegnerSet := by
   constructor
-  · exact classNumber_eq_one_imp_mem_heegnerSet hprovider d hd
+  · exact classNumber_eq_one_imp_mem_heegnerSet hweber d hd
   · exact fun h => classNumber_eq_one_of_mem_heegnerSet h
 
 end Heegner
