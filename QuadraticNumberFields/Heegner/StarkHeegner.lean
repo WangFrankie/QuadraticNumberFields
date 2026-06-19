@@ -18,9 +18,9 @@ Heegner numbers `-1, -2, -3, -7, -11, -19, -43, -67, -163`.
 
 The easy direction — each Heegner number gives class number one — is proved in
 `QuadraticNumberFields.Heegner.ClassNumberOne` via Minkowski bounds and
-inertness of small primes. The forward direction is assembled from named
-interfaces: elementary ideal-theoretic reductions, a genus-theory formula, and
-the Cox-Weber inert-prime core in `QuadraticNumberFields.Heegner.Framework`.
+inertness of small primes. The forward direction is assembled from elementary
+ideal-theoretic reductions and the Cox-Weber inert-prime core in
+`QuadraticNumberFields.Heegner.Framework`.
 
 ## Reference
 
@@ -39,9 +39,9 @@ namespace Heegner
 /-
 TODO roadmap for the remaining forward direction:
 
-* Genus route: prove `ClassGroup.genusFormula d`, first for odd fundamental
-  discriminants via the existing odd-genus-character interface, then for the
-  even branches.
+* Genus route: keep the full `Cl / Cl²` formula in `ClassGroup.GenusTheory`.
+  The Baker-Heegner-Stark assembly no longer depends on that formula for the
+  odd fundamental-discriminant prime-shape sieve.
 * Weber/CM route: keep the inert-prime core routed through
   `Heegner.WeberData.Core`; this file should not import reduced forms directly.
 * Forms-provider route: use `Heegner.WeberData.FormsProvider` only as an
@@ -134,37 +134,29 @@ theorem classNumber_eq_one_imp_mem_heegnerSet_of_oddGenusCharacterData_of_mod_fo
   exact classNumber_eq_one_imp_mem_heegnerSet_of_discriminant_prime_shape hprovider d hd
     (Or.inr (Or.inr hprime)) h
 
-/-- **Genus-sieved inert half-integral branch of Baker-Heegner-Stark.** In the
-`d % 8 = 5` branch, the genus-theory sieve reduces class number one to
+/-- **Inert half-integral branch of Baker-Heegner-Stark.** In the `d % 8 = 5`
+branch, the ideal-theoretic odd prime-shape sieve reduces class number one to
 `d = -p` with `p ≡ 3 (mod 8)`, so the only remaining input is
 `baker_heegner_stark_inert_prime_core`. -/
 theorem classNumber_eq_one_imp_mem_heegnerSet_of_mod_eight_eq_five
     (hprovider : InertPrimeWeberDataProvider)
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : d < 0) (hd8 : d % 8 = 5)
-    (hgenus : ClassGroup.genusFormula d)
     (h : NumberField.classNumber (Qsqrtd (d : ℚ)) = 1) :
     d ∈ heegnerSet := by
-  -- TODO(genus): Once the prime-shape sieve is closed without assumptions,
-  -- this theorem should become the branch-specific wrapper around that result.
-  rcases ClassGroup.classNumber_eq_one_imp_discriminant_prime_shape d hd hgenus h with
-    hneg1 | hneg2 | ⟨p, hp, _hp4, hdp⟩
-  · subst hneg1
-    norm_num at hd8
-  · subst hneg2
-    norm_num at hd8
-  · have hp8 : p % 8 = 3 := by
-      subst hdp
-      omega
-    exact baker_heegner_stark_inert_prime_core hprovider d hd p hp hp8 hdp h
+  have hd4 : d % 4 = 1 := by omega
+  rcases classNumber_eq_one_imp_exists_prime_of_mod_four_eq_one d hd hd4 h with
+    ⟨p, hp, _hp4, hdp⟩
+  have hp8 : p % 8 = 3 := by
+    subst hdp
+    omega
+  exact baker_heegner_stark_inert_prime_core hprovider d hd p hp hp8 hdp h
 
-/-- **Baker-Heegner-Stark forward direction with genus theory as an explicit
-input.** The elementary ideal-theoretic branches are closed directly, and the
-inert half-integral branch is routed through the genus sieve and the inert
-prime core. -/
-theorem classNumber_eq_one_imp_mem_heegnerSet_of_genusFormula
+/-- **Baker-Heegner-Stark forward direction.** The elementary ideal-theoretic
+branches are closed directly, and the inert half-integral branch is routed
+through the odd prime-shape sieve and the inert prime core. -/
+theorem classNumber_eq_one_imp_mem_heegnerSet
     (hprovider : InertPrimeWeberDataProvider)
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : d < 0)
-    (hgenus : ClassGroup.genusFormula d)
     (h : NumberField.classNumber (Qsqrtd (d : ℚ)) = 1) :
     d ∈ heegnerSet := by
   by_cases hd4 : d % 4 = 1
@@ -172,54 +164,23 @@ theorem classNumber_eq_one_imp_mem_heegnerSet_of_genusFormula
     rcases hd8_cases with hd8 | hd8
     · exact classNumber_eq_one_imp_mem_heegnerSet_of_mod_eight_eq_one d hd hd8 h
     · exact classNumber_eq_one_imp_mem_heegnerSet_of_mod_eight_eq_five
-        hprovider d hd hd8 hgenus h
+        hprovider d hd hd8 h
   · exact classNumber_eq_one_imp_mem_heegnerSet_of_mod_four_ne_one d hd hd4 h
-
-/-- **Baker–Heegner–Stark theorem with genus theory and inert-prime Weber/CM data
-as explicit inputs.** This version isolates the remaining analytic/deep input to
-`InertPrimeWeberDataProvider`; the algebraic genus-theory formula is assumed
-through `hgenus`. -/
-theorem classNumber_eq_one_iff_mem_heegnerSet_of_genusFormula
-    (hprovider : InertPrimeWeberDataProvider)
-    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : d < 0)
-    (hgenus : ClassGroup.genusFormula d) :
-    NumberField.classNumber (Qsqrtd (d : ℚ)) = 1 ↔ d ∈ heegnerSet := by
-  constructor
-  · exact classNumber_eq_one_imp_mem_heegnerSet_of_genusFormula hprovider d hd hgenus
-  · exact fun h => classNumber_eq_one_of_mem_heegnerSet h
-
-/-- **Genus-theory input for Baker-Heegner-Stark.** The full genus formula for
-negative squarefree quadratic fields is kept as the named algebraic-number-theory
-input not supplied by the final assembly theorem. The odd-discriminant branch can
-instead use `ClassGroup.genusFormula_of_oddGenusCharacterData` once the
-genus-character data and bijectivity are available. -/
-theorem genusFormula_of_negative_squarefree
-    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : d < 0) :
-    ClassGroup.genusFormula d := by
-  -- TODO(genus): Split this into odd and even discriminant files once the
-  -- current odd-genus-character interface has the missing construction and
-  -- bijectivity proofs.  The odd branch should route through
-  -- `ClassGroup.genusFormula_of_oddGenusCharacterData`.
-  sorry
 
 /-- **Baker–Heegner–Stark theorem.** A negative squarefree integer `d` gives an
 imaginary quadratic field `ℚ(√d)` of class number one if and only if `d` is one
 of the nine Heegner numbers `-1, -2, -3, -7, -11, -19, -43, -67, -163`.
 
 The reverse implication is `classNumber_eq_one_of_mem_heegnerSet`. The forward
-implication now factors through the explicit-genus wrapper
-`classNumber_eq_one_iff_mem_heegnerSet_of_genusFormula`; the remaining WIP
-inputs are the genus formula and an inert-prime Weber/CM provider. -/
+implication now factors through the ideal-theoretic prime-shape sieve; the
+remaining WIP input is an inert-prime Weber/CM provider. -/
 theorem classNumber_eq_one_iff_mem_heegnerSet
     (hprovider : InertPrimeWeberDataProvider)
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : d < 0) :
     NumberField.classNumber (Qsqrtd (d : ℚ)) = 1 ↔ d ∈ heegnerSet := by
-  -- TODO(interface): Keep the top-level theorem as a thin assembly layer.
-  -- Do not import `WeberData.FormsProvider` here; reduced forms, Picard/order
-  -- theory, and Stark/Baker alternatives should all feed the named inputs
-  -- used by `classNumber_eq_one_iff_mem_heegnerSet_of_genusFormula`.
-  exact classNumber_eq_one_iff_mem_heegnerSet_of_genusFormula hprovider d hd
-    (genusFormula_of_negative_squarefree d hd)
+  constructor
+  · exact classNumber_eq_one_imp_mem_heegnerSet hprovider d hd
+  · exact fun h => classNumber_eq_one_of_mem_heegnerSet h
 
 end Heegner
 end QuadraticNumberFields

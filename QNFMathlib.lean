@@ -7,6 +7,7 @@ Authors: Frankie Wang
 import QNFMathlib.Algebra.Squarefree.Basic
 import QNFMathlib.Algebra.QuadraticAlgebra.Basic
 import QNFMathlib.Algebra.QuadraticAlgebra.Defs
+import QNFMathlib.Data.Nat.Squarefree
 import QNFMathlib.Data.Int.ModFour
 import QNFMathlib.Data.Int.Parity
 import QNFMathlib.Data.Int.Squarefree

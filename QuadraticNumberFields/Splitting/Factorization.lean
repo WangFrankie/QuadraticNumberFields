@@ -187,6 +187,19 @@ theorem inertiaDeg_eq_two_of_isInertIn
   rw [inertiaDeg_eq_inertiaDegIn p S hchar hP']
   exact ((ncard_primesOver_eq_one_and_ramificationIdxIn_eq_one_iff_efg p S hchar hp).mp hi).2.2
 
+/-- In a ramified quadratic Dedekind extension, the unique prime above `p` has
+inertia degree `1`. -/
+theorem inertiaDeg_eq_one_of_isRamifiedIn
+    [Nontrivial R] [IsDedekindDomain R] [IsDedekindDomain S]
+    [Algebra.IsQuadraticExtension R S]
+    (hchar : ringChar R ≠ 2) (hp : p ≠ ⊥) [p.IsMaximal]
+    {P' : Ideal S} [P'.IsPrime] [P'.LiesOver p]
+    (hr : IsRamifiedIn p S) :
+    inertiaDeg p P' = 1 := by
+  have hP' : P' ∈ P(p) := ⟨inferInstance, inferInstance⟩
+  rw [inertiaDeg_eq_inertiaDegIn p S hchar hP']
+  exact ((one_lt_ramificationIdxIn_iff_efg p S hchar hp).mp hr).2.2
+
 /-- In a degree-2 Dedekind extension, the numerical ramified condition
 `1 < e` means the lifted ideal is the square of a prime: `map p = P²`. -/
 theorem map_eq_sq_of_one_lt_ramificationIdxIn

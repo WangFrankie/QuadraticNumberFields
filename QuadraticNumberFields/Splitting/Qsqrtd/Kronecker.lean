@@ -221,6 +221,20 @@ theorem absNorm_eq_prime_sq_of_liesOver_of_isInertIn
   rw [Ideal.absNorm_eq_pow_inertiaDeg' (P := P) (Fact.out : Nat.Prime p)]
   rw [Ideal.inertiaDeg_eq_two_of_isInertIn (p := 𝔭(p)) (S := 𝓞(d)) hchar hbot hi]
 
+/-- If `P` lies above a ramified rational prime `p`, then its absolute norm is `p`. -/
+theorem absNorm_eq_prime_of_liesOver_of_isRamifiedIn
+    (p : ℕ) [Fact p.Prime]
+    {P : Ideal 𝓞(d)} [P.IsPrime] [P.LiesOver 𝔭(p)]
+    (hr : Ideal.IsRamifiedIn (𝔭(p)) 𝓞(d)) :
+    Ideal.absNorm P = p := by
+  have hchar : ringChar ℤ ≠ 2 := by simp [ringChar.eq_zero]
+  have hbot : 𝔭(p) ≠ ⊥ := by
+    rw [Ne, Ideal.span_singleton_eq_bot, Nat.cast_eq_zero]
+    exact (Fact.out : Nat.Prime p).ne_zero
+  rw [Ideal.absNorm_eq_pow_inertiaDeg' (P := P) (Fact.out : Nat.Prime p)]
+  rw [Ideal.inertiaDeg_eq_one_of_isRamifiedIn (p := 𝔭(p)) (S := 𝓞(d)) hchar hbot hr]
+  rw [pow_one]
+
 /-- If a prime ideal `P` lies over an unramified rational prime, then the
 field-discriminant Kronecker symbol evaluates to `1` at `absNorm P`.
 
