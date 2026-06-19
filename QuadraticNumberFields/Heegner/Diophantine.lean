@@ -7,6 +7,8 @@ import Mathlib.Data.Finset.Basic
 import Mathlib.Data.Int.Basic
 import Mathlib.Tactic
 import QNFMathlib.Data.Int.Parity
+import QNFMathlib.Data.Int.Square
+import QNFMathlib.RingTheory.Coprime
 
 /-!
 # Diophantine Layer for the Baker-Heegner-Stark Proof
@@ -138,10 +140,7 @@ theorem heegner_x_eq_neg_one_or_square_of_cube_add_one_eq_two_mul_sq
     have hcop4Z : IsCoprime X (4 * Z ^ 2) := by
       have hcop2Z : IsCoprime X (2 * Z ^ 2) := by
         simpa [hZ] using isCoprime_X_X_cube_add_one X
-      have hparts := IsCoprime.mul_right_iff.mp hcop2Z
-      have hcop2 : IsCoprime X (2 : ℤ) := hparts.1
-      convert hcop2.mul_right hcop2Z using 1
-      ring
+      exact IsCoprime.four_mul_right_of_two_mul_right hcop2Z
     obtain ⟨W, hW | hW⟩ := Int.sq_of_isCoprime hcop4Z hprod
     · exact ⟨W, hW⟩
     · by_cases hW0 : W = 0
@@ -174,6 +173,36 @@ theorem heegner_auxiliary_equation_of_solution {X Y : ℤ}
       convert hZ using 1
       ring
   · exact Or.inr (Or.inr (Or.inr ⟨Z, hZ⟩))
+
+/-- In Cox's `W ^ 6 + 1 = 2 * Z ^ 2` branch, `W ^ 2 + 1` cannot itself be
+a square. -/
+theorem not_exists_sq_add_one_eq_sq_of_sixth_add_one_eq_two_mul_sq
+    {W Z : ℤ} (h : W ^ 6 + 1 = 2 * Z ^ 2) :
+    ¬ ∃ U : ℤ, W ^ 2 + 1 = U ^ 2 := by
+  rintro ⟨U, hU⟩
+  have hW0 : W = 0 := Int.eq_zero_of_sq_add_one_eq_sq hU
+  subst W
+  norm_num at h
+  omega
+
+/-- If the second integer factor in Cox's `W ^ 6 + 1` branch is a square,
+then `W` is `0`, `1`, or `-1`. -/
+theorem W_eq_zero_or_eq_one_or_neg_one_of_quartic_sub_sq_add_one_eq_sq
+    {W K : ℤ} (h : W ^ 4 - W ^ 2 + 1 = K ^ 2) :
+    W = 0 ∨ W = 1 ∨ W = -1 := by
+  have hquad : (W ^ 2) ^ 2 - W ^ 2 + 1 = K ^ 2 := by
+    convert h using 1
+    ring
+  rcases Int.eq_zero_or_eq_one_of_nonneg_of_sq_sub_self_add_one_eq_sq
+      (sq_nonneg W) hquad with hWsq | hWsq
+  · left
+    nlinarith [sq_nonneg W]
+  · right
+    have hmul : W * W = 1 := by
+      simpa [pow_two] using hWsq
+    rcases Int.mul_eq_one_iff_eq_one_or_neg_one.mp hmul with ⟨h1, _⟩ | ⟨h1, _⟩
+    · exact Or.inl h1
+    · exact Or.inr h1
 
 /-- **Cox auxiliary Diophantine classification input.** Exercises 12.27-12.29
 classify the auxiliary equations and leave only the `X`-coordinates

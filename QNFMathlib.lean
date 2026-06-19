@@ -9,6 +9,7 @@ import QNFMathlib.Algebra.QuadraticAlgebra.Basic
 import QNFMathlib.Algebra.QuadraticAlgebra.Defs
 import QNFMathlib.Data.Int.ModFour
 import QNFMathlib.Data.Int.Parity
+import QNFMathlib.Data.Int.Square
 import QNFMathlib.Data.Int.Squarefree
 import QNFMathlib.FieldTheory.Galois.Basic
 import QNFMathlib.NumberTheory.DirichletCharacter.Kronecker
@@ -17,6 +18,7 @@ import QNFMathlib.NumberTheory.LegendreSymbol.KroneckerSymbolPeriodicity
 import QNFMathlib.NumberTheory.NumberField.ClassNumber
 import QNFMathlib.NumberTheory.RamificationInertia.Galois
 import QNFMathlib.NumberTheory.Zsqrtd.Basic
+import QNFMathlib.RingTheory.Coprime
 import QNFMathlib.RingTheory.PrincipalIdealDomain
 import QNFMathlib.RingTheory.Ideal.Span
 import QNFMathlib.RingTheory.Krull
