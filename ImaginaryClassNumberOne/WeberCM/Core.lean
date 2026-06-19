@@ -15,9 +15,12 @@ inert-prime branch of the Baker-Heegner-Stark theorem.  These declarations are
 interfaces: they name the deep mathematical facts without attempting to prove
 them in the final assembly file.
 
-The core `Heegner.WeberCM.Core` interface is intentionally independent of the
-reduced-forms backend.  Optional conductor-`2` assembly routes, such as the
-`Forms` route through reduced-form class numbers, should live in separate files.
+The core `Heegner.WeberCM.Core` interface depends on the shared conductor-`2`
+class-number statement in `Heegner.WeberCM.ConductorTwo.Basic`, where
+`ConductorTwoClassNumberThree` is currently stated by primitive reduced-form
+cardinality.  It remains independent of the heavier proof-route modules
+`Heegner.WeberCM.ConductorTwo.Forms`, `Heegner.WeberCM.ConductorTwo.Residue`,
+and `Heegner.WeberCM.ConductorTwo.Assembly`.
 
 ## Main definitions
 

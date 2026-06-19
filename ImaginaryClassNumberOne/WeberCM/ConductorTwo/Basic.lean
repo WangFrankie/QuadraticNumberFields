@@ -11,9 +11,9 @@ import QuadraticNumberFields.RingOfIntegers.Discriminant
 /-!
 # Basic Conductor-Two Weber/CM Setup
 
-This file contains the route-independent conductor-`2` statements used by the
-Weber/CM assembly: the class-number-three Prop, discriminant bridges,
-and the specialized order class-number formula interface.
+This file contains the shared conductor-`2` interface statements used by the
+Weber/CM assembly: the class-number-three Prop, discriminant bridges, and the
+specialized order class-number formula interface.
 -/
 
 attribute [-instance] DivisionRing.toRatAlgebra
