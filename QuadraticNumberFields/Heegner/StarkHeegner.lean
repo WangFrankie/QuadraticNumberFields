@@ -20,7 +20,9 @@ The easy direction — each Heegner number gives class number one — is proved 
 `QuadraticNumberFields.Heegner.ClassNumberOne` via Minkowski bounds and
 inertness of small primes. The forward direction is assembled from elementary
 ideal-theoretic reductions and the Cox-Weber inert-prime core in
-`QuadraticNumberFields.Heegner.Framework`.
+`QuadraticNumberFields.Heegner.Framework`. The inert-prime core still depends on
+two named inputs: the Weber/CM data provider and the Diophantine endgame
+`heegner_xy_solutions` for `Y ^ 2 = 2 * X * (X ^ 3 + 1)`.
 
 ## Reference
 
@@ -44,6 +46,9 @@ TODO roadmap for the remaining forward direction:
   odd fundamental-discriminant prime-shape sieve.
 * Weber/CM route: keep the inert-prime core routed through
   `Heegner.WeberData.Core`; this file should not import reduced forms directly.
+* Diophantine route: close `Heegner.Diophantine.heegner_xy_solutions`, the
+  remaining integer-equation endgame used after the Weber/CM provider supplies
+  `StarkHeegnerAlgebraicData`.
 * Forms-provider route: use `Heegner.WeberData.FormsProvider` only as an
   optional proof of the conductor-`2` class-number input `h(-4 * p) = 3`.
 * Order/Picard route: a later quadratic-order/Picard-group proof of Cox 7.24
@@ -75,7 +80,7 @@ theorem classNumber_eq_one_imp_mem_heegnerSet_of_mod_eight_eq_one
   rw [hd_eq]
   simp [heegnerSet]
 
-/-- **Baker-Heegner-Stark prime-family step.** After the genus-theory sieve has
+/-- **Baker-Heegner-Stark prime-family step.** After a prime-shape sieve has
 reduced the class-number-one problem to `d = -1`, `d = -2`, or `d = -p` with
 `p ≡ 3 (mod 4)` prime, the only deep input needed is the inert prime core
 `p ≡ 3 (mod 8)`.  The complementary case `p ≡ 7 (mod 8)` is the elementary
@@ -173,7 +178,8 @@ of the nine Heegner numbers `-1, -2, -3, -7, -11, -19, -43, -67, -163`.
 
 The reverse implication is `classNumber_eq_one_of_mem_heegnerSet`. The forward
 implication now factors through the ideal-theoretic prime-shape sieve; the
-remaining WIP input is an inert-prime Weber/CM provider. -/
+remaining WIP inputs are the inert-prime Weber/CM provider and the Diophantine
+endgame `heegner_xy_solutions`. -/
 theorem classNumber_eq_one_iff_mem_heegnerSet
     (hprovider : InertPrimeWeberDataProvider)
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : d < 0) :

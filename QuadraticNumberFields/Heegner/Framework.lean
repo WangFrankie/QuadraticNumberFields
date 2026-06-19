@@ -52,7 +52,7 @@ theorem inert_prime_core_of_weber_data
       (gamma_mem_heegnerGammaSet_of_xy_solution hdata.xyEquation hdata.gamma_eq))
 
 /-- **Baker-Heegner-Stark inert prime core.** This is the deep remaining input
-after the elementary ideal-theoretic reductions and the genus-theory sieve: for
+after the elementary ideal-theoretic reductions and the odd prime-shape sieve: for
 the inert-at-`2` prime family `d = -p`, `p ≡ 3 (mod 8)`, class number one
 forces `d` to be a Heegner number.
 
