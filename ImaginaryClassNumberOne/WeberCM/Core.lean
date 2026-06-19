@@ -7,16 +7,16 @@ import ImaginaryClassNumberOne.ClassNumberOne
 import ImaginaryClassNumberOne.Diophantine
 
 /-!
-# Weber Data Interface for the Baker-Heegner-Stark Proof
+# Weber/CM Interface for the Baker-Heegner-Stark Proof
 
 This file records the class-field-theoretic and Weber-function inputs in the
 inert-prime branch of the Baker-Heegner-Stark theorem.  These declarations are
 interfaces: they name the deep mathematical facts without attempting to prove
 them in the final assembly file.
 
-This core interface is intentionally independent of the reduced-forms backend.
-Optional providers, such as the `Forms` route through conductor-`2` reduced-form
-class numbers, should live in separate files.
+The core `Heegner.WeberCM.Core` interface is intentionally independent of the
+reduced-forms backend.  Optional conductor-`2` assembly routes, such as the
+`Forms` route through reduced-form class numbers, should live in separate files.
 
 ## Main definitions
 

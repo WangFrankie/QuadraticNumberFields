@@ -6,7 +6,7 @@ Authors: Frankie Wang
 import BinaryQuadraticForms.Cox.IdealRelation
 import FormClassGroup.ClassGroup.ClassNumber
 import FormClassGroup.ClassGroup.Law
-import ImaginaryClassNumberOne.WeberData.Core
+import ImaginaryClassNumberOne.WeberCM.Core
 import Mathlib.Algebra.Order.BigOperators.Group.Finset
 import QNFMathlib.Data.Int.Squarefree
 import QNFMathlib.RingTheory.Ideal.Span
@@ -14,14 +14,14 @@ import QuadraticNumberFields.RingOfIntegers.Discriminant
 import QNFMathlib.NumberTheory.LegendreSymbol.KroneckerSymbol
 
 /-!
-# Forms Provider for the Weber Data Interface
+# Conductor-Two Assembly for the Weber/CM Interface
 
 This file contains the reduced-forms route for supplying the conductor-`2`
 ring-class-number input used by the Baker-Heegner-Stark Weber/CM interface.
 
-The core Weber data interface remains independent of this file.  Import this
-module only when the proof route explicitly goes through primitive reduced
-binary quadratic forms.
+The core `Heegner.WeberCM.Core` interface remains independent of this file.
+Import `Heegner.WeberCM.ConductorTwo.Assembly` only when the proof route
+explicitly goes through primitive reduced binary quadratic forms.
 
 ## Main definitions
 
@@ -70,7 +70,7 @@ binary quadratic forms.
 * `conductorTwoFormClassNumberThree_of_order_class_number_formula`: the
   bridge from the Cox/order formula equality to Forms-side class-number data.
 * `ringClassNumberConductorTwoEqualsThree_of_forms`: the bridge from the Forms
-  provider to the core ring-class-number Prop.
+  route to the core ring-class-number Prop.
 * `formsInertPrimeWeberDataProvider`: the reduced-forms route packaged as the
   core inert-prime provider interface.
 -/

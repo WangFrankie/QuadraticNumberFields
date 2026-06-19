@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 import ImaginaryClassNumberOne.ClassNumberOne
-import ImaginaryClassNumberOne.WeberData.Core
+import ImaginaryClassNumberOne.WeberCM.Core
 
 /-!
 # Framework Layer for the Baker-Heegner-Stark Proof
