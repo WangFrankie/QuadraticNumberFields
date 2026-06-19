@@ -189,6 +189,46 @@ theorem three_le_conductor_two_reduced_forms_card
       BinaryQuadraticForm.three_le_card_enumPrimitiveReducedForms_neg_four_mul
         p m hp hm hm_ge hm_odd
 
+/-- In the inert branch, class number one for `ℚ(√-p)` is equivalent on the
+Forms side to a singleton reduced-form enumeration at field discriminant `-p`. -/
+theorem field_reduced_forms_card_eq_one_of_classNumber_one
+    (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
+    (hp : Nat.Prime p) (hp8 : p % 8 = 3)
+    (hclass : classNumberQsqrtd (-(p : ℤ)) = 1) :
+    (BinaryQuadraticForm.enumPrimitiveReducedForms (-(p : ℤ))).card = 1 := by
+  have hp_pos_int : (0 : ℤ) < (p : ℤ) := by exact_mod_cast hp.pos
+  have hdneg : -(p : ℤ) < 0 := neg_neg_iff_pos.mpr hp_pos_int
+  have hclass_forms := classNumberQsqrtd_eq_reducedForms_card (-(p : ℤ)) hdneg
+  rw [hclass] at hclass_forms
+  rw [BinaryQuadraticForm.fieldDiscriminant_neg_natCast_of_nat_mod_eight_eq_three hp8]
+    at hclass_forms
+  exact hclass_forms.symm
+
+/-- The remaining upper bound `h(-4p) ≤ 3`, combined with the three explicit
+conductor-`2` reduced forms, gives the exact conductor-`2` reduced-form count. -/
+theorem conductor_two_reduced_forms_card_eq_three_of_card_le_three
+    (p : ℕ) (hp : Nat.Prime p) (hp8 : p % 8 = 3) (hp_ne_three : p ≠ 3)
+    (hupper :
+      (BinaryQuadraticForm.enumPrimitiveReducedForms (-(4 * (p : ℤ)))).card ≤ 3) :
+    (BinaryQuadraticForm.enumPrimitiveReducedForms (-(4 * (p : ℤ)))).card = 3 :=
+  le_antisymm hupper (three_le_conductor_two_reduced_forms_card p hp hp8 hp_ne_three)
+
+/-- Class number one for the maximal order, plus the remaining conductor-`2`
+upper bound, gives the exact conductor-`2` reduced-form count. The class-number
+hypothesis is first transported to the field-discriminant reduced-form count,
+so this theorem is ready for either a coordinate upper-bound proof or a future
+quadratic-order/Picard proof. -/
+theorem conductor_two_reduced_forms_card_eq_three_of_classNumber_one_of_card_le_three
+    (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
+    (hp : Nat.Prime p) (hp8 : p % 8 = 3) (hp_ne_three : p ≠ 3)
+    (hclass : classNumberQsqrtd (-(p : ℤ)) = 1)
+    (hupper :
+      (BinaryQuadraticForm.enumPrimitiveReducedForms (-(4 * (p : ℤ)))).card ≤ 3) :
+    (BinaryQuadraticForm.enumPrimitiveReducedForms (-(4 * (p : ℤ)))).card = 3 := by
+  have _hfield :=
+    field_reduced_forms_card_eq_one_of_classNumber_one p hp hp8 hclass
+  exact conductor_two_reduced_forms_card_eq_three_of_card_le_three p hp hp8 hp_ne_three hupper
+
 /-- The finite inert-Heegner-prime reduced-form computation supplies
 Forms-side conductor-`2` class-number-three data. -/
 theorem conductor_two_form_class_number_three_of_mem_heegnerPrimeSet
@@ -206,6 +246,52 @@ theorem conductor_two_class_number_three_of_mem_heegnerPrimeSet
   hasRingClassNumberThreeAtConductorTwo_of_forms
     (conductor_two_form_class_number_three_of_mem_heegnerPrimeSet
       p hp_mem hp_ne_three)
+
+/-- A conductor-`2` reduced-form upper bound supplies Forms-side
+class-number-three data in the non-exceptional inert branch. -/
+theorem conductor_two_form_class_number_three_of_card_le_three
+    (p : ℕ) (hp : Nat.Prime p) (hp8 : p % 8 = 3) (hp_ne_three : p ≠ 3)
+    (hupper :
+      (BinaryQuadraticForm.enumPrimitiveReducedForms (-(4 * (p : ℤ)))).card ≤ 3) :
+    HasConductorTwoFormClassNumberThreeData p :=
+  hasConductorTwoFormClassNumberThreeData_of_reducedForms_card p
+    (conductor_two_reduced_forms_card_eq_three_of_card_le_three p hp hp8 hp_ne_three hupper)
+
+/-- Class number one plus a conductor-`2` reduced-form upper bound supplies
+Forms-side conductor-`2` class-number-three data. -/
+theorem conductor_two_form_class_number_three_of_classNumber_one_of_card_le_three
+    (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
+    (hp : Nat.Prime p) (hp8 : p % 8 = 3) (hp_ne_three : p ≠ 3)
+    (hclass : classNumberQsqrtd (-(p : ℤ)) = 1)
+    (hupper :
+      (BinaryQuadraticForm.enumPrimitiveReducedForms (-(4 * (p : ℤ)))).card ≤ 3) :
+    HasConductorTwoFormClassNumberThreeData p :=
+  hasConductorTwoFormClassNumberThreeData_of_reducedForms_card p
+    (conductor_two_reduced_forms_card_eq_three_of_classNumber_one_of_card_le_three
+      p hp hp8 hp_ne_three hclass hupper)
+
+/-- A conductor-`2` reduced-form upper bound supplies the core ring-class-number
+input in the non-exceptional inert branch. -/
+theorem conductor_two_class_number_three_of_card_le_three
+    (p : ℕ) (hp : Nat.Prime p) (hp8 : p % 8 = 3) (hp_ne_three : p ≠ 3)
+    (hupper :
+      (BinaryQuadraticForm.enumPrimitiveReducedForms (-(4 * (p : ℤ)))).card ≤ 3) :
+    HasRingClassNumberThreeAtConductorTwo p :=
+  hasRingClassNumberThreeAtConductorTwo_of_forms
+    (conductor_two_form_class_number_three_of_card_le_three p hp hp8 hp_ne_three hupper)
+
+/-- Class number one plus a conductor-`2` reduced-form upper bound supplies the
+core ring-class-number input in the non-exceptional inert branch. -/
+theorem conductor_two_class_number_three_of_classNumber_one_of_card_le_three
+    (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
+    (hp : Nat.Prime p) (hp8 : p % 8 = 3) (hp_ne_three : p ≠ 3)
+    (hclass : classNumberQsqrtd (-(p : ℤ)) = 1)
+    (hupper :
+      (BinaryQuadraticForm.enumPrimitiveReducedForms (-(4 * (p : ℤ)))).card ≤ 3) :
+    HasRingClassNumberThreeAtConductorTwo p :=
+  hasRingClassNumberThreeAtConductorTwo_of_forms
+    (conductor_two_form_class_number_three_of_classNumber_one_of_card_le_three
+      p hp hp8 hp_ne_three hclass hupper)
 
 /-- On the finite non-exceptional inert Heegner-prime table, the conductor-`2`
 reduced-form count agrees with the specialized order class-number formula. -/
