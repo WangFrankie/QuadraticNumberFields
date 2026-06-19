@@ -947,6 +947,25 @@ theorem genusFormula_of_oddGenusCharacterProduct_surjective_of_card_le
   dsimp [genusFormula]
   rw [hcard, card_oddGenusSignRelationSubgroup_of_discr_odd d hodd]
 
+/-- For odd fundamental discriminants (`d % 4 = 1`), surjectivity of the
+relation-subgroup-valued odd genus-character product proves the standard genus formula
+once the reverse cardinality inequality for the principal-genus quotient is known. -/
+theorem genusFormula_of_oddGenusCharacterProduct_surjective_of_mod_four_eq_one
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd_neg : d < 0)
+    (hd4 : d % 4 = 1)
+    (hdata : OddGenusCharacterData d)
+    (hrel : oddGenusProductRelation d hd_neg hdata)
+    (hsurj :
+      Function.Surjective (oddGenusCharacterProductToRelationSubgroup d hd_neg hdata hrel))
+    (hle : Nat.card (ClassGroup (𝓞 (Qsqrtd (d : ℚ))) ⧸ squareClassSubgroup d) ≤
+      Nat.card (oddGenusSignRelationSubgroup d)) :
+    genusFormula d := by
+  have hodd : RingOfIntegers.discrFormula d % 2 ≠ 0 := by
+    rw [RingOfIntegers.discrFormula_of_mod_four_eq_one hd4]
+    omega
+  exact genusFormula_of_oddGenusCharacterProduct_surjective_of_card_le
+    d hd_neg hodd hdata hrel hsurj hle
+
 /-- In the odd field-discriminant branch, the existing odd-prime genus-character
 interface implies the standard genus formula. -/
 theorem genusFormula_of_oddGenusCharacterData
@@ -958,6 +977,20 @@ theorem genusFormula_of_oddGenusCharacterData
     genusFormula d :=
   genusFormula_of_oddGenusCharacterProductToRelationSubgroup_bijective_of_discr_odd
     d hd_neg hodd hdata hrel hbij
+
+/-- For odd fundamental discriminants (`d % 4 = 1`), the existing odd-prime
+genus-character interface implies the standard genus formula. -/
+theorem genusFormula_of_oddGenusCharacterData_of_mod_four_eq_one
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd_neg : d < 0)
+    (hd4 : d % 4 = 1)
+    (hdata : OddGenusCharacterData d)
+    (hrel : oddGenusProductRelation d hd_neg hdata)
+    (hbij : Function.Bijective (oddGenusCharacterProductToRelationSubgroup d hd_neg hdata hrel)) :
+    genusFormula d := by
+  have hodd : RingOfIntegers.discrFormula d % 2 ≠ 0 := by
+    rw [RingOfIntegers.discrFormula_of_mod_four_eq_one hd4]
+    omega
+  exact genusFormula_of_oddGenusCharacterData d hd_neg hodd hdata hrel hbij
 
 /-- If the principal-genus quotient has the standard genus-theory cardinality,
 then the standard genus-theory divisibility follows from Lagrange's theorem. -/
