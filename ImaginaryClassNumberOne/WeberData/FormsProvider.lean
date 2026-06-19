@@ -37,6 +37,8 @@ binary quadratic forms.
   `Zsqrtd (-p) ↪ ZOnePlusSqrtdOverTwo (-p / 4)` in the inert branch.
 * `conductorTwoOrderIdealOfForm`: the Cox/order ideal in `Zsqrtd (-p)`
   attached to a primitive positive definite form of discriminant `-4p`.
+* `conductorTwoMaximalOrderIdealOfForm`: its extension to the half-integral
+  maximal-order model in the inert branch.
 * `conductor_two_reduced_forms_card_eq_three_of_mem_heegnerPrimeSet`: the
   finite-table reduced-form computation for the non-exceptional inert Heegner
   primes.
@@ -242,6 +244,36 @@ noncomputable def conductorTwoOrderIdealBasisOfForm
     (ne_of_gt Q.2.2.2.1) ?_ ?_
   · simpa using Int.two_mul_neg_ediv_two_of_even hb_even
   · simpa [BinaryQuadraticForm.HasDiscriminant, BinaryQuadraticForm.disc] using Q.2.1
+
+/-- Extension of the conductor-`2` Cox/order ideal from `Zsqrtd (-p)` to the
+half-integral maximal-order model in the inert branch. -/
+noncomputable def conductorTwoMaximalOrderIdealOfForm
+    (p : ℕ) (hp8 : p % 8 = 3)
+    (Q : BinaryQuadraticForm.PrimitivePositiveDefiniteForm (-(4 * (p : ℤ)))) :
+    Ideal (ZOnePlusSqrtdOverTwo (-(p : ℤ) / 4)) :=
+  Ideal.map (conductorTwoSuborderHom p hp8) (conductorTwoOrderIdealOfForm p Q)
+
+/-- The leading coefficient belongs to the maximal-order extension of the
+conductor-`2` Cox/order ideal. -/
+theorem self_mem_conductorTwoMaximalOrderIdealOfForm
+    (p : ℕ) (hp8 : p % 8 = 3)
+    (Q : BinaryQuadraticForm.PrimitivePositiveDefiniteForm (-(4 * (p : ℤ)))) :
+    (Q.1.a : ZOnePlusSqrtdOverTwo (-(p : ℤ) / 4)) ∈
+      conductorTwoMaximalOrderIdealOfForm p hp8 Q := by
+  simpa [conductorTwoMaximalOrderIdealOfForm, conductorTwoSuborderHom] using
+    Ideal.mem_map_of_mem (conductorTwoSuborderHom p hp8)
+      (self_mem_conductorTwoOrderIdealOfForm p Q)
+
+/-- The image of the second Cox/order generator belongs to the maximal-order
+extension ideal. -/
+theorem generator_mem_conductorTwoMaximalOrderIdealOfForm
+    (p : ℕ) (hp8 : p % 8 = 3)
+    (Q : BinaryQuadraticForm.PrimitivePositiveDefiniteForm (-(4 * (p : ℤ)))) :
+    (⟨(-Q.1.b) / 2 - 1, 2⟩ : ZOnePlusSqrtdOverTwo (-(p : ℤ) / 4)) ∈
+      conductorTwoMaximalOrderIdealOfForm p hp8 Q := by
+  simpa [conductorTwoMaximalOrderIdealOfForm, conductorTwoSuborderHom] using
+    Ideal.mem_map_of_mem (conductorTwoSuborderHom p hp8)
+      (generator_mem_conductorTwoOrderIdealOfForm p Q)
 
 /-- The conductor-`2` local factor in Cox's order class-number formula is `3`
 for the inert-prime branch `p ≡ 3 (mod 8)`. -/
