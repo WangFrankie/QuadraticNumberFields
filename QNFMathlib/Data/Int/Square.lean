@@ -135,6 +135,34 @@ theorem eq_zero_or_eq_one_or_neg_one_of_quartic_sub_sq_add_one_eq_sq
     · exact Or.inl h1
     · exact Or.inr h1
 
+/-- If `9 * A` is a square, then `A` is a square. -/
+-- Repository use: Cox's Exercise 12.29 divides a square identity by `3 ^ 2`
+-- after Exercise 12.28 shows that one factor is divisible by `3`.
+theorem exists_eq_sq_of_nine_mul_eq_sq {A z : ℤ} (h : 9 * A = z ^ 2) :
+    ∃ w : ℤ, A = w ^ 2 := by
+  have hzsq : (3 : ℤ) ∣ z ^ 2 := by
+    rw [← h]
+    exact ⟨3 * A, by ring⟩
+  obtain ⟨w, hw⟩ := Int.Prime.dvd_pow' Nat.prime_three hzsq
+  refine ⟨w, ?_⟩
+  subst z
+  ring_nf at h ⊢
+  nlinarith
+
+/-- **Euler descent input, Cox Exercise 12.28.**  If `b` and `c` are positive
+coprime integers and `b * c * (c ^ 2 - 3 * b * c + 3 * b ^ 2)` is a square,
+then either `c = b` or `3 ∣ c`.
+
+This is the reusable integer core of Euler's infinite descent for the rational
+points on `X ^ 3 + 1 = Z ^ 2`. -/
+-- Repository use: Cox's Exercise 12.29 applies this twice to classify the
+-- square branch `X ^ 3 + 1 = Z ^ 2`.
+theorem eq_or_three_dvd_of_pos_isCoprime_mul_quadratic_eq_sq
+    {b c z : ℤ} (hb : 0 < b) (hc : 0 < c) (hcop : IsCoprime b c)
+    (hprod : b * c * (c ^ 2 - 3 * b * c + 3 * b ^ 2) = z ^ 2) :
+    c = b ∨ (3 : ℤ) ∣ c := by
+  sorry
+
 /-- If two positive coprime integers multiply to twice a square, then one is a
 square and the other is twice a square. -/
 -- Repository use: Cox's Heegner Diophantine reduction applies this to the

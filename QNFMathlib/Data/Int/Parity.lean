@@ -123,3 +123,17 @@ theorem Int.odd_of_cube_eq_sq_add_one {n z : ℤ} (h : n ^ 3 = z ^ 2 + 1) :
     use 2 * k ^ 2
     ring
   exact (Int.odd_pow' (m := n) (n := 3) (by norm_num)).mp hn3_odd
+
+/-- If an integer cube is one more than twice a square, then the cube root is odd. -/
+-- Repository use: Cox's `ℤ[√-2]` auxiliary equation uses this to control common
+-- divisors of `1 ± z√-2`.
+theorem Int.odd_of_cube_eq_two_mul_sq_add_one {n z : ℤ}
+    (h : n ^ 3 = 2 * z ^ 2 + 1) :
+    Odd n := by
+  by_contra hn_odd
+  have hn_even : Even n := Int.not_odd_iff_even.mp hn_odd
+  have hn3_even : Even (n ^ 3) := (Int.even_pow' (m := n) (n := 3) (by norm_num)).mpr hn_even
+  have hrhs_odd : Odd (2 * z ^ 2 + 1) := by
+    use z ^ 2
+  rw [h] at hn3_even
+  exact (Int.not_even_iff_odd.mpr hrhs_odd) hn3_even
