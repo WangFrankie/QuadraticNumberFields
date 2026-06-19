@@ -3,13 +3,9 @@ Copyright (c) 2026 Frankie Wang. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
-import BinaryQuadraticForms.Cox.IdealRelation
-import Mathlib.Algebra.Order.BigOperators.Group.Finset
 import QNFMathlib.Data.Int.Squarefree
 import QNFMathlib.NumberTheory.LegendreSymbol.KroneckerSymbol
-import QNFMathlib.RingTheory.Ideal.Span
 import FormClassGroup.ClassGroup.ClassNumber
-import FormClassGroup.ClassGroup.Law
 import QuadraticNumberFields.RingOfIntegers.Discriminant
 
 /-!

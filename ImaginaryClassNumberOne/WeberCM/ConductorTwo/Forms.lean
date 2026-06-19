@@ -3,6 +3,7 @@ Copyright (c) 2026 Frankie Wang. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
+import Mathlib.Algebra.Order.BigOperators.Group.Finset
 import ImaginaryClassNumberOne.ClassNumberOne
 import ImaginaryClassNumberOne.Diophantine
 import ImaginaryClassNumberOne.WeberCM.ConductorTwo.Residue

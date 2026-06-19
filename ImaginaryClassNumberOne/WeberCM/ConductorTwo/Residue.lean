@@ -3,7 +3,10 @@ Copyright (c) 2026 Frankie Wang. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
+import BinaryQuadraticForms.Cox.IdealRelation
+import FormClassGroup.ClassGroup.Law
 import ImaginaryClassNumberOne.WeberCM.ConductorTwo.Basic
+import QNFMathlib.RingTheory.Ideal.Span
 
 /-!
 # Residue and Cover Machinery for the Conductor-Two Route
