@@ -594,6 +594,52 @@ theorem conductorTwoLeadingCoeffResidueUnitOfOddA_coe
         (((Q.1.a : ℤ) : 𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ)))) := by
   exact Ideal.Quotient.coe_unitOfSpanSupEqTop _ _ _
 
+/-- A chosen odd-leading-coefficient representative of a conductor-`2` form
+class. -/
+noncomputable def conductorTwoFormClassOddRepresentative
+    (p : ℕ) (C : BinaryQuadraticForm.FormClass (-(4 * (p : ℤ)))) :
+    BinaryQuadraticForm.PrimitivePositiveDefiniteForm (-(4 * (p : ℤ))) :=
+  BinaryQuadraticForm.oddARepresentativeOfDiscriminantNegFourMulNatCast p C
+
+/-- The chosen conductor-`2` representative has odd leading coefficient. -/
+theorem conductorTwoFormClassOddRepresentative_odd_a
+    (p : ℕ) (C : BinaryQuadraticForm.FormClass (-(4 * (p : ℤ)))) :
+    Odd (conductorTwoFormClassOddRepresentative p C).1.a :=
+  BinaryQuadraticForm.oddARepresentativeOfDiscriminantNegFourMulNatCast_odd_a p C
+
+/-- The chosen odd-leading representative represents the original form class. -/
+theorem conductorTwoFormClassOddRepresentative_mk_eq
+    (p : ℕ) (C : BinaryQuadraticForm.FormClass (-(4 * (p : ℤ)))) :
+    Quotient.mk (BinaryQuadraticForm.primitivePositiveDefiniteFormSetoid _)
+        (conductorTwoFormClassOddRepresentative p C) = C :=
+  BinaryQuadraticForm.oddARepresentativeOfDiscriminantNegFourMulNatCast_mk_eq p C
+
+/-- The residue unit attached to a conductor-`2` form class by choosing an
+odd-leading representative. -/
+noncomputable def conductorTwoFormClassResidueUnit
+    (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
+    (C : BinaryQuadraticForm.FormClass (-(4 * (p : ℤ)))) :
+    (𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ)) ⧸
+      Ideal.span ({(2 : 𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ)))} : Set _))ˣ :=
+  conductorTwoLeadingCoeffResidueUnitOfOddA p
+    (conductorTwoFormClassOddRepresentative p C)
+    (conductorTwoFormClassOddRepresentative_odd_a p C)
+
+@[simp]
+theorem conductorTwoFormClassResidueUnit_coe
+    (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
+    (C : BinaryQuadraticForm.FormClass (-(4 * (p : ℤ)))) :
+    (conductorTwoFormClassResidueUnit p C :
+      𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ)) ⧸
+        Ideal.span ({(2 : 𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ)))} : Set _)) =
+      Ideal.Quotient.mk
+        (Ideal.span ({(2 : 𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ)))} : Set _))
+        ((((conductorTwoFormClassOddRepresentative p C).1.a : ℤ) :
+          𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ)))) := by
+  exact conductorTwoLeadingCoeffResidueUnitOfOddA_coe p
+    (conductorTwoFormClassOddRepresentative p C)
+    (conductorTwoFormClassOddRepresentative_odd_a p C)
+
 /-- If the chosen conductor-`2` form representative has odd leading coefficient,
 then its extended maximal-order ideal is coprime to `(2)`. -/
 theorem span_two_sup_conductorTwoRingOfIntegersIdealOfForm_eq_top_of_odd_a
@@ -636,6 +682,20 @@ theorem map_conductorTwoRingOfIntegersIdealOfForm_quotient_span_two_eq_top_of_od
         (Ideal.span ({(2 : 𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ)))} : Set _))) = ⊤ := by
   exact (Ideal.Quotient.map_eq_top_iff_sup_eq_top _ _).2
     (span_two_sup_conductorTwoRingOfIntegersIdealOfForm_eq_top_of_odd_a p hp8 Q ha)
+
+/-- The extended ideal of the chosen odd-leading representative maps to `⊤`
+modulo `(2)`. -/
+theorem map_conductorTwoRingOfIntegersIdealOfForm_quotient_span_two_eq_top_of_formClass
+    (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
+    (hp8 : p % 8 = 3)
+    (C : BinaryQuadraticForm.FormClass (-(4 * (p : ℤ)))) :
+    (conductorTwoRingOfIntegersIdealOfForm p hp8
+      (conductorTwoFormClassOddRepresentative p C)).map
+      (Ideal.Quotient.mk
+        (Ideal.span ({(2 : 𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ)))} : Set _))) = ⊤ := by
+  exact map_conductorTwoRingOfIntegersIdealOfForm_quotient_span_two_eq_top_of_odd_a
+    p hp8 (conductorTwoFormClassOddRepresentative p C)
+    (conductorTwoFormClassOddRepresentative_odd_a p C)
 
 /-- Every conductor-`2` form has a properly equivalent representative whose
 extended maximal-order ideal is coprime to `(2)`. -/
@@ -792,6 +852,25 @@ theorem conductorTwoRingOfIntegersIdealClassOfFormClass_mk
         (Quotient.mk (BinaryQuadraticForm.primitivePositiveDefiniteFormSetoid _) Q) =
       conductorTwoRingOfIntegersIdealClassOfForm p hp8 Q :=
   rfl
+
+/-- The maximal-order ideal class of the chosen odd-leading representative is
+the canonical ideal-class image of the original form class. -/
+theorem conductorTwoRingOfIntegersIdealClassOfForm_oddRepresentative
+    (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
+    (hp8 : p % 8 = 3)
+    (C : BinaryQuadraticForm.FormClass (-(4 * (p : ℤ)))) :
+    conductorTwoRingOfIntegersIdealClassOfForm p hp8
+        (conductorTwoFormClassOddRepresentative p C) =
+      conductorTwoRingOfIntegersIdealClassOfFormClass p hp8 C := by
+  calc
+    conductorTwoRingOfIntegersIdealClassOfForm p hp8
+        (conductorTwoFormClassOddRepresentative p C) =
+        conductorTwoRingOfIntegersIdealClassOfFormClass p hp8
+          (Quotient.mk (BinaryQuadraticForm.primitivePositiveDefiniteFormSetoid _)
+            (conductorTwoFormClassOddRepresentative p C)) := by
+          rw [conductorTwoRingOfIntegersIdealClassOfFormClass_mk]
+    _ = conductorTwoRingOfIntegersIdealClassOfFormClass p hp8 C := by
+          rw [conductorTwoFormClassOddRepresentative_mk_eq]
 
 /-- Equality of the maximal-order ideal classes attached to two conductor-`2`
 forms is equivalent to the classical principal-span relation between the two
@@ -1091,6 +1170,45 @@ structure ConductorTwoIdealClassCoverData
         { Q : BinaryQuadraticForm.FormClass (-(4 * (p : ℤ))) //
           conductorTwoRingOfIntegersIdealClassOfFormClass p hp8 Q = C } ≤ 3
 
+/-- The chosen odd-leading representative of a form class in an ideal-class
+fiber still maps to that same ideal class. -/
+theorem conductorTwoFormClassOddRepresentative_mem_idealClassFiber
+    (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
+    (hp8 : p % 8 = 3)
+    (C : ClassGroup (𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ))))
+    (Q : { Q : BinaryQuadraticForm.FormClass (-(4 * (p : ℤ))) //
+      conductorTwoRingOfIntegersIdealClassOfFormClass p hp8 Q = C }) :
+    conductorTwoRingOfIntegersIdealClassOfForm p hp8
+        (conductorTwoFormClassOddRepresentative p Q.1) = C := by
+  rw [conductorTwoRingOfIntegersIdealClassOfForm_oddRepresentative, Q.2]
+
+/-- The residue-unit map on a fiber of the conductor-`2` ideal-class map.
+
+The remaining Cox/Picard kernel step is to prove this map is injective on each
+fiber; that injectivity is exactly the missing `fiberEmbedding` field below. -/
+noncomputable def conductorTwoIdealClassFiberResidueUnit
+    (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
+    (hp8 : p % 8 = 3)
+    (C : ClassGroup (𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ))))
+    (Q : { Q : BinaryQuadraticForm.FormClass (-(4 * (p : ℤ))) //
+      conductorTwoRingOfIntegersIdealClassOfFormClass p hp8 Q = C }) :
+    (𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ)) ⧸
+      Ideal.span ({(2 : 𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ)))} : Set _))ˣ :=
+  conductorTwoFormClassResidueUnit p Q.1
+
+@[simp]
+theorem conductorTwoIdealClassFiberResidueUnit_coe
+    (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
+    (hp8 : p % 8 = 3)
+    (C : ClassGroup (𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ))))
+    (Q : { Q : BinaryQuadraticForm.FormClass (-(4 * (p : ℤ))) //
+      conductorTwoRingOfIntegersIdealClassOfFormClass p hp8 Q = C }) :
+    (conductorTwoIdealClassFiberResidueUnit p hp8 C Q :
+      𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ)) ⧸
+        Ideal.span ({(2 : 𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ)))} : Set _)) =
+      conductorTwoFormClassResidueUnit p Q.1 :=
+  rfl
+
 /-- Picard-exact-sequence-shaped kernel data for the conductor-`2` extension map.
 
 The local target is the concrete unit group `(𝓞K / 2𝓞K)ˣ`.  The remaining
@@ -1107,6 +1225,18 @@ structure ConductorTwoIdealClassKernelData
         conductorTwoRingOfIntegersIdealClassOfFormClass p hp8 Q = C } ↪
           (𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ)) ⧸
             Ideal.span ({(2 : 𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ)))} : Set _))ˣ
+
+/-- Injectivity of the explicit residue-unit map on every ideal-class fiber
+constructs the conductor-`2` kernel data. -/
+noncomputable def conductor_two_ideal_class_kernel_data_of_fiberResidueUnit_injective
+    (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
+    (hp8 : p % 8 = 3)
+    (hinj : ∀ C : ClassGroup (𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ))),
+      Function.Injective (conductorTwoIdealClassFiberResidueUnit p hp8 C)) :
+    ConductorTwoIdealClassKernelData p hp8 where
+  fiberEmbedding := fun C =>
+    { toFun := conductorTwoIdealClassFiberResidueUnit p hp8 C
+      inj' := hinj C }
 
 /-- Kernel data gives the ideal-class fiber bound for the canonical
 conductor-`2` extension map. -/
@@ -1559,6 +1689,32 @@ theorem conductor_two_order_class_number_formula_of_classNumber_one_of_kernel_da
     p hp hp8 hp_ne_three hclass hkernel, hclass,
     conductor_two_order_class_number_formula_factor_eq_three p hp8]
   norm_num
+
+/-- Injectivity of the explicit residue-unit map on every fiber gives exactly
+three conductor-`2` primitive reduced forms in the class-number-one branch. -/
+theorem conductor_two_reduced_forms_card_eq_three_of_classNumber_one_of_fiberResidueUnit_injective
+    (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
+    (hp : Nat.Prime p) (hp8 : p % 8 = 3) (hp_ne_three : p ≠ 3)
+    (hclass : classNumberQsqrtd (-(p : ℤ)) = 1)
+    (hinj : ∀ C : ClassGroup (𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ))),
+      Function.Injective (conductorTwoIdealClassFiberResidueUnit p hp8 C)) :
+    (BinaryQuadraticForm.enumPrimitiveReducedForms (-(4 * (p : ℤ)))).card = 3 :=
+  conductor_two_reduced_forms_card_eq_three_of_classNumber_one_of_kernel_data
+    p hp hp8 hp_ne_three hclass
+    (conductor_two_ideal_class_kernel_data_of_fiberResidueUnit_injective p hp8 hinj)
+
+/-- In the class-number-one branch, injectivity of the explicit residue-unit map
+on every fiber supplies the Cox formula equality needed by the Forms provider. -/
+theorem conductor_two_order_class_number_formula_of_classNumber_one_of_fiberResidueUnit_injective
+    (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
+    (hp : Nat.Prime p) (hp8 : p % 8 = 3) (hp_ne_three : p ≠ 3)
+    (hclass : classNumberQsqrtd (-(p : ℤ)) = 1)
+    (hinj : ∀ C : ClassGroup (𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ))),
+      Function.Injective (conductorTwoIdealClassFiberResidueUnit p hp8 C)) :
+    ConductorTwoOrderClassNumberFormula p hp8 hp_ne_three :=
+  conductor_two_order_class_number_formula_of_classNumber_one_of_kernel_data
+    p hp hp8 hp_ne_three hclass
+    (conductor_two_ideal_class_kernel_data_of_fiberResidueUnit_injective p hp8 hinj)
 
 /-- Once the conductor-`2` order class-number formula is available, class
 number one for the maximal order and the inert local factor `3` give exactly

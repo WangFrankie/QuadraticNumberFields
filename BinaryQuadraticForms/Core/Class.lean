@@ -198,6 +198,40 @@ theorem exists_properEquivalent_odd_a_of_discriminant_neg_four_mul_natCast
     change Odd (transform Q.1 swapSL2Z).a
     simpa using hc_odd
 
+/-- Every form class of discriminant `-4p` has a representative whose leading
+coefficient is odd. -/
+theorem exists_odd_a_mk_eq_formClass_of_discriminant_neg_four_mul_natCast
+    {p : ℕ} (C : FormClass (-(4 * (p : ℤ)))) :
+    ∃ R : PrimitivePositiveDefiniteForm (-(4 * (p : ℤ))), Odd R.1.a ∧
+      Quotient.mk (primitivePositiveDefiniteFormSetoid _) R = C := by
+  induction C using Quotient.inductionOn with
+  | h Q =>
+      rcases exists_properEquivalent_odd_a_of_discriminant_neg_four_mul_natCast Q with
+        ⟨R, hQR, hRodd⟩
+      exact ⟨R, hRodd, (Quotient.sound hQR).symm⟩
+
+/-- A chosen odd-leading-coefficient representative for a form class of
+discriminant `-4p`. -/
+noncomputable def oddARepresentativeOfDiscriminantNegFourMulNatCast
+    (p : ℕ) (C : FormClass (-(4 * (p : ℤ)))) :
+    PrimitivePositiveDefiniteForm (-(4 * (p : ℤ))) :=
+  Classical.choose (exists_odd_a_mk_eq_formClass_of_discriminant_neg_four_mul_natCast C)
+
+/-- The chosen representative has odd leading coefficient. -/
+theorem oddARepresentativeOfDiscriminantNegFourMulNatCast_odd_a
+    (p : ℕ) (C : FormClass (-(4 * (p : ℤ)))) :
+    Odd (oddARepresentativeOfDiscriminantNegFourMulNatCast p C).1.a :=
+  (Classical.choose_spec
+    (exists_odd_a_mk_eq_formClass_of_discriminant_neg_four_mul_natCast C)).1
+
+/-- The chosen odd-leading representative represents the original form class. -/
+theorem oddARepresentativeOfDiscriminantNegFourMulNatCast_mk_eq
+    (p : ℕ) (C : FormClass (-(4 * (p : ℤ)))) :
+    Quotient.mk (primitivePositiveDefiniteFormSetoid _)
+        (oddARepresentativeOfDiscriminantNegFourMulNatCast p C) = C :=
+  (Classical.choose_spec
+    (exists_odd_a_mk_eq_formClass_of_discriminant_neg_four_mul_natCast C)).2
+
 /-- Imaginary squarefree parameters have negative field discriminant. -/
 theorem fieldDiscriminant_neg {d : ℤ} (hdneg : d < 0) :
     fieldDiscriminant d < 0 := by
