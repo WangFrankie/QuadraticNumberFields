@@ -58,10 +58,14 @@ binary quadratic forms.
 * `ConductorTwoIdealClassCoverData`: the order/Picard-shaped upper-bound
   interface, stated after extending conductor-`2` classes to maximal-order
   ideal classes.
-* `conductor_two_ideal_class_fiber_card_le_three`: the remaining order/Picard
-  fiber-bound input for the conductor-`2` route.
-* `has_conductor_two_ideal_class_cover_data`: the bridge from that fiber bound
-  to ideal-class cover data.
+* `ConductorTwoIdealClassKernelData`: the Picard-exact-sequence-shaped kernel
+  interface behind the conductor-`2` fiber bound.
+* `has_conductor_two_ideal_class_kernel_data`: the remaining order/Picard
+  kernel-data input for the conductor-`2` route.
+* `conductor_two_ideal_class_fiber_card_le_three`: the bridge from kernel data
+  to the ideal-class fiber bound.
+* `has_conductor_two_ideal_class_cover_data`: the bridge from the fiber bound to
+  ideal-class cover data.
 * `conductor_two_reduced_forms_card_le_three_mul_classNumber_of_cover`: the
   finite-fiber cover bridge from conductor-`2` reduced forms to the maximal-order
   class number.
@@ -916,6 +920,48 @@ def HasConductorTwoIdealClassCoverData
     (hp8 : p % 8 = 3) : Prop :=
   Nonempty (ConductorTwoIdealClassCoverData p hp8)
 
+/-- Picard-exact-sequence-shaped kernel data for the conductor-`2` extension map.
+
+The intended kernel is the local quotient in Cox's order class-number formula at
+the conductor prime `2`.  Proving this data is the remaining order/Picard input;
+the finite-cardinality bridge from this data to the fiber bound is closed below. -/
+structure ConductorTwoIdealClassKernelData
+    (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
+    (hp8 : p % 8 = 3) where
+  /-- The local kernel type controlling fibers of the maximal-order extension map. -/
+  kernel : Type
+  /-- The local kernel is finite. -/
+  finite_kernel : Finite kernel
+  /-- The conductor-`2` inert local kernel has at most three elements. -/
+  kernel_card_le_three : Nat.card kernel ≤ 3
+  /-- Every fiber of the conductor-`2` extension map injects into the local
+  kernel. -/
+  fiberEmbedding :
+    ∀ C : ClassGroup (𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ))),
+      { Q : BinaryQuadraticForm.FormClass (-(4 * (p : ℤ))) //
+        conductorTwoRingOfIntegersIdealClassOfFormClass p hp8 Q = C } ↪ kernel
+
+/-- There is conductor-`2` ideal-class kernel data for `p`. -/
+def HasConductorTwoIdealClassKernelData
+    (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
+    (hp8 : p % 8 = 3) : Prop :=
+  Nonempty (ConductorTwoIdealClassKernelData p hp8)
+
+/-- Kernel data gives the ideal-class fiber bound for the canonical
+conductor-`2` extension map. -/
+theorem conductor_two_ideal_class_fiber_card_le_three_of_kernel_data
+    (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
+    (hp8 : p % 8 = 3) (hkernel : ConductorTwoIdealClassKernelData p hp8)
+    (C : ClassGroup (𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ)))) :
+    Nat.card
+      { Q : BinaryQuadraticForm.FormClass (-(4 * (p : ℤ))) //
+        conductorTwoRingOfIntegersIdealClassOfFormClass p hp8 Q = C } ≤ 3 := by
+  haveI := hkernel.finite_kernel
+  exact le_trans
+    (Nat.card_le_card_of_injective (hkernel.fiberEmbedding C)
+      (hkernel.fiberEmbedding C).injective)
+    hkernel.kernel_card_le_three
+
 /-- Ideal-class-level conductor-`2` cover data supplies the quotient-level
 form-class cover by transporting maximal-order ideal classes back to
 field-discriminant form classes via Cox's equivalence. -/
@@ -1294,16 +1340,26 @@ theorem conductor_two_reduced_forms_card_order_class_number_formula_of_mem_heegn
   rw [hcard, hclass, hfactor]
   norm_num
 
-/-- **Conductor-lowering ideal-class fiber bound, conductor `2`.** In the inert
-prime family `d = -p`, the canonical extension map from conductor-`2` form
-classes of discriminant `-4p` to maximal-order ideal classes has fibers of size
-at most three.
+/-- **Conductor-lowering ideal-class kernel data, conductor `2`.** In the inert
+prime family `d = -p`, Cox's order class-number formula supplies a local kernel
+of size at most three controlling the fibers of the canonical extension map from
+conductor-`2` form classes to maximal-order ideal classes.
 
 This is the remaining mathematical input for the conductor-`2` ring/order/forms
 bridge.  The map itself is defined above by extending the concrete Cox/order
-ideal to the maximal order; this bound is the part supplied by Cox's order
+ideal to the maximal order; this kernel data is the part supplied by Cox's order
 class-number formula, Corollary 7.28, or an equivalent quadratic-order
 Picard-group computation for the order of conductor `2`. -/
+theorem has_conductor_two_ideal_class_kernel_data
+    (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
+    (hp : Nat.Prime p) (hp8 : p % 8 = 3) (hp_ne_three : p ≠ 3) :
+    HasConductorTwoIdealClassKernelData p hp8 := by
+  -- Cox 7.24 / Corollary 7.28, or an equivalent quadratic-order Picard-group
+  -- construction, belongs here. The quotient descent and representative-level
+  -- extension ideal relation are already closed above.
+  sorry
+
+/-- Kernel data gives the conductor-`2` ideal-class fiber bound. -/
 theorem conductor_two_ideal_class_fiber_card_le_three
     (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
     (hp : Nat.Prime p) (hp8 : p % 8 = 3) (hp_ne_three : p ≠ 3)
@@ -1311,10 +1367,9 @@ theorem conductor_two_ideal_class_fiber_card_le_three
     Nat.card
       { Q : BinaryQuadraticForm.FormClass (-(4 * (p : ℤ))) //
         conductorTwoRingOfIntegersIdealClassOfFormClass p hp8 Q = C } ≤ 3 := by
-  -- Cox 7.24 / Corollary 7.28, or an equivalent quadratic-order Picard-group
-  -- construction, belongs here. The quotient descent and representative-level
-  -- extension ideal relation are already closed above.
-  sorry
+  exact conductor_two_ideal_class_fiber_card_le_three_of_kernel_data p hp8
+    (Classical.choice
+      (has_conductor_two_ideal_class_kernel_data p hp hp8 hp_ne_three)) C
 
 /-- The canonical conductor-`2` ideal-class extension map supplies the
 ideal-class cover data once its fibers are known to have size at most three. -/
