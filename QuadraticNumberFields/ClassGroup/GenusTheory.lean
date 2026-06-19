@@ -1471,6 +1471,22 @@ theorem classNumber_eq_one_imp_exists_prime_of_oddGenusCharacterData
   classNumber_eq_one_imp_exists_prime_of_odd_discr d hd hodd
     (genusFormula_of_oddGenusCharacterData d hd hodd hdata hrel hbij) h
 
+/-- For odd fundamental discriminants (`d % 4 = 1`), the odd-prime genus-character
+interface is enough to reduce class number one to the prime-discriminant family. -/
+theorem classNumber_eq_one_imp_exists_prime_of_oddGenusCharacterData_of_mod_four_eq_one
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : d < 0)
+    (hd4 : d % 4 = 1)
+    (hdata : OddGenusCharacterData d)
+    (hrel : oddGenusProductRelation d hd hdata)
+    (hbij : Function.Bijective (oddGenusCharacterProductToRelationSubgroup d hd hdata hrel))
+    (h : NumberField.classNumber (Qsqrtd (d : ℚ)) = 1) :
+    ∃ p : ℕ, Nat.Prime p ∧ p % 4 = 3 ∧ d = -(p : ℤ) := by
+  have hodd : RingOfIntegers.discrFormula d % 2 ≠ 0 := by
+    rw [RingOfIntegers.discrFormula_of_mod_four_eq_one hd4]
+    omega
+  exact classNumber_eq_one_imp_exists_prime_of_oddGenusCharacterData
+    d hd hodd hdata hrel hbij h
+
 /-- In the odd field-discriminant branch, complete odd genus-formula data is enough
 to reduce class number one to the prime-discriminant family. -/
 theorem classNumber_eq_one_imp_exists_prime_of_oddGenusFormulaData
