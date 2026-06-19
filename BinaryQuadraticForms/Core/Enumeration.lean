@@ -42,9 +42,10 @@ instance decidableIsPrimitive (Q : BinaryQuadraticForm) :
   unfold IsPrimitive
   infer_instance
 
-/-- A simple computable search bound for reduced forms. -/
+/-- A computable search bound for reduced forms, using the Gauss-reduction
+inequality `3a² ≤ |D|`. -/
 def searchBound (D : ℤ) : ℕ :=
-  Nat.sqrt D.natAbs + 1
+  Nat.sqrt (D.natAbs / 3) + 1
 
 /-- A reduced positive definite form has its `a` coefficient within the
 enumeration search bound. -/
@@ -52,8 +53,9 @@ theorem a_natAbs_le_searchBound (Q : BinaryQuadraticForm)
     (hpos : Q.IsPositiveDefinite) (hred : Q.IsReduced) :
     Q.a.natAbs ≤ searchBound Q.disc := by
   have hbound := three_mul_a_natAbs_sq_le_disc_natAbs Q hpos hred
-  have hsq : Q.a.natAbs ^ 2 ≤ Q.disc.natAbs := by
-    nlinarith
+  have hsq : Q.a.natAbs ^ 2 ≤ Q.disc.natAbs / 3 := by
+    exact (Nat.le_div_iff_mul_le (by norm_num : 0 < 3)).mpr
+      (by simpa [Nat.mul_comm] using hbound)
   exact (Nat.le_sqrt'.mpr hsq).trans (Nat.le_succ _)
 
 /-- Positive `a` candidates up to the search bound. -/
@@ -325,9 +327,35 @@ theorem enumPrimitiveReducedFormsList_neg163_length :
     (enumPrimitiveReducedFormsList (-163)).length = 1 := by
   reduce_forms_count
 
+/-- The reduced primitive positive definite forms of discriminant `-44` are three. -/
+theorem enumPrimitiveReducedFormsList_neg44_length :
+    (enumPrimitiveReducedFormsList (-44)).length = 3 := by
+  reduce_forms_count
+
+/-- The reduced primitive positive definite forms of discriminant `-76` are three. -/
+theorem enumPrimitiveReducedFormsList_neg76_length :
+    (enumPrimitiveReducedFormsList (-76)).length = 3 := by
+  reduce_forms_count
+
+/-- The reduced primitive positive definite forms of discriminant `-172` are three. -/
+theorem enumPrimitiveReducedFormsList_neg172_length :
+    (enumPrimitiveReducedFormsList (-172)).length = 3 := by
+  reduce_forms_count
+
+/-- The reduced primitive positive definite forms of discriminant `-268` are three. -/
+theorem enumPrimitiveReducedFormsList_neg268_length :
+    (enumPrimitiveReducedFormsList (-268)).length = 3 := by
+  reduce_forms_count
+
+/-- The reduced primitive positive definite forms of discriminant `-652` are three. -/
+theorem enumPrimitiveReducedFormsList_neg652_length :
+    (enumPrimitiveReducedFormsList (-652)).length = 3 := by
+  reduce_forms_count
+
 -- Smoke checks used during development:
 -- `#guard (enumPrimitiveReducedFormsList (-20)).length == 2`
 -- `#guard (enumPrimitiveReducedFormsList (-163)).length == 1`
+-- `#guard (enumPrimitiveReducedFormsList (-652)).length == 3`
 
 end BinaryQuadraticForm
 end QuadraticNumberFields
