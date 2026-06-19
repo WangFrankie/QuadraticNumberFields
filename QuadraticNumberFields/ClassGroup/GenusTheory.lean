@@ -1060,6 +1060,25 @@ theorem genusFormula_iff_oddGenusCharacterProduct_ker_eq_bot_of_surjective
     exact genusFormula_of_oddGenusCharacterProduct_surjective_of_ker_eq_bot
       d hd_neg hodd hdata hrel hsurj hker
 
+/-- In the odd field-discriminant branch, once the relation-subgroup-valued odd
+genus-character product is surjective, the standard genus formula is equivalent to
+the principal-kernel statement: a class in `Cl / Cl²` whose odd-prime genus characters
+are all trivial is itself trivial. -/
+theorem genusFormula_iff_oddGenusPrincipalKernel_of_surjective
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd_neg : d < 0)
+    (hodd : RingOfIntegers.discrFormula d % 2 ≠ 0)
+    (hdata : OddGenusCharacterData d)
+    (hrel : oddGenusProductRelation d hd_neg hdata)
+    (hsurj :
+      Function.Surjective (oddGenusCharacterProductToRelationSubgroup d hd_neg hdata hrel)) :
+    genusFormula d ↔
+      ∀ C : ClassGroup (𝓞 (Qsqrtd (d : ℚ))) ⧸ squareClassSubgroup d,
+        (∀ P : {p // p ∈ oddPrimeDiscriminantDivisors d},
+          oddGenusCharacterProductOnSquareClassQuotient d hd_neg hdata C P = 1) → C = 1 := by
+  rw [genusFormula_iff_oddGenusCharacterProduct_ker_eq_bot_of_surjective
+    d hd_neg hodd hdata hrel hsurj]
+  rw [oddGenusCharacterProductToRelationSubgroup_ker_eq_bot_iff]
+
 /-- For odd fundamental discriminants (`d % 4 = 1`), surjectivity of the
 relation-subgroup-valued odd genus-character product proves the standard genus formula
 once the reverse cardinality inequality for the principal-genus quotient is known. -/
@@ -1112,6 +1131,26 @@ theorem genusFormula_iff_oddGenusCharacterProduct_ker_eq_bot_of_surjective_of_mo
     rw [RingOfIntegers.discrFormula_of_mod_four_eq_one hd4]
     omega
   exact genusFormula_iff_oddGenusCharacterProduct_ker_eq_bot_of_surjective
+    d hd_neg hodd hdata hrel hsurj
+
+/-- For odd fundamental discriminants (`d % 4 = 1`), once the odd genus-character
+product is surjective, the standard genus formula is equivalent to the principal-kernel
+statement for the odd-prime genus characters. -/
+theorem genusFormula_iff_oddGenusPrincipalKernel_of_surjective_of_mod_four_eq_one
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd_neg : d < 0)
+    (hd4 : d % 4 = 1)
+    (hdata : OddGenusCharacterData d)
+    (hrel : oddGenusProductRelation d hd_neg hdata)
+    (hsurj :
+      Function.Surjective (oddGenusCharacterProductToRelationSubgroup d hd_neg hdata hrel)) :
+    genusFormula d ↔
+      ∀ C : ClassGroup (𝓞 (Qsqrtd (d : ℚ))) ⧸ squareClassSubgroup d,
+        (∀ P : {p // p ∈ oddPrimeDiscriminantDivisors d},
+          oddGenusCharacterProductOnSquareClassQuotient d hd_neg hdata C P = 1) → C = 1 := by
+  have hodd : RingOfIntegers.discrFormula d % 2 ≠ 0 := by
+    rw [RingOfIntegers.discrFormula_of_mod_four_eq_one hd4]
+    omega
+  exact genusFormula_iff_oddGenusPrincipalKernel_of_surjective
     d hd_neg hodd hdata hrel hsurj
 
 /-- In the odd field-discriminant branch, the existing odd-prime genus-character
