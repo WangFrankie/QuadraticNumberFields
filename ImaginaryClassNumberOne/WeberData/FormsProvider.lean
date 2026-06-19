@@ -24,6 +24,8 @@ binary quadratic forms.
 * `conductor_two_reduced_forms_card_eq_three_of_mem_heegnerPrimeSet`: the
   finite-table reduced-form computation for the non-exceptional inert Heegner
   primes.
+* `three_le_conductor_two_reduced_forms_card`: the explicit lower bound coming
+  from three conductor-`2` reduced forms.
 * `conductor_two_reduced_forms_card_order_class_number_formula`: the explicit
   Cox/order class-number formula boundary for the conductor-`2` route.
 * `hasRingClassNumberThreeAtConductorTwo_of_forms`: the bridge from the Forms
@@ -160,6 +162,32 @@ theorem conductor_two_reduced_forms_card_eq_three_of_mem_heegnerPrimeSet
   · have hp' : p = 163 := by exact_mod_cast hp
     subst p
     exact BinaryQuadraticForm.enumPrimitiveReducedFormsList_neg652_length
+
+/-- In the non-exceptional inert prime branch, the conductor-`2` discriminant
+`-4p` has at least three primitive reduced positive definite forms.
+
+For `p = 11` this uses the finite table. For larger `p`, the three forms are
+`(1, 0, p)` and `(4, ±2, (p + 1) / 4)`, with the quotient represented by the
+integer `2 * (p / 8) + 1`. -/
+theorem three_le_conductor_two_reduced_forms_card
+    (p : ℕ) (hp : Nat.Prime p) (hp8 : p % 8 = 3) (hp_ne_three : p ≠ 3) :
+    3 ≤ (BinaryQuadraticForm.enumPrimitiveReducedForms (-(4 * (p : ℤ)))).card := by
+  by_cases hp11 : p = 11
+  · subst p
+    have hcard :=
+      conductor_two_reduced_forms_card_eq_three_of_mem_heegnerPrimeSet 11
+        (by norm_num [heegnerPrimeSet]) (by norm_num)
+    omega
+  · obtain ⟨m, hm, hm_ge, hm_odd⟩ :
+        ∃ m : ℤ, 4 * m = (p : ℤ) + 1 ∧ 4 ≤ m ∧ m % 2 = 1 := by
+      refine ⟨2 * (p / 8 : ℤ) + 1, ?_, ?_, ?_⟩
+      · omega
+      · have hp_div_ge : 2 ≤ p / 8 := by omega
+        omega
+      · omega
+    exact
+      BinaryQuadraticForm.three_le_card_enumPrimitiveReducedForms_neg_four_mul
+        p m hp hm hm_ge hm_odd
 
 /-- The finite inert-Heegner-prime reduced-form computation supplies
 Forms-side conductor-`2` class-number-three data. -/
