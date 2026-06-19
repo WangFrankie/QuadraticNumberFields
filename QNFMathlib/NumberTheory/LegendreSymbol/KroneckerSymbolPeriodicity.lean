@@ -101,7 +101,9 @@ private lemma jacobiSym_self_eq_natAbs_right_of_emod_four_eq_one (D : ℤ)
           rw [ZMod.χ₄_nat_three_mod_four hm4, hrec']
           ring
 
-private lemma kroneckerSymNat_eq_jacobiSym_natAbs_of_emod_four_eq_one (D : ℤ)
+/-- For discriminants `D ≡ 1 [ZMOD 4]`, the natural-denominator Kronecker symbol
+is the Jacobi symbol with denominator `|D|`. -/
+theorem kroneckerSymNat_eq_jacobiSym_natAbs_of_emod_four_eq_one (D : ℤ)
     (hD : D % 4 = 1) (n : ℕ) :
     kroneckerSymNat D n = jacobiSym n D.natAbs := by
   rcases eq_or_ne n 0 with rfl | hn0
@@ -389,3 +391,43 @@ theorem kroneckerSymNat_mul (D : ℤ) {m n : ℕ} (hm : m ≠ 0) (hn : n ≠ 0) 
     kroneckerSymNat_two_pow_mul_odd D kn hn',
     jacobiSym.mul_right' _ hm'0 hn'0, pow_add]
   ring
+
+private theorem kroneckerSymNat_list_prod (D : ℤ) :
+    ∀ l : List ℕ, (∀ p ∈ l, p ≠ 0) →
+      kroneckerSymNat D l.prod = (l.map (kroneckerSymNat D)).prod
+  | [], _ => by
+      simp [kroneckerSymNat, kroneckerTwo, jacobiSym.one_right]
+  | p :: l, h => by
+      have hp0 : p ≠ 0 := h p (by simp)
+      have hl0 : l.prod ≠ 0 := by
+        intro hzero
+        have hmem : 0 ∈ l := List.prod_eq_zero_iff.mp hzero
+        exact h 0 (by simp [hmem]) rfl
+      rw [List.prod_cons, List.map_cons, List.prod_cons]
+      rw [kroneckerSymNat_mul D hp0 hl0]
+      rw [kroneckerSymNat_list_prod D l]
+      intro q hq
+      exact h q (by simp [hq])
+
+/-- The Kronecker symbol of a nonzero natural denominator is the product of the
+Kronecker symbols over the denominator's prime factor list, with multiplicity. -/
+theorem kroneckerSymNat_eq_primeFactorsList_prod (D : ℤ) {n : ℕ} (hn : n ≠ 0) :
+    kroneckerSymNat D n = (n.primeFactorsList.map (kroneckerSymNat D)).prod := by
+  calc
+    kroneckerSymNat D n = kroneckerSymNat D n.primeFactorsList.prod := by
+      rw [Nat.prod_primeFactorsList hn]
+    _ = (n.primeFactorsList.map (kroneckerSymNat D)).prod :=
+      kroneckerSymNat_list_prod D n.primeFactorsList fun p hp =>
+        (Nat.prime_of_mem_primeFactorsList hp).ne_zero
+
+/-- If every prime factor of a nonzero natural denominator has Kronecker value `1`,
+then the Kronecker symbol of the whole denominator is `1`. -/
+theorem kroneckerSymNat_eq_one_of_forall_primeFactors_eq_one
+    (D : ℤ) {n : ℕ} (hn : n ≠ 0)
+    (h : ∀ p ∈ n.primeFactors, kroneckerSymNat D p = 1) :
+    kroneckerSymNat D n = 1 := by
+  rw [kroneckerSymNat_eq_primeFactorsList_prod D hn]
+  exact List.prod_eq_one (by
+    intro z hz
+    rcases List.mem_map.mp hz with ⟨p, hp, rfl⟩
+    exact h p ((Nat.mem_primeFactors_iff_mem_primeFactorsList).2 hp))

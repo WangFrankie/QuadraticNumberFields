@@ -5,9 +5,11 @@ Authors: Frankie Wang
 -/
 import Mathlib.NumberTheory.Multiplicity
 import Mathlib.NumberTheory.NumberField.ClassNumber
+import QNFMathlib.Data.Nat.Squarefree
 import QuadraticNumberFields.QuadraticField.Basic
 import QuadraticNumberFields.RingOfIntegers.Norm
 import QuadraticNumberFields.Splitting.Factorization
+import QuadraticNumberFields.Splitting.Qsqrtd.Kronecker
 import QuadraticNumberFields.Splitting.Qsqrtd.Two
 
 /-!
@@ -15,9 +17,9 @@ import QuadraticNumberFields.Splitting.Qsqrtd.Two
 
 This file collects small ideal-first reductions used in the class-number-one
 direction of the Baker--Heegner--Stark theorem.  The first reduction isolates
-the elementary norm obstruction in the even-discriminant branch: in the
-`d % 4 ≠ 1` integer-ring model, an algebraic integer of norm absolute value `2`
-can occur only for `d = -1` or `d = -2`.
+the elementary norm obstruction in the even-discriminant branch and the
+odd-discriminant prime-shape reduction used by the Baker-Heegner-Stark forward
+direction.
 -/
 
 open scoped NumberField
@@ -27,19 +29,15 @@ namespace Heegner
 
 attribute [-instance] DivisionRing.toRatAlgebra
 
-private theorem int_sq_ne_two (a : ℤ) : a ^ 2 ≠ 2 := by
+private theorem int_sq_ne_nat_prime {p : ℕ} (hp : p.Prime) (a : ℤ) :
+    a ^ 2 ≠ (p : ℤ) := by
   intro h
-  rcases Int.even_or_odd a with ⟨k, hk⟩ | hodd
-  · have hmod := congrArg (fun n : ℤ => n % 4) h
-    have ha4 : a ^ 2 % 4 = 0 := by
-      rw [hk]
-      have hsq : (k + k) ^ 2 = 4 * k ^ 2 := by ring
-      rw [hsq]
-      simp
-    omega
-  · have hmod := congrArg (fun n : ℤ => n % 4) h
-    have ha4 : a ^ 2 % 4 = 1 := Int.sq_mod_four_eq_one_of_odd hodd
-    omega
+  have hp_prime_int : Prime (p : ℤ) := Nat.prime_iff_prime_int.mp hp
+  have hsq : IsSquare (p : ℤ) := ⟨a, by simpa [pow_two] using h.symm⟩
+  exact hp_prime_int.not_isSquare hsq
+
+private theorem int_sq_ne_two (a : ℤ) : a ^ 2 ≠ 2 := by
+  exact int_sq_ne_nat_prime Nat.prime_two a
 
 private theorem nat_eq_two_of_sq_eq_four {n : ℕ} (h : 4 = n ^ 2) (hn : n ≠ 0) :
     n = 2 := by
@@ -228,6 +226,77 @@ theorem exists_algebraNorm_natAbs_eq_two_of_classNumber_eq_one_of_mod_eight_eq_o
     exact hnormP
   exact hnorm.symm.trans hP_abs
 
+/-- If a rational prime `q` divides the squarefree parameter `d`, then class
+number one forces an algebraic integer of norm absolute value `q`.
+
+This is the ramified-prime variant of the `2`-adic reductions above: `(q)`
+ramifies, the unique prime above `q` is principal when the class number is one,
+and the ramified prime-ideal norm is `q`. -/
+theorem exists_algebraNorm_natAbs_eq_prime_of_classNumber_eq_one_of_dvd
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (q : ℕ) [Fact q.Prime] (hqd : (q : ℤ) ∣ d)
+    (hclass : NumberField.classNumber (Qsqrtd (d : ℚ)) = 1) :
+    ∃ α : 𝓞 (Qsqrtd (d : ℚ)), (Algebra.norm ℤ α).natAbs = q := by
+  let O := 𝓞 (Qsqrtd (d : ℚ))
+  let p : Ideal ℤ := Ideal.span ({(q : ℤ)} : Set ℤ)
+  have hchar : ringChar ℤ ≠ 2 := by simp [ringChar.eq_zero]
+  have hpbot : p ≠ ⊥ := by
+    dsimp [p]
+    intro h
+    have hq0 : (q : ℤ) = 0 := Ideal.span_singleton_eq_bot.mp h
+    exact (Fact.out : Nat.Prime q).ne_zero (Nat.cast_eq_zero.mp hq0)
+  haveI : p.IsMaximal := by
+    dsimp [p]
+    exact PrincipalIdealRing.isMaximal_of_irreducible
+      ((Nat.prime_iff_prime_int.mp (Fact.out : Nat.Prime q)).irreducible)
+  have hram : Ideal.IsRamifiedIn p O := by
+    dsimp [p, O]
+    exact Splitting.isRamified_of_dvd d q hqd
+  obtain ⟨P, hPover, _hmap⟩ := Ideal.map_eq_sq_of_isRamifiedIn p O hchar hpbot hram
+  have hP_principal : P.IsPrincipal := by
+    have hPID : IsPrincipalIdealRing O :=
+      (NumberField.classNumber_eq_one_iff (K := Qsqrtd (d : ℚ))).mp hclass
+    letI : IsPrincipalIdealRing O := hPID
+    exact IsPrincipalIdealRing.principal P
+  obtain ⟨α, _hspan, hnorm⟩ :=
+    RingOfIntegers.absNorm_eq_natAbs_algebraNorm_of_isPrincipal (d := d) hP_principal
+  refine ⟨α, ?_⟩
+  have hP_abs : Ideal.absNorm P = q := by
+    letI : P.IsPrime := hPover.1
+    have hP_lies : P.LiesOver (Ideal.span ({(q : ℤ)} : Set ℤ)) := by
+      simpa [p] using hPover.2
+    letI : P.LiesOver (Ideal.span ({(q : ℤ)} : Set ℤ)) := hP_lies
+    have hram' :
+        Ideal.IsRamifiedIn (Ideal.span ({(q : ℤ)} : Set ℤ)) (𝓞 (Qsqrtd (d : ℚ))) := by
+      simpa [p, O] using hram
+    exact Splitting.absNorm_eq_prime_of_liesOver_of_isRamifiedIn d q hram'
+  exact hnorm.symm.trans hP_abs
+
+private theorem false_of_zOnePlusSqrtOverTwo_norm_eq_prime_of_four_mul_lt
+    {k d : ℤ} (hdk : d = 1 + 4 * k) (hdneg : d < 0)
+    {q : ℕ} (hq : q.Prime) (hsmall : 4 * (q : ℤ) < -d + 1)
+    {z : ZOnePlusSqrtdOverTwo k} (hnorm : QuadraticAlgebra.norm z = (q : ℤ)) :
+    False := by
+  have hcoord : z.re ^ 2 + z.re * z.im - k * z.im ^ 2 = (q : ℤ) := by
+    cases z
+    simpa [ZOnePlusSqrtdOverTwo.norm_mk] using hnorm
+  have hquad : (2 * z.re + z.im) ^ 2 - d * z.im ^ 2 = 4 * (q : ℤ) := by
+    rw [hdk]
+    nlinarith
+  by_cases him : z.im = 0
+  · have hre_sq : z.re ^ 2 = (q : ℤ) := by
+      rw [him] at hcoord
+      simpa using hcoord
+    exact int_sq_ne_nat_prime hq z.re hre_sq
+  · have him_sq_pos : 0 < z.im ^ 2 := sq_pos_of_ne_zero him
+    have him_sq_ge_one : 1 ≤ z.im ^ 2 := by omega
+    have hnegd_pos : 0 < -d := by omega
+    have hnegd_le_prod : -d ≤ (-d) * z.im ^ 2 := by nlinarith
+    have hprod_le : (-d) * z.im ^ 2 ≤ 4 * (q : ℤ) := by
+      nlinarith [sq_nonneg (2 * z.re + z.im)]
+    have hnegd_le : -d ≤ 4 * (q : ℤ) := le_trans hnegd_le_prod hprod_le
+    omega
+
 /-- In the `d % 4 ≠ 1` branch of the imaginary class-number-one problem, the only
 possibilities are the Gaussian and `√-2` fields. -/
 theorem eq_neg_one_or_eq_neg_two_of_classNumber_eq_one_of_mod_four_ne_one
@@ -245,6 +314,55 @@ theorem eq_neg_seven_of_classNumber_eq_one_of_mod_eight_eq_one
     d = -7 :=
   eq_neg_seven_of_exists_absNorm_eq_two_of_mod_eight_eq_one d hdneg hd8
     (exists_algebraNorm_natAbs_eq_two_of_classNumber_eq_one_of_mod_eight_eq_one d hd8 hclass)
+
+/-- In the odd fundamental-discriminant branch `d % 4 = 1`, class number one
+forces the squarefree parameter to be a negative prime `-p` with `p ≡ 3 (mod 4)`.
+
+The proof is ideal-theoretic. If `|d|` had more than one prime factor, the
+general squarefree arithmetic lemma gives a ramified prime `q ∣ d` with
+`4q < |d| + 1`. Class number one makes the prime above `q` principal, producing
+an algebraic integer of norm `q`; the half-integral norm equation then contradicts
+the smallness bound. -/
+theorem classNumber_eq_one_imp_exists_prime_of_mod_four_eq_one
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : d < 0) (hd4 : d % 4 = 1)
+    (hclass : NumberField.classNumber (Qsqrtd (d : ℚ)) = 1) :
+    ∃ p : ℕ, p.Prime ∧ p % 4 = 3 ∧ d = -(p : ℤ) := by
+  have hsq_nat : Squarefree d.natAbs := Int.squarefree_natAbs.mpr (Fact.out : Squarefree d)
+  have hodd_int : Odd d := by
+    rw [Int.odd_iff]
+    omega
+  have hodd_nat : Odd d.natAbs := Int.natAbs_odd.mpr hodd_int
+  have hdnat : (d.natAbs : ℤ) = -d := Int.ofNat_natAbs_of_nonpos (by omega)
+  have hgt : 1 < d.natAbs := by omega
+  by_cases hprime : d.natAbs.Prime
+  · refine ⟨d.natAbs, hprime, ?_, ?_⟩
+    · omega
+    · omega
+  · obtain ⟨q, hqprime, hq_dvd_nat, hsmall_nat⟩ :=
+      Nat.exists_prime_dvd_and_four_mul_lt_succ_of_squarefree_of_odd_of_not_prime
+        hsq_nat hodd_nat hgt hprime
+    haveI : Fact q.Prime := ⟨hqprime⟩
+    have hq_dvd_d : (q : ℤ) ∣ d := by
+      rw [← Int.dvd_natAbs]
+      exact Int.natCast_dvd_natCast.mpr hq_dvd_nat
+    obtain ⟨α, hαnorm_abs⟩ :=
+      exists_algebraNorm_natAbs_eq_prime_of_classNumber_eq_one_of_dvd d q hq_dvd_d hclass
+    have hnorm_nonneg : 0 ≤ Algebra.norm ℤ α :=
+      RingOfIntegers.algebraNorm_nonneg_of_neg d hd α
+    have hnorm_eq_q : Algebra.norm ℤ α = (q : ℤ) := by
+      have hnat := Int.natAbs_of_nonneg hnorm_nonneg
+      omega
+    obtain ⟨k, hdk⟩ := RingOfIntegers.exists_k_of_mod_four_eq_one hd4
+    have hz_norm :
+        QuadraticAlgebra.norm
+          (RingOfIntegers.ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_eq d k hdk α) =
+            (q : ℤ) := by
+      rw [← RingOfIntegers.algebraNorm_eq_zOnePlusSqrtOverTwo_norm_of_eq d k hdk α]
+      exact hnorm_eq_q
+    have hsmall_int : 4 * (q : ℤ) < -d + 1 := by omega
+    exact False.elim
+      (false_of_zOnePlusSqrtOverTwo_norm_eq_prime_of_four_mul_lt hdk hd hqprime
+        hsmall_int hz_norm)
 
 end Heegner
 end QuadraticNumberFields
