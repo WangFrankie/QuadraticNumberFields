@@ -3,6 +3,7 @@ Copyright (c) 2026 Frankie Wang. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
+import BinaryQuadraticForms.Cox.IdealRelation
 import FormClassGroup.ClassGroup.ClassNumber
 import FormClassGroup.ClassGroup.Law
 import ImaginaryClassNumberOne.WeberData.Core
@@ -34,6 +35,8 @@ binary quadratic forms.
   the same bridge stated using `NumberField.discr`.
 * `conductorTwoSuborderHom`: the concrete conductor-`2` suborder inclusion
   `Zsqrtd (-p) ↪ ZOnePlusSqrtdOverTwo (-p / 4)` in the inert branch.
+* `conductorTwoOrderIdealOfForm`: the Cox/order ideal in `Zsqrtd (-p)`
+  attached to a primitive positive definite form of discriminant `-4p`.
 * `conductor_two_reduced_forms_card_eq_three_of_mem_heegnerPrimeSet`: the
   finite-table reduced-form computation for the non-exceptional inert Heegner
   primes.
@@ -202,6 +205,43 @@ theorem mem_range_conductorTwoSuborderHom_iff_even_im
   · rintro ⟨b, hb⟩
     refine ⟨⟨w.re + b, b⟩, ?_⟩
     ext <;> simp [conductorTwoSuborderHom, hb]
+
+/-- The Cox/order ideal in the concrete conductor-`2` order `Zsqrtd (-p)`
+attached to a primitive positive definite form of discriminant `-4p`.
+
+This is the order-level object whose extension to the maximal order should
+underlie the quotient-level cover map `ConductorTwoFormClassCoverData`. -/
+noncomputable def conductorTwoOrderIdealOfForm
+    (p : ℕ) (Q : BinaryQuadraticForm.PrimitivePositiveDefiniteForm (-(4 * (p : ℤ)))) :
+    Ideal (Zsqrtd (-(p : ℤ))) :=
+  CoxIdealRelation.coxIdeal (-(p : ℤ)) 0 Q.1.a ((-Q.1.b) / 2)
+
+/-- The leading coefficient belongs to the conductor-`2` Cox/order ideal. -/
+theorem self_mem_conductorTwoOrderIdealOfForm
+    (p : ℕ) (Q : BinaryQuadraticForm.PrimitivePositiveDefiniteForm (-(4 * (p : ℤ)))) :
+    (Q.1.a : Zsqrtd (-(p : ℤ))) ∈ conductorTwoOrderIdealOfForm p Q := by
+  exact CoxIdealRelation.self_mem_coxIdeal (-(p : ℤ)) 0 Q.1.a ((-Q.1.b) / 2)
+
+/-- The second Cox generator belongs to the conductor-`2` Cox/order ideal. -/
+theorem generator_mem_conductorTwoOrderIdealOfForm
+    (p : ℕ) (Q : BinaryQuadraticForm.PrimitivePositiveDefiniteForm (-(4 * (p : ℤ)))) :
+    (⟨(-Q.1.b) / 2, 1⟩ : Zsqrtd (-(p : ℤ))) ∈ conductorTwoOrderIdealOfForm p Q := by
+  exact Ideal.subset_span (by simp)
+
+/-- The generic Cox basis specialized to the conductor-`2` order ideal attached
+to a form of discriminant `-4p`. -/
+noncomputable def conductorTwoOrderIdealBasisOfForm
+    (p : ℕ) (Q : BinaryQuadraticForm.PrimitivePositiveDefiniteForm (-(4 * (p : ℤ)))) :
+    Module.Basis (Fin 2) ℤ (conductorTwoOrderIdealOfForm p Q) := by
+  have hb_even : Even Q.1.b :=
+    BinaryQuadraticForm.even_b_of_hasDiscriminant_neg_four_mul_natCast Q.2.1
+  change Module.Basis (Fin 2) ℤ
+    (CoxIdealRelation.coxIdeal (-(p : ℤ)) 0 Q.1.a ((-Q.1.b) / 2))
+  refine CoxIdealRelation.coxIdealBasis (DD := -(p : ℤ)) (bb := 0)
+    (A := Q.1.a) (B := Q.1.b) (C := Q.1.c) (u := (-Q.1.b) / 2)
+    (ne_of_gt Q.2.2.2.1) ?_ ?_
+  · simpa using Int.two_mul_neg_ediv_two_of_even hb_even
+  · simpa [BinaryQuadraticForm.HasDiscriminant, BinaryQuadraticForm.disc] using Q.2.1
 
 /-- The conductor-`2` local factor in Cox's order class-number formula is `3`
 for the inert-prime branch `p ≡ 3 (mod 8)`. -/
