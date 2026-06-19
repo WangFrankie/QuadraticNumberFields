@@ -39,6 +39,8 @@ binary quadratic forms.
   attached to a primitive positive definite form of discriminant `-4p`.
 * `conductorTwoMaximalOrderIdealOfForm`: its extension to the half-integral
   maximal-order model in the inert branch.
+* `conductorTwoRingOfIntegersIdealOfForm`: the same extended ideal transported
+  to `𝓞 (Qsqrtd (-p))`, ready to define a maximal-order ideal class.
 * `conductor_two_reduced_forms_card_eq_three_of_mem_heegnerPrimeSet`: the
   finite-table reduced-form computation for the non-exceptional inert Heegner
   primes.
@@ -51,6 +53,13 @@ binary quadratic forms.
   on finite reduced-form representative types.
 * `ConductorTwoFormClassCoverData`: the upper-bound interface stated on
   primitive positive definite form classes, closer to the Cox/order map.
+* `inertFieldFormClassEquivClassGroup`: Cox's field-discriminant equivalence
+  specialized to the inert branch, where the field discriminant is `-p`.
+* `ConductorTwoIdealClassCoverData`: the order/Picard-shaped upper-bound
+  interface, stated after extending conductor-`2` classes to maximal-order
+  ideal classes.
+* `has_conductor_two_ideal_class_cover_data`: the remaining ideal-class
+  conductor-lowering boundary for the conductor-`2` route.
 * `conductor_two_reduced_forms_card_le_three_mul_classNumber_of_cover`: the
   finite-fiber cover bridge from conductor-`2` reduced forms to the maximal-order
   class number.
@@ -230,6 +239,22 @@ theorem generator_mem_conductorTwoOrderIdealOfForm
     (⟨(-Q.1.b) / 2, 1⟩ : Zsqrtd (-(p : ℤ))) ∈ conductorTwoOrderIdealOfForm p Q := by
   exact Ideal.subset_span (by simp)
 
+/-- The conductor-`2` Cox/order ideal attached to a positive definite form is
+nonzero. -/
+theorem conductorTwoOrderIdealOfForm_ne_bot
+    (p : ℕ) (Q : BinaryQuadraticForm.PrimitivePositiveDefiniteForm (-(4 * (p : ℤ)))) :
+    conductorTwoOrderIdealOfForm p Q ≠ ⊥ := by
+  intro hbot
+  have hmem := self_mem_conductorTwoOrderIdealOfForm p Q
+  rw [hbot] at hmem
+  have ha_zero : Q.1.a = 0 := by
+    have hzero : (Q.1.a : Zsqrtd (-(p : ℤ))) = 0 := by
+      simpa [Ideal.mem_bot] using hmem
+    have hre := congrArg QuadraticAlgebra.re hzero
+    simpa using hre
+  have hpos : 0 < Q.1.a := Q.2.2.2.1
+  omega
+
 /-- The generic Cox basis specialized to the conductor-`2` order ideal attached
 to a form of discriminant `-4p`. -/
 noncomputable def conductorTwoOrderIdealBasisOfForm
@@ -274,6 +299,123 @@ theorem generator_mem_conductorTwoMaximalOrderIdealOfForm
   simpa [conductorTwoMaximalOrderIdealOfForm, conductorTwoSuborderHom] using
     Ideal.mem_map_of_mem (conductorTwoSuborderHom p hp8)
       (generator_mem_conductorTwoOrderIdealOfForm p Q)
+
+/-- The maximal-order extension of the conductor-`2` Cox/order ideal is
+nonzero. -/
+theorem conductorTwoMaximalOrderIdealOfForm_ne_bot
+    (p : ℕ) (hp8 : p % 8 = 3)
+    (Q : BinaryQuadraticForm.PrimitivePositiveDefiniteForm (-(4 * (p : ℤ)))) :
+    conductorTwoMaximalOrderIdealOfForm p hp8 Q ≠ ⊥ := by
+  intro hbot
+  have hmem := self_mem_conductorTwoMaximalOrderIdealOfForm p hp8 Q
+  rw [hbot] at hmem
+  have ha_zero : Q.1.a = 0 := by
+    have hzero :
+        (Q.1.a : ZOnePlusSqrtdOverTwo (-(p : ℤ) / 4)) = 0 := by
+      simpa [Ideal.mem_bot] using hmem
+    have hre := congrArg QuadraticAlgebra.re hzero
+    simpa using hre
+  have hpos : 0 < Q.1.a := Q.2.2.2.1
+  omega
+
+/-- The maximal-order extension ideal, transported from the half-integral model
+to the actual ring of integers of `ℚ(√-p)`. -/
+noncomputable def conductorTwoRingOfIntegersIdealOfForm
+    (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
+    (hp8 : p % 8 = 3)
+    (Q : BinaryQuadraticForm.PrimitivePositiveDefiniteForm (-(4 * (p : ℤ)))) :
+    Ideal (𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ))) :=
+  Ideal.comap
+    (RingOfIntegers.ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one
+      (-(p : ℤ)) (Int.neg_natCast_emod_four_eq_one_of_nat_mod_eight_eq_three hp8)).toRingHom
+    (conductorTwoMaximalOrderIdealOfForm p hp8 Q)
+
+/-- The transported leading coefficient belongs to the ring-of-integers ideal
+attached to a conductor-`2` form. -/
+theorem self_mem_conductorTwoRingOfIntegersIdealOfForm
+    (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
+    (hp8 : p % 8 = 3)
+    (Q : BinaryQuadraticForm.PrimitivePositiveDefiniteForm (-(4 * (p : ℤ)))) :
+    let e := RingOfIntegers.ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one
+      (-(p : ℤ)) (Int.neg_natCast_emod_four_eq_one_of_nat_mod_eight_eq_three hp8)
+    e.symm ((Q.1.a : ℤ) : ZOnePlusSqrtdOverTwo (-(p : ℤ) / 4)) ∈
+      conductorTwoRingOfIntegersIdealOfForm p hp8 Q := by
+  intro e
+  change e (e.symm ((Q.1.a : ℤ) : ZOnePlusSqrtdOverTwo (-(p : ℤ) / 4))) ∈
+    conductorTwoMaximalOrderIdealOfForm p hp8 Q
+  rw [RingEquiv.apply_symm_apply]
+  exact self_mem_conductorTwoMaximalOrderIdealOfForm p hp8 Q
+
+/-- The transported second Cox/order generator belongs to the ring-of-integers
+ideal attached to a conductor-`2` form. -/
+theorem generator_mem_conductorTwoRingOfIntegersIdealOfForm
+    (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
+    (hp8 : p % 8 = 3)
+    (Q : BinaryQuadraticForm.PrimitivePositiveDefiniteForm (-(4 * (p : ℤ)))) :
+    let e := RingOfIntegers.ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one
+      (-(p : ℤ)) (Int.neg_natCast_emod_four_eq_one_of_nat_mod_eight_eq_three hp8)
+    e.symm (⟨(-Q.1.b) / 2 - 1, 2⟩ : ZOnePlusSqrtdOverTwo (-(p : ℤ) / 4)) ∈
+      conductorTwoRingOfIntegersIdealOfForm p hp8 Q := by
+  intro e
+  change e (e.symm (⟨(-Q.1.b) / 2 - 1, 2⟩ :
+      ZOnePlusSqrtdOverTwo (-(p : ℤ) / 4))) ∈
+    conductorTwoMaximalOrderIdealOfForm p hp8 Q
+  rw [RingEquiv.apply_symm_apply]
+  exact generator_mem_conductorTwoMaximalOrderIdealOfForm p hp8 Q
+
+/-- The ring-of-integers ideal attached to a conductor-`2` form is nonzero. -/
+theorem conductorTwoRingOfIntegersIdealOfForm_ne_zero
+    (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
+    (hp8 : p % 8 = 3)
+    (Q : BinaryQuadraticForm.PrimitivePositiveDefiniteForm (-(4 * (p : ℤ)))) :
+    conductorTwoRingOfIntegersIdealOfForm p hp8 Q ≠ 0 := by
+  let e := RingOfIntegers.ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one
+    (-(p : ℤ)) (Int.neg_natCast_emod_four_eq_one_of_nat_mod_eight_eq_three hp8)
+  let x : 𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ)) :=
+    e.symm (((Q.1.a : ℤ) : ZOnePlusSqrtdOverTwo (-(p : ℤ) / 4)))
+  have hxmem : x ∈ conductorTwoRingOfIntegersIdealOfForm p hp8 Q := by
+    change (e.symm (((Q.1.a : ℤ) : ZOnePlusSqrtdOverTwo (-(p : ℤ) / 4)))) ∈
+      conductorTwoRingOfIntegersIdealOfForm p hp8 Q
+    exact self_mem_conductorTwoRingOfIntegersIdealOfForm p hp8 Q
+  intro hI
+  have hxzero : x = 0 := by
+    have hxmem0 : x ∈ (0 : Ideal (𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ)))) := by
+      simpa [hI] using hxmem
+    simpa using hxmem0
+  have haZ :
+      ((Q.1.a : ℤ) : ZOnePlusSqrtdOverTwo (-(p : ℤ) / 4)) = 0 := by
+    let aZ : ZOnePlusSqrtdOverTwo (-(p : ℤ) / 4) :=
+      ((Q.1.a : ℤ) : ZOnePlusSqrtdOverTwo (-(p : ℤ) / 4))
+    change aZ = 0
+    calc
+      aZ = e x := by
+        dsimp [x, aZ]
+        exact (e.apply_symm_apply aZ).symm
+      _ = e 0 := congrArg e hxzero
+      _ = 0 := by simpa using e.map_zero
+  have ha0 : Q.1.a = 0 := by
+    simpa using congrArg QuadraticAlgebra.re haZ
+  exact (ne_of_gt Q.2.2.2.1) ha0
+
+/-- The ring-of-integers ideal attached to a conductor-`2` form, packaged as a
+nonzero ideal for `ClassGroup.mk0`. -/
+noncomputable def conductorTwoRingOfIntegersNonzeroIdealOfForm
+    (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
+    (hp8 : p % 8 = 3)
+    (Q : BinaryQuadraticForm.PrimitivePositiveDefiniteForm (-(4 * (p : ℤ)))) :
+    nonZeroDivisors (Ideal (𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ)))) :=
+  ⟨conductorTwoRingOfIntegersIdealOfForm p hp8 Q,
+    mem_nonZeroDivisors_iff_ne_zero.mpr
+      (conductorTwoRingOfIntegersIdealOfForm_ne_zero p hp8 Q)⟩
+
+/-- The maximal-order ideal class attached to a conductor-`2` form by extending
+its Cox/order ideal to `𝓞 (Qsqrtd (-p))`. -/
+noncomputable def conductorTwoRingOfIntegersIdealClassOfForm
+    (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
+    (hp8 : p % 8 = 3)
+    (Q : BinaryQuadraticForm.PrimitivePositiveDefiniteForm (-(4 * (p : ℤ)))) :
+    ClassGroup (𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ))) :=
+  ClassGroup.mk0 (conductorTwoRingOfIntegersNonzeroIdealOfForm p hp8 Q)
 
 /-- The conductor-`2` local factor in Cox's order class-number formula is `3`
 for the inert-prime branch `p ≡ 3 (mod 8)`. -/
@@ -404,6 +546,20 @@ theorem field_reduced_forms_card_eq_classNumberQsqrtd
     at hclass_forms
   exact hclass_forms.symm
 
+/-- Cox's field-discriminant form-class equivalence specialized to the inert
+branch `d = -p`, where `fieldDiscriminant (-p) = -p`. -/
+noncomputable def inertFieldFormClassEquivClassGroup
+    (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
+    (hp : Nat.Prime p) (hp8 : p % 8 = 3) :
+    BinaryQuadraticForm.FormClass (-(p : ℤ)) ≃
+      ClassGroup (𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ))) := by
+  have hp_pos_int : (0 : ℤ) < (p : ℤ) := by exact_mod_cast hp.pos
+  have hdneg : -(p : ℤ) < 0 := by omega
+  exact
+    (Equiv.cast (congrArg BinaryQuadraticForm.FormClass
+      (BinaryQuadraticForm.fieldDiscriminant_neg_natCast_of_nat_mod_eight_eq_three hp8))).symm.trans
+      (BinaryQuadraticForm.formClassEquivClassGroup (d := -(p : ℤ)) hdneg)
+
 /-- In the inert branch, class number one for `ℚ(√-p)` gives a singleton
 reduced-form enumeration at field discriminant `-p`. -/
 theorem field_reduced_forms_card_eq_one_of_classNumber_one
@@ -508,6 +664,84 @@ structure ConductorTwoFormClassCoverData (p : ℕ) where
 /-- There is quotient-level conductor-`2` form-class cover data for `p`. -/
 def HasConductorTwoFormClassCoverData (p : ℕ) : Prop :=
   Nonempty (ConductorTwoFormClassCoverData p)
+
+/-- Ideal-class-level conductor-`2` finite-cover data.
+
+This is the order/Picard-shaped version of the remaining upper-bound step:
+extend a conductor-`2` form class to a maximal-order ideal class, with fibers of
+size at most three.  The bridge back to `ConductorTwoFormClassCoverData` is a
+pure transport across Cox's field-discriminant equivalence. -/
+structure ConductorTwoIdealClassCoverData
+    (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
+    (hp8 : p % 8 = 3) where
+  /-- The maximal-order ideal class attached to a conductor-`2` form class. -/
+  toFieldIdealClass :
+    BinaryQuadraticForm.FormClass (-(4 * (p : ℤ))) →
+      ClassGroup (𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ)))
+  /-- On representatives, the map is the maximal-order ideal class obtained by
+  extending the concrete conductor-`2` Cox/order ideal. -/
+  toFieldIdealClass_mk :
+    ∀ Q : BinaryQuadraticForm.PrimitivePositiveDefiniteForm (-(4 * (p : ℤ))),
+      toFieldIdealClass
+          (Quotient.mk (BinaryQuadraticForm.primitivePositiveDefiniteFormSetoid _) Q) =
+        conductorTwoRingOfIntegersIdealClassOfForm p hp8 Q
+  /-- Every maximal-order ideal class has at most three conductor-`2`
+  form-class preimages. -/
+  fiber_card_le_three :
+    ∀ C : ClassGroup (𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ))),
+      Nat.card
+        { Q : BinaryQuadraticForm.FormClass (-(4 * (p : ℤ))) //
+          toFieldIdealClass Q = C } ≤ 3
+
+/-- There is ideal-class-level conductor-`2` cover data for `p`. -/
+def HasConductorTwoIdealClassCoverData
+    (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
+    (hp8 : p % 8 = 3) : Prop :=
+  Nonempty (ConductorTwoIdealClassCoverData p hp8)
+
+/-- Ideal-class-level conductor-`2` cover data supplies the quotient-level
+form-class cover by transporting maximal-order ideal classes back to
+field-discriminant form classes via Cox's equivalence. -/
+noncomputable def conductor_two_form_class_cover_data_of_ideal_class_cover
+    (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
+    (hp : Nat.Prime p) (hp8 : p % 8 = 3)
+    (hcover : ConductorTwoIdealClassCoverData p hp8) :
+    ConductorTwoFormClassCoverData p where
+  toFieldClass := fun Q =>
+    (inertFieldFormClassEquivClassGroup p hp hp8).symm (hcover.toFieldIdealClass Q)
+  fiber_card_le_three := by
+    intro R
+    let e := inertFieldFormClassEquivClassGroup p hp hp8
+    let F := hcover.toFieldIdealClass
+    have hcard :
+        Nat.card
+          { Q : BinaryQuadraticForm.FormClass (-(4 * (p : ℤ))) //
+            e.symm (F Q) = R } =
+          Nat.card
+            { Q : BinaryQuadraticForm.FormClass (-(4 * (p : ℤ))) //
+              F Q = e R } := by
+      exact Nat.card_congr
+        { toFun := fun Q =>
+            ⟨Q.1, by
+              calc
+                F Q.1 = e (e.symm (F Q.1)) := (e.apply_symm_apply (F Q.1)).symm
+                _ = e R := congrArg (fun C => e C) Q.2⟩
+          invFun := fun Q =>
+            ⟨Q.1, by
+              calc
+                e.symm (F Q.1) = e.symm (e R) :=
+                  congrArg (fun C => e.symm C) Q.2
+                _ = R := e.symm_apply_apply R⟩
+          left_inv := by
+            intro Q
+            cases Q
+            rfl
+          right_inv := by
+            intro Q
+            cases Q
+            rfl }
+    rw [hcard]
+    exact hcover.fiber_card_le_three (e R)
 
 /-- Quotient-level conductor-`2` finite-fiber cover data gives the upper bound
 on finite form-class cardinalities. -/
@@ -842,22 +1076,34 @@ theorem conductor_two_reduced_forms_card_order_class_number_formula_of_mem_heegn
   rw [hcard, hclass, hfactor]
   norm_num
 
-/-- **Conductor-lowering form-class cover, conductor `2`.** In the inert prime
-family `d = -p`, conductor-`2` form classes of discriminant `-4p` should map to
-field-discriminant form classes of discriminant `-p` with fibers of size at most
-three.
+/-- **Conductor-lowering ideal-class cover, conductor `2`.** In the inert prime
+family `d = -p`, conductor-`2` form classes of discriminant `-4p` should extend
+to maximal-order ideal classes with fibers of size at most three.
 
 This is the remaining mathematical input for the conductor-`2` ring/order/forms
-bridge.  It is the quotient-level cover map supplied by Cox's order
+bridge.  It is the ideal-class extension map supplied by Cox's order
 class-number formula, Corollary 7.28, or an equivalent quadratic-order
 Picard-group computation for the order of conductor `2`. -/
-theorem has_conductor_two_form_class_cover_data
-    (p : ℕ) (hp : Nat.Prime p) (hp8 : p % 8 = 3) (hp_ne_three : p ≠ 3) :
-    HasConductorTwoFormClassCoverData p := by
+theorem has_conductor_two_ideal_class_cover_data
+    (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
+    (hp : Nat.Prime p) (hp8 : p % 8 = 3) (hp_ne_three : p ≠ 3) :
+    HasConductorTwoIdealClassCoverData p hp8 := by
   -- Cox 7.24 / Corollary 7.28, or an equivalent quadratic-order Picard-group
-  -- construction, belongs here. The finite-cardinality consequences of such a
-  -- cover are already closed above.
+  -- construction, belongs here. The extension ideal API above provides the
+  -- concrete representative-level object for this map.
   sorry
+
+/-- **Conductor-lowering form-class cover, conductor `2`.** In the inert prime
+family `d = -p`, conductor-`2` form classes of discriminant `-4p` map to
+field-discriminant form classes of discriminant `-p` with fibers of size at most
+three, once the ideal-class extension cover is available. -/
+theorem has_conductor_two_form_class_cover_data
+    (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
+    (hp : Nat.Prime p) (hp8 : p % 8 = 3) (hp_ne_three : p ≠ 3) :
+    HasConductorTwoFormClassCoverData p := by
+  exact ⟨conductor_two_form_class_cover_data_of_ideal_class_cover p hp hp8
+    (Classical.choice
+      (has_conductor_two_ideal_class_cover_data p hp hp8 hp_ne_three))⟩
 
 /-- Once the conductor-`2` order class-number formula is available, class
 number one for the maximal order and the inert local factor `3` give exactly
