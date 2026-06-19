@@ -21,6 +21,8 @@ binary quadratic forms.
 
 * `ConductorTwoFormClassNumberThreeData`: Forms-side class-number-three input for
   primitive reduced forms of discriminant `-4p` in the `p ≠ 3` inert branch.
+* `conductor_two_reduced_forms_card_order_class_number_formula`: the explicit
+  Cox/order class-number formula boundary for the conductor-`2` route.
 * `hasRingClassNumberThreeAtConductorTwo_of_forms`: the bridge from the Forms
   provider to the core ring-class-number interface.
 * `formsInertPrimeWeberDataProvider`: the reduced-forms route packaged as the
@@ -127,26 +129,43 @@ theorem hasRingClassNumberThreeAtConductorTwo_of_reducedForms_card
   hasRingClassNumberThreeAtConductorTwo_of_forms
     (hasConductorTwoFormClassNumberThreeData_of_reducedForms_card p hcard)
 
-/-- **Cox/order class-number formula, conductor `2`.** In the inert prime family
-`d = -p`, class number one for `ℚ(√-p)` gives three primitive reduced positive
-definite forms of the conductor-`2` discriminant `-4p`, away from the
-unit-exception case `p = 3`.
+/-- **Cox/order class-number formula, conductor `2`, reduced-form version.** In
+the inert prime family `d = -p`, the primitive reduced forms of discriminant
+`-4p` are counted by the maximal-order class number times the conductor-`2`
+local factor.
 
-This is the remaining mathematical input for the conductor-`2`
-ring/order/forms bridge.  It should ultimately be replaced by Cox's order
-class-number formula, an equivalent Picard-group computation for the quadratic
-order of conductor `2`, or a direct proof of the reduced-form cardinality. -/
+This is the remaining mathematical input for the conductor-`2` ring/order/forms
+bridge.  It should ultimately be replaced by Cox's order class-number formula
+or an equivalent Picard-group computation for the quadratic order of conductor
+`2`. -/
+theorem conductor_two_reduced_forms_card_order_class_number_formula
+    (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
+    (hp : Nat.Prime p) (hp8 : p % 8 = 3) (hp_ne_three : p ≠ 3) :
+    ((BinaryQuadraticForm.enumPrimitiveReducedForms (-(4 * (p : ℤ)))).card : ℚ) =
+      (classNumberQsqrtd (-(p : ℤ)) : ℚ) *
+        ((2 : ℚ) * (1 - (kroneckerTwo (-(p : ℤ)) : ℚ) / 2)) := by
+  -- Cox 7.24 / Corollary 7.28, or an equivalent quadratic-order Picard-group
+  -- computation, belongs here. The discriminant and local Kronecker factor
+  -- specializations are already closed above.
+  sorry
+
+/-- In the inert prime family `d = -p`, class number one for `ℚ(√-p)` gives
+three primitive reduced positive definite forms of conductor-`2` discriminant
+`-4p`, away from the unit-exception case `p = 3`. -/
 theorem conductor_two_reduced_forms_card_eq_three_of_classNumber_one
     (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
     (hp : Nat.Prime p) (hp8 : p % 8 = 3) (hp_ne_three : p ≠ 3)
     (hclass : classNumberQsqrtd (-(p : ℤ)) = 1) :
     (BinaryQuadraticForm.enumPrimitiveReducedForms (-(4 * (p : ℤ)))).card = 3 := by
-  -- The closed lemma `conductor_two_order_discriminant_eq_neg_four_mul`
-  -- identifies the conductor-`2` discriminant.  What remains is the actual
-  -- Cox/order class-number jump from the maximal order class number `h(-p) = 1`
-  -- to the conductor-`2` order class number; the local Kronecker factor is
-  -- already closed by `conductor_two_order_class_number_formula_factor_eq_three`.
-  sorry
+  have hfactor := conductor_two_order_class_number_formula_factor_eq_three p hp8
+  have hformula :=
+    conductor_two_reduced_forms_card_order_class_number_formula p hp hp8 hp_ne_three
+  have hcard_rat :
+      ((BinaryQuadraticForm.enumPrimitiveReducedForms (-(4 * (p : ℤ)))).card : ℚ) =
+        3 := by
+    rw [hformula, hclass, hfactor]
+    norm_num
+  exact_mod_cast hcard_rat
 
 /-- **Cox forms class-number input.** In the inert prime family `d = -p`, class
 number one for `ℚ(√-p)` gives Forms-side class-number-three data for primitive
