@@ -845,6 +845,57 @@ theorem oddGenusCharacterProductToRelationSubgroup_apply
       oddGenusCharacterProductOnSquareClassQuotient d hd_neg hdata C := by
   rfl
 
+/-- Membership in the kernel of the relation-subgroup-valued product character is
+equivalent to every odd-prime genus character being trivial. -/
+theorem mem_oddGenusCharacterProductToRelationSubgroup_ker_iff
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd_neg : d < 0)
+    (hdata : OddGenusCharacterData d)
+    (hrel : oddGenusProductRelation d hd_neg hdata)
+    (C : ClassGroup (𝓞 (Qsqrtd (d : ℚ))) ⧸ squareClassSubgroup d) :
+    C ∈ (oddGenusCharacterProductToRelationSubgroup d hd_neg hdata hrel).ker ↔
+      ∀ P : {p // p ∈ oddPrimeDiscriminantDivisors d},
+        oddGenusCharacterProductOnSquareClassQuotient d hd_neg hdata C P = 1 := by
+  constructor
+  · intro hC P
+    have hmap : oddGenusCharacterProductToRelationSubgroup d hd_neg hdata hrel C = 1 := by
+      simpa [MonoidHom.mem_ker] using hC
+    have hval := congr_arg Subtype.val hmap
+    exact congr_fun hval P
+  · intro hC
+    rw [MonoidHom.mem_ker]
+    ext P
+    simpa [oddGenusCharacterProductToRelationSubgroup_apply] using hC P
+
+/-- The product character has trivial kernel exactly when the only class whose
+odd-prime genus characters are all trivial is the trivial class of `Cl / Cl²`. -/
+theorem oddGenusCharacterProductToRelationSubgroup_ker_eq_bot_iff
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd_neg : d < 0)
+    (hdata : OddGenusCharacterData d)
+    (hrel : oddGenusProductRelation d hd_neg hdata) :
+    (oddGenusCharacterProductToRelationSubgroup d hd_neg hdata hrel).ker = ⊥ ↔
+      ∀ C : ClassGroup (𝓞 (Qsqrtd (d : ℚ))) ⧸ squareClassSubgroup d,
+        (∀ P : {p // p ∈ oddPrimeDiscriminantDivisors d},
+          oddGenusCharacterProductOnSquareClassQuotient d hd_neg hdata C P = 1) → C = 1 := by
+  constructor
+  · intro hker C hC
+    have hinj :
+        Function.Injective (oddGenusCharacterProductToRelationSubgroup d hd_neg hdata hrel) :=
+      (MonoidHom.ker_eq_bot_iff
+        (oddGenusCharacterProductToRelationSubgroup d hd_neg hdata hrel)).mp hker
+    rw [injective_iff_map_eq_one] at hinj
+    apply hinj
+    ext P
+    simpa [oddGenusCharacterProductToRelationSubgroup_apply] using hC P
+  · intro h
+    apply (MonoidHom.ker_eq_bot_iff
+      (oddGenusCharacterProductToRelationSubgroup d hd_neg hdata hrel)).mpr
+    rw [injective_iff_map_eq_one]
+    intro C hC
+    apply h C
+    intro P
+    have hval := congr_arg Subtype.val hC
+    exact congr_fun hval P
+
 /-- Surjectivity of the relation-subgroup-valued odd genus-character product gives
 the genus-theory divisibility needed by the class-number-one sieve. -/
 theorem genus_divisibility_of_oddGenusCharacterProduct_surjective
