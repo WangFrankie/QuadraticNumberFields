@@ -5,6 +5,7 @@ Authors: Frankie Wang
 -/
 import FormClassGroup.ClassGroup.ClassNumber
 import ImaginaryClassNumberOne.WeberData.Core
+import Mathlib.Algebra.Order.BigOperators.Group.Finset
 import QNFMathlib.NumberTheory.LegendreSymbol.KroneckerSymbol
 
 /-!
@@ -29,6 +30,9 @@ binary quadratic forms.
 * `ConductorTwoReducedFormCoverData`: the remaining forms-side upper-bound
   interface, expressed as a finite-fiber cover of conductor-`2` reduced forms by
   field-discriminant reduced forms.
+* `conductor_two_reduced_forms_card_le_three_mul_classNumber_of_cover`: the
+  finite-fiber cover bridge from conductor-`2` reduced forms to the maximal-order
+  class number.
 * `conductor_two_reduced_forms_card_order_class_number_formula`: the explicit
   Cox/order class-number formula boundary for the conductor-`2` route.
 * `hasRingClassNumberThreeAtConductorTwo_of_forms`: the bridge from the Forms
@@ -193,19 +197,27 @@ theorem three_le_conductor_two_reduced_forms_card
         p m hp hm hm_ge hm_odd
 
 /-- In the inert branch, class number one for `ℚ(√-p)` is equivalent on the
-Forms side to a singleton reduced-form enumeration at field discriminant `-p`. -/
+Forms side to the field-discriminant reduced-form count at `-p`. -/
+theorem field_reduced_forms_card_eq_classNumberQsqrtd
+    (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
+    (hp : Nat.Prime p) (hp8 : p % 8 = 3) :
+    (BinaryQuadraticForm.enumPrimitiveReducedForms (-(p : ℤ))).card =
+      classNumberQsqrtd (-(p : ℤ)) := by
+  have hp_pos_int : (0 : ℤ) < (p : ℤ) := by exact_mod_cast hp.pos
+  have hdneg : -(p : ℤ) < 0 := neg_neg_iff_pos.mpr hp_pos_int
+  have hclass_forms := classNumberQsqrtd_eq_reducedForms_card (-(p : ℤ)) hdneg
+  rw [BinaryQuadraticForm.fieldDiscriminant_neg_natCast_of_nat_mod_eight_eq_three hp8]
+    at hclass_forms
+  exact hclass_forms.symm
+
+/-- In the inert branch, class number one for `ℚ(√-p)` gives a singleton
+reduced-form enumeration at field discriminant `-p`. -/
 theorem field_reduced_forms_card_eq_one_of_classNumber_one
     (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
     (hp : Nat.Prime p) (hp8 : p % 8 = 3)
     (hclass : classNumberQsqrtd (-(p : ℤ)) = 1) :
     (BinaryQuadraticForm.enumPrimitiveReducedForms (-(p : ℤ))).card = 1 := by
-  have hp_pos_int : (0 : ℤ) < (p : ℤ) := by exact_mod_cast hp.pos
-  have hdneg : -(p : ℤ) < 0 := neg_neg_iff_pos.mpr hp_pos_int
-  have hclass_forms := classNumberQsqrtd_eq_reducedForms_card (-(p : ℤ)) hdneg
-  rw [hclass] at hclass_forms
-  rw [BinaryQuadraticForm.fieldDiscriminant_neg_natCast_of_nat_mod_eight_eq_three hp8]
-    at hclass_forms
-  exact hclass_forms.symm
+  rw [field_reduced_forms_card_eq_classNumberQsqrtd p hp hp8, hclass]
 
 /-- The remaining upper bound `h(-4p) ≤ 3`, combined with the three explicit
 conductor-`2` reduced forms, gives the exact conductor-`2` reduced-form count. -/
@@ -259,6 +271,36 @@ structure ConductorTwoReducedFormCoverData (p : ℕ) where
 def HasConductorTwoReducedFormCoverData (p : ℕ) : Prop :=
   Nonempty (ConductorTwoReducedFormCoverData p)
 
+/-- A conductor-`2` finite-fiber cover gives the upper bound
+`#forms(-4p) ≤ 3 * #forms(-p)` on reduced-form enumerations. -/
+theorem conductor_two_reduced_forms_card_le_three_mul_field_reduced_forms_card_of_cover
+    (p : ℕ) (hcover : ConductorTwoReducedFormCoverData p) :
+    (BinaryQuadraticForm.enumPrimitiveReducedForms (-(4 * (p : ℤ)))).card ≤
+      3 * (BinaryQuadraticForm.enumPrimitiveReducedForms (-(p : ℤ))).card := by
+  let S := BinaryQuadraticForm.enumPrimitiveReducedForms (-(4 * (p : ℤ)))
+  let T := BinaryQuadraticForm.enumPrimitiveReducedForms (-(p : ℤ))
+  have hmaps : ∀ Q ∈ S, hcover.toFieldForm Q ∈ T := by
+    intro Q hQ
+    exact hcover.maps_mem (by simpa [S] using hQ)
+  have hfiber : ∀ R ∈ T, (S.filter fun Q => hcover.toFieldForm Q = R).card ≤ 3 := by
+    intro R hR
+    exact hcover.fiber_card_le_three (by simpa [T] using hR)
+  exact Finset.card_le_mul_card_image_of_maps_to hmaps 3 hfiber
+
+/-- A conductor-`2` finite-fiber cover gives the upper bound
+`#forms(-4p) ≤ 3 * h(-p)` after transporting the field reduced-form count to
+`classNumberQsqrtd`. -/
+theorem conductor_two_reduced_forms_card_le_three_mul_classNumber_of_cover
+    (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
+    (hp : Nat.Prime p) (hp8 : p % 8 = 3)
+    (hcover : ConductorTwoReducedFormCoverData p) :
+    (BinaryQuadraticForm.enumPrimitiveReducedForms (-(4 * (p : ℤ)))).card ≤
+      3 * classNumberQsqrtd (-(p : ℤ)) := by
+  have hbound :=
+    conductor_two_reduced_forms_card_le_three_mul_field_reduced_forms_card_of_cover
+      p hcover
+  rwa [field_reduced_forms_card_eq_classNumberQsqrtd p hp hp8] at hbound
+
 /-- If the field reduced-form enumeration is a singleton and the conductor-`2`
 cover has fibers of size at most three, then the conductor-`2` reduced-form
 enumeration has size at most three. -/
@@ -267,19 +309,11 @@ theorem conductor_two_reduced_forms_card_le_three_of_field_card_eq_one_of_cover
     (hfield : (BinaryQuadraticForm.enumPrimitiveReducedForms (-(p : ℤ))).card = 1)
     (hcover : ConductorTwoReducedFormCoverData p) :
     (BinaryQuadraticForm.enumPrimitiveReducedForms (-(4 * (p : ℤ)))).card ≤ 3 := by
-  classical
-  let S := BinaryQuadraticForm.enumPrimitiveReducedForms (-(4 * (p : ℤ)))
-  let T := BinaryQuadraticForm.enumPrimitiveReducedForms (-(p : ℤ))
-  obtain ⟨R, hT_eq⟩ : ∃ R, T = {R} := Finset.card_eq_one.mp (by simpa [T] using hfield)
-  have hR : R ∈ T := by simp [hT_eq]
-  have hsubset : S ⊆ S.filter (fun Q => hcover.toFieldForm Q = R) := by
-    intro Q hQ
-    simp only [Finset.mem_filter]
-    refine ⟨hQ, ?_⟩
-    have hmap : hcover.toFieldForm Q ∈ T := hcover.maps_mem (by simpa [S] using hQ)
-    rw [hT_eq] at hmap
-    simpa using hmap
-  exact (Finset.card_le_card hsubset).trans (hcover.fiber_card_le_three (by simpa [T] using hR))
+  have hbound :=
+    conductor_two_reduced_forms_card_le_three_mul_field_reduced_forms_card_of_cover
+      p hcover
+  rw [hfield] at hbound
+  omega
 
 /-- Class number one plus conductor-`2` cover data gives the exact conductor-`2`
 reduced-form count. -/
