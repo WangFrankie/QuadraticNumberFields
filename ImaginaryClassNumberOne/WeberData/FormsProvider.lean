@@ -957,16 +957,6 @@ theorem ringClassNumberConductorTwoEqualsThree_of_forms
   -- class number of the conductor-`2` order.
   sorry
 
-/-- A reduced-form cardinality computation at discriminant `-4p` supplies the
-core conductor-`2` ring-class-number input. -/
-theorem ringClassNumberConductorTwoEqualsThree_of_reducedForms_card
-    (p : ℕ)
-    (hcard :
-      (BinaryQuadraticForm.enumPrimitiveReducedForms (-(4 * (p : ℤ)))).card = 3) :
-    RingClassNumberConductorTwoEqualsThree p :=
-  ringClassNumberConductorTwoEqualsThree_of_forms
-    (conductorTwoFormClassNumberThree_of_reducedForms_card p hcard)
-
 /-- For the non-exceptional inert Heegner primes, the conductor-`2`
 discriminant `-4p` has exactly three primitive reduced positive definite forms.
 
@@ -1429,30 +1419,6 @@ theorem conductor_two_reduced_forms_card_eq_three_of_classNumber_one_of_class_co
       rw [hclass] at hupper
       omega)
 
-/-- Class number one plus quotient-level conductor-`2` cover data supplies
-Forms-side class-number-three data. -/
-theorem conductor_two_form_class_number_three_of_classNumber_one_of_class_cover
-    (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
-    (hp : Nat.Prime p) (hp8 : p % 8 = 3) (hp_ne_three : p ≠ 3)
-    (hclass : classNumberQsqrtd (-(p : ℤ)) = 1)
-    (hcover : ConductorTwoFormClassCoverData p) :
-    ConductorTwoFormClassNumberThree p :=
-  conductorTwoFormClassNumberThree_of_reducedForms_card p
-    (conductor_two_reduced_forms_card_eq_three_of_classNumber_one_of_class_cover
-      p hp hp8 hp_ne_three hclass hcover)
-
-/-- Class number one plus quotient-level conductor-`2` cover data supplies the
-core ring-class-number input. -/
-theorem conductor_two_class_number_three_of_classNumber_one_of_class_cover
-    (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
-    (hp : Nat.Prime p) (hp8 : p % 8 = 3) (hp_ne_three : p ≠ 3)
-    (hclass : classNumberQsqrtd (-(p : ℤ)) = 1)
-    (hcover : ConductorTwoFormClassCoverData p) :
-    RingClassNumberConductorTwoEqualsThree p :=
-  ringClassNumberConductorTwoEqualsThree_of_forms
-    (conductor_two_form_class_number_three_of_classNumber_one_of_class_cover
-      p hp hp8 hp_ne_three hclass hcover)
-
 /-- The finite inert-Heegner-prime reduced-form computation supplies
 Forms-side conductor-`2` class-number-three data. -/
 theorem conductor_two_form_class_number_three_of_mem_heegnerPrimeSet
@@ -1470,52 +1436,6 @@ theorem conductor_two_class_number_three_of_mem_heegnerPrimeSet
   ringClassNumberConductorTwoEqualsThree_of_forms
     (conductor_two_form_class_number_three_of_mem_heegnerPrimeSet
       p hp_mem hp_ne_three)
-
-/-- A conductor-`2` reduced-form upper bound supplies Forms-side
-class-number-three data in the non-exceptional inert branch. -/
-theorem conductor_two_form_class_number_three_of_card_le_three
-    (p : ℕ) (hp : Nat.Prime p) (hp8 : p % 8 = 3) (hp_ne_three : p ≠ 3)
-    (hupper :
-      (BinaryQuadraticForm.enumPrimitiveReducedForms (-(4 * (p : ℤ)))).card ≤ 3) :
-    ConductorTwoFormClassNumberThree p :=
-  conductorTwoFormClassNumberThree_of_reducedForms_card p
-    (conductor_two_reduced_forms_card_eq_three_of_card_le_three p hp hp8 hp_ne_three hupper)
-
-/-- Class number one plus a conductor-`2` reduced-form upper bound supplies
-Forms-side conductor-`2` class-number-three data. -/
-theorem conductor_two_form_class_number_three_of_classNumber_one_of_card_le_three
-    (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
-    (hp : Nat.Prime p) (hp8 : p % 8 = 3) (hp_ne_three : p ≠ 3)
-    (hclass : classNumberQsqrtd (-(p : ℤ)) = 1)
-    (hupper :
-      (BinaryQuadraticForm.enumPrimitiveReducedForms (-(4 * (p : ℤ)))).card ≤ 3) :
-    ConductorTwoFormClassNumberThree p :=
-  conductorTwoFormClassNumberThree_of_reducedForms_card p
-    (conductor_two_reduced_forms_card_eq_three_of_classNumber_one_of_card_le_three
-      p hp hp8 hp_ne_three hclass hupper)
-
-/-- A conductor-`2` reduced-form upper bound supplies the core ring-class-number
-input in the non-exceptional inert branch. -/
-theorem conductor_two_class_number_three_of_card_le_three
-    (p : ℕ) (hp : Nat.Prime p) (hp8 : p % 8 = 3) (hp_ne_three : p ≠ 3)
-    (hupper :
-      (BinaryQuadraticForm.enumPrimitiveReducedForms (-(4 * (p : ℤ)))).card ≤ 3) :
-    RingClassNumberConductorTwoEqualsThree p :=
-  ringClassNumberConductorTwoEqualsThree_of_forms
-    (conductor_two_form_class_number_three_of_card_le_three p hp hp8 hp_ne_three hupper)
-
-/-- Class number one plus a conductor-`2` reduced-form upper bound supplies the
-core ring-class-number input in the non-exceptional inert branch. -/
-theorem conductor_two_class_number_three_of_classNumber_one_of_card_le_three
-    (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
-    (hp : Nat.Prime p) (hp8 : p % 8 = 3) (hp_ne_three : p ≠ 3)
-    (hclass : classNumberQsqrtd (-(p : ℤ)) = 1)
-    (hupper :
-      (BinaryQuadraticForm.enumPrimitiveReducedForms (-(4 * (p : ℤ)))).card ≤ 3) :
-    RingClassNumberConductorTwoEqualsThree p :=
-  ringClassNumberConductorTwoEqualsThree_of_forms
-    (conductor_two_form_class_number_three_of_classNumber_one_of_card_le_three
-      p hp hp8 hp_ne_three hclass hupper)
 
 /-- On the finite non-exceptional inert Heegner-prime table, the conductor-`2`
 reduced-form count agrees with the specialized order class-number formula. -/
@@ -1723,59 +1643,6 @@ theorem ringClassNumberConductorTwoEqualsThree_of_order_class_number_formula
   ringClassNumberConductorTwoEqualsThree_of_forms
     (conductorTwoFormClassNumberThree_of_order_class_number_formula
       p hp8 hp_ne_three hformula hclass)
-
-/-- With maximal-order class number one, the conductor-`2` Forms target is
-equivalent to the non-exceptional Cox order class-number formula.
-
-This isolates the remaining mathematical input for
-`conductor_two_form_class_number_three`: after the local factor at `2` has been
-computed, proving the conductor-`2` form class number is the same as proving
-Cox 7.24 / Corollary 7.28 in the `p ≠ 3` branch. -/
-theorem conductorTwoFormClassNumberThree_iff_order_class_number_formula_of_classNumber_one
-    (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
-    (hp8 : p % 8 = 3) (hp_ne_three : p ≠ 3)
-    (hclass : classNumberQsqrtd (-(p : ℤ)) = 1) :
-    ConductorTwoFormClassNumberThree p ↔
-      ConductorTwoOrderClassNumberFormula p hp8 hp_ne_three := by
-  constructor
-  · intro hforms
-    unfold ConductorTwoFormClassNumberThree at hforms
-    unfold ConductorTwoOrderClassNumberFormula
-    rw [hforms, hclass, conductor_two_order_class_number_formula_factor_eq_three p hp8]
-    norm_num
-  · intro hformula
-    exact conductorTwoFormClassNumberThree_of_order_class_number_formula
-      p hp8 hp_ne_three hformula hclass
-
-/-- Formula equality and class number one give exactly three conductor-`2` primitive
-reduced forms. -/
-theorem conductorTwoFormClassNumberThree_of_order_class_number_formula_eq
-    (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
-    (hformula :
-      ((BinaryQuadraticForm.enumPrimitiveReducedForms (-(4 * (p : ℤ)))).card : ℚ) =
-        (classNumberQsqrtd (-(p : ℤ)) : ℚ) *
-          ((2 : ℚ) * (1 - (kroneckerTwo (-(p : ℤ)) : ℚ) / 2)))
-    (hfactor : (2 : ℚ) * (1 - (kroneckerTwo (-(p : ℤ)) : ℚ) / 2) = 3)
-    (hclass : classNumberQsqrtd (-(p : ℤ)) = 1) :
-    ConductorTwoFormClassNumberThree p :=
-  conductorTwoFormClassNumberThree_of_reducedForms_card p
-    (conductor_two_reduced_forms_card_eq_three_of_order_class_number_formula p
-      hformula hfactor hclass)
-
-/-- Once the conductor-`2` order class-number formula is available, class
-number one for the maximal order supplies the core ring-class-number input. -/
-theorem ringClassNumberConductorTwoEqualsThree_of_order_class_number_formula_eq
-    (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
-    (hformula :
-      ((BinaryQuadraticForm.enumPrimitiveReducedForms (-(4 * (p : ℤ)))).card : ℚ) =
-        (classNumberQsqrtd (-(p : ℤ)) : ℚ) *
-          ((2 : ℚ) * (1 - (kroneckerTwo (-(p : ℤ)) : ℚ) / 2)))
-    (hfactor : (2 : ℚ) * (1 - (kroneckerTwo (-(p : ℤ)) : ℚ) / 2) = 3)
-    (hclass : classNumberQsqrtd (-(p : ℤ)) = 1) :
-    RingClassNumberConductorTwoEqualsThree p :=
-  ringClassNumberConductorTwoEqualsThree_of_forms
-    (conductorTwoFormClassNumberThree_of_order_class_number_formula_eq p
-      hformula hfactor hclass)
 
 /-- **Cox order class-number formula input, conductor `2`.** In the
 non-exceptional inert prime branch, Cox's order class-number formula identifies
