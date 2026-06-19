@@ -51,11 +51,13 @@ TODO roadmap for the remaining forward direction:
   remaining integer-equation endgame used after the Weber/CM route supplies
   `StarkHeegnerAlgebraicCertificate`.
 * Conductor-`2` assembly route: use
-  `Heegner.WeberCM.ConductorTwo.Assembly` only as an optional proof of the
-  conductor-`2` class-number input `h(-4 * p) = 3`.
-* Order/Picard route: a later quadratic-order/Picard-group proof of Cox 7.24
-  or Corollary 7.28 can replace the conductor-`2` assembly route without
-  changing this file.
+  `Heegner.WeberCM.ConductorTwo.Assembly` only as an optional conditional proof
+  of the conductor-`2` class-number input `h(-4 * p) = 3`.  The current route
+  needs the explicit fiber-residue injection theorem; injectivity gives the
+  upper bound, and the lower bound comes from the reduced-form construction.
+* Order/Picard route: a later quadratic-order/Picard-group proof of the
+  fiber-residue injection, or of Cox 7.24 / Corollary 7.28, can replace the
+  conditional conductor-`2` assembly route without changing this file.
 * Alternative deep route: Stark's no-Weber variant or Baker's logarithmic route
   should be added as separate proofs of the same named inert-core input.
 -/

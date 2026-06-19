@@ -16,6 +16,12 @@ core Baker-Heegner-Stark Weber/CM interface.
 The core `Heegner.WeberCM.Core` interface remains independent of this file.
 Import `Heegner.WeberCM.ConductorTwo.Assembly` only when the proof route
 explicitly goes through primitive reduced binary quadratic forms.
+
+The full unconditional Cox 7.24 / Corollary 7.28 order class-number formula is
+future order/Picard infrastructure.  The BHS-facing route here uses the
+fiber-residue upper bound, when supplied, plus the explicit reduced-form lower
+bound from `Forms.lean`; finite Heegner-prime table instances of the Cox formula
+remain as sorry-free comparison lemmas.
 -/
 
 attribute [-instance] DivisionRing.toRatAlgebra
@@ -206,102 +212,68 @@ theorem conductorTwoClassNumberThree_of_order_class_number_formula
     (conductor_two_reduced_forms_card_eq_three_of_order_class_number_formula_prop
       p hp8 hp_ne_three hformula hclass)
 
-/-- **Cox order class-number formula input, conductor `2`.** In the
-non-exceptional inert prime branch, Cox's order class-number formula identifies
-the conductor-`2` reduced-form count with the maximal-order class number times
-the local factor at `2`.
-
-This is now the remaining conductor-`2` mathematical input for the Forms
-route.  It should be supplied by Cox 7.24 / Corollary 7.28, or by an
-equivalent quadratic-order/Picard-group computation. -/
-theorem conductor_two_order_class_number_formula
-    (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
-    (hp : Nat.Prime p) (hp8 : p % 8 = 3) (hp_ne_three : p ≠ 3) :
-    ConductorTwoOrderClassNumberFormula p hp8 hp_ne_three := by
-  -- Cox 7.24 / Corollary 7.28, or an equivalent quadratic-order Picard-group
-  -- construction, belongs here. The local factor at `2` is already closed by
-  -- `conductor_two_order_class_number_formula_factor_eq_three`.
-  sorry
-
-/-- In the inert prime family `d = -p`, class number one for `ℚ(√-p)` gives
-three primitive reduced positive definite forms of conductor-`2` discriminant
-`-4p`, away from the unit-exception case `p = 3`. -/
-theorem conductor_two_reduced_forms_card_eq_three_of_classNumber_one
-    (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
-    (hp : Nat.Prime p) (hp8 : p % 8 = 3) (hp_ne_three : p ≠ 3)
-    (hclass : classNumberQsqrtd (-(p : ℤ)) = 1) :
-    (BinaryQuadraticForm.enumPrimitiveReducedForms (-(4 * (p : ℤ)))).card = 3 := by
-  exact conductor_two_reduced_forms_card_eq_three_of_order_class_number_formula_prop
-    p hp8 hp_ne_three (conductor_two_order_class_number_formula p hp hp8 hp_ne_three)
-    hclass
-
 /-- Target-shaped conductor-`2` reduced-form class-number statement.
 
 This version derives the squarefree parameter facts from the prime hypothesis,
 so its assumptions match the Baker-Heegner-Stark inert branch:
-`h(-p) = 1`, `p` prime, `p % 8 = 3`, and `p ≠ 3`. -/
-theorem conductor_two_reduced_forms_card_eq_three_of_classNumber_one_of_prime
+`h(-p) = 1`, `p` prime, `p % 8 = 3`, and `p ≠ 3`.  The remaining
+fiber-residue injectivity hypothesis is the explicit conductor-`2` kernel input. -/
+theorem conductor_two_reduced_forms_card_eq_three_of_prime_of_fiberResidueUnit_injective
     (p : ℕ) (hp : Nat.Prime p) (hp8 : p % 8 = 3) (hp_ne_three : p ≠ 3)
     (hclass :
       (letI : Fact (Squarefree (-(p : ℤ))) := ⟨Int.squarefree_neg_natCast_of_nat_prime hp⟩
        letI : Fact ((-(p : ℤ)) ≠ 1) := ⟨Int.neg_natCast_ne_one p⟩
-       classNumberQsqrtd (-(p : ℤ)) = 1)) :
+       classNumberQsqrtd (-(p : ℤ)) = 1))
+    (hinj :
+      (letI : Fact (Squarefree (-(p : ℤ))) := ⟨Int.squarefree_neg_natCast_of_nat_prime hp⟩
+       letI : Fact ((-(p : ℤ)) ≠ 1) := ⟨Int.neg_natCast_ne_one p⟩
+       ∀ C : ClassGroup (𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ))),
+        Function.Injective (conductorTwoIdealClassFiberResidueUnit p hp8 C))) :
     (BinaryQuadraticForm.enumPrimitiveReducedForms (-(4 * (p : ℤ)))).card = 3 := by
   haveI : Fact (Squarefree (-(p : ℤ))) :=
     ⟨Int.squarefree_neg_natCast_of_nat_prime hp⟩
   haveI : Fact ((-(p : ℤ)) ≠ 1) :=
     ⟨Int.neg_natCast_ne_one p⟩
-  exact conductor_two_reduced_forms_card_eq_three_of_classNumber_one
-    p hp hp8 hp_ne_three hclass
+  exact
+    conductor_two_reduced_forms_card_eq_three_of_classNumber_one_of_fiberResidueUnit_injective
+      p hp hp8 hp_ne_three hclass hinj
 
-/-- **Cox conductor-two class-number input.** In the inert prime family `d = -p`,
-class number one for `ℚ(√-p)` gives class-number-three input for primitive
-positive definite forms of conductor-`2` discriminant `-4p`, away from the
-unit-exception case `p = 3`. -/
-theorem conductor_two_class_number_three
+/-- **Conditional conductor-two class-number input.** In the inert prime family
+`d = -p`, class number one for `ℚ(√-p)`, together with the explicit
+fiber-residue injection, gives class-number-three input for primitive positive
+definite forms of conductor-`2` discriminant `-4p`, away from the unit-exception
+case `p = 3`. -/
+theorem conductor_two_class_number_three_of_classNumber_one_of_fiberResidueUnit_injective
     (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
     (hp : Nat.Prime p) (hp8 : p % 8 = 3) (hp_ne_three : p ≠ 3)
-    (hclass : classNumberQsqrtd (-(p : ℤ)) = 1) :
+    (hclass : classNumberQsqrtd (-(p : ℤ)) = 1)
+    (hinj : ∀ C : ClassGroup (𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ))),
+      Function.Injective (conductorTwoIdealClassFiberResidueUnit p hp8 C)) :
     ConductorTwoClassNumberThree p := by
-  exact conductorTwoClassNumberThree_of_order_class_number_formula
-    p hp8 hp_ne_three (conductor_two_order_class_number_formula p hp hp8 hp_ne_three)
-    hclass
+  exact conductorTwoClassNumberThree_of_reducedForms_card p
+    (conductor_two_reduced_forms_card_eq_three_of_classNumber_one_of_fiberResidueUnit_injective
+      p hp hp8 hp_ne_three hclass hinj)
 
 /-- Target-shaped conductor-`2` class-number statement.
 
 This wrapper removes the auxiliary `Fact` parameters by deriving them from
-`Nat.Prime p`.  The remaining mathematical input is still Cox 7.24 / Corollary
-7.28, isolated by `conductor_two_order_class_number_formula`. -/
-theorem conductor_two_class_number_three_of_prime
+`Nat.Prime p`.  The remaining mathematical input is the explicit conductor-`2`
+fiber-residue injection. -/
+theorem conductor_two_class_number_three_of_prime_of_fiberResidueUnit_injective
     (p : ℕ) (hp : Nat.Prime p) (hp8 : p % 8 = 3) (hp_ne_three : p ≠ 3)
     (hclass :
       (letI : Fact (Squarefree (-(p : ℤ))) := ⟨Int.squarefree_neg_natCast_of_nat_prime hp⟩
        letI : Fact ((-(p : ℤ)) ≠ 1) := ⟨Int.neg_natCast_ne_one p⟩
-       classNumberQsqrtd (-(p : ℤ)) = 1)) :
+       classNumberQsqrtd (-(p : ℤ)) = 1))
+    (hinj :
+      (letI : Fact (Squarefree (-(p : ℤ))) := ⟨Int.squarefree_neg_natCast_of_nat_prime hp⟩
+       letI : Fact ((-(p : ℤ)) ≠ 1) := ⟨Int.neg_natCast_ne_one p⟩
+       ∀ C : ClassGroup (𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ))),
+        Function.Injective (conductorTwoIdealClassFiberResidueUnit p hp8 C))) :
     ConductorTwoClassNumberThree p := by
   exact conductorTwoClassNumberThree_of_reducedForms_card p
-    (conductor_two_reduced_forms_card_eq_three_of_classNumber_one_of_prime
-      p hp hp8 hp_ne_three hclass)
-
-/-- The reduced-forms route supplies the conductor-`2` class-number-three
-statement in the non-exceptional inert branch. -/
-theorem conductor_two_class_number_three_of_classNumber_one
-    (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
-    (hp : Nat.Prime p) (hp8 : p % 8 = 3) (hp_ne_three : p ≠ 3)
-    (hclass : classNumberQsqrtd (-(p : ℤ)) = 1) :
-    ConductorTwoClassNumberThree p := by
-  exact conductor_two_class_number_three p hp hp8 hp_ne_three hclass
-
-/-- Target-shaped conductor-`2` class-number statement supplied by the
-reduced-forms route. -/
-theorem conductor_two_class_number_three_of_classNumber_one_of_prime
-    (p : ℕ) (hp : Nat.Prime p) (hp8 : p % 8 = 3) (hp_ne_three : p ≠ 3)
-    (hclass :
-      (letI : Fact (Squarefree (-(p : ℤ))) := ⟨Int.squarefree_neg_natCast_of_nat_prime hp⟩
-       letI : Fact ((-(p : ℤ)) ≠ 1) := ⟨Int.neg_natCast_ne_one p⟩
-       classNumberQsqrtd (-(p : ℤ)) = 1)) :
-    ConductorTwoClassNumberThree p := by
-  exact conductor_two_class_number_three_of_prime p hp hp8 hp_ne_three hclass
+    (conductor_two_reduced_forms_card_eq_three_of_prime_of_fiberResidueUnit_injective
+      p hp hp8 hp_ne_three hclass hinj)
 
 /-- **Deep Weber/CM input from conductor-two class number three.**
 The conductor-`2` class-number-three input supplies the refined Weber certificate:
@@ -324,22 +296,35 @@ theorem exists_weber_certificate_of_conductor_two_class_number_three
     (conductor_two_weber_certificate_of_conductor_two_class_number_three
       p hp hp8 hp_ne_three hclass_three)
 
-/-- The reduced-forms route supplies Weber/CM algebraic certificates from class number
-one in the non-exceptional inert branch. -/
-theorem exists_weber_certificate_of_classNumber_one_inert_prime_of_forms
+/-- The conditional reduced-forms route supplies Weber/CM algebraic certificates
+from class number one in the non-exceptional inert branch, once the explicit
+conductor-`2` fiber-residue injection is available. -/
+theorem exists_weber_certificate_of_classNumber_one_inert_prime_of_fiberResidueUnit_injective
     (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
     (hp : Nat.Prime p) (hp8 : p % 8 = 3) (hp_ne_three : p ≠ 3)
-    (hclass : classNumberQsqrtd (-(p : ℤ)) = 1) :
+    (hclass : classNumberQsqrtd (-(p : ℤ)) = 1)
+    (hinj : ∀ C : ClassGroup (𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ))),
+      Function.Injective (conductorTwoIdealClassFiberResidueUnit p hp8 C)) :
     Nonempty (StarkHeegnerAlgebraicCertificate p) := by
   exact exists_weber_certificate_of_conductor_two_class_number_three
     p hp hp8 hp_ne_three
-    (conductor_two_class_number_three_of_classNumber_one p hp hp8 hp_ne_three hclass)
+    (conductor_two_class_number_three_of_classNumber_one_of_fiberResidueUnit_injective
+      p hp hp8 hp_ne_three hclass hinj)
 
-/-- The reduced-forms route packaged as the core Weber/CM input. -/
-theorem hasInertPrimeWeberCM_of_forms : HasInertPrimeWeberCM := by
+/-- The conditional reduced-forms route packaged as the core Weber/CM input.
+
+The hypothesis is the named conductor-`2` kernel step still missing from the
+current repository: injectivity of the explicit residue-unit map on every
+ideal-class fiber. -/
+theorem hasInertPrimeWeberCM_of_fiberResidueUnit_injective
+    (hinj : ∀ (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
+      (_hp : Nat.Prime p) (hp8 : p % 8 = 3) (_hp_ne_three : p ≠ 3)
+      (C : ClassGroup (𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ)))),
+      Function.Injective (conductorTwoIdealClassFiberResidueUnit p hp8 C)) :
+    HasInertPrimeWeberCM := by
   intro p _ _ hp hp8 hp_ne_three hclass
-  exact exists_weber_certificate_of_classNumber_one_inert_prime_of_forms
-    p hp hp8 hp_ne_three hclass
+  exact exists_weber_certificate_of_classNumber_one_inert_prime_of_fiberResidueUnit_injective
+    p hp hp8 hp_ne_three hclass (hinj p hp hp8 hp_ne_three)
 
 
 end Heegner

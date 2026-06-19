@@ -101,7 +101,12 @@ This is exactly the missing order/Picard class-number formula input: primitive
 reduced forms of discriminant `-4p` count the conductor-`2` order class number,
 and Cox's formula relates it to the maximal-order class number with the inert
 local factor at `2`.  The hypothesis `p ≠ 3` records that the unit index in Cox
-Theorem 7.24 is `1`; the exceptional `p = 3` order has extra units. -/
+Theorem 7.24 is `1`; the exceptional `p = 3` order has extra units.
+
+The BHS conductor-`2` assembly does not use an unconditional proof of this Prop.
+That full Cox 7.24 / Corollary 7.28 route is future quadratic-order/Picard-group
+infrastructure.  The current assembly keeps only sorry-free finite-table
+instances of this Prop and the conditional fiber-residue upper-bound route. -/
 def ConductorTwoOrderClassNumberFormula
     (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
     (_hp8 : p % 8 = 3) (_hp_ne_three : p ≠ 3) : Prop :=
