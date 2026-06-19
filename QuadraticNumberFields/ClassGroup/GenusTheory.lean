@@ -916,6 +916,42 @@ structure OddGenusFormulaData
       (∀ P : {p // p ∈ oddPrimeDiscriminantDivisors d},
         oddGenusCharacterProductOnSquareClassQuotient d hd_neg character C P = 1) → C = 1
 
+/-- Surjectivity of the odd genus-character product together with trivial product
+kernel packages the complete odd genus-formula data. -/
+theorem OddGenusFormulaData.of_surjective_of_ker_eq_bot
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd_neg : d < 0)
+    (hdata : OddGenusCharacterData d)
+    (hrel : oddGenusProductRelation d hd_neg hdata)
+    (hsurj :
+      Function.Surjective (oddGenusCharacterProductToRelationSubgroup d hd_neg hdata hrel))
+    (hker : (oddGenusCharacterProductToRelationSubgroup d hd_neg hdata hrel).ker = ⊥) :
+    OddGenusFormulaData d hd_neg where
+  character := hdata
+  relation := hrel
+  surjective := hsurj
+  principalKernel :=
+    (oddGenusCharacterProductToRelationSubgroup_ker_eq_bot_iff d hd_neg hdata hrel).mp hker
+
+/-- Bijectivity of the relation-subgroup-valued odd genus-character product packages
+the complete odd genus-formula data. -/
+theorem OddGenusFormulaData.of_bijective
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd_neg : d < 0)
+    (hdata : OddGenusCharacterData d)
+    (hrel : oddGenusProductRelation d hd_neg hdata)
+    (hbij :
+      Function.Bijective (oddGenusCharacterProductToRelationSubgroup d hd_neg hdata hrel)) :
+    OddGenusFormulaData d hd_neg where
+  character := hdata
+  relation := hrel
+  surjective := hbij.2
+  principalKernel := by
+    have hker :
+        (oddGenusCharacterProductToRelationSubgroup d hd_neg hdata hrel).ker = ⊥ :=
+      (MonoidHom.ker_eq_bot_iff
+        (oddGenusCharacterProductToRelationSubgroup d hd_neg hdata hrel)).mpr hbij.1
+    exact
+      (oddGenusCharacterProductToRelationSubgroup_ker_eq_bot_iff d hd_neg hdata hrel).mp hker
+
 /-- Surjectivity of the relation-subgroup-valued odd genus-character product gives
 the genus-theory divisibility needed by the class-number-one sieve. -/
 theorem genus_divisibility_of_oddGenusCharacterProduct_surjective
