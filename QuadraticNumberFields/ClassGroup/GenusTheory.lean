@@ -896,6 +896,26 @@ theorem oddGenusCharacterProductToRelationSubgroup_ker_eq_bot_iff
     have hval := congr_arg Subtype.val hC
     exact congr_fun hval P
 
+/-- Complete odd-discriminant genus-theory data for the current class-group interface.
+
+This bundles the individual odd-prime genus characters, the single product relation,
+surjectivity onto the relation subgroup, and the principal-kernel theorem saying that a
+class in `Cl / Cl²` with all odd-prime genus characters trivial is itself trivial. -/
+structure OddGenusFormulaData
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd_neg : d < 0) where
+  /-- Individual odd-prime genus characters. -/
+  character : OddGenusCharacterData d
+  /-- The single product relation among the odd-prime genus characters. -/
+  relation : oddGenusProductRelation d hd_neg character
+  /-- Every sign vector satisfying the product relation occurs as an odd genus character. -/
+  surjective :
+    Function.Surjective (oddGenusCharacterProductToRelationSubgroup d hd_neg character relation)
+  /-- The principal-kernel theorem for the odd-prime genus characters. -/
+  principalKernel :
+    ∀ C : ClassGroup (𝓞 (Qsqrtd (d : ℚ))) ⧸ squareClassSubgroup d,
+      (∀ P : {p // p ∈ oddPrimeDiscriminantDivisors d},
+        oddGenusCharacterProductOnSquareClassQuotient d hd_neg character C P = 1) → C = 1
+
 /-- Surjectivity of the relation-subgroup-valued odd genus-character product gives
 the genus-theory divisibility needed by the class-number-one sieve. -/
 theorem genus_divisibility_of_oddGenusCharacterProduct_surjective
@@ -1079,6 +1099,16 @@ theorem genusFormula_iff_oddGenusPrincipalKernel_of_surjective
     d hd_neg hodd hdata hrel hsurj]
   rw [oddGenusCharacterProductToRelationSubgroup_ker_eq_bot_iff]
 
+/-- In the odd field-discriminant branch, complete odd genus-formula data proves
+the standard genus formula. -/
+theorem genusFormula_of_oddGenusFormulaData
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd_neg : d < 0)
+    (hodd : RingOfIntegers.discrFormula d % 2 ≠ 0)
+    (hdata : OddGenusFormulaData d hd_neg) :
+    genusFormula d :=
+  (genusFormula_iff_oddGenusPrincipalKernel_of_surjective d hd_neg hodd
+    hdata.character hdata.relation hdata.surjective).2 hdata.principalKernel
+
 /-- For odd fundamental discriminants (`d % 4 = 1`), surjectivity of the
 relation-subgroup-valued odd genus-character product proves the standard genus formula
 once the reverse cardinality inequality for the principal-genus quotient is known. -/
@@ -1152,6 +1182,18 @@ theorem genusFormula_iff_oddGenusPrincipalKernel_of_surjective_of_mod_four_eq_on
     omega
   exact genusFormula_iff_oddGenusPrincipalKernel_of_surjective
     d hd_neg hodd hdata hrel hsurj
+
+/-- For odd fundamental discriminants (`d % 4 = 1`), complete odd genus-formula data
+proves the standard genus formula. -/
+theorem genusFormula_of_oddGenusFormulaData_of_mod_four_eq_one
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd_neg : d < 0)
+    (hd4 : d % 4 = 1)
+    (hdata : OddGenusFormulaData d hd_neg) :
+    genusFormula d := by
+  have hodd : RingOfIntegers.discrFormula d % 2 ≠ 0 := by
+    rw [RingOfIntegers.discrFormula_of_mod_four_eq_one hd4]
+    omega
+  exact genusFormula_of_oddGenusFormulaData d hd_neg hodd hdata
 
 /-- In the odd field-discriminant branch, the existing odd-prime genus-character
 interface implies the standard genus formula. -/
@@ -1392,6 +1434,30 @@ theorem classNumber_eq_one_imp_exists_prime_of_oddGenusCharacterData
     ∃ p : ℕ, Nat.Prime p ∧ p % 4 = 3 ∧ d = -(p : ℤ) :=
   classNumber_eq_one_imp_exists_prime_of_odd_discr d hd hodd
     (genusFormula_of_oddGenusCharacterData d hd hodd hdata hrel hbij) h
+
+/-- In the odd field-discriminant branch, complete odd genus-formula data is enough
+to reduce class number one to the prime-discriminant family. -/
+theorem classNumber_eq_one_imp_exists_prime_of_oddGenusFormulaData
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : d < 0)
+    (hodd : RingOfIntegers.discrFormula d % 2 ≠ 0)
+    (hdata : OddGenusFormulaData d hd)
+    (h : NumberField.classNumber (Qsqrtd (d : ℚ)) = 1) :
+    ∃ p : ℕ, Nat.Prime p ∧ p % 4 = 3 ∧ d = -(p : ℤ) :=
+  classNumber_eq_one_imp_exists_prime_of_odd_discr d hd hodd
+    (genusFormula_of_oddGenusFormulaData d hd hodd hdata) h
+
+/-- For odd fundamental discriminants (`d % 4 = 1`), complete odd genus-formula
+data reduces class number one to the prime-discriminant family. -/
+theorem classNumber_eq_one_imp_exists_prime_of_oddGenusFormulaData_of_mod_four_eq_one
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : d < 0)
+    (hd4 : d % 4 = 1)
+    (hdata : OddGenusFormulaData d hd)
+    (h : NumberField.classNumber (Qsqrtd (d : ℚ)) = 1) :
+    ∃ p : ℕ, Nat.Prime p ∧ p % 4 = 3 ∧ d = -(p : ℤ) := by
+  have hodd : RingOfIntegers.discrFormula d % 2 ≠ 0 := by
+    rw [RingOfIntegers.discrFormula_of_mod_four_eq_one hd4]
+    omega
+  exact classNumber_eq_one_imp_exists_prime_of_oddGenusFormulaData d hd hodd hdata h
 
 end ClassGroup
 end QuadraticNumberFields
