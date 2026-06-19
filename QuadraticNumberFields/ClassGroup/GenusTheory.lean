@@ -924,6 +924,29 @@ theorem genusFormula_of_oddGenusCharacterProductToRelationSubgroup_bijective_of_
   genusFormula_of_oddGenusCharacterProductToRelationSubgroup_bijective d hd_neg hdata hrel hbij
     (card_oddGenusSignRelationSubgroup_of_discr_odd d hodd)
 
+/-- In the odd field-discriminant branch, surjectivity of the relation-subgroup-valued
+odd genus-character product proves the standard genus formula once the reverse
+cardinality inequality for the principal-genus quotient is known. -/
+theorem genusFormula_of_oddGenusCharacterProduct_surjective_of_card_le
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd_neg : d < 0)
+    (hodd : RingOfIntegers.discrFormula d % 2 ≠ 0)
+    (hdata : OddGenusCharacterData d)
+    (hrel : oddGenusProductRelation d hd_neg hdata)
+    (hsurj :
+      Function.Surjective (oddGenusCharacterProductToRelationSubgroup d hd_neg hdata hrel))
+    (hle : Nat.card (ClassGroup (𝓞 (Qsqrtd (d : ℚ))) ⧸ squareClassSubgroup d) ≤
+      Nat.card (oddGenusSignRelationSubgroup d)) :
+    genusFormula d := by
+  letI := _root_.NumberField.RingOfIntegers.instFintypeClassGroup (Qsqrtd (d : ℚ))
+  have htarget_le : Nat.card (oddGenusSignRelationSubgroup d) ≤
+      Nat.card (ClassGroup (𝓞 (Qsqrtd (d : ℚ))) ⧸ squareClassSubgroup d) :=
+    Nat.card_le_card_of_surjective _ hsurj
+  have hcard : Nat.card (ClassGroup (𝓞 (Qsqrtd (d : ℚ))) ⧸ squareClassSubgroup d) =
+      Nat.card (oddGenusSignRelationSubgroup d) :=
+    le_antisymm hle htarget_le
+  dsimp [genusFormula]
+  rw [hcard, card_oddGenusSignRelationSubgroup_of_discr_odd d hodd]
+
 /-- In the odd field-discriminant branch, the existing odd-prime genus-character
 interface implies the standard genus formula. -/
 theorem genusFormula_of_oddGenusCharacterData
