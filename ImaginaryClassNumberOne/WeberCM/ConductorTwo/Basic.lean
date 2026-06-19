@@ -14,6 +14,10 @@ import QuadraticNumberFields.RingOfIntegers.Discriminant
 This file contains the shared conductor-`2` interface statements used by the
 Weber/CM assembly: the class-number-three Prop, discriminant bridges, and the
 specialized order class-number formula interface.
+
+The reusable home for the future order/Picard theory is
+`QuadraticNumberFields.QuadraticOrder`.  This file keeps only the
+prime-branch-specific conductor-`2` specialization needed by the Weber/CM route.
 -/
 
 attribute [-instance] DivisionRing.toRatAlgebra
@@ -105,8 +109,9 @@ Theorem 7.24 is `1`; the exceptional `p = 3` order has extra units.
 
 The BHS conductor-`2` assembly does not use an unconditional proof of this Prop.
 That full Cox 7.24 / Corollary 7.28 route is future quadratic-order/Picard-group
-infrastructure.  The current assembly keeps only sorry-free finite-table
-instances of this Prop and the conditional fiber-residue upper-bound route. -/
+infrastructure, whose general API belongs under `QuadraticNumberFields.QuadraticOrder`.
+The current assembly keeps only sorry-free finite-table instances of this Prop
+and the conditional fiber-residue upper-bound route. -/
 def ConductorTwoOrderClassNumberFormula
     (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
     (_hp8 : p % 8 = 3) (_hp_ne_three : p ≠ 3) : Prop :=
