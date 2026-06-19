@@ -7,6 +7,7 @@ import FormClassGroup.ClassGroup.ClassNumber
 import FormClassGroup.ClassGroup.Law
 import ImaginaryClassNumberOne.WeberData.Core
 import Mathlib.Algebra.Order.BigOperators.Group.Finset
+import QuadraticNumberFields.RingOfIntegers.Discriminant
 import QNFMathlib.NumberTheory.LegendreSymbol.KroneckerSymbol
 
 /-!
@@ -27,6 +28,8 @@ binary quadratic forms.
   `Zsqrtd (-p)` conductor-`2` order has basis discriminant `-4p`.
 * `conductor_two_zsqrtd_basis_discriminant_eq_conductor_square_mul_fieldDiscriminant`:
   the same discriminant equals `2 ^ 2` times the field discriminant.
+* `conductor_two_zsqrtd_basis_discriminant_eq_conductor_square_mul_numberField_discr`:
+  the same bridge stated using `NumberField.discr`.
 * `conductor_two_reduced_forms_card_eq_three_of_mem_heegnerPrimeSet`: the
   finite-table reduced-form computation for the non-exceptional inert Heegner
   primes.
@@ -110,6 +113,19 @@ theorem conductor_two_zsqrtd_basis_discriminant_eq_conductor_square_mul_fieldDis
       (2 : ℤ) ^ 2 * BinaryQuadraticForm.fieldDiscriminant (-(p : ℤ)) := by
   rw [conductor_two_zsqrtd_basis_discriminant_eq_neg_four_mul,
     conductor_two_order_discriminant_eq_neg_four_mul p hp8]
+
+/-- The concrete conductor-`2` order model `Zsqrtd (-p)` has discriminant
+`2 ^ 2` times the number-field discriminant in the inert branch. -/
+theorem conductor_two_zsqrtd_basis_discriminant_eq_conductor_square_mul_numberField_discr
+    (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
+    (hp8 : p % 8 = 3) :
+    Algebra.discr ℤ (QuadraticAlgebra.basis (-(p : ℤ)) 0 :
+      Module.Basis (Fin 2) ℤ (Zsqrtd (-(p : ℤ)))) =
+      (2 : ℤ) ^ 2 * NumberField.discr (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ)) := by
+  rw [conductor_two_zsqrtd_basis_discriminant_eq_neg_four_mul,
+    RingOfIntegers.discr_of_mod_four_eq_one (-(p : ℤ))
+      (Int.neg_natCast_emod_four_eq_one_of_nat_mod_eight_eq_three hp8)]
+  ring
 
 /-- The conductor-`2` local factor in Cox's order class-number formula is `3`
 for the inert-prime branch `p ≡ 3 (mod 8)`. -/
