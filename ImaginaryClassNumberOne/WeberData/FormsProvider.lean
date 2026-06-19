@@ -9,6 +9,7 @@ import FormClassGroup.ClassGroup.Law
 import ImaginaryClassNumberOne.WeberData.Core
 import Mathlib.Algebra.Order.BigOperators.Group.Finset
 import QNFMathlib.Data.Int.Squarefree
+import QNFMathlib.RingTheory.Ideal.Span
 import QuadraticNumberFields.RingOfIntegers.Discriminant
 import QNFMathlib.NumberTheory.LegendreSymbol.KroneckerSymbol
 
@@ -534,6 +535,65 @@ theorem conductorTwoRingOfIntegersIdealOfForm_ne_zero
     simpa using congrArg QuadraticAlgebra.re haZ
   exact (ne_of_gt Q.2.2.2.1) ha0
 
+/-- If the conductor-`2` representative has odd leading coefficient, then that
+leading coefficient generates the unit ideal modulo `(2)` in the maximal order. -/
+theorem span_intCast_a_sup_span_two_eq_top_of_odd_a
+    (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
+    (Q : BinaryQuadraticForm.PrimitivePositiveDefiniteForm (-(4 * (p : ℤ))))
+    (ha : Odd Q.1.a) :
+    Ideal.span
+        ({((Q.1.a : ℤ) : 𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ)))} : Set _) ⊔
+      Ideal.span ({(2 : 𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ)))} : Set _) = ⊤ := by
+  rw [Ideal.eq_top_iff_one]
+  let O := 𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ))
+  have ha_mem : ((Q.1.a : ℤ) : O) ∈
+      Ideal.span ({((Q.1.a : ℤ) : O)} : Set O) :=
+    Ideal.subset_span (by simp)
+  have ha_mem_sup : ((Q.1.a : ℤ) : O) ∈
+      Ideal.span ({((Q.1.a : ℤ) : O)} : Set O) ⊔
+        Ideal.span ({(2 : O)} : Set O) :=
+    Ideal.mem_sup_left ha_mem
+  have h2_mem : (2 : O) ∈ Ideal.span ({(2 : O)} : Set O) :=
+    Ideal.subset_span (by simp)
+  have h2_mem_sup : (2 : O) ∈
+      Ideal.span ({((Q.1.a : ℤ) : O)} : Set O) ⊔
+        Ideal.span ({(2 : O)} : Set O) :=
+    Ideal.mem_sup_right h2_mem
+  rcases ha with ⟨k, hk⟩
+  have h_one : (1 : O) = ((Q.1.a : ℤ) : O) - (k : O) * (2 : O) := by
+    rw [hk]
+    rw [Int.cast_add, Int.cast_mul]
+    norm_num
+    ring
+  rw [h_one]
+  exact Ideal.sub_mem _ ha_mem_sup (Ideal.mul_mem_left _ (k : O) h2_mem_sup)
+
+/-- The residue unit represented by an odd leading coefficient of a conductor-`2`
+form.  This is the local unit used in the conductor-`2` kernel map. -/
+noncomputable def conductorTwoLeadingCoeffResidueUnitOfOddA
+    (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
+    (Q : BinaryQuadraticForm.PrimitivePositiveDefiniteForm (-(4 * (p : ℤ))))
+    (ha : Odd Q.1.a) :
+    (𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ)) ⧸
+      Ideal.span ({(2 : 𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ)))} : Set _))ˣ :=
+  Ideal.Quotient.unitOfSpanSupEqTop
+    (Ideal.span ({(2 : 𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ)))} : Set _))
+    (((Q.1.a : ℤ) : 𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ))))
+    (span_intCast_a_sup_span_two_eq_top_of_odd_a p Q ha)
+
+@[simp]
+theorem conductorTwoLeadingCoeffResidueUnitOfOddA_coe
+    (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
+    (Q : BinaryQuadraticForm.PrimitivePositiveDefiniteForm (-(4 * (p : ℤ))))
+    (ha : Odd Q.1.a) :
+    (conductorTwoLeadingCoeffResidueUnitOfOddA p Q ha :
+      𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ)) ⧸
+        Ideal.span ({(2 : 𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ)))} : Set _)) =
+      Ideal.Quotient.mk
+        (Ideal.span ({(2 : 𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ)))} : Set _))
+        (((Q.1.a : ℤ) : 𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ)))) := by
+  exact Ideal.Quotient.coe_unitOfSpanSupEqTop _ _ _
+
 /-- If the chosen conductor-`2` form representative has odd leading coefficient,
 then its extended maximal-order ideal is coprime to `(2)`. -/
 theorem span_two_sup_conductorTwoRingOfIntegersIdealOfForm_eq_top_of_odd_a
@@ -578,6 +638,31 @@ theorem exists_properEquivalent_span_two_sup_conductorTwoRingOfIntegersIdealOfFo
       Q with ⟨R, hQR, hRa⟩
   exact ⟨R, hQR,
     span_two_sup_conductorTwoRingOfIntegersIdealOfForm_eq_top_of_odd_a p hp8 R hRa⟩
+
+/-- Every conductor-`2` form has a properly equivalent representative whose
+extended ideal is coprime to `(2)` and whose leading coefficient gives an
+explicit unit modulo `(2)`. -/
+theorem exists_properEquivalent_prime_to_two_with_leading_coeff_residue_unit
+    (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
+    (hp8 : p % 8 = 3)
+    (Q : BinaryQuadraticForm.PrimitivePositiveDefiniteForm (-(4 * (p : ℤ)))) :
+    ∃ R : BinaryQuadraticForm.PrimitivePositiveDefiniteForm (-(4 * (p : ℤ))),
+      BinaryQuadraticForm.PrimitivePositiveDefiniteForm.ProperEquivalent Q R ∧
+        Ideal.span ({(2 : 𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ)))} : Set _) ⊔
+          conductorTwoRingOfIntegersIdealOfForm p hp8 R = ⊤ ∧
+        ∃ u : (𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ)) ⧸
+            Ideal.span ({(2 : 𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ)))} : Set _))ˣ,
+          (u : 𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ)) ⧸
+              Ideal.span ({(2 : 𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ)))} : Set _)) =
+            Ideal.Quotient.mk
+              (Ideal.span ({(2 : 𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ)))} : Set _))
+              (((R.1.a : ℤ) : 𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ)))) := by
+  rcases BinaryQuadraticForm.exists_properEquivalent_odd_a_of_discriminant_neg_four_mul_natCast
+      Q with ⟨R, hQR, hRa⟩
+  refine ⟨R, hQR,
+    span_two_sup_conductorTwoRingOfIntegersIdealOfForm_eq_top_of_odd_a p hp8 R hRa,
+    ?_⟩
+  exact ⟨conductorTwoLeadingCoeffResidueUnitOfOddA p R hRa, by simp⟩
 
 /-- The ring-of-integers ideal attached to a conductor-`2` form, packaged as a
 nonzero ideal for `ClassGroup.mk0`. -/

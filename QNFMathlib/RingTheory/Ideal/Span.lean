@@ -6,6 +6,7 @@ Authors: Frankie Wang
 
 import Mathlib.RingTheory.Ideal.Maps
 import Mathlib.RingTheory.Ideal.Operations
+import Mathlib.RingTheory.Ideal.Quotient.Operations
 import Mathlib.RingTheory.Ideal.Span
 
 /-!
@@ -15,6 +16,68 @@ Material destined for mathlib.
 -/
 
 namespace Ideal
+
+/-- An element of a quotient by `I` is a unit iff its representative generates
+the unit ideal modulo `I`. -/
+theorem Quotient.isUnit_mk_iff_span_sup_eq_top {R : Type*} [CommRing R]
+    (I : Ideal R) (x : R) :
+    IsUnit (Quotient.mk I x) ↔ span ({x} : Set R) ⊔ I = ⊤ := by
+  constructor
+  · intro hx
+    rw [Ideal.eq_top_iff_one]
+    rcases isUnit_iff_exists.mp hx with ⟨y, hxy, _hyx⟩
+    rcases Quotient.mk_surjective y with ⟨r, rfl⟩
+    have hmem : x * r - 1 ∈ I := by
+      have hmk : Quotient.mk I (x * r) = Quotient.mk I 1 := by
+        simpa using hxy
+      exact (Quotient.mk_eq_mk_iff_sub_mem (I := I) (x * r) 1).mp hmk
+    have hxmem : x * r ∈ span ({x} : Set R) := by
+      exact Ideal.mul_mem_right r _ (Ideal.subset_span (by simp))
+    have hsup_xr : x * r ∈ span ({x} : Set R) ⊔ I :=
+      Ideal.mem_sup_left hxmem
+    have hsup_sub : x * r - 1 ∈ span ({x} : Set R) ⊔ I :=
+      Ideal.mem_sup_right hmem
+    have hsub : x * r - (x * r - 1) ∈ span ({x} : Set R) ⊔ I :=
+      Ideal.sub_mem _ hsup_xr hsup_sub
+    simpa using hsub
+  · intro htop
+    rw [Ideal.eq_top_iff_one] at htop
+    rcases (Submodule.mem_sup.mp htop) with ⟨a, ha, b, hb, hab⟩
+    rw [Ideal.mem_span_singleton] at ha
+    rcases ha with ⟨r, hr⟩
+    have hab' : x * r + b = 1 := by simpa [hr] using hab
+    rw [isUnit_iff_exists]
+    refine ⟨Quotient.mk I r, ?_, ?_⟩
+    · have hmem : x * r - 1 ∈ I := by
+        have hcalc : x * r - 1 = -b := by
+          calc
+            x * r - 1 = x * r - (x * r + b) := by rw [hab']
+            _ = -b := by ring
+        rw [hcalc]
+        exact I.neg_mem hb
+      exact (Quotient.mk_eq_mk_iff_sub_mem (I := I) (x * r) 1).mpr hmem
+    · have hmem : r * x - 1 ∈ I := by
+        have hcalc : r * x - 1 = -b := by
+          calc
+            r * x - 1 = x * r - 1 := by rw [mul_comm]
+            _ = x * r - (x * r + b) := by rw [hab']
+            _ = -b := by ring
+        rw [hcalc]
+        exact I.neg_mem hb
+      exact (Quotient.mk_eq_mk_iff_sub_mem (I := I) (r * x) 1).mpr hmem
+
+/-- The quotient unit represented by an element whose principal span is
+coprime to the quotient ideal. -/
+noncomputable def Quotient.unitOfSpanSupEqTop {R : Type*} [CommRing R]
+    (I : Ideal R) (x : R) (h : span ({x} : Set R) ⊔ I = ⊤) :
+    (R ⧸ I)ˣ :=
+  ((Quotient.isUnit_mk_iff_span_sup_eq_top I x).2 h).unit
+
+@[simp]
+theorem Quotient.coe_unitOfSpanSupEqTop {R : Type*} [CommRing R]
+    (I : Ideal R) (x : R) (h : span ({x} : Set R) ⊔ I = ⊤) :
+    (Quotient.unitOfSpanSupEqTop I x h : R ⧸ I) = Quotient.mk I x :=
+  IsUnit.unit_spec _
 
 /-- A span is contained in a principal span iff each generator is divisible by
 the principal generator. -/
