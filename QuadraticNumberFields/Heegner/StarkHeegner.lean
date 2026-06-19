@@ -3,7 +3,8 @@ Copyright (c) 2026 Frankie Wang. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
-import QuadraticNumberFields.ClassGroup.GenusTheory
+import QuadraticNumberFields.ClassGroup.GenusTheory.Formula
+import QuadraticNumberFields.ClassGroup.GenusTheory.Sieve
 import QuadraticNumberFields.Heegner.ClassNumberOne
 import QuadraticNumberFields.Heegner.Framework
 import QuadraticNumberFields.Heegner.IdealReductions

@@ -6,7 +6,12 @@ Authors: Frankie Wang
 import QuadraticNumberFields.ClassGroup.Computed
 import QuadraticNumberFields.ClassGroup.Divisibility
 import QuadraticNumberFields.ClassGroup.Families
-import QuadraticNumberFields.ClassGroup.GenusTheory
+import QuadraticNumberFields.ClassGroup.GenusTheory.Characters
+import QuadraticNumberFields.ClassGroup.GenusTheory.Discriminant
+import QuadraticNumberFields.ClassGroup.GenusTheory.Formula
+import QuadraticNumberFields.ClassGroup.GenusTheory.OddProduct
+import QuadraticNumberFields.ClassGroup.GenusTheory.Sieve
+import QuadraticNumberFields.ClassGroup.GenusTheory.SquareClass
 import QuadraticNumberFields.ClassGroup.Infrastructure
 import QuadraticNumberFields.ClassGroup.Minkowski
 import QuadraticNumberFields.ClassGroup.ReducedIdeals
