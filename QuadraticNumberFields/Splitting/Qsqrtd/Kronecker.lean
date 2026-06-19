@@ -3,7 +3,9 @@ Copyright (c) 2026 Frankie Wang. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
-import QNFMathlib.NumberTheory.LegendreSymbol.KroneckerSymbol
+import QNFMathlib.NumberTheory.LegendreSymbol.KroneckerSymbolPeriodicity
+import QNFMathlib.RingTheory.Ideal.Norm.AbsNorm
+import QuadraticNumberFields.Splitting.Factorization
 import QuadraticNumberFields.Splitting.Qsqrtd.Discriminant
 
 /-!
@@ -23,6 +25,11 @@ and `RingOfIntegers.discr_formula`.
   `(disc(d) / p) = -1`.
 * `isRamified_iff_kroneckerSymNat_discr_eq_zero`: `(p)` ramifies ↔
   `(disc(d) / p) = 0`.
+* `kroneckerSymNat_discr_absNorm_eq_one_of_liesOver_of_not_isRamifiedIn`:
+  if `P` lies over an unramified rational prime, then `(disc(d) / absNorm P) = 1`.
+* `kroneckerSymNat_discr_absNorm_eq_one_of_forall_prime_dvd_not_isRamifiedIn`:
+  the same statement for any nonzero ideal, checked on the rational prime divisors
+  of its absolute norm.
 
 ## Reference
 
@@ -187,6 +194,101 @@ theorem isRamified_iff_kroneckerSymNat_discr_eq_zero (p : ℕ) [Fact p.Prime] :
     · omega
     · omega
     · exact he
+
+/-! ## Prime-ideal norm consequences -/
+
+/-- If `P` lies above a split rational prime `p`, then its absolute norm is `p`. -/
+theorem absNorm_eq_prime_of_liesOver_of_isSplitIn
+    (p : ℕ) [Fact p.Prime]
+    {P : Ideal 𝓞(d)} [P.IsPrime] [P.LiesOver 𝔭(p)]
+    (hs : Ideal.IsSplitIn (𝔭(p)) 𝓞(d)) :
+    Ideal.absNorm P = p := by
+  have hchar : ringChar ℤ ≠ 2 := by simp [ringChar.eq_zero]
+  rw [Ideal.absNorm_eq_pow_inertiaDeg' (P := P) (Fact.out : Nat.Prime p)]
+  rw [Ideal.inertiaDeg_eq_one_of_isSplitIn (p := 𝔭(p)) (S := 𝓞(d)) hchar hs]
+  rw [pow_one]
+
+/-- If `P` lies above an inert rational prime `p`, then its absolute norm is `p²`. -/
+theorem absNorm_eq_prime_sq_of_liesOver_of_isInertIn
+    (p : ℕ) [Fact p.Prime]
+    {P : Ideal 𝓞(d)} [P.IsPrime] [P.LiesOver 𝔭(p)]
+    (hi : Ideal.IsInertIn (𝔭(p)) 𝓞(d)) :
+    Ideal.absNorm P = p ^ 2 := by
+  have hchar : ringChar ℤ ≠ 2 := by simp [ringChar.eq_zero]
+  have hbot : 𝔭(p) ≠ ⊥ := by
+    rw [Ne, Ideal.span_singleton_eq_bot, Nat.cast_eq_zero]
+    exact (Fact.out : Nat.Prime p).ne_zero
+  rw [Ideal.absNorm_eq_pow_inertiaDeg' (P := P) (Fact.out : Nat.Prime p)]
+  rw [Ideal.inertiaDeg_eq_two_of_isInertIn (p := 𝔭(p)) (S := 𝓞(d)) hchar hbot hi]
+
+/-- If a prime ideal `P` lies over an unramified rational prime, then the
+field-discriminant Kronecker symbol evaluates to `1` at `absNorm P`.
+
+In the split case the norm is `p` and the symbol value is `1`; in the inert
+case the norm is `p²` and the symbol value is `(-1)² = 1`. -/
+theorem kroneckerSymNat_discr_absNorm_eq_one_of_liesOver_of_not_isRamifiedIn
+    (p : ℕ) [Fact p.Prime]
+    {P : Ideal 𝓞(d)} [P.IsPrime] [P.LiesOver 𝔭(p)]
+    (hunram : ¬ Ideal.IsRamifiedIn (𝔭(p)) 𝓞(d)) :
+    kroneckerSymNat (disc(d)) (Ideal.absNorm P) = 1 := by
+  rcases split_or_inert_or_ramified d p with hsplit | hinert | hram
+  · rw [absNorm_eq_prime_of_liesOver_of_isSplitIn d p hsplit]
+    exact (isSplit_iff_kroneckerSymNat_discr_eq_one d p).mp hsplit
+  · rw [absNorm_eq_prime_sq_of_liesOver_of_isInertIn d p hinert]
+    have hk : kroneckerSymNat (disc(d)) p = -1 :=
+      (isInert_iff_kroneckerSymNat_discr_eq_neg_one d p).mp hinert
+    rw [pow_two, kroneckerSymNat_mul]
+    · rw [hk]
+      norm_num
+    · exact (Fact.out : Nat.Prime p).ne_zero
+    · exact (Fact.out : Nat.Prime p).ne_zero
+  · exact False.elim (hunram hram)
+
+/-- If every rational prime divisor of a nonzero ideal norm is unramified, then
+the field-discriminant Kronecker symbol evaluates to `1` at the ideal norm. -/
+theorem kroneckerSymNat_discr_absNorm_eq_one_of_forall_prime_dvd_not_isRamifiedIn
+    {I : Ideal 𝓞(d)}
+    (hI_ne : I ≠ ⊥)
+    (hunram : ∀ p : ℕ, p.Prime → p ∣ Ideal.absNorm I →
+      ¬ Ideal.IsRamifiedIn (𝔭(p)) 𝓞(d)) :
+    kroneckerSymNat (disc(d)) (Ideal.absNorm I) = 1 := by
+  induction I using UniqueFactorizationMonoid.induction_on_prime with
+  | h₁ =>
+      exact False.elim (hI_ne rfl)
+  | h₂ J hJ =>
+      rw [Ideal.isUnit_iff.mp hJ, Ideal.absNorm_top]
+      simp [kroneckerSymNat]
+  | h₃ J P _hJ hP ih =>
+      have hPprime : P.IsPrime := Ideal.isPrime_of_prime hP
+      have hP_ne : P ≠ ⊥ := hP.ne_zero
+      have hJ_ne : J ≠ ⊥ := by
+        intro hJbot
+        apply hI_ne
+        rw [hJbot]
+        simp
+      have hJk : kroneckerSymNat (disc(d)) (Ideal.absNorm J) = 1 := by
+        apply ih hJ_ne
+        intro q hq hqJ
+        apply hunram q hq
+        rw [Ideal.absNorm.map_mul]
+        exact dvd_mul_of_dvd_right hqJ (Ideal.absNorm P)
+      have hPk : kroneckerSymNat (disc(d)) (Ideal.absNorm P) = 1 := by
+        obtain ⟨p, hp, hcomap, hdiv⟩ :=
+          Ideal.exists_nat_prime_comap_eq_span_and_dvd_absNorm_of_isPrime hPprime hP_ne
+        haveI : Fact p.Prime := ⟨hp⟩
+        letI : P.LiesOver 𝔭(p) := ⟨hcomap.symm⟩
+        exact kroneckerSymNat_discr_absNorm_eq_one_of_liesOver_of_not_isRamifiedIn d p
+          (hunram p hp (by
+            rw [Ideal.absNorm.map_mul]
+            exact dvd_mul_of_dvd_left hdiv (Ideal.absNorm J)))
+      rw [Ideal.absNorm.map_mul]
+      rw [kroneckerSymNat_mul]
+      · rw [hPk, hJk]
+        norm_num
+      · rw [Ne, Ideal.absNorm_eq_zero_iff]
+        exact hP_ne
+      · rw [Ne, Ideal.absNorm_eq_zero_iff]
+        exact hJ_ne
 
 end Splitting
 end QuadraticNumberFields

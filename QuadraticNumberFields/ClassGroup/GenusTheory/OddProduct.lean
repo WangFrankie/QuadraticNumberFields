@@ -382,6 +382,59 @@ theorem oddGenusProductRelation_of_kroneckerSymNat_absNorm_eq_one_of_mod_four_eq
         d (Ideal.absNorm (I : Ideal (𝓞 (Qsqrtd (d : ℚ))))) hd4]
       exact hkron I hI
 
+/-- In the odd fundamental-discriminant branch, if a nonzero ideal has norm
+prime to every odd discriminant divisor, then the Kronecker symbol of the field
+discriminant evaluates to `1` at its absolute norm. -/
+theorem kroneckerSymNat_discrFormula_absNorm_eq_one_of_not_dvd_oddPrimeDiscriminantDivisors
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (hd4 : d % 4 = 1)
+    (I : (Ideal (𝓞 (Qsqrtd (d : ℚ))))⁰)
+    (hI : ∀ P : {p // p ∈ oddPrimeDiscriminantDivisors d},
+      ¬ (P.1 : ℤ) ∣ (Ideal.absNorm (I : Ideal (𝓞 (Qsqrtd (d : ℚ)))) : ℤ)) :
+    kroneckerSymNat (RingOfIntegers.discrFormula d)
+      (Ideal.absNorm (I : Ideal (𝓞 (Qsqrtd (d : ℚ))))) = 1 := by
+  rw [← RingOfIntegers.discr_formula d]
+  apply Splitting.kroneckerSymNat_discr_absNorm_eq_one_of_forall_prime_dvd_not_isRamifiedIn d
+  · exact nonZeroDivisors.coe_ne_zero I
+  · intro p hp hpabs hram
+    haveI : Fact p.Prime := ⟨hp⟩
+    have hp_disc : (p : ℤ) ∣ disc(d) :=
+      (Splitting.isRamified_iff_dvd_disc d p).mp hram
+    rw [RingOfIntegers.discr_formula d, RingOfIntegers.discrFormula_of_mod_four_eq_one hd4]
+      at hp_disc
+    have hp_mem_disc : p ∈ (RingOfIntegers.discrFormula d).natAbs.primeFactors := by
+      rw [RingOfIntegers.discrFormula_of_mod_four_eq_one hd4]
+      rw [Nat.mem_primeFactors]
+      refine ⟨hp, ?_, ?_⟩
+      · exact Int.natCast_dvd.mp hp_disc
+      · exact Int.natAbs_ne_zero.mpr (Fact.out : Squarefree d).ne_zero
+    have hp_ne_two : p ≠ 2 := by
+      intro hp2
+      subst p
+      omega
+    have hp_odd : p ∈ oddPrimeDiscriminantDivisors d := by
+      rw [mem_oddPrimeDiscriminantDivisors_iff]
+      exact ⟨hp_mem_disc, hp_ne_two⟩
+    exact hI ⟨p, hp_odd⟩ (by exact_mod_cast hpabs)
+
+/-- In the odd fundamental-discriminant branch, the product relation follows
+from a simultaneous representative theorem avoiding all odd discriminant
+divisors. -/
+theorem oddGenusProductRelation_of_forall_mk0_eq_of_forall_not_dvd_absNorm_of_mod_four_eq_one
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd_neg : d < 0)
+    (hd4 : d % 4 = 1)
+    (hdata : OddGenusCharacterData d)
+    (hrep : ∀ C : ClassGroup (𝓞 (Qsqrtd (d : ℚ))),
+      ∃ I : (Ideal (𝓞 (Qsqrtd (d : ℚ))))⁰,
+        ClassGroup.mk0 I = C ∧
+          ∀ P : {p // p ∈ oddPrimeDiscriminantDivisors d},
+            ¬ (P.1 : ℤ) ∣ (Ideal.absNorm (I : Ideal (𝓞 (Qsqrtd (d : ℚ)))) : ℤ)) :
+    oddGenusProductRelation d hd_neg hdata :=
+  oddGenusProductRelation_of_kroneckerSymNat_absNorm_eq_one_of_mod_four_eq_one
+    d hd_neg hd4 hdata hrep fun I hI =>
+      kroneckerSymNat_discrFormula_absNorm_eq_one_of_not_dvd_oddPrimeDiscriminantDivisors
+        d hd4 I hI
+
 /-- The product of the odd-prime genus characters, with codomain restricted to the
 single-relation sign subgroup. -/
 noncomputable def oddGenusCharacterProductToRelationSubgroup
