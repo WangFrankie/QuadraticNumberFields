@@ -103,6 +103,46 @@ theorem oddGenusCharacterProductOnSquareClassQuotient_prod_apply_mk'
   intro P _
   exact oddGenusCharacterProductOnSquareClassQuotient_apply_mk' d hd_neg hdata C P
 
+/-- If a class has a single ideal representative whose norm is prime to every odd
+discriminant prime, then the product of the descended odd genus characters on
+that class is the corresponding product of Legendre symbols of the representative's
+absolute norm. -/
+theorem oddGenusCharacterProduct_prod_apply_eq_prod_legendreSym_of_mk0
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd_neg : d < 0)
+    (hdata : OddGenusCharacterData d)
+    (C : ClassGroup (𝓞 (Qsqrtd (d : ℚ))))
+    (I : (Ideal (𝓞 (Qsqrtd (d : ℚ))))⁰)
+    (hC : ClassGroup.mk0 I = C)
+    (hI : ∀ P : {p // p ∈ oddPrimeDiscriminantDivisors d},
+      ¬ (P.1 : ℤ) ∣ (Ideal.absNorm (I : Ideal (𝓞 (Qsqrtd (d : ℚ)))) : ℤ)) :
+    ((Finset.univ.prod
+      (fun P : {p // p ∈ oddPrimeDiscriminantDivisors d} => by
+        haveI : Fact P.1.Prime := ⟨prime_of_mem_oddPrimeDiscriminantDivisors P.2⟩
+        exact genusCharacterOfPrincipalMultiplierData d P.1 hd_neg P.2
+          (hdata.surjective P.1 P.2) (hdata.principalMultiplier P.1 P.2) C) : ℤˣ) : ℤ) =
+      (oddPrimeDiscriminantDivisors d).prod
+        (fun p => if hp : p.Prime then @legendreSym p ⟨hp⟩
+          (Ideal.absNorm (I : Ideal (𝓞 (Qsqrtd (d : ℚ)))) : ℤ) else 1) := by
+  rw [← Finset.attach_eq_univ (s := oddPrimeDiscriminantDivisors d)]
+  conv_rhs =>
+    rw [← Finset.prod_attach (s := oddPrimeDiscriminantDivisors d)
+      (f := fun p => if hp : p.Prime then @legendreSym p ⟨hp⟩
+        (Ideal.absNorm (I : Ideal (𝓞 (Qsqrtd (d : ℚ)))) : ℤ) else 1)]
+  rw [Units.coe_prod]
+  apply Finset.prod_congr rfl
+  intro P _hP
+  haveI : Fact P.1.Prime := ⟨prime_of_mem_oddPrimeDiscriminantDivisors P.2⟩
+  let IP : idealsPrimeToNormSubmonoid d P.1 :=
+    ⟨(I : Ideal (𝓞 (Qsqrtd (d : ℚ)))), hI P⟩
+  have hmk : mk0OnPrimeToNormIdeals d P.1 IP = C := by
+    simpa [IP, mk0OnPrimeToNormIdeals, primeToNormIdealNonzeroMonoidHom] using hC
+  have happly := genusCharacterOfPrincipalMultiplierData_apply_mk0OnPrimeToNormIdeals
+    d P.1 hd_neg P.2 (hdata.surjective P.1 P.2) (hdata.principalMultiplier P.1 P.2) IP
+  rw [hmk] at happly
+  rw [happly]
+  simp [IP, genusCharacterRawUnit, genusCharacterRaw,
+    prime_of_mem_oddPrimeDiscriminantDivisors P.2]
+
 /-- Product of all coordinates of an odd-prime sign vector. -/
 noncomputable def oddGenusSignProductHom (d : ℤ) :
     (((P : {p // p ∈ oddPrimeDiscriminantDivisors d}) → ℤˣ) →* ℤˣ) where

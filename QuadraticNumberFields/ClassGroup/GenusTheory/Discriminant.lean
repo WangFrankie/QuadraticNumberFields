@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 
+import QNFMathlib.NumberTheory.LegendreSymbol.JacobiSymbol
 import QuadraticNumberFields.RingOfIntegers.Discriminant
 
 /-!
@@ -68,6 +69,22 @@ theorem card_oddPrimeDiscriminantDivisors_eq_primeDiscriminantFactorCount_of_dis
     (oddPrimeDiscriminantDivisors d).card = primeDiscriminantFactorCount d := by
   rw [oddPrimeDiscriminantDivisors_eq_primeFactors_of_discr_odd d hodd]
   rfl
+
+/-- In the odd fundamental-discriminant branch, the Jacobi symbol modulo `|d|`
+is the product of the Legendre symbols over the odd discriminant prime divisors.
+This is the finite-product bridge used by the odd genus-character product
+relation. -/
+theorem jacobiSym_natAbs_eq_prod_oddPrimeDiscriminantDivisors_of_mod_four_eq_one
+    (d a : ℤ) (hsq : Squarefree d) (hd4 : d % 4 = 1) :
+    jacobiSym a d.natAbs =
+      (oddPrimeDiscriminantDivisors d).prod
+        (fun p => if hp : p.Prime then @legendreSym p ⟨hp⟩ a else 1) := by
+  have hodd : RingOfIntegers.discrFormula d % 2 ≠ 0 := by
+    rw [RingOfIntegers.discrFormula_of_mod_four_eq_one hd4]
+    omega
+  rw [jacobiSym.eq_prod_primeFactors_of_squarefree a (Int.squarefree_natAbs.mpr hsq)]
+  rw [oddPrimeDiscriminantDivisors_eq_primeFactors_of_discr_odd d hodd]
+  rw [RingOfIntegers.discrFormula_of_mod_four_eq_one hd4]
 
 /-- Characterization of membership in `oddPrimeDiscriminantDivisors`. -/
 theorem mem_oddPrimeDiscriminantDivisors_iff (d : ℤ) (p : ℕ) :
