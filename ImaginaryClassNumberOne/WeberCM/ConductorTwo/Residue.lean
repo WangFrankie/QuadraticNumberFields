@@ -973,6 +973,53 @@ theorem conductorTwoIdealClassFiberResidueUnit_injective_of_formClassReconstruct
   · exact quotient_mk_intCast_a_eq_of_conductorTwoIdealClassFiberResidueUnit_eq
       p hp8 C Q R hres
 
+/-- Fiberwise injectivity of the residue-unit map is exactly the representative-level
+reconstruction criterion. -/
+theorem conductorTwoFormClassReconstruction_of_fiberResidueUnit_injective
+    (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
+    (hp8 : p % 8 = 3)
+    (hinj : ∀ C : ClassGroup (𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ))),
+      Function.Injective (conductorTwoIdealClassFiberResidueUnit p hp8 C)) :
+    ConductorTwoFormClassReconstruction p hp8 := by
+  intro Q R hideal hres
+  let C := conductorTwoRingOfIntegersIdealClassOfFormClass p hp8 Q
+  have hclass :
+      conductorTwoRingOfIntegersIdealClassOfFormClass p hp8 Q =
+        conductorTwoRingOfIntegersIdealClassOfFormClass p hp8 R := by
+    calc
+      conductorTwoRingOfIntegersIdealClassOfFormClass p hp8 Q =
+          conductorTwoRingOfIntegersIdealClassOfForm p hp8
+            (conductorTwoFormClassOddRepresentative p Q) :=
+        (conductorTwoRingOfIntegersIdealClassOfForm_oddRepresentative p hp8 Q).symm
+      _ = conductorTwoRingOfIntegersIdealClassOfForm p hp8
+            (conductorTwoFormClassOddRepresentative p R) := hideal
+      _ = conductorTwoRingOfIntegersIdealClassOfFormClass p hp8 R :=
+        conductorTwoRingOfIntegersIdealClassOfForm_oddRepresentative p hp8 R
+  let Q' : { Q : BinaryQuadraticForm.FormClass (-(4 * (p : ℤ))) //
+      conductorTwoRingOfIntegersIdealClassOfFormClass p hp8 Q = C } :=
+    ⟨Q, rfl⟩
+  let R' : { Q : BinaryQuadraticForm.FormClass (-(4 * (p : ℤ))) //
+      conductorTwoRingOfIntegersIdealClassOfFormClass p hp8 Q = C } :=
+    ⟨R, hclass.symm⟩
+  have hunit :
+      conductorTwoIdealClassFiberResidueUnit p hp8 C Q' =
+        conductorTwoIdealClassFiberResidueUnit p hp8 C R' := by
+    apply Units.ext
+    simpa [conductorTwoIdealClassFiberResidueUnit, conductorTwoFormClassResidueUnit_coe]
+      using hres
+  exact congrArg Subtype.val (hinj C hunit)
+
+/-- The conductor-`2` representative reconstruction criterion is equivalent to
+fiberwise injectivity of the explicit residue-unit map. -/
+theorem conductorTwoFormClassReconstruction_iff_fiberResidueUnit_injective
+    (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
+    (hp8 : p % 8 = 3) :
+    ConductorTwoFormClassReconstruction p hp8 ↔
+      ∀ C : ClassGroup (𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ))),
+        Function.Injective (conductorTwoIdealClassFiberResidueUnit p hp8 C) :=
+  ⟨conductorTwoIdealClassFiberResidueUnit_injective_of_formClassReconstruction p hp8,
+    conductorTwoFormClassReconstruction_of_fiberResidueUnit_injective p hp8⟩
+
 /-- Picard-exact-sequence-shaped kernel certificate for the conductor-`2` extension map.
 
 The local target is the concrete unit group `(𝓞K / 2𝓞K)ˣ`.  The remaining
