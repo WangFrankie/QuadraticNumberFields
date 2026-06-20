@@ -144,6 +144,18 @@ theorem conductor_two_order_class_number_formula_of_classNumber_one_of_formClass
     p hp hp8 hp_ne_three hclass
     (conductor_two_ideal_class_kernel_certificate_of_formClassReconstruction p hp8 hrec)
 
+/-- The named representative-level reconstruction criterion supplies the
+conductor-`2` class-number-three statement in the class-number-one branch. -/
+theorem conductor_two_class_number_three_of_classNumber_one_of_formClassReconstruction
+    (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
+    (hp : Nat.Prime p) (hp8 : p % 8 = 3) (hp_ne_three : p ≠ 3)
+    (hclass : classNumberQsqrtd (-(p : ℤ)) = 1)
+    (hrec : ConductorTwoFormClassReconstruction p hp8) :
+    ConductorTwoClassNumberThree p := by
+  exact conductorTwoClassNumberThree_of_reducedForms_card p
+    (conductor_two_reduced_forms_card_eq_three_of_classNumber_one_of_formClassReconstruction
+      p hp hp8 hp_ne_three hclass hrec)
+
 /-- Once the conductor-`2` order class-number formula is available, class
 number one for the maximal order and the inert local factor `3` give exactly
 three conductor-`2` primitive reduced forms. -/
@@ -249,6 +261,26 @@ theorem conductor_two_class_number_three_of_prime_of_fiberResidueUnit_injective
     (conductor_two_reduced_forms_card_eq_three_of_prime_of_fiberResidueUnit_injective
       p hp hp8 hp_ne_three hclass hinj)
 
+/-- Target-shaped conductor-`2` class-number statement using the named
+representative-level reconstruction criterion. -/
+theorem conductor_two_class_number_three_of_prime_of_formClassReconstruction
+    (p : ℕ) (hp : Nat.Prime p) (hp8 : p % 8 = 3) (hp_ne_three : p ≠ 3)
+    (hclass :
+      (letI : Fact (Squarefree (-(p : ℤ))) := ⟨Int.squarefree_neg_natCast_of_nat_prime hp⟩
+       letI : Fact ((-(p : ℤ)) ≠ 1) := ⟨Int.neg_natCast_ne_one p⟩
+       classNumberQsqrtd (-(p : ℤ)) = 1))
+    (hrec :
+      (letI : Fact (Squarefree (-(p : ℤ))) := ⟨Int.squarefree_neg_natCast_of_nat_prime hp⟩
+       letI : Fact ((-(p : ℤ)) ≠ 1) := ⟨Int.neg_natCast_ne_one p⟩
+       ConductorTwoFormClassReconstruction p hp8)) :
+    ConductorTwoClassNumberThree p := by
+  haveI : Fact (Squarefree (-(p : ℤ))) :=
+    ⟨Int.squarefree_neg_natCast_of_nat_prime hp⟩
+  haveI : Fact ((-(p : ℤ)) ≠ 1) :=
+    ⟨Int.neg_natCast_ne_one p⟩
+  exact conductor_two_class_number_three_of_classNumber_one_of_formClassReconstruction
+    p hp hp8 hp_ne_three hclass hrec
+
 /-- **Deep Weber/CM input from conductor-two class number three.**
 The conductor-`2` class-number-three input supplies the refined Weber certificate:
 a concrete Heegner equation solution, the associated gamma value, and its
@@ -285,6 +317,19 @@ theorem exists_weber_certificate_of_classNumber_one_inert_prime_of_fiberResidueU
     (conductor_two_class_number_three_of_classNumber_one_of_fiberResidueUnit_injective
       p hp hp8 hp_ne_three hclass hinj)
 
+/-- The named representative-level reconstruction criterion supplies Weber/CM
+algebraic certificates from class number one in the non-exceptional inert branch. -/
+theorem exists_weber_certificate_of_classNumber_one_inert_prime_of_formClassReconstruction
+    (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
+    (hp : Nat.Prime p) (hp8 : p % 8 = 3) (hp_ne_three : p ≠ 3)
+    (hclass : classNumberQsqrtd (-(p : ℤ)) = 1)
+    (hrec : ConductorTwoFormClassReconstruction p hp8) :
+    Nonempty (StarkHeegnerAlgebraicCertificate p) := by
+  exact exists_weber_certificate_of_conductor_two_class_number_three
+    p hp hp8 hp_ne_three
+    (conductor_two_class_number_three_of_classNumber_one_of_formClassReconstruction
+      p hp hp8 hp_ne_three hclass hrec)
+
 /-- The conditional reduced-forms route packaged as the core Weber/CM input.
 
 The hypothesis is the named conductor-`2` kernel step still missing from the
@@ -300,6 +345,16 @@ theorem hasInertPrimeWeberCM_of_fiberResidueUnit_injective
   exact exists_weber_certificate_of_classNumber_one_inert_prime_of_fiberResidueUnit_injective
     p hp hp8 hp_ne_three hclass (hinj p hp hp8 hp_ne_three)
 
+/-- The conditional reduced-forms route packaged with the named representative-level
+reconstruction criterion as the missing conductor-`2` input. -/
+theorem hasInertPrimeWeberCM_of_formClassReconstruction
+    (hrec : ∀ (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
+      (_hp : Nat.Prime p) (hp8 : p % 8 = 3) (_hp_ne_three : p ≠ 3),
+      ConductorTwoFormClassReconstruction p hp8) :
+    HasInertPrimeWeberCM := by
+  intro p _ _ hp hp8 hp_ne_three hclass
+  exact exists_weber_certificate_of_classNumber_one_inert_prime_of_formClassReconstruction
+    p hp hp8 hp_ne_three hclass (hrec p hp hp8 hp_ne_three)
 
 end Heegner
 end QuadraticNumberFields
