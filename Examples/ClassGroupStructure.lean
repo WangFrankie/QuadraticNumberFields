@@ -4,9 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 
-import QuadraticNumberFields.Examples.ClassGroupStructure.StandardTargets
-import QuadraticNumberFields.Examples.ClassGroupStructure.ReducedFormTables
-import QuadraticNumberFields.Examples.ClassGroupStructure.Computations
+import Examples.ClassGroupStructure.StandardTargets
+import Examples.ClassGroupStructure.ReducedFormTables
+import Examples.ClassGroupStructure.Computations
 
 /-!
 # Class Group Structure Examples

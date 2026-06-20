@@ -6,7 +6,8 @@ defaultTargets = [
   "BinaryQuadraticForms",
   "QuadraticNumberFields",
   "FormClassGroup",
-  "ImaginaryClassNumberOne"
+  "ImaginaryClassNumberOne",
+  "Examples"
 ]
 lintDriver = "runLinter"
 
@@ -48,6 +49,9 @@ name = "FormClassGroup"
 
 [[lean_lib]]
 name = "ImaginaryClassNumberOne"
+
+[[lean_lib]]
+name = "Examples"
 
 [[lean_exe]]
 name = "runLinter"

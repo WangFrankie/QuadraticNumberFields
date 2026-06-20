@@ -47,15 +47,6 @@ import BinaryQuadraticForms.Core.Class
 import BinaryQuadraticForms.Core.Enumeration
 import BinaryQuadraticForms.Core.Reduction
 import QuadraticNumberFields.ClassNumber
-import QuadraticNumberFields.Examples.SqrtNeg5.Ideals
-import QuadraticNumberFields.Examples.SqrtNeg5.RamificationInertia
-import QuadraticNumberFields.Examples.SqrtNeg5.Splitting
-import QuadraticNumberFields.Examples.SqrtNeg5.Invariants
-import QuadraticNumberFields.Examples.SqrtNeg5.ClassNumber
-import QuadraticNumberFields.Examples.SqrtNeg5.Forms
-import QuadraticNumberFields.Examples.Sqrt17.Splitting
-import QuadraticNumberFields.Examples.Sqrt17.Invariants
-import QuadraticNumberFields.Examples.Sqrt17.ClassNumber
 import QuadraticNumberFields.Qsqrtd.TotallyRealComplex
 import QuadraticNumberFields.Units.Pell
 import QuadraticNumberFields.Units.Imaginary

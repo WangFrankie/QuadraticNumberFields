@@ -4,8 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 import QuadraticNumberFields.ClassNumber
-import QuadraticNumberFields.Examples.SqrtNeg5.Ideals
-import QuadraticNumberFields.Examples.SqrtNeg5.Invariants
+import Examples.SqrtNeg5.Ideals
+import Examples.SqrtNeg5.Invariants
 import QNFMathlib.NumberTheory.NumberField.ClassNumber
 import QuadraticNumberFields.RingOfIntegers.Norm
 

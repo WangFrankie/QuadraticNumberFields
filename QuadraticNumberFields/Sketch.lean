@@ -29,7 +29,7 @@ import FormClassGroup.Computable.ClassGroup
 import BinaryQuadraticForms.Computable.Composition
 import BinaryQuadraticForms.Computable.Reduction
 import FormClassGroup.Computable.Structure
-import QuadraticNumberFields.Examples.ClassGroupStructure
+import Examples.ClassGroupStructure
 import BinaryQuadraticForms.Gauss.Composition
 import FormClassGroup.Gauss.CompositionClass
 import ImaginaryClassNumberOne.Diophantine

@@ -6,7 +6,7 @@ Authors: Frankie Wang
 Computing ramification index and inertia degree for primes 2 and 3 in ℤ[√-5].
 Ported from the ANT project.
 -/
-import QuadraticNumberFields.Examples.SqrtNeg5.Ideals
+import Examples.SqrtNeg5.Ideals
 import Mathlib.NumberTheory.RamificationInertia.Basic
 import Mathlib.LinearAlgebra.Dimension.Finrank
 

@@ -4,8 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 
-import QuadraticNumberFields.Examples.ClassGroupStructure.ReducedFormTables
-import QuadraticNumberFields.Examples.SqrtNeg5.Forms
+import Examples.ClassGroupStructure.ReducedFormTables
+import Examples.SqrtNeg5.Forms
 import Mathlib.Data.ZMod.Basic
 import Mathlib.NumberTheory.NumberField.Basic
 

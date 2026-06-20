@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 import QuadraticNumberFields.ClassNumber
-import QuadraticNumberFields.Examples.Sqrt17.Invariants
+import Examples.Sqrt17.Invariants
 import QuadraticNumberFields.RingOfIntegers.Norm
 
 /-!
