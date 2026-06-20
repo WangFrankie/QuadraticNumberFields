@@ -5,7 +5,7 @@ Authors: Frankie Wang
 -/
 
 import Mathlib.Data.ZMod.Basic
-import QuadraticNumberFields.ClassNumber
+import QuadraticNumberFields.ClassGroup.ClassNumber
 import FormClassGroup.ClassGroup.Law
 import FormClassGroup.ClassGroup.ClassNumber
 

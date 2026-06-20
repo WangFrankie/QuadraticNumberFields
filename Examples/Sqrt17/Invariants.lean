@@ -7,7 +7,7 @@ import QuadraticNumberFields.RingOfIntegers.Classification
 import QuadraticNumberFields.RingOfIntegers.Discriminant
 import QuadraticNumberFields.Qsqrtd.TotallyRealComplex
 import QuadraticNumberFields.Qsqrtd.Galois
-import QuadraticNumberFields.ClassNumber
+import QuadraticNumberFields.ClassGroup.Minkowski
 import QuadraticNumberFields.Zsqrtd.Dedekind
 import QuadraticNumberFields.RingOfIntegers.CommonInstances
 

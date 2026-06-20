@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 import QuadraticNumberFields.ClassGroup.Torsion
-import QuadraticNumberFields.ClassNumber
+import QuadraticNumberFields.ClassGroup.SmallNorm
 import Examples.SqrtNeg5.Ideals
 import Examples.SqrtNeg5.Invariants
 import Mathlib.GroupTheory.SpecificGroups.Cyclic

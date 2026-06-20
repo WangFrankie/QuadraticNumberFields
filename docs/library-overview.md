@@ -241,16 +241,19 @@ Key declarations include `factorization_of_two`,
 
 ### Class-Number Interface
 
-File: `QuadraticNumberFields/ClassNumber.lean`
+Files under `QuadraticNumberFields/ClassGroup/`
 
 The stable library specializes mathlib's Minkowski ideal-class representative
 bound to `Qsqrtd d` and owns the unified class-number interface:
 
-- `classNumberQsqrtd`
-- `Qsqrtd.minkowskiBound`
-- `Qsqrtd.exists_ideal_in_class_of_norm_le`
-- `Qsqrtd.exists_ideal_in_class_of_norm_le_imaginary`
-- `Qsqrtd.exists_ideal_in_class_of_norm_le_real`
+- `ClassGroup/ClassNumber.lean`: `classNumberQsqrtd` and the bridge from trivial
+  ideal class group to class number one.
+- `ClassGroup/SmallNorm.lean`: small-norm class-group closure criteria such as
+  `classGroup_eq_one_or_of_exists_ideal_norm_lt_three`.
+- `ClassGroup/Minkowski.lean`: `Qsqrtd.minkowskiBound`,
+  `Qsqrtd.exists_ideal_in_class_of_norm_le`,
+  `Qsqrtd.exists_ideal_in_class_of_norm_le_imaginary`, and
+  `Qsqrtd.exists_ideal_in_class_of_norm_le_real`.
 
 The Heegner wrappers for this interface live in
 `ImaginaryClassNumberOne/ClassNumberBridge.lean`, while the reduced-form
@@ -348,8 +351,7 @@ results, examples, and remaining research-oriented scaffolding.
 │   ├── ZOnePlusSqrtOverTwo/
 │   │   └── Basic.lean
 │   ├── Splitting/                    # prime splitting
-│   ├── ClassNumber/                  # core class-number interface
-│   ├── ClassGroup/                   # class-group scaffolding
+│   ├── ClassGroup/                   # class-number, class-group, and genus theory
 │   ├── ContinuedFraction/            # continued-fraction scaffolding
 │   ├── Units/                        # unit and Pell scaffolding
 │   ├── Families/                     # real-quadratic family scaffolding
