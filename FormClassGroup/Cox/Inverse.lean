@@ -29,7 +29,7 @@ Q(x, y) = N_{K/ℚ}(x α + y β) / N(I).
 The orientation condition `(α β' - α' β) / √d > 0` picks the proper-equivalence
 class; changing the oriented basis by `SL₂(ℤ)` yields a properly equivalent form.
 The resulting map `ClassGroup (𝓞 K) → FormClass (fieldDiscriminant d)` is inverse
-to the forward Cox map defined in `QuadraticNumberFields.Forms.Cox.Bridge`.
+to the forward Cox map defined in `FormClassGroup.Cox.Bridge`.
 
 We work almost entirely with integral ideals, using `ClassGroup.mk0_surjective` to
 reduce from fractional ideal classes.

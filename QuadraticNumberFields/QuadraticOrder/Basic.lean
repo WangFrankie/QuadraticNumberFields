@@ -20,7 +20,7 @@ dependency but are not specific to the Weber/CM conductor-`2` route.
 * Pure mathlib lemmas about existing objects such as `CommRing.Pic`, `ClassGroup`,
   `FractionalIdeal`, `Ideal`, or `Submodule` belong under `QNFMathlib`.
 * Prime-specific Weber/CM conductor-`2` statements belong under
-  `QuadraticNumberFields.Heegner.WeberCM.ConductorTwo`.
+  `ImaginaryClassNumberOne.WeberCM.ConductorTwo`.
 
 ## Main definitions
 

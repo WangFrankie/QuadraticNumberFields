@@ -11,8 +11,8 @@ import ImaginaryClassNumberOne.Diophantine
 import ImaginaryClassNumberOne.Framework
 import ImaginaryClassNumberOne.IdealReductions
 import ImaginaryClassNumberOne.StarkHeegner
-import ImaginaryClassNumberOne.WeberData.Core
-import ImaginaryClassNumberOne.WeberData.FormsProvider
+import ImaginaryClassNumberOne.WeberCM.Core
+import ImaginaryClassNumberOne.WeberCM.ConductorTwo.Assembly
 
 /-!
 # Imaginary Class Number One
