@@ -16,6 +16,7 @@ build/
 .idea/
 *.swp
 *~
+.ipynb_checkpoints/
 
 # OS
 .DS_Store
@@ -27,6 +28,7 @@ docbuild/
 _site/
 
 # Python
+.venv/
 __pycache__/
 *.py[cod]
 
