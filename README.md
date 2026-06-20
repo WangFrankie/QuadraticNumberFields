@@ -12,10 +12,12 @@ The stable, sorry-free public entry point is:
 import QuadraticNumberFields
 ```
 
-Work-in-progress and research scaffolding are kept separate:
+App-layer entry points are separate Lake libraries:
 
 ```lean
-import QuadraticNumberFields.Sketch
+import FormClassGroup
+import ImaginaryClassNumberOne
+import Examples
 ```
 
 ## Highlights
@@ -59,9 +61,13 @@ lake build
 
 ## Development Notes
 
-- `QuadraticNumberFields.lean` re-exports completed, sorry-free public modules.
-- `QuadraticNumberFields/Sketch.lean` collects unfinished modules and theorem
-  skeletons.
+- `QuadraticNumberFields.lean` is the core quadratic-number-field entry point.
+- `FormClassGroup.lean` re-exports the QNF-dependent binary-quadratic-form
+  route to imaginary quadratic class groups.
+- `ImaginaryClassNumberOne.lean` re-exports the Heegner class-number-one and
+  Baker--Heegner--Stark app layer.
+- `Examples.lean` re-exports concrete examples and computed class-group
+  structure examples.
 - `BinaryQuadraticForms.lean` re-exports the QNF-independent binary-quadratic-form
   machinery used by the class-group bridge.
 - General-purpose facts intended for mathlib live under
@@ -72,28 +78,104 @@ lake build
 
 ## Code Statistics
 
-| Module | Code Lines | Comment Lines | Total Lines |
+Counts exclude blank lines.
+
+### Library Summary
+
+| Library | Code Lines | Comment Lines | Total Lines |
 |--------|------------|---------------|-------------|
-| `QuadraticNumberFields/Forms` | 4850 | 978 | 5828 |
-| `BinaryQuadraticForms` | 3305 | 711 | 4016 |
-| `QuadraticNumberFields/Splitting` | 1537 | 478 | 2015 |
-| `QNFMathlib` | 1158 | 446 | 1604 |
-| `QuadraticNumberFields/ClassGroup` | 940 | 303 | 1243 |
-| `QuadraticNumberFields/Examples` | 898 | 507 | 1405 |
-| `QuadraticNumberFields/RingOfIntegers` | 794 | 375 | 1169 |
-| `QuadraticNumberFields/Heegner` | 670 | 362 | 1032 |
-| `QuadraticNumberFields/Zsqrtd` | 663 | 214 | 877 |
-| `QuadraticNumberFields/QuadraticField` | 586 | 397 | 983 |
-| `QuadraticNumberFields/Qsqrtd` | 531 | 283 | 814 |
-| `QuadraticNumberFields` | 413 | 116 | 529 |
-| `QuadraticNumberFields/Units` | 303 | 148 | 451 |
-| `QuadraticNumberFields/ZOnePlusSqrtdOverTwo` | 127 | 50 | 177 |
-| `QuadraticNumberFields/Counterexamples` | 82 | 24 | 106 |
-| `QuadraticNumberFields/Euclidean` | 52 | 25 | 77 |
-| `QuadraticNumberFields/Families` | 38 | 49 | 87 |
-| `QuadraticNumberFields/ClassNumber` | 26 | 20 | 46 |
-| `QuadraticNumberFields/ContinuedFraction` | 21 | 36 | 57 |
-| **Total** | **16994** | **5522** | **22516** |
+| `QuadraticNumberFields` | 6830 | 2610 | 9440 |
+| `FormClassGroup` | 4986 | 1048 | 6034 |
+| `BinaryQuadraticForms` | 3165 | 665 | 3830 |
+| `QNFMathlib` | 2364 | 655 | 3019 |
+| `ImaginaryClassNumberOne` | 1157 | 418 | 1575 |
+| `Examples` | 992 | 541 | 1533 |
+| **Total** | **19494** | **5937** | **25431** |
+
+### Library Tree
+
+#### `QuadraticNumberFields`
+
+| Subtree | Code Lines | Comment Lines | Total Lines |
+|--------|------------|---------------|-------------|
+| `├── QuadraticNumberFields.lean` | 43 | 21 | 64 |
+| `├── ClassGroup/` | 1538 | 423 | 1961 |
+| `├── ClassNumber.lean` | 289 | 59 | 348 |
+| `├── ContinuedFraction/` | 21 | 36 | 57 |
+| `├── Euclidean/` | 52 | 25 | 77 |
+| `├── Families/` | 38 | 49 | 87 |
+| `├── Qsqrtd/` | 531 | 283 | 814 |
+| `├── QuadraticField/` | 586 | 397 | 983 |
+| `├── RingOfIntegers/` | 794 | 375 | 1169 |
+| `├── Splitting/` | 1672 | 501 | 2173 |
+| `├── Units/` | 409 | 156 | 565 |
+| `├── ZOnePlusSqrtdOverTwo/` | 127 | 50 | 177 |
+| `└── Zsqrtd/` | 730 | 235 | 965 |
+| **QuadraticNumberFields total** | **6830** | **2610** | **9440** |
+
+#### `FormClassGroup`
+
+| Subtree | Code Lines | Comment Lines | Total Lines |
+|--------|------------|---------------|-------------|
+| `├── FormClassGroup.lean` | 8 | 10 | 18 |
+| `├── ClassGroup/` | 898 | 212 | 1110 |
+| `├── Computable/` | 927 | 205 | 1132 |
+| `├── Computed.lean` | 126 | 56 | 182 |
+| `├── Cox/` | 2927 | 527 | 3454 |
+| `└── Gauss/` | 100 | 38 | 138 |
+| **FormClassGroup total** | **4986** | **1048** | **6034** |
+
+#### `BinaryQuadraticForms`
+
+| Subtree | Code Lines | Comment Lines | Total Lines |
+|--------|------------|---------------|-------------|
+| `├── BinaryQuadraticForms.lean` | 14 | 10 | 24 |
+| `├── Computable/` | 812 | 201 | 1013 |
+| `├── Core/` | 1407 | 247 | 1654 |
+| `├── Cox/` | 289 | 64 | 353 |
+| `└── Gauss/` | 643 | 143 | 786 |
+| **BinaryQuadraticForms total** | **3165** | **665** | **3830** |
+
+#### `QNFMathlib`
+
+| Subtree | Code Lines | Comment Lines | Total Lines |
+|--------|------------|---------------|-------------|
+| `├── QNFMathlib.lean` | 25 | 12 | 37 |
+| `├── Algebra/` | 151 | 88 | 239 |
+| `├── Data/` | 578 | 144 | 722 |
+| `├── FieldTheory/` | 41 | 19 | 60 |
+| `├── GroupTheory/` | 18 | 13 | 31 |
+| `├── NumberTheory/` | 1235 | 248 | 1483 |
+| `└── RingTheory/` | 316 | 131 | 447 |
+| **QNFMathlib total** | **2364** | **655** | **3019** |
+
+#### `ImaginaryClassNumberOne`
+
+| Subtree | Code Lines | Comment Lines | Total Lines |
+|--------|------------|---------------|-------------|
+| `├── ImaginaryClassNumberOne.lean` | 9 | 10 | 19 |
+| `├── ClassNumberBridge.lean` | 26 | 20 | 46 |
+| `├── ClassNumberOne.lean` | 133 | 50 | 183 |
+| `├── ClassNumberOneByForms.lean` | 12 | 13 | 25 |
+| `├── Diophantine.lean` | 399 | 65 | 464 |
+| `├── Framework.lean` | 43 | 25 | 68 |
+| `├── IdealReductions.lean` | 305 | 41 | 346 |
+| `├── StarkHeegner.lean` | 102 | 71 | 173 |
+| `└── WeberData/` | 128 | 123 | 251 |
+| **ImaginaryClassNumberOne total** | **1157** | **418** | **1575** |
+
+#### `Examples`
+
+| Subtree | Code Lines | Comment Lines | Total Lines |
+|--------|------------|---------------|-------------|
+| `├── Examples.lean` | 12 | 10 | 22 |
+| `├── ClassGroupStructure.lean` | 3 | 11 | 14 |
+| `├── ClassGroupStructure/` | 138 | 70 | 208 |
+| `├── Counterexamples/` | 82 | 24 | 106 |
+| `├── Sqrt17/` | 194 | 143 | 337 |
+| `├── SqrtNeg21/` | 15 | 29 | 44 |
+| `└── SqrtNeg5/` | 548 | 254 | 802 |
+| **Examples total** | **992** | **541** | **1533** |
 
 ## History
 

@@ -5,6 +5,7 @@ Authors: Frankie Wang
 -/
 
 import Examples.ClassGroupStructure
+import Examples.Counterexamples.QuadraticDedekindNotSeparable
 import Examples.Sqrt17.ClassNumber
 import Examples.Sqrt17.Invariants
 import Examples.Sqrt17.Splitting

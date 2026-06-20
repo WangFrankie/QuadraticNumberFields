@@ -66,6 +66,9 @@ class CountLeanLinesCliTest(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn("| `BinaryQuadraticForms` |", result.stdout)
         self.assertIn("| `QNFMathlib` |", result.stdout)
+        self.assertIn("| `FormClassGroup` |", result.stdout)
+        self.assertIn("| `ImaginaryClassNumberOne` |", result.stdout)
+        self.assertIn("| `Examples` |", result.stdout)
         total_row = next(
             line for line in result.stdout.splitlines() if line.startswith("| **Total** |")
         )
