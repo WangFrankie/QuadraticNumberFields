@@ -140,6 +140,98 @@ theorem fieldDiscriminant_of_mod_four_ne_one {d : ℤ} (hd4 : d % 4 ≠ 1) :
     fieldDiscriminant d = 4 * d := by
   simp [fieldDiscriminant, hd4]
 
+/-- If `p ≡ 3 (mod 8)`, then `-p ≡ 1 (mod 4)`, so the field discriminant
+of `ℚ(√-p)` is `-p`. -/
+theorem fieldDiscriminant_neg_natCast_of_nat_mod_eight_eq_three
+    {p : ℕ} (hp8 : p % 8 = 3) :
+    fieldDiscriminant (-(p : ℤ)) = -(p : ℤ) :=
+  fieldDiscriminant_of_mod_four_eq_one
+    (Int.neg_natCast_emod_four_eq_one_of_nat_mod_eight_eq_three hp8)
+
+/-- A form of conductor-`2` discriminant `-4p` has even middle coefficient. -/
+theorem even_b_of_hasDiscriminant_neg_four_mul_natCast
+    {p : ℕ} {Q : BinaryQuadraticForm}
+    (hdisc : Q.HasDiscriminant (-(4 * (p : ℤ)))) : Even Q.b := by
+  rw [even_iff_two_dvd]
+  by_contra hb_not_dvd
+  have hb2dvd : (4 : ℤ) ∣ Q.b ^ 2 := by
+    refine ⟨Q.a * Q.c - (p : ℤ), ?_⟩
+    have hdisc' : Q.b ^ 2 - 4 * Q.a * Q.c = -(4 * (p : ℤ)) := by
+      simpa [HasDiscriminant, disc] using hdisc
+    nlinarith
+  have hb2mod0 : Q.b ^ 2 % 4 = 0 := (Int.dvd_iff_emod_eq_zero).mp hb2dvd
+  have hb2mod1 : Q.b ^ 2 % 4 = 1 := Int.sq_emod_four_of_odd Q.b hb_not_dvd
+  omega
+
+/-- Every primitive positive definite form of discriminant `-4p` is properly
+equivalent to one whose leading coefficient is odd.  If the leading coefficient
+is even, the middle coefficient is even and primitivity forces the trailing
+coefficient to be odd; the swap matrix then exchanges the two. -/
+theorem exists_properEquivalent_odd_a_of_discriminant_neg_four_mul_natCast
+    {p : ℕ} (Q : PrimitivePositiveDefiniteForm (-(4 * (p : ℤ)))) :
+    ∃ R : PrimitivePositiveDefiniteForm (-(4 * (p : ℤ))),
+      PrimitivePositiveDefiniteForm.ProperEquivalent Q R ∧ Odd R.1.a := by
+  by_cases ha : Odd Q.1.a
+  · exact ⟨Q, ProperEquivalent.refl Q.1, ha⟩
+  · have ha_even : Even Q.1.a := by
+      by_contra hne
+      exact ha (Int.not_even_iff_odd.mp hne)
+    have hb_even : Even Q.1.b :=
+      even_b_of_hasDiscriminant_neg_four_mul_natCast Q.2.1
+    have hc_odd : Odd Q.1.c := by
+      by_contra hc_not_odd
+      have hc_even : Even Q.1.c := by
+        by_contra hce
+        exact hc_not_odd (Int.not_even_iff_odd.mp hce)
+      have ha_dvd : (2 : ℤ) ∣ Q.1.a := by simpa [even_iff_two_dvd] using ha_even
+      have hb_dvd : (2 : ℤ) ∣ Q.1.b := by simpa [even_iff_two_dvd] using hb_even
+      have hc_dvd : (2 : ℤ) ∣ Q.1.c := by simpa [even_iff_two_dvd] using hc_even
+      have hbc_dvd : (2 : ℤ) ∣ (Int.gcd Q.1.b Q.1.c : ℤ) := by
+        exact_mod_cast Int.dvd_gcd hb_dvd hc_dvd
+      have h_gcd : (2 : ℕ) ∣ Int.gcd Q.1.a (Int.gcd Q.1.b Q.1.c) := by
+        exact_mod_cast Int.dvd_gcd ha_dvd hbc_dvd
+      have hprimitive : Int.gcd Q.1.a (Int.gcd Q.1.b Q.1.c) = 1 := Q.2.2.1
+      rw [hprimitive] at h_gcd
+      norm_num at h_gcd
+    let R := Q.transform swapSL2Z
+    refine ⟨R, PrimitivePositiveDefiniteForm.properEquivalent_transform Q swapSL2Z, ?_⟩
+    change Odd (transform Q.1 swapSL2Z).a
+    simpa using hc_odd
+
+/-- Every form class of discriminant `-4p` has a representative whose leading
+coefficient is odd. -/
+theorem exists_odd_a_mk_eq_formClass_of_discriminant_neg_four_mul_natCast
+    {p : ℕ} (C : FormClass (-(4 * (p : ℤ)))) :
+    ∃ R : PrimitivePositiveDefiniteForm (-(4 * (p : ℤ))), Odd R.1.a ∧
+      Quotient.mk (primitivePositiveDefiniteFormSetoid _) R = C := by
+  induction C using Quotient.inductionOn with
+  | h Q =>
+      rcases exists_properEquivalent_odd_a_of_discriminant_neg_four_mul_natCast Q with
+        ⟨R, hQR, hRodd⟩
+      exact ⟨R, hRodd, (Quotient.sound hQR).symm⟩
+
+/-- A chosen odd-leading-coefficient representative for a form class of
+discriminant `-4p`. -/
+noncomputable def oddARepresentativeOfDiscriminantNegFourMulNatCast
+    (p : ℕ) (C : FormClass (-(4 * (p : ℤ)))) :
+    PrimitivePositiveDefiniteForm (-(4 * (p : ℤ))) :=
+  Classical.choose (exists_odd_a_mk_eq_formClass_of_discriminant_neg_four_mul_natCast C)
+
+/-- The chosen representative has odd leading coefficient. -/
+theorem oddARepresentativeOfDiscriminantNegFourMulNatCast_odd_a
+    (p : ℕ) (C : FormClass (-(4 * (p : ℤ)))) :
+    Odd (oddARepresentativeOfDiscriminantNegFourMulNatCast p C).1.a :=
+  (Classical.choose_spec
+    (exists_odd_a_mk_eq_formClass_of_discriminant_neg_four_mul_natCast C)).1
+
+/-- The chosen odd-leading representative represents the original form class. -/
+theorem oddARepresentativeOfDiscriminantNegFourMulNatCast_mk_eq
+    (p : ℕ) (C : FormClass (-(4 * (p : ℤ)))) :
+    Quotient.mk (primitivePositiveDefiniteFormSetoid _)
+        (oddARepresentativeOfDiscriminantNegFourMulNatCast p C) = C :=
+  (Classical.choose_spec
+    (exists_odd_a_mk_eq_formClass_of_discriminant_neg_four_mul_natCast C)).2
+
 /-- Imaginary squarefree parameters have negative field discriminant. -/
 theorem fieldDiscriminant_neg {d : ℤ} (hdneg : d < 0) :
     fieldDiscriminant d < 0 := by
@@ -181,6 +273,15 @@ theorem odd_b_of_hasDiscriminant_fieldDiscriminant_of_mod_four_eq_one
         Int.add_mul_emod_self_left]
     simpa [hd4] using hmod
   omega
+
+/-- In the inert branch `p % 8 = 3`, a form of field discriminant `-p` has odd
+middle coefficient. -/
+theorem odd_b_of_hasDiscriminant_neg_natCast_of_nat_mod_eight_eq_three
+    {p : ℕ} (hp8 : p % 8 = 3) {Q : BinaryQuadraticForm}
+    (hdisc : Q.HasDiscriminant (-(p : ℤ))) : Odd Q.b := by
+  exact odd_b_of_hasDiscriminant_fieldDiscriminant_of_mod_four_eq_one
+    (Int.neg_natCast_emod_four_eq_one_of_nat_mod_eight_eq_three hp8)
+    (by simpa [fieldDiscriminant_neg_natCast_of_nat_mod_eight_eq_three hp8] using hdisc)
 
 private theorem dvd_disc_of_dvd_coefficients (Q : BinaryQuadraticForm) {n : ℕ}
     (ha : (n : ℤ) ∣ Q.a) (hb : (n : ℤ) ∣ Q.b) (hc : (n : ℤ) ∣ Q.c) :

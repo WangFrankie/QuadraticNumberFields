@@ -3,6 +3,11 @@ Copyright (c) 2026 Frankie Wang. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
+import Mathlib.Data.Fintype.Card
+import Mathlib.Data.ZMod.Basic
+import Mathlib.RingTheory.Ideal.Quotient.Operations
+import Mathlib.RingTheory.Ideal.Span
+import QNFMathlib.Algebra.QuadraticAlgebra.Defs
 import QuadraticNumberFields.RingOfIntegers.HalfInt
 
 /-!
@@ -19,11 +24,15 @@ When `d = 1 + 4k`, we have `𝓞(Q(√d)) ≅ ℤ[(1+√d)/2]`.
 * `Qsqrtd.omega k`: The generator `ω = (1 + √(1+4k))/2` in `Q(√(1+4k))`.
 * `Qsqrtd.Zomega k`: The subalgebra `ℤ[ω]` as a `Subalgebra`.
 * `ZOnePlusSqrtdOverTwo.toQsqrtdHom`: Ring hom embedding into `Q(√(1+4k))`.
+* `ZOnePlusSqrtdOverTwo.ofZsqrtdHom`: The inclusion
+  `ℤ[√(1+4k)] ↪ ℤ[(1+√(1+4k))/2]`.
 * `ZOnePlusSqrtdOverTwo.carrierSet`: The image as a set.
 
 ## Main Theorems
 
 * `ZOnePlusSqrtdOverTwo.toQsqrtdHom_injective`: The embedding is injective.
+* `ZOnePlusSqrtdOverTwo.mem_range_ofZsqrtdHom_iff_even_im`: The suborder
+  `ℤ[√(1+4k)]` is the even-`ω`-coefficient part of `ℤ[ω]`.
 * `ZOnePlusSqrtdOverTwo.halfInt_mem_carrierSet_iff_same_parity`:
   A half-integer is in the carrier iff its coordinates have the same parity.
 -/
@@ -86,6 +95,137 @@ theorem isUnit_mk_iff {d x y : ℤ} :
     IsUnit (⟨x, y⟩ : ZOnePlusSqrtdOverTwo d) ↔
       x ^ 2 + x * y - d * y ^ 2 = 1 ∨ x ^ 2 + x * y - d * y ^ 2 = -1 := by
   rw [QuadraticAlgebra.isUnit_iff_norm_isUnit, Int.isUnit_iff, norm_mk]
+
+/-! ## Reduction modulo `2` -/
+
+/-- Coordinate reduction modulo `2` for `ℤ[(1 + √(1 + 4d)) / 2]`. -/
+noncomputable def modTwoHom (d : ℤ) :
+    ZOnePlusSqrtdOverTwo d →+* QuadraticAlgebra (ZMod 2) (d : ZMod 2) 1 where
+  toFun z := ⟨(z.re : ZMod 2), (z.im : ZMod 2)⟩
+  map_one' := by
+    ext <;> simp [QuadraticAlgebra.re_one, QuadraticAlgebra.im_one]
+  map_mul' := by
+    intro x y
+    ext <;> simp [QuadraticAlgebra.re_mul, QuadraticAlgebra.im_mul]
+  map_zero' := by
+    ext <;> simp [QuadraticAlgebra.re_zero, QuadraticAlgebra.im_zero]
+  map_add' := by
+    intro x y
+    ext <;> simp [QuadraticAlgebra.re_add, QuadraticAlgebra.im_add]
+
+@[simp]
+theorem modTwoHom_apply (d : ℤ) (z : ZOnePlusSqrtdOverTwo d) :
+    modTwoHom d z = ⟨(z.re : ZMod 2), (z.im : ZMod 2)⟩ :=
+  rfl
+
+/-- The coordinate reduction modulo `2` is onto. -/
+theorem modTwoHom_surjective (d : ℤ) : Function.Surjective (modTwoHom d) := by
+  intro z
+  rcases ZMod.intCast_surjective z.re with ⟨a, ha⟩
+  rcases ZMod.intCast_surjective z.im with ⟨b, hb⟩
+  refine ⟨⟨a, b⟩, ?_⟩
+  ext
+  · simpa [modTwoHom] using ha
+  · simpa [modTwoHom] using hb
+
+/-- An element reduces to zero modulo `2` iff both coordinates are even. -/
+lemma modTwoHom_eq_zero_iff (d : ℤ) (z : ZOnePlusSqrtdOverTwo d) :
+    modTwoHom d z = 0 ↔ (2 : ℤ) ∣ z.re ∧ (2 : ℤ) ∣ z.im := by
+  constructor
+  · intro hz
+    have hre : (z.re : ZMod 2) = 0 := by
+      simpa [modTwoHom] using congrArg QuadraticAlgebra.re hz
+    have him : (z.im : ZMod 2) = 0 := by
+      simpa [modTwoHom] using congrArg QuadraticAlgebra.im hz
+    exact ⟨(ZMod.intCast_zmod_eq_zero_iff_dvd z.re 2).mp hre,
+      (ZMod.intCast_zmod_eq_zero_iff_dvd z.im 2).mp him⟩
+  · rintro ⟨hre, him⟩
+    ext <;> simp [modTwoHom,
+      (ZMod.intCast_zmod_eq_zero_iff_dvd z.re 2).mpr hre,
+      (ZMod.intCast_zmod_eq_zero_iff_dvd z.im 2).mpr him]
+
+/-- Divisibility by `2` in the half-integral order is coordinatewise evenness. -/
+lemma two_dvd_iff (d : ℤ) (z : ZOnePlusSqrtdOverTwo d) :
+    (2 : ZOnePlusSqrtdOverTwo d) ∣ z ↔ (2 : ℤ) ∣ z.re ∧ (2 : ℤ) ∣ z.im := by
+  constructor
+  · rintro ⟨w, rfl⟩
+    constructor
+    · refine ⟨w.re, ?_⟩
+      change (⟨2, 0⟩ * w).re = 2 * w.re
+      simp [QuadraticAlgebra.re_mul]
+    · refine ⟨w.im, ?_⟩
+      change (⟨2, 0⟩ * w).im = 2 * w.im
+      simp [QuadraticAlgebra.im_mul]
+  · rintro ⟨⟨a, ha⟩, ⟨b, hb⟩⟩
+    refine ⟨⟨a, b⟩, ?_⟩
+    ext
+    · change z.re = (⟨2, 0⟩ * (⟨a, b⟩ : ZOnePlusSqrtdOverTwo d)).re
+      simp [ha]
+    · change z.im = (⟨2, 0⟩ * (⟨a, b⟩ : ZOnePlusSqrtdOverTwo d)).im
+      simp [hb]
+
+/-- The kernel of coordinate reduction modulo `2` is the principal ideal `(2)`. -/
+lemma ker_modTwoHom (d : ℤ) :
+    RingHom.ker (modTwoHom d) = Ideal.span ({(2 : ZOnePlusSqrtdOverTwo d)} : Set _) := by
+  ext z
+  rw [RingHom.mem_ker, modTwoHom_eq_zero_iff, Ideal.mem_span_singleton, two_dvd_iff]
+
+/-- The quotient by `(2)` is the quadratic algebra obtained by reducing the
+parameter modulo `2`. -/
+noncomputable def quotientSpanTwoEquivModTwo (d : ℤ) :
+    (ZOnePlusSqrtdOverTwo d ⧸ Ideal.span ({(2 : ZOnePlusSqrtdOverTwo d)} : Set _)) ≃+*
+      QuadraticAlgebra (ZMod 2) (d : ZMod 2) 1 :=
+  (Ideal.quotEquivOfEq (ker_modTwoHom d).symm).trans
+    (RingHom.quotientKerEquivOfSurjective (f := modTwoHom d) (modTwoHom_surjective d))
+
+/-- The reduced quadratic algebra modulo `2` has at most three units. -/
+lemma modTwoTarget_units_card_le_three (d : ℤ) :
+    Fintype.card (QuadraticAlgebra (ZMod 2) (d : ZMod 2) 1)ˣ ≤ 3 := by
+  let R := QuadraticAlgebra (ZMod 2) (d : ZMod 2) 1
+  let e : Rˣ ↪ {x : R // x ≠ 0} :=
+    { toFun := fun u => ⟨(u : R), u.ne_zero⟩
+      inj' := by
+        intro u v h
+        exact Units.ext (congrArg Subtype.val h) }
+  have hle := Fintype.card_le_of_embedding e
+  have hnonzero : Fintype.card {x : R // x ≠ 0} = 3 := by
+    rw [Fintype.card_subtype_compl (p := fun x : R => x = 0)]
+    rw [QuadraticAlgebra.card]
+    norm_num
+  simpa [hnonzero] using hle
+
+/-- If the half-integral parameter is odd, the reduced quadratic algebra modulo
+`2` has exactly three units. -/
+lemma modTwoTarget_units_card_eq_three_of_intCast_eq_one
+    (d : ℤ) (hd : (d : ZMod 2) = 1) :
+    Fintype.card (QuadraticAlgebra (ZMod 2) (d : ZMod 2) 1)ˣ = 3 := by
+  rw [hd]
+  decide
+
+/-- The quotient by `(2)` is finite, via coordinate reduction modulo `2`. -/
+noncomputable instance instFintypeQuotientSpanTwo (d : ℤ) :
+    Fintype (ZOnePlusSqrtdOverTwo d ⧸
+      Ideal.span ({(2 : ZOnePlusSqrtdOverTwo d)} : Set _)) :=
+  Fintype.ofEquiv (QuadraticAlgebra (ZMod 2) (d : ZMod 2) 1)
+    (quotientSpanTwoEquivModTwo d).symm.toEquiv
+
+/-- The unit group of the quotient by `(2)` has at most three elements. -/
+lemma quotient_span_two_units_card_le_three (d : ℤ) :
+    Nat.card (ZOnePlusSqrtdOverTwo d ⧸
+      Ideal.span ({(2 : ZOnePlusSqrtdOverTwo d)} : Set _))ˣ ≤ 3 := by
+  rw [Nat.card_congr (Units.mapEquiv (quotientSpanTwoEquivModTwo d).toMulEquiv).toEquiv]
+  rw [Nat.card_eq_fintype_card]
+  exact modTwoTarget_units_card_le_three d
+
+/-- If the half-integral parameter is odd, the unit group of the quotient by
+`(2)` has exactly three elements. -/
+lemma quotient_span_two_units_card_eq_three_of_intCast_eq_one
+    (d : ℤ) (hd : (d : ZMod 2) = 1) :
+    Nat.card (ZOnePlusSqrtdOverTwo d ⧸
+      Ideal.span ({(2 : ZOnePlusSqrtdOverTwo d)} : Set _))ˣ = 3 := by
+  rw [Nat.card_congr (Units.mapEquiv (quotientSpanTwoEquivModTwo d).toMulEquiv).toEquiv]
+  rw [Nat.card_eq_fintype_card]
+  exact modTwoTarget_units_card_eq_three_of_intCast_eq_one d hd
 
 /-- Coordinate-level embedding candidate into `Q(√(1 + 4d))`. -/
 def toQsqrtdFun (d : ℤ) : ZOnePlusSqrtdOverTwo d → Qsqrtd (qParam d) :=
@@ -161,6 +301,54 @@ theorem toQsqrtdHom_injective (d : ℤ) : Function.Injective (toQsqrtdHom d) := 
   ext
   · exact_mod_cast hreQ
   · exact_mod_cast himQ
+
+/-- The natural inclusion `ℤ[√(1+4k)] ↪ ℤ[(1+√(1+4k))/2]`.
+
+It sends `a + b√(1+4k)` to `(a - b) + 2bω`, using `√(1+4k) = 2ω - 1`.
+This is the abstract conductor-`2` suborder inside the half-integral order. -/
+def ofZsqrtdHom (k : ℤ) : Zsqrtd (1 + 4 * k) →+* ZOnePlusSqrtdOverTwo k where
+  toFun := fun z => ⟨z.re - z.im, 2 * z.im⟩
+  map_one' := by
+    ext <;> simp [QuadraticAlgebra.re_one, QuadraticAlgebra.im_one]
+  map_mul' := by
+    intro x y
+    ext <;> simp [QuadraticAlgebra.re_mul, QuadraticAlgebra.im_mul] <;> ring
+  map_zero' := by
+    ext <;> simp [QuadraticAlgebra.re_zero, QuadraticAlgebra.im_zero]
+  map_add' := by
+    intro x y
+    ext <;> simp [QuadraticAlgebra.re_add, QuadraticAlgebra.im_add] <;> ring
+
+/-- The inclusion `ofZsqrtdHom` is compatible with the two ambient embeddings
+into `Q(√(1+4k))`. -/
+theorem toQsqrtdHom_ofZsqrtdHom (k : ℤ) (z : Zsqrtd (1 + 4 * k)) :
+    toQsqrtdHom k (ofZsqrtdHom k z) =
+      Zsqrtd.toQsqrtdHom (1 + 4 * k) z := by
+  ext <;> simp [ofZsqrtdHom, toQsqrtdHom, toQsqrtdFun, Zsqrtd.toQsqrtdHom]
+
+/-- The inclusion `ℤ[√(1+4k)] ↪ ℤ[(1+√(1+4k))/2]` is injective. -/
+theorem ofZsqrtdHom_injective (k : ℤ) : Function.Injective (ofZsqrtdHom k) := by
+  intro x y hxy
+  ext
+  · have hre : x.re - x.im = y.re - y.im := by
+      simpa [ofZsqrtdHom] using congrArg QuadraticAlgebra.re hxy
+    have him : 2 * x.im = 2 * y.im := by
+      simpa [ofZsqrtdHom] using congrArg QuadraticAlgebra.im hxy
+    omega
+  · have him : 2 * x.im = 2 * y.im := by
+      simpa [ofZsqrtdHom] using congrArg QuadraticAlgebra.im hxy
+    omega
+
+/-- The image of `ℤ[√(1+4k)]` inside `ℤ[(1+√(1+4k))/2]` consists exactly of
+the elements with even `ω`-coefficient. -/
+theorem mem_range_ofZsqrtdHom_iff_even_im (k : ℤ) (w : ZOnePlusSqrtdOverTwo k) :
+    (∃ z : Zsqrtd (1 + 4 * k), ofZsqrtdHom k z = w) ↔ 2 ∣ w.im := by
+  constructor
+  · rintro ⟨z, rfl⟩
+    exact ⟨z.im, rfl⟩
+  · rintro ⟨b, hb⟩
+    refine ⟨⟨w.re + b, b⟩, ?_⟩
+    ext <;> simp [ofZsqrtdHom, hb]
 
 /-- Candidate carrier set of `ℤ[(1 + √(1 + 4d))/2]` inside `Q(√(1 + 4d))`. -/
 def carrierSet (d : ℤ) : Set (Qsqrtd (qParam d)) := Set.range (toQsqrtdFun d)

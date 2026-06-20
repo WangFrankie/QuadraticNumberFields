@@ -42,9 +42,10 @@ instance decidableIsPrimitive (Q : BinaryQuadraticForm) :
   unfold IsPrimitive
   infer_instance
 
-/-- A simple computable search bound for reduced forms. -/
+/-- A computable search bound for reduced forms, using the Gauss-reduction
+inequality `3a² ≤ |D|`. -/
 def searchBound (D : ℤ) : ℕ :=
-  Nat.sqrt D.natAbs + 1
+  Nat.sqrt (D.natAbs / 3) + 1
 
 /-- A reduced positive definite form has its `a` coefficient within the
 enumeration search bound. -/
@@ -52,8 +53,9 @@ theorem a_natAbs_le_searchBound (Q : BinaryQuadraticForm)
     (hpos : Q.IsPositiveDefinite) (hred : Q.IsReduced) :
     Q.a.natAbs ≤ searchBound Q.disc := by
   have hbound := three_mul_a_natAbs_sq_le_disc_natAbs Q hpos hred
-  have hsq : Q.a.natAbs ^ 2 ≤ Q.disc.natAbs := by
-    nlinarith
+  have hsq : Q.a.natAbs ^ 2 ≤ Q.disc.natAbs / 3 := by
+    exact (Nat.le_div_iff_mul_le (by norm_num : 0 < 3)).mpr
+      (by simpa [Nat.mul_comm] using hbound)
   exact (Nat.le_sqrt'.mpr hsq).trans (Nat.le_succ _)
 
 /-- Positive `a` candidates up to the search bound. -/
@@ -199,6 +201,22 @@ theorem mem_enumPrimitiveReducedForms_iff {D : ℤ} {Q : BinaryQuadraticForm} :
   exact ⟨of_mem_enumPrimitiveReducedForms,
     fun hQ => mem_enumPrimitiveReducedForms_of_reduced hQ.1 hQ.2.1 hQ.2.2.1 hQ.2.2.2⟩
 
+/-- An enumerated primitive reduced form of conductor-`2` discriminant `-4p`
+has even middle coefficient. -/
+theorem even_b_of_mem_enumPrimitiveReducedForms_neg_four_mul_natCast
+    {p : ℕ} {Q : BinaryQuadraticForm}
+    (hQ : Q ∈ enumPrimitiveReducedForms (-(4 * (p : ℤ)))) : Even Q.b := by
+  exact even_b_of_hasDiscriminant_neg_four_mul_natCast
+    (of_mem_enumPrimitiveReducedForms hQ).1
+
+/-- In the inert branch `p % 8 = 3`, an enumerated primitive reduced form of
+field discriminant `-p` has odd middle coefficient. -/
+theorem odd_b_of_mem_enumPrimitiveReducedForms_neg_natCast_of_nat_mod_eight_eq_three
+    {p : ℕ} (hp8 : p % 8 = 3) {Q : BinaryQuadraticForm}
+    (hQ : Q ∈ enumPrimitiveReducedForms (-(p : ℤ))) : Odd Q.b := by
+  exact odd_b_of_hasDiscriminant_neg_natCast_of_nat_mod_eight_eq_three hp8
+    (of_mem_enumPrimitiveReducedForms hQ).1
+
 /-- View an enumerated reduced primitive positive definite form as a member of
 the restricted Cox carrier. -/
 def primitivePositiveDefiniteFormOfMemEnum {D : ℤ} {Q : BinaryQuadraticForm}
@@ -255,6 +273,12 @@ theorem reducedFormClasses_card (D : ℤ) :
     exact Subtype.ext hval
   · simp
 
+/-- The finite type of primitive positive definite form classes has cardinality
+equal to the reduced-form enumeration. -/
+theorem formClass_card_eq_enumPrimitiveReducedForms_card (D : ℤ) :
+    Fintype.card (FormClass D) = (enumPrimitiveReducedForms D).card := by
+  rw [← reducedFormClasses_card, ← Finset.card_univ, ← reducedFormClasses_eq_univ D]
+
 /-- The list view of the reduced-form enumeration has no duplicates. -/
 theorem enumPrimitiveReducedFormsList_nodup (D : ℤ) :
     (enumPrimitiveReducedFormsList D).Nodup := by
@@ -268,6 +292,115 @@ theorem enumPrimitiveReducedForms_card_eq_length (D : ℤ) :
     (enumPrimitiveReducedForms D).card = (enumPrimitiveReducedFormsList D).length := by
   simpa [enumPrimitiveReducedForms] using
     List.toFinset_card_of_nodup (enumPrimitiveReducedFormsList_nodup D)
+
+private theorem nat_gcd_four_int_gcd_two_eq_one_of_emod_two_eq_one
+    {m : ℤ} (hm : m % 2 = 1) :
+    Nat.gcd 4 (Int.gcd 2 m) = 1 := by
+  have hmOdd : Odd m := by
+    rw [← Int.not_even_iff_odd]
+    intro hm_even
+    have h2 : (2 : ℤ) ∣ m := by simpa [even_iff_two_dvd] using hm_even
+    have hmod0 : m % 2 = 0 := Int.dvd_iff_emod_eq_zero.mp h2
+    omega
+  have hgcd2 : Int.gcd 2 m = 1 := by
+    rw [Int.gcd_eq_natAbs_gcd_natAbs]
+    norm_num
+    exact hmOdd
+  rw [hgcd2]
+  norm_num
+
+/-- The principal form `(1, 0, p)` occurs in the reduced-form enumeration of
+discriminant `-4p`. -/
+theorem principal_form_mem_enumPrimitiveReducedForms_neg_four_mul
+    (p : ℕ) (hp : Nat.Prime p) :
+    BinaryQuadraticForm.mk 1 0 (p : ℤ) ∈
+      enumPrimitiveReducedForms (-(4 * (p : ℤ))) := by
+  apply mem_enumPrimitiveReducedForms_of_reduced
+  · simp [HasDiscriminant, disc]
+  · constructor
+    · norm_num
+    · simp [disc]
+      have hp_pos : (0 : ℤ) < (p : ℤ) := by exact_mod_cast hp.pos
+      nlinarith
+  · unfold IsReduced
+    constructor
+    · norm_num
+    constructor
+    · have hp_ge_one : (1 : ℤ) ≤ (p : ℤ) := by exact_mod_cast hp.one_le
+      exact hp_ge_one
+    constructor <;> intro _ <;> norm_num
+  · norm_num [IsPrimitive]
+
+/-- If `4m = p + 1`, with `m ≥ 4` odd, the form `(4, 2, m)` occurs in the
+reduced-form enumeration of discriminant `-4p`. -/
+theorem four_two_form_mem_enumPrimitiveReducedForms_neg_four_mul
+    (p : ℕ) (m : ℤ) (hm : 4 * m = (p : ℤ) + 1) (hm_ge : 4 ≤ m)
+    (hm_odd : m % 2 = 1) :
+    BinaryQuadraticForm.mk 4 2 m ∈ enumPrimitiveReducedForms (-(4 * (p : ℤ))) := by
+  apply mem_enumPrimitiveReducedForms_of_reduced
+  · simp [HasDiscriminant, disc]
+    omega
+  · constructor
+    · norm_num
+    · simp [disc]
+      omega
+  · unfold IsReduced
+    constructor
+    · norm_num
+    constructor
+    · exact hm_ge
+    constructor <;> intro _ <;> norm_num
+  · norm_num [IsPrimitive]
+    exact nat_gcd_four_int_gcd_two_eq_one_of_emod_two_eq_one hm_odd
+
+/-- If `4m = p + 1`, with `m ≥ 4` odd, the form `(4, -2, m)` occurs in the
+reduced-form enumeration of discriminant `-4p`. -/
+theorem four_neg_two_form_mem_enumPrimitiveReducedForms_neg_four_mul
+    (p : ℕ) (m : ℤ) (hm : 4 * m = (p : ℤ) + 1) (hm_ge : 4 ≤ m)
+    (hm_odd : m % 2 = 1) :
+    BinaryQuadraticForm.mk 4 (-2) m ∈
+      enumPrimitiveReducedForms (-(4 * (p : ℤ))) := by
+  apply mem_enumPrimitiveReducedForms_of_reduced
+  · simp [HasDiscriminant, disc]
+    omega
+  · constructor
+    · norm_num
+    · simp [disc]
+      omega
+  · unfold IsReduced
+    constructor
+    · norm_num
+    constructor
+    · exact hm_ge
+    constructor
+    · intro h
+      norm_num at h
+    · intro h
+      norm_num at h
+      omega
+  · norm_num [IsPrimitive]
+    exact nat_gcd_four_int_gcd_two_eq_one_of_emod_two_eq_one hm_odd
+
+/-- The three explicit forms `(1, 0, p)`, `(4, 2, m)`, and `(4, -2, m)` give a
+lower bound for the reduced-form count of discriminant `-4p`. -/
+theorem three_le_card_enumPrimitiveReducedForms_neg_four_mul
+    (p : ℕ) (m : ℤ) (hp : Nat.Prime p)
+    (hm : 4 * m = (p : ℤ) + 1) (hm_ge : 4 ≤ m) (hm_odd : m % 2 = 1) :
+    3 ≤ (enumPrimitiveReducedForms (-(4 * (p : ℤ)))).card := by
+  let Q0 : BinaryQuadraticForm := ⟨1, 0, (p : ℤ)⟩
+  let Qp : BinaryQuadraticForm := ⟨4, 2, m⟩
+  let Qn : BinaryQuadraticForm := ⟨4, -2, m⟩
+  have hsubset : ({Q0, Qp, Qn} : Finset BinaryQuadraticForm) ⊆
+      enumPrimitiveReducedForms (-(4 * (p : ℤ))) := by
+    intro Q hQ
+    simp only [Finset.mem_insert, Finset.mem_singleton] at hQ
+    rcases hQ with rfl | rfl | rfl
+    · exact principal_form_mem_enumPrimitiveReducedForms_neg_four_mul p hp
+    · exact four_two_form_mem_enumPrimitiveReducedForms_neg_four_mul p m hm hm_ge hm_odd
+    · exact four_neg_two_form_mem_enumPrimitiveReducedForms_neg_four_mul p m hm hm_ge hm_odd
+  calc
+    3 = ({Q0, Qp, Qn} : Finset BinaryQuadraticForm).card := by simp [Q0, Qp, Qn]
+    _ ≤ (enumPrimitiveReducedForms (-(4 * (p : ℤ)))).card := Finset.card_le_card hsubset
 
 macro_rules
   | `(tactic| reduce_forms_count) =>
@@ -325,9 +458,35 @@ theorem enumPrimitiveReducedFormsList_neg163_length :
     (enumPrimitiveReducedFormsList (-163)).length = 1 := by
   reduce_forms_count
 
+/-- The reduced primitive positive definite forms of discriminant `-44` are three. -/
+theorem enumPrimitiveReducedFormsList_neg44_length :
+    (enumPrimitiveReducedFormsList (-44)).length = 3 := by
+  reduce_forms_count
+
+/-- The reduced primitive positive definite forms of discriminant `-76` are three. -/
+theorem enumPrimitiveReducedFormsList_neg76_length :
+    (enumPrimitiveReducedFormsList (-76)).length = 3 := by
+  reduce_forms_count
+
+/-- The reduced primitive positive definite forms of discriminant `-172` are three. -/
+theorem enumPrimitiveReducedFormsList_neg172_length :
+    (enumPrimitiveReducedFormsList (-172)).length = 3 := by
+  reduce_forms_count
+
+/-- The reduced primitive positive definite forms of discriminant `-268` are three. -/
+theorem enumPrimitiveReducedFormsList_neg268_length :
+    (enumPrimitiveReducedFormsList (-268)).length = 3 := by
+  reduce_forms_count
+
+/-- The reduced primitive positive definite forms of discriminant `-652` are three. -/
+theorem enumPrimitiveReducedFormsList_neg652_length :
+    (enumPrimitiveReducedFormsList (-652)).length = 3 := by
+  reduce_forms_count
+
 -- Smoke checks used during development:
 -- `#guard (enumPrimitiveReducedFormsList (-20)).length == 2`
 -- `#guard (enumPrimitiveReducedFormsList (-163)).length == 1`
+-- `#guard (enumPrimitiveReducedFormsList (-652)).length == 3`
 
 end BinaryQuadraticForm
 end QuadraticNumberFields

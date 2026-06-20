@@ -241,16 +241,20 @@ Key declarations include `factorization_of_two`,
 
 ### Class-Number Interface
 
-File: `QuadraticNumberFields/ClassNumber.lean`
+Files: `QuadraticNumberFields/ClassNumber/`
 
 The stable library specializes mathlib's Minkowski ideal-class representative
-bound to `Qsqrtd d` and owns the unified class-number interface:
+bound to `Qsqrtd d` and owns the unified class-number interface in focused
+submodules:
 
-- `classNumberQsqrtd`
-- `Qsqrtd.minkowskiBound`
-- `Qsqrtd.exists_ideal_in_class_of_norm_le`
-- `Qsqrtd.exists_ideal_in_class_of_norm_le_imaginary`
-- `Qsqrtd.exists_ideal_in_class_of_norm_le_real`
+- `Basic.lean`: `classNumberQsqrtd` and the general class-group-to-class-number
+  bridge.
+- `SmallNorm.lean`: small absolute-norm reductions such as the norm-`< 3`
+  class-group lemmas.
+- `Minkowski.lean`: `Qsqrtd.minkowskiBound` and the real/imaginary ideal-class
+  representative bounds.
+- `Criteria.lean`: class-number-one criteria using inert, split, or ramified
+  primes up to the Minkowski bound.
 
 The Heegner wrappers for this interface live in
 `ImaginaryClassNumberOne/ClassNumberBridge.lean`, while the reduced-form
@@ -362,7 +366,8 @@ results, examples, and remaining research-oriented scaffolding.
 │   └── Computable/
 ├── ImaginaryClassNumberOne.lean      # Heegner and Baker--Heegner--Stark layer
 ├── ImaginaryClassNumberOne/
-│   └── WeberData/
+│   └── WeberCM/
+│       └── ConductorTwo/
 ├── Examples.lean                     # concrete examples entry point
 ├── Examples/
 │   └── SqrtNeg5/                     # verified ℤ[√(-5)] examples

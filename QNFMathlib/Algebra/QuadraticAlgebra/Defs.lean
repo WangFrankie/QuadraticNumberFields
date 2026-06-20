@@ -5,6 +5,7 @@ Authors: Frankie Wang
 -/
 
 import Mathlib.Algebra.QuadraticAlgebra.Basic
+import Mathlib.Data.Fintype.OfMap
 import Mathlib.LinearAlgebra.Dimension.StrongRankCondition
 import Mathlib.LinearAlgebra.Matrix.Reindex
 import Mathlib.LinearAlgebra.Matrix.ToLin
@@ -18,6 +19,22 @@ Material destined for mathlib.
 -/
 
 namespace QuadraticAlgebra
+
+section Fintype
+
+variable {R : Type*} [Fintype R] [Zero R] (a b : R)
+
+/-- A quadratic algebra over a finite base ring is finite. -/
+noncomputable instance instFintype : Fintype (QuadraticAlgebra R a b) :=
+  Fintype.ofEquiv (R × R) (QuadraticAlgebra.equivProd a b).symm
+
+/-- The cardinality of a quadratic algebra over a finite base ring. -/
+theorem card {R : Type*} [Fintype R] [Zero R] (a b : R) :
+    Fintype.card (QuadraticAlgebra R a b) = Fintype.card R ^ 2 := by
+  rw [Fintype.ofEquiv_card]
+  simp [pow_two]
+
+end Fintype
 
 section IsQuadraticExtension
 

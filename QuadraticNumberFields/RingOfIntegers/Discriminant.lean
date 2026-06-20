@@ -26,6 +26,8 @@ This file proves the explicit discriminant formula for `Qsqrtd (d : ℚ)`:
   when `d % 4 = 1`.
 * `discrFormula`: The closed-form discriminant expression.
 * `discr_formula`: Unified discriminant formula combining both cases.
+* `discr_neg_natCast_of_nat_mod_eight_eq_three`: the inert-prime-shape
+  specialization `disc(ℚ(√-p)) = -p` when `p % 8 = 3`.
 -/
 
 open scoped NumberField
@@ -141,6 +143,15 @@ theorem discr_formula :
   split
   · exact discr_of_mod_four_eq_one d ‹_›
   · exact discr_of_mod_four_ne_one d ‹_›
+
+/-- In the branch `p % 8 = 3`, the standard field discriminant of `ℚ(√-p)` is
+`-p`. -/
+theorem discr_neg_natCast_of_nat_mod_eight_eq_three
+    (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
+    (hp8 : p % 8 = 3) :
+    NumberField.discr (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ)) = -(p : ℤ) := by
+  exact discr_of_mod_four_eq_one (-(p : ℤ))
+    (Int.neg_natCast_emod_four_eq_one_of_nat_mod_eight_eq_three hp8)
 
 /-- Transport the standard-model discriminant formula back to an abstract field
 identified with `Qsqrtd d`. -/

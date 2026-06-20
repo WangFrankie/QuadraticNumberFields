@@ -5,6 +5,7 @@ Authors: Frankie Wang
 -/
 
 import Mathlib.Algebra.Squarefree.Basic
+import Mathlib.Data.Nat.Prime.Defs
 import QNFMathlib.Algebra.Squarefree.Basic
 
 /-!
@@ -12,6 +13,20 @@ import QNFMathlib.Algebra.Squarefree.Basic
 
 Material destined for mathlib.
 -/
+
+namespace Int
+
+/-- The negative of a natural prime is squarefree as an integer. -/
+lemma squarefree_neg_natCast_of_nat_prime {p : ℕ} (hp : Nat.Prime p) :
+    Squarefree (-(p : ℤ)) := by
+  rw [← Int.squarefree_natAbs]
+  simpa using hp.squarefree
+
+/-- The negative of a natural number is never `1` as an integer. -/
+lemma neg_natCast_ne_one (p : ℕ) : (-(p : ℤ)) ≠ 1 := by
+  omega
+
+end Int
 
 /-- `-1` is not a square in `ℚ`. -/
 -- Repository use: `QuadraticField/Parameters.lean` uses this to rule out the

@@ -5,6 +5,7 @@ Authors: Frankie Wang
 -/
 import QuadraticNumberFields.Splitting.Qsqrtd.KummerDedekind
 import QuadraticNumberFields.Splitting.MinpolyMod
+import QNFMathlib.Data.Int.ModFour
 
 /-!
 # Splitting of the Prime `2` in `Qsqrtd`
@@ -219,6 +220,14 @@ theorem isInert_two_of_mod_eight_eq_five (hd8 : d % 8 = 5) :
   · omega
   · exact ⟨hg, he⟩
   · omega
+
+/-- `(2)` is inert in `𝓞(ℚ(√-p))` when `p ≡ 3 (mod 8)`. -/
+theorem isInert_two_neg_natCast_of_nat_mod_eight_eq_three
+    (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
+    (hp8 : p % 8 = 3) :
+    Ideal.IsInertIn (𝔭(2)) (𝓞 (Qsqrtd (((-(p : ℤ)) : ℤ) : ℚ))) :=
+  isInert_two_of_mod_eight_eq_five (-(p : ℤ))
+    (Int.neg_natCast_emod_eight_eq_five_of_nat_mod_eight_eq_three hp8)
 
 /-- `(2)` splits in `𝓞(ℚ(√d))` when `d ≡ 1 (mod 8)`. -/
 theorem isSplit_two_of_mod_eight_eq_one (hd8 : d % 8 = 1) :

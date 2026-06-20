@@ -44,6 +44,24 @@ def transform (Q : BinaryQuadraticForm) (g : SL2Z) : BinaryQuadraticForm where
   cases Q
   ext <;> norm_num [transform, m00, m01, m10, m11]
 
+/-- The swap matrix `(x, y) ↦ (y, -x)`. -/
+def swapSL2Z : SL2Z := by
+  refine ⟨![![0, 1], ![-1, 0]], ?_⟩
+  norm_num [Matrix.det_fin_two]
+
+/-- Swapping variables sends `(a, b, c)` to `(c, -b, a)`. -/
+@[simp]
+theorem transform_swapSL2Z (Q : BinaryQuadraticForm) :
+    transform Q swapSL2Z = ⟨Q.c, -Q.b, Q.a⟩ := by
+  ext
+  · change Q.a * 0 ^ 2 + Q.b * 0 * (-1) + Q.c * (-1) ^ 2 = Q.c
+    norm_num
+  · change 2 * Q.a * 0 * 1 + Q.b * (0 * 0 + 1 * (-1)) + 2 * Q.c * (-1) * 0 =
+      -Q.b
+    norm_num
+  · change Q.a * 1 ^ 2 + Q.b * 1 * 0 + Q.c * 0 ^ 2 = Q.a
+    norm_num
+
 /-- The coordinate transform is compatible with multiplication in `SL₂(ℤ)`. -/
 theorem transform_mul (Q : BinaryQuadraticForm) (g h : SL2Z) :
     transform (transform Q g) h = transform Q (g * h) := by
