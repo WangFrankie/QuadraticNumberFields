@@ -10,8 +10,13 @@ import FormClassGroup.Cox.LeftInverseEqOne
 import FormClassGroup.Cox.RightInverse
 import FormClassGroup.Cox.Equivalence
 import FormClassGroup.ClassGroup.ClassNumber
+import FormClassGroup.ClassGroup.CoxComposition
 import FormClassGroup.ClassGroup.Structure
 import FormClassGroup.ClassGroup.Law
+import FormClassGroup.Computable.ClassGroup
+import FormClassGroup.Computable.Structure
+import FormClassGroup.Computed
+import FormClassGroup.Gauss.CompositionClass
 
 /-!
 # Form Class Groups
