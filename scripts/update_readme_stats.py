@@ -194,7 +194,12 @@ def generate_code_stats_markdown(files: list[Path]) -> str:
     md += "\n### Library Tree\n"
 
     for library, library_stats in sorted_libraries:
-        md += f"\n#### `{library}`\n\n"
+        md += f"\n<details>\n"
+        md += (
+            f"<summary><code>{library}</code> "
+            f"({library_stats.code} code, {library_stats.comment} comments, "
+            f"{library_stats.total} total)</summary>\n\n"
+        )
         md += "| Subtree | Code Lines | Comment Lines | Total Lines |\n"
         md += "|--------|------------|---------------|-------------|\n"
         sorted_subtrees = sorted(
@@ -208,6 +213,7 @@ def generate_code_stats_markdown(files: list[Path]) -> str:
             f"| **{library} total** | **{library_stats.code}** | "
             f"**{library_stats.comment}** | **{library_stats.total}** |\n"
         )
+        md += "\n</details>\n"
     
     return md
 
