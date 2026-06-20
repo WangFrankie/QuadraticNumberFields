@@ -21,7 +21,8 @@ that future proof.
 
 * `QuadraticOrder.Picard.extensionMap`: the Picard map induced by a ring
   homomorphism of orders.
-* `QuadraticOrder.Picard.relativeKernel`: the kernel of that extension map.
+* `QuadraticOrder.Picard.relativeKernel`: the ring-hom version of mathlib's
+  relative Picard group `CommRing.relPic`.
 * `QuadraticOrder.Picard.KernelEmbedsInto`: a named Prop for the kernel
   embedding supplied by conductor/residue-unit theory.
 * `QuadraticOrder.Picard.KernelEquiv`: a named Prop for identifying the kernel
@@ -43,10 +44,24 @@ noncomputable def extensionMap {O S : Type*} [CommRing O] [CommRing S]
 
 /-- The relative Picard kernel of an order map.  For a nonmaximal order included
 in its maximal order, this is the group controlled by the conductor exact
-sequence. -/
+sequence.
+
+This is the ring-hom version of mathlib's `CommRing.relPic`: see
+`relativeKernel_eq_relPic`. -/
 noncomputable def relativeKernel {O S : Type*} [CommRing O] [CommRing S]
     (i : O →+* S) : Subgroup (CommRing.Pic O) :=
   (extensionMap i).ker
+
+/-- The ring-hom relative kernel agrees with mathlib's algebra-relative Picard
+group after using the homomorphism as the algebra structure. -/
+theorem relativeKernel_eq_relPic {O S : Type*} [CommRing O] [CommRing S]
+    (i : O →+* S) :
+    letI : Algebra O S := i.toAlgebra
+    relativeKernel i = CommRing.relPic O S := by
+  letI : Algebra O S := i.toAlgebra
+  change (CommRing.Pic.mapRingHom (algebraMap O S : O →+* S)).ker =
+    CommRing.relPic O S
+  simp [CommRing.relPic, CommRing.Pic.mapRingHom_algebraMap]
 
 /-- The conductor/residue-unit input that the order route should eventually
 prove: the relative Picard kernel embeds into a concrete local unit quotient
