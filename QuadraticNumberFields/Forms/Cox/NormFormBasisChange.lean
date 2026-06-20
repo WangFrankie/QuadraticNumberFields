@@ -147,6 +147,7 @@ theorem normFormOfBasis_properEquivalent {I : Ideal 𝓞K} (hI : I ≠ 0)
   set g : SL2Z :=
     ⟨b.basis.toMatrix b'.basis, toMatrix_det_eq_one_of_oriented I b b'⟩ with hg
   refine ⟨g, ?_⟩
+  change transform (normFormOfBasis hI b) g = normFormOfBasis hI b'
   apply eq_of_eval_eq
   intro x y
   have hgcoe : ∀ i j : Fin 2,

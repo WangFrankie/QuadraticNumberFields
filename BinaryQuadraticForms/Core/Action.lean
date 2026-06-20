@@ -5,6 +5,7 @@ Authors: Frankie Wang
 -/
 
 import BinaryQuadraticForms.Core.Basic
+import Mathlib.GroupTheory.GroupAction.Defs
 import Mathlib.LinearAlgebra.Matrix.SpecialLinearGroup
 import Mathlib.Tactic.NormNum
 import Mathlib.Tactic.Ring
@@ -12,8 +13,9 @@ import Mathlib.Tactic.Ring
 /-!
 # Proper Equivalence of Binary Quadratic Forms
 
-This file defines the explicit `SL₂(ℤ)` coordinate action on binary quadratic
-forms and proves the elementary invariants needed by proper equivalence.
+This file defines the explicit right `SL₂(ℤ)` coordinate action on binary
+quadratic forms, registers it as a left action of `SL₂(ℤ)ᵐᵒᵖ`, and proves the
+elementary invariants needed by proper equivalence.
 -/
 
 namespace QuadraticNumberFields
@@ -50,28 +52,56 @@ theorem transform_mul (Q : BinaryQuadraticForm) (g h : SL2Z) :
     simp [transform, m00, m01, m10, m11, Matrix.mul_apply, Fin.sum_univ_two] <;>
     ring_nf
 
+/-- The right coordinate action as a left action of the opposite group. -/
+instance instMulAction : MulAction SL2Zᵐᵒᵖ BinaryQuadraticForm where
+  smul g Q := transform Q g.unop
+  one_smul Q := by
+    change transform Q (MulOpposite.unop 1) = Q
+    simp
+  mul_smul g h Q := by
+    change transform Q ((g * h).unop) = transform (transform Q h.unop) g.unop
+    rw [MulOpposite.unop_mul]
+    exact (transform_mul Q h.unop g.unop).symm
+
+@[simp] theorem smul_eq_transform (g : SL2Zᵐᵒᵖ) (Q : BinaryQuadraticForm) :
+    g • Q = transform Q g.unop :=
+  rfl
+
+@[simp] theorem op_smul_eq_transform (g : SL2Z) (Q : BinaryQuadraticForm) :
+    (MulOpposite.op g : SL2Zᵐᵒᵖ) • Q = transform Q g :=
+  rfl
+
 /-- Proper equivalence: forms lie in the same `SL₂(ℤ)` orbit. -/
 def ProperEquivalent (Q R : BinaryQuadraticForm) : Prop :=
-  ∃ g : SL2Z, transform Q g = R
+  ∃ g : SL2Z, (MulOpposite.op g : SL2Zᵐᵒᵖ) • Q = R
+
+/-- Proper equivalence is the orbit relation for the opposite-group action. -/
+theorem properEquivalent_iff_orbitRel {Q R : BinaryQuadraticForm} :
+    ProperEquivalent Q R ↔
+      (MulAction.orbitRel SL2Zᵐᵒᵖ BinaryQuadraticForm).r R Q := by
+  rw [MulAction.orbitRel_apply]
+  constructor
+  · rintro ⟨g, hg⟩
+    exact ⟨MulOpposite.op g, hg⟩
+  · rintro ⟨g, hg⟩
+    exact ⟨g.unop, hg⟩
 
 /-- Proper equivalence is reflexive. -/
-theorem ProperEquivalent.refl (Q : BinaryQuadraticForm) : ProperEquivalent Q Q :=
-  ⟨1, transform_one Q⟩
+theorem ProperEquivalent.refl (Q : BinaryQuadraticForm) : ProperEquivalent Q Q := by
+  rw [properEquivalent_iff_orbitRel]
 
 /-- Proper equivalence is symmetric. -/
 theorem ProperEquivalent.symm {Q R : BinaryQuadraticForm}
     (hQR : ProperEquivalent Q R) : ProperEquivalent R Q := by
-  rcases hQR with ⟨g, rfl⟩
-  refine ⟨g⁻¹, ?_⟩
-  rw [transform_mul, mul_inv_cancel, transform_one]
+  rw [properEquivalent_iff_orbitRel] at hQR ⊢
+  exact (MulAction.orbitRel SL2Zᵐᵒᵖ BinaryQuadraticForm).symm hQR
 
 /-- Proper equivalence is transitive. -/
 theorem ProperEquivalent.trans {Q R S : BinaryQuadraticForm}
     (hQR : ProperEquivalent Q R) (hRS : ProperEquivalent R S) :
     ProperEquivalent Q S := by
-  rcases hQR with ⟨g, rfl⟩
-  rcases hRS with ⟨h, rfl⟩
-  exact ⟨g * h, (transform_mul Q g h).symm⟩
+  rw [properEquivalent_iff_orbitRel] at hQR hRS ⊢
+  exact (MulAction.orbitRel SL2Zᵐᵒᵖ BinaryQuadraticForm).trans hRS hQR
 
 /-- A positive definite form evaluates positively on every nonzero vector. -/
 theorem eval_pos_of_isPositiveDefinite (Q : BinaryQuadraticForm)

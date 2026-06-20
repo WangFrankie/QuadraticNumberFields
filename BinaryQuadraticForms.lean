@@ -11,7 +11,6 @@ import BinaryQuadraticForms.Core.Basic
 import BinaryQuadraticForms.Core.Class
 import BinaryQuadraticForms.Core.ClassReduced
 import BinaryQuadraticForms.Core.Enumeration
-import BinaryQuadraticForms.Core.QuadraticFormBridge
 import BinaryQuadraticForms.Core.ReducedUniqueness
 import BinaryQuadraticForms.Core.Reduction
 import BinaryQuadraticForms.Core.UpperHalfPlane

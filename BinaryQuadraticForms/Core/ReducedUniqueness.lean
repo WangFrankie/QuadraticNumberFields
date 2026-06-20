@@ -244,7 +244,9 @@ private theorem transform_T_inv_S_inv_eq_self_of_tau_eq_rho (Q : BinaryQuadratic
 theorem eq_of_isReduced_of_properEquivalent {Q R : BinaryQuadraticForm}
     (hQpos : Q.IsPositiveDefinite) (hQred : Q.IsReduced) (hRred : R.IsReduced)
     (h : ProperEquivalent Q R) : Q = R := by
-  rcases h with ⟨g, rfl⟩
+  rcases h with ⟨g, hR⟩
+  change transform Q g = R at hR
+  subst R
   let z := tauOfForm Q hQpos
   have hRpos : (transform Q g).IsPositiveDefinite := isPositiveDefinite_transform Q hQpos g
   have hzfd : z ∈ ModularGroup.fd := by

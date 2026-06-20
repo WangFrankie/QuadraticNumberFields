@@ -13,12 +13,15 @@ This file transports the ideal class-group law from `ClassGroup` to
 `FormClass (fieldDiscriminant d)` across the Cox 7.7 equivalence, yielding
 a `CommGroup` structure and a multiplicative equivalence property.
 
-The group structure is a `def` (not an `instance`) to avoid uncontrolled
-typeclass inference on the `Quotient` type.
+The group structure is exposed as a canonical instance when negativity is
+available as `[Fact (d < 0)]`; `formClassCommGroup hdneg` is the explicit
+proof-parametrized helper used by older Cox statements that still take
+`hdneg : d < 0` directly.
 
 ## Main declarations
 
 * `formClassCommGroup` : transported `CommGroup` structure on form classes
+* `instFormClassCommGroup` : canonical transported `CommGroup` instance
 * `formClassEquivClassGroup_mul` : the Cox equivalence preserves multiplication
 
 ## TODO
@@ -51,8 +54,7 @@ section GroupStructure
 variable {d : ℤ} [Fact (Squarefree d)] [Fact (d ≠ 1)]
 
 /-- Transported `CommGroup` structure on `FormClass (fieldDiscriminant d)` via
-the Cox 7.7 equivalence.  This is a `def` (not an `instance`) to avoid
-uncontrolled typeclass inference on the `Quotient` type.
+the Cox 7.7 equivalence.
 
 The executable representative-level multiplication is `gaussMul`; see
 `Forms.Computable.ClassGroup.gaussMul_eq_reducedFormRepMul` for the theorem
@@ -61,6 +63,12 @@ identifying it with the transported operation. -/
 noncomputable def formClassCommGroup (hdneg : d < 0) :
     CommGroup (FormClass (fieldDiscriminant d)) :=
   Equiv.commGroup (formClassEquivClassGroup hdneg)
+
+/-- Canonical transported `CommGroup` instance on form classes of negative
+fundamental discriminant fields. -/
+noncomputable instance instFormClassCommGroup {d : ℤ} [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    [Fact (d < 0)] : CommGroup (FormClass (fieldDiscriminant d)) :=
+  formClassCommGroup (Fact.out)
 
 /-- The Cox 7.7 equivalence preserves multiplication when `FormClass` carries
 the transported group structure.

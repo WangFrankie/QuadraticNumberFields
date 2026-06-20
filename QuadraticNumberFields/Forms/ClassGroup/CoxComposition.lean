@@ -692,22 +692,21 @@ theorem formClassToClassGroup_composeConcordantOfRepresentatives
 /-- Chosen-representative concordant composition agrees with the transported
 product on form classes. -/
 theorem composeConcordantOfRepresentatives_eq_mul
-    {d : ℤ} [Fact (Squarefree d)] [Fact (d ≠ 1)] (hdneg : d < 0)
+    {d : ℤ} [Fact (Squarefree d)] [Fact (d ≠ 1)] [Fact (d < 0)]
     (Q R : PrimitivePositiveDefiniteForm (fieldDiscriminant d))
     (h : Q.1.IsConcordant R.1) :
     composeConcordantOfRepresentatives Q R h =
-      @Mul.mul (FormClass (fieldDiscriminant d)) (formClassCommGroup hdneg).toMul
-        (Quotient.mk (primitivePositiveDefiniteFormSetoid (fieldDiscriminant d)) Q :
-          FormClass (fieldDiscriminant d))
+      (((Quotient.mk (primitivePositiveDefiniteFormSetoid (fieldDiscriminant d)) Q :
+          FormClass (fieldDiscriminant d)) *
         (Quotient.mk (primitivePositiveDefiniteFormSetoid (fieldDiscriminant d)) R :
-          FormClass (fieldDiscriminant d)) := by
-  letI := formClassCommGroup hdneg
+          FormClass (fieldDiscriminant d))) :
+        FormClass (fieldDiscriminant d)) := by
+  let hdneg : d < 0 := Fact.out
   apply (formClassEquivClassGroup hdneg).injective
   change formClassToClassGroup d (composeConcordantOfRepresentatives Q R h) =
     formClassToClassGroup d
-      (@Mul.mul (FormClass (fieldDiscriminant d)) (formClassCommGroup hdneg).toMul
-        (Quotient.mk (primitivePositiveDefiniteFormSetoid (fieldDiscriminant d)) Q :
-          FormClass (fieldDiscriminant d))
+      ((Quotient.mk (primitivePositiveDefiniteFormSetoid (fieldDiscriminant d)) Q :
+          FormClass (fieldDiscriminant d)) *
         (Quotient.mk (primitivePositiveDefiniteFormSetoid (fieldDiscriminant d)) R :
           FormClass (fieldDiscriminant d)))
   rw [formClassToClassGroup_composeConcordantOfRepresentatives]
@@ -730,8 +729,9 @@ theorem composeConcordantOfRepresentatives_eq_of_mk_eq
     (h₂ : Q₂.1.IsConcordant R₂.1) :
     composeConcordantOfRepresentatives Q₁ R₁ h₁ =
       composeConcordantOfRepresentatives Q₂ R₂ h₂ := by
-  rw [composeConcordantOfRepresentatives_eq_mul hdneg Q₁ R₁ h₁,
-    composeConcordantOfRepresentatives_eq_mul hdneg Q₂ R₂ h₂, hQ, hR]
+  letI : Fact (d < 0) := ⟨hdneg⟩
+  rw [composeConcordantOfRepresentatives_eq_mul Q₁ R₁ h₁,
+    composeConcordantOfRepresentatives_eq_mul Q₂ R₂ h₂, hQ, hR]
 
 end FormClass
 

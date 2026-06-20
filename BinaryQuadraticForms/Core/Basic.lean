@@ -16,13 +16,11 @@ forms used for the Cox/Gauss class-group bridge.
 
 ## Implementation notes
 
-Mathlib already has `QuadraticForm`, but this subsystem intentionally keeps a
-small coordinate model for classical integral binary forms.  The direct
-`(a, b, c)` representation gives computable coefficient access and derives
-`DecidableEq` and `Repr`, which are used by the reduced-form enumeration and
-compile-time regression checks.  A bridge to mathlib's structural `QuadraticForm`
-API should be added explicitly when needed rather than replacing this
-computable model wholesale.
+Mathlib has structural `QuadraticForm`s, but this subsystem uses the classical
+coordinate model for integral binary forms. The direct `(a, b, c)`
+representation gives computable coefficient access, the classical discriminant
+normalization `b² - 4ac`, and derived `DecidableEq` / `Repr` instances used by
+reduced-form enumeration and compile-time regression checks.
 -/
 
 namespace QuadraticNumberFields

@@ -421,19 +421,18 @@ Gauss pipeline to the existing transported `CommGroup` on `FormClass`.
 Uses `CoxComposition.coxIdeal_mul_of_united` for the ideal-product identity,
 `unitedRep_properEquivalent` for right-factor replacement, and
 `formClassEquivClassGroup` injectivity for the quotient lift. -/
-theorem composeForm_mk (hdneg : d < 0)
+theorem composeForm_mk [Fact (d < 0)]
     (Q R : PrimitivePositiveDefiniteForm (fieldDiscriminant d))
     (hQR : Q.1.disc = R.1.disc) (hRprim : R.1.IsPrimitive) (hQa : Q.1.a ≠ 0)
     (hQpos : Q.1.IsPositiveDefinite) (hRpos : R.1.IsPositiveDefinite) :
-    haveI := formClassCommGroup hdneg
     Quotient.mk (primitivePositiveDefiniteFormSetoid (fieldDiscriminant d))
-      (composeFormPrimitiveOfCoprime hdneg Q R hQR hRprim hQa hQpos hRpos) =
-      @Mul.mul (FormClass (fieldDiscriminant d)) (formClassCommGroup hdneg).toMul
-        (Quotient.mk (primitivePositiveDefiniteFormSetoid (fieldDiscriminant d)) Q :
-          FormClass (fieldDiscriminant d))
+      (composeFormPrimitiveOfCoprime (Fact.out : d < 0) Q R hQR hRprim hQa hQpos hRpos) =
+      (((Quotient.mk (primitivePositiveDefiniteFormSetoid (fieldDiscriminant d)) Q :
+          FormClass (fieldDiscriminant d)) *
         (Quotient.mk (primitivePositiveDefiniteFormSetoid (fieldDiscriminant d)) R :
-          FormClass (fieldDiscriminant d)) := by
-  letI := formClassCommGroup hdneg
+          FormClass (fieldDiscriminant d))) :
+        FormClass (fieldDiscriminant d)) := by
+  let hdneg : d < 0 := Fact.out
   apply (formClassEquivClassGroup hdneg).injective
   let q : FormClass (fieldDiscriminant d) :=
     Quotient.mk (primitivePositiveDefiniteFormSetoid (fieldDiscriminant d)) Q
@@ -441,24 +440,22 @@ theorem composeForm_mk (hdneg : d < 0)
     Quotient.mk (primitivePositiveDefiniteFormSetoid (fieldDiscriminant d)) R
   change formClassToClassGroup d
       (Quotient.mk (primitivePositiveDefiniteFormSetoid (fieldDiscriminant d))
-        (composeFormPrimitiveOfCoprime hdneg Q R hQR hRprim hQa hQpos hRpos)) =
-    formClassToClassGroup d
-      (@Mul.mul (FormClass (fieldDiscriminant d)) (formClassCommGroup hdneg).toMul q r)
+        (composeFormPrimitiveOfCoprime (Fact.out : d < 0) Q R hQR hRprim hQa hQpos hRpos)) =
+    formClassToClassGroup d (q * r)
   rw [show formClassToClassGroup d
-      (@Mul.mul (FormClass (fieldDiscriminant d)) (formClassCommGroup hdneg).toMul q r) =
-        formClassToClassGroup d q * formClassToClassGroup d r by
+      (q * r) = formClassToClassGroup d q * formClassToClassGroup d r by
     simpa [q, r] using formClassEquivClassGroup_mul hdneg q r]
   by_cases hd4 : d % 4 = 1
   · rw [formClassToClassGroup_mk_eq_of_mod_four_eq_one d hd4]
     rw [formClassToClassGroup_mk_eq_of_mod_four_eq_one d hd4]
     rw [formClassToClassGroup_mk_eq_of_mod_four_eq_one d hd4]
     exact idealClassOfForm_composeForm_of_mod_four_eq_one
-      hdneg hd4 Q R hQR hRprim hQa hQpos hRpos
+      (Fact.out : d < 0) hd4 Q R hQR hRprim hQa hQpos hRpos
   · rw [formClassToClassGroup_mk_eq_of_mod_four_ne_one d hd4]
     rw [formClassToClassGroup_mk_eq_of_mod_four_ne_one d hd4]
     rw [formClassToClassGroup_mk_eq_of_mod_four_ne_one d hd4]
     exact idealClassOfForm_composeForm_of_mod_four_ne_one
-      hdneg hd4 Q R hQR hRprim hQa hQpos hRpos
+      (Fact.out : d < 0) hd4 Q R hQR hRprim hQa hQpos hRpos
 
 omit [Fact (Squarefree d)] [Fact (d ≠ 1)] in
 /-- The `gaussMul` result belongs to the reduced-form enumeration. -/
@@ -517,8 +514,9 @@ theorem gaussMul_eq_reducedFormRepMul_val
       (composeForm_isPositiveDefinite Q.1 R.1 hQR hRprim hQa hQpos hRpos)
   have hcomp_class :
       Quotient.mk (primitivePositiveDefiniteFormSetoid D) compP = Q.formClass * R.formClass := by
+    letI : Fact (d < 0) := ⟨hdneg⟩
     simpa [Qp, Rp, ReducedFormRep.formClass] using
-      composeForm_mk hdneg Qp Rp hQR hRprim hQa hQpos hRpos
+      composeForm_mk Qp Rp hQR hRprim hQa hQpos hRpos
   have hG_product : G.formClass = Q.formClass * R.formClass := hG_class.trans hcomp_class
   have hG_eq : G = reducedFormRepMul hdneg Q R := by
     calc
