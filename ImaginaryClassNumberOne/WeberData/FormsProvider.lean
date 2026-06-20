@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 import FormClassGroup.ClassGroup.ClassNumber
-import QuadraticNumberFields.Heegner.WeberData.Core
+import ImaginaryClassNumberOne.WeberData.Core
 
 /-!
 # Forms Provider for the Weber Data Interface

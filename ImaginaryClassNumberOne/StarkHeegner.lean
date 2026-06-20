@@ -5,9 +5,9 @@ Authors: Frankie Wang
 -/
 import QuadraticNumberFields.ClassGroup.GenusTheory.Formula
 import QuadraticNumberFields.ClassGroup.GenusTheory.Sieve
-import QuadraticNumberFields.Heegner.ClassNumberOne
-import QuadraticNumberFields.Heegner.Framework
-import QuadraticNumberFields.Heegner.IdealReductions
+import ImaginaryClassNumberOne.ClassNumberOne
+import ImaginaryClassNumberOne.Framework
+import ImaginaryClassNumberOne.IdealReductions
 
 /-!
 # The Baker–Heegner–Stark Theorem (Statement)

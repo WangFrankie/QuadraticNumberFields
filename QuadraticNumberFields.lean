@@ -47,7 +47,6 @@ import BinaryQuadraticForms.Core.Class
 import BinaryQuadraticForms.Core.Enumeration
 import BinaryQuadraticForms.Core.Reduction
 import QuadraticNumberFields.ClassNumber
-import QuadraticNumberFields.ClassNumber.Heegner
 import QuadraticNumberFields.Examples.SqrtNeg5.Ideals
 import QuadraticNumberFields.Examples.SqrtNeg5.RamificationInertia
 import QuadraticNumberFields.Examples.SqrtNeg5.Splitting
@@ -62,8 +61,6 @@ import QuadraticNumberFields.Units.Pell
 import QuadraticNumberFields.Units.Imaginary
 import QuadraticNumberFields.Units.Fundamental
 import QuadraticNumberFields.Units.Families
-import QuadraticNumberFields.Heegner.ClassNumberOne
-import QuadraticNumberFields.Heegner.ClassNumberOneByForms
 
 /-!
 # Quadratic Number Fields
@@ -78,8 +75,6 @@ including:
 * Totally real/complex classification
 * Unit groups: Pell-type units, torsion classification in the imaginary case,
   fundamental units, and explicit Richaud-Degert unit candidates
-* Class number one for the nine Heegner numbers (the elementary direction of
-  the Baker–Heegner–Stark theorem), via Minkowski bounds and inert primes
 
 ## Main Import
 

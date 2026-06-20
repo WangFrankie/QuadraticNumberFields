@@ -6,7 +6,7 @@ Authors: Frankie Wang
 import Mathlib.Data.Finset.Basic
 import Mathlib.Data.Int.Basic
 import Mathlib.Tactic
-import QuadraticNumberFields.Heegner.ClassNumberOne
+import ImaginaryClassNumberOne.ClassNumberOne
 import QuadraticNumberFields.RingOfIntegers.Classification
 import QuadraticNumberFields.Units.Imaginary
 import QuadraticNumberFields.Zsqrtd.Gaussian

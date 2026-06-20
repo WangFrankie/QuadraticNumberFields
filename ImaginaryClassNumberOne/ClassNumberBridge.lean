@@ -5,7 +5,7 @@ Authors: Frankie Wang
 -/
 
 import QuadraticNumberFields.ClassNumber
-import QuadraticNumberFields.Heegner.ClassNumberOne
+import ImaginaryClassNumberOne.ClassNumberOne
 
 /-!
 # Heegner Class Numbers through `classNumberQsqrtd`

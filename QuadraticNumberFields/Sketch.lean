@@ -32,11 +32,11 @@ import FormClassGroup.Computable.Structure
 import QuadraticNumberFields.Examples.ClassGroupStructure
 import BinaryQuadraticForms.Gauss.Composition
 import FormClassGroup.Gauss.CompositionClass
-import QuadraticNumberFields.Heegner.Diophantine
-import QuadraticNumberFields.Heegner.WeberData.Core
-import QuadraticNumberFields.Heegner.WeberData.FormsProvider
-import QuadraticNumberFields.Heegner.Framework
-import QuadraticNumberFields.Heegner.StarkHeegner
+import ImaginaryClassNumberOne.Diophantine
+import ImaginaryClassNumberOne.WeberData.Core
+import ImaginaryClassNumberOne.WeberData.FormsProvider
+import ImaginaryClassNumberOne.Framework
+import ImaginaryClassNumberOne.StarkHeegner
 import QuadraticNumberFields.Qsqrtd.Automorphism
 import QuadraticNumberFields.Qsqrtd.Basic
 import QuadraticNumberFields.Qsqrtd.Equiv
