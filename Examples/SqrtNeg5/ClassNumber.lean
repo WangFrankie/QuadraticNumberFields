@@ -3,9 +3,11 @@ Copyright (c) 2026 Frankie Wang. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
+import QuadraticNumberFields.ClassGroup.Torsion
 import QuadraticNumberFields.ClassNumber
 import Examples.SqrtNeg5.Ideals
 import Examples.SqrtNeg5.Invariants
+import Mathlib.GroupTheory.SpecificGroups.Cyclic
 import QNFMathlib.NumberTheory.NumberField.ClassNumber
 import QuadraticNumberFields.RingOfIntegers.Norm
 
@@ -185,5 +187,40 @@ theorem classNumber_eq_two :
 /-- `classNumberQsqrtd (-5) = 2`, the unified-interface form. -/
 theorem classNumberQsqrtd_neg5 : classNumberQsqrtd (-5) = 2 :=
   classNumber_eq_two
+
+/-! ## Class-group structure -/
+
+/-- The square of the bundled ramified ideal is principal. -/
+theorem isPrincipal_P0_sq : ((P0 : Ideal O) ^ 2).IsPrincipal := by
+  change (P ^ 2).IsPrincipal
+  rw [← span_two_eq_P_sq]
+  exact ⟨2, rfl⟩
+
+/-- The non-identity ideal class `[P]` is self-inverse.  This is the ideal-theoretic
+group-law computation coming from the ramified factorization `(2) = P²`. -/
+theorem classP_mul_self_eq_one :
+    classP * classP = (1 : ClassGroup O) := by
+  simpa [classP, pow_two] using
+    ClassGroup.mk0_sq_eq_one_of_sq_isPrincipal P0 isPrincipal_P0_sq
+
+/-- The ramified ideal class `[P]` is a torsion element of the ideal class group. -/
+theorem classP_mem_torsion :
+    classP ∈ CommGroup.torsion (ClassGroup O) := by
+  simpa [classP] using
+    ClassGroup.mk0_mem_torsion_of_pow_isPrincipal P0
+      (n := 2) (by norm_num) isPrincipal_P0_sq
+
+/-- The ideal class group of `ℚ(√-5)` is cyclic of order two. -/
+noncomputable def classGroupMulEquivZMod2 :
+    ClassGroup O ≃* Multiplicative (ZMod 2) :=
+  mulEquivOfPrimeCardEq (p := 2)
+    (G := ClassGroup O)
+    (G' := Multiplicative (ZMod 2))
+    (by
+      rw [Nat.card_eq_fintype_card]
+      simpa [O, NumberField.classNumber] using classNumber_eq_two)
+    (by
+      rw [Nat.card_eq_fintype_card]
+      simp)
 
 end QuadraticNumberFields.Examples.SqrtNeg5
