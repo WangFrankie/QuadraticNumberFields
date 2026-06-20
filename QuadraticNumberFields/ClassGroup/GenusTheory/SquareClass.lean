@@ -95,34 +95,37 @@ theorem genusCharacterRawUnit_sq_eq_one
   exact genusCharacterRaw_sq_eq_one_of_norm_not_dvd d p I I.2
 
 /-- A descended genus character takes values of order dividing two on every class. -/
-theorem genusCharacterOfPrincipalMultiplierData_sq_eq_one
+theorem genusCharacterOfPrimeToNormPrincipalMultipliers_sq_eq_one
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (p : ℕ) [Fact p.Prime]
     (hd_neg : d < 0) (hp_disc : p ∈ oddPrimeDiscriminantDivisors d)
     (hsurj : Function.Surjective (mk0OnPrimeToNormIdeals d p))
-    (hdata : HasPrimeToNormPrincipalMultiplierData d p)
+    (hprincipal : PrimeToNormPrincipalMultipliers d p)
     (C : ClassGroup (𝓞 (Qsqrtd (d : ℚ)))) :
-    genusCharacterOfPrincipalMultiplierData d p hd_neg hp_disc hsurj hdata C ^ 2 = 1 := by
+    genusCharacterOfPrimeToNormPrincipalMultipliers
+      d p hd_neg hp_disc hsurj hprincipal C ^ 2 = 1 := by
   let I := Classical.choose (hsurj C)
   have hI : mk0OnPrimeToNormIdeals d p I = C := Classical.choose_spec (hsurj C)
-  have happly := genusCharacterOfPrincipalMultiplierData_apply_mk0OnPrimeToNormIdeals
-    d p hd_neg hp_disc hsurj hdata I
+  have happly := genusCharacterOfPrimeToNormPrincipalMultipliers_apply_mk0OnPrimeToNormIdeals
+    d p hd_neg hp_disc hsurj hprincipal I
   rw [hI] at happly
   rw [happly]
   exact genusCharacterRawUnit_sq_eq_one d p I
 
 /-- Every descended genus character kills the square-class subgroup `Cl²`. This is the
 formal `Cl² ⊆ principal genus` direction for the odd-prime genus characters. -/
-theorem squareClassSubgroup_le_genusCharacterOfPrincipalMultiplierData_ker
+theorem squareClassSubgroup_le_genusCharacterOfPrimeToNormPrincipalMultipliers_ker
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (p : ℕ) [Fact p.Prime]
     (hd_neg : d < 0) (hp_disc : p ∈ oddPrimeDiscriminantDivisors d)
     (hsurj : Function.Surjective (mk0OnPrimeToNormIdeals d p))
-    (hdata : HasPrimeToNormPrincipalMultiplierData d p) :
+    (hprincipal : PrimeToNormPrincipalMultipliers d p) :
     squareClassSubgroup d ≤
-      (genusCharacterOfPrincipalMultiplierData d p hd_neg hp_disc hsurj hdata).ker := by
+      (genusCharacterOfPrimeToNormPrincipalMultipliers
+        d p hd_neg hp_disc hsurj hprincipal).ker := by
   intro C hC
   rcases hC with ⟨D, rfl⟩
   rw [MonoidHom.mem_ker, powMonoidHom_apply, map_pow]
-  exact genusCharacterOfPrincipalMultiplierData_sq_eq_one d p hd_neg hp_disc hsurj hdata D
+  exact genusCharacterOfPrimeToNormPrincipalMultipliers_sq_eq_one
+    d p hd_neg hp_disc hsurj hprincipal D
 
 /-- A descended odd-prime genus character as a character on the principal-genus
 quotient `Cl / Cl²`. -/
@@ -130,12 +133,12 @@ noncomputable def genusCharacterOnSquareClassQuotient
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (p : ℕ) [Fact p.Prime]
     (hd_neg : d < 0) (hp_disc : p ∈ oddPrimeDiscriminantDivisors d)
     (hsurj : Function.Surjective (mk0OnPrimeToNormIdeals d p))
-    (hdata : HasPrimeToNormPrincipalMultiplierData d p) :
+    (hprincipal : PrimeToNormPrincipalMultipliers d p) :
     ClassGroup (𝓞 (Qsqrtd (d : ℚ))) ⧸ squareClassSubgroup d →* ℤˣ :=
   QuotientGroup.lift (squareClassSubgroup d)
-    (genusCharacterOfPrincipalMultiplierData d p hd_neg hp_disc hsurj hdata)
-    (squareClassSubgroup_le_genusCharacterOfPrincipalMultiplierData_ker
-      d p hd_neg hp_disc hsurj hdata)
+    (genusCharacterOfPrimeToNormPrincipalMultipliers d p hd_neg hp_disc hsurj hprincipal)
+    (squareClassSubgroup_le_genusCharacterOfPrimeToNormPrincipalMultipliers_ker
+      d p hd_neg hp_disc hsurj hprincipal)
 
 /-- The character on `Cl / Cl²` agrees with the descended genus character after
 composing with the quotient map. -/
@@ -143,10 +146,10 @@ theorem genusCharacterOnSquareClassQuotient_apply
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (p : ℕ) [Fact p.Prime]
     (hd_neg : d < 0) (hp_disc : p ∈ oddPrimeDiscriminantDivisors d)
     (hsurj : Function.Surjective (mk0OnPrimeToNormIdeals d p))
-    (hdata : HasPrimeToNormPrincipalMultiplierData d p)
+    (hprincipal : PrimeToNormPrincipalMultipliers d p)
     (C : ClassGroup (𝓞 (Qsqrtd (d : ℚ)))) :
-    genusCharacterOnSquareClassQuotient d p hd_neg hp_disc hsurj hdata C =
-      genusCharacterOfPrincipalMultiplierData d p hd_neg hp_disc hsurj hdata C := by
+    genusCharacterOnSquareClassQuotient d p hd_neg hp_disc hsurj hprincipal C =
+      genusCharacterOfPrimeToNormPrincipalMultipliers d p hd_neg hp_disc hsurj hprincipal C := by
   rfl
 
 end ClassGroup

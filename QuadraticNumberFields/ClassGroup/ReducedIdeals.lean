@@ -16,9 +16,7 @@ integers.
 namespace QuadraticNumberFields
 namespace ClassGroup
 
-/-- Placeholder predicate for reduced ideal data attached to `d`. -/
-def HasReducedIdealData (d : ℤ) : Prop :=
-  HasExplicitClassGroupData d
+
 
 end ClassGroup
 end QuadraticNumberFields

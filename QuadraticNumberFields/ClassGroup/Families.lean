@@ -16,9 +16,7 @@ quadratic-field families.
 namespace QuadraticNumberFields
 namespace ClassGroup
 
-/-- Placeholder predicate for family-specific class-group data. -/
-def HasFamilyClassGroupData (d : ℤ) : Prop :=
-  HasMinkowskiClassGroupData d
+
 
 end ClassGroup
 end QuadraticNumberFields

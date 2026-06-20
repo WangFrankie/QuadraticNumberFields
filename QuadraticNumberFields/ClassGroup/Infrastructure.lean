@@ -15,9 +15,6 @@ This file will collect shared class-group infrastructure for quadratic fields.
 namespace QuadraticNumberFields
 namespace ClassGroup
 
-/-- Placeholder predicate for explicit class-group data of `𝓞(ℚ(√d))`. -/
-def HasExplicitClassGroupData (d : ℤ) : Prop :=
-  Families.IsAdmissibleParam d
 
 end ClassGroup
 end QuadraticNumberFields

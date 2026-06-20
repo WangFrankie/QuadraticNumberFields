@@ -39,6 +39,8 @@ open scoped NumberField
 namespace QuadraticNumberFields
 namespace Heegner
 
+open ClassGroup
+
 /-
 TODO roadmap for the remaining forward direction:
 
@@ -104,39 +106,60 @@ theorem classNumber_eq_one_imp_mem_heegnerSet_of_discriminant_prime_shape
         omega
       exact classNumber_eq_one_imp_mem_heegnerSet_of_mod_eight_eq_one d hd hd8 h
 
-/-- **Odd genus-formula-data branch of Baker-Heegner-Stark.** For odd fundamental
-discriminants, complete odd genus-formula data feeds the prime-shape sieve and leaves
-only the existing inert-prime provider. -/
-theorem classNumber_eq_one_imp_mem_heegnerSet_of_oddGenusFormulaData_of_mod_four_eq_one
+/-- **Odd genus-formula branch of Baker-Heegner-Stark.** For odd fundamental
+discriminants, the explicit genus-character product inputs feed the prime-shape
+sieve and leave only the existing inert-prime provider. -/
+theorem classNumber_eq_one_imp_mem_heegnerSet_of_oddGenusFormula_of_mod_four_eq_one
     (hprovider : InertPrimeWeberDataProvider)
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : d < 0)
     (hd4 : d % 4 = 1)
-    (hdata : ClassGroup.OddGenusFormulaData d hd)
+    (hcharSurj : ClassGroup.OddGenusCharacterSurjective d)
+    (hprincipal : ClassGroup.OddGenusPrincipalMultipliers d)
+    (hrel : ClassGroup.oddGenusProductRelation d hd hcharSurj hprincipal)
+    (hsurj :
+      Function.Surjective
+        (ClassGroup.oddGenusCharacterProductToRelationSubgroup
+          d hd hcharSurj hprincipal hrel))
+    (hprincipalKernel :
+      ∀ C : ClassGroup (𝓞 (Qsqrtd (d : ℚ))) ⧸ ClassGroup.squareClassSubgroup d,
+        (∀ P : {p // p ∈ ClassGroup.oddPrimeDiscriminantDivisors d},
+          ClassGroup.oddGenusCharacterProductOnSquareClassQuotient
+            d hd hcharSurj hprincipal C P = 1) → C = 1)
     (h : NumberField.classNumber (Qsqrtd (d : ℚ)) = 1) :
     d ∈ heegnerSet := by
+  have hgenus :
+      ClassGroup.genusFormula d :=
+    genusFormula_of_oddGenusCharacterProduct_surjective_of_principalKernel_of_mod_four_eq_one
+      d hd hd4 hcharSurj hprincipal hrel hsurj hprincipalKernel
   have hprime :=
-    ClassGroup.classNumber_eq_one_imp_exists_prime_of_oddGenusFormulaData_of_mod_four_eq_one
-      d hd hd4 hdata h
+    ClassGroup.classNumber_eq_one_imp_exists_prime_of_odd_discr d hd
+      (by
+        rw [RingOfIntegers.discrFormula_of_mod_four_eq_one hd4]
+        omega)
+      hgenus h
   exact classNumber_eq_one_imp_mem_heegnerSet_of_discriminant_prime_shape hprovider d hd
     (Or.inr (Or.inr hprime)) h
 
 /-- **Odd genus-character branch of Baker-Heegner-Stark.** For odd fundamental
-discriminants, the existing odd genus-character interface with bijective product
+discriminants, the explicit odd genus-character interface with bijective product
 character feeds the prime-shape sieve and leaves only the inert-prime provider. -/
-theorem classNumber_eq_one_imp_mem_heegnerSet_of_oddGenusCharacterData_of_mod_four_eq_one
+theorem
+    classNumber_eq_one_imp_mem_heegnerSet_of_oddGenusCharacterProduct_bijective_of_mod_four_eq_one
     (hprovider : InertPrimeWeberDataProvider)
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : d < 0)
     (hd4 : d % 4 = 1)
-    (hdata : ClassGroup.OddGenusCharacterData d)
-    (hrel : ClassGroup.oddGenusProductRelation d hd hdata)
+    (hcharSurj : ClassGroup.OddGenusCharacterSurjective d)
+    (hprincipal : ClassGroup.OddGenusPrincipalMultipliers d)
+    (hrel : ClassGroup.oddGenusProductRelation d hd hcharSurj hprincipal)
     (hbij :
       Function.Bijective
-        (ClassGroup.oddGenusCharacterProductToRelationSubgroup d hd hdata hrel))
+        (ClassGroup.oddGenusCharacterProductToRelationSubgroup
+          d hd hcharSurj hprincipal hrel))
     (h : NumberField.classNumber (Qsqrtd (d : ℚ)) = 1) :
     d ∈ heegnerSet := by
   have hprime :=
-    ClassGroup.classNumber_eq_one_imp_exists_prime_of_oddGenusCharacterData_of_mod_four_eq_one
-      d hd hd4 hdata hrel hbij h
+    classNumber_eq_one_imp_exists_prime_of_oddGenusCharacterProduct_bijective_of_mod_four_eq_one
+      d hd hd4 hcharSurj hprincipal hrel hbij h
   exact classNumber_eq_one_imp_mem_heegnerSet_of_discriminant_prime_shape hprovider d hd
     (Or.inr (Or.inr hprime)) h
 

@@ -7,7 +7,6 @@ Authors: Frankie Wang
 import Mathlib.NumberTheory.LegendreSymbol.Basic
 import QNFMathlib.RingTheory.Ideal.Norm.AbsNorm
 import QuadraticNumberFields.ClassGroup.GenusTheory.Discriminant
-import QuadraticNumberFields.ClassGroup.Torsion
 import QuadraticNumberFields.ClassNumber
 import QuadraticNumberFields.RingOfIntegers.Norm
 import QuadraticNumberFields.Splitting.Qsqrtd.Kronecker
@@ -223,7 +222,7 @@ theorem mk0OnPrimeToNormIdeals_surjective_of_forall_mk0_eq_of_not_dvd_absNorm
 /-- Equality in the restricted class-group map is exactly the usual principal-multiplier
 relation between the underlying nonzero integral ideals.
 
-The remaining ideal-avoidance content in `HasPrimeToNormPrincipalMultiplierData` is the
+The remaining ideal-avoidance content in `PrimeToNormPrincipalMultipliers` is the
 extra requirement that the multipliers can be chosen with norms still prime to `p`. -/
 theorem mk0OnPrimeToNormIdeals_eq_iff_exists_principal_multipliers
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (p : ℕ) [Fact p.Prime]
@@ -253,10 +252,10 @@ def genusCharacterRawDescendsOnPrimeToNormIdeals
     mk0OnPrimeToNormIdeals d p I = mk0OnPrimeToNormIdeals d p J →
       genusCharacterRawUnit d p I = genusCharacterRawUnit d p J
 
-/-- Principal-multiplier data sufficient for the raw genus character to descend along
+/-- Principal multipliers sufficient for the raw genus character to descend along
 `mk0OnPrimeToNormIdeals`: whenever two prime-to-`p` integral ideals have the same
 class, they can be related by principal multipliers whose norms are also prime to `p`. -/
-def HasPrimeToNormPrincipalMultiplierData
+def PrimeToNormPrincipalMultipliers
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (p : ℕ) [Fact p.Prime] : Prop :=
   ∀ I J : idealsPrimeToNormSubmonoid d p,
     mk0OnPrimeToNormIdeals d p I = mk0OnPrimeToNormIdeals d p J →
@@ -488,15 +487,15 @@ theorem genusCharacterRaw_eq_of_span_mul_eq_span_mul_of_norm_not_dvd_of_neg
     _ = genusCharacterRaw d p (Ideal.span {y} * J) := by rw [hxy]
     _ = genusCharacterRaw d p J := hright
 
-/-- Prime-to-`p` principal-multiplier data is enough to make the raw genus character
+/-- Prime-to-`p` principal-multiplier hypothesis is enough to make the raw genus character
 constant on the fibers of the restricted class-group map. -/
-theorem genusCharacterRawDescendsOnPrimeToNormIdeals_of_principalMultiplierData
+theorem genusCharacterRawDescendsOnPrimeToNormIdeals_of_primeToNormPrincipalMultipliers
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (p : ℕ) [Fact p.Prime]
     (hd_neg : d < 0) (hp_disc : p ∈ oddPrimeDiscriminantDivisors d)
-    (hdata : HasPrimeToNormPrincipalMultiplierData d p) :
+    (hprincipal : PrimeToNormPrincipalMultipliers d p) :
     genusCharacterRawDescendsOnPrimeToNormIdeals d p := by
   intro I J hmk
-  obtain ⟨x, y, hx, hy, hxy⟩ := hdata I J hmk
+  obtain ⟨x, y, hx, hy, hxy⟩ := hprincipal I J hmk
   ext
   exact genusCharacterRaw_eq_of_span_mul_eq_span_mul_of_norm_not_dvd_of_neg d p hd_neg hp_disc
     hx hy hxy
@@ -504,30 +503,30 @@ theorem genusCharacterRawDescendsOnPrimeToNormIdeals_of_principalMultiplierData
 /-- A genuine genus character on the class group, conditional on the two remaining
 ideal-avoidance inputs: every class has a representative whose norm is prime to `p`,
 and equal classes have prime-to-`p` principal multipliers. -/
-noncomputable def genusCharacterOfPrincipalMultiplierData
+noncomputable def genusCharacterOfPrimeToNormPrincipalMultipliers
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (p : ℕ) [Fact p.Prime]
     (hd_neg : d < 0) (hp_disc : p ∈ oddPrimeDiscriminantDivisors d)
     (hsurj : Function.Surjective (mk0OnPrimeToNormIdeals d p))
-    (hdata : HasPrimeToNormPrincipalMultiplierData d p) :
+    (hprincipal : PrimeToNormPrincipalMultipliers d p) :
     ClassGroup (𝓞 (Qsqrtd (d : ℚ))) →* ℤˣ :=
   genusCharacterOfPrimeToNormDescent d p hsurj
-    (genusCharacterRawDescendsOnPrimeToNormIdeals_of_principalMultiplierData d p hd_neg hp_disc
-      hdata)
+    (genusCharacterRawDescendsOnPrimeToNormIdeals_of_primeToNormPrincipalMultipliers
+      d p hd_neg hp_disc hprincipal)
 
 /-- The genus character obtained from principal-multiplier descent agrees with
 the raw genus character on prime-to-`p` ideal representatives. -/
-theorem genusCharacterOfPrincipalMultiplierData_apply_mk0OnPrimeToNormIdeals
+theorem genusCharacterOfPrimeToNormPrincipalMultipliers_apply_mk0OnPrimeToNormIdeals
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (p : ℕ) [Fact p.Prime]
     (hd_neg : d < 0) (hp_disc : p ∈ oddPrimeDiscriminantDivisors d)
     (hsurj : Function.Surjective (mk0OnPrimeToNormIdeals d p))
-    (hdata : HasPrimeToNormPrincipalMultiplierData d p)
+    (hprincipal : PrimeToNormPrincipalMultipliers d p)
     (I : idealsPrimeToNormSubmonoid d p) :
-    genusCharacterOfPrincipalMultiplierData d p hd_neg hp_disc hsurj hdata
+    genusCharacterOfPrimeToNormPrincipalMultipliers d p hd_neg hp_disc hsurj hprincipal
         (mk0OnPrimeToNormIdeals d p I) =
       genusCharacterRawUnit d p I := by
   exact genusCharacterOfPrimeToNormDescent_apply_mk0OnPrimeToNormIdeals d p hsurj
-    (genusCharacterRawDescendsOnPrimeToNormIdeals_of_principalMultiplierData d p hd_neg hp_disc
-      hdata) I
+    (genusCharacterRawDescendsOnPrimeToNormIdeals_of_primeToNormPrincipalMultipliers
+      d p hd_neg hp_disc hprincipal) I
 
 end ClassGroup
 end QuadraticNumberFields

@@ -25,41 +25,33 @@ open Splitting
 
 local notation "𝓞" => _root_.NumberField.RingOfIntegers
 
-/-- Ideal-avoidance data needed to construct all odd-prime genus characters.
-
-The two fields are the remaining local inputs not supplied by the raw Legendre-symbol
-calculation: every class must have a representative whose norm is prime to `p`, and
-equal such representatives must have principal multipliers still prime to `p`. -/
-structure OddGenusCharacterData (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] where
-  /-- Every ideal class has a representative whose norm is prime to `p`. -/
-  surjective : ∀ (p : ℕ) [Fact p.Prime], p ∈ oddPrimeDiscriminantDivisors d →
+/-- Every ideal class has a representative whose norm is prime to each odd
+discriminant divisor. -/
+def OddGenusCharacterSurjective (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] : Prop :=
+  ∀ (p : ℕ) [Fact p.Prime], p ∈ oddPrimeDiscriminantDivisors d →
     Function.Surjective (mk0OnPrimeToNormIdeals d p)
-  /-- Equal prime-to-`p` representatives have a compatible principal multiplier
-  whose norm stays prime to `p`. -/
-  principalMultiplier :
-    ∀ (p : ℕ) [Fact p.Prime], p ∈ oddPrimeDiscriminantDivisors d →
-      HasPrimeToNormPrincipalMultiplierData d p
 
-/-- Construct odd genus-character data from a simultaneous representative theorem
-for all odd discriminant primes, plus the principal-multiplier descent data. -/
-theorem OddGenusCharacterData.of_forall_mk0_eq_of_forall_not_dvd_absNorm
+/-- Equal prime-to-`p` representatives have compatible principal multipliers whose
+norms remain prime to `p`, uniformly over all odd discriminant divisors. -/
+def OddGenusPrincipalMultipliers (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] : Prop :=
+  ∀ (p : ℕ) [Fact p.Prime], p ∈ oddPrimeDiscriminantDivisors d →
+    PrimeToNormPrincipalMultipliers d p
+
+/-- A simultaneous representative theorem implies the surjectivity input needed
+for all odd-prime genus characters. -/
+theorem oddGenusCharacterSurjective_of_forall_mk0_eq_of_forall_not_dvd_absNorm
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
     (hrep : ∀ C : ClassGroup (𝓞 (Qsqrtd (d : ℚ))),
       ∃ I : (Ideal (𝓞 (Qsqrtd (d : ℚ))))⁰,
         ClassGroup.mk0 I = C ∧
           ∀ P : {p // p ∈ oddPrimeDiscriminantDivisors d},
-            ¬ (P.1 : ℤ) ∣ (Ideal.absNorm (I : Ideal (𝓞 (Qsqrtd (d : ℚ)))) : ℤ))
-    (hprincipalMultiplier :
-      ∀ (p : ℕ) [Fact p.Prime], p ∈ oddPrimeDiscriminantDivisors d →
-        HasPrimeToNormPrincipalMultiplierData d p) :
-    OddGenusCharacterData d where
-  surjective := by
-    intro p hp hp_disc
-    exact mk0OnPrimeToNormIdeals_surjective_of_forall_mk0_eq_of_not_dvd_absNorm d p
-      (fun C => by
-        rcases hrep C with ⟨I, hC, hI⟩
-        exact ⟨I, hC, hI ⟨p, hp_disc⟩⟩)
-  principalMultiplier := hprincipalMultiplier
+            ¬ (P.1 : ℤ) ∣ (Ideal.absNorm (I : Ideal (𝓞 (Qsqrtd (d : ℚ)))) : ℤ)) :
+    OddGenusCharacterSurjective d := by
+  intro p hp hp_disc
+  exact mk0OnPrimeToNormIdeals_surjective_of_forall_mk0_eq_of_not_dvd_absNorm d p
+    (fun C => by
+      rcases hrep C with ⟨I, hC, hI⟩
+      exact ⟨I, hC, hI ⟨p, hp_disc⟩⟩)
 
 /-- The product of all odd-prime genus characters on the principal-genus quotient.
 
@@ -67,62 +59,67 @@ The remaining genus-theory relation and independence statements identify the ima
 this map with the sign vectors satisfying the single product relation. -/
 noncomputable def oddGenusCharacterProductOnSquareClassQuotient
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd_neg : d < 0)
-    (hdata : OddGenusCharacterData d) :
+    (hcharSurj : OddGenusCharacterSurjective d)
+    (hprincipal : OddGenusPrincipalMultipliers d) :
     ClassGroup (𝓞 (Qsqrtd (d : ℚ))) ⧸ squareClassSubgroup d →*
       ((P : {p // p ∈ oddPrimeDiscriminantDivisors d}) → ℤˣ) :=
   Pi.monoidHom fun P => by
     haveI : Fact P.1.Prime := ⟨prime_of_mem_oddPrimeDiscriminantDivisors P.2⟩
     exact genusCharacterOnSquareClassQuotient d P.1 hd_neg P.2
-      (hdata.surjective P.1 P.2) (hdata.principalMultiplier P.1 P.2)
+      (hcharSurj P.1 P.2) (hprincipal P.1 P.2)
 
 /-- The product character evaluates componentwise to the corresponding odd-prime
 genus character. -/
 theorem oddGenusCharacterProductOnSquareClassQuotient_apply
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd_neg : d < 0)
-    (hdata : OddGenusCharacterData d)
+    (hcharSurj : OddGenusCharacterSurjective d)
+    (hprincipal : OddGenusPrincipalMultipliers d)
     (C : ClassGroup (𝓞 (Qsqrtd (d : ℚ))) ⧸ squareClassSubgroup d)
     (P : {p // p ∈ oddPrimeDiscriminantDivisors d}) :
-    oddGenusCharacterProductOnSquareClassQuotient d hd_neg hdata C P = by
+    oddGenusCharacterProductOnSquareClassQuotient d hd_neg hcharSurj hprincipal C P = by
       haveI : Fact P.1.Prime := ⟨prime_of_mem_oddPrimeDiscriminantDivisors P.2⟩
       exact genusCharacterOnSquareClassQuotient d P.1 hd_neg P.2
-        (hdata.surjective P.1 P.2) (hdata.principalMultiplier P.1 P.2) C := by
+        (hcharSurj P.1 P.2) (hprincipal P.1 P.2) C := by
   rfl
 
 /-- On a representative class, each coordinate of the odd genus-character product
 is the corresponding descended odd-prime genus character. -/
 theorem oddGenusCharacterProductOnSquareClassQuotient_apply_mk'
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd_neg : d < 0)
-    (hdata : OddGenusCharacterData d)
+    (hcharSurj : OddGenusCharacterSurjective d)
+    (hprincipal : OddGenusPrincipalMultipliers d)
     (C : ClassGroup (𝓞 (Qsqrtd (d : ℚ))))
     (P : {p // p ∈ oddPrimeDiscriminantDivisors d}) :
-    oddGenusCharacterProductOnSquareClassQuotient d hd_neg hdata
+    oddGenusCharacterProductOnSquareClassQuotient d hd_neg hcharSurj hprincipal
         ((QuotientGroup.mk' (squareClassSubgroup d)) C) P = by
       haveI : Fact P.1.Prime := ⟨prime_of_mem_oddPrimeDiscriminantDivisors P.2⟩
-      exact genusCharacterOfPrincipalMultiplierData d P.1 hd_neg P.2
-        (hdata.surjective P.1 P.2) (hdata.principalMultiplier P.1 P.2) C := by
+      exact genusCharacterOfPrimeToNormPrincipalMultipliers d P.1 hd_neg P.2
+        (hcharSurj P.1 P.2) (hprincipal P.1 P.2) C := by
   haveI : Fact P.1.Prime := ⟨prime_of_mem_oddPrimeDiscriminantDivisors P.2⟩
   rw [oddGenusCharacterProductOnSquareClassQuotient_apply]
   exact genusCharacterOnSquareClassQuotient_apply d P.1 hd_neg P.2
-    (hdata.surjective P.1 P.2) (hdata.principalMultiplier P.1 P.2) C
+    (hcharSurj P.1 P.2) (hprincipal P.1 P.2) C
 
 /-- On a representative class, the coordinate product of the odd genus-character
 product is the product of the corresponding descended odd-prime genus characters. -/
 theorem oddGenusCharacterProductOnSquareClassQuotient_prod_apply_mk'
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd_neg : d < 0)
-    (hdata : OddGenusCharacterData d)
+    (hcharSurj : OddGenusCharacterSurjective d)
+    (hprincipal : OddGenusPrincipalMultipliers d)
     (C : ClassGroup (𝓞 (Qsqrtd (d : ℚ)))) :
     Finset.univ.prod
         (fun P : {p // p ∈ oddPrimeDiscriminantDivisors d} =>
-          oddGenusCharacterProductOnSquareClassQuotient d hd_neg hdata
+          oddGenusCharacterProductOnSquareClassQuotient d hd_neg hcharSurj hprincipal
             ((QuotientGroup.mk' (squareClassSubgroup d)) C) P) =
       Finset.univ.prod
         (fun P : {p // p ∈ oddPrimeDiscriminantDivisors d} => by
           haveI : Fact P.1.Prime := ⟨prime_of_mem_oddPrimeDiscriminantDivisors P.2⟩
-          exact genusCharacterOfPrincipalMultiplierData d P.1 hd_neg P.2
-            (hdata.surjective P.1 P.2) (hdata.principalMultiplier P.1 P.2) C) := by
+          exact genusCharacterOfPrimeToNormPrincipalMultipliers d P.1 hd_neg P.2
+            (hcharSurj P.1 P.2) (hprincipal P.1 P.2) C) := by
   apply Finset.prod_congr rfl
   intro P _
-  exact oddGenusCharacterProductOnSquareClassQuotient_apply_mk' d hd_neg hdata C P
+  exact oddGenusCharacterProductOnSquareClassQuotient_apply_mk'
+    d hd_neg hcharSurj hprincipal C P
 
 /-- If a class has a single ideal representative whose norm is prime to every odd
 discriminant prime, then the product of the descended odd genus characters on
@@ -130,7 +127,8 @@ that class is the corresponding product of Legendre symbols of the representativ
 absolute norm. -/
 theorem oddGenusCharacterProduct_prod_apply_eq_prod_legendreSym_of_mk0
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd_neg : d < 0)
-    (hdata : OddGenusCharacterData d)
+    (hcharSurj : OddGenusCharacterSurjective d)
+    (hprincipal : OddGenusPrincipalMultipliers d)
     (C : ClassGroup (𝓞 (Qsqrtd (d : ℚ))))
     (I : (Ideal (𝓞 (Qsqrtd (d : ℚ))))⁰)
     (hC : ClassGroup.mk0 I = C)
@@ -139,8 +137,8 @@ theorem oddGenusCharacterProduct_prod_apply_eq_prod_legendreSym_of_mk0
     ((Finset.univ.prod
       (fun P : {p // p ∈ oddPrimeDiscriminantDivisors d} => by
         haveI : Fact P.1.Prime := ⟨prime_of_mem_oddPrimeDiscriminantDivisors P.2⟩
-        exact genusCharacterOfPrincipalMultiplierData d P.1 hd_neg P.2
-          (hdata.surjective P.1 P.2) (hdata.principalMultiplier P.1 P.2) C) : ℤˣ) : ℤ) =
+        exact genusCharacterOfPrimeToNormPrincipalMultipliers d P.1 hd_neg P.2
+          (hcharSurj P.1 P.2) (hprincipal P.1 P.2) C) : ℤˣ) : ℤ) =
       (oddPrimeDiscriminantDivisors d).prod
         (fun p => if hp : p.Prime then @legendreSym p ⟨hp⟩
           (Ideal.absNorm (I : Ideal (𝓞 (Qsqrtd (d : ℚ)))) : ℤ) else 1) := by
@@ -157,8 +155,8 @@ theorem oddGenusCharacterProduct_prod_apply_eq_prod_legendreSym_of_mk0
     ⟨(I : Ideal (𝓞 (Qsqrtd (d : ℚ)))), hI P⟩
   have hmk : mk0OnPrimeToNormIdeals d P.1 IP = C := by
     simpa [IP, mk0OnPrimeToNormIdeals, primeToNormIdealNonzeroMonoidHom] using hC
-  have happly := genusCharacterOfPrincipalMultiplierData_apply_mk0OnPrimeToNormIdeals
-    d P.1 hd_neg P.2 (hdata.surjective P.1 P.2) (hdata.principalMultiplier P.1 P.2) IP
+  have happly := genusCharacterOfPrimeToNormPrincipalMultipliers_apply_mk0OnPrimeToNormIdeals
+    d P.1 hd_neg P.2 (hcharSurj P.1 P.2) (hprincipal P.1 P.2) IP
   rw [hmk] at happly
   rw [happly]
   simp [IP, genusCharacterRawUnit, genusCharacterRaw,
@@ -274,9 +272,10 @@ theorem card_oddGenusSignRelationSubgroup_of_discr_odd
 of the remaining genus-theory inputs after constructing the individual characters. -/
 def oddGenusProductRelation
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd_neg : d < 0)
-    (hdata : OddGenusCharacterData d) : Prop :=
+    (hcharSurj : OddGenusCharacterSurjective d)
+    (hprincipal : OddGenusPrincipalMultipliers d) : Prop :=
   ∀ C : ClassGroup (𝓞 (Qsqrtd (d : ℚ))) ⧸ squareClassSubgroup d,
-    oddGenusCharacterProductOnSquareClassQuotient d hd_neg hdata C ∈
+    oddGenusCharacterProductOnSquareClassQuotient d hd_neg hcharSurj hprincipal C ∈
       oddGenusSignRelationSubgroup d
 
 /-- The product-relation assertion is equivalently the statement that, for every
@@ -284,12 +283,14 @@ class in `Cl / Cl²`, the product of all odd-prime genus-character coordinates i
 `1`. -/
 theorem oddGenusProductRelation_iff
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd_neg : d < 0)
-    (hdata : OddGenusCharacterData d) :
-    oddGenusProductRelation d hd_neg hdata ↔
+    (hcharSurj : OddGenusCharacterSurjective d)
+    (hprincipal : OddGenusPrincipalMultipliers d) :
+    oddGenusProductRelation d hd_neg hcharSurj hprincipal ↔
       ∀ C : ClassGroup (𝓞 (Qsqrtd (d : ℚ))) ⧸ squareClassSubgroup d,
         Finset.univ.prod
           (fun P : {p // p ∈ oddPrimeDiscriminantDivisors d} =>
-            oddGenusCharacterProductOnSquareClassQuotient d hd_neg hdata C P) = 1 := by
+            oddGenusCharacterProductOnSquareClassQuotient
+              d hd_neg hcharSurj hprincipal C P) = 1 := by
   constructor
   · intro hrel C
     exact (mem_oddGenusSignRelationSubgroup_iff d _).mp (hrel C)
@@ -300,18 +301,20 @@ theorem oddGenusProductRelation_iff
 class group instead of arbitrary quotient classes in `Cl / Cl²`. -/
 theorem oddGenusProductRelation_iff_forall_mk'
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd_neg : d < 0)
-    (hdata : OddGenusCharacterData d) :
-    oddGenusProductRelation d hd_neg hdata ↔
+    (hcharSurj : OddGenusCharacterSurjective d)
+    (hprincipal : OddGenusPrincipalMultipliers d) :
+    oddGenusProductRelation d hd_neg hcharSurj hprincipal ↔
       ∀ C : ClassGroup (𝓞 (Qsqrtd (d : ℚ))),
         (Finset.univ.prod
           (fun P : {p // p ∈ oddPrimeDiscriminantDivisors d} => by
             haveI : Fact P.1.Prime := ⟨prime_of_mem_oddPrimeDiscriminantDivisors P.2⟩
-            exact genusCharacterOfPrincipalMultiplierData d P.1 hd_neg P.2
-              (hdata.surjective P.1 P.2) (hdata.principalMultiplier P.1 P.2) C) : ℤˣ) = 1 := by
+            exact genusCharacterOfPrimeToNormPrincipalMultipliers d P.1 hd_neg P.2
+              (hcharSurj P.1 P.2) (hprincipal P.1 P.2) C) : ℤˣ) = 1 := by
   rw [oddGenusProductRelation_iff]
   constructor
   · intro hrel C
-    rw [← oddGenusCharacterProductOnSquareClassQuotient_prod_apply_mk' d hd_neg hdata C]
+    rw [← oddGenusCharacterProductOnSquareClassQuotient_prod_apply_mk'
+      d hd_neg hcharSurj hprincipal C]
     exact hrel ((QuotientGroup.mk' (squareClassSubgroup d)) C)
   · intro hrel C
     rcases QuotientGroup.mk'_surjective (squareClassSubgroup d) C with ⟨C, rfl⟩
@@ -327,7 +330,8 @@ relation from the already formalized Legendre/Jacobi product computation. -/
 theorem oddGenusProductRelation_of_jacobiSym_absNorm_eq_one_of_mod_four_eq_one
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd_neg : d < 0)
     (hd4 : d % 4 = 1)
-    (hdata : OddGenusCharacterData d)
+    (hcharSurj : OddGenusCharacterSurjective d)
+    (hprincipal : OddGenusPrincipalMultipliers d)
     (hrep : ∀ C : ClassGroup (𝓞 (Qsqrtd (d : ℚ))),
       ∃ I : (Ideal (𝓞 (Qsqrtd (d : ℚ))))⁰,
         ClassGroup.mk0 I = C ∧
@@ -337,7 +341,7 @@ theorem oddGenusProductRelation_of_jacobiSym_absNorm_eq_one_of_mod_four_eq_one
       (∀ P : {p // p ∈ oddPrimeDiscriminantDivisors d},
         ¬ (P.1 : ℤ) ∣ (Ideal.absNorm (I : Ideal (𝓞 (Qsqrtd (d : ℚ)))) : ℤ)) →
         jacobiSym (Ideal.absNorm (I : Ideal (𝓞 (Qsqrtd (d : ℚ)))) : ℤ) d.natAbs = 1) :
-    oddGenusProductRelation d hd_neg hdata := by
+    oddGenusProductRelation d hd_neg hcharSurj hprincipal := by
   rw [oddGenusProductRelation_iff_forall_mk']
   intro C
   rcases hrep C with ⟨I, hC, hI⟩
@@ -345,10 +349,10 @@ theorem oddGenusProductRelation_of_jacobiSym_absNorm_eq_one_of_mod_four_eq_one
   change ((Finset.univ.prod
     (fun P : {p // p ∈ oddPrimeDiscriminantDivisors d} => by
       haveI : Fact P.1.Prime := ⟨prime_of_mem_oddPrimeDiscriminantDivisors P.2⟩
-      exact genusCharacterOfPrincipalMultiplierData d P.1 hd_neg P.2
-        (hdata.surjective P.1 P.2) (hdata.principalMultiplier P.1 P.2) C) : ℤˣ) : ℤ) = 1
+      exact genusCharacterOfPrimeToNormPrincipalMultipliers d P.1 hd_neg P.2
+        (hcharSurj P.1 P.2) (hprincipal P.1 P.2) C) : ℤˣ) : ℤ) = 1
   rw [oddGenusCharacterProduct_prod_apply_eq_prod_legendreSym_of_mk0
-    d hd_neg hdata C I hC hI]
+    d hd_neg hcharSurj hprincipal C I hC hI]
   rw [← jacobiSym_natAbs_eq_prod_oddPrimeDiscriminantDivisors_of_mod_four_eq_one
     d ((Ideal.absNorm (I : Ideal (𝓞 (Qsqrtd (d : ℚ))))) : ℤ)
     (Fact.out : Squarefree d) hd4]
@@ -364,7 +368,8 @@ through the Kronecker symbol of the field discriminant. -/
 theorem oddGenusProductRelation_of_kroneckerSymNat_absNorm_eq_one_of_mod_four_eq_one
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd_neg : d < 0)
     (hd4 : d % 4 = 1)
-    (hdata : OddGenusCharacterData d)
+    (hcharSurj : OddGenusCharacterSurjective d)
+    (hprincipal : OddGenusPrincipalMultipliers d)
     (hrep : ∀ C : ClassGroup (𝓞 (Qsqrtd (d : ℚ))),
       ∃ I : (Ideal (𝓞 (Qsqrtd (d : ℚ))))⁰,
         ClassGroup.mk0 I = C ∧
@@ -375,9 +380,9 @@ theorem oddGenusProductRelation_of_kroneckerSymNat_absNorm_eq_one_of_mod_four_eq
         ¬ (P.1 : ℤ) ∣ (Ideal.absNorm (I : Ideal (𝓞 (Qsqrtd (d : ℚ)))) : ℤ)) →
         kroneckerSymNat (RingOfIntegers.discrFormula d)
           (Ideal.absNorm (I : Ideal (𝓞 (Qsqrtd (d : ℚ))))) = 1) :
-    oddGenusProductRelation d hd_neg hdata :=
+    oddGenusProductRelation d hd_neg hcharSurj hprincipal :=
   oddGenusProductRelation_of_jacobiSym_absNorm_eq_one_of_mod_four_eq_one
-    d hd_neg hd4 hdata hrep fun I hI => by
+    d hd_neg hd4 hcharSurj hprincipal hrep fun I hI => by
       rw [jacobiSym_natAbs_eq_kroneckerSymNat_discrFormula_of_mod_four_eq_one
         d (Ideal.absNorm (I : Ideal (𝓞 (Qsqrtd (d : ℚ))))) hd4]
       exact hkron I hI
@@ -423,15 +428,16 @@ divisors. -/
 theorem oddGenusProductRelation_of_forall_mk0_eq_of_forall_not_dvd_absNorm_of_mod_four_eq_one
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd_neg : d < 0)
     (hd4 : d % 4 = 1)
-    (hdata : OddGenusCharacterData d)
+    (hcharSurj : OddGenusCharacterSurjective d)
+    (hprincipal : OddGenusPrincipalMultipliers d)
     (hrep : ∀ C : ClassGroup (𝓞 (Qsqrtd (d : ℚ))),
       ∃ I : (Ideal (𝓞 (Qsqrtd (d : ℚ))))⁰,
         ClassGroup.mk0 I = C ∧
           ∀ P : {p // p ∈ oddPrimeDiscriminantDivisors d},
             ¬ (P.1 : ℤ) ∣ (Ideal.absNorm (I : Ideal (𝓞 (Qsqrtd (d : ℚ)))) : ℤ)) :
-    oddGenusProductRelation d hd_neg hdata :=
+    oddGenusProductRelation d hd_neg hcharSurj hprincipal :=
   oddGenusProductRelation_of_kroneckerSymNat_absNorm_eq_one_of_mod_four_eq_one
-    d hd_neg hd4 hdata hrep fun I hI =>
+    d hd_neg hd4 hcharSurj hprincipal hrep fun I hI =>
       kroneckerSymNat_discrFormula_absNorm_eq_one_of_not_dvd_oddPrimeDiscriminantDivisors
         d hd4 I hI
 
@@ -439,11 +445,14 @@ theorem oddGenusProductRelation_of_forall_mk0_eq_of_forall_not_dvd_absNorm_of_mo
 single-relation sign subgroup. -/
 noncomputable def oddGenusCharacterProductToRelationSubgroup
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd_neg : d < 0)
-    (hdata : OddGenusCharacterData d)
-    (hrel : oddGenusProductRelation d hd_neg hdata) :
+    (hcharSurj : OddGenusCharacterSurjective d)
+    (hprincipal : OddGenusPrincipalMultipliers d)
+    (hrel : oddGenusProductRelation d hd_neg hcharSurj hprincipal) :
     ClassGroup (𝓞 (Qsqrtd (d : ℚ))) ⧸ squareClassSubgroup d →*
       oddGenusSignRelationSubgroup d where
-  toFun C := ⟨oddGenusCharacterProductOnSquareClassQuotient d hd_neg hdata C, hrel C⟩
+  toFun C :=
+    ⟨oddGenusCharacterProductOnSquareClassQuotient
+      d hd_neg hcharSurj hprincipal C, hrel C⟩
   map_one' := by
     ext P
     simp
@@ -455,27 +464,31 @@ noncomputable def oddGenusCharacterProductToRelationSubgroup
 character. -/
 theorem oddGenusCharacterProductToRelationSubgroup_apply
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd_neg : d < 0)
-    (hdata : OddGenusCharacterData d)
-    (hrel : oddGenusProductRelation d hd_neg hdata)
+    (hcharSurj : OddGenusCharacterSurjective d)
+    (hprincipal : OddGenusPrincipalMultipliers d)
+    (hrel : oddGenusProductRelation d hd_neg hcharSurj hprincipal)
     (C : ClassGroup (𝓞 (Qsqrtd (d : ℚ))) ⧸ squareClassSubgroup d) :
-    (oddGenusCharacterProductToRelationSubgroup d hd_neg hdata hrel C :
+    (oddGenusCharacterProductToRelationSubgroup d hd_neg hcharSurj hprincipal hrel C :
       (P : {p // p ∈ oddPrimeDiscriminantDivisors d}) → ℤˣ) =
-      oddGenusCharacterProductOnSquareClassQuotient d hd_neg hdata C := by
+      oddGenusCharacterProductOnSquareClassQuotient d hd_neg hcharSurj hprincipal C := by
   rfl
 
 /-- Membership in the kernel of the relation-subgroup-valued product character is
 equivalent to every odd-prime genus character being trivial. -/
 theorem mem_oddGenusCharacterProductToRelationSubgroup_ker_iff
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd_neg : d < 0)
-    (hdata : OddGenusCharacterData d)
-    (hrel : oddGenusProductRelation d hd_neg hdata)
+    (hcharSurj : OddGenusCharacterSurjective d)
+    (hprincipal : OddGenusPrincipalMultipliers d)
+    (hrel : oddGenusProductRelation d hd_neg hcharSurj hprincipal)
     (C : ClassGroup (𝓞 (Qsqrtd (d : ℚ))) ⧸ squareClassSubgroup d) :
-    C ∈ (oddGenusCharacterProductToRelationSubgroup d hd_neg hdata hrel).ker ↔
+    C ∈ (oddGenusCharacterProductToRelationSubgroup d hd_neg hcharSurj hprincipal hrel).ker ↔
       ∀ P : {p // p ∈ oddPrimeDiscriminantDivisors d},
-        oddGenusCharacterProductOnSquareClassQuotient d hd_neg hdata C P = 1 := by
+        oddGenusCharacterProductOnSquareClassQuotient d hd_neg hcharSurj hprincipal C P = 1 := by
   constructor
   · intro hC P
-    have hmap : oddGenusCharacterProductToRelationSubgroup d hd_neg hdata hrel C = 1 := by
+    have hmap :
+        oddGenusCharacterProductToRelationSubgroup d hd_neg hcharSurj hprincipal hrel C =
+          1 := by
       simpa [MonoidHom.mem_ker] using hC
     have hval := congr_arg Subtype.val hmap
     exact congr_fun hval P
@@ -488,25 +501,28 @@ theorem mem_oddGenusCharacterProductToRelationSubgroup_ker_iff
 odd-prime genus characters are all trivial is the trivial class of `Cl / Cl²`. -/
 theorem oddGenusCharacterProductToRelationSubgroup_ker_eq_bot_iff
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd_neg : d < 0)
-    (hdata : OddGenusCharacterData d)
-    (hrel : oddGenusProductRelation d hd_neg hdata) :
-    (oddGenusCharacterProductToRelationSubgroup d hd_neg hdata hrel).ker = ⊥ ↔
+    (hcharSurj : OddGenusCharacterSurjective d)
+    (hprincipal : OddGenusPrincipalMultipliers d)
+    (hrel : oddGenusProductRelation d hd_neg hcharSurj hprincipal) :
+    (oddGenusCharacterProductToRelationSubgroup d hd_neg hcharSurj hprincipal hrel).ker = ⊥ ↔
       ∀ C : ClassGroup (𝓞 (Qsqrtd (d : ℚ))) ⧸ squareClassSubgroup d,
         (∀ P : {p // p ∈ oddPrimeDiscriminantDivisors d},
-          oddGenusCharacterProductOnSquareClassQuotient d hd_neg hdata C P = 1) → C = 1 := by
+          oddGenusCharacterProductOnSquareClassQuotient
+            d hd_neg hcharSurj hprincipal C P = 1) → C = 1 := by
   constructor
   · intro hker C hC
     have hinj :
-        Function.Injective (oddGenusCharacterProductToRelationSubgroup d hd_neg hdata hrel) :=
+        Function.Injective
+          (oddGenusCharacterProductToRelationSubgroup d hd_neg hcharSurj hprincipal hrel) :=
       (MonoidHom.ker_eq_bot_iff
-        (oddGenusCharacterProductToRelationSubgroup d hd_neg hdata hrel)).mp hker
+        (oddGenusCharacterProductToRelationSubgroup d hd_neg hcharSurj hprincipal hrel)).mp hker
     rw [injective_iff_map_eq_one] at hinj
     apply hinj
     ext P
     simpa [oddGenusCharacterProductToRelationSubgroup_apply] using hC P
   · intro h
     apply (MonoidHom.ker_eq_bot_iff
-      (oddGenusCharacterProductToRelationSubgroup d hd_neg hdata hrel)).mpr
+      (oddGenusCharacterProductToRelationSubgroup d hd_neg hcharSurj hprincipal hrel)).mpr
     rw [injective_iff_map_eq_one]
     intro C hC
     apply h C

@@ -16,9 +16,7 @@ criteria.
 namespace QuadraticNumberFields
 namespace ClassGroup
 
-/-- Placeholder predicate for class-group data controlled by a Minkowski bound. -/
-def HasMinkowskiClassGroupData (d : ℤ) : Prop :=
-  HasReducedIdealData d
+
 
 end ClassGroup
 end QuadraticNumberFields
