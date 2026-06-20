@@ -3,6 +3,7 @@ Copyright (c) 2026 Frankie Wang. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
+import Mathlib.GroupTheory.QuotientGroup.Basic
 import Mathlib.RingTheory.PicardGroup
 import QuadraticNumberFields.QuadraticOrder.Basic
 
@@ -23,6 +24,9 @@ that future proof.
   homomorphism of orders.
 * `QuadraticOrder.Picard.relativeKernel`: the ring-hom version of mathlib's
   relative Picard group `CommRing.relPic`.
+* `QuadraticOrder.Picard.relativeKernelUnitsQuotEquiv`: the mathlib exact
+  sequence identification of the relative kernel with invertible submodules
+  modulo principal submodules.
 * `QuadraticOrder.Picard.KernelEmbedsInto`: a named Prop for the kernel
   embedding supplied by conductor/residue-unit theory.
 * `QuadraticOrder.Picard.KernelEquiv`: a named Prop for identifying the kernel
@@ -62,6 +66,26 @@ theorem relativeKernel_eq_relPic {O S : Type*} [CommRing O] [CommRing S]
   change (CommRing.Pic.mapRingHom (algebraMap O S : O →+* S)).ker =
     CommRing.relPic O S
   simp [CommRing.relPic, CommRing.Pic.mapRingHom_algebraMap]
+
+/-- Mathlib's exact sequence identifies the relative Picard kernel of a
+faithful order map with invertible submodules of the overorder modulo principal
+submodules.
+
+This is the abstract Picard part of Cox 7.24.  The remaining conductor-specific
+work is to identify the quotient on the left with the concrete residue-unit
+quotient used by the order. -/
+noncomputable def relativeKernelUnitsQuotEquiv
+    {O S : Type*} [CommRing O] [CommRing S]
+    (i : O →+* S) (hi : Function.Injective i) :
+    letI : Algebra O S := i.toAlgebra
+    (Submodule O S)ˣ ⧸
+        (Units.map (Submodule.spanSingleton (R := O) (A := S)).toMonoidHom).range ≃*
+      relativeKernel i := by
+  letI : Algebra O S := i.toAlgebra
+  haveI : FaithfulSMul O S :=
+    (faithfulSMul_iff_algebraMap_injective O S).2 (by simpa using hi)
+  exact (Submodule.unitsQuotEquivRelPic O S).trans
+    (MulEquiv.subgroupCongr (relativeKernel_eq_relPic i).symm)
 
 /-- The conductor/residue-unit input that the order route should eventually
 prove: the relative Picard kernel embeds into a concrete local unit quotient

@@ -17,6 +17,84 @@ Material destined for mathlib.
 
 namespace Ideal
 
+/-- Auxiliary clearing-denominators lemma for ideal maps.
+
+If multiplication by `c` carries every element of `S` into the image of `R`,
+then multiplying any element of `I.map f` by `f c` makes it come from an
+element of `I`. -/
+private theorem exists_mem_of_mul_mem_map_aux {R S : Type*} [CommRing R] [CommRing S]
+    (f : R →+* S) {c : R}
+    (hc : ∀ s : S, ∃ r : R, f r = f c * s)
+    {I : Ideal R} {y : S} (hy : y ∈ I.map f) (s : S) :
+    ∃ z : R, z ∈ I ∧ f z = (f c * s) * y := by
+  change y ∈ span (f '' I) at hy
+  revert s
+  induction hy using Submodule.span_induction with
+  | mem y hy =>
+      intro s
+      rcases hy with ⟨i, hi, rfl⟩
+      rcases hc s with ⟨r, hr⟩
+      refine ⟨r * i, I.mul_mem_left r hi, ?_⟩
+      rw [map_mul, hr]
+  | zero =>
+      intro s
+      exact ⟨0, I.zero_mem, by simp⟩
+  | add y z _ _ ihy ihz =>
+      intro s
+      rcases ihy s with ⟨y', hy', hfy'⟩
+      rcases ihz s with ⟨z', hz', hfz'⟩
+      refine ⟨y' + z', I.add_mem hy' hz', ?_⟩
+      rw [map_add, hfy', hfz']
+      ring
+  | smul t y _ ih =>
+      intro s
+      rcases ih (s * t) with ⟨z, hz, hfz⟩
+      refine ⟨z, hz, ?_⟩
+      rw [hfz]
+      ring
+
+/-- Extension-contraction for an ideal coprime to a conductor element.
+
+If `f : R →+* S` is injective, multiplication by `f c` carries `S` into the
+image of `R`, and `I + (c) = R`, then extending `I` to `S` and contracting back
+to `R` recovers `I`. -/
+theorem comap_map_eq_of_span_sup_eq_top_of_mul_range_subset
+    {R S : Type*} [CommRing R] [CommRing S] (f : R →+* S) {c : R}
+    (hf : Function.Injective f)
+    (hc : ∀ s : S, ∃ r : R, f r = f c * s)
+    (I : Ideal R) (hI : I ⊔ span ({c} : Set R) = ⊤) :
+    (I.map f).comap f = I := by
+  apply le_antisymm
+  · intro x hx
+    rcases exists_mem_of_mul_mem_map_aux f hc hx 1 with ⟨z, hz, hfz⟩
+    have hcx : c * x ∈ I := by
+      have hcz : c * x = z := by
+        apply hf
+        calc
+          f (c * x) = f c * f x := by rw [map_mul]
+          _ = (f c * 1) * f x := by ring
+          _ = f z := hfz.symm
+      rw [hcz]
+      exact hz
+    have htop : (1 : R) ∈ I ⊔ span ({c} : Set R) := by
+      rw [hI]
+      exact Submodule.mem_top
+    rcases Submodule.mem_sup.mp htop with ⟨i, hi, j, hj, hij⟩
+    have hxi : x * i ∈ I := I.mul_mem_left x hi
+    have hxj : x * j ∈ I := by
+      rw [mem_span_singleton] at hj
+      rcases hj with ⟨r, rfl⟩
+      convert I.mul_mem_left r hcx using 1
+      ring
+    have hx_eq : x = x * i + x * j := by
+      calc
+        x = x * 1 := by rw [mul_one]
+        _ = x * (i + j) := by rw [hij]
+        _ = x * i + x * j := by rw [mul_add]
+    rw [hx_eq]
+    exact I.add_mem hxi hxj
+  · exact Ideal.le_comap_map (f := f)
+
 /-- An element of a quotient by `I` is a unit iff its representative generates
 the unit ideal modulo `I`. -/
 theorem Quotient.isUnit_mk_iff_span_sup_eq_top {R : Type*} [CommRing R]

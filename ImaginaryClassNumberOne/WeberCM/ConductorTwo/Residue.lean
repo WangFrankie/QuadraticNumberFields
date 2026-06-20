@@ -7,6 +7,7 @@ import BinaryQuadraticForms.Cox.IdealRelation
 import FormClassGroup.ClassGroup.Law
 import ImaginaryClassNumberOne.WeberCM.ConductorTwo.Basic
 import QNFMathlib.RingTheory.Ideal.Span
+import QuadraticNumberFields.QuadraticOrder.Picard
 
 /-!
 # Residue and Cover Machinery for the Conductor-Two Route
@@ -69,6 +70,41 @@ theorem conductorTwoSuborderHom_injective (p : ℕ) (hp8 : p % 8 = 3) :
       simpa [conductorTwoSuborderHom] using congrArg QuadraticAlgebra.im hxy
     omega
 
+/-- The mathlib Picard exact sequence specialized to the conductor-`2`
+suborder inclusion `Zsqrtd (-p) → ZOnePlusSqrtdOverTwo (-p / 4)`.
+
+This identifies the relative Picard kernel with invertible submodules of the
+maximal-order model modulo principal submodules.  The further Cox 7.20/7.22
+content is the conductor-specific identification of this quotient with the
+prime-to-`2` ideal/form-class residue data. -/
+noncomputable def conductorTwoSuborderRelativeKernelUnitsQuotEquiv
+    (p : ℕ) (hp8 : p % 8 = 3) :
+    letI : Algebra (Zsqrtd (-(p : ℤ))) (ZOnePlusSqrtdOverTwo (-(p : ℤ) / 4)) :=
+      (conductorTwoSuborderHom p hp8).toAlgebra
+    (Submodule (Zsqrtd (-(p : ℤ))) (ZOnePlusSqrtdOverTwo (-(p : ℤ) / 4)))ˣ ⧸
+        (Units.map (Submodule.spanSingleton
+          (R := Zsqrtd (-(p : ℤ)))
+          (A := ZOnePlusSqrtdOverTwo (-(p : ℤ) / 4))).toMonoidHom).range ≃*
+      QuadraticOrder.Picard.relativeKernel (conductorTwoSuborderHom p hp8) :=
+  QuadraticOrder.Picard.relativeKernelUnitsQuotEquiv
+    (conductorTwoSuborderHom p hp8) (conductorTwoSuborderHom_injective p hp8)
+
+/-- Multiplication by the conductor element `2` in the maximal-order model
+lands in the concrete conductor-`2` suborder. -/
+theorem exists_preimage_mul_two_conductorTwoSuborderHom
+    (p : ℕ) (hp8 : p % 8 = 3)
+    (s : ZOnePlusSqrtdOverTwo (-(p : ℤ) / 4)) :
+    ∃ r : Zsqrtd (-(p : ℤ)), conductorTwoSuborderHom p hp8 r =
+      conductorTwoSuborderHom p hp8 (2 : Zsqrtd (-(p : ℤ))) * s := by
+  refine ⟨⟨2 * s.re + s.im, s.im⟩, ?_⟩
+  change conductorTwoSuborderHom p hp8 ⟨2 * s.re + s.im, s.im⟩ = (2 : _) * s
+  have h2re :
+      QuadraticAlgebra.re (2 : ZOnePlusSqrtdOverTwo (-(p : ℤ) / 4)) = 2 := rfl
+  have h2im :
+      QuadraticAlgebra.im (2 : ZOnePlusSqrtdOverTwo (-(p : ℤ) / 4)) = 0 := rfl
+  ext <;> simp [conductorTwoSuborderHom, QuadraticAlgebra.re_mul,
+    QuadraticAlgebra.im_mul, h2re, h2im]
+
 /-- The image of the concrete conductor-`2` suborder inside the half-integral
 maximal-order model is exactly the even-`ω`-coefficient part. -/
 theorem mem_range_conductorTwoSuborderHom_iff_even_im
@@ -103,6 +139,35 @@ theorem generator_mem_conductorTwoOrderIdealOfForm
     (p : ℕ) (Q : BinaryQuadraticForm.PrimitivePositiveDefiniteForm (-(4 * (p : ℤ)))) :
     (⟨(-Q.1.b) / 2, 1⟩ : Zsqrtd (-(p : ℤ))) ∈ conductorTwoOrderIdealOfForm p Q := by
   exact Ideal.subset_span (by simp)
+
+/-- If the leading coefficient is odd, the conductor-`2` Cox/order ideal is
+prime to the conductor element `2`. -/
+theorem conductorTwoOrderIdealOfForm_sup_span_two_eq_top_of_odd_a
+    (p : ℕ)
+    (Q : BinaryQuadraticForm.PrimitivePositiveDefiniteForm (-(4 * (p : ℤ))))
+    (ha : Odd Q.1.a) :
+    conductorTwoOrderIdealOfForm p Q ⊔
+      Ideal.span ({(2 : Zsqrtd (-(p : ℤ)))} : Set _) = ⊤ := by
+  rw [Ideal.eq_top_iff_one]
+  let O := Zsqrtd (-(p : ℤ))
+  have ha_mem : ((Q.1.a : ℤ) : O) ∈ conductorTwoOrderIdealOfForm p Q :=
+    self_mem_conductorTwoOrderIdealOfForm p Q
+  have ha_mem_sup : ((Q.1.a : ℤ) : O) ∈ conductorTwoOrderIdealOfForm p Q ⊔
+      Ideal.span ({(2 : O)} : Set O) :=
+    Ideal.mem_sup_left ha_mem
+  have h2_mem : (2 : O) ∈ Ideal.span ({(2 : O)} : Set O) :=
+    Ideal.subset_span (by simp)
+  have h2_mem_sup : (2 : O) ∈ conductorTwoOrderIdealOfForm p Q ⊔
+      Ideal.span ({(2 : O)} : Set O) :=
+    Ideal.mem_sup_right h2_mem
+  rcases ha with ⟨k, hk⟩
+  have h_one : (1 : O) = ((Q.1.a : ℤ) : O) - (k : O) * (2 : O) := by
+    rw [hk]
+    rw [Int.cast_add, Int.cast_mul]
+    norm_num
+    ring
+  rw [h_one]
+  exact Ideal.sub_mem _ ha_mem_sup (Ideal.mul_mem_left _ (k : O) h2_mem_sup)
 
 /-- The conductor-`2` Cox/order ideal attached to a positive definite form is
 nonzero. -/
@@ -211,6 +276,24 @@ noncomputable def conductorTwoMaximalOrderIdealOfForm
     (Q : BinaryQuadraticForm.PrimitivePositiveDefiniteForm (-(4 * (p : ℤ)))) :
     Ideal (ZOnePlusSqrtdOverTwo (-(p : ℤ) / 4)) :=
   Ideal.map (conductorTwoSuborderHom p hp8) (conductorTwoOrderIdealOfForm p Q)
+
+/-- Cox 7.20, extension-contraction direction, specialized to the explicit
+conductor-`2` Cox/order ideal with odd leading coefficient. -/
+theorem comap_conductorTwoMaximalOrderIdealOfForm_eq_orderIdeal_of_odd_a
+    (p : ℕ) (hp8 : p % 8 = 3)
+    (Q : BinaryQuadraticForm.PrimitivePositiveDefiniteForm (-(4 * (p : ℤ))))
+    (ha : Odd Q.1.a) :
+    Ideal.comap (conductorTwoSuborderHom p hp8)
+        (conductorTwoMaximalOrderIdealOfForm p hp8 Q) =
+      conductorTwoOrderIdealOfForm p Q := by
+  simpa [conductorTwoMaximalOrderIdealOfForm] using
+    Ideal.comap_map_eq_of_span_sup_eq_top_of_mul_range_subset
+      (conductorTwoSuborderHom p hp8)
+      (c := (2 : Zsqrtd (-(p : ℤ))))
+      (conductorTwoSuborderHom_injective p hp8)
+      (exists_preimage_mul_two_conductorTwoSuborderHom p hp8)
+      (conductorTwoOrderIdealOfForm p Q)
+      (conductorTwoOrderIdealOfForm_sup_span_two_eq_top_of_odd_a p Q ha)
 
 /-- The leading coefficient belongs to the maximal-order extension of the
 conductor-`2` Cox/order ideal. -/
