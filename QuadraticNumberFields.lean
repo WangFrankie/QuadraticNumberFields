@@ -41,11 +41,6 @@ import QuadraticNumberFields.Splitting.Qsqrtd.Monogenic
 import QuadraticNumberFields.Splitting.Qsqrtd.OddPrime
 import QuadraticNumberFields.Splitting.Qsqrtd.Two
 import QuadraticNumberFields.Splitting.QuadraticField.Basic
-import BinaryQuadraticForms.Core.Basic
-import BinaryQuadraticForms.Core.Action
-import BinaryQuadraticForms.Core.Class
-import BinaryQuadraticForms.Core.Enumeration
-import BinaryQuadraticForms.Core.Reduction
 import QuadraticNumberFields.ClassNumber
 import QuadraticNumberFields.Qsqrtd.TotallyRealComplex
 import QuadraticNumberFields.Units.Pell
@@ -69,8 +64,7 @@ including:
 
 ## Main Import
 
-This file is the main entry point; it re-exports the completed, sorry-free
-public modules. Work-in-progress modules (the Euclidean classification
-framework and other research scaffolding) are collected separately in
-`QuadraticNumberFields.Sketch`.
+This file is the main entry point for the core quadratic-number-field library.
+App layers such as form class groups, imaginary class-number-one results, and
+examples live in separate Lake libraries.
 -/
