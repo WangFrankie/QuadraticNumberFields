@@ -5,7 +5,7 @@ Authors: Frankie Wang
 -/
 
 import FiniteAbelianSmith.Correctness
-import QuadraticNumberFields.Forms.Computable.ClassGroup
+import FormClassGroup.Computable.ClassGroup
 import QNFMathlib.Data.Int.Squarefree
 import Mathlib.GroupTheory.FiniteAbelian.Basic
 

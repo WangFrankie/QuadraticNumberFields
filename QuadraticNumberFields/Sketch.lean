@@ -3,7 +3,7 @@ Copyright (c) 2026 Frankie Wang. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
-import QuadraticNumberFields.ClassGroup.Computed
+import FormClassGroup.Computed
 import QuadraticNumberFields.ClassGroup.Divisibility
 import QuadraticNumberFields.ClassGroup.Families
 import QuadraticNumberFields.ClassGroup.GenusTheory.Characters
@@ -25,13 +25,13 @@ import QuadraticNumberFields.Families.Basic
 import QuadraticNumberFields.Families.Chowla
 import QuadraticNumberFields.Families.RichaudDegert
 import QuadraticNumberFields.Families.Yokoi
-import QuadraticNumberFields.Forms.Computable.ClassGroup
+import FormClassGroup.Computable.ClassGroup
 import BinaryQuadraticForms.Computable.Composition
 import BinaryQuadraticForms.Computable.Reduction
-import QuadraticNumberFields.Forms.Computable.Structure
+import FormClassGroup.Computable.Structure
 import QuadraticNumberFields.Examples.ClassGroupStructure
 import BinaryQuadraticForms.Gauss.Composition
-import QuadraticNumberFields.Forms.Gauss.CompositionClass
+import FormClassGroup.Gauss.CompositionClass
 import QuadraticNumberFields.Heegner.Diophantine
 import QuadraticNumberFields.Heegner.WeberData.Core
 import QuadraticNumberFields.Heegner.WeberData.FormsProvider

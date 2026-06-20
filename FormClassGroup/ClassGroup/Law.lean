@@ -5,7 +5,7 @@ Authors: Frankie Wang
 -/
 
 import BinaryQuadraticForms.Core.Enumeration
-import QuadraticNumberFields.Forms.ClassGroup.Structure
+import FormClassGroup.ClassGroup.Structure
 
 /-!
 # Class-group law on form classes

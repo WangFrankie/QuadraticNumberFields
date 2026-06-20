@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 
-import QuadraticNumberFields.Forms.Cox.Bridge
+import FormClassGroup.Cox.Bridge
 import QuadraticNumberFields.Qsqrtd.TraceNorm
 import QuadraticNumberFields.RingOfIntegers.Basis
 import QuadraticNumberFields.RingOfIntegers.Discriminant

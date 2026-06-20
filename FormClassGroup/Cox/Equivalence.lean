@@ -4,9 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 
-import QuadraticNumberFields.Forms.Cox.LeftInverse
-import QuadraticNumberFields.Forms.Cox.LeftInverseEqOne
-import QuadraticNumberFields.Forms.Cox.RightInverse
+import FormClassGroup.Cox.LeftInverse
+import FormClassGroup.Cox.LeftInverseEqOne
+import FormClassGroup.Cox.RightInverse
 
 /-!
 # Cox 7.7 Equivalence Assembly

@@ -6,8 +6,8 @@ Authors: Frankie Wang
 
 import BinaryQuadraticForms.Computable.Composition
 import BinaryQuadraticForms.Computable.Reduction
-import QuadraticNumberFields.Forms.ClassGroup.Law
-import QuadraticNumberFields.Forms.ClassGroup.CoxComposition
+import FormClassGroup.ClassGroup.Law
+import FormClassGroup.ClassGroup.CoxComposition
 import BinaryQuadraticForms.Cox.IdealRelation
 import QNFMathlib.Data.Int.Parity
 

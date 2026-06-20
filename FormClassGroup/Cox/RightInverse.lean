@@ -5,8 +5,8 @@ Authors: Frankie Wang
 -/
 
 import Mathlib.LinearAlgebra.FreeModule.PID
-import QuadraticNumberFields.Forms.Cox.Inverse
-import QuadraticNumberFields.Forms.Cox.NormFormBasisChange
+import FormClassGroup.Cox.Inverse
+import FormClassGroup.Cox.NormFormBasisChange
 import QuadraticNumberFields.RingOfIntegers.Norm
 import QuadraticNumberFields.Zsqrtd.Basic
 import QuadraticNumberFields.ZOnePlusSqrtdOverTwo.Basic

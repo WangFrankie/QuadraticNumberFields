@@ -5,7 +5,7 @@ Authors: Frankie Wang
 -/
 
 import QuadraticNumberFields.ClassNumber
-import QuadraticNumberFields.Forms.Cox.Equivalence
+import FormClassGroup.Cox.Equivalence
 import BinaryQuadraticForms.Core.Enumeration
 
 /-!

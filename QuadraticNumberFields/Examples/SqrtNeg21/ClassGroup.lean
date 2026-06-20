@@ -1,4 +1,4 @@
-import QuadraticNumberFields.Forms.ClassGroup.ClassNumber
+import FormClassGroup.ClassGroup.ClassNumber
 import QNFMathlib.Data.Int.Squarefree
 
 attribute [-instance] DivisionRing.toRatAlgebra

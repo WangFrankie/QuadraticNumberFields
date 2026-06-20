@@ -4,8 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 
-import QuadraticNumberFields.Forms.Gauss.CompositionClass
-import QuadraticNumberFields.Forms.ClassGroup.Structure
+import FormClassGroup.Gauss.CompositionClass
+import FormClassGroup.ClassGroup.Structure
 import QNFMathlib.Data.Int.Parity
 import QNFMathlib.RingTheory.Ideal.Span
 

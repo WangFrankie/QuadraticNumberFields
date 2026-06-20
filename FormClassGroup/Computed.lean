@@ -6,8 +6,8 @@ Authors: Frankie Wang
 
 import Mathlib.Data.ZMod.Basic
 import QuadraticNumberFields.ClassNumber
-import QuadraticNumberFields.Forms.ClassGroup.Law
-import QuadraticNumberFields.Forms.ClassGroup.ClassNumber
+import FormClassGroup.ClassGroup.Law
+import FormClassGroup.ClassGroup.ClassNumber
 
 /-!
 # Computed Class Groups
