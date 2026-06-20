@@ -41,38 +41,12 @@ import QuadraticNumberFields.Splitting.Qsqrtd.Monogenic
 import QuadraticNumberFields.Splitting.Qsqrtd.OddPrime
 import QuadraticNumberFields.Splitting.Qsqrtd.Two
 import QuadraticNumberFields.Splitting.QuadraticField.Basic
-import BinaryQuadraticForms.Core.Basic
-import BinaryQuadraticForms.Core.Action
-import BinaryQuadraticForms.Core.Class
-import BinaryQuadraticForms.Core.QuadraticFormBridge
-import QuadraticNumberFields.Forms.Cox.Bridge
-import QuadraticNumberFields.Forms.Cox.LeftInverse
-import QuadraticNumberFields.Forms.Cox.LeftInverseEqOne
-import QuadraticNumberFields.Forms.Cox.RightInverse
-import QuadraticNumberFields.Forms.Cox.Equivalence
-import BinaryQuadraticForms.Core.Enumeration
-import BinaryQuadraticForms.Core.Reduction
-import QuadraticNumberFields.Forms.ClassGroup.ClassNumber
-import QuadraticNumberFields.Forms.ClassGroup.Structure
-import QuadraticNumberFields.Forms.ClassGroup.Law
 import QuadraticNumberFields.ClassNumber
-import QuadraticNumberFields.ClassNumber.Heegner
-import QuadraticNumberFields.Examples.SqrtNeg5.Ideals
-import QuadraticNumberFields.Examples.SqrtNeg5.RamificationInertia
-import QuadraticNumberFields.Examples.SqrtNeg5.Splitting
-import QuadraticNumberFields.Examples.SqrtNeg5.Invariants
-import QuadraticNumberFields.Examples.SqrtNeg5.ClassNumber
-import QuadraticNumberFields.Examples.SqrtNeg5.Forms
-import QuadraticNumberFields.Examples.Sqrt17.Splitting
-import QuadraticNumberFields.Examples.Sqrt17.Invariants
-import QuadraticNumberFields.Examples.Sqrt17.ClassNumber
 import QuadraticNumberFields.Qsqrtd.TotallyRealComplex
 import QuadraticNumberFields.Units.Pell
 import QuadraticNumberFields.Units.Imaginary
 import QuadraticNumberFields.Units.Fundamental
 import QuadraticNumberFields.Units.Families
-import QuadraticNumberFields.Heegner.ClassNumberOne
-import QuadraticNumberFields.Heegner.ClassNumberOneByForms
 
 /-!
 # Quadratic Number Fields
@@ -87,13 +61,10 @@ including:
 * Totally real/complex classification
 * Unit groups: Pell-type units, torsion classification in the imaginary case,
   fundamental units, and explicit Richaud-Degert unit candidates
-* Class number one for the nine Heegner numbers (the elementary direction of
-  the Baker–Heegner–Stark theorem), via Minkowski bounds and inert primes
 
 ## Main Import
 
-This file is the main entry point; it re-exports the completed, sorry-free
-public modules. Work-in-progress modules (the Euclidean classification
-framework and other research scaffolding) are collected separately in
-`QuadraticNumberFields.Sketch`.
+This file is the main entry point for the core quadratic-number-field library.
+App layers such as form class groups, imaginary class-number-one results, and
+examples live in separate Lake libraries.
 -/

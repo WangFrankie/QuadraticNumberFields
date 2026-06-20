@@ -78,20 +78,52 @@ theorem properEquivalent_transform {D : ℤ} (Q : PrimitivePositiveDefiniteForm 
     ProperEquivalent Q (Q.transform g) :=
   ⟨g, rfl⟩
 
+/-- The restricted right coordinate action as a left action of the opposite group. -/
+instance instMulAction (D : ℤ) : MulAction SL2Zᵐᵒᵖ (PrimitivePositiveDefiniteForm D) where
+  smul g Q := Q.transform g.unop
+  one_smul Q := by
+    apply Subtype.ext
+    change BinaryQuadraticForm.transform Q.1 (MulOpposite.unop 1) = Q.1
+    simp
+  mul_smul g h Q := by
+    apply Subtype.ext
+    change
+      BinaryQuadraticForm.transform Q.1 ((g * h).unop) =
+        BinaryQuadraticForm.transform (BinaryQuadraticForm.transform Q.1 h.unop) g.unop
+    rw [MulOpposite.unop_mul]
+    exact (BinaryQuadraticForm.transform_mul Q.1 h.unop g.unop).symm
+
+/-- Restricted proper equivalence is the orbit relation for the opposite-group action. -/
+theorem properEquivalent_iff_orbitRel {D : ℤ} {Q R : PrimitivePositiveDefiniteForm D} :
+    ProperEquivalent Q R ↔
+      (MulAction.orbitRel SL2Zᵐᵒᵖ (PrimitivePositiveDefiniteForm D)).r R Q := by
+  rw [MulAction.orbitRel_apply]
+  constructor
+  · rintro ⟨g, hg⟩
+    exact ⟨MulOpposite.op g, Subtype.ext hg⟩
+  · rintro ⟨g, hg⟩
+    exact ⟨g.unop, congrArg Subtype.val hg⟩
+
 end PrimitivePositiveDefiniteForm
 
 /-- Setoid on primitive positive definite forms given by proper equivalence. -/
 instance primitivePositiveDefiniteFormSetoid (D : ℤ) :
     Setoid (PrimitivePositiveDefiniteForm D) where
   r := PrimitivePositiveDefiniteForm.ProperEquivalent
-  iseqv := ⟨
-    fun Q => BinaryQuadraticForm.ProperEquivalent.refl Q.1,
-    fun h => BinaryQuadraticForm.ProperEquivalent.symm h,
-    fun hQR hRS => BinaryQuadraticForm.ProperEquivalent.trans hQR hRS⟩
+  iseqv := by
+    refine ⟨?_, ?_, ?_⟩
+    · intro Q
+      rw [PrimitivePositiveDefiniteForm.properEquivalent_iff_orbitRel]
+    · intro Q R hQR
+      rw [PrimitivePositiveDefiniteForm.properEquivalent_iff_orbitRel] at hQR ⊢
+      exact (MulAction.orbitRel SL2Zᵐᵒᵖ (PrimitivePositiveDefiniteForm D)).symm hQR
+    · intro Q R S hQR hRS
+      rw [PrimitivePositiveDefiniteForm.properEquivalent_iff_orbitRel] at hQR hRS ⊢
+      exact (MulAction.orbitRel SL2Zᵐᵒᵖ (PrimitivePositiveDefiniteForm D)).trans hRS hQR
 
 /-- Proper equivalence classes of primitive positive definite binary quadratic
 forms of discriminant `D`. -/
-def FormClass (D : ℤ) : Type :=
+abbrev FormClass (D : ℤ) : Type :=
   Quotient (primitivePositiveDefiniteFormSetoid D)
 
 /-- The field discriminant attached to a squarefree `Qsqrtd d` parameter. -/

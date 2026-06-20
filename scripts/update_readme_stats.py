@@ -19,6 +19,12 @@ README_LEAN_ROOTS = [
     "BinaryQuadraticForms",
     "QuadraticNumberFields.lean",
     "QuadraticNumberFields",
+    "FormClassGroup.lean",
+    "FormClassGroup",
+    "ImaginaryClassNumberOne.lean",
+    "ImaginaryClassNumberOne",
+    "Examples.lean",
+    "Examples",
 ]
 
 
@@ -27,6 +33,21 @@ class LineCount(NamedTuple):
     code: int
     comment: int
     blank: int
+
+
+class ModuleKey(NamedTuple):
+    library: str
+    subtree: str
+
+
+def add_counts(left: LineCount, right: LineCount) -> LineCount:
+    """Add two line-count records."""
+    return LineCount(
+        left.total + right.total,
+        left.code + right.code,
+        left.comment + right.comment,
+        left.blank + right.blank,
+    )
 
 
 def count_lean_lines(file_path: Path) -> LineCount:
@@ -94,63 +115,105 @@ def walk_lean_files(root_dirs: str | list[str], exclude_dirs: list[str] | None =
     return lean_files
 
 
-def get_module_stats(files: list[Path]) -> dict[str, LineCount]:
-    """Group files by module and compute stats"""
-    modules: dict[str, LineCount] = {}
-    
-    for f in files:
-        stats = count_lean_lines(f)
-        
-        # Get relative path from repository root
-        rel_path = f.relative_to(Path('.'))
-        parts = rel_path.parts
-        
-        if len(parts) == 1 and rel_path.suffix == ".lean":
-            module = rel_path.stem
-        elif parts[0] in {"QNFMathlib", "BinaryQuadraticForms"}:
-            module = parts[0]
-        elif len(parts) >= 3 and parts[0] == 'QuadraticNumberFields':
-            # File in a top-level subpackage: one row per subpackage.
-            module = f"QuadraticNumberFields/{parts[1]}"
-        elif len(parts) == 2 and parts[0] == 'QuadraticNumberFields':
-            # File directly under QuadraticNumberFields/.
-            module = "QuadraticNumberFields"
-        else:
-            module = "Root"
-        
-        if module not in modules:
-            modules[module] = LineCount(0, 0, 0, 0)
-        
-        modules[module] = LineCount(
-            modules[module].total + stats.total,
-            modules[module].code + stats.code,
-            modules[module].comment + stats.comment,
-            modules[module].blank + stats.blank,
+def module_key(file_path: Path) -> ModuleKey:
+    """Classify a Lean file by Lake library root and immediate subtree."""
+    rel_path = file_path.relative_to(Path('.'))
+    parts = rel_path.parts
+
+    if len(parts) == 1 and rel_path.suffix == ".lean":
+        return ModuleKey(rel_path.stem, rel_path.name)
+
+    if parts[0] in {
+            "QNFMathlib",
+            "BinaryQuadraticForms",
+            "FormClassGroup",
+            "ImaginaryClassNumberOne",
+            "Examples",
+    }:
+        subtree = f"{parts[1]}/" if len(parts) >= 3 else parts[1]
+        return ModuleKey(parts[0], subtree)
+
+    if parts[0] == "QuadraticNumberFields":
+        subtree = f"{parts[1]}/" if len(parts) >= 3 else parts[1]
+        return ModuleKey("QuadraticNumberFields", subtree)
+
+    return ModuleKey("Root", str(rel_path))
+
+
+def get_library_tree_stats(files: list[Path]) -> dict[str, dict[str, LineCount]]:
+    """Group files by library and immediate subtree."""
+    libraries: dict[str, dict[str, LineCount]] = {}
+
+    for file_path in files:
+        key = module_key(file_path)
+        stats = count_lean_lines(file_path)
+        libraries.setdefault(key.library, {})
+        libraries[key.library].setdefault(key.subtree, LineCount(0, 0, 0, 0))
+        libraries[key.library][key.subtree] = add_counts(
+            libraries[key.library][key.subtree],
+            stats,
         )
-    
-    return modules
+
+    return libraries
+
+
+def library_totals(libraries: dict[str, dict[str, LineCount]]) -> dict[str, LineCount]:
+    """Compute one aggregate row for each library."""
+    totals: dict[str, LineCount] = {}
+    for library, subtrees in libraries.items():
+        total = LineCount(0, 0, 0, 0)
+        for stats in subtrees.values():
+            total = add_counts(total, stats)
+        totals[library] = total
+    return totals
 
 
 def generate_code_stats_markdown(files: list[Path]) -> str:
     """Generate markdown for code statistics"""
-    modules = get_module_stats(files)
+    libraries = get_library_tree_stats(files)
+    summaries = library_totals(libraries)
     
     # Calculate totals (column sums, so the Total row matches the table)
-    total_code = sum(m.code for m in modules.values())
-    total_comment = sum(m.comment for m in modules.values())
-    total_lines = sum(m.total for m in modules.values())
+    total_code = sum(m.code for m in summaries.values())
+    total_comment = sum(m.comment for m in summaries.values())
+    total_lines = sum(m.total for m in summaries.values())
     
     # Sort modules by code lines (descending)
-    sorted_modules = sorted(modules.items(), key=lambda x: x[1].code, reverse=True)
+    sorted_libraries = sorted(summaries.items(), key=lambda x: x[1].code, reverse=True)
     
     md = "## Code Statistics\n\n"
-    md += "| Module | Code Lines | Comment Lines | Total Lines |\n"
+    md += "Counts exclude blank lines.\n\n"
+    md += "### Library Summary\n\n"
+    md += "| Library | Code Lines | Comment Lines | Total Lines |\n"
     md += "|--------|------------|---------------|-------------|\n"
     
-    for module, stats in sorted_modules:
-        md += f"| `{module}` | {stats.code} | {stats.comment} | {stats.total} |\n"
+    for library, stats in sorted_libraries:
+        md += f"| `{library}` | {stats.code} | {stats.comment} | {stats.total} |\n"
     
     md += f"| **Total** | **{total_code}** | **{total_comment}** | **{total_lines}** |\n"
+    md += "\n### Library Tree\n"
+
+    for library, library_stats in sorted_libraries:
+        md += f"\n<details>\n"
+        md += (
+            f"<summary><code>{library}</code> "
+            f"({library_stats.code} code, {library_stats.comment} comments, "
+            f"{library_stats.total} total)</summary>\n\n"
+        )
+        md += "| Subtree | Code Lines | Comment Lines | Total Lines |\n"
+        md += "|--------|------------|---------------|-------------|\n"
+        sorted_subtrees = sorted(
+            libraries[library].items(),
+            key=lambda x: (x[0] != f"{library}.lean", x[0]),
+        )
+        for index, (subtree, stats) in enumerate(sorted_subtrees):
+            connector = "└──" if index == len(sorted_subtrees) - 1 else "├──"
+            md += f"| `{connector} {subtree}` | {stats.code} | {stats.comment} | {stats.total} |\n"
+        md += (
+            f"| **{library} total** | **{library_stats.code}** | "
+            f"**{library_stats.comment}** | **{library_stats.total}** |\n"
+        )
+        md += "\n</details>\n"
     
     return md
 
@@ -170,8 +233,8 @@ def update_readme(readme_path: str = "README.md") -> None:
     with open(readme_path, 'r', encoding='utf-8') as f:
         readme_content = f.read()
     
-    # Pattern to find the code statistics section
-    pattern = r'(## Code Statistics\n\n\| Module.*?\*\*Total\*\* \|.*?\n)'
+    # Pattern to find the code statistics section.
+    pattern = r'## Code Statistics\n\n.*?(?=\n## History)'
     
     match = re.search(pattern, readme_content, re.DOTALL)
     

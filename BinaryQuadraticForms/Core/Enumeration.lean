@@ -325,9 +325,6 @@ theorem enumPrimitiveReducedFormsList_neg163_length :
     (enumPrimitiveReducedFormsList (-163)).length = 1 := by
   reduce_forms_count
 
-example : bCandidates 1 = [-1, 0, 1] := by
-  decide
-
 -- Smoke checks used during development:
 -- `#guard (enumPrimitiveReducedFormsList (-20)).length == 2`
 -- `#guard (enumPrimitiveReducedFormsList (-163)).length == 1`

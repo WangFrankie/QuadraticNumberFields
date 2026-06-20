@@ -223,7 +223,7 @@ Key declarations:
 
 ### Concrete `ℤ[√(-5)]` Examples
 
-Files under `QuadraticNumberFields/Examples/SqrtNeg5/`
+Files under `Examples/SqrtNeg5/`
 
 The library includes verified computations in `ℤ[√(-5)]`, including:
 
@@ -253,8 +253,8 @@ bound to `Qsqrtd d` and owns the unified class-number interface:
 - `Qsqrtd.exists_ideal_in_class_of_norm_le_real`
 
 The Heegner wrappers for this interface live in
-`QuadraticNumberFields/ClassNumber/Heegner.lean`, while the reduced-form
-cardinality bridge lives under `QuadraticNumberFields/Forms/ClassGroup/`.
+`ImaginaryClassNumberOne/ClassNumberBridge.lean`, while the reduced-form
+cardinality bridge lives under `FormClassGroup/ClassGroup/`.
 
 ## Core Lean Objects
 
@@ -295,9 +295,8 @@ The completed public library currently includes:
 - concrete verified examples for `ℤ[√(-5)]`
 - a basic class-number interface
 
-The `Sketch` import contains unfinished or research-oriented scaffolding,
-including Euclidean, class-group, class-number example, continued-fraction,
-unit, Minkowski, and real-quadratic family developments.
+App-layer libraries contain form-class-group computations, class-number-one
+results, examples, and remaining research-oriented scaffolding.
 
 ## Project Structure
 
@@ -315,7 +314,6 @@ unit, Minkowski, and real-quadratic family developments.
 │   └── Computable/                   # executable composition/reduction
 ├── QuadraticNumberFields.lean        # stable, sorry-free public entry point
 ├── QuadraticNumberFields/
-│   ├── Sketch.lean                   # work-in-progress import surface
 │   ├── Qsqrtd/                       # concrete ℚ(√d) coordinate model
 │   │   ├── Basic.lean
 │   │   ├── TraceNorm.lean
@@ -350,15 +348,24 @@ unit, Minkowski, and real-quadratic family developments.
 │   ├── ZOnePlusSqrtOverTwo/
 │   │   └── Basic.lean
 │   ├── Splitting/                    # prime splitting
-│   ├── ClassNumber/                  # class-number wrappers such as Heegner.lean
+│   ├── ClassNumber/                  # core class-number interface
 │   ├── ClassGroup/                   # class-group scaffolding
-│   ├── Forms/                        # QNF-dependent BQF/class-group bridge
 │   ├── ContinuedFraction/            # continued-fraction scaffolding
 │   ├── Units/                        # unit and Pell scaffolding
 │   ├── Families/                     # real-quadratic family scaffolding
-│   ├── Euclidean/                    # norm-Euclidean skeleton
-│   └── Examples/
-│       └── SqrtNeg5/               # verified ℤ[√(-5)] examples
+│   └── Euclidean/                    # norm-Euclidean skeleton
+├── FormClassGroup.lean               # QNF-dependent BQF/class-group bridge
+├── FormClassGroup/
+│   ├── Cox/
+│   ├── Gauss/
+│   ├── ClassGroup/
+│   └── Computable/
+├── ImaginaryClassNumberOne.lean      # Heegner and Baker--Heegner--Stark layer
+├── ImaginaryClassNumberOne/
+│   └── WeberData/
+├── Examples.lean                     # concrete examples entry point
+├── Examples/
+│   └── SqrtNeg5/                     # verified ℤ[√(-5)] examples
 └── docs/
     ├── design/
     ├── library-overview.md
