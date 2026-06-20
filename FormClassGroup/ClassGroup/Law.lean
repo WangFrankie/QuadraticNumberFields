@@ -245,24 +245,6 @@ theorem eq_reducedProductRepresentative_of_isReduced_mk_eq_mul
   letI := formClassCommGroup hdneg
   exact eq_reducedRepresentative_of_isReduced_mk_eq hQred hQ
 
-example (C : FormClass (fieldDiscriminant d)) :
-    (reducedRepresentative C).1.IsReduced :=
-  reducedRepresentative_isReduced C
-
-example (C E : FormClass (fieldDiscriminant d)) :
-    haveI := formClassCommGroup hdneg
-    Quotient.mk (primitivePositiveDefiniteFormSetoid (fieldDiscriminant d))
-      (reducedProductRepresentative hdneg C E) = C * E :=
-  reducedProductRepresentative_mk_eq_mul hdneg C E
-
-example (C E : FormClass (fieldDiscriminant d))
-    {Q : PrimitivePositiveDefiniteForm (fieldDiscriminant d)}
-    (hQred : Q.1.IsReduced)
-    (hQ : haveI := formClassCommGroup hdneg
-      Quotient.mk (primitivePositiveDefiniteFormSetoid (fieldDiscriminant d)) Q = C * E) :
-    Q = reducedProductRepresentative hdneg C E :=
-  eq_reducedProductRepresentative_of_isReduced_mk_eq_mul hdneg hQred hQ
-
 end ReducedRepresentatives
 
 end BinaryQuadraticForm

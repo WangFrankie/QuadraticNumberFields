@@ -841,39 +841,5 @@ theorem exists_concordant_of_sameDiscriminant
 
 end ConcordantReplacement
 
-/-! ## Sanity checks -/
-
-example :
-    (BinaryQuadraticForm.mk 1 0 1).IsUnited (BinaryQuadraticForm.mk 1 0 1) := by
-  norm_num [IsUnited, sigma, coeffGCD3]
-
-example :
-    composeConcordant (BinaryQuadraticForm.mk 1 0 1) (BinaryQuadraticForm.mk 1 0 1) =
-      BinaryQuadraticForm.mk 1 0 1 := by
-  norm_num [composeConcordant, disc]
-
-example :
-    (composeConcordant (BinaryQuadraticForm.mk 1 0 1)
-      (BinaryQuadraticForm.mk 1 0 1)).disc = -4 := by
-  exact disc_composeConcordant_of_eq_mul
-    (BinaryQuadraticForm.mk 1 0 1) (BinaryQuadraticForm.mk 1 0 1) (c := 1)
-    (by norm_num) (by norm_num [disc])
-
-example :
-    (composeConcordant (BinaryQuadraticForm.mk 1 0 1)
-      (BinaryQuadraticForm.mk 1 0 1)).disc = -4 := by
-  exact disc_composeConcordant_of_isConcordant
-    (Q := BinaryQuadraticForm.mk 1 0 1) (R := BinaryQuadraticForm.mk 1 0 1)
-    (by norm_num [IsConcordant, disc]) (by norm_num) (by norm_num)
-
-example :
-    (composeConcordant (BinaryQuadraticForm.mk 1 0 1)
-      (BinaryQuadraticForm.mk 1 0 1)).IsPositiveDefinite := by
-  exact isPositiveDefinite_composeConcordant_of_isConcordant
-    (Q := BinaryQuadraticForm.mk 1 0 1) (R := BinaryQuadraticForm.mk 1 0 1)
-    (by norm_num [IsConcordant, disc])
-    (by norm_num [IsPositiveDefinite, disc])
-    (by norm_num [IsPositiveDefinite, disc])
-
 end BinaryQuadraticForm
 end QuadraticNumberFields

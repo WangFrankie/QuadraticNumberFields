@@ -74,12 +74,5 @@ def IsPrimitive (Q : BinaryQuadraticForm) : Prop :=
     eval (BinaryQuadraticForm.mk a b c) x y =
       a * x ^ 2 + b * x * y + c * y ^ 2 := rfl
 
-example : (BinaryQuadraticForm.mk 1 0 1).disc = -4 := by norm_num [disc]
-
-example : (BinaryQuadraticForm.mk 1 1 1).eval 2 3 = 19 := by norm_num [eval]
-
-example : (BinaryQuadraticForm.mk 1 0 1).IsPositiveDefinite := by
-  constructor <;> norm_num [IsPositiveDefinite, disc]
-
 end BinaryQuadraticForm
 end QuadraticNumberFields

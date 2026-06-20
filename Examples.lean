@@ -16,6 +16,10 @@ import Examples.SqrtNeg5.Ideals
 import Examples.SqrtNeg5.Invariants
 import Examples.SqrtNeg5.RamificationInertia
 import Examples.SqrtNeg5.Splitting
+import Examples.Smoke.BinaryQuadraticForms
+import Examples.Smoke.FormClassGroup
+import Examples.Smoke.Kronecker
+import Examples.Smoke.RingOfIntegers
 
 /-!
 # Examples

@@ -84,26 +84,5 @@ theorem formClassEquivClassGroup_mul (hdneg : d < 0) (x y : FormClass (fieldDisc
 
 end GroupStructure
 
-/-! ## Sanity checks -/
-
-section SanityChecks
-
-/-- Identity maps to identity via the Cox equivalence (with transported structure). -/
-example (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hdneg : d < 0) :
-    haveI := formClassCommGroup hdneg
-    formClassEquivClassGroup hdneg (1 : FormClass (fieldDiscriminant d)) =
-      (1 : ClassGroup (𝓞 (Qsqrtd (d : ℚ)))) := by
-  simp [Equiv.one_def]
-
-/-- Multiplication commutes with the Cox equivalence (with transported structure). -/
-example (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hdneg : d < 0)
-    (x y : FormClass (fieldDiscriminant d)) :
-    haveI := formClassCommGroup hdneg
-    formClassEquivClassGroup hdneg (x * y) =
-    formClassEquivClassGroup hdneg x * formClassEquivClassGroup hdneg y := by
-  simp [Equiv.mul_def]
-
-end SanityChecks
-
 end BinaryQuadraticForm
 end QuadraticNumberFields

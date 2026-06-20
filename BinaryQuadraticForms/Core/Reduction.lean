@@ -63,14 +63,5 @@ theorem three_mul_a_natAbs_sq_le_disc_natAbs (Q : BinaryQuadraticForm)
     exact hbound
   exact_mod_cast hcast
 
-example : (BinaryQuadraticForm.mk 1 0 1).IsReduced := by
-  norm_num [IsReduced]
-
-example : (BinaryQuadraticForm.mk 1 1 1).IsReduced := by
-  norm_num [IsReduced]
-
-example : ¬ (BinaryQuadraticForm.mk 1 (-1) 1).IsReduced := by
-  norm_num [IsReduced]
-
 end BinaryQuadraticForm
 end QuadraticNumberFields

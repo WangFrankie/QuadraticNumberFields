@@ -94,33 +94,4 @@ macro_rules
          norm_num [BinaryQuadraticForm.fieldDiscriminant];
          reduce_forms_count))
 
-/-! ## Reduced-form computation regressions -/
-
-example : classNumberQsqrtd (-1) = 1 := by
-  compute_class_number_qsqrtd
-
-example : classNumberQsqrtd (-2) = 1 := by
-  compute_class_number_qsqrtd
-
-example : classNumberQsqrtd (-3) = 1 := by
-  compute_class_number_qsqrtd
-
-example : classNumberQsqrtd (-7) = 1 := by
-  compute_class_number_qsqrtd
-
-example : classNumberQsqrtd (-11) = 1 := by
-  compute_class_number_qsqrtd
-
-example : classNumberQsqrtd (-19) = 1 := by
-  compute_class_number_qsqrtd
-
-example : classNumberQsqrtd (-43) = 1 := by
-  compute_class_number_qsqrtd
-
-example : classNumberQsqrtd (-67) = 1 := by
-  compute_class_number_qsqrtd
-
-example : classNumberQsqrtd (-163) = 1 := by
-  compute_class_number_qsqrtd
-
 end QuadraticNumberFields

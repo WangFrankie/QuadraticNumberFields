@@ -84,13 +84,13 @@ Counts exclude blank lines.
 
 | Library | Code Lines | Comment Lines | Total Lines |
 |--------|------------|---------------|-------------|
-| `QuadraticNumberFields` | 6830 | 2610 | 9440 |
-| `FormClassGroup` | 4986 | 1048 | 6034 |
-| `BinaryQuadraticForms` | 3165 | 665 | 3830 |
-| `QNFMathlib` | 2364 | 655 | 3019 |
+| `QuadraticNumberFields` | 6826 | 2599 | 9425 |
+| `FormClassGroup` | 4940 | 1044 | 5984 |
+| `BinaryQuadraticForms` | 3126 | 664 | 3790 |
+| `QNFMathlib` | 2316 | 654 | 2970 |
+| `Examples` | 1158 | 584 | 1742 |
 | `ImaginaryClassNumberOne` | 1157 | 418 | 1575 |
-| `Examples` | 992 | 541 | 1533 |
-| **Total** | **19494** | **5937** | **25431** |
+| **Total** | **19523** | **5963** | **25486** |
 
 ### Library Tree
 
@@ -106,24 +106,24 @@ Counts exclude blank lines.
 | `├── Families/` | 38 | 49 | 87 |
 | `├── Qsqrtd/` | 531 | 283 | 814 |
 | `├── QuadraticField/` | 586 | 397 | 983 |
-| `├── RingOfIntegers/` | 794 | 375 | 1169 |
+| `├── RingOfIntegers/` | 790 | 364 | 1154 |
 | `├── Splitting/` | 1672 | 501 | 2173 |
 | `├── Units/` | 409 | 156 | 565 |
 | `├── ZOnePlusSqrtdOverTwo/` | 127 | 50 | 177 |
 | `└── Zsqrtd/` | 730 | 235 | 965 |
-| **QuadraticNumberFields total** | **6830** | **2610** | **9440** |
+| **QuadraticNumberFields total** | **6826** | **2599** | **9425** |
 
 #### `FormClassGroup`
 
 | Subtree | Code Lines | Comment Lines | Total Lines |
 |--------|------------|---------------|-------------|
 | `├── FormClassGroup.lean` | 8 | 10 | 18 |
-| `├── ClassGroup/` | 898 | 212 | 1110 |
+| `├── ClassGroup/` | 852 | 208 | 1060 |
 | `├── Computable/` | 927 | 205 | 1132 |
 | `├── Computed.lean` | 126 | 56 | 182 |
 | `├── Cox/` | 2927 | 527 | 3454 |
 | `└── Gauss/` | 100 | 38 | 138 |
-| **FormClassGroup total** | **4986** | **1048** | **6034** |
+| **FormClassGroup total** | **4940** | **1044** | **5984** |
 
 #### `BinaryQuadraticForms`
 
@@ -131,10 +131,10 @@ Counts exclude blank lines.
 |--------|------------|---------------|-------------|
 | `├── BinaryQuadraticForms.lean` | 14 | 10 | 24 |
 | `├── Computable/` | 812 | 201 | 1013 |
-| `├── Core/` | 1407 | 247 | 1654 |
+| `├── Core/` | 1395 | 247 | 1642 |
 | `├── Cox/` | 289 | 64 | 353 |
-| `└── Gauss/` | 643 | 143 | 786 |
-| **BinaryQuadraticForms total** | **3165** | **665** | **3830** |
+| `└── Gauss/` | 616 | 142 | 758 |
+| **BinaryQuadraticForms total** | **3126** | **664** | **3790** |
 
 #### `QNFMathlib`
 
@@ -145,9 +145,23 @@ Counts exclude blank lines.
 | `├── Data/` | 578 | 144 | 722 |
 | `├── FieldTheory/` | 41 | 19 | 60 |
 | `├── GroupTheory/` | 18 | 13 | 31 |
-| `├── NumberTheory/` | 1235 | 248 | 1483 |
+| `├── NumberTheory/` | 1187 | 247 | 1434 |
 | `└── RingTheory/` | 316 | 131 | 447 |
-| **QNFMathlib total** | **2364** | **655** | **3019** |
+| **QNFMathlib total** | **2316** | **654** | **2970** |
+
+#### `Examples`
+
+| Subtree | Code Lines | Comment Lines | Total Lines |
+|--------|------------|---------------|-------------|
+| `├── Examples.lean` | 16 | 10 | 26 |
+| `├── ClassGroupStructure.lean` | 3 | 11 | 14 |
+| `├── ClassGroupStructure/` | 138 | 70 | 208 |
+| `├── Counterexamples/` | 82 | 24 | 106 |
+| `├── Smoke/` | 162 | 43 | 205 |
+| `├── Sqrt17/` | 194 | 143 | 337 |
+| `├── SqrtNeg21/` | 15 | 29 | 44 |
+| `└── SqrtNeg5/` | 548 | 254 | 802 |
+| **Examples total** | **1158** | **584** | **1742** |
 
 #### `ImaginaryClassNumberOne`
 
@@ -163,19 +177,6 @@ Counts exclude blank lines.
 | `├── StarkHeegner.lean` | 102 | 71 | 173 |
 | `└── WeberData/` | 128 | 123 | 251 |
 | **ImaginaryClassNumberOne total** | **1157** | **418** | **1575** |
-
-#### `Examples`
-
-| Subtree | Code Lines | Comment Lines | Total Lines |
-|--------|------------|---------------|-------------|
-| `├── Examples.lean` | 12 | 10 | 22 |
-| `├── ClassGroupStructure.lean` | 3 | 11 | 14 |
-| `├── ClassGroupStructure/` | 138 | 70 | 208 |
-| `├── Counterexamples/` | 82 | 24 | 106 |
-| `├── Sqrt17/` | 194 | 143 | 337 |
-| `├── SqrtNeg21/` | 15 | 29 | 44 |
-| `└── SqrtNeg5/` | 548 | 254 | 802 |
-| **Examples total** | **992** | **541** | **1533** |
 
 ## History
 
