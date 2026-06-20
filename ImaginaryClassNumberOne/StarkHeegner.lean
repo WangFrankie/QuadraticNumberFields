@@ -113,24 +113,24 @@ theorem classNumber_eq_one_imp_mem_heegnerSet_of_oddGenusFormula_of_mod_four_eq_
     (hprovider : InertPrimeWeberDataProvider)
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : d < 0)
     (hd4 : d % 4 = 1)
-    (hcharSurj : ClassGroup.OddGenusCharacterSurjective d)
-    (hprincipal : ClassGroup.OddGenusPrincipalMultipliers d)
-    (hrel : ClassGroup.oddGenusProductRelation d hd hcharSurj hprincipal)
+    (hmk0Surj : ClassGroup.OddGenusPrimeToNormSurjective d)
+    (hprincipal : ClassGroup.OddGenusPrimeToNormPrincipalMultipliers d)
+    (hrel : ClassGroup.oddGenusProductRelation d hd hmk0Surj hprincipal)
     (hsurj :
       Function.Surjective
         (ClassGroup.oddGenusCharacterProductToRelationSubgroup
-          d hd hcharSurj hprincipal hrel))
+          d hd hmk0Surj hprincipal hrel))
     (hprincipalKernel :
       ∀ C : ClassGroup (𝓞 (Qsqrtd (d : ℚ))) ⧸ ClassGroup.squareClassSubgroup d,
         (∀ P : {p // p ∈ ClassGroup.oddPrimeDiscriminantDivisors d},
           ClassGroup.oddGenusCharacterProductOnSquareClassQuotient
-            d hd hcharSurj hprincipal C P = 1) → C = 1)
+            d hd hmk0Surj hprincipal C P = 1) → C = 1)
     (h : NumberField.classNumber (Qsqrtd (d : ℚ)) = 1) :
     d ∈ heegnerSet := by
   have hgenus :
       ClassGroup.genusFormula d :=
     genusFormula_of_oddGenusCharacterProduct_surjective_of_principalKernel_of_mod_four_eq_one
-      d hd hd4 hcharSurj hprincipal hrel hsurj hprincipalKernel
+      d hd hd4 hmk0Surj hprincipal hrel hsurj hprincipalKernel
   have hprime :=
     ClassGroup.classNumber_eq_one_imp_exists_prime_of_odd_discr d hd
       (by
@@ -148,18 +148,18 @@ theorem
     (hprovider : InertPrimeWeberDataProvider)
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : d < 0)
     (hd4 : d % 4 = 1)
-    (hcharSurj : ClassGroup.OddGenusCharacterSurjective d)
-    (hprincipal : ClassGroup.OddGenusPrincipalMultipliers d)
-    (hrel : ClassGroup.oddGenusProductRelation d hd hcharSurj hprincipal)
+    (hmk0Surj : ClassGroup.OddGenusPrimeToNormSurjective d)
+    (hprincipal : ClassGroup.OddGenusPrimeToNormPrincipalMultipliers d)
+    (hrel : ClassGroup.oddGenusProductRelation d hd hmk0Surj hprincipal)
     (hbij :
       Function.Bijective
         (ClassGroup.oddGenusCharacterProductToRelationSubgroup
-          d hd hcharSurj hprincipal hrel))
+          d hd hmk0Surj hprincipal hrel))
     (h : NumberField.classNumber (Qsqrtd (d : ℚ)) = 1) :
     d ∈ heegnerSet := by
   have hprime :=
     classNumber_eq_one_imp_exists_prime_of_oddGenusCharacterProduct_bijective_of_mod_four_eq_one
-      d hd hd4 hcharSurj hprincipal hrel hbij h
+      d hd hd4 hmk0Surj hprincipal hrel hbij h
   exact classNumber_eq_one_imp_mem_heegnerSet_of_discriminant_prime_shape hprovider d hd
     (Or.inr (Or.inr hprime)) h
 

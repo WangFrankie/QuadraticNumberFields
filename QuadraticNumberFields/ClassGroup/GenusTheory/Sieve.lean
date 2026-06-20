@@ -205,49 +205,49 @@ product already reduces class number one to the prime-discriminant family. -/
 theorem classNumber_eq_one_imp_exists_prime_of_oddGenusCharacterProduct_surjective
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : d < 0)
     (hodd : RingOfIntegers.discrFormula d % 2 ≠ 0)
-    (hcharSurj : OddGenusCharacterSurjective d)
-    (hprincipal : OddGenusPrincipalMultipliers d)
-    (hrel : oddGenusProductRelation d hd hcharSurj hprincipal)
+    (hmk0Surj : OddGenusPrimeToNormSurjective d)
+    (hprincipal : OddGenusPrimeToNormPrincipalMultipliers d)
+    (hrel : oddGenusProductRelation d hd hmk0Surj hprincipal)
     (hsurj : Function.Surjective
-        (oddGenusCharacterProductToRelationSubgroup d hd hcharSurj hprincipal hrel))
+        (oddGenusCharacterProductToRelationSubgroup d hd hmk0Surj hprincipal hrel))
     (h : NumberField.classNumber (Qsqrtd (d : ℚ)) = 1) :
     ∃ p : ℕ, Nat.Prime p ∧ p % 4 = 3 ∧ d = -(p : ℤ) :=
   classNumber_eq_one_imp_exists_prime_of_odd_discr_of_genus_divisibility d hd hodd
     (genus_divisibility_of_oddGenusCharacterProduct_surjective_of_discr_odd
-      d hd hodd hcharSurj hprincipal hrel hsurj) h
+      d hd hodd hmk0Surj hprincipal hrel hsurj) h
 
 /-- In the odd field-discriminant branch, the odd-prime genus-character interface
 is enough to reduce class number one to the prime-discriminant family. -/
 theorem classNumber_eq_one_imp_exists_prime_of_oddGenusCharacterProduct_bijective
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : d < 0)
     (hodd : RingOfIntegers.discrFormula d % 2 ≠ 0)
-    (hcharSurj : OddGenusCharacterSurjective d)
-    (hprincipal : OddGenusPrincipalMultipliers d)
-    (hrel : oddGenusProductRelation d hd hcharSurj hprincipal)
+    (hmk0Surj : OddGenusPrimeToNormSurjective d)
+    (hprincipal : OddGenusPrimeToNormPrincipalMultipliers d)
+    (hrel : oddGenusProductRelation d hd hmk0Surj hprincipal)
     (hbij : Function.Bijective
-        (oddGenusCharacterProductToRelationSubgroup d hd hcharSurj hprincipal hrel))
+        (oddGenusCharacterProductToRelationSubgroup d hd hmk0Surj hprincipal hrel))
     (h : NumberField.classNumber (Qsqrtd (d : ℚ)) = 1) :
     ∃ p : ℕ, Nat.Prime p ∧ p % 4 = 3 ∧ d = -(p : ℤ) :=
   classNumber_eq_one_imp_exists_prime_of_odd_discr d hd hodd
-    (genusFormula_of_oddGenusCharacterProduct_bijective d hd hodd hcharSurj hprincipal hrel hbij) h
+    (genusFormula_of_oddGenusCharacterProduct_bijective d hd hodd hmk0Surj hprincipal hrel hbij) h
 
 /-- For odd fundamental discriminants (`d % 4 = 1`), the odd-prime genus-character
 interface is enough to reduce class number one to the prime-discriminant family. -/
 theorem classNumber_eq_one_imp_exists_prime_of_oddGenusCharacterProduct_bijective_of_mod_four_eq_one
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : d < 0)
     (hd4 : d % 4 = 1)
-    (hcharSurj : OddGenusCharacterSurjective d)
-    (hprincipal : OddGenusPrincipalMultipliers d)
-    (hrel : oddGenusProductRelation d hd hcharSurj hprincipal)
+    (hmk0Surj : OddGenusPrimeToNormSurjective d)
+    (hprincipal : OddGenusPrimeToNormPrincipalMultipliers d)
+    (hrel : oddGenusProductRelation d hd hmk0Surj hprincipal)
     (hbij : Function.Bijective
-        (oddGenusCharacterProductToRelationSubgroup d hd hcharSurj hprincipal hrel))
+        (oddGenusCharacterProductToRelationSubgroup d hd hmk0Surj hprincipal hrel))
     (h : NumberField.classNumber (Qsqrtd (d : ℚ)) = 1) :
     ∃ p : ℕ, Nat.Prime p ∧ p % 4 = 3 ∧ d = -(p : ℤ) := by
   have hodd : RingOfIntegers.discrFormula d % 2 ≠ 0 := by
     rw [RingOfIntegers.discrFormula_of_mod_four_eq_one hd4]
     omega
   exact classNumber_eq_one_imp_exists_prime_of_oddGenusCharacterProduct_bijective
-    d hd hodd hcharSurj hprincipal hrel hbij h
+    d hd hodd hmk0Surj hprincipal hrel hbij h
 
 end ClassGroup
 end QuadraticNumberFields
