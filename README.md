@@ -86,24 +86,24 @@ Counts exclude blank lines.
 
 | Library | Code Lines | Comment Lines | Total Lines |
 |--------|------------|---------------|-------------|
-| `QuadraticNumberFields` | 7175 | 2773 | 9948 |
+| `QuadraticNumberFields` | 7298 | 2806 | 10104 |
 | `FormClassGroup` | 4945 | 1044 | 5989 |
 | `BinaryQuadraticForms` | 3330 | 701 | 4031 |
 | `QNFMathlib` | 2521 | 693 | 3214 |
-| `ImaginaryClassNumberOne` | 2495 | 702 | 3197 |
+| `ImaginaryClassNumberOne` | 2494 | 704 | 3198 |
 | `Examples` | 1159 | 584 | 1743 |
-| **Total** | **21625** | **6497** | **28122** |
+| **Total** | **21747** | **6532** | **28279** |
 
 ### Library Tree
 
 <details>
-<summary><code>QuadraticNumberFields</code> (7175 code, 2773 comments, 9948 total)</summary>
+<summary><code>QuadraticNumberFields</code> (7298 code, 2806 comments, 10104 total)</summary>
 
 | Subtree | Code Lines | Comment Lines | Total Lines |
 |--------|------------|---------------|-------------|
-| `├── QuadraticNumberFields.lean` | 43 | 21 | 64 |
+| `├── QuadraticNumberFields.lean` | 44 | 21 | 65 |
 | `├── ClassGroup/` | 1538 | 423 | 1961 |
-| `├── ClassNumber.lean` | 289 | 59 | 348 |
+| `├── ClassNumber/` | 411 | 92 | 503 |
 | `├── ContinuedFraction/` | 21 | 36 | 57 |
 | `├── Euclidean/` | 52 | 25 | 77 |
 | `├── Families/` | 38 | 49 | 87 |
@@ -116,7 +116,7 @@ Counts exclude blank lines.
 | `├── Units/` | 409 | 156 | 565 |
 | `├── ZOnePlusSqrtdOverTwo/` | 270 | 77 | 347 |
 | `└── Zsqrtd/` | 730 | 235 | 965 |
-| **QuadraticNumberFields total** | **7175** | **2773** | **9948** |
+| **QuadraticNumberFields total** | **7298** | **2806** | **10104** |
 
 </details>
 
@@ -166,20 +166,20 @@ Counts exclude blank lines.
 </details>
 
 <details>
-<summary><code>ImaginaryClassNumberOne</code> (2495 code, 702 comments, 3197 total)</summary>
+<summary><code>ImaginaryClassNumberOne</code> (2494 code, 704 comments, 3198 total)</summary>
 
 | Subtree | Code Lines | Comment Lines | Total Lines |
 |--------|------------|---------------|-------------|
 | `├── ImaginaryClassNumberOne.lean` | 9 | 10 | 19 |
 | `├── ClassNumberBridge.lean` | 26 | 20 | 46 |
-| `├── ClassNumberOne.lean` | 133 | 50 | 183 |
+| `├── ClassNumberOne.lean` | 132 | 52 | 184 |
 | `├── ClassNumberOneByForms.lean` | 12 | 13 | 25 |
 | `├── Diophantine.lean` | 399 | 65 | 464 |
 | `├── Framework.lean` | 43 | 25 | 68 |
 | `├── IdealReductions.lean` | 305 | 41 | 346 |
 | `├── StarkHeegner.lean` | 102 | 75 | 177 |
 | `└── WeberCM/` | 1466 | 403 | 1869 |
-| **ImaginaryClassNumberOne total** | **2495** | **702** | **3197** |
+| **ImaginaryClassNumberOne total** | **2494** | **704** | **3198** |
 
 </details>
 
