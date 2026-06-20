@@ -122,53 +122,27 @@ theorem conductor_two_order_class_number_formula_of_classNumber_one_of_fiberResi
 
 /-- The representative-level reconstruction criterion gives exactly three
 conductor-`2` primitive reduced forms in the class-number-one branch. -/
-theorem conductor_two_reduced_forms_card_eq_three_of_classNumber_one_of_formClass_eq
+theorem conductor_two_reduced_forms_card_eq_three_of_classNumber_one_of_formClassReconstruction
     (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
     (hp : Nat.Prime p) (hp8 : p % 8 = 3) (hp_ne_three : p ≠ 3)
     (hclass : classNumberQsqrtd (-(p : ℤ)) = 1)
-    (hform : ∀ Q R : BinaryQuadraticForm.FormClass (-(4 * (p : ℤ))),
-      conductorTwoRingOfIntegersIdealClassOfForm p hp8
-          (conductorTwoFormClassOddRepresentative p Q) =
-        conductorTwoRingOfIntegersIdealClassOfForm p hp8
-          (conductorTwoFormClassOddRepresentative p R) →
-      Ideal.Quotient.mk
-          (Ideal.span ({(2 : 𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ)))} : Set _))
-          ((((conductorTwoFormClassOddRepresentative p Q).1.a : ℤ) :
-            𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ)))) =
-        Ideal.Quotient.mk
-          (Ideal.span ({(2 : 𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ)))} : Set _))
-          ((((conductorTwoFormClassOddRepresentative p R).1.a : ℤ) :
-            𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ)))) →
-      Q = R) :
+    (hrec : ConductorTwoFormClassReconstruction p hp8) :
     (BinaryQuadraticForm.enumPrimitiveReducedForms (-(4 * (p : ℤ)))).card = 3 :=
   conductor_two_reduced_forms_card_eq_three_of_classNumber_one_of_kernel_certificate
     p hp hp8 hp_ne_three hclass
-    (conductor_two_ideal_class_kernel_certificate_of_formClass_eq p hp8 hform)
+    (conductor_two_ideal_class_kernel_certificate_of_formClassReconstruction p hp8 hrec)
 
 /-- In the class-number-one branch, the representative-level reconstruction
 criterion supplies the Cox formula equality needed by the Forms route. -/
-theorem conductor_two_order_class_number_formula_of_classNumber_one_of_formClass_eq
+theorem conductor_two_order_class_number_formula_of_classNumber_one_of_formClassReconstruction
     (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
     (hp : Nat.Prime p) (hp8 : p % 8 = 3) (hp_ne_three : p ≠ 3)
     (hclass : classNumberQsqrtd (-(p : ℤ)) = 1)
-    (hform : ∀ Q R : BinaryQuadraticForm.FormClass (-(4 * (p : ℤ))),
-      conductorTwoRingOfIntegersIdealClassOfForm p hp8
-          (conductorTwoFormClassOddRepresentative p Q) =
-        conductorTwoRingOfIntegersIdealClassOfForm p hp8
-          (conductorTwoFormClassOddRepresentative p R) →
-      Ideal.Quotient.mk
-          (Ideal.span ({(2 : 𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ)))} : Set _))
-          ((((conductorTwoFormClassOddRepresentative p Q).1.a : ℤ) :
-            𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ)))) =
-        Ideal.Quotient.mk
-          (Ideal.span ({(2 : 𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ)))} : Set _))
-          ((((conductorTwoFormClassOddRepresentative p R).1.a : ℤ) :
-            𝓞 (Qsqrtd ((-(p : ℤ) : ℤ) : ℚ)))) →
-      Q = R) :
+    (hrec : ConductorTwoFormClassReconstruction p hp8) :
     ConductorTwoOrderClassNumberFormula p hp8 hp_ne_three :=
   conductor_two_order_class_number_formula_of_classNumber_one_of_kernel_certificate
     p hp hp8 hp_ne_three hclass
-    (conductor_two_ideal_class_kernel_certificate_of_formClass_eq p hp8 hform)
+    (conductor_two_ideal_class_kernel_certificate_of_formClassReconstruction p hp8 hrec)
 
 /-- Once the conductor-`2` order class-number formula is available, class
 number one for the maximal order and the inert local factor `3` give exactly
