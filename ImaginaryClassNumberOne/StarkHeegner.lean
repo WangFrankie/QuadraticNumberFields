@@ -107,59 +107,16 @@ theorem classNumber_eq_one_imp_mem_heegnerSet_of_discriminant_prime_shape
       exact classNumber_eq_one_imp_mem_heegnerSet_of_mod_eight_eq_one d hd hd8 h
 
 /-- **Odd genus-formula branch of Baker-Heegner-Stark.** For odd fundamental
-discriminants, the explicit genus-character product inputs feed the prime-shape
-sieve and leave only the existing inert-prime provider. -/
+discriminants, the standard genus formula feeds the prime-shape sieve and leaves
+only the existing inert-prime provider. -/
 theorem classNumber_eq_one_imp_mem_heegnerSet_of_oddGenusFormula_of_mod_four_eq_one
     (hprovider : InertPrimeWeberDataProvider)
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : d < 0)
     (hd4 : d % 4 = 1)
-    (hmk0Surj : ClassGroup.OddGenusPrimeToNormSurjective d)
-    (hprincipal : ClassGroup.OddGenusPrimeToNormPrincipalMultipliers d)
-    (hrel : ClassGroup.oddGenusProductRelation d hd hmk0Surj hprincipal)
-    (hsurj :
-      Function.Surjective
-        (ClassGroup.oddGenusCharacterProductToRelationSubgroup
-          d hd hmk0Surj hprincipal hrel))
-    (hprincipalKernel :
-      ∀ C : ClassGroup (𝓞 (Qsqrtd (d : ℚ))) ⧸ ClassGroup.squareClassSubgroup d,
-        (∀ P : {p // p ∈ ClassGroup.oddPrimeDiscriminantDivisors d},
-          ClassGroup.oddGenusCharacterProductOnSquareClassQuotient
-            d hd hmk0Surj hprincipal C P = 1) → C = 1)
-    (h : NumberField.classNumber (Qsqrtd (d : ℚ)) = 1) :
-    d ∈ heegnerSet := by
-  have hgenus :
-      ClassGroup.genusFormula d :=
-    genusFormula_of_oddGenusCharacterProduct_surjective_of_principalKernel_of_mod_four_eq_one
-      d hd hd4 hmk0Surj hprincipal hrel hsurj hprincipalKernel
-  have hprime :=
-    ClassGroup.classNumber_eq_one_imp_exists_prime_of_odd_discr d hd
-      (by
-        rw [RingOfIntegers.discrFormula_of_mod_four_eq_one hd4]
-        omega)
-      hgenus h
-  exact classNumber_eq_one_imp_mem_heegnerSet_of_discriminant_prime_shape hprovider d hd
-    (Or.inr (Or.inr hprime)) h
-
-/-- **Odd genus-character branch of Baker-Heegner-Stark.** For odd fundamental
-discriminants, the explicit odd genus-character interface with bijective product
-character feeds the prime-shape sieve and leaves only the inert-prime provider. -/
-theorem
-    classNumber_eq_one_imp_mem_heegnerSet_of_oddGenusCharacterProduct_bijective_of_mod_four_eq_one
-    (hprovider : InertPrimeWeberDataProvider)
-    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : d < 0)
-    (hd4 : d % 4 = 1)
-    (hmk0Surj : ClassGroup.OddGenusPrimeToNormSurjective d)
-    (hprincipal : ClassGroup.OddGenusPrimeToNormPrincipalMultipliers d)
-    (hrel : ClassGroup.oddGenusProductRelation d hd hmk0Surj hprincipal)
-    (hbij :
-      Function.Bijective
-        (ClassGroup.oddGenusCharacterProductToRelationSubgroup
-          d hd hmk0Surj hprincipal hrel))
     (h : NumberField.classNumber (Qsqrtd (d : ℚ)) = 1) :
     d ∈ heegnerSet := by
   have hprime :=
-    classNumber_eq_one_imp_exists_prime_of_oddGenusCharacterProduct_bijective_of_mod_four_eq_one
-      d hd hd4 hmk0Surj hprincipal hrel hbij h
+    ClassGroup.classNumber_eq_one_imp_exists_prime_of_mod_four_eq_one d hd hd4 h
   exact classNumber_eq_one_imp_mem_heegnerSet_of_discriminant_prime_shape hprovider d hd
     (Or.inr (Or.inr hprime)) h
 

@@ -6,7 +6,7 @@ Authors: Frankie Wang
 
 import Mathlib.GroupTheory.Index
 import QuadraticNumberFields.ClassGroup.Basic
-import QuadraticNumberFields.ClassGroup.GenusTheory.Characters
+import QuadraticNumberFields.ClassGroup.GenusTheory.IdealAvoidance
 
 /-!
 # Genus-Theory Square Classes
@@ -152,42 +152,44 @@ theorem genusCharacterOfPrimeToNormPrincipalMultipliers_sq_eq_one
 formal `Cl² ⊆ principal genus` direction for the odd-prime genus characters. -/
 theorem squareClassSubgroup_le_genusCharacterOfPrimeToNormPrincipalMultipliers_ker
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (p : ℕ) [Fact p.Prime]
-    (hd_neg : d < 0) (hp_disc : p ∈ oddPrimeDiscriminantDivisors d)
-    (hsurj : Function.Surjective (mk0OnPrimeToNormIdeals d p))
-    (hprincipal : PrimeToNormPrincipalMultipliers d p) :
+    (hd_neg : d < 0) (hp_disc : p ∈ oddPrimeDiscriminantDivisors d) :
     squareClassSubgroup d ≤
       (genusCharacterOfPrimeToNormPrincipalMultipliers
-        d p hd_neg hp_disc hsurj hprincipal).ker := by
+        d p hd_neg hp_disc
+        (mk0OnPrimeToNormIdeals_surjective_of_mem_oddPrimeDiscriminantDivisors d p hp_disc)
+        (primeToNormPrincipalMultipliers_of_idealAvoidance d p)).ker := by
   intro C hC
   rw [squareClassSubgroup, _root_.ClassGroup.mem_squareSubgroup_iff] at hC
   rcases hC with ⟨D, rfl⟩
   rw [MonoidHom.mem_ker, map_pow]
   exact genusCharacterOfPrimeToNormPrincipalMultipliers_sq_eq_one
-    d p hd_neg hp_disc hsurj hprincipal D
+    d p hd_neg hp_disc
+    (mk0OnPrimeToNormIdeals_surjective_of_mem_oddPrimeDiscriminantDivisors d p hp_disc)
+    (primeToNormPrincipalMultipliers_of_idealAvoidance d p) D
 
 /-- A descended odd-prime genus character as a character on the principal-genus
 quotient `Cl / Cl²`. -/
 noncomputable def genusCharacterOnSquareClassQuotient
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (p : ℕ) [Fact p.Prime]
-    (hd_neg : d < 0) (hp_disc : p ∈ oddPrimeDiscriminantDivisors d)
-    (hsurj : Function.Surjective (mk0OnPrimeToNormIdeals d p))
-    (hprincipal : PrimeToNormPrincipalMultipliers d p) :
+    (hd_neg : d < 0) (hp_disc : p ∈ oddPrimeDiscriminantDivisors d) :
     ClassGroup (𝓞 (Qsqrtd (d : ℚ))) ⧸ squareClassSubgroup d →* ℤˣ :=
   QuotientGroup.lift (squareClassSubgroup d)
-    (genusCharacterOfPrimeToNormPrincipalMultipliers d p hd_neg hp_disc hsurj hprincipal)
+    (genusCharacterOfPrimeToNormPrincipalMultipliers d p hd_neg hp_disc
+      (mk0OnPrimeToNormIdeals_surjective_of_mem_oddPrimeDiscriminantDivisors d p hp_disc)
+      (primeToNormPrincipalMultipliers_of_idealAvoidance d p))
     (squareClassSubgroup_le_genusCharacterOfPrimeToNormPrincipalMultipliers_ker
-      d p hd_neg hp_disc hsurj hprincipal)
+      d p hd_neg hp_disc)
 
 /-- The character on `Cl / Cl²` agrees with the descended genus character after
 composing with the quotient map. -/
 theorem genusCharacterOnSquareClassQuotient_apply
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (p : ℕ) [Fact p.Prime]
     (hd_neg : d < 0) (hp_disc : p ∈ oddPrimeDiscriminantDivisors d)
-    (hsurj : Function.Surjective (mk0OnPrimeToNormIdeals d p))
-    (hprincipal : PrimeToNormPrincipalMultipliers d p)
     (C : ClassGroup (𝓞 (Qsqrtd (d : ℚ)))) :
-    genusCharacterOnSquareClassQuotient d p hd_neg hp_disc hsurj hprincipal C =
-      genusCharacterOfPrimeToNormPrincipalMultipliers d p hd_neg hp_disc hsurj hprincipal C := by
+    genusCharacterOnSquareClassQuotient d p hd_neg hp_disc C =
+      genusCharacterOfPrimeToNormPrincipalMultipliers d p hd_neg hp_disc
+        (mk0OnPrimeToNormIdeals_surjective_of_mem_oddPrimeDiscriminantDivisors d p hp_disc)
+        (primeToNormPrincipalMultipliers_of_idealAvoidance d p) C := by
   rfl
 
 end ClassGroup

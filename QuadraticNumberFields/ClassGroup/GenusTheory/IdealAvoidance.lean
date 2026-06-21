@@ -36,7 +36,8 @@ This is the Dedekind-domain approximation input needed before the odd genus
 characters can be made unconditional. -/
 theorem exists_mk0_eq_and_forall_not_dvd_absNorm_of_finset
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
-    (S : Finset ℕ) (C : ClassGroup (𝓞 (Qsqrtd (d : ℚ)))) :
+    (S : Finset ℕ) (hS : ∀ p ∈ S, Nat.Prime p)
+    (C : ClassGroup (𝓞 (Qsqrtd (d : ℚ)))) :
     ∃ I : (Ideal (𝓞 (Qsqrtd (d : ℚ))))⁰,
       ClassGroup.mk0 I = C ∧
         ∀ p ∈ S,
@@ -54,7 +55,8 @@ theorem exists_mk0_eq_and_forall_not_dvd_absNorm_oddPrimeDiscriminantDivisors
         ∀ P : {p // p ∈ oddPrimeDiscriminantDivisors d},
           ¬ (P.1 : ℤ) ∣ (Ideal.absNorm (I : Ideal (𝓞 (Qsqrtd (d : ℚ)))) : ℤ) := by
   rcases exists_mk0_eq_and_forall_not_dvd_absNorm_of_finset
-      d (oddPrimeDiscriminantDivisors d) C with
+      d (oddPrimeDiscriminantDivisors d)
+      (fun p hp => prime_of_mem_oddPrimeDiscriminantDivisors hp) C with
     ⟨I, hC, hI⟩
   exact ⟨I, hC, fun P => hI P.1 P.2⟩
 
