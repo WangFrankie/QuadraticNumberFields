@@ -66,10 +66,11 @@ theorem genus_divisibility_of_surjective_quotient
   simpa [NumberField.classNumber] using Subgroup.card_dvd_of_surjective φ hφ
 
 /-- The subgroup of ideal classes that are squares. In genus theory this is the
-principal genus, and the quotient `Cl / Cl²` is the genus quotient. -/
+principal genus, and the quotient `Cl / Cl²` is the genus quotient. This is the
+generic `ClassGroup.squareSubgroup` specialized to `𝓞(ℚ(√d))`. -/
 noncomputable def squareClassSubgroup (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
     Subgroup (ClassGroup (𝓞 (Qsqrtd (d : ℚ)))) :=
-  (powMonoidHom (α := ClassGroup (𝓞 (Qsqrtd (d : ℚ)))) 2).range
+  _root_.ClassGroup.squareSubgroup (𝓞 (Qsqrtd (d : ℚ)))
 
 /-- The square-class quotient `Cl / Cl²` for `𝓞(ℚ(√d))`. -/
 noncomputable abbrev squareClassQuotient
@@ -86,15 +87,13 @@ noncomputable instance instFintypeSquareClassQuotient
     Fintype (squareClassQuotient d) :=
   Fintype.ofFinite _
 
-/-- The genus-theory square subgroup agrees with the generic square-subgroup API
-for ideal class groups. -/
+/-- The genus-theory square subgroup is definitionally the generic square-subgroup
+API for ideal class groups. -/
 theorem squareClassSubgroup_eq_squareSubgroup
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
     squareClassSubgroup d =
-      _root_.ClassGroup.squareSubgroup (𝓞 (Qsqrtd (d : ℚ))) := by
-  simpa [squareClassSubgroup] using
-    (_root_.ClassGroup.squareSubgroup_eq_powMonoidHom_range
-      (𝓞 (Qsqrtd (d : ℚ)))).symm
+      _root_.ClassGroup.squareSubgroup (𝓞 (Qsqrtd (d : ℚ))) :=
+  rfl
 
 /-- The quotient `Cl / Cl²` has the same cardinality as the kernel of the square map on
 the class group. This is the finite-group algebra behind the two-torsion formulation
@@ -107,7 +106,7 @@ theorem card_squareClassSubgroup_quotient_eq_card_powMonoidHom_ker
   haveI : (powMonoidHom (α := ClassGroup (𝓞 (Qsqrtd (d : ℚ)))) 2).ker.FiniteIndex :=
     Subgroup.finiteIndex_of_finite
   rw [← Subgroup.index_eq_card]
-  rw [squareClassSubgroup]
+  rw [squareClassSubgroup, _root_.ClassGroup.squareSubgroup_eq_powMonoidHom_range]
   rw [Subgroup.index_range]
 
 /-- The square-class quotient `Cl / Cl²` has the same cardinality as the
@@ -160,8 +159,9 @@ theorem squareClassSubgroup_le_genusCharacterOfPrimeToNormPrincipalMultipliers_k
       (genusCharacterOfPrimeToNormPrincipalMultipliers
         d p hd_neg hp_disc hsurj hprincipal).ker := by
   intro C hC
+  rw [squareClassSubgroup, _root_.ClassGroup.mem_squareSubgroup_iff] at hC
   rcases hC with ⟨D, rfl⟩
-  rw [MonoidHom.mem_ker, powMonoidHom_apply, map_pow]
+  rw [MonoidHom.mem_ker, map_pow]
   exact genusCharacterOfPrimeToNormPrincipalMultipliers_sq_eq_one
     d p hd_neg hp_disc hsurj hprincipal D
 

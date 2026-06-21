@@ -65,8 +65,12 @@ theorem genus_divisibility_of_oddGenusCharacterProduct_surjective_of_discr_odd
 /-- The standard genus formula for the principal-genus quotient
 `Cl(𝓞(ℚ(√d))) / Cl(𝓞(ℚ(√d)))²`: its cardinality is `2 ^ (t - 1)`, where `t` is the
 number of prime-discriminant factors. In the literature this is the statement that
-`Cl / Cl²` is the genus group and each genus contains exactly `2 ^ (t - 1)` classes,
-or equivalently `#Cl[2] = 2 ^ (t - 1)`. -/
+`Cl / Cl²` is the genus group whose order — the *number of genera* — is `2 ^ (t - 1)`,
+equivalently `#Cl[2] = 2 ^ (t - 1)`.
+
+This is stated for all parameters `d`, but is only established in the imaginary
+(`d < 0`) branch downstream; every theorem proving it carries an explicit `d < 0`
+hypothesis. -/
 def genusFormula (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] : Prop :=
   Nat.card (ClassGroup (𝓞 (Qsqrtd (d : ℚ))) ⧸ squareClassSubgroup d) =
     2 ^ (primeDiscriminantFactorCount d - 1)
