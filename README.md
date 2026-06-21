@@ -31,7 +31,8 @@ import Examples
 - Dedekind-domain characterization for the project-owned `ℤ[√d]` model.
 - Galois, conjugation, totally real/totally complex/CM, prime-splitting, and
   concrete `ℤ[√(-5)]` ideal-theory examples.
-- A basic class-number interface for standard quadratic fields.
+- An ideal-theoretic class-number interface for standard quadratic fields, with
+  form-based computation kept in a separate app-layer library.
 
 ## Documentation
 
@@ -79,8 +80,11 @@ jupyter lab Examples/Notebook/ClassNumber.ipynb
 ## Development Notes
 
 - `QuadraticNumberFields.lean` is the core quadratic-number-field entry point.
+- `QuadraticNumberFields/ClassGroup/` owns the non-forms class-number,
+  small-norm, Minkowski, and genus-theory interfaces.
 - `FormClassGroup.lean` re-exports the QNF-dependent binary-quadratic-form
-  route to imaginary quadratic class groups.
+  route to imaginary quadratic class groups. It is a backend, not the core
+  class-group layer.
 - `ImaginaryClassNumberOne.lean` re-exports the Heegner class-number-one and
   Baker--Heegner--Stark app layer.
 - `Examples.lean` re-exports concrete examples and computed class-group

@@ -243,8 +243,9 @@ Key declarations include `factorization_of_two`,
 
 Files under `QuadraticNumberFields/ClassGroup/`
 
-The stable library specializes mathlib's Minkowski ideal-class representative
-bound to `Qsqrtd d` and owns the unified class-number interface:
+This is the non-forms class-group layer. The stable library specializes
+mathlib's Minkowski ideal-class representative bound to `Qsqrtd d` and owns the
+unified class-number interface:
 
 - `ClassGroup/ClassNumber.lean`: `classNumberQsqrtd` and the bridge from trivial
   ideal class group to class number one.
@@ -256,8 +257,9 @@ bound to `Qsqrtd d` and owns the unified class-number interface:
   `Qsqrtd.exists_ideal_in_class_of_norm_le_real`.
 
 The Heegner wrappers for this interface live in
-`ImaginaryClassNumberOne/ClassNumberBridge.lean`, while the reduced-form
-cardinality bridge lives under `FormClassGroup/ClassGroup/`.
+`ImaginaryClassNumberOne/ClassNumberBridge.lean`. Reduced-form cardinality and
+transported form-class-group structure live under `FormClassGroup/ClassGroup/`
+and should be treated as a backend over this ideal/class-number layer.
 
 ## Core Lean Objects
 
@@ -351,7 +353,7 @@ results, examples, and remaining research-oriented scaffolding.
 │   ├── ZOnePlusSqrtOverTwo/
 │   │   └── Basic.lean
 │   ├── Splitting/                    # prime splitting
-│   ├── ClassGroup/                   # class-number, class-group, and genus theory
+│   ├── ClassGroup/                   # non-forms class-number, small-norm, genus theory
 │   ├── ContinuedFraction/            # continued-fraction scaffolding
 │   ├── Units/                        # unit and Pell scaffolding
 │   ├── Families/                     # real-quadratic family scaffolding
@@ -364,6 +366,9 @@ results, examples, and remaining research-oriented scaffolding.
 │   └── Computable/
 ├── ImaginaryClassNumberOne.lean      # Heegner and Baker--Heegner--Stark layer
 ├── ImaginaryClassNumberOne/
+│   ├── ClassNumberOne.lean
+│   ├── IdealReductions.lean
+│   ├── StarkHeegner.lean
 │   └── WeberData/
 ├── Examples.lean                     # concrete examples entry point
 ├── Examples/

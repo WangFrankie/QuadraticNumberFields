@@ -126,7 +126,7 @@ theorem isTotallyReal (hd : 0 < d) :
 
 /-- An imaginary quadratic field `Q(√d)` with `d < 0` is totally complex:
 no embedding into `ℂ` has image contained in `ℝ`. -/
-theorem isTotallyComplex (hd : d < 0) :
+instance isTotallyComplex (hd : d < 0) :
     NumberField.IsTotallyComplex (Qsqrtd (d : ℚ)) := by
   exact {
     isComplex := fun v => by
@@ -143,10 +143,26 @@ theorem isTotallyComplex (hd : d < 0) :
   }
 
 /-- An imaginary quadratic field `Q(√d)` with `d < 0` is a CM field. -/
-theorem isCMField (hd : d < 0) :
+instance isCMField (hd : d < 0) :
     NumberField.IsCMField (Qsqrtd (d : ℚ)) := by
   letI := isTotallyComplex d hd
   exact NumberField.IsCMField.ofCMExtension ℚ (Qsqrtd (d : ℚ))
+
+/-- An imaginary quadratic field `ℚ(√d)` has one complex place. -/
+theorem nrComplexPlaces_eq_one_of_neg (hd : d < 0) :
+    NumberField.InfinitePlace.nrComplexPlaces (Qsqrtd (d : ℚ)) = 1 := by
+  haveI := isTotallyComplex d hd
+  have hfin := finrank_ratAlgebra_eq_two (d : ℚ)
+  have hc := NumberField.IsTotallyComplex.finrank (Qsqrtd (d : ℚ))
+  have h : 2 = 2 * NumberField.InfinitePlace.nrComplexPlaces (Qsqrtd (d : ℚ)) :=
+    hfin.symm.trans hc
+  omega
+
+/-- A real quadratic field `ℚ(√d)` has no complex places. -/
+theorem nrComplexPlaces_eq_zero_of_pos (hd : 0 < d) :
+    NumberField.InfinitePlace.nrComplexPlaces (Qsqrtd (d : ℚ)) = 0 := by
+  haveI := isTotallyReal d hd
+  exact NumberField.IsTotallyReal.nrComplexPlaces_eq_zero (Qsqrtd (d : ℚ))
 
 end InfinitePlaceClassification
 

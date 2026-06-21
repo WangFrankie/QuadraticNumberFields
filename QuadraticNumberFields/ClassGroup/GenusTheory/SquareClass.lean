@@ -5,6 +5,7 @@ Authors: Frankie Wang
 -/
 
 import Mathlib.GroupTheory.Index
+import QuadraticNumberFields.ClassGroup.Basic
 import QuadraticNumberFields.ClassGroup.GenusTheory.Characters
 
 /-!
@@ -70,6 +71,31 @@ noncomputable def squareClassSubgroup (d : ℤ) [Fact (Squarefree d)] [Fact (d �
     Subgroup (ClassGroup (𝓞 (Qsqrtd (d : ℚ)))) :=
   (powMonoidHom (α := ClassGroup (𝓞 (Qsqrtd (d : ℚ)))) 2).range
 
+/-- The square-class quotient `Cl / Cl²` for `𝓞(ℚ(√d))`. -/
+noncomputable abbrev squareClassQuotient
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :=
+  ClassGroup (𝓞 (Qsqrtd (d : ℚ))) ⧸ squareClassSubgroup d
+
+noncomputable instance instFintypeSquareClassSubgroup
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
+    Fintype (squareClassSubgroup d) :=
+  Fintype.ofFinite _
+
+noncomputable instance instFintypeSquareClassQuotient
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
+    Fintype (squareClassQuotient d) :=
+  Fintype.ofFinite _
+
+/-- The genus-theory square subgroup agrees with the generic square-subgroup API
+for ideal class groups. -/
+theorem squareClassSubgroup_eq_squareSubgroup
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
+    squareClassSubgroup d =
+      _root_.ClassGroup.squareSubgroup (𝓞 (Qsqrtd (d : ℚ))) := by
+  simpa [squareClassSubgroup] using
+    (_root_.ClassGroup.squareSubgroup_eq_powMonoidHom_range
+      (𝓞 (Qsqrtd (d : ℚ)))).symm
+
 /-- The quotient `Cl / Cl²` has the same cardinality as the kernel of the square map on
 the class group. This is the finite-group algebra behind the two-torsion formulation
 of genus theory. -/
@@ -83,6 +109,18 @@ theorem card_squareClassSubgroup_quotient_eq_card_powMonoidHom_ker
   rw [← Subgroup.index_eq_card]
   rw [squareClassSubgroup]
   rw [Subgroup.index_range]
+
+/-- The square-class quotient `Cl / Cl²` has the same cardinality as the
+two-torsion subgroup `Cl[2]`. -/
+theorem card_squareClassQuotient_eq_card_twoTorsionSubgroup
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
+    Nat.card (squareClassQuotient d) =
+      Nat.card (_root_.ClassGroup.twoTorsionSubgroup (𝓞 (Qsqrtd (d : ℚ)))) := by
+  letI := _root_.NumberField.RingOfIntegers.instFintypeClassGroup (Qsqrtd (d : ℚ))
+  simpa [squareClassQuotient, _root_.ClassGroup.squareQuotient,
+    squareClassSubgroup_eq_squareSubgroup d] using
+    (_root_.ClassGroup.card_squareQuotient_eq_card_twoTorsionSubgroup
+      (𝓞 (Qsqrtd (d : ℚ))))
 
 /-! ## Squares lie in the principal genus -/
 

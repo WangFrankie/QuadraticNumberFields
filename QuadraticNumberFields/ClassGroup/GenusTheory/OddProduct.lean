@@ -39,6 +39,13 @@ def OddGenusPrimeToNormPrincipalMultipliers
   ∀ (p : ℕ) [Fact p.Prime], p ∈ oddPrimeDiscriminantDivisors d →
     PrimeToNormPrincipalMultipliers d p
 
+/-- Principal-multiplier approximation supplies the uniform odd-prime descent input. -/
+theorem oddGenusPrimeToNormPrincipalMultipliers_of_idealAvoidance
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
+    OddGenusPrimeToNormPrincipalMultipliers d := by
+  intro p _hp _hp_disc
+  exact primeToNormPrincipalMultipliers_of_idealAvoidance d p
+
 /-- A simultaneous representative theorem implies the prime-to-norm surjectivity
 input needed for all odd-prime genus characters. -/
 theorem oddGenusPrimeToNormSurjective_of_forall_mk0_eq_of_forall_not_dvd_absNorm

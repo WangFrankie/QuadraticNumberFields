@@ -46,6 +46,8 @@ noncomputable def genusCharacterRaw (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠
     [Fact p.Prime] (I : Ideal (𝓞 (Qsqrtd (d : ℚ)))) : ℤ :=
   legendreSym p (Ideal.absNorm I : ℤ)
 
+local notation "χ" => genusCharacterRaw
+-- valuable [GenusCharacterRaw] -- for `χ` notation
 /-- The raw genus character is multiplicative: `χ_p(I·J) = χ_p(I)·χ_p(J)`. -/
 theorem genusCharacterRaw_mul
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (p : ℕ) [Fact p.Prime]

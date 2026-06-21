@@ -28,12 +28,24 @@ attribute [-instance] DivisionRing.toRatAlgebra
 
 local notation "𝓞" => _root_.NumberField.RingOfIntegers
 
-/-- **Ideal-avoidance representative theorem.** Every ideal class has an
-integral ideal representative whose absolute norm is prime to every odd rational
-prime dividing the field discriminant.
+/-- **Finite-prime ideal-avoidance representative theorem.** Every ideal class
+has an integral ideal representative whose absolute norm is prime to every
+rational prime in a prescribed finite set.
 
 This is the Dedekind-domain approximation input needed before the odd genus
 characters can be made unconditional. -/
+theorem exists_mk0_eq_and_forall_not_dvd_absNorm_of_finset
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (S : Finset ℕ) (C : ClassGroup (𝓞 (Qsqrtd (d : ℚ)))) :
+    ∃ I : (Ideal (𝓞 (Qsqrtd (d : ℚ))))⁰,
+      ClassGroup.mk0 I = C ∧
+        ∀ p ∈ S,
+          ¬ (p : ℤ) ∣ (Ideal.absNorm (I : Ideal (𝓞 (Qsqrtd (d : ℚ)))) : ℤ) := by
+  sorry
+
+/-- **Ideal-avoidance representative theorem.** Every ideal class has an
+integral ideal representative whose absolute norm is prime to every odd rational
+prime dividing the field discriminant. -/
 theorem exists_mk0_eq_and_forall_not_dvd_absNorm_oddPrimeDiscriminantDivisors
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
     (C : ClassGroup (𝓞 (Qsqrtd (d : ℚ)))) :
@@ -41,7 +53,10 @@ theorem exists_mk0_eq_and_forall_not_dvd_absNorm_oddPrimeDiscriminantDivisors
       ClassGroup.mk0 I = C ∧
         ∀ P : {p // p ∈ oddPrimeDiscriminantDivisors d},
           ¬ (P.1 : ℤ) ∣ (Ideal.absNorm (I : Ideal (𝓞 (Qsqrtd (d : ℚ)))) : ℤ) := by
-  sorry
+  rcases exists_mk0_eq_and_forall_not_dvd_absNorm_of_finset
+      d (oddPrimeDiscriminantDivisors d) C with
+    ⟨I, hC, hI⟩
+  exact ⟨I, hC, fun P => hI P.1 P.2⟩
 
 /-- Single-prime form of the ideal-avoidance representative theorem. -/
 theorem exists_mk0_eq_and_not_dvd_absNorm_of_mem_oddPrimeDiscriminantDivisors
@@ -64,6 +79,15 @@ theorem mk0OnPrimeToNormIdeals_surjective_of_mem_oddPrimeDiscriminantDivisors
   mk0OnPrimeToNormIdeals_surjective_of_forall_mk0_eq_of_not_dvd_absNorm d p
     fun C => exists_mk0_eq_and_not_dvd_absNorm_of_mem_oddPrimeDiscriminantDivisors
       d p hp_disc C
+
+/-- Principal-multiplier approximation for the restricted prime-to-`p` class-group
+map. This is the missing ideal-theoretic input that removes the
+`PrimeToNormPrincipalMultipliers` hypothesis from the descended genus
+characters. -/
+theorem primeToNormPrincipalMultipliers_of_idealAvoidance
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (p : ℕ) [Fact p.Prime] :
+    PrimeToNormPrincipalMultipliers d p := by
+  sorry
 
 end ClassGroup
 end QuadraticNumberFields

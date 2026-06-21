@@ -22,6 +22,7 @@ classification-dependent statements.
 -/
 
 open scoped NumberField
+open _root_.Qsqrtd
 
 attribute [-instance] DivisionRing.toRatAlgebra
 
@@ -70,27 +71,6 @@ theorem norm_nonneg_of_neg {d : ℤ} (hd : d < 0) (x : Qsqrtd (d : ℚ)) :
   have hdq : ((d : ℤ) : ℚ) < 0 := by exact_mod_cast hd
   rw [RingOfIntegers.TraceNorm.norm_eq_sqr_minus_d_sqr]
   nlinarith [sq_nonneg x.re, sq_nonneg x.im]
-
-/-- The standard quadratic field `Qsqrtd d`, with mathlib's default
-`ℚ`-algebra structure, has degree two over `ℚ`. -/
-theorem finrank_defaultRatAlgebra_eq_two
-    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
-    @Module.finrank ℚ (Qsqrtd (d : ℚ)) _ _
-      (@Algebra.toModule ℚ (Qsqrtd (d : ℚ)) _ _ DivisionRing.toRatAlgebra) = 2 := by
-  haveI : Fact (¬ IsSquare ((d : ℤ) : ℚ)) :=
-    ⟨not_isSquare_ratCast_of_squarefree_ne_one (Fact.out : Squarefree d) (Fact.out : d ≠ 1)⟩
-  have hcompare :
-      @Module.finrank ℚ (Qsqrtd (d : ℚ)) _ _
-        (@Algebra.toModule ℚ (Qsqrtd (d : ℚ)) _ _ DivisionRing.toRatAlgebra) =
-        @Module.finrank ℚ (Qsqrtd (d : ℚ)) _ _
-          (@Algebra.toModule ℚ (Qsqrtd (d : ℚ)) _ _ QuadraticAlgebra.instAlgebra) := by
-    symm
-    refine @Algebra.finrank_eq_of_equiv_equiv ℚ (Qsqrtd (d : ℚ)) _ _
-      QuadraticAlgebra.instAlgebra ℚ (Qsqrtd (d : ℚ)) _ _ DivisionRing.toRatAlgebra
-      (RingEquiv.refl ℚ) (RingEquiv.refl (Qsqrtd (d : ℚ))) ?_
-    exact RingHom.ext_rat _ _
-  rw [hcompare]
-  exact QuadraticAlgebra.finrank_eq_two (d : ℚ) 0
 
 end Qsqrtd
 
@@ -273,7 +253,7 @@ theorem absNorm_span_intCast [NumberField (Qsqrtd (d : ℚ))] (n : ℤ) :
     (Algebra.norm_algebraMap_of_basis
       (NumberField.RingOfIntegers.basis (Qsqrtd (d : ℚ))) n).trans (by
         rw [← Module.finrank_eq_card_chooseBasisIndex])
-  rw [hnorm, NumberField.RingOfIntegers.rank, Qsqrtd.finrank_defaultRatAlgebra_eq_two d]
+  rw [hnorm, NumberField.RingOfIntegers.rank, finrank_ratAlgebra_eq_two (d : ℚ)]
 
 end SquarefreeIntegerParameter
 

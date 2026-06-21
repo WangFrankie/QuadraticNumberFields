@@ -27,6 +27,7 @@ and 23.2.
 open scoped NumberField Real
 
 open Module NumberField InfinitePlace Ideal Nat
+open Qsqrtd
 
 namespace QuadraticNumberFields
 
@@ -35,66 +36,25 @@ namespace QuadraticNumberFields
 -- when matching mathlib's generic number-field API.
 attribute [-instance] DivisionRing.toRatAlgebra
 
+-- Same definition in 'Mathlib.NumberTheory.NumberField.ClassNumber'
 local notation "N " K:70 => @finrank ℚ K _ _ (@Algebra.toModule ℚ K _ _ DivisionRing.toRatAlgebra)
 local notation "M " K:70 => (4 / π) ^ nrComplexPlaces K *
   (((N K)! : ℝ) / (N K) ^ (N K) * √|discr K|)
 
 namespace Qsqrtd
 
-private theorem finrank_defaultRatAlgebra_eq_two
-    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
-    N (Qsqrtd (d : ℚ)) = 2 := by
-  haveI : Fact (¬ IsSquare ((d : ℤ) : ℚ)) :=
-    ⟨not_isSquare_ratCast_of_squarefree_ne_one (Fact.out : Squarefree d) (Fact.out : d ≠ 1)⟩
-  have hcompare :
-      N (Qsqrtd (d : ℚ)) =
-        @Module.finrank ℚ (Qsqrtd (d : ℚ)) _ _
-          (@Algebra.toModule ℚ (Qsqrtd (d : ℚ)) _ _ QuadraticAlgebra.instAlgebra) := by
-    symm
-    refine @Algebra.finrank_eq_of_equiv_equiv ℚ (Qsqrtd (d : ℚ)) _ _
-      QuadraticAlgebra.instAlgebra ℚ (Qsqrtd (d : ℚ)) _ _ DivisionRing.toRatAlgebra
-      (RingEquiv.refl ℚ) (RingEquiv.refl (Qsqrtd (d : ℚ))) ?_
-    exact RingHom.ext_rat _ _
-  rw [hcompare]
-  exact QuadraticAlgebra.finrank_eq_two (d : ℚ) 0
-
-/-- An imaginary quadratic field `ℚ(√d)` has one complex place. -/
-theorem nrComplexPlaces_eq_one_of_neg
-    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : d < 0) :
-    nrComplexPlaces (Qsqrtd (d : ℚ)) = 1 := by
-  haveI : Fact (¬ IsSquare ((d : ℤ) : ℚ)) :=
-    ⟨not_isSquare_ratCast_of_squarefree_ne_one (Fact.out : Squarefree d) (Fact.out : d ≠ 1)⟩
-  letI : NumberField.IsTotallyComplex (Qsqrtd (d : ℚ)) := Qsqrtd.isTotallyComplex d hd
-  have hfin := finrank_defaultRatAlgebra_eq_two d
-  have hc := NumberField.IsTotallyComplex.finrank (Qsqrtd (d : ℚ))
-  have h : 2 = 2 * nrComplexPlaces (Qsqrtd (d : ℚ)) :=
-    hfin.symm.trans hc
-  omega
-
-/-- A real quadratic field `ℚ(√d)` has no complex places. -/
-theorem nrComplexPlaces_eq_zero_of_pos
-    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : 0 < d) :
-    nrComplexPlaces (Qsqrtd (d : ℚ)) = 0 := by
-  haveI : Fact (¬ IsSquare ((d : ℤ) : ℚ)) :=
-    ⟨not_isSquare_ratCast_of_squarefree_ne_one (Fact.out : Squarefree d) (Fact.out : d ≠ 1)⟩
-  letI : NumberField.IsTotallyReal (Qsqrtd (d : ℚ)) := Qsqrtd.isTotallyReal d hd
-  exact NumberField.IsTotallyReal.nrComplexPlaces_eq_zero (Qsqrtd (d : ℚ))
-
 private theorem minkowskiConstant_eq_imaginary
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : d < 0) :
     M (Qsqrtd (d : ℚ)) = (2 / π) * √ |(discr (Qsqrtd (d : ℚ)) : ℝ)| := by
   rw [nrComplexPlaces_eq_one_of_neg d hd]
-  have hfin := finrank_defaultRatAlgebra_eq_two d
-  rw [hfin]
-  norm_num
+  rw [finrank_ratAlgebra_eq_two]
   ring
 
 private theorem minkowskiConstant_eq_real
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : 0 < d) :
     M (Qsqrtd (d : ℚ)) = (1 / 2) * √ |(discr (Qsqrtd (d : ℚ)) : ℝ)| := by
   rw [nrComplexPlaces_eq_zero_of_pos d hd]
-  have hfin := finrank_defaultRatAlgebra_eq_two d
-  rw [hfin]
+  rw [finrank_ratAlgebra_eq_two]
   norm_num
 
 /-- In an imaginary quadratic field `ℚ(√d)`, every ideal class has a representative

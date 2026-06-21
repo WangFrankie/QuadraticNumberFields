@@ -55,4 +55,5 @@ openspec/
 
 #Local Files
 docs/local/
-.*.local
+*.*.local
+*.local.*
