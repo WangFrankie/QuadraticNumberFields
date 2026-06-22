@@ -48,15 +48,12 @@ cohomology.
 
 ## Status
 
-The headline theorem `card_classGroup_twoTorsion_eq` carries the only `sorry`,
-pinned exactly on the ambiguous class number formula — the real mathematical
-boundary, visible to `sorryAx`/`lean_verify` audits, not hidden behind any
-provider or hypothesis.
-
-The ambiguous-class API (`σ`-action on `Cl`, `σ([I]) = [I]⁻¹`,
-`ambiguous = Cl[2]`) is the next slice. It requires an induced class-group
-automorphism `ClassGroup.map` along a ring automorphism, which mathlib does not
-currently provide; it will be built here rather than faked.
+The current proof boundary is explicit. The prime-norm formula is available via
+`Ideal.relNorm_eq_pow_of_isPrime_isGalois`; the remaining local boundary is the
+Galois-orbit calculation identifying extension of the norm prime power with
+`P · σ(P)`, where `σ = conjAutRingOfIntegers K`. The full multiplicative
+assembly for arbitrary ideals and the final ambiguous class number formula remain
+separate visible `sorry`s, not hidden behind provider hypotheses.
 -/
 
 open scoped NumberField nonZeroDivisors
@@ -149,6 +146,43 @@ theorem map_conjAut_mem_nonZeroDivisors {I : Ideal (𝓞 K)}
   simp only [mem_nonZeroDivisors_iff_ne_zero, ne_eq, Ideal.zero_eq_bot,
     Ideal.map_eq_bot_iff_le_ker, RingHom.ker_coe_equiv, le_bot_iff] at hI ⊢
   exact hI
+
+omit [QuadraticField.Conj K] in
+/-- For a nonzero prime ideal `P` of `𝓞 K`, its relative ideal norm over `ℤ` is
+the prime below `P`, raised to the inertia degree. This is the specialized form
+of mathlib's Galois prime-norm formula needed for the ambiguous-product
+identity. -/
+theorem relNorm_eq_comap_pow_inertiaDeg_of_isPrime (P : Ideal (𝓞 K)) [P.IsPrime]
+    (hP0 : P ≠ ⊥) :
+    Ideal.relNorm ℤ P =
+      (P.comap (algebraMap ℤ (𝓞 K))) ^ (P.comap (algebraMap ℤ (𝓞 K))).inertiaDeg P := by
+  haveI : P.IsMaximal := Ideal.IsPrime.isMaximal inferInstance hP0
+  haveI : (P.comap (algebraMap ℤ (𝓞 K))).IsMaximal :=
+    Ideal.isMaximal_comap_of_isIntegral_of_isMaximal P
+  exact Ideal.relNorm_eq_pow_of_isPrime_isGalois P (P.comap (algebraMap ℤ (𝓞 K)))
+
+/-- Prime-ideal form of the remaining Galois-orbit boundary: extending the norm
+prime power back to `𝓞 K` gives the product of `P` with its conjugate. The open
+part is the identification of the Galois action on primes over
+`P.comap (algebraMap ℤ (𝓞 K))` with `conjAutRingOfIntegers K`. -/
+theorem map_comap_pow_inertiaDeg_eq_mul_map_conjAut_of_isPrime
+    (P : Ideal (𝓞 K)) [P.IsPrime] (hP0 : P ≠ ⊥) :
+    Ideal.map (algebraMap ℤ (𝓞 K))
+        ((P.comap (algebraMap ℤ (𝓞 K))) ^
+          (P.comap (algebraMap ℤ (𝓞 K))).inertiaDeg P) =
+      P * Ideal.map (conjAutRingOfIntegers K : 𝓞 K →+* 𝓞 K) P := by
+  sorry
+
+/-- Prime-ideal case of the crux identity. This reduces the full
+ambiguous-product identity to the Galois-orbit calculation on a single nonzero
+prime ideal, plus the already-proved `⊥` case. -/
+theorem mul_map_conjAut_eq_map_relNorm_of_isPrime (P : Ideal (𝓞 K)) [P.IsPrime] :
+    P * Ideal.map (conjAutRingOfIntegers K : 𝓞 K →+* 𝓞 K) P =
+      Ideal.map (algebraMap ℤ (𝓞 K)) (Ideal.relNorm ℤ P) := by
+  by_cases hP0 : P = ⊥
+  · simp [hP0, Ideal.relNorm_bot]
+  · rw [relNorm_eq_comap_pow_inertiaDeg_of_isPrime P hP0,
+      map_comap_pow_inertiaDeg_eq_mul_map_conjAut_of_isPrime P hP0]
 
 /-- **Crux identity (boundary).** The product `I · σ(I)` of an ideal with its
 conjugate equals the extension to `𝓞 K` of the relative norm `relNorm ℤ I`. This
