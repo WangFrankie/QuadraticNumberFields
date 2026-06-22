@@ -531,15 +531,17 @@ end Bridge
 
 /-! ## Genus-theory trunk -/
 
-/-- The ambiguous ideal classes, expressed through the inversion action on the
-class group. For quadratic fields, `mk0_map_conjAut_eq_inv` identifies this with
-the classes fixed by conjugation. -/
-def AmbiguousClass (R : Type*) [CommRing R] [IsDomain R] :=
+/-- The ideal classes fixed by inversion. For quadratic fields,
+`mk0_map_conjAut_eq_inv` identifies conjugation-fixed classes with these
+inversion-fixed classes, hence with `Cl[2]`. This is the result-side object used
+by the genus-theory trunk, not the general Galois fixed-class API for the
+ambiguous class number formula. -/
+def InversionFixedClass (R : Type*) [CommRing R] [IsDomain R] :=
   {C : _root_.ClassGroup R // C = C⁻¹}
 
 /-- The two-torsion subgroup is equivalent to the inversion-fixed classes. -/
-def twoTorsionEquivAmbiguousClass (R : Type*) [CommRing R] [IsDomain R] :
-    _root_.ClassGroup.twoTorsion R ≃ AmbiguousClass R where
+def twoTorsionEquivInversionFixedClass (R : Type*) [CommRing R] [IsDomain R] :
+    _root_.ClassGroup.twoTorsion R ≃ InversionFixedClass R where
   toFun C := by
     refine ⟨(C : _root_.ClassGroup R), ?_⟩
     have hpow : (C : _root_.ClassGroup R) ^ 2 = 1 := by
@@ -564,33 +566,34 @@ def twoTorsionEquivAmbiguousClass (R : Type*) [CommRing R] [IsDomain R] :
 /-- The two-torsion subgroup has the same cardinality as the inversion-fixed
 classes. This is the formal version of "`σ`-fixed = `Cl[2]`" after
 `mk0_map_conjAut_eq_inv`. -/
-theorem card_twoTorsion_eq_card_ambiguousClass
+theorem card_twoTorsion_eq_card_inversionFixedClass
     (R : Type*) [CommRing R] [IsDomain R] :
-    Nat.card (_root_.ClassGroup.twoTorsion R) = Nat.card (AmbiguousClass R) :=
-  Nat.card_congr (twoTorsionEquivAmbiguousClass R)
+    Nat.card (_root_.ClassGroup.twoTorsion R) = Nat.card (InversionFixedClass R) :=
+  Nat.card_congr (twoTorsionEquivInversionFixedClass R)
 
-/-- **Ambiguous class number formula, indexed by odd ramified primes.** In the
+/-- **Inversion-fixed class count, indexed by odd ramified primes.** In the
 odd fundamental-discriminant branch, all ramified rational primes are odd and
-are represented by `oddPrimeDiscriminantDivisors d`. This is the cohomological
-core of the genus-theory trunk: Hilbert 90 and the ambiguous ideal sequence give
-one binary generator per ramified prime, modulo the single global norm relation. -/
-theorem card_ambiguousClass_eq_of_oddPrimeDiscriminantDivisors
+are represented by `oddPrimeDiscriminantDivisors d`. This is the `Cl[2]`
+cardinality form supplied mathematically by the ambiguous class number formula:
+after `mk0_map_conjAut_eq_inv`, conjugation-fixed ideal classes are identified
+with these inversion-fixed classes. -/
+theorem card_inversionFixedClass_eq_of_oddPrimeDiscriminantDivisors
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd_neg : d < 0) (hd4 : d % 4 = 1) :
-    Nat.card (AmbiguousClass (𝓞 (Qsqrtd (d : ℚ)))) =
+    Nat.card (InversionFixedClass (𝓞 (Qsqrtd (d : ℚ)))) =
       2 ^ ((oddPrimeDiscriminantDivisors d).card - 1) := by
   sorry
 
-/-- **Ambiguous class number formula, odd-discriminant quadratic case.** This
+/-- **Inversion-fixed class count, odd-discriminant quadratic case.** This
 rewrites the odd-ramified-prime form of the formula using the closed
 discriminant prime-factor count `primeDiscriminantFactorCount`. -/
-theorem card_ambiguousClass_eq
+theorem card_inversionFixedClass_eq
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd_neg : d < 0) (hd4 : d % 4 = 1) :
-    Nat.card (AmbiguousClass (𝓞 (Qsqrtd (d : ℚ)))) =
+    Nat.card (InversionFixedClass (𝓞 (Qsqrtd (d : ℚ)))) =
       2 ^ (primeDiscriminantFactorCount d - 1) := by
   have hodd : RingOfIntegers.discrFormula d % 2 ≠ 0 :=
     (RingOfIntegers.discrFormula_odd_iff_mod_four_eq_one d).2 hd4
   rw [← card_oddPrimeDiscriminantDivisors_eq_primeDiscriminantFactorCount_of_discr_odd d hodd]
-  exact card_ambiguousClass_eq_of_oddPrimeDiscriminantDivisors d hd_neg hd4
+  exact card_inversionFixedClass_eq_of_oddPrimeDiscriminantDivisors d hd_neg hd4
 
 /-- Genus-theory trunk: the number of genera. For an imaginary quadratic field
 `ℚ(√d)` with odd fundamental discriminant (`d % 4 = 1`), the two-torsion subgroup of
@@ -603,8 +606,8 @@ theorem card_classGroup_twoTorsion_eq
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd_neg : d < 0) (hd4 : d % 4 = 1) :
     Nat.card (_root_.ClassGroup.twoTorsion (𝓞 (Qsqrtd (d : ℚ)))) =
       2 ^ (primeDiscriminantFactorCount d - 1) := by
-  rw [card_twoTorsion_eq_card_ambiguousClass]
-  exact card_ambiguousClass_eq d hd_neg hd4
+  rw [card_twoTorsion_eq_card_inversionFixedClass]
+  exact card_inversionFixedClass_eq d hd_neg hd4
 
 end ClassGroup
 end QuadraticNumberFields
