@@ -7,6 +7,7 @@ Authors: Frankie Wang
 import Mathlib.GroupTheory.Index
 import QuadraticNumberFields.ClassGroup.Basic
 import QuadraticNumberFields.ClassGroup.GenusTheory.CoprimeRepresentatives
+import QuadraticNumberFields.ClassGroup.Torsion
 
 /-!
 # Genus-Theory Square Classes
