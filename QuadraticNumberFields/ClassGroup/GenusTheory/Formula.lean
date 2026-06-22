@@ -5,6 +5,7 @@ Authors: Frankie Wang
 -/
 
 import QNFMathlib.GroupTheory.Index
+import QuadraticNumberFields.ClassGroup.Ambiguous
 import QuadraticNumberFields.ClassGroup.GenusTheory.OddProduct
 
 /-!
@@ -87,12 +88,17 @@ with odd fundamental discriminant (`d % 4 = 1`), the principal-genus quotient
 This is the public proof boundary for the odd genus-theory route. Downstream
 class-number-one and Baker--Heegner--Stark statements should call this theorem
 directly rather than threading the product-relation, surjectivity, or
-principal-kernel inputs as hypotheses. -/
+principal-kernel inputs as hypotheses.
+
+The genus formula is now reduced to the genus-theory trunk
+`card_classGroup_twoTorsion_eq` (`#Cl[2] = 2^{t-1}`), whose proof boundary is the
+ambiguous class number formula; see `QuadraticNumberFields.ClassGroup.Ambiguous`. -/
 theorem genusFormula_of_mod_four_eq_one
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd_neg : d < 0)
     (hd4 : d % 4 = 1) :
-    genusFormula d := by
-  sorry
+    genusFormula d :=
+  (genusFormula_iff_card_powMonoidHom_ker d).mpr
+    (card_classGroup_twoTorsion_eq d hd_neg hd4)
 
 /-- If the relation-subgroup-valued odd genus-character product is bijective and
 the relation subgroup has the expected cardinality, then the standard genus
