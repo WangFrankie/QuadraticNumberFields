@@ -184,6 +184,19 @@ theorem mul_map_conjAut_eq_map_relNorm_of_isPrime (P : Ideal (𝓞 K)) [P.IsPrim
   · rw [relNorm_eq_comap_pow_inertiaDeg_of_isPrime P hP0,
       map_comap_pow_inertiaDeg_eq_mul_map_conjAut_of_isPrime P hP0]
 
+/-- Multiplicative assembly of the ambiguous-product identity from the prime
+ideal case. Both sides are multiplicative in `I`; this is the Dedekind-domain
+factorization step that turns the prime-orbit calculation into the identity for
+all ideals. -/
+theorem mul_map_conjAut_eq_map_relNorm_of_prime_cases
+    (hprime : ∀ P : Ideal (𝓞 K), P.IsPrime →
+      P * Ideal.map (conjAutRingOfIntegers K : 𝓞 K →+* 𝓞 K) P =
+        Ideal.map (algebraMap ℤ (𝓞 K)) (Ideal.relNorm ℤ P))
+    (I : Ideal (𝓞 K)) :
+    I * Ideal.map (conjAutRingOfIntegers K : 𝓞 K →+* 𝓞 K) I =
+      Ideal.map (algebraMap ℤ (𝓞 K)) (Ideal.relNorm ℤ I) := by
+  sorry
+
 /-- **Crux identity (boundary).** The product `I · σ(I)` of an ideal with its
 conjugate equals the extension to `𝓞 K` of the relative norm `relNorm ℤ I`. This
 is the ideal-level "product of Galois conjugates equals the relative norm". Mathlib
@@ -192,7 +205,10 @@ provides only the prime-case pieces (`relNorm_eq_pow_of_isPrime_isGalois`,
 theorem mul_map_conjAut_eq_map_relNorm (I : Ideal (𝓞 K)) :
     I * Ideal.map (conjAutRingOfIntegers K : 𝓞 K →+* 𝓞 K) I =
       Ideal.map (algebraMap ℤ (𝓞 K)) (Ideal.relNorm ℤ I) := by
-  sorry
+  refine mul_map_conjAut_eq_map_relNorm_of_prime_cases ?_ I
+  intro P hP
+  haveI : P.IsPrime := hP
+  exact mul_map_conjAut_eq_map_relNorm_of_isPrime P
 
 /-- **Product of an ideal with its conjugate is principal.** For a nonzero ideal
 `I` of `𝓞 K`, the product `I · σ(I)` is a nonzero principal ideal: it is the
