@@ -195,7 +195,28 @@ theorem mul_map_conjAut_eq_map_relNorm_of_prime_cases
     (I : Ideal (𝓞 K)) :
     I * Ideal.map (conjAutRingOfIntegers K : 𝓞 K →+* 𝓞 K) I =
       Ideal.map (algebraMap ℤ (𝓞 K)) (Ideal.relNorm ℤ I) := by
-  sorry
+  by_cases hI : I = ⊥
+  · simp [hI, Ideal.relNorm_bot]
+  rw [← Ideal.prod_normalizedFactors_eq_self hI]
+  refine Multiset.prod_induction
+      (fun J : Ideal (𝓞 K) =>
+        J * Ideal.map (conjAutRingOfIntegers K : 𝓞 K →+* 𝓞 K) J =
+          Ideal.map (algebraMap ℤ (𝓞 K)) (Ideal.relNorm ℤ J)) _ ?_ ?_ ?_
+  · intro J L hJ hL
+    rw [Ideal.map_mul, map_mul, Ideal.map_mul]
+    calc
+      J * L * (Ideal.map (conjAutRingOfIntegers K : 𝓞 K →+* 𝓞 K) J *
+          Ideal.map (conjAutRingOfIntegers K : 𝓞 K →+* 𝓞 K) L) =
+          (J * Ideal.map (conjAutRingOfIntegers K : 𝓞 K →+* 𝓞 K) J) *
+            (L * Ideal.map (conjAutRingOfIntegers K : 𝓞 K →+* 𝓞 K) L) := by
+        ac_rfl
+      _ = Ideal.map (algebraMap ℤ (𝓞 K)) (Ideal.relNorm ℤ J) *
+          Ideal.map (algebraMap ℤ (𝓞 K)) (Ideal.relNorm ℤ L) := by
+        rw [hJ, hL]
+  · simp [Ideal.relNorm_top, Ideal.map_top]
+  · intro Q hQ
+    rw [Ideal.mem_normalizedFactors_iff hI] at hQ
+    exact hprime Q hQ.1
 
 /-- **Crux identity (boundary).** The product `I · σ(I)` of an ideal with its
 conjugate equals the extension to `𝓞 K` of the relative norm `relNorm ℤ I`. This
