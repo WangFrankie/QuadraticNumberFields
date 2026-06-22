@@ -67,10 +67,10 @@ theorem genus_divisibility_of_surjective_quotient
 
 /-- The subgroup of ideal classes that are squares. In genus theory this is the
 principal genus, and the quotient `Cl / Cl²` is the genus quotient. This is the
-generic `ClassGroup.squareSubgroup` specialized to `𝓞(ℚ(√d))`. -/
+generic `ClassGroup.square` specialized to `𝓞(ℚ(√d))`. -/
 noncomputable def squareClassSubgroup (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
     Subgroup (ClassGroup (𝓞 (Qsqrtd (d : ℚ)))) :=
-  _root_.ClassGroup.squareSubgroup (𝓞 (Qsqrtd (d : ℚ)))
+  _root_.ClassGroup.square (𝓞 (Qsqrtd (d : ℚ)))
 
 /-- The square-class quotient `Cl / Cl²` for `𝓞(ℚ(√d))`. -/
 noncomputable abbrev squareClassQuotient
@@ -89,10 +89,10 @@ noncomputable instance instFintypeSquareClassQuotient
 
 /-- The genus-theory square subgroup is definitionally the generic square-subgroup
 API for ideal class groups. -/
-theorem squareClassSubgroup_eq_squareSubgroup
+theorem squareClassSubgroup_eq_square
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
     squareClassSubgroup d =
-      _root_.ClassGroup.squareSubgroup (𝓞 (Qsqrtd (d : ℚ))) :=
+      _root_.ClassGroup.square (𝓞 (Qsqrtd (d : ℚ))) :=
   rfl
 
 /-- The quotient `Cl / Cl²` has the same cardinality as the kernel of the square map on
@@ -106,19 +106,19 @@ theorem card_squareClassSubgroup_quotient_eq_card_powMonoidHom_ker
   haveI : (powMonoidHom (α := ClassGroup (𝓞 (Qsqrtd (d : ℚ)))) 2).ker.FiniteIndex :=
     Subgroup.finiteIndex_of_finite
   rw [← Subgroup.index_eq_card]
-  rw [squareClassSubgroup, _root_.ClassGroup.squareSubgroup_eq_powMonoidHom_range]
+  rw [squareClassSubgroup, _root_.ClassGroup.square_eq_powMonoidHom_range]
   rw [Subgroup.index_range]
 
 /-- The square-class quotient `Cl / Cl²` has the same cardinality as the
 two-torsion subgroup `Cl[2]`. -/
-theorem card_squareClassQuotient_eq_card_twoTorsionSubgroup
+theorem card_squareClassQuotient_eq_card_twoTorsion
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
     Nat.card (squareClassQuotient d) =
-      Nat.card (_root_.ClassGroup.twoTorsionSubgroup (𝓞 (Qsqrtd (d : ℚ)))) := by
+      Nat.card (_root_.ClassGroup.twoTorsion (𝓞 (Qsqrtd (d : ℚ)))) := by
   letI := _root_.NumberField.RingOfIntegers.instFintypeClassGroup (Qsqrtd (d : ℚ))
   simpa [squareClassQuotient, _root_.ClassGroup.squareQuotient,
-    squareClassSubgroup_eq_squareSubgroup d] using
-    (_root_.ClassGroup.card_squareQuotient_eq_card_twoTorsionSubgroup
+    squareClassSubgroup_eq_square d] using
+    (_root_.ClassGroup.card_squareQuotient_eq_card_twoTorsion
       (𝓞 (Qsqrtd (d : ℚ))))
 
 /-! ## Squares lie in the principal genus -/
@@ -155,7 +155,7 @@ theorem squareClassSubgroup_le_genusCharacterOfAbsNormCoprimeIdeals_ker
     squareClassSubgroup d ≤
       (genusCharacterOfAbsNormCoprimeIdeals d p hd_neg hp_disc).ker := by
   intro C hC
-  rw [squareClassSubgroup, _root_.ClassGroup.mem_squareSubgroup_iff] at hC
+  rw [squareClassSubgroup, _root_.ClassGroup.mem_square_iff] at hC
   rcases hC with ⟨D, rfl⟩
   rw [MonoidHom.mem_ker, map_pow]
   exact genusCharacterOfAbsNormCoprimeIdeals_sq_eq_one

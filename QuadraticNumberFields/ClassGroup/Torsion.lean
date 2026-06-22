@@ -21,41 +21,41 @@ variable {R : Type*} [CommRing R] [IsDomain R]
 
 /-- The subgroup of ideal classes killed by the `n`th-power map. This is the
 multiplicative class-group version of `AddSubgroup.torsionBy`. -/
-noncomputable abbrev torsionBySubgroup (R : Type*) [CommRing R] [IsDomain R] (n : ℕ) :
+noncomputable abbrev torsionBy (R : Type*) [CommRing R] [IsDomain R] (n : ℕ) :
     Subgroup (ClassGroup R) :=
   MonoidHom.ker (powMonoidHom (α :=ClassGroup R) n)
 
 /-- The two-torsion subgroup `Cl[2]` of the ideal class group. -/
-noncomputable abbrev twoTorsionSubgroup (R : Type*) [CommRing R] [IsDomain R] :
+noncomputable abbrev twoTorsion (R : Type*) [CommRing R] [IsDomain R] :
     Subgroup (ClassGroup R) :=
-  torsionBySubgroup R 2
+  torsionBy R 2
 
 /-- The subgroup `Cl²` of square ideal classes. -/
-noncomputable abbrev squareSubgroup (R : Type*) [CommRing R] [IsDomain R] :
+noncomputable abbrev square (R : Type*) [CommRing R] [IsDomain R] :
     Subgroup (ClassGroup R) :=
   Subgroup.square (ClassGroup R)
 
 /-- The square-class quotient `Cl / Cl²`. -/
 abbrev squareQuotient (R : Type*) [CommRing R] [IsDomain R] :=
-  ClassGroup R ⧸ squareSubgroup R
+  ClassGroup R ⧸ square R
 
 /-- Membership in the subgroup killed by the `n`th-power map. -/
-theorem mem_torsionBySubgroup_iff (R : Type*) [CommRing R] [IsDomain R]
+theorem mem_torsionBy_iff (R : Type*) [CommRing R] [IsDomain R]
     (n : ℕ) (C : ClassGroup R) :
-    C ∈ torsionBySubgroup R n ↔ C ^ n = 1 := by
+    C ∈ torsionBy R n ↔ C ^ n = 1 := by
   rfl
 
 /-- Membership in `Cl[2]`. -/
-theorem mem_twoTorsionSubgroup_iff (R : Type*) [CommRing R] [IsDomain R]
+theorem mem_twoTorsion_iff (R : Type*) [CommRing R] [IsDomain R]
     (C : ClassGroup R) :
-    C ∈ twoTorsionSubgroup R ↔ C ^ 2 = 1 := by
+    C ∈ twoTorsion R ↔ C ^ 2 = 1 := by
   rfl
 
 /-- Membership in `Cl²`. -/
-theorem mem_squareSubgroup_iff (R : Type*) [CommRing R] [IsDomain R]
+theorem mem_square_iff (R : Type*) [CommRing R] [IsDomain R]
     (C : ClassGroup R) :
-    C ∈ squareSubgroup R ↔ ∃ D : ClassGroup R, D ^ 2 = C := by
-  rw [squareSubgroup, Subgroup.mem_square]
+    C ∈ square R ↔ ∃ D : ClassGroup R, D ^ 2 = C := by
+  rw [square, Subgroup.mem_square]
   constructor
   · rintro ⟨D, hD⟩
     exact ⟨D, by simpa [pow_two] using hD.symm⟩
@@ -63,8 +63,8 @@ theorem mem_squareSubgroup_iff (R : Type*) [CommRing R] [IsDomain R]
     exact ⟨D, by simpa [pow_two] using hD.symm⟩
 
 /-- The mathlib square-subgroup definition agrees with the range of the square map. -/
-theorem squareSubgroup_eq_powMonoidHom_range (R : Type*) [CommRing R] [IsDomain R] :
-    squareSubgroup R = (powMonoidHom (α := ClassGroup R) 2).range := by
+theorem square_eq_powMonoidHom_range (R : Type*) [CommRing R] [IsDomain R] :
+    square R = (powMonoidHom (α := ClassGroup R) 2).range := by
   ext C
   constructor
   · intro hC
@@ -76,15 +76,15 @@ theorem squareSubgroup_eq_powMonoidHom_range (R : Type*) [CommRing R] [IsDomain 
 
 /-- For a finite class group, the square-class quotient has the same cardinality as
 the two-torsion subgroup. -/
-theorem card_squareQuotient_eq_card_twoTorsionSubgroup
+theorem card_squareQuotient_eq_card_twoTorsion
     (R : Type*) [CommRing R] [IsDomain R] [Finite (ClassGroup R)] :
-    Nat.card (squareQuotient R) = Nat.card (twoTorsionSubgroup R) := by
+    Nat.card (squareQuotient R) = Nat.card (twoTorsion R) := by
   haveI : (powMonoidHom (α := ClassGroup R) 2).ker.FiniteIndex :=
     Subgroup.finiteIndex_of_finite
-  change Nat.card (ClassGroup R ⧸ squareSubgroup R) =
-    Nat.card (twoTorsionSubgroup R)
+  change Nat.card (ClassGroup R ⧸ square R) =
+    Nat.card (twoTorsion R)
   rw [← Subgroup.index_eq_card]
-  rw [squareSubgroup_eq_powMonoidHom_range, twoTorsionSubgroup, torsionBySubgroup]
+  rw [square_eq_powMonoidHom_range, twoTorsion, torsionBy]
   rw [Subgroup.index_range]
 
 local notation "Cl[" R "][" n "]" =>
@@ -119,19 +119,19 @@ theorem mk0_sq_eq_one_of_sq_isPrincipal
 
 /-- If the square of a nonzero integral ideal is principal, its ideal class lies
 in `Cl[2]`. -/
-theorem mk0_mem_twoTorsionSubgroup_of_sq_isPrincipal
+theorem mk0_mem_twoTorsion_of_sq_isPrincipal
     (I : nonZeroDivisors (Ideal R)) (hI : ((I : Ideal R) ^ 2).IsPrincipal) :
-    mk0 I ∈ twoTorsionSubgroup R := by
-  rw [mem_twoTorsionSubgroup_iff]
+    mk0 I ∈ twoTorsion R := by
+  rw [mem_twoTorsion_iff]
   exact mk0_sq_eq_one_of_sq_isPrincipal I hI
 
 /-- A span-shaped square relation is a convenient way to produce two-torsion
 ideal classes. This is the ideal-theoretic shape used for ramified primes. -/
-theorem mk0_mem_twoTorsionSubgroup_of_square_eq_span
+theorem mk0_mem_twoTorsion_of_sq_eq_span
     (I : nonZeroDivisors (Ideal R)) {a : R}
     (hI : (I : Ideal R) ^ 2 = Ideal.span ({a} : Set R)) :
-    mk0 I ∈ twoTorsionSubgroup R := by
-  refine mk0_mem_twoTorsionSubgroup_of_sq_isPrincipal I ?_
+    mk0 I ∈ twoTorsion R := by
+  refine mk0_mem_twoTorsion_of_sq_isPrincipal I ?_
   rw [hI]
   change (Submodule.span R ({a} : Set R)).IsPrincipal
   exact ⟨a, rfl⟩
