@@ -21,6 +21,7 @@ import QNFMathlib.NumberTheory.LegendreSymbol.KroneckerSymbol
 import QNFMathlib.NumberTheory.LegendreSymbol.KroneckerSymbolPeriodicity
 import QNFMathlib.NumberTheory.NumberField.ClassField.Basic
 import QNFMathlib.NumberTheory.NumberField.ClassNumber
+import QNFMathlib.NumberTheory.NumberField.Galois
 import QNFMathlib.NumberTheory.NumberField.Idele
 import QNFMathlib.NumberTheory.RamificationInertia.Galois
 import QNFMathlib.NumberTheory.Zsqrtd.Basic

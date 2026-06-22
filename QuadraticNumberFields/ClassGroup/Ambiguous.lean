@@ -6,6 +6,7 @@ Authors: Frankie Wang
 
 import Mathlib.NumberTheory.NumberField.ClassNumber
 import Mathlib.RingTheory.Ideal.Norm.RelNorm
+import QNFMathlib.NumberTheory.NumberField.Galois
 import QuadraticNumberFields.ClassGroup.Torsion
 import QuadraticNumberFields.ClassGroup.GenusTheory.Discriminant
 import QuadraticNumberFields.QuadraticField.Conj
@@ -133,6 +134,12 @@ section Bridge
 
 variable {K : Type*} [Field K] [NumberField K] [Algebra ℚ K]
   [QuadraticField K] [QuadraticField.Conj K]
+
+attribute [local instance] FractionRing.liftAlgebra
+
+local instance : IsGalois (FractionRing ℤ) (FractionRing (𝓞 K)) := by
+  haveI : IsGalois ℚ K := Algebra.IsQuadraticExtension.isGalois ℚ K
+  exact NumberField.isGalois_fractionRing_ringOfIntegers K
 
 omit [NumberField K] in
 /-- The conjugate of a nonzero ideal is nonzero, since conjugation is bijective. -/
