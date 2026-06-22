@@ -135,13 +135,14 @@ theorem genusCharacterRawUnit_sq_eq_one
 theorem genusCharacterOfAbsNormCoprimeIdeals_sq_eq_one
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (p : ℕ) [Fact p.Prime]
     (hd_neg : d < 0) (hp_disc : p ∈ oddPrimeDiscriminantDivisors d)
-    (hsurj : Function.Surjective (mk0OnAbsNormCoprimeIdeals d p))
     (C : ClassGroup (𝓞 (Qsqrtd (d : ℚ)))) :
-    genusCharacterOfAbsNormCoprimeIdeals d p hd_neg hp_disc hsurj C ^ 2 = 1 := by
+    genusCharacterOfAbsNormCoprimeIdeals d p hd_neg hp_disc C ^ 2 = 1 := by
+  let hsurj := mk0OnAbsNormCoprimeIdeals_surjective_of_mem_oddPrimeDiscriminantDivisors
+    d p hp_disc
   let I := Classical.choose (hsurj C)
   have hI : mk0OnAbsNormCoprimeIdeals d p I = C := Classical.choose_spec (hsurj C)
   have happly := genusCharacterOfAbsNormCoprimeIdeals_apply_mk0OnAbsNormCoprimeIdeals
-    d p hd_neg hp_disc hsurj I
+    d p hd_neg hp_disc I
   rw [hI] at happly
   rw [happly]
   exact genusCharacterRawUnit_sq_eq_one d p I
@@ -152,16 +153,13 @@ theorem squareClassSubgroup_le_genusCharacterOfAbsNormCoprimeIdeals_ker
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (p : ℕ) [Fact p.Prime]
     (hd_neg : d < 0) (hp_disc : p ∈ oddPrimeDiscriminantDivisors d) :
     squareClassSubgroup d ≤
-      (genusCharacterOfAbsNormCoprimeIdeals d p hd_neg hp_disc
-        (mk0OnAbsNormCoprimeIdeals_surjective_of_mem_oddPrimeDiscriminantDivisors
-          d p hp_disc)).ker := by
+      (genusCharacterOfAbsNormCoprimeIdeals d p hd_neg hp_disc).ker := by
   intro C hC
   rw [squareClassSubgroup, _root_.ClassGroup.mem_squareSubgroup_iff] at hC
   rcases hC with ⟨D, rfl⟩
   rw [MonoidHom.mem_ker, map_pow]
   exact genusCharacterOfAbsNormCoprimeIdeals_sq_eq_one
-    d p hd_neg hp_disc
-    (mk0OnAbsNormCoprimeIdeals_surjective_of_mem_oddPrimeDiscriminantDivisors d p hp_disc) D
+    d p hd_neg hp_disc D
 
 /-- A descended odd-prime genus character as a character on the principal-genus
 quotient `Cl / Cl²`. -/
@@ -170,8 +168,7 @@ noncomputable def genusCharacterOnSquareClassQuotient
     (hd_neg : d < 0) (hp_disc : p ∈ oddPrimeDiscriminantDivisors d) :
     ClassGroup (𝓞 (Qsqrtd (d : ℚ))) ⧸ squareClassSubgroup d →* ℤˣ :=
   QuotientGroup.lift (squareClassSubgroup d)
-    (genusCharacterOfAbsNormCoprimeIdeals d p hd_neg hp_disc
-      (mk0OnAbsNormCoprimeIdeals_surjective_of_mem_oddPrimeDiscriminantDivisors d p hp_disc))
+    (genusCharacterOfAbsNormCoprimeIdeals d p hd_neg hp_disc)
     (squareClassSubgroup_le_genusCharacterOfAbsNormCoprimeIdeals_ker
       d p hd_neg hp_disc)
 
@@ -182,9 +179,7 @@ theorem genusCharacterOnSquareClassQuotient_apply
     (hd_neg : d < 0) (hp_disc : p ∈ oddPrimeDiscriminantDivisors d)
     (C : ClassGroup (𝓞 (Qsqrtd (d : ℚ)))) :
     genusCharacterOnSquareClassQuotient d p hd_neg hp_disc C =
-      genusCharacterOfAbsNormCoprimeIdeals d p hd_neg hp_disc
-        (mk0OnAbsNormCoprimeIdeals_surjective_of_mem_oddPrimeDiscriminantDivisors d p hp_disc)
-        C := by
+      genusCharacterOfAbsNormCoprimeIdeals d p hd_neg hp_disc C := by
   rfl
 
 end ClassGroup

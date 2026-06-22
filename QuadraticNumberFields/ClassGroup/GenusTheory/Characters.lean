@@ -209,7 +209,7 @@ noncomputable def mk0OnAbsNormCoprimeIdeals
 /-- To prove surjectivity of the restricted class-group map, it suffices to
 choose, in every class, a nonzero integral ideal representative whose absolute
 norm is prime to `p`. -/
-theorem mk0OnAbsNormCoprimeIdeals_surjective_of_forall_mk0_eq_of_not_dvd_absNorm
+theorem mk0OnAbsNormCoprimeIdeals_surjective_of_exists_absNorm_coprime_representative
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (p : ℕ) [Fact p.Prime]
     (hrep : ∀ C : ClassGroup (𝓞 (Qsqrtd (d : ℚ))),
       ∃ I : (Ideal (𝓞 (Qsqrtd (d : ℚ))))⁰,

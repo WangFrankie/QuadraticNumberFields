@@ -26,32 +26,6 @@ open Splitting
 
 local notation "𝓞" => _root_.NumberField.RingOfIntegers
 
-/-- A simultaneous representative theorem implies the absolute-norm-coprime surjectivity
-input needed for all odd-prime genus characters. -/
-theorem oddGenusAbsNormCoprimeSurjective_of_forall_mk0_eq_of_forall_not_dvd_absNorm
-    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
-    (hrep : ∀ C : ClassGroup (𝓞 (Qsqrtd (d : ℚ))),
-      ∃ I : (Ideal (𝓞 (Qsqrtd (d : ℚ))))⁰,
-        ClassGroup.mk0 I = C ∧
-          ∀ P : {p // p ∈ oddPrimeDiscriminantDivisors d},
-            ¬ (P.1 : ℤ) ∣ (Ideal.absNorm (I : Ideal (𝓞 (Qsqrtd (d : ℚ)))) : ℤ)) :
-    ∀ (p : ℕ) [Fact p.Prime], p ∈ oddPrimeDiscriminantDivisors d →
-        Function.Surjective (mk0OnAbsNormCoprimeIdeals d p) := by
-  intro p hp hp_disc
-  exact mk0OnAbsNormCoprimeIdeals_surjective_of_forall_mk0_eq_of_not_dvd_absNorm d p
-    (fun C => by
-      rcases hrep C with ⟨I, hC, hI⟩
-      exact ⟨I, hC, hI ⟨p, hp_disc⟩⟩)
-
-/-- The coprime-representative theorem supplies the absolute-norm-coprime
-surjectivity input for every odd-prime genus character. -/
-theorem oddGenusAbsNormCoprimeSurjective
-    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
-    ∀ (p : ℕ) [Fact p.Prime], p ∈ oddPrimeDiscriminantDivisors d →
-        Function.Surjective (mk0OnAbsNormCoprimeIdeals d p) := by
-  intro p hp hp_disc
-  exact mk0OnAbsNormCoprimeIdeals_surjective_of_mem_oddPrimeDiscriminantDivisors d p hp_disc
-
 /-- The product of all odd-prime genus characters on the principal-genus quotient.
 
 The remaining genus-theory relation and independence statements identify the image of
@@ -84,9 +58,7 @@ theorem oddGenusCharacterProductOnSquareClassQuotient_apply_mk'
     oddGenusCharacterProductOnSquareClassQuotient d hd_neg
         ((QuotientGroup.mk' (squareClassSubgroup d)) C) P = by
       haveI : Fact P.1.Prime := ⟨prime_of_mem_oddPrimeDiscriminantDivisors P.2⟩
-      exact genusCharacterOfAbsNormCoprimeIdeals d P.1 hd_neg P.2
-        (mk0OnAbsNormCoprimeIdeals_surjective_of_mem_oddPrimeDiscriminantDivisors
-          d P.1 P.2) C := by
+      exact genusCharacterOfAbsNormCoprimeIdeals d P.1 hd_neg P.2 C := by
   haveI : Fact P.1.Prime := ⟨prime_of_mem_oddPrimeDiscriminantDivisors P.2⟩
   rw [oddGenusCharacterProductOnSquareClassQuotient_apply]
   exact genusCharacterOnSquareClassQuotient_apply d P.1 hd_neg P.2 C
@@ -103,9 +75,7 @@ theorem oddGenusCharacterProductOnSquareClassQuotient_prod_apply_mk'
       Finset.univ.prod
         (fun P : {p // p ∈ oddPrimeDiscriminantDivisors d} => by
           haveI : Fact P.1.Prime := ⟨prime_of_mem_oddPrimeDiscriminantDivisors P.2⟩
-          exact genusCharacterOfAbsNormCoprimeIdeals d P.1 hd_neg P.2
-            (mk0OnAbsNormCoprimeIdeals_surjective_of_mem_oddPrimeDiscriminantDivisors
-              d P.1 P.2) C) := by
+          exact genusCharacterOfAbsNormCoprimeIdeals d P.1 hd_neg P.2 C) := by
   apply Finset.prod_congr rfl
   intro P _
   exact oddGenusCharacterProductOnSquareClassQuotient_apply_mk'
@@ -125,9 +95,7 @@ theorem oddGenusCharacterProduct_prod_apply_eq_prod_legendreSym_of_mk0
     ((Finset.univ.prod
       (fun P : {p // p ∈ oddPrimeDiscriminantDivisors d} => by
         haveI : Fact P.1.Prime := ⟨prime_of_mem_oddPrimeDiscriminantDivisors P.2⟩
-        exact genusCharacterOfAbsNormCoprimeIdeals d P.1 hd_neg P.2
-          (mk0OnAbsNormCoprimeIdeals_surjective_of_mem_oddPrimeDiscriminantDivisors
-            d P.1 P.2) C) : ℤˣ) : ℤ) =
+        exact genusCharacterOfAbsNormCoprimeIdeals d P.1 hd_neg P.2 C) : ℤˣ) : ℤ) =
       (oddPrimeDiscriminantDivisors d).prod
         (fun p => if hp : p.Prime then @legendreSym p ⟨hp⟩
           (Ideal.absNorm (I : Ideal (𝓞 (Qsqrtd (d : ℚ)))) : ℤ) else 1) := by
@@ -145,9 +113,7 @@ theorem oddGenusCharacterProduct_prod_apply_eq_prod_legendreSym_of_mk0
   have hmk : mk0OnAbsNormCoprimeIdeals d P.1 IP = C := by
     simpa [IP, mk0OnAbsNormCoprimeIdeals, absNormCoprimeIdealNonzeroMonoidHom] using hC
   have happly := genusCharacterOfAbsNormCoprimeIdeals_apply_mk0OnAbsNormCoprimeIdeals
-    d P.1 hd_neg P.2
-      (mk0OnAbsNormCoprimeIdeals_surjective_of_mem_oddPrimeDiscriminantDivisors d P.1 P.2)
-      IP
+    d P.1 hd_neg P.2 IP
   rw [hmk] at happly
   rw [happly]
   simp [IP, genusCharacterRawUnit, genusCharacterRaw,
@@ -293,9 +259,7 @@ theorem oddGenusProductRelation_iff_forall_mk'
         (Finset.univ.prod
           (fun P : {p // p ∈ oddPrimeDiscriminantDivisors d} => by
             haveI : Fact P.1.Prime := ⟨prime_of_mem_oddPrimeDiscriminantDivisors P.2⟩
-            exact genusCharacterOfAbsNormCoprimeIdeals d P.1 hd_neg P.2
-              (mk0OnAbsNormCoprimeIdeals_surjective_of_mem_oddPrimeDiscriminantDivisors
-                d P.1 P.2) C) : ℤˣ) = 1 := by
+            exact genusCharacterOfAbsNormCoprimeIdeals d P.1 hd_neg P.2 C) : ℤˣ) = 1 := by
   rw [oddGenusProductRelation_iff]
   constructor
   · intro hrel C
@@ -333,9 +297,7 @@ theorem oddGenusProductRelation_of_jacobiSym_absNorm_eq_one_of_mod_four_eq_one
   change ((Finset.univ.prod
     (fun P : {p // p ∈ oddPrimeDiscriminantDivisors d} => by
       haveI : Fact P.1.Prime := ⟨prime_of_mem_oddPrimeDiscriminantDivisors P.2⟩
-      exact genusCharacterOfAbsNormCoprimeIdeals d P.1 hd_neg P.2
-        (mk0OnAbsNormCoprimeIdeals_surjective_of_mem_oddPrimeDiscriminantDivisors
-          d P.1 P.2) C) : ℤˣ) : ℤ) = 1
+      exact genusCharacterOfAbsNormCoprimeIdeals d P.1 hd_neg P.2 C) : ℤˣ) : ℤ) = 1
   rw [oddGenusCharacterProduct_prod_apply_eq_prod_legendreSym_of_mk0
     d hd_neg C I hC hI]
   rw [← jacobiSym_natAbs_eq_prod_oddPrimeDiscriminantDivisors_of_mod_four_eq_one
@@ -408,7 +370,7 @@ theorem kroneckerSymNat_discrFormula_absNorm_eq_one_of_not_dvd_oddPrimeDiscrimin
 /-- In the odd fundamental-discriminant branch, the product relation follows
 from a simultaneous representative theorem avoiding all odd discriminant
 divisors. -/
-theorem oddGenusProductRelation_of_forall_mk0_eq_of_forall_not_dvd_absNorm_of_mod_four_eq_one
+theorem oddGenusProductRelation_of_coprime_representatives_of_mod_four_eq_one
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd_neg : d < 0)
     (hd4 : d % 4 = 1)
     (hrep : ∀ C : ClassGroup (𝓞 (Qsqrtd (d : ℚ))),
@@ -428,9 +390,9 @@ theorem oddGenusProductRelation_of_mod_four_eq_one
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd_neg : d < 0)
     (hd4 : d % 4 = 1) :
     oddGenusProductRelation d hd_neg :=
-  oddGenusProductRelation_of_forall_mk0_eq_of_forall_not_dvd_absNorm_of_mod_four_eq_one
+  oddGenusProductRelation_of_coprime_representatives_of_mod_four_eq_one
     d hd_neg hd4
-    (exists_mk0_eq_and_forall_not_dvd_absNorm_oddPrimeDiscriminantDivisors d)
+    (exists_absNorm_coprime_representative_oddPrimeDiscriminantDivisors d)
 
 /-- The product of the odd-prime genus characters, with codomain restricted to the
 single-relation sign subgroup. -/

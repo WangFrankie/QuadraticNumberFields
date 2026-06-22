@@ -23,7 +23,7 @@ namespace QuadraticNumberFields
 
 /-- The natural number `2` is irreducible, as a convenience for absolute-norm
 arguments. -/
-theorem irreducible_two_nat : Irreducible (2 : ℕ) :=
+private theorem irreducible_two_nat : Irreducible (2 : ℕ) :=
   (Nat.irreducible_iff_prime.mp Nat.prime_two).irreducible
 
 /-- An ideal of absolute norm `2` is prime. -/

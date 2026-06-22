@@ -33,7 +33,7 @@ rational prime in a prescribed finite set.
 
 This is the Dedekind-domain approximation input needed before the odd genus
 characters can be made unconditional. -/
-theorem exists_mk0_eq_and_forall_not_dvd_absNorm_of_finset
+theorem exists_absNorm_coprime_representative_of_finset
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
     (S : Finset ℕ) (hS : ∀ p ∈ S, Nat.Prime p)
     (C : ClassGroup (𝓞 (Qsqrtd (d : ℚ)))) :
@@ -46,28 +46,28 @@ theorem exists_mk0_eq_and_forall_not_dvd_absNorm_of_finset
 /-- **Coprime-representative theorem.** Every ideal class has an
 integral ideal representative whose absolute norm is prime to every odd rational
 prime dividing the field discriminant. -/
-theorem exists_mk0_eq_and_forall_not_dvd_absNorm_oddPrimeDiscriminantDivisors
+theorem exists_absNorm_coprime_representative_oddPrimeDiscriminantDivisors
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
     (C : ClassGroup (𝓞 (Qsqrtd (d : ℚ)))) :
     ∃ I : (Ideal (𝓞 (Qsqrtd (d : ℚ))))⁰,
       ClassGroup.mk0 I = C ∧
         ∀ P : {p // p ∈ oddPrimeDiscriminantDivisors d},
           ¬ (P.1 : ℤ) ∣ (Ideal.absNorm (I : Ideal (𝓞 (Qsqrtd (d : ℚ)))) : ℤ) := by
-  rcases exists_mk0_eq_and_forall_not_dvd_absNorm_of_finset
+  rcases exists_absNorm_coprime_representative_of_finset
       d (oddPrimeDiscriminantDivisors d)
       (fun p hp => prime_of_mem_oddPrimeDiscriminantDivisors hp) C with
     ⟨I, hC, hI⟩
   exact ⟨I, hC, fun P => hI P.1 P.2⟩
 
 /-- Single-prime form of the coprime-representative theorem. -/
-theorem exists_mk0_eq_and_not_dvd_absNorm_of_mem_oddPrimeDiscriminantDivisors
+theorem exists_absNorm_coprime_representative_of_mem_oddPrimeDiscriminantDivisors
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
     (p : ℕ) (hp_disc : p ∈ oddPrimeDiscriminantDivisors d)
     (C : ClassGroup (𝓞 (Qsqrtd (d : ℚ)))) :
     ∃ I : (Ideal (𝓞 (Qsqrtd (d : ℚ))))⁰,
       ClassGroup.mk0 I = C ∧
         ¬ (p : ℤ) ∣ (Ideal.absNorm (I : Ideal (𝓞 (Qsqrtd (d : ℚ)))) : ℤ) := by
-  rcases exists_mk0_eq_and_forall_not_dvd_absNorm_oddPrimeDiscriminantDivisors d C with
+  rcases exists_absNorm_coprime_representative_oddPrimeDiscriminantDivisors d C with
     ⟨I, hC, hI⟩
   exact ⟨I, hC, hI ⟨p, hp_disc⟩⟩
 
@@ -77,8 +77,8 @@ theorem mk0OnAbsNormCoprimeIdeals_surjective_of_mem_oddPrimeDiscriminantDivisors
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
     (p : ℕ) [Fact p.Prime] (hp_disc : p ∈ oddPrimeDiscriminantDivisors d) :
     Function.Surjective (mk0OnAbsNormCoprimeIdeals d p) :=
-  mk0OnAbsNormCoprimeIdeals_surjective_of_forall_mk0_eq_of_not_dvd_absNorm d p
-    fun C => exists_mk0_eq_and_not_dvd_absNorm_of_mem_oddPrimeDiscriminantDivisors
+  mk0OnAbsNormCoprimeIdeals_surjective_of_exists_absNorm_coprime_representative d p
+    fun C => exists_absNorm_coprime_representative_of_mem_oddPrimeDiscriminantDivisors
       d p hp_disc C
 
 /-- Principal-multiplier approximation for the restricted class-group map.
@@ -109,10 +109,10 @@ theorem genusCharacterRawDescendsOnAbsNormCoprimeIdeals_of_mem_oddPrimeDiscrimin
 absolute-norm-coprime ideal representatives. -/
 noncomputable def genusCharacterOfAbsNormCoprimeIdeals
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (p : ℕ) [Fact p.Prime]
-    (hd_neg : d < 0) (hp_disc : p ∈ oddPrimeDiscriminantDivisors d)
-    (hsurj : Function.Surjective (mk0OnAbsNormCoprimeIdeals d p)) :
+    (hd_neg : d < 0) (hp_disc : p ∈ oddPrimeDiscriminantDivisors d) :
     ClassGroup (𝓞 (Qsqrtd (d : ℚ))) →* ℤˣ :=
-  genusCharacterOfAbsNormCoprimeDescent d p hsurj
+  genusCharacterOfAbsNormCoprimeDescent d p
+    (mk0OnAbsNormCoprimeIdeals_surjective_of_mem_oddPrimeDiscriminantDivisors d p hp_disc)
     (genusCharacterRawDescendsOnAbsNormCoprimeIdeals_of_mem_oddPrimeDiscriminantDivisors
       d p hd_neg hp_disc)
 
@@ -121,12 +121,12 @@ with the raw genus character on such representatives. -/
 theorem genusCharacterOfAbsNormCoprimeIdeals_apply_mk0OnAbsNormCoprimeIdeals
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (p : ℕ) [Fact p.Prime]
     (hd_neg : d < 0) (hp_disc : p ∈ oddPrimeDiscriminantDivisors d)
-    (hsurj : Function.Surjective (mk0OnAbsNormCoprimeIdeals d p))
     (I : absNormCoprimeIdealSubmonoid d p) :
-    genusCharacterOfAbsNormCoprimeIdeals d p hd_neg hp_disc hsurj
+    genusCharacterOfAbsNormCoprimeIdeals d p hd_neg hp_disc
         (mk0OnAbsNormCoprimeIdeals d p I) =
       genusCharacterRawUnit d p I :=
-  genusCharacterOfAbsNormCoprimeDescent_apply_mk0OnAbsNormCoprimeIdeals d p hsurj
+  genusCharacterOfAbsNormCoprimeDescent_apply_mk0OnAbsNormCoprimeIdeals d p
+    (mk0OnAbsNormCoprimeIdeals_surjective_of_mem_oddPrimeDiscriminantDivisors d p hp_disc)
     (genusCharacterRawDescendsOnAbsNormCoprimeIdeals_of_mem_oddPrimeDiscriminantDivisors
       d p hd_neg hp_disc) I
 

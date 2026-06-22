@@ -150,13 +150,17 @@ theorem absNorm_span_xConj :
 theorem isPrime_span_x :
     (Ideal.span {x} : Ideal (𝓞 (Qsqrtd ((17 : ℤ) : ℚ)))).IsPrime :=
   Ideal.isPrime_of_irreducible_absNorm
-    (by rw [absNorm_span_x]; exact irreducible_two_nat)
+    (by
+      rw [absNorm_span_x]
+      exact (Nat.irreducible_iff_prime.mp Nat.prime_two).irreducible)
 
 /-- `(x̄)` is a prime ideal. -/
 theorem isPrime_span_xConj :
     (Ideal.span {xConj} : Ideal (𝓞 (Qsqrtd ((17 : ℤ) : ℚ)))).IsPrime :=
   Ideal.isPrime_of_irreducible_absNorm
-    (by rw [absNorm_span_xConj]; exact irreducible_two_nat)
+    (by
+      rw [absNorm_span_xConj]
+      exact (Nat.irreducible_iff_prime.mp Nat.prime_two).irreducible)
 
 /-! ## Norm-2 ideals are principal, and `ℚ(√17)` has class number one
 
