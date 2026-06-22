@@ -10,6 +10,8 @@ import QNFMathlib.NumberTheory.NumberField.Galois
 import QuadraticNumberFields.ClassGroup.Torsion
 import QuadraticNumberFields.ClassGroup.GenusTheory.Discriminant
 import QuadraticNumberFields.QuadraticField.Conj
+import QuadraticNumberFields.QuadraticField.RingOfIntegers
+import QuadraticNumberFields.Splitting.Factorization
 
 /-!
 # Ambiguous Classes and the Genus-Theory Trunk `#Cl[2] = 2^{t-1}`
@@ -48,15 +50,15 @@ cohomology.
 
 ## Status
 
-The current proof boundary is explicit. The prime-norm formula is available via
-`Ideal.relNorm_eq_pow_of_isPrime_isGalois`; the remaining local boundary is the
-Galois-orbit calculation identifying extension of the norm prime power with
-`P · σ(P)`, where `σ = conjAutRingOfIntegers K`. The full multiplicative
-assembly for arbitrary ideals and the final ambiguous class number formula remain
-separate visible `sorry`s, not hidden behind provider hypotheses.
+The prime-norm formula is available via
+`Ideal.relNorm_eq_pow_of_isPrime_isGalois`; the local Galois-orbit calculation
+identifying extension of the norm prime power with `P · σ(P)`, where
+`σ = conjAutRingOfIntegers K`, is proved below from the degree-two splitting
+trichotomy. The remaining proof boundary is the final ambiguous class number
+formula, left as a visible `sorry` rather than hidden behind provider hypotheses.
 -/
 
-open scoped NumberField nonZeroDivisors
+open scoped NumberField nonZeroDivisors Pointwise
 
 namespace QuadraticNumberFields
 namespace ClassGroup
@@ -126,6 +128,31 @@ noncomputable def conjAutRingOfIntegersAlgEquiv (K : Type*) [Field K] [Algebra �
     intro n
     ext
     simp)
+
+section ConjRestriction
+
+variable {K : Type*} [Field K] [NumberField K] [Algebra ℚ K]
+  [QuadraticField K] [QuadraticField.Conj K]
+
+theorem galRestrict_conjAut_eq_conjAutRingOfIntegers :
+    galRestrict ℤ ℚ K (𝓞 K) (QuadraticField.conjAut K) =
+      conjAutRingOfIntegersAlgEquiv K := by
+  ext x
+  simpa [conjAutRingOfIntegersAlgEquiv, coe_conjAutRingOfIntegers_apply] using
+    (algebraMap_galRestrict_apply (A := ℤ) (K := ℚ) (L := K) (B := 𝓞 K)
+      (QuadraticField.conjAut K) x)
+
+/-- The conjugation of the ring of integers is nontrivial. -/
+theorem conjAutRingOfIntegersAlgEquiv_ne_refl :
+    conjAutRingOfIntegersAlgEquiv K ≠ AlgEquiv.refl := by
+  intro h
+  apply QuadraticField.Conj.conj_ne_refl (K := K)
+  apply (galRestrict ℤ ℚ K (𝓞 K)).injective
+  rw [galRestrict_conjAut_eq_conjAutRingOfIntegers, h]
+  change (1 : 𝓞 K ≃ₐ[ℤ] 𝓞 K) = (galRestrict ℤ ℚ K (𝓞 K)) (1 : Gal(K / ℚ))
+  rw [map_one]
+
+end ConjRestriction
 
 /-! ## Conjugation acts as inversion on the class group
 
@@ -219,17 +246,199 @@ theorem map_conjAut_mem_primesOver_comap (P : Ideal (𝓞 K)) [P.IsPrime] :
       Ideal.primesOver (P.comap (algebraMap ℤ (𝓞 K))) (𝓞 K) :=
   ⟨map_conjAut_isPrime, map_conjAut_liesOver_comap P⟩
 
-/-- Prime-ideal form of the remaining Galois-orbit boundary: extending the norm
-prime power back to `𝓞 K` gives the product of `P` with its conjugate. The open
-part is the identification of the Galois action on primes over
-`P.comap (algebraMap ℤ (𝓞 K))` with `conjAutRingOfIntegers K`. -/
+/-- Prime-ideal form of the Galois-orbit calculation: extending the norm prime
+power back to `𝓞 K` gives the product of `P` with its conjugate. -/
 theorem map_comap_pow_inertiaDeg_eq_mul_map_conjAut_of_isPrime
     (P : Ideal (𝓞 K)) [P.IsPrime] (hP0 : P ≠ ⊥) :
     Ideal.map (algebraMap ℤ (𝓞 K))
         ((P.comap (algebraMap ℤ (𝓞 K))) ^
           (P.comap (algebraMap ℤ (𝓞 K))).inertiaDeg P) =
       P * Ideal.map (conjAutRingOfIntegers K : 𝓞 K →+* 𝓞 K) P := by
-  sorry
+  let p : Ideal ℤ := P.comap (algebraMap ℤ (𝓞 K))
+  haveI : P.IsMaximal := Ideal.IsPrime.isMaximal inferInstance hP0
+  haveI : p.IsMaximal := by
+    dsimp [p]
+    exact Ideal.isMaximal_comap_of_isIntegral_of_isMaximal P
+  have hp0 : p ≠ ⊥ := by
+    dsimp [p]
+    exact Ideal.IsIntegralClosure.comap_ne_bot K hP0
+  have hPmem : P ∈ Ideal.primesOver p (𝓞 K) := by
+    dsimp [p]
+    exact ⟨inferInstance, ⟨rfl⟩⟩
+  have hσmem :
+      Ideal.map (conjAutRingOfIntegers K : 𝓞 K →+* 𝓞 K) P ∈
+        Ideal.primesOver p (𝓞 K) := by
+    dsimp [p]
+    exact map_conjAut_mem_primesOver_comap P
+  have htri := Ideal.efg_trichotomy p (𝓞 K) (by norm_num : ringChar ℤ ≠ 2) hp0
+  rcases htri with hsplit | hinert | hram
+  · let σP : Ideal (𝓞 K) :=
+      Ideal.map (conjAutRingOfIntegers K : 𝓞 K →+* 𝓞 K) P
+    have hσne : σP ≠ P := by
+      -- Split case only: the nontrivial conjugation cannot lie in the
+      -- decomposition group, whose cardinality is `e * f = 1`.
+      intro hfix
+      let τ : Gal(FractionRing (𝓞 K) / FractionRing ℤ) :=
+        (galRestrict ℤ (FractionRing ℤ) (FractionRing (𝓞 K)) (𝓞 K)).symm
+          (conjAutRingOfIntegersAlgEquiv K)
+      letI := Ring.instAlgebraFractionRing
+      letI := IsIntegralClosure.MulSemiringAction ℤ (FractionRing ℤ)
+        (FractionRing (𝓞 K)) (𝓞 K)
+      letI := Algebra.IsQuadraticExtension.isGaloisGroup
+        (R := ℤ) (S := 𝓞 K) (by norm_num : ringChar ℤ ≠ 2)
+      have hτne : τ ≠ 1 := by
+        intro hτ
+        apply conjAutRingOfIntegersAlgEquiv_ne_refl (K := K)
+        have h := congrArg
+          (galRestrict ℤ (FractionRing ℤ) (FractionRing (𝓞 K)) (𝓞 K)) hτ
+        simpa [τ] using h
+      have hτstab : τ ∈ MulAction.stabilizer
+          Gal(FractionRing (𝓞 K) / FractionRing ℤ) P := by
+        change τ • P = P
+        change Ideal.map
+          ((galRestrict ℤ (FractionRing ℤ) (FractionRing (𝓞 K)) (𝓞 K) τ :
+            𝓞 K ≃ₐ[ℤ] 𝓞 K) : 𝓞 K →+* 𝓞 K) P = P
+        dsimp [τ]
+        rw [MulEquiv.apply_symm_apply]
+        exact hfix
+      have hcard_stab :
+          Nat.card (MulAction.stabilizer Gal(FractionRing (𝓞 K) / FractionRing ℤ) P) = 1 := by
+        haveI : P.LiesOver p := hPmem.2
+        have horbit :
+            MulAction.orbit Gal(FractionRing (𝓞 K) / FractionRing ℤ) P =
+              Ideal.primesOver p (𝓞 K) := by
+          exact Algebra.IsInvariant.orbit_eq_primesOver ℤ (𝓞 K)
+            Gal(FractionRing (𝓞 K) / FractionRing ℤ) p P
+        have horbit_card :
+            Nat.card (MulAction.orbit Gal(FractionRing (𝓞 K) / FractionRing ℤ) P) = 2 := by
+          rw [horbit]
+          change (Ideal.primesOver p (𝓞 K)).ncard = 2
+          simpa using hsplit.1
+        have hprod :
+            Nat.card (MulAction.orbit Gal(FractionRing (𝓞 K) / FractionRing ℤ) P) *
+              Nat.card (MulAction.stabilizer Gal(FractionRing (𝓞 K) / FractionRing ℤ) P) =
+                Nat.card Gal(FractionRing (𝓞 K) / FractionRing ℤ) := by
+          simpa [Nat.card_prod] using
+            Nat.card_congr
+              (MulAction.orbitProdStabilizerEquivGroup
+                Gal(FractionRing (𝓞 K) / FractionRing ℤ) P)
+        rw [horbit_card, card_gal_fractionRing_ringOfIntegers_eq_two] at hprod
+        omega
+      have hsub :
+          Subsingleton (MulAction.stabilizer Gal(FractionRing (𝓞 K) / FractionRing ℤ) P) :=
+        (Nat.card_eq_one_iff_unique.mp hcard_stab).1
+      have hτeq : τ = 1 := by
+        have hsubeq :
+            (⟨τ, hτstab⟩ :
+              MulAction.stabilizer Gal(FractionRing (𝓞 K) / FractionRing ℤ) P) = 1 :=
+          Subsingleton.elim _ _
+        exact Subtype.ext_iff.mp hsubeq
+      exact hτne hτeq
+    have hfP : p.inertiaDeg P = 1 :=
+      Ideal.inertiaDeg_eq_one_of_isSplitIn p (𝓞 K) (by norm_num : ringChar ℤ ≠ 2)
+        (P' := P) ⟨hsplit.2.1, hsplit.2.2⟩
+    have heP : p.ramificationIdx P = 1 := by
+      letI := Ring.instAlgebraFractionRing
+      letI := IsIntegralClosure.MulSemiringAction ℤ (FractionRing ℤ)
+        (FractionRing (𝓞 K)) (𝓞 K)
+      letI := Algebra.IsQuadraticExtension.isGaloisGroup
+        (R := ℤ) (S := 𝓞 K) (by norm_num : ringChar ℤ ≠ 2)
+      exact (Ideal.ramificationIdxIn_eq_ramificationIdx p P
+        Gal(FractionRing (𝓞 K) / FractionRing ℤ)).symm.trans hsplit.2.1
+    have heσP : p.ramificationIdx σP = 1 := by
+      letI := Ring.instAlgebraFractionRing
+      letI := IsIntegralClosure.MulSemiringAction ℤ (FractionRing ℤ)
+        (FractionRing (𝓞 K)) (𝓞 K)
+      letI := Algebra.IsQuadraticExtension.isGaloisGroup
+        (R := ℤ) (S := 𝓞 K) (by norm_num : ringChar ℤ ≠ 2)
+      haveI : σP.IsPrime := hσmem.1
+      haveI : σP.LiesOver p := hσmem.2
+      exact (Ideal.ramificationIdxIn_eq_ramificationIdx p σP
+        Gal(FractionRing (𝓞 K) / FractionRing ℤ)).symm.trans hsplit.2.1
+    have hset : Ideal.primesOver p (𝓞 K) = {P, σP} := by
+      rw [Set.ncard_eq_two] at hsplit
+      obtain ⟨P₁, P₂, hP₁P₂, hpair⟩ := hsplit.1
+      have hP_or : P = P₁ ∨ P = P₂ := by
+        rw [hpair] at hPmem
+        simpa using hPmem
+      have hσ_or : σP = P₁ ∨ σP = P₂ := by
+        rw [hpair] at hσmem
+        simpa [σP] using hσmem
+      rcases hP_or with hP₁ | hP₂
+      · rcases hσ_or with hσ₁ | hσ₂
+        · exact (False.elim (hσne (hσ₁.trans hP₁.symm)))
+        · rw [hpair, ← hP₁, ← hσ₂]
+      · rcases hσ_or with hσ₁ | hσ₂
+        · rw [hpair, ← hσ₁, ← hP₂, Set.pair_comm]
+        · exact (False.elim (hσne (hσ₂.trans hP₂.symm)))
+    have hmap : Ideal.map (algebraMap ℤ (𝓞 K)) p = P * σP := by
+      have hfact := Ideal.map_algebraMap_eq_finset_prod_pow (R := 𝓞 K) (S := ℤ) hp0
+      have hfin : (Ideal.primesOver p (𝓞 K)).toFinset = {P, σP} := by
+        ext Q
+        simp [hset]
+      rw [hfin] at hfact
+      simpa [σP, heP, heσP, hσne.symm] using hfact
+    change Ideal.map (algebraMap ℤ (𝓞 K)) (p ^ p.inertiaDeg P) =
+      P * Ideal.map (conjAutRingOfIntegers K : 𝓞 K →+* 𝓞 K) P
+    rw [hfP, pow_one, hmap]
+  · have hsingleton : Ideal.primesOver p (𝓞 K) = {P} := by
+      rw [Set.ncard_eq_one] at hinert
+      obtain ⟨Q, hQ⟩ := hinert.1
+      have hPQ : P = Q := by
+        rw [hQ] at hPmem
+        exact hPmem
+      rw [← hPQ] at hQ
+      exact hQ
+    have hσP : Ideal.map (conjAutRingOfIntegers K : 𝓞 K →+* 𝓞 K) P = P := by
+      rw [hsingleton] at hσmem
+      exact hσmem
+    have hfP : p.inertiaDeg P = 2 := by
+      rw [← Ideal.inertiaDegIn_eq_inertiaDeg_of_primesOver_eq_singleton
+        (p := p) (S := 𝓞 K) (P := P) hsingleton]
+      exact hinert.2.2
+    have hmap : Ideal.map (algebraMap ℤ (𝓞 K)) p = P := by
+      have hfact := Ideal.map_algebraMap_eq_finset_prod_pow (R := 𝓞 K) (S := ℤ) hp0
+      have heP : p.ramificationIdx P = 1 := by
+        rw [← Ideal.ramificationIdxIn_eq_ramificationIdx_of_primesOver_eq_singleton
+          (p := p) (S := 𝓞 K) (P := P) hsingleton]
+        exact hinert.2.1
+      have hfin : (Ideal.primesOver p (𝓞 K)).toFinset = {P} := by
+        ext Q
+        simp [hsingleton]
+      rw [hfin] at hfact
+      simpa [heP] using hfact
+    change Ideal.map (algebraMap ℤ (𝓞 K)) (p ^ p.inertiaDeg P) =
+      P * Ideal.map (conjAutRingOfIntegers K : 𝓞 K →+* 𝓞 K) P
+    rw [hfP, Ideal.map_pow, hmap, hσP, pow_two]
+  · have hsingleton : Ideal.primesOver p (𝓞 K) = {P} := by
+      rw [Set.ncard_eq_one] at hram
+      obtain ⟨Q, hQ⟩ := hram.1
+      have hPQ : P = Q := by
+        rw [hQ] at hPmem
+        exact hPmem
+      rw [← hPQ] at hQ
+      exact hQ
+    have hσP : Ideal.map (conjAutRingOfIntegers K : 𝓞 K →+* 𝓞 K) P = P := by
+      rw [hsingleton] at hσmem
+      exact hσmem
+    have hfP : p.inertiaDeg P = 1 := by
+      rw [← Ideal.inertiaDegIn_eq_inertiaDeg_of_primesOver_eq_singleton
+        (p := p) (S := 𝓞 K) (P := P) hsingleton]
+      exact hram.2.2
+    have hmap : Ideal.map (algebraMap ℤ (𝓞 K)) p = P ^ 2 := by
+      have hfact := Ideal.map_algebraMap_eq_finset_prod_pow (R := 𝓞 K) (S := ℤ) hp0
+      have heP : p.ramificationIdx P = 2 := by
+        rw [← Ideal.ramificationIdxIn_eq_ramificationIdx_of_primesOver_eq_singleton
+          (p := p) (S := 𝓞 K) (P := P) hsingleton]
+        exact hram.2.1
+      have hfin : (Ideal.primesOver p (𝓞 K)).toFinset = {P} := by
+        ext Q
+        simp [hsingleton]
+      rw [hfin] at hfact
+      simpa [heP] using hfact
+    change Ideal.map (algebraMap ℤ (𝓞 K)) (p ^ p.inertiaDeg P) =
+      P * Ideal.map (conjAutRingOfIntegers K : 𝓞 K →+* 𝓞 K) P
+    rw [hfP, pow_one, hmap, hσP, pow_two]
 
 /-- Prime-ideal case of the crux identity. This reduces the full
 ambiguous-product identity to the Galois-orbit calculation on a single nonzero
