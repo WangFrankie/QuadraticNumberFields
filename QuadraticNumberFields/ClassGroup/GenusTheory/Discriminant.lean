@@ -21,19 +21,23 @@ namespace ClassGroup
 /-! ## Class-number-one sieve -/
 
 /-- The number of distinct rational prime factors of the closed discriminant
-formula for `ℚ(√d)`. For squarefree `d`, this is the genus-theory parameter
-usually denoted `t`, the number of prime-discriminant factors of the fundamental
-discriminant. -/
+formula for `ℚ(√d)`. For squarefree `d ≠ 1`, where `discrFormula d` is the actual
+field discriminant, this is the genus-theory parameter usually denoted `t`, the
+number of prime-discriminant factors of the fundamental discriminant. -/
 def primeDiscriminantFactorCount (d : ℤ) : ℕ :=
   (RingOfIntegers.discrFormula d).natAbs.primeFactors.card
 
 /-! ## Discriminant prime factors -/
 
-/-- The set of odd rational primes dividing the discriminant of `ℚ(√d)`.
-These are precisely the odd primes at which the Kronecker symbol of the discriminant
-vanishes — i.e., the ramified odd primes. By `isRamified_iff_kroneckerSymNat_discr_eq_zero`
-and the odd-prime bridge `legendreSym_discFormula_eq_legendreSym_param_of_ne_two`,
-for an odd prime `p` this is equivalent to `p ∣ d`. -/
+/-- The odd rational prime divisors of the closed discriminant formula for `ℚ(√d)`.
+
+When `d` is squarefree and `d ≠ 1` — so that `discrFormula d` is the actual field
+discriminant — these are precisely the odd rational primes ramified in `ℚ(√d)`,
+equivalently the odd primes dividing `d` (see
+`dvd_param_of_mem_oddPrimeDiscriminantDivisors`). For general `d` this is just the
+odd prime divisors of `discrFormula d`, which need not be the ramified primes
+(e.g. `d = 18`, where `discrFormula 18 = 72` contributes `3` although `ℚ(√18) = ℚ(√2)`
+is unramified at `3`). -/
 def oddPrimeDiscriminantDivisors (d : ℤ) : Finset ℕ :=
   ((RingOfIntegers.discrFormula d).natAbs.primeFactors).filter fun p => p ≠ 2
 
@@ -80,9 +84,8 @@ theorem jacobiSym_natAbs_eq_prod_oddPrimeDiscriminantDivisors_of_mod_four_eq_one
     jacobiSym a d.natAbs =
       (oddPrimeDiscriminantDivisors d).prod
         (fun p => if hp : p.Prime then @legendreSym p ⟨hp⟩ a else 1) := by
-  have hodd : RingOfIntegers.discrFormula d % 2 ≠ 0 := by
-    rw [RingOfIntegers.discrFormula_of_mod_four_eq_one hd4]
-    omega
+  have hodd : RingOfIntegers.discrFormula d % 2 ≠ 0 :=
+    (RingOfIntegers.discrFormula_odd_iff_mod_four_eq_one d).2 hd4
   rw [jacobiSym.eq_prod_primeFactors_of_squarefree a (Int.squarefree_natAbs.mpr hsq)]
   rw [oddPrimeDiscriminantDivisors_eq_primeFactors_of_discr_odd d hodd]
   rw [RingOfIntegers.discrFormula_of_mod_four_eq_one hd4]
@@ -97,6 +100,7 @@ theorem jacobiSym_natAbs_eq_kroneckerSymNat_discrFormula_of_mod_four_eq_one
   exact (kroneckerSymNat_eq_jacobiSym_natAbs_of_emod_four_eq_one d hd4 n).symm
 
 /-- Characterization of membership in `oddPrimeDiscriminantDivisors`. -/
+@[simp]
 theorem mem_oddPrimeDiscriminantDivisors_iff (d : ℤ) (p : ℕ) :
     p ∈ oddPrimeDiscriminantDivisors d ↔
       p ∈ ((RingOfIntegers.discrFormula d).natAbs.primeFactors) ∧ p ≠ 2 :=
@@ -105,22 +109,48 @@ theorem mem_oddPrimeDiscriminantDivisors_iff (d : ℤ) (p : ℕ) :
 /-- Members of `oddPrimeDiscriminantDivisors d` are prime. -/
 theorem prime_of_mem_oddPrimeDiscriminantDivisors {d : ℤ} {p : ℕ}
     (hp : p ∈ oddPrimeDiscriminantDivisors d) : Nat.Prime p :=
-  Nat.prime_of_mem_primeFactors ((Finset.mem_filter.mp hp).left)
+  Nat.prime_of_mem_primeFactors ((mem_oddPrimeDiscriminantDivisors_iff d p).mp hp).left
 
 /-- Members of `oddPrimeDiscriminantDivisors d` are not `2`. -/
 theorem ne_two_of_mem_oddPrimeDiscriminantDivisors {d : ℤ} {p : ℕ}
     (hp : p ∈ oddPrimeDiscriminantDivisors d) : p ≠ 2 :=
-  (Finset.mem_filter.mp hp).right
+  ((mem_oddPrimeDiscriminantDivisors_iff d p).mp hp).right
 
 /-- Members of `oddPrimeDiscriminantDivisors d` divide the discriminant formula. -/
 theorem dvd_discr_of_mem_oddPrimeDiscriminantDivisors {d : ℤ} {p : ℕ}
     (hp : p ∈ oddPrimeDiscriminantDivisors d) :
     (p : ℤ) ∣ RingOfIntegers.discrFormula d := by
-  have hmem := (Finset.mem_filter.mp hp).left
+  have hmem := ((mem_oddPrimeDiscriminantDivisors_iff d p).mp hp).left
   have hmem' := Nat.mem_primeFactors.mp hmem
   have hdvd : p ∣ (RingOfIntegers.discrFormula d).natAbs := hmem'.2.1
   rw [← Int.dvd_natAbs]
   exact mod_cast hdvd
+
+/-- For `p ∈ oddPrimeDiscriminantDivisors d` (an odd prime), `(p : ℤ) ∣ d`.
+For `d % 4 = 1`, `discrFormula d = d` directly. For `d % 4 ≠ 1`,
+`discrFormula d = 4 * d`; since `p` is an odd prime, `p ∤ 4`, so `p ∣ d`.
+
+For squarefree `d ≠ 1` this is the statement that the odd discriminant divisors
+are exactly the odd primes dividing `d`. -/
+theorem dvd_param_of_mem_oddPrimeDiscriminantDivisors {d : ℤ} {p : ℕ}
+    (hp : p ∈ oddPrimeDiscriminantDivisors d) : (p : ℤ) ∣ d := by
+  have hp_ne_two : p ≠ 2 := ne_two_of_mem_oddPrimeDiscriminantDivisors hp
+  have hp_prime : Nat.Prime p := prime_of_mem_oddPrimeDiscriminantDivisors hp
+  have hp_dvd_disc : (p : ℤ) ∣ RingOfIntegers.discrFormula d :=
+    dvd_discr_of_mem_oddPrimeDiscriminantDivisors hp
+  by_cases hd4 : d % 4 = 1
+  · rwa [RingOfIntegers.discrFormula_of_mod_four_eq_one hd4] at hp_dvd_disc
+  · rw [RingOfIntegers.discrFormula_of_mod_four_ne_one hd4] at hp_dvd_disc
+    have hp_prime_int : Prime (p : ℤ) := Nat.prime_iff_prime_int.mp hp_prime
+    rcases hp_prime_int.dvd_or_dvd hp_dvd_disc with h4 | hd'
+    · exfalso
+      have hp_dvd_four_nat : p ∣ (2 : ℕ) ^ 2 := by
+        have : p ∣ (4 : ℕ) := by exact_mod_cast h4
+        rwa [show (4 : ℕ) = 2 ^ 2 by norm_num] at this
+      exact hp_ne_two
+        ((Nat.prime_dvd_prime_iff_eq hp_prime Nat.prime_two).mp
+          (hp_prime.dvd_of_dvd_pow hp_dvd_four_nat))
+    · exact hd'
 
 end ClassGroup
 end QuadraticNumberFields

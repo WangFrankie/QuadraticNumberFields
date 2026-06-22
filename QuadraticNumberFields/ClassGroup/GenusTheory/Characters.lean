@@ -303,33 +303,6 @@ theorem genusCharacterOfAbsNormCoprimeDescent_apply_mk0OnAbsNormCoprimeIdeals
   exact hdesc (Classical.choose (hsurj (mk0OnAbsNormCoprimeIdeals d p I))) I
     (Classical.choose_spec (hsurj (mk0OnAbsNormCoprimeIdeals d p I)))
 
-/-- From `p ∈ oddPrimeDiscriminantDivisors d` (so `p` is an odd prime), deduce
-`(p : ℤ) ∣ d`. For `d % 4 = 1`, `discrFormula d = d` directly. For `d % 4 ≠ 1`,
-`discrFormula d = 4*d`; since `p` is an odd prime, `p ∤ 4`, so `p ∣ d`. -/
-private theorem dvd_param_of_mem_oddPrimeDiscriminantDivisors {d : ℤ} {p : ℕ} [Fact p.Prime]
-    (hp_mem : p ∈ oddPrimeDiscriminantDivisors d) : (p : ℤ) ∣ d := by
-  have hp_ne_two : p ≠ 2 := ne_two_of_mem_oddPrimeDiscriminantDivisors hp_mem
-  have hp_prime : Nat.Prime p := Fact.out
-  have hp_dvd_disc : (p : ℤ) ∣ RingOfIntegers.discrFormula d :=
-    dvd_discr_of_mem_oddPrimeDiscriminantDivisors hp_mem
-  by_cases hd4 : d % 4 = 1
-  · rw [RingOfIntegers.discrFormula_of_mod_four_eq_one hd4] at hp_dvd_disc
-    exact hp_dvd_disc
-  · rw [RingOfIntegers.discrFormula_of_mod_four_ne_one hd4] at hp_dvd_disc
-    -- (p:ℤ) ∣ 4*d and p is prime; if p ∣ 4 then p=2, contradiction
-    have hp_prime_int : Prime (p : ℤ) := Nat.prime_iff_prime_int.mp hp_prime
-    rcases hp_prime_int.dvd_or_dvd hp_dvd_disc with (h4 | hd')
-    · -- (p : ℤ) ∣ 4 → p = 2 in ℕ, contradiction with p ≠ 2
-      exfalso
-      have hp_dvd_four_nat : p ∣ (4 : ℕ) := by exact_mod_cast h4
-      have h_four_eq_two_sq : (4 : ℕ) = (2 : ℕ)^2 := by norm_num
-      have hp_dvd_two_sq : p ∣ (2 : ℕ)^2 := by rwa [← h_four_eq_two_sq]
-      have hp_dvd_two : p ∣ (2 : ℕ) := hp_prime.dvd_of_dvd_pow hp_dvd_two_sq
-      have hp_eq_two : p = 2 :=
-        (Nat.prime_dvd_prime_iff_eq hp_prime Nat.prime_two).mp hp_dvd_two
-      exact hp_ne_two hp_eq_two
-    · exact hd'
-
 /-- If `p ∣ d`, the explicit `ℤ[√d]` norm is congruent to `re ^ 2` modulo `p`.
 Consequently its Legendre symbol is `1` whenever the norm is not divisible by `p`. -/
 theorem legendreSym_zsqrtd_norm_eq_one_of_dvd_param
