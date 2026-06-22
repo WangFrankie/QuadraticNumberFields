@@ -253,8 +253,12 @@ unified class-number interface:
   `classGroup_eq_one_or_of_exists_ideal_norm_lt_three`.
 - `ClassGroup/Minkowski.lean`: `Qsqrtd.minkowskiBound`,
   `Qsqrtd.exists_ideal_in_class_of_norm_le`,
-  `Qsqrtd.exists_ideal_in_class_of_norm_le_imaginary`, and
-  `Qsqrtd.exists_ideal_in_class_of_norm_le_real`.
+  `Qsqrtd.exists_ideal_in_class_of_norm_le_imaginary`,
+  `Qsqrtd.exists_ideal_in_class_of_norm_le_real`,
+  `Qsqrtd.classNumber_eq_one_of_forall_le_minkowskiBound_isPrincipal`,
+  `Qsqrtd.classNumber_eq_one_of_forall_le_minkowskiBound_primesOver_isPrincipal`,
+  `Qsqrtd.classNumber_eq_one_of_forall_le_minkowskiBound_split_principal`, and
+  `Qsqrtd.classNumber_eq_one_of_forall_le_minkowskiBound_ramified_principal`.
 
 The Heegner wrappers for this interface live in
 `ImaginaryClassNumberOne/ClassNumberBridge.lean`. Reduced-form cardinality and

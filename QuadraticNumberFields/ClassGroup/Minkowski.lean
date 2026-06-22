@@ -117,7 +117,7 @@ theorem exists_ideal_in_class_of_norm_le
     ring_nf at hI ⊢
     exact hI
 
-/-! ## Class number one via inert primes below the Minkowski bound -/
+/-! ## Class number one via prime ideals below the Minkowski bound -/
 
 section ClassNumberOne
 
@@ -184,47 +184,113 @@ private lemma isPrincipal_of_isInertIn_of_comap_eq_p
   rw [← hPQ, Ideal.map_span, Set.image_singleton]
   exact ⟨_, rfl⟩
 
-private lemma isPrincipal_of_isPrime_dvd_of_forall_le_minkowskiBound_isInertIn
+/-- Class-group form of the Minkowski-bound prime-ideal principality criterion:
+if every nonzero prime ideal with absolute norm at most `minkowskiBound d` is
+principal, then every ideal class of `𝓞(ℚ(√d))` is trivial. -/
+theorem classGroup_eq_one_of_forall_le_minkowskiBound_isPrincipal
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
-    (h : ∀ p : ℕ, p.Prime → (p : ℝ) ≤ minkowskiBound d →
-      Ideal.IsInertIn (𝔭(p)) 𝓞(d))
-    {I : nonZeroDivisors (Ideal (𝓞 (Qsqrtd (d : ℚ))))}
-    {P : Ideal (𝓞 (Qsqrtd (d : ℚ)))}
-    (hP : P.IsPrime) (hPI : P ∣ (I : Ideal (𝓞 (Qsqrtd (d : ℚ)))))
-    (hnorm : (Ideal.absNorm (I : Ideal (𝓞 (Qsqrtd (d : ℚ)))) : ℝ) ≤
-      minkowskiBound d) :
-    P.IsPrincipal := by
+    (h : ∀ P : Ideal (𝓞 (Qsqrtd (d : ℚ))), P.IsPrime → P ≠ ⊥ →
+      (Ideal.absNorm P : ℝ) ≤ minkowskiBound d → P.IsPrincipal)
+    (C : ClassGroup (𝓞 (Qsqrtd (d : ℚ)))) :
+    C = 1 := by
+  obtain ⟨I, hmk, hnorm⟩ := exists_ideal_in_class_of_norm_le d C
+  rw [← hmk, ClassGroup.mk0_eq_one_iff]
+  refine Ideal.isPrincipal_of_forall_isPrime_dvd_isPrincipal fun P hP hPI => ?_
   have hI0 : (I : Ideal (𝓞 (Qsqrtd (d : ℚ)))) ≠ 0 := nonZeroDivisors.coe_ne_zero I
   have hP0 : P ≠ ⊥ := by
     rintro rfl
     rw [← Ideal.zero_eq_bot, zero_dvd_iff] at hPI
     exact hI0 hPI
-  obtain ⟨p, hp, hcomap, hpdiv⟩ :=
-    exists_nat_prime_comap_eq_p_and_dvd_absNorm d hP hP0
-  have habs0 : Ideal.absNorm P ≠ 0 := by
-    rwa [Ne, Ideal.absNorm_eq_zero_iff]
   have hIabs0 : Ideal.absNorm (I : Ideal (𝓞 (Qsqrtd (d : ℚ)))) ≠ 0 := by
     rwa [Ne, Ideal.absNorm_eq_zero_iff]
   have hPle : Ideal.absNorm P ≤ Ideal.absNorm (I : Ideal (𝓞 (Qsqrtd (d : ℚ)))) :=
     Nat.le_of_dvd (Nat.pos_of_ne_zero hIabs0)
       (Ideal.absNorm_dvd_absNorm_of_le (Ideal.le_of_dvd hPI))
+  have hPbound : (Ideal.absNorm P : ℝ) ≤ minkowskiBound d :=
+    le_trans (by exact_mod_cast hPle) hnorm
+  exact h P hP hP0 hPbound
+
+/-- Class number one from bounded prime ideals. If every nonzero prime ideal
+of `𝓞(ℚ(√d))` with absolute norm at most `minkowskiBound d` is principal, then
+`ℚ(√d)` has class number one. -/
+theorem classNumber_eq_one_of_forall_le_minkowskiBound_isPrincipal
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (h : ∀ P : Ideal (𝓞 (Qsqrtd (d : ℚ))), P.IsPrime → P ≠ ⊥ →
+      (Ideal.absNorm P : ℝ) ≤ minkowskiBound d → P.IsPrincipal) :
+    NumberField.classNumber (Qsqrtd (d : ℚ)) = 1 := by
+  exact NumberField.classNumber_eq_one_of_forall_classGroup_eq_one
+    (classGroup_eq_one_of_forall_le_minkowskiBound_isPrincipal d h)
+
+/-- Class-group form of the rational-prime fiber criterion: if for every rational
+prime `p ≤ minkowskiBound d` all prime ideals above `(p)` are principal, then
+every ideal class of `𝓞(ℚ(√d))` is trivial. -/
+theorem classGroup_eq_one_of_forall_le_minkowskiBound_primesOver_isPrincipal
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (h : ∀ p : ℕ, p.Prime → (p : ℝ) ≤ minkowskiBound d →
+      ∀ P ∈ Ideal.primesOver (𝔭(p)) 𝓞(d), P.IsPrincipal)
+    (C : ClassGroup (𝓞 (Qsqrtd (d : ℚ)))) :
+    C = 1 := by
+  refine classGroup_eq_one_of_forall_le_minkowskiBound_isPrincipal d ?_ C
+  intro P hP hP0 hPbound
+  obtain ⟨p, hp, hcomap, hpdiv⟩ :=
+    exists_nat_prime_comap_eq_p_and_dvd_absNorm d hP hP0
+  have habs0 : Ideal.absNorm P ≠ 0 := by
+    rwa [Ne, Ideal.absNorm_eq_zero_iff]
   have hpabs : p ≤ Ideal.absNorm P :=
     Nat.le_of_dvd (Nat.pos_of_ne_zero habs0) hpdiv
   have hple : (p : ℝ) ≤ minkowskiBound d :=
-    le_trans (by exact_mod_cast le_trans hpabs hPle) hnorm
-  exact isPrincipal_of_isInertIn_of_comap_eq_p d hP hp hcomap (h p hp hple)
+    le_trans (by exact_mod_cast hpabs) hPbound
+  letI : P.LiesOver (𝔭(p)) := ⟨hcomap.symm⟩
+  exact h p hp hple P ⟨hP, inferInstance⟩
 
-private lemma isPrincipal_of_absNorm_le_minkowskiBound_of_forall_isInertIn
+/-- **Class number one from principal rational-prime fibers.** If every prime
+ideal above every rational prime `p ≤ minkowskiBound d` is principal, then
+`ℚ(√d)` has class number one. -/
+theorem classNumber_eq_one_of_forall_le_minkowskiBound_primesOver_isPrincipal
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
     (h : ∀ p : ℕ, p.Prime → (p : ℝ) ≤ minkowskiBound d →
-      Ideal.IsInertIn (𝔭(p)) 𝓞(d))
-    (I : nonZeroDivisors (Ideal (𝓞 (Qsqrtd (d : ℚ)))))
-    (hnorm : (Ideal.absNorm (I : Ideal (𝓞 (Qsqrtd (d : ℚ)))) : ℝ) ≤
-      minkowskiBound d) :
-    (I : Ideal (𝓞 (Qsqrtd (d : ℚ)))).IsPrincipal := by
-  refine Ideal.isPrincipal_of_forall_isPrime_dvd_isPrincipal fun P hP hPI => ?_
-  exact isPrincipal_of_isPrime_dvd_of_forall_le_minkowskiBound_isInertIn
-    d h hP hPI hnorm
+      ∀ P ∈ Ideal.primesOver (𝔭(p)) 𝓞(d), P.IsPrincipal) :
+    NumberField.classNumber (Qsqrtd (d : ℚ)) = 1 := by
+  exact NumberField.classNumber_eq_one_of_forall_classGroup_eq_one
+    (classGroup_eq_one_of_forall_le_minkowskiBound_primesOver_isPrincipal d h)
+
+/-- **Class number one via inert or split small primes.** Inert primes contribute
+only the principal ideal `(p)`; for split primes, it is enough to prove
+principality of every prime ideal above `(p)`. -/
+theorem classNumber_eq_one_of_forall_le_minkowskiBound_split_principal
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (hinert_or_split : ∀ p : ℕ, p.Prime → (p : ℝ) ≤ minkowskiBound d →
+      Ideal.IsInertIn (𝔭(p)) 𝓞(d) ∨ Ideal.IsSplitIn (𝔭(p)) 𝓞(d))
+    (hsplit : ∀ p : ℕ, p.Prime → (p : ℝ) ≤ minkowskiBound d →
+      Ideal.IsSplitIn (𝔭(p)) 𝓞(d) →
+        ∀ P ∈ Ideal.primesOver (𝔭(p)) 𝓞(d), P.IsPrincipal) :
+    NumberField.classNumber (Qsqrtd (d : ℚ)) = 1 := by
+  refine classNumber_eq_one_of_forall_le_minkowskiBound_primesOver_isPrincipal d ?_
+  intro p hp hple P hPmem
+  rcases hinert_or_split p hp hple with hinert | hsplitp
+  · letI : P.LiesOver (𝔭(p)) := hPmem.2
+    exact isPrincipal_of_isInertIn_of_comap_eq_p d hPmem.1 hp
+      (Ideal.LiesOver.over (p := 𝔭(p)) (P := P)).symm hinert
+  · exact hsplit p hp hple hsplitp P hPmem
+
+/-- **Class number one via inert or ramified small primes.** Inert primes
+contribute only the principal ideal `(p)`; for ramified primes, it is enough to
+prove principality of every prime ideal above `(p)`. -/
+theorem classNumber_eq_one_of_forall_le_minkowskiBound_ramified_principal
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (hinert_or_ramified : ∀ p : ℕ, p.Prime → (p : ℝ) ≤ minkowskiBound d →
+      Ideal.IsInertIn (𝔭(p)) 𝓞(d) ∨ Ideal.IsRamifiedIn (𝔭(p)) 𝓞(d))
+    (hramified : ∀ p : ℕ, p.Prime → (p : ℝ) ≤ minkowskiBound d →
+      Ideal.IsRamifiedIn (𝔭(p)) 𝓞(d) →
+        ∀ P ∈ Ideal.primesOver (𝔭(p)) 𝓞(d), P.IsPrincipal) :
+    NumberField.classNumber (Qsqrtd (d : ℚ)) = 1 := by
+  refine classNumber_eq_one_of_forall_le_minkowskiBound_primesOver_isPrincipal d ?_
+  intro p hp hple P hPmem
+  rcases hinert_or_ramified p hp hple with hinert | hramifiedp
+  · letI : P.LiesOver (𝔭(p)) := hPmem.2
+    exact isPrincipal_of_isInertIn_of_comap_eq_p d hPmem.1 hp
+      (Ideal.LiesOver.over (p := 𝔭(p)) (P := P)).symm hinert
+  · exact hramified p hp hple hramifiedp P hPmem
 
 /-- Class-group form of the inert-prime criterion: under the Minkowski-bound
 inertness hypothesis, every ideal class of `𝓞(ℚ(√d))` is trivial. -/
@@ -234,9 +300,11 @@ theorem classGroup_eq_one_of_forall_le_minkowskiBound_isInertIn
       Ideal.IsInertIn (𝔭(p)) 𝓞(d))
     (C : ClassGroup (𝓞 (Qsqrtd (d : ℚ)))) :
     C = 1 := by
-  obtain ⟨I, hmk, hnorm⟩ := exists_ideal_in_class_of_norm_le d C
-  rw [← hmk, ClassGroup.mk0_eq_one_iff]
-  exact isPrincipal_of_absNorm_le_minkowskiBound_of_forall_isInertIn d h I hnorm
+  refine classGroup_eq_one_of_forall_le_minkowskiBound_primesOver_isPrincipal d ?_ C
+  intro p hp hple P hPmem
+  letI : P.LiesOver (𝔭(p)) := hPmem.2
+  exact isPrincipal_of_isInertIn_of_comap_eq_p d hPmem.1 hp
+    (Ideal.LiesOver.over (p := 𝔭(p)) (P := P)).symm (h p hp hple)
 
 /-- **Class number one via inert primes.** If every rational prime `p` below
 the Minkowski bound of `ℚ(√d)` is inert in `𝓞(ℚ(√d))`, then `ℚ(√d)` has class
@@ -251,10 +319,8 @@ theorem classNumber_eq_one_of_forall_le_minkowskiBound_isInertIn
     (h : ∀ p : ℕ, p.Prime → (p : ℝ) ≤ minkowskiBound d →
       Ideal.IsInertIn (𝔭(p)) 𝓞(d)) :
     NumberField.classNumber (Qsqrtd (d : ℚ)) = 1 := by
-  have htriv := classGroup_eq_one_of_forall_le_minkowskiBound_isInertIn d h
-  haveI : Unique (ClassGroup (𝓞 (Qsqrtd (d : ℚ)))) := ⟨⟨1⟩, htriv⟩
-  simpa only [NumberField.classNumber] using
-    Fintype.card_unique (α := ClassGroup (𝓞 (Qsqrtd (d : ℚ))))
+  exact NumberField.classNumber_eq_one_of_forall_classGroup_eq_one
+    (classGroup_eq_one_of_forall_le_minkowskiBound_isInertIn d h)
 
 end ClassNumberOne
 

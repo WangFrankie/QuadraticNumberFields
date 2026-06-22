@@ -6,7 +6,9 @@ Authors: Frankie Wang
 import QuadraticNumberFields.ClassGroup.ClassNumber
 import QuadraticNumberFields.ClassGroup.SmallNorm
 import Examples.Sqrt17.Invariants
+import Examples.Sqrt17.Splitting
 import QuadraticNumberFields.RingOfIntegers.Norm
+import QuadraticNumberFields.Splitting.Qsqrtd.Kronecker
 
 /-!
 # The Class Number of `ℚ(√17)` Is One
@@ -16,20 +18,16 @@ Hand computation of the class number of `ℚ(√17)`.
 Since `17 ≡ 1 (mod 4)`, the ring of integers is `𝓞(ℚ(√17)) = ℤ[(1+√17)/2]`
 (`Examples.Sqrt17.ringOfIntegersEquiv`). The Minkowski bound for this real
 quadratic field is `(1/2)·√17 < 3` (`Examples.Sqrt17.minkowskiBound_lt_three`),
-so every ideal class contains a non-zero ideal `I` of absolute norm `< 3`,
-i.e. `absNorm I ∈ {1, 2}`.
-
-* `absNorm I = 1` forces `I = ⊤`, which is principal.
-* `absNorm I = 2` forces `I` to be prime and to divide `(2)` in `𝓞(ℚ(√17))`.
+so the only rational prime below the bound is `2`.
 
 The prime factorization of `(2)` is `(2) = (x)·(x̄)` where `x = (5 + √17)/2`
 and `x̄ = (5 - √17)/2` are conjugate elements of norm `2`. Concretely, in the
 model `ℤ[(1+√17)/2] = ZOnePlusSqrtdOverTwo 4` (with `ω = (1 + √17)/2`,
 `ω² = ω + 4`) these are `2 + ω = ⟨2, 1⟩` and `3 - ω = ⟨3, -1⟩`, embedded into
 `𝓞(ℚ(√17))` by the canonical map `ZOnePlusSqrtdOverTwo.toQsqrtdHom`. Both
-`(x)` and `(x̄)` are norm-`2` prime ideals, so every norm-`2` prime is
-principal. Together with `I = ⊤` for the norm-`1` case, this shows every ideal
-class is trivial, i.e. `classNumberQsqrtd 17 = 1`.
+`(x)` and `(x̄)` are norm-`2` prime ideals, so every prime ideal above `(2)` is
+principal. The general Minkowski fiber criterion then shows every ideal class is
+trivial, i.e. `classNumberQsqrtd 17 = 1`.
 
 This hand computation places `ℚ(√17)` in the class-number-one list right after
 the nine Heegner fields, illustrating the split-prime dichotomy on a real
@@ -38,6 +36,7 @@ are principal.
 -/
 
 open scoped NumberField
+open scoped QuadraticNumberFields.Splitting
 
 open Ideal
 
@@ -162,12 +161,12 @@ theorem isPrime_span_xConj :
       rw [absNorm_span_xConj]
       exact (Nat.irreducible_iff_prime.mp Nat.prime_two).irreducible)
 
-/-! ## Norm-2 ideals are principal, and `ℚ(√17)` has class number one
+/-! ## Prime ideals above `(2)` are principal, and `ℚ(√17)` has class number one
 
 A norm-`2` ideal `I` is prime and contains `2`, hence divides `(2) = (x)(x̄)`;
 being prime it equals one of the prime factors `(x)` or `(x̄)` (both maximal),
-and is therefore principal. Combined with the norm-`1` (i.e. `⊤`) case and the
-Minkowski representative bound, every ideal class is trivial. -/
+and is therefore principal. Since `2` splits in `ℚ(√17)`, every prime ideal above
+`(2)` has absolute norm `2`, so the general Minkowski fiber criterion applies. -/
 
 /-- Every ideal of absolute norm `2` in `𝓞(ℚ(√17))` is principal: it is a prime
 dividing `(2) = (x)(x̄)`, hence equals the maximal ideal `(x)` or `(x̄)`. -/
@@ -195,10 +194,31 @@ theorem isPrincipal_of_absNorm_eq_two
     have heq : Ideal.span {xConj} = I := hmax.eq_of_le hItop (Ideal.le_of_dvd hxc)
     rw [← heq]; exact ⟨xConj, rfl⟩
 
+/-- Every prime ideal above `(2)` in `𝓞(ℚ(√17))` is principal. -/
+theorem isPrincipal_of_mem_primesOver_two
+    {P : Ideal (𝓞 (Qsqrtd ((17 : ℤ) : ℚ)))}
+    (hP : P ∈ Ideal.primesOver (𝔭(2)) 𝓞((17 : ℤ))) :
+    P.IsPrincipal := by
+  haveI : P.IsPrime := hP.1
+  letI : P.LiesOver (𝔭(2)) := hP.2
+  have hnorm : Ideal.absNorm P = 2 := by
+    simpa using
+      QuadraticNumberFields.Splitting.absNorm_eq_prime_of_liesOver_of_isSplitIn
+        (d := (17 : ℤ)) (p := 2) (P := P) two_isSplit
+  exact isPrincipal_of_absNorm_eq_two hnorm
+
 /-- Every ideal class of `ℚ(√17)` is trivial. -/
 theorem classGroup_eq_one (C : ClassGroup (𝓞 (Qsqrtd ((17 : ℤ) : ℚ)))) : C = 1 := by
-  exact classGroup_eq_one_of_exists_ideal_norm_lt_three
-    exists_ideal_in_class_of_norm_le (fun hI => isPrincipal_of_absNorm_eq_two hI) C
+  refine Qsqrtd.classGroup_eq_one_of_forall_le_minkowskiBound_primesOver_isPrincipal
+    (17 : ℤ) ?_ C
+  intro p hp hple P hPmem
+  have hp_lt_three : (p : ℝ) < 3 := lt_of_le_of_lt hple minkowskiBound_lt_three
+  have hp_lt_three_nat : p < 3 := by exact_mod_cast hp_lt_three
+  have hp_le_two : p ≤ 2 := Nat.lt_succ_iff.mp hp_lt_three_nat
+  have hp_two_le : 2 ≤ p := hp.two_le
+  have hp_eq : p = 2 := le_antisymm hp_le_two hp_two_le
+  subst p
+  exact isPrincipal_of_mem_primesOver_two hPmem
 
 /-- **`ℚ(√17)` has class number one.** -/
 theorem classNumber_eq_one :
