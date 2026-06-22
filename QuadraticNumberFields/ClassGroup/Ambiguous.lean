@@ -569,26 +569,6 @@ theorem card_twoTorsion_eq_card_ambiguousClass
     Nat.card (_root_.ClassGroup.twoTorsion R) = Nat.card (AmbiguousClass R) :=
   Nat.card_congr (twoTorsionEquivAmbiguousClass R)
 
-/-- The square-class quotient `Cl / Cl²` has the same cardinality as the ambiguous
-classes. This is the finite-group algebra identifying the two standard genus-theory
-cardinalities `#(Cl / Cl²)` and `#Cl[2]`, followed by the inversion-fixed
-description of `Cl[2]`. -/
-theorem card_squareQuotient_eq_card_ambiguousClass
-    (R : Type*) [CommRing R] [IsDomain R] [Finite (_root_.ClassGroup R)] :
-    Nat.card (_root_.ClassGroup.squareQuotient R) = Nat.card (AmbiguousClass R) := by
-  rw [_root_.ClassGroup.card_squareQuotient_eq_card_twoTorsion]
-  exact card_twoTorsion_eq_card_ambiguousClass R
-
-/-- **Genus formula for the square-class quotient, indexed by odd ramified primes.**
-In the odd fundamental-discriminant branch, all ramified rational primes are odd and
-are represented by `oddPrimeDiscriminantDivisors d`. This is the principal-genus
-cardinality form of the remaining genus-theory input. -/
-theorem card_squareQuotient_eq_of_oddPrimeDiscriminantDivisors
-    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd_neg : d < 0) (hd4 : d % 4 = 1) :
-    Nat.card (_root_.ClassGroup.squareQuotient (𝓞 (Qsqrtd (d : ℚ)))) =
-      2 ^ ((oddPrimeDiscriminantDivisors d).card - 1) := by
-  sorry
-
 /-- **Ambiguous class number formula, indexed by odd ramified primes.** In the
 odd fundamental-discriminant branch, all ramified rational primes are odd and
 are represented by `oddPrimeDiscriminantDivisors d`. This is the cohomological
@@ -598,8 +578,7 @@ theorem card_ambiguousClass_eq_of_oddPrimeDiscriminantDivisors
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd_neg : d < 0) (hd4 : d % 4 = 1) :
     Nat.card (AmbiguousClass (𝓞 (Qsqrtd (d : ℚ)))) =
       2 ^ ((oddPrimeDiscriminantDivisors d).card - 1) := by
-  rw [← card_squareQuotient_eq_card_ambiguousClass]
-  exact card_squareQuotient_eq_of_oddPrimeDiscriminantDivisors d hd_neg hd4
+  sorry
 
 /-- **Ambiguous class number formula, odd-discriminant quadratic case.** This
 rewrites the odd-ramified-prime form of the formula using the closed
