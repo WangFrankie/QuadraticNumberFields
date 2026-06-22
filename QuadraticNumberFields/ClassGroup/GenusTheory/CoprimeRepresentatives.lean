@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 
+import QNFMathlib.RingTheory.ClassGroup
 import QuadraticNumberFields.ClassGroup.GenusTheory.Characters
 
 /-!
@@ -41,7 +42,41 @@ theorem exists_absNorm_coprime_representative_of_finset
       ClassGroup.mk0 I = C ∧
         ∀ p ∈ S,
           ¬ (p : ℤ) ∣ (Ideal.absNorm (I : Ideal (𝓞 (Qsqrtd (d : ℚ)))) : ℤ) := by
-  sorry
+  set n : ℕ := ∏ p ∈ S, p with hn
+  have hn_ne : n ≠ 0 :=
+    Finset.prod_ne_zero_iff.mpr fun p hp => (hS p hp).pos.ne'
+  have hn0 : (n : 𝓞 (Qsqrtd (d : ℚ))) ≠ 0 := Nat.cast_ne_zero.mpr hn_ne
+  have hMne : Ideal.span ({(n : 𝓞 (Qsqrtd (d : ℚ)))} : Set _) ≠ ⊥ := by
+    rw [Ne, Ideal.span_singleton_eq_bot]; exact hn0
+  obtain ⟨I, hCI, hcop⟩ :=
+    _root_.ClassGroup.exists_integralRep_isCoprime C
+      (Ideal.span ({(n : 𝓞 (Qsqrtd (d : ℚ)))} : Set _)) hMne
+  refine ⟨I, hCI, ?_⟩
+  intro p hp
+  have hsup : (I : Ideal (𝓞 (Qsqrtd (d : ℚ)))) ⊔
+      Ideal.span ({(n : 𝓞 (Qsqrtd (d : ℚ)))} : Set _) = ⊤ :=
+    Ideal.isCoprime_iff_sup_eq.mp hcop
+  have hpn : (p : 𝓞 (Qsqrtd (d : ℚ))) ∣ (n : 𝓞 (Qsqrtd (d : ℚ))) := by
+    have hd : p ∣ n := by rw [hn]; exact Finset.dvd_prod_of_mem _ hp
+    exact_mod_cast Nat.cast_dvd_cast hd
+  have hsup_p : (I : Ideal (𝓞 (Qsqrtd (d : ℚ)))) ⊔
+      Ideal.span ({(p : 𝓞 (Qsqrtd (d : ℚ)))} : Set _) = ⊤ := by
+    have hle : Ideal.span ({(n : 𝓞 (Qsqrtd (d : ℚ)))} : Set _) ≤
+        Ideal.span ({(p : 𝓞 (Qsqrtd (d : ℚ)))} : Set _) :=
+      Ideal.span_singleton_le_span_singleton.mpr hpn
+    have hsup' := sup_le_sup_left hle (I : Ideal (𝓞 (Qsqrtd (d : ℚ))))
+    rw [hsup] at hsup'
+    exact top_le_iff.mp hsup'
+  have hIne : (I : Ideal (𝓞 (Qsqrtd (d : ℚ)))) ≠ ⊥ := by
+    have h := I.2
+    rw [mem_nonZeroDivisors_iff_ne_zero] at h
+    rwa [Ideal.zero_eq_bot] at h
+  have hcoprime : (Ideal.absNorm (I : Ideal (𝓞 (Qsqrtd (d : ℚ))))).Coprime p :=
+    Ideal.absNorm_coprime_of_sup_span_natCast_eq_top _ p hIne hsup_p
+  intro hdvd
+  have hpnat : p ∣ Ideal.absNorm (I : Ideal (𝓞 (Qsqrtd (d : ℚ)))) := by
+    exact_mod_cast hdvd
+  exact ((hS p hp).coprime_iff_not_dvd.mp (Nat.coprime_comm.mp hcoprime)) hpnat
 
 /-- **Coprime-representative theorem.** Every ideal class has an
 integral ideal representative whose absolute norm is prime to every odd rational
