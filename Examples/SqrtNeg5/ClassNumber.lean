@@ -201,14 +201,13 @@ group-law computation coming from the ramified factorization `(2) = P²`. -/
 theorem classP_mul_self_eq_one :
     classP * classP = (1 : ClassGroup O) := by
   simpa [classP, pow_two] using
-    ClassGroup.mk0_sq_eq_one_of_sq_isPrincipal P0 isPrincipal_P0_sq
+    (ClassGroup.mk0_pow_eq_one_iff_pow_isPrincipal P0 2).mpr isPrincipal_P0_sq
 
 /-- The ramified ideal class `[P]` is a torsion element of the ideal class group. -/
 theorem classP_mem_torsion :
     classP ∈ CommGroup.torsion (ClassGroup O) := by
-  simpa [classP] using
-    ClassGroup.mk0_mem_torsion_of_pow_isPrincipal P0
-      (n := 2) (by norm_num) isPrincipal_P0_sq
+  rw [CommGroup.mem_torsion, isOfFinOrder_iff_pow_eq_one]
+  exact ⟨2, by norm_num, by rw [pow_two]; exact classP_mul_self_eq_one⟩
 
 /-- The ideal class group of `ℚ(√-5)` is cyclic of order two. -/
 noncomputable def classGroupMulEquivZMod2 :

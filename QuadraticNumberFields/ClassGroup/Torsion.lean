@@ -91,49 +91,29 @@ local notation "Cl[" R "][" n "]" =>
   MonoidHom.ker (powMonoidHom (α := ClassGroup R) n)
 
 variable [IsDedekindDomain R]
-/-- If a power of a nonzero integral ideal is principal, then the same power of its
-ideal class is trivial. -/
-theorem mk0_pow_eq_one_of_pow_isPrincipal
-    (I : nonZeroDivisors (Ideal R)) {n : ℕ} (hI : ((I : Ideal R) ^ n).IsPrincipal) :
-    (mk0 I : ClassGroup R) ^ n = 1 := by
-  rw [← map_pow]
-  rw [mk0_eq_one_iff]
-  exact hI
 
-/-- If a positive power of a nonzero integral ideal is principal, its ideal class is
-torsion. -/
-theorem mk0_mem_torsion_of_pow_isPrincipal
-    (I : nonZeroDivisors (Ideal R)) {n : ℕ} (hn : 0 < n)
-    (hI : ((I : Ideal R) ^ n).IsPrincipal) :
-    mk0 I ∈ CommGroup.torsion (ClassGroup R) := by
-  rw [CommGroup.mem_torsion]
-  rw [isOfFinOrder_iff_pow_eq_one]
-  exact ⟨n, hn, mk0_pow_eq_one_of_pow_isPrincipal I hI⟩
+/-- The `n`th power of the ideal class `mk0 I` is trivial exactly when the `n`th
+power of the ideal `I` is principal. -/
+@[simp]
+theorem mk0_pow_eq_one_iff_pow_isPrincipal
+    (I : nonZeroDivisors (Ideal R)) (n : ℕ) :
+    (mk0 I : ClassGroup R) ^ n = 1 ↔ ((I : Ideal R) ^ n).IsPrincipal := by
+  rw [← map_pow, mk0_eq_one_iff, SubmonoidClass.coe_pow]
 
-/-- If the square of a nonzero integral ideal is principal, then the square of its
-ideal class is trivial. -/
-theorem mk0_sq_eq_one_of_sq_isPrincipal
-    (I : nonZeroDivisors (Ideal R)) (hI : ((I : Ideal R) ^ 2).IsPrincipal) :
-    (mk0 I : ClassGroup R) ^ 2 = 1 :=
-  mk0_pow_eq_one_of_pow_isPrincipal I hI
+/-- The ideal class `mk0 I` lies in the `n`-power torsion subgroup `Cl[n]` exactly
+when `I ^ n` is principal. -/
+@[simp]
+theorem mk0_mem_torsionBy_iff
+    (I : nonZeroDivisors (Ideal R)) (n : ℕ) :
+    mk0 I ∈ torsionBy R n ↔ ((I : Ideal R) ^ n).IsPrincipal := by
+  rw [mem_torsionBy_iff, mk0_pow_eq_one_iff_pow_isPrincipal]
 
-/-- If the square of a nonzero integral ideal is principal, its ideal class lies
-in `Cl[2]`. -/
-theorem mk0_mem_twoTorsion_of_sq_isPrincipal
-    (I : nonZeroDivisors (Ideal R)) (hI : ((I : Ideal R) ^ 2).IsPrincipal) :
-    mk0 I ∈ twoTorsion R := by
-  rw [mem_twoTorsion_iff]
-  exact mk0_sq_eq_one_of_sq_isPrincipal I hI
-
-/-- A span-shaped square relation is a convenient way to produce two-torsion
-ideal classes. This is the ideal-theoretic shape used for ramified primes. -/
-theorem mk0_mem_twoTorsion_of_sq_eq_span
-    (I : nonZeroDivisors (Ideal R)) {a : R}
-    (hI : (I : Ideal R) ^ 2 = Ideal.span ({a} : Set R)) :
-    mk0 I ∈ twoTorsion R := by
-  refine mk0_mem_twoTorsion_of_sq_isPrincipal I ?_
-  rw [hI]
-  change (Submodule.span R ({a} : Set R)).IsPrincipal
-  exact ⟨a, rfl⟩
+/-- The ideal class `mk0 I` lies in the two-torsion subgroup `Cl[2]` exactly when
+`I ^ 2` is principal. -/
+@[simp]
+theorem mk0_mem_twoTorsion_iff
+    (I : nonZeroDivisors (Ideal R)) :
+    mk0 I ∈ twoTorsion R ↔ ((I : Ideal R) ^ 2).IsPrincipal := by
+  rw [mem_twoTorsion_iff, mk0_pow_eq_one_iff_pow_isPrincipal]
 
 end ClassGroup
