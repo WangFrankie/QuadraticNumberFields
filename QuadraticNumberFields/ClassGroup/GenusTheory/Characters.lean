@@ -6,7 +6,7 @@ Authors: Frankie Wang
 
 import Mathlib.NumberTheory.LegendreSymbol.Basic
 import QNFMathlib.RingTheory.Ideal.Norm.AbsNorm
-import QuadraticNumberFields.ClassGroup.ClassNumber
+import QuadraticNumberFields.ClassGroup.Basic
 import QuadraticNumberFields.ClassGroup.GenusTheory.Discriminant
 import QuadraticNumberFields.RingOfIntegers.Norm
 import QuadraticNumberFields.Splitting.Qsqrtd.Kronecker

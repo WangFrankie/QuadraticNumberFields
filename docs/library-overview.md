@@ -247,8 +247,8 @@ This is the non-forms class-group layer. The stable library specializes
 mathlib's Minkowski ideal-class representative bound to `Qsqrtd d` and owns the
 unified class-number interface:
 
-- `ClassGroup/ClassNumber.lean`: `classNumberQsqrtd` and the bridge from trivial
-  ideal class group to class number one.
+- `ClassGroup/Basic.lean`: notation for `Cl(𝓞(ℚ(√d)))`, `classNumberQsqrtd`,
+  and the bridge from trivial ideal class group to class number one.
 - `ClassGroup/SmallNorm.lean`: small-norm class-group closure criteria such as
   `classGroup_eq_one_or_of_exists_ideal_norm_lt_three`.
 - `ClassGroup/Minkowski.lean`: `Qsqrtd.minkowskiBound`,

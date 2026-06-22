@@ -42,6 +42,7 @@ import QuadraticNumberFields.Splitting.Qsqrtd.OddPrime
 import QuadraticNumberFields.Splitting.Qsqrtd.Two
 import QuadraticNumberFields.Splitting.QuadraticField.Basic
 import QuadraticNumberFields.ClassGroup.Basic
+import QuadraticNumberFields.ClassGroup.Torsion
 import QuadraticNumberFields.ClassGroup.Minkowski
 import QuadraticNumberFields.ClassGroup.SmallNorm
 import QuadraticNumberFields.Qsqrtd.TotallyRealComplex

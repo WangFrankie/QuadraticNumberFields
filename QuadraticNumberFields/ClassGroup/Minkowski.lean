@@ -7,7 +7,7 @@ Authors: Frankie Wang
 import Mathlib.NumberTheory.NumberField.ClassNumber
 import QNFMathlib.RingTheory.DedekindDomain.Ideal
 import QNFMathlib.RingTheory.Ideal.Norm.AbsNorm
-import QuadraticNumberFields.ClassGroup.ClassNumber
+import QuadraticNumberFields.ClassGroup.Basic
 import QuadraticNumberFields.Qsqrtd.TotallyRealComplex
 import QuadraticNumberFields.QuadraticField.RingOfIntegers
 import QuadraticNumberFields.RingOfIntegers.Discriminant
