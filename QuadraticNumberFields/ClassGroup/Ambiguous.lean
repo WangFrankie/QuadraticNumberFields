@@ -5,6 +5,7 @@ Authors: Frankie Wang
 -/
 
 import Mathlib.NumberTheory.NumberField.ClassNumber
+import Mathlib.RingTheory.Ideal.Norm.RelNorm
 import QuadraticNumberFields.ClassGroup.Torsion
 import QuadraticNumberFields.ClassGroup.GenusTheory.Discriminant
 import QuadraticNumberFields.QuadraticField.Conj
@@ -142,14 +143,32 @@ theorem map_conjAut_mem_nonZeroDivisors {I : Ideal (𝓞 K)}
     Ideal.map_eq_bot_iff_le_ker, RingHom.ker_coe_equiv, le_bot_iff] at hI ⊢
   exact hI
 
+/-- **Crux identity (boundary).** The product `I · σ(I)` of an ideal with its
+conjugate equals the extension to `𝓞 K` of the relative norm `relNorm ℤ I`. This
+is the ideal-level "product of Galois conjugates equals the relative norm". Mathlib
+provides only the prime-case pieces (`relNorm_eq_pow_of_isPrime_isGalois`,
+`relNorm_smul`, ...), so the multiplicative-on-primes assembly is left here. -/
+theorem mul_map_conjAut_eq_map_relNorm (I : Ideal (𝓞 K)) :
+    I * Ideal.map (conjAutRingOfIntegers K : 𝓞 K →+* 𝓞 K) I =
+      Ideal.map (algebraMap ℤ (𝓞 K)) (Ideal.relNorm ℤ I) := by
+  sorry
+
 /-- **Product of an ideal with its conjugate is principal.** For a nonzero ideal
-`I` of `𝓞 K`, the product `I · σ(I)` is a nonzero principal ideal. This is the
-ideal-level "product of Galois conjugates equals the relative norm" identity;
-since `ℤ` is a PID the relative norm is principal. -/
+`I` of `𝓞 K`, the product `I · σ(I)` is a nonzero principal ideal: it is the
+extension of `relNorm ℤ I`, which is principal because `ℤ` is a PID. -/
 theorem exists_span_mul_map_conjAut {I : Ideal (𝓞 K)} (hI : I ≠ ⊥) :
     ∃ x : 𝓞 K, x ≠ 0 ∧
       I * Ideal.map (conjAutRingOfIntegers K : 𝓞 K →+* 𝓞 K) I = Ideal.span {x} := by
-  sorry
+  have hrel : Ideal.relNorm ℤ I ≠ ⊥ := by
+    rw [ne_eq, ← Ideal.spanNorm_eq, Ideal.spanNorm_eq_bot_iff]; exact hI
+  obtain ⟨n, hn⟩ := IsPrincipalIdealRing.principal (Ideal.relNorm ℤ I)
+  rw [Ideal.submodule_span_eq] at hn
+  have hn0 : n ≠ 0 := by
+    rintro rfl
+    exact hrel (by rw [hn, Ideal.span_singleton_eq_bot.mpr rfl])
+  refine ⟨algebraMap ℤ (𝓞 K) n, ?_, ?_⟩
+  · simpa only [map_zero] using (FaithfulSMul.algebraMap_injective ℤ (𝓞 K)).ne hn0
+  · rw [mul_map_conjAut_eq_map_relNorm, hn, Ideal.map_span, Set.image_singleton]
 
 /-- **σ([I]) = [I]⁻¹.** Conjugation acts on the ideal class group as inversion: the
 class of the conjugate ideal is the inverse class. This is the bridge that turns
