@@ -119,6 +119,14 @@ theorem coe_conjAutRingOfIntegers_apply (K : Type*) [Field K] [Algebra ℚ K]
   rw [conjAutRingOfIntegers, NumberField.RingOfIntegers.mapRingEquiv_apply]
   rfl
 
+/-- The conjugation of `𝓞 K`, regarded as a `ℤ`-algebra automorphism. -/
+noncomputable def conjAutRingOfIntegersAlgEquiv (K : Type*) [Field K] [Algebra ℚ K]
+    [QuadraticField K] [QuadraticField.Conj K] : 𝓞 K ≃ₐ[ℤ] 𝓞 K :=
+  AlgEquiv.ofRingEquiv (f := conjAutRingOfIntegers K) (by
+    intro n
+    ext
+    simp)
+
 /-! ## Conjugation acts as inversion on the class group
 
 The bridge `σ([I]) = [I]⁻¹` follows from the principality of `I · σ(I)`: that
@@ -160,6 +168,56 @@ theorem relNorm_eq_comap_pow_inertiaDeg_of_isPrime (P : Ideal (𝓞 K)) [P.IsPri
   haveI : (P.comap (algebraMap ℤ (𝓞 K))).IsMaximal :=
     Ideal.isMaximal_comap_of_isIntegral_of_isMaximal P
   exact Ideal.relNorm_eq_pow_of_isPrime_isGalois P (P.comap (algebraMap ℤ (𝓞 K)))
+
+omit [QuadraticField.Conj K] in
+/-- The fraction-field extension attached to the ring of integers of a quadratic
+number field has degree two. -/
+theorem finrank_fractionRing_ringOfIntegers_eq_two :
+    Module.finrank (FractionRing ℤ) (FractionRing (𝓞 K)) = 2 := by
+  haveI : Algebra.IsAlgebraic ℤ (𝓞 K) := Algebra.IsAlgebraic.of_finite ℤ (𝓞 K)
+  calc
+    Module.finrank (FractionRing ℤ) (FractionRing (𝓞 K)) = Module.finrank ℤ (𝓞 K) := by
+      simpa using
+        (Algebra.IsAlgebraic.finrank_of_isFractionRing (R := ℤ) (R' := FractionRing ℤ)
+          (S := 𝓞 K) (S' := FractionRing (𝓞 K)))
+    _ = Module.finrank ℚ K := by
+      convert NumberField.RingOfIntegers.rank (K := K)
+      exact Subsingleton.elim _ _
+    _ = 2 := Algebra.IsQuadraticExtension.finrank_eq_two ℚ K
+
+omit [QuadraticField.Conj K] in
+/-- The Galois group of the fraction-field extension attached to `𝓞 K / ℤ` has
+two elements. -/
+theorem card_gal_fractionRing_ringOfIntegers_eq_two :
+    Nat.card Gal(FractionRing (𝓞 K) / FractionRing ℤ) = 2 := by
+  haveI : IsGalois ℚ K := Algebra.IsQuadraticExtension.isGalois ℚ K
+  haveI : IsGalois (FractionRing ℤ) (FractionRing (𝓞 K)) :=
+    NumberField.isGalois_fractionRing_ringOfIntegers K
+  rw [IsGalois.card_aut_eq_finrank]
+  exact finrank_fractionRing_ringOfIntegers_eq_two
+
+omit [NumberField K] in
+/-- The conjugate of a prime ideal lies over the same rational prime ideal. -/
+theorem map_conjAut_liesOver_comap (P : Ideal (𝓞 K)) :
+    (Ideal.map (conjAutRingOfIntegers K : 𝓞 K →+* 𝓞 K) P).LiesOver
+      (P.comap (algebraMap ℤ (𝓞 K))) := by
+  letI : P.LiesOver (P.comap (algebraMap ℤ (𝓞 K))) := ⟨rfl⟩
+  exact Ideal.LiesOver.of_eq_map_equiv (P.comap (algebraMap ℤ (𝓞 K)))
+    (conjAutRingOfIntegersAlgEquiv K) rfl
+
+omit [NumberField K] in
+/-- The conjugate of a prime ideal is prime. -/
+theorem map_conjAut_isPrime {P : Ideal (𝓞 K)} [P.IsPrime] :
+    (Ideal.map (conjAutRingOfIntegers K : 𝓞 K →+* 𝓞 K) P).IsPrime :=
+  Ideal.map_isPrime_of_equiv (conjAutRingOfIntegers K)
+
+omit [NumberField K] in
+/-- The conjugate of a prime ideal is again one of the primes above the same
+rational prime ideal. -/
+theorem map_conjAut_mem_primesOver_comap (P : Ideal (𝓞 K)) [P.IsPrime] :
+    Ideal.map (conjAutRingOfIntegers K : 𝓞 K →+* 𝓞 K) P ∈
+      Ideal.primesOver (P.comap (algebraMap ℤ (𝓞 K))) (𝓞 K) :=
+  ⟨map_conjAut_isPrime, map_conjAut_liesOver_comap P⟩
 
 /-- Prime-ideal form of the remaining Galois-orbit boundary: extending the norm
 prime power back to `𝓞 K` gives the product of `P` with its conjugate. The open
