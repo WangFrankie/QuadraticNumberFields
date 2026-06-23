@@ -162,6 +162,16 @@ theorem squareClassSubgroup_le_genusCharacterOfAbsNormCoprimeIdeals_ker
   exact genusCharacterOfAbsNormCoprimeIdeals_sq_eq_one
     d p hd_neg hp_disc D
 
+/-- **Principal genus theorem**, odd-prime genus-character form. The intersection
+of the kernels of all odd-prime genus characters is the square subgroup `Cl²`. -/
+theorem iInf_genusCharacterOfAbsNormCoprimeIdeals_ker_eq_squareClassSubgroup
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd_neg : d < 0) :
+    (⨅ P : {p // p ∈ oddPrimeDiscriminantDivisors d},
+      letI : Fact P.1.Prime := ⟨prime_of_mem_oddPrimeDiscriminantDivisors P.2⟩
+      (genusCharacterOfAbsNormCoprimeIdeals d P.1 hd_neg P.2).ker) =
+      squareClassSubgroup d := by
+  sorry
+
 /-- A descended odd-prime genus character as a character on the principal-genus
 quotient `Cl / Cl²`. -/
 noncomputable def genusCharacterOnSquareClassQuotient
