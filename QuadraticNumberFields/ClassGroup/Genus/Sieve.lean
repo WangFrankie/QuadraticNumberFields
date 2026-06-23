@@ -166,7 +166,7 @@ theorem genus_divisibility_of_neg
       Nat.card (Cl⁺(d)) = NumberField.classNumber (Qsqrtd (d : ℚ)) := by
     calc
       Nat.card (Cl⁺(d)) = Nat.card (Cl(d)) :=
-        Nat.card_congr (Qsqrtd.narrowMulEquivClassGroupOfNeg d hd).toEquiv
+        Nat.card_congr (Qsqrtd.Imaginary.narrowMulEquivClassGroup d hd).toEquiv
       _ = NumberField.classNumber (Qsqrtd (d : ℚ)) := by
         simp [NumberField.classNumber, Nat.card_eq_fintype_card]
   simpa [hcard] using hpow_dvd

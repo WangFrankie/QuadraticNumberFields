@@ -422,8 +422,10 @@ theorem narrowToClassGroup_bijective_of_forall_isTotallyPositive
     Function.Bijective (narrowToClassGroup d) :=
   NarrowClassGroup.toClassGroup_bijective_of_forall_isTotallyPositive OK hpos
 
+namespace Imaginary
+
 /-- If `d < 0`, then the fraction field of `𝓞(ℚ(√d))` has no real embeddings. -/
-theorem isEmpty_fractionRing_realEmbeddings_of_neg (hd : d < 0) :
+theorem isEmpty_fractionRing_realEmbeddings (hd : d < 0) :
     IsEmpty (FractionRing OK →+* ℝ) := by
   refine ⟨fun σ => ?_⟩
   letI : Algebra ℚ (Qsqrtd (d : ℚ)) := DivisionRing.toRatAlgebra
@@ -444,31 +446,33 @@ theorem isEmpty_fractionRing_realEmbeddings_of_neg (hd : d < 0) :
 
 /-- In the imaginary quadratic case, the narrow and ordinary principal fractional
 ideal subgroups coincide. -/
-theorem narrowPrincipalIdeals_eq_principalIdeals_of_neg (hd : d < 0) :
+theorem narrowPrincipalIdeals_eq_principalIdeals (hd : d < 0) :
     NarrowClassGroup.narrowPrincipalIdeals OK (FractionRing OK) =
       (toPrincipalIdeal OK (FractionRing OK)).range := by
-  letI := isEmpty_fractionRing_realEmbeddings_of_neg d hd
+  letI := isEmpty_fractionRing_realEmbeddings d hd
   exact NarrowClassGroup.narrowPrincipalIdeals_eq_principalIdeals_of_isEmpty
 
 /-- In the imaginary quadratic case, the narrow class group is naturally isomorphic
 to the ordinary wide ideal class group. -/
-noncomputable def narrowMulEquivClassGroupOfNeg (hd : d < 0) :
+noncomputable def narrowMulEquivClassGroup (hd : d < 0) :
     Cl⁺(d) ≃* Cl(d) := by
-  letI := isEmpty_fractionRing_realEmbeddings_of_neg d hd
+  letI := isEmpty_fractionRing_realEmbeddings d hd
   exact NarrowClassGroup.mulEquivClassGroupOfIsEmpty OK
 
 /-- In the imaginary quadratic case, the narrow class group and ordinary wide ideal
 class group are isomorphic. -/
-theorem nonempty_narrowMulEquivClassGroup_of_neg (hd : d < 0) :
+theorem nonempty_narrowMulEquivClassGroup (hd : d < 0) :
     Nonempty (Cl⁺(d) ≃* Cl(d)) :=
-  ⟨narrowMulEquivClassGroupOfNeg d hd⟩
+  ⟨narrowMulEquivClassGroup d hd⟩
 
 /-- In the imaginary quadratic case, the natural map from the narrow class group to
 the ordinary wide class group is bijective. -/
-theorem narrowToClassGroup_bijective_of_neg (hd : d < 0) :
+theorem narrowToClassGroup_bijective (hd : d < 0) :
     Function.Bijective (narrowToClassGroup d) := by
-  letI := isEmpty_fractionRing_realEmbeddings_of_neg d hd
+  letI := isEmpty_fractionRing_realEmbeddings d hd
   exact NarrowClassGroup.toClassGroup_bijective_of_isEmpty OK
+
+end Imaginary
 
 /-- If the fraction field of `𝓞(ℚ(√d))` has no real embeddings, then the narrow
 class group and ordinary wide class group are isomorphic. -/

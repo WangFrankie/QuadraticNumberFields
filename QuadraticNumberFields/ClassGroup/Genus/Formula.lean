@@ -39,7 +39,7 @@ theorem genusFormula_holds
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
     genusFormula d := by
   rw [genusFormula]
-  exact card_narrowSquareQuotient_eq_genusBound d
+  exact card_narrowClassGroupSquareQuotient_eq_genusBound d
 
 end Genus
 end ClassGroup

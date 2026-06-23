@@ -25,17 +25,20 @@ attribute [-instance] DivisionRing.toRatAlgebra
 
 /-- Ambiguous-ideal upper bound: the two-torsion in the narrow class group has
 size at most `2 ^ (t - 1)`, where `t` is the number of ramified rational primes. -/
-theorem card_narrowTwoTorsion_le_genusBound
+theorem card_narrowClassGroupTwoTorsion_le_genusBound
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
-    Nat.card (narrowTwoTorsion d) ≤ 2 ^ (ramifiedPrimeCount d - 1) := by
+    Nat.card (NarrowClassGroup.twoTorsion
+      (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) ≤
+      2 ^ (ramifiedPrimeCount d - 1) := by
   sorry
 
 /-- Equivalent upper bound for the narrow square-class quotient. -/
-theorem card_narrowSquareQuotient_le_genusBound
+theorem card_narrowClassGroupSquareQuotient_le_genusBound
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
-    Nat.card (narrowSquareQuotient d) ≤ 2 ^ (ramifiedPrimeCount d - 1) := by
-  rw [card_narrowSquareQuotient_eq_card_narrowTwoTorsion]
-  exact card_narrowTwoTorsion_le_genusBound d
+    Nat.card (Cl⁺(d) ⧸ Subgroup.square (Cl⁺(d))) ≤
+      2 ^ (ramifiedPrimeCount d - 1) := by
+  rw [card_narrowClassGroupSquareQuotient_eq_card_narrowClassGroupTwoTorsion]
+  exact card_narrowClassGroupTwoTorsion_le_genusBound d
 
 end Genus
 end ClassGroup

@@ -27,23 +27,23 @@ attribute [-instance] DivisionRing.toRatAlgebra
 /-- Genus characters kill the square subgroup of the narrow class group. -/
 theorem square_le_genusCharacterMap_ker
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
-    narrowSquareSubgroup d ≤ (genusCharacterMap d).ker := by
+    Subgroup.square (Cl⁺(d)) ≤ (genusCharacterMap d).ker := by
   sorry
 
 /-- The genus-character map descended to the quotient by the square subgroup. -/
 noncomputable def genusCharacterMapOnSquareQuotient
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
-    narrowSquareQuotient d →* genusCharacterTargetRelation d :=
-  QuotientGroup.lift (narrowSquareSubgroup d) (genusCharacterMap d)
+    Cl⁺(d) ⧸ Subgroup.square (Cl⁺(d)) →* genusCharacterTargetRelation d :=
+  QuotientGroup.lift (Subgroup.square (Cl⁺(d))) (genusCharacterMap d)
     (square_le_genusCharacterMap_ker d)
 
 @[simp]
 theorem genusCharacterMapOnSquareQuotient_mk'
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (C : Cl⁺(d)) :
     genusCharacterMapOnSquareQuotient d
-        (QuotientGroup.mk' (narrowSquareSubgroup d) C) =
+        (QuotientGroup.mk' (Subgroup.square (Cl⁺(d))) C) =
       genusCharacterMap d C :=
-  QuotientGroup.lift_mk' (narrowSquareSubgroup d) (φ := genusCharacterMap d)
+  QuotientGroup.lift_mk' (Subgroup.square (Cl⁺(d))) (φ := genusCharacterMap d)
     (square_le_genusCharacterMap_ker d) C
 
 /-- The genus-character sequence is exact on the right: the quotient map onto the
@@ -58,20 +58,20 @@ statement for the original genus-character map. -/
 theorem genusCharacterMapOnSquareQuotient_ker_eq_bot_iff
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
     (genusCharacterMapOnSquareQuotient d).ker = ⊥ ↔
-      (genusCharacterMap d).ker = narrowSquareSubgroup d := by
+      (genusCharacterMap d).ker = Subgroup.square (Cl⁺(d)) := by
   constructor
   · intro hker
     apply le_antisymm
     · intro C hC
       have hmk :
-          QuotientGroup.mk' (narrowSquareSubgroup d) C ∈
+          QuotientGroup.mk' (Subgroup.square (Cl⁺(d))) C ∈
             (genusCharacterMapOnSquareQuotient d).ker := by
         rw [MonoidHom.mem_ker, genusCharacterMapOnSquareQuotient_mk']
         exact hC
       have hmk_one :
-          QuotientGroup.mk' (narrowSquareSubgroup d) C = 1 := by
-        have : QuotientGroup.mk' (narrowSquareSubgroup d) C ∈
-            (⊥ : Subgroup (narrowSquareQuotient d)) := by
+          QuotientGroup.mk' (Subgroup.square (Cl⁺(d))) C = 1 := by
+        have : QuotientGroup.mk' (Subgroup.square (Cl⁺(d))) C ∈
+            (⊥ : Subgroup (Cl⁺(d) ⧸ Subgroup.square (Cl⁺(d)))) := by
           simpa [hker] using hmk
         simpa using this
       exact (QuotientGroup.eq_one_iff _).mp hmk_one
@@ -80,9 +80,9 @@ theorem genusCharacterMapOnSquareQuotient_ker_eq_bot_iff
     apply le_antisymm
     · intro Q hQ
       obtain ⟨C, rfl⟩ :=
-        QuotientGroup.mk'_surjective (narrowSquareSubgroup d) Q
+        QuotientGroup.mk'_surjective (Subgroup.square (Cl⁺(d))) Q
       rw [MonoidHom.mem_ker, genusCharacterMapOnSquareQuotient_mk'] at hQ
-      have hC : C ∈ narrowSquareSubgroup d := by
+      have hC : C ∈ Subgroup.square (Cl⁺(d)) := by
         rw [← hker]
         exact hQ
       exact (QuotientGroup.eq_one_iff _).mpr hC
@@ -94,7 +94,7 @@ theorem genusCharacterMapOnSquareQuotient_shortExact
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
     Function.Surjective (genusCharacterMapOnSquareQuotient d) ∧
       ((genusCharacterMapOnSquareQuotient d).ker = ⊥ ↔
-        (genusCharacterMap d).ker = narrowSquareSubgroup d) :=
+        (genusCharacterMap d).ker = Subgroup.square (Cl⁺(d))) :=
   ⟨genusCharacterMapOnSquareQuotient_surjective d,
     genusCharacterMapOnSquareQuotient_ker_eq_bot_iff d⟩
 

@@ -27,13 +27,14 @@ theorem genusCharacterMap_surjective
     Function.Surjective (genusCharacterMap d) := by
   intro χ
   obtain ⟨Q, hQ⟩ := genusCharacterMapOnSquareQuotient_surjective d χ
-  obtain ⟨C, rfl⟩ := QuotientGroup.mk'_surjective (narrowSquareSubgroup d) Q
+  obtain ⟨C, rfl⟩ := QuotientGroup.mk'_surjective (Subgroup.square (Cl⁺(d))) Q
   exact ⟨C, by simpa [genusCharacterMapOnSquareQuotient_mk'] using hQ⟩
 
 /-- Surjectivity gives the lower bound for the narrow square-class quotient. -/
-theorem genusBound_le_card_narrowSquareQuotient
+theorem genusBound_le_card_narrowClassGroupSquareQuotient
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
-    2 ^ (ramifiedPrimeCount d - 1) ≤ Nat.card (narrowSquareQuotient d) := by
+    2 ^ (ramifiedPrimeCount d - 1) ≤
+      Nat.card (Cl⁺(d) ⧸ Subgroup.square (Cl⁺(d))) := by
   sorry
 
 end Genus
