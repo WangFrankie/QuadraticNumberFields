@@ -93,7 +93,7 @@ unit-exception case `p = 3`. -/
 theorem conductor_two_form_class_number_three
     (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
     (hp : Nat.Prime p) (hp8 : p % 8 = 3) (hp_ne_three : p ≠ 3)
-    (hclass : classNumberQsqrtd (-(p : ℤ)) = 1) :
+    (hclass : NumberField.classNumber (Qsqrtd (((-(p : ℤ)) : ℤ) : ℚ)) = 1) :
     HasConductorTwoFormClassNumberThreeData p := by
   -- Alternative routes for this bridge:
   -- * prove Cox's order class-number formula via Picard groups of quadratic orders;
@@ -106,7 +106,7 @@ input in the non-exceptional inert branch. -/
 theorem conductor_two_class_number_three_of_forms
     (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
     (hp : Nat.Prime p) (hp8 : p % 8 = 3) (hp_ne_three : p ≠ 3)
-    (hclass : classNumberQsqrtd (-(p : ℤ)) = 1) :
+    (hclass : NumberField.classNumber (Qsqrtd (((-(p : ℤ)) : ℤ) : ℚ)) = 1) :
     HasRingClassNumberThreeAtConductorTwo p := by
   exact hasRingClassNumberThreeAtConductorTwo_of_forms
     (conductor_two_form_class_number_three p hp hp8 hp_ne_three hclass)
@@ -136,7 +136,7 @@ one in the non-exceptional inert branch. -/
 theorem exists_weber_data_of_classNumber_one_inert_prime_of_forms
     (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
     (hp : Nat.Prime p) (hp8 : p % 8 = 3) (hp_ne_three : p ≠ 3)
-    (hclass : classNumberQsqrtd (-(p : ℤ)) = 1) :
+    (hclass : NumberField.classNumber (Qsqrtd (((-(p : ℤ)) : ℤ) : ℚ)) = 1) :
     Nonempty (StarkHeegnerAlgebraicData p) := by
   exact exists_weber_data_of_conductor_two_class_number_three_of_forms p hp hp8 hp_ne_three
     (conductor_two_class_number_three_of_forms p hp hp8 hp_ne_three hclass)

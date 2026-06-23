@@ -21,7 +21,8 @@ different layer of the project.
 
 1. **Invariants** — field discriminant, Minkowski bound
 2. **Reduced forms** — enumerate the two reduced BQFs of discriminant -20
-3. **Class number** — `classNumberQsqrtd (-5) = 2` via both ideal and form methods
+3. **Class number** — `NumberField.classNumber (Qsqrtd (-5)) = 2` via both ideal
+   and form methods.
 4. **Form class group structure** — transported `CommGroup` + Cox multiplicative property
 5. **Cox equivalence** — bijection cardinality, non-identity classP
 
@@ -108,20 +109,21 @@ end ReducedForms
 section ClassNumber
 
 /-- `ℚ(√-5)` has class number two — the classic non-UFD example. -/
-example : classNumberQsqrtd (-5 : ℤ) = 2 :=
-  classNumberQsqrtd_neg5
+example : NumberField.classNumber (Qsqrtd ((-5 : ℤ) : ℚ)) = 2 :=
+  classNumber_eq_two
 
 /-- Computation-path regression for `ℚ(√-5)`: the class number is obtained from
 the reduced-form enumeration. -/
-theorem classNumberQsqrtd_neg5_by_reducedForms : classNumberQsqrtd (-5) = 2 := by
+theorem classNumber_qsqrtd_neg5_by_reducedForms :
+    NumberField.classNumber (Qsqrtd ((-5 : ℤ) : ℚ)) = 2 := by
   compute_class_number_qsqrtd
 
 /-- The class number equals the count of primitive reduced positive definite
 forms of the field discriminant.  This is the bridge between ideal-class and
 form-class viewpoints. -/
-example : classNumberQsqrtd (-5 : ℤ) =
+example : NumberField.classNumber (Qsqrtd ((-5 : ℤ) : ℚ)) =
     (enumPrimitiveReducedForms (fieldDiscriminant (-5 : ℤ))).card :=
-  classNumberQsqrtd_eq_reducedForms_card (-5 : ℤ) (by decide : (-5 : ℤ) < 0)
+  classNumber_qsqrtd_eq_reducedForms_card (-5 : ℤ) (by decide : (-5 : ℤ) < 0)
 
 end ClassNumber
 

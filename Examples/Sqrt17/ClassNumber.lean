@@ -27,7 +27,7 @@ model `ℤ[(1+√17)/2] = ZOnePlusSqrtdOverTwo 4` (with `ω = (1 + √17)/2`,
 `𝓞(ℚ(√17))` by the canonical map `ZOnePlusSqrtdOverTwo.toQsqrtdHom`. Both
 `(x)` and `(x̄)` are norm-`2` prime ideals, so every prime ideal above `(2)` is
 principal. The general Minkowski fiber criterion then shows every ideal class is
-trivial, i.e. `classNumberQsqrtd 17 = 1`.
+trivial, so `ℚ(√17)` has class number one.
 
 This hand computation places `ℚ(√17)` in the class-number-one list right after
 the nine Heegner fields, illustrating the split-prime dichotomy on a real
@@ -224,9 +224,5 @@ theorem classGroup_eq_one (C : ClassGroup (𝓞 (Qsqrtd ((17 : ℤ) : ℚ)))) : 
 theorem classNumber_eq_one :
     NumberField.classNumber (Qsqrtd ((17 : ℤ) : ℚ)) = 1 := by
   exact NumberField.classNumber_eq_one_of_forall_classGroup_eq_one classGroup_eq_one
-
-/-- `classNumberQsqrtd 17 = 1`, the unified-interface form. -/
-theorem classNumberQsqrtd_seventeen : classNumberQsqrtd 17 = 1 :=
-  classNumber_eq_one
 
 end QuadraticNumberFields.Examples.Sqrt17

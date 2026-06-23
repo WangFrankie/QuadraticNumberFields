@@ -69,7 +69,6 @@ instance : Fact ((-231 : ℤ) ≠ 1) := ⟨by decide⟩
 /-- `ℚ(√-23)` has class number three, computed by reduced forms. -/
 theorem classNumber_qsqrtd_neg23 :
     NumberField.classNumber (Qsqrtd ((-23 : ℤ) : ℚ)) = 3 := by
-  change classNumberQsqrtd (-23) = 3
   compute_class_number_qsqrtd
 
 /-! ## Direct cyclic outputs -/

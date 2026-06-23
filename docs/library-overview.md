@@ -244,11 +244,11 @@ Key declarations include `factorization_of_two`,
 Files under `QuadraticNumberFields/ClassGroup/`
 
 This is the non-forms class-group layer. The stable library specializes
-mathlib's Minkowski ideal-class representative bound to `Qsqrtd d` and owns the
-unified class-number interface:
+mathlib's Minkowski ideal-class representative bound to `Qsqrtd d` and uses
+mathlib's `NumberField.classNumber` directly for class-number statements:
 
-- `ClassGroup/Basic.lean`: notation for `Cl(𝓞(ℚ(√d)))`, `classNumberQsqrtd`,
-  and the bridge from trivial ideal class group to class number one.
+- `ClassGroup/Basic.lean`: notation for `Cl(𝓞(ℚ(√d)))` and the bridge from
+  trivial ideal class group to class number one.
 - `ClassGroup/SmallNorm.lean`: small-norm class-group closure criteria such as
   `classGroup_eq_one_or_of_exists_ideal_norm_lt_three`.
 - `ClassGroup/Minkowski.lean`: `Qsqrtd.minkowskiBound`,
@@ -260,10 +260,9 @@ unified class-number interface:
   `Qsqrtd.classNumber_eq_one_of_forall_le_minkowskiBound_split_principal`, and
   `Qsqrtd.classNumber_eq_one_of_forall_le_minkowskiBound_ramified_principal`.
 
-The Heegner wrappers for this interface live in
-`ImaginaryClassNumberOne/ClassNumberBridge.lean`. Reduced-form cardinality and
-transported form-class-group structure live under `FormClassGroup/ClassGroup/`
-and should be treated as a backend over this ideal/class-number layer.
+Reduced-form cardinality and transported form-class-group structure live under
+`FormClassGroup/ClassGroup/` and should be treated as a backend over this
+ideal/class-number layer.
 
 ## Core Lean Objects
 

@@ -10,7 +10,7 @@ import QuadraticNumberFields.QuadraticField.Basic
 /-!
 # Basic Class-Group Interface
 
-This file contains the basic notation and class-number interface for ideal class
+This file contains the basic notation and class-number lemmas for ideal class
 groups of the quadratic fields `ℚ(√d)`.
 -/
 
@@ -27,11 +27,6 @@ scoped[QuadraticNumberFields.ClassGroup]
   notation "Cl(" d ")" => _root_.ClassGroup
     (_root_.NumberField.RingOfIntegers
       (_root_.Qsqrtd ((d : ℤ) : ℚ)))
-
-/-- The class number of the quadratic field `ℚ(√d)`, as a function of the
-squarefree integer parameter `d`. Thin alias of `NumberField.classNumber`. -/
-noncomputable def classNumberQsqrtd (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] : ℕ :=
-  NumberField.classNumber (Qsqrtd (d : ℚ))
 
 /-- If every ideal class of a number field is trivial, then the class number is
 one. -/

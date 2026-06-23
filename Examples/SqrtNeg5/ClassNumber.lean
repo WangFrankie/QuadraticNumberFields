@@ -184,10 +184,6 @@ theorem classNumber_eq_two :
     NumberField.classNumber (Qsqrtd ((-5 : ℤ) : ℚ)) = 2 :=
   NumberField.classNumber_eq_two_of_forall_eq_one_or classP_ne_one classGroup_eq_one_or_classP
 
-/-- `classNumberQsqrtd (-5) = 2`, the unified-interface form. -/
-theorem classNumberQsqrtd_neg5 : classNumberQsqrtd (-5) = 2 :=
-  classNumber_eq_two
-
 /-! ## Class-group structure -/
 
 /-- The square of the bundled ramified ideal is principal. -/
