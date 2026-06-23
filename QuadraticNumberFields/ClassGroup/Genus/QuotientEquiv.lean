@@ -28,7 +28,29 @@ characters. -/
 noncomputable def genusQuotientEquiv
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
     Cl⁺(d) ⧸ Subgroup.square (Cl⁺(d)) ≃* genusCharacterTargetRelation d := by
-  sorry
+  refine MulEquiv.ofBijective (genusCharacterMapOnSquareQuotient d) ?_
+  constructor
+  · classical
+    have hquot_card : Nat.card (narrowSquareQuotient d) =
+        2 ^ (ramifiedPrimeCount d - 1) :=
+      le_antisymm (card_narrowSquareQuotient_le_genusBound d)
+        (genusBound_le_card_narrowSquareQuotient d)
+    have hcard : Nat.card (narrowSquareQuotient d) =
+        Nat.card (genusCharacterTargetRelation d) := by
+      rw [hquot_card, card_genusCharacterTargetRelation]
+    have hquot_card_ne_zero : Nat.card (narrowSquareQuotient d) ≠ 0 := by
+      rw [hquot_card]
+      exact pow_ne_zero _ (by norm_num : (2 : ℕ) ≠ 0)
+    haveI : Finite (narrowSquareQuotient d) :=
+      Nat.finite_of_card_ne_zero hquot_card_ne_zero
+    letI : Fintype (narrowSquareQuotient d) := Fintype.ofFinite _
+    letI : Fintype (genusCharacterTargetRelation d) := Fintype.ofFinite _
+    have hcard' : Fintype.card (narrowSquareQuotient d) =
+        Fintype.card (genusCharacterTargetRelation d) := by
+      simpa only [Nat.card_eq_fintype_card] using hcard
+    exact ((Fintype.bijective_iff_surjective_and_card (genusCharacterMapOnSquareQuotient d)).2
+      ⟨genusCharacterMapOnSquareQuotient_surjective d, hcard'⟩).1
+  · exact genusCharacterMapOnSquareQuotient_surjective d
 
 /-- The genus quotient equivalence agrees with the genus-character map on
 representatives. -/
@@ -36,7 +58,8 @@ theorem genusQuotientEquiv_apply_mk'
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (C : Cl⁺(d)) :
     genusQuotientEquiv d (QuotientGroup.mk' (Subgroup.square (Cl⁺(d))) C) =
       genusCharacterMap d C := by
-  sorry
+  rw [genusQuotientEquiv]
+  exact genusCharacterMapOnSquareQuotient_mk' d C
 
 /-- Cardinality equality induced by the genus quotient equivalence. -/
 theorem card_narrowSquareQuotient_eq_genusCharacterTargetRelation
