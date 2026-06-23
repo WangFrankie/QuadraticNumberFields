@@ -44,6 +44,7 @@ import QuadraticNumberFields.Splitting.QuadraticField.Basic
 import QuadraticNumberFields.ClassGroup.Basic
 import QuadraticNumberFields.ClassGroup.Torsion
 import QuadraticNumberFields.ClassGroup.Narrow
+import QuadraticNumberFields.ClassGroup.Genus.PrimeDiscriminant
 import QuadraticNumberFields.ClassGroup.Genus.Principal
 import QuadraticNumberFields.ClassGroup.Genus.ExactSequence
 import QuadraticNumberFields.ClassGroup.Genus.Formula
