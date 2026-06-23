@@ -88,14 +88,6 @@ noncomputable instance instFintypeSquareClassQuotient
     Fintype (squareClassQuotient d) :=
   Fintype.ofFinite _
 
-/-- The genus-theory square subgroup is definitionally the generic square-subgroup
-API for ideal class groups. -/
-theorem squareClassSubgroup_eq_square
-    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
-    squareClassSubgroup d =
-      _root_.ClassGroup.square (𝓞 (Qsqrtd (d : ℚ))) :=
-  rfl
-
 /-- The quotient `Cl / Cl²` has the same cardinality as the kernel of the square map on
 the class group. This is the finite-group algebra behind the two-torsion formulation
 of genus theory. -/
@@ -117,8 +109,7 @@ theorem card_squareClassQuotient_eq_card_twoTorsion
     Nat.card (squareClassQuotient d) =
       Nat.card (_root_.ClassGroup.twoTorsion (𝓞 (Qsqrtd (d : ℚ)))) := by
   letI := _root_.NumberField.RingOfIntegers.instFintypeClassGroup (Qsqrtd (d : ℚ))
-  simpa [squareClassQuotient, _root_.ClassGroup.squareQuotient,
-    squareClassSubgroup_eq_square d] using
+  simpa [squareClassQuotient, squareClassSubgroup, _root_.ClassGroup.squareQuotient] using
     (_root_.ClassGroup.card_squareQuotient_eq_card_twoTorsion
       (𝓞 (Qsqrtd (d : ℚ))))
 
