@@ -22,6 +22,20 @@ open scoped NumberField QuadraticNumberFields.ClassGroup
 
 attribute [-instance] DivisionRing.toRatAlgebra
 
+/-- Cardinality form of the genus quotient, obtained by squeezing the square-class quotient
+between the surjectivity lower bound and the ambiguous-ideal upper bound. -/
+theorem card_narrowSquareQuotient_eq_genusBound
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
+    Nat.card (narrowSquareQuotient d) = 2 ^ (ramifiedPrimeCount d - 1) :=
+  le_antisymm (card_narrowSquareQuotient_le_genusBound d)
+    (genusBound_le_card_narrowSquareQuotient d)
+
+/-- Cardinality equality between the square-class quotient and the genus-character target. -/
+theorem card_narrowSquareQuotient_eq_genusCharacterTargetRelation
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
+    Nat.card (narrowSquareQuotient d) = Nat.card (genusCharacterTargetRelation d) := by
+  rw [card_narrowSquareQuotient_eq_genusBound, card_genusCharacterTargetRelation]
+
 /-- The final genus quotient isomorphism:
 `Cl⁺(d) / Cl⁺(d)^2` is the product-one group of signed prime-discriminant
 characters. -/
@@ -31,15 +45,9 @@ noncomputable def genusQuotientEquiv
   refine MulEquiv.ofBijective (genusCharacterMapOnSquareQuotient d) ?_
   constructor
   · classical
-    have hquot_card : Nat.card (narrowSquareQuotient d) =
-        2 ^ (ramifiedPrimeCount d - 1) :=
-      le_antisymm (card_narrowSquareQuotient_le_genusBound d)
-        (genusBound_le_card_narrowSquareQuotient d)
-    have hcard : Nat.card (narrowSquareQuotient d) =
-        Nat.card (genusCharacterTargetRelation d) := by
-      rw [hquot_card, card_genusCharacterTargetRelation]
+    have hcard := card_narrowSquareQuotient_eq_genusCharacterTargetRelation d
     have hquot_card_ne_zero : Nat.card (narrowSquareQuotient d) ≠ 0 := by
-      rw [hquot_card]
+      rw [card_narrowSquareQuotient_eq_genusBound]
       exact pow_ne_zero _ (by norm_num : (2 : ℕ) ≠ 0)
     haveI : Finite (narrowSquareQuotient d) :=
       Nat.finite_of_card_ne_zero hquot_card_ne_zero
@@ -60,19 +68,6 @@ theorem genusQuotientEquiv_apply_mk'
       genusCharacterMap d C := by
   rw [genusQuotientEquiv]
   exact genusCharacterMapOnSquareQuotient_mk' d C
-
-/-- Cardinality equality induced by the genus quotient equivalence. -/
-theorem card_narrowSquareQuotient_eq_genusCharacterTargetRelation
-    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
-    Nat.card (narrowSquareQuotient d) = Nat.card (genusCharacterTargetRelation d) :=
-  Nat.card_congr (genusQuotientEquiv d).toEquiv
-
-/-- Cardinality form of the genus quotient equivalence. -/
-theorem card_narrowSquareQuotient_eq_genusBound
-    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
-    Nat.card (narrowSquareQuotient d) = 2 ^ (ramifiedPrimeCount d - 1) := by
-  rw [card_narrowSquareQuotient_eq_genusCharacterTargetRelation,
-    card_genusCharacterTargetRelation]
 
 end Genus
 end ClassGroup
