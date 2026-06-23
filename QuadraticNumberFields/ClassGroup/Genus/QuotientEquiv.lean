@@ -30,6 +30,21 @@ theorem card_narrowSquareQuotient_eq_genusBound
   le_antisymm (card_narrowSquareQuotient_le_genusBound d)
     (genusBound_le_card_narrowSquareQuotient d)
 
+/-- The genus-theory square-class quotient is finite. This instance belongs here,
+because its current proof uses the genus-theory cardinality squeeze. -/
+instance instFiniteNarrowSquareQuotient
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
+    Finite (narrowSquareQuotient d) :=
+  Nat.finite_of_card_ne_zero <| by
+    rw [card_narrowSquareQuotient_eq_genusBound]
+    exact pow_ne_zero _ (by norm_num : (2 : ℕ) ≠ 0)
+
+/-- A concrete finite type structure on the genus-theory square-class quotient. -/
+noncomputable instance instFintypeNarrowSquareQuotient
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
+    Fintype (narrowSquareQuotient d) :=
+  Fintype.ofFinite _
+
 /-- Cardinality equality between the square-class quotient and the genus-character target. -/
 theorem card_narrowSquareQuotient_eq_genusCharacterTargetRelation
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
@@ -46,13 +61,6 @@ noncomputable def genusQuotientEquiv
   constructor
   · classical
     have hcard := card_narrowSquareQuotient_eq_genusCharacterTargetRelation d
-    have hquot_card_ne_zero : Nat.card (narrowSquareQuotient d) ≠ 0 := by
-      rw [card_narrowSquareQuotient_eq_genusBound]
-      exact pow_ne_zero _ (by norm_num : (2 : ℕ) ≠ 0)
-    haveI : Finite (narrowSquareQuotient d) :=
-      Nat.finite_of_card_ne_zero hquot_card_ne_zero
-    letI : Fintype (narrowSquareQuotient d) := Fintype.ofFinite _
-    letI : Fintype (genusCharacterTargetRelation d) := Fintype.ofFinite _
     have hcard' : Fintype.card (narrowSquareQuotient d) =
         Fintype.card (genusCharacterTargetRelation d) := by
       simpa only [Nat.card_eq_fintype_card] using hcard
