@@ -384,7 +384,8 @@ namespace QuadraticNumberFields
 /-- Scoped notation for the narrow ideal class group `Cl⁺(𝓞(ℚ(√d)))`. -/
 scoped[QuadraticNumberFields.ClassGroup]
   notation "Cl⁺(" d ")" => NarrowClassGroup
-    (𝓞 (Qsqrtd ((d : ℤ) : ℚ)))
+    (NumberField.RingOfIntegers
+      (Qsqrtd ((d : ℤ) : ℚ)))
 
 namespace Qsqrtd
 
