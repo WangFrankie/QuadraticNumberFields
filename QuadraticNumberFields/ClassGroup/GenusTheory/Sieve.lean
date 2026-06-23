@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 
-import QuadraticNumberFields.ClassGroup.GenusTheory.Formula
+import QuadraticNumberFields.ClassGroup.GenusTheory.Surjectivity
 
 /-!
 # Class-Number-One Genus Sieve
@@ -200,10 +200,8 @@ theorem classNumber_eq_one_imp_exists_prime_of_odd_discr
   exact classNumber_eq_one_imp_exists_prime_of_odd_discr_of_genus_divisibility d hd hodd
     (genus_divisibility_of_squareClassSubgroup_quotient_card d hgenus) h
 
-/-- For odd fundamental discriminants (`d % 4 = 1`), the standard genus formula
-reduces class number one to the prime-discriminant family. The genus formula
-itself is the visible theorem boundary, not a bundle of product-character
-hypotheses. -/
+/-- For odd fundamental discriminants (`d % 4 = 1`), the weak genus-theory
+divisibility reduces class number one to the prime-discriminant family. -/
 theorem classNumber_eq_one_imp_exists_prime_of_mod_four_eq_one
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : d < 0)
     (hd4 : d % 4 = 1)
@@ -212,8 +210,8 @@ theorem classNumber_eq_one_imp_exists_prime_of_mod_four_eq_one
   have hodd : RingOfIntegers.discrFormula d % 2 ≠ 0 := by
     rw [RingOfIntegers.discrFormula_of_mod_four_eq_one hd4]
     omega
-  exact classNumber_eq_one_imp_exists_prime_of_odd_discr d hd hodd
-    (genusFormula_of_mod_four_eq_one d hd hd4) h
+  exact classNumber_eq_one_imp_exists_prime_of_odd_discr_of_genus_divisibility d hd hodd
+    (genus_divisibility_of_mod_four_eq_one d hd hd4) h
 
 end ClassGroup
 end QuadraticNumberFields
