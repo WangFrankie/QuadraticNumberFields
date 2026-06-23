@@ -45,6 +45,7 @@ import QuadraticNumberFields.ClassGroup.Basic
 import QuadraticNumberFields.ClassGroup.Torsion
 import QuadraticNumberFields.ClassGroup.Narrow
 import QuadraticNumberFields.ClassGroup.Genus.Principal
+import QuadraticNumberFields.ClassGroup.Genus.ExactSequence
 import QuadraticNumberFields.ClassGroup.Genus.Formula
 import QuadraticNumberFields.ClassGroup.Minkowski
 import QuadraticNumberFields.ClassGroup.SmallNorm

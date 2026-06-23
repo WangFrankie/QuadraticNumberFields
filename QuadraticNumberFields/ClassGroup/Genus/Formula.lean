@@ -5,7 +5,7 @@ Authors: Frankie Wang
 -/
 
 import Mathlib.Algebra.Group.Subgroup.Even
-import QuadraticNumberFields.ClassGroup.Genus.Characters
+import QuadraticNumberFields.ClassGroup.Genus.ExactSequence
 
 /-!
 # Genus Formula
