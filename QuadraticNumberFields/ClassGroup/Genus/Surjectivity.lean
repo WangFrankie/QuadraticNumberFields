@@ -5,7 +5,6 @@ Authors: Frankie Wang
 -/
 
 import QuadraticNumberFields.ClassGroup.Genus.ExactSequence
-import QuadraticNumberFields.ClassGroup.Genus.SquareClass
 
 /-!
 # Surjectivity of Genus Characters
