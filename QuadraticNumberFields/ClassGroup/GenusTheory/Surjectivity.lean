@@ -313,9 +313,10 @@ branch, every sign vector satisfying the single product relation is realized by
 the odd genus-character product of an ideal class. -/
 theorem oddGenusCharacterProductToRelationSubgroup_surjective_of_mod_four_eq_one
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd_neg : d < 0)
-    (hd4 : d % 4 = 1) (hrel : oddGenusProductRelation d hd_neg) :
+    (hd4 : d % 4 = 1) :
     Function.Surjective
-      (oddGenusCharacterProductToRelationSubgroup d hd_neg hrel) := by
+      (oddGenusCharacterProductToRelationSubgroup d hd_neg
+        (oddGenusProductRelation_of_mod_four_eq_one d hd_neg hd4)) := by
   intro ε
   rcases exists_ideal_representing_odd_genus_sign_vector d hd_neg hd4 ε with
     ⟨I, hI_coprime, hI_symbols⟩
@@ -357,7 +358,7 @@ theorem genus_divisibility_of_mod_four_eq_one
   exact genus_divisibility_of_oddGenusCharacterProduct_surjective_of_discr_odd
     d hd_neg hodd hrel
     (oddGenusCharacterProductToRelationSubgroup_surjective_of_mod_four_eq_one
-      d hd_neg hd4 hrel)
+      d hd_neg hd4)
 
 end ClassGroup
 end QuadraticNumberFields

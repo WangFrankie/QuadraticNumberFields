@@ -235,16 +235,11 @@ private theorem genusFormula_iff_oddGenusPrincipalKernel_of_surjective
     d hd_neg hodd hrel hsurj]
   rw [oddGenusCharacterProductToRelationSubgroup_ker_eq_bot_iff]
 
-/-- In the odd field-discriminant branch, once the relation-subgroup-valued odd
-genus-character product is surjective, the standard genus formula is equivalent to
-the direct principal-genus theorem `⋂ ker χ_p = Cl²`. -/
-theorem genusFormula_iff_iInf_genusCharacter_ker_eq_squareClassSubgroup_of_surjective
+/-- For odd fundamental discriminants (`d % 4 = 1`), the standard genus formula is
+equivalent to the direct principal-genus theorem `⋂ ker χ_p = Cl²`. -/
+theorem genusFormula_iff_iInf_genusCharacter_ker_eq_squareClassSubgroup_of_mod_four_eq_one
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd_neg : d < 0)
-    (hodd : RingOfIntegers.discrFormula d % 2 ≠ 0)
-    (hrel : oddGenusProductRelation d hd_neg)
-    (hsurj :
-      Function.Surjective
-        (oddGenusCharacterProductToRelationSubgroup d hd_neg hrel)) :
+    (hd4 : d % 4 = 1) :
     genusFormula d ↔
       (⨅ P : {p // p ∈ oddPrimeDiscriminantDivisors d},
         letI : Fact P.1.Prime := ⟨prime_of_mem_oddPrimeDiscriminantDivisors P.2⟩
