@@ -35,6 +35,12 @@ theorem genusFormula_iff_genusCharacterMap_ker_eq_square
     genusFormula d ↔ (genusCharacterMap d).ker = Subgroup.square (Cl⁺(d)) := by
   sorry
 
+/-- The genus formula for quadratic fields, stated on the narrow class group. -/
+theorem genusFormula_holds
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
+    genusFormula d := by
+  sorry
+
 end Genus
 end ClassGroup
 end QuadraticNumberFields

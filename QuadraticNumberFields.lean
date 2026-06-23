@@ -48,6 +48,7 @@ import QuadraticNumberFields.ClassGroup.Genus.PrimeDiscriminant
 import QuadraticNumberFields.ClassGroup.Genus.Principal
 import QuadraticNumberFields.ClassGroup.Genus.ExactSequence
 import QuadraticNumberFields.ClassGroup.Genus.Formula
+import QuadraticNumberFields.ClassGroup.Genus.Sieve
 import QuadraticNumberFields.ClassGroup.Minkowski
 import QuadraticNumberFields.ClassGroup.SmallNorm
 import QuadraticNumberFields.Qsqrtd.TotallyRealComplex

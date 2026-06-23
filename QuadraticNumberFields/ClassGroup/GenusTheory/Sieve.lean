@@ -194,11 +194,11 @@ classification of the discriminants `-4n` with class number one. -/
 theorem classNumber_eq_one_imp_exists_prime_of_odd_discr
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : d < 0)
     (hodd : RingOfIntegers.discrFormula d % 2 ≠ 0)
-    (hgenus : genusFormula d)
     (h : NumberField.classNumber (Qsqrtd (d : ℚ)) = 1) :
     ∃ p : ℕ, Nat.Prime p ∧ p % 4 = 3 ∧ d = -(p : ℤ) := by
+  have hd4 := (RingOfIntegers.discrFormula_odd_iff_mod_four_eq_one d).mp hodd
   exact classNumber_eq_one_imp_exists_prime_of_odd_discr_of_genus_divisibility d hd hodd
-    (genus_divisibility_of_squareClassSubgroup_quotient_card d hgenus) h
+    (genus_divisibility_of_mod_four_eq_one d hd hd4) h
 
 /-- For odd fundamental discriminants (`d % 4 = 1`), the weak genus-theory
 divisibility reduces class number one to the prime-discriminant family. -/
