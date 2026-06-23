@@ -4,8 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 
-import Mathlib.Algebra.Group.Subgroup.Even
-import QuadraticNumberFields.ClassGroup.Genus.Characters
+import QuadraticNumberFields.ClassGroup.Genus.Formula
 
 /-!
 # Principal Genus
@@ -27,7 +26,7 @@ class group is the subgroup of squares. -/
 theorem genusCharacterMap_ker_eq_square
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
     (genusCharacterMap d).ker = Subgroup.square (Cl⁺(d)) := by
-  sorry
+  exact (genusFormula_iff_genusCharacterMap_ker_eq_square d).mp (genusFormula_holds d)
 
 end Genus
 end ClassGroup

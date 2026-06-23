@@ -4,8 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 
-import Mathlib.Algebra.Group.Subgroup.Even
-import QuadraticNumberFields.ClassGroup.Genus.ExactSequence
+import QuadraticNumberFields.ClassGroup.Genus.QuotientEquiv
 
 /-!
 # Genus Formula
@@ -39,7 +38,8 @@ theorem genusFormula_iff_genusCharacterMap_ker_eq_square
 theorem genusFormula_holds
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
     genusFormula d := by
-  sorry
+  rw [genusFormula]
+  exact card_narrowSquareQuotient_eq_genusBound d
 
 end Genus
 end ClassGroup
