@@ -7,17 +7,59 @@ import Mathlib.RingTheory.ClassGroup
 import Mathlib.RingTheory.DedekindDomain.Factorization
 
 /-!
-# Coprime integral representatives of ideal classes
+# Class-group and fractional-ideal helpers
 
 Material destined for mathlib.
 
-In a Dedekind domain, every ideal class has an integral ideal representative whose
-underlying ideal is coprime to any prescribed nonzero ideal. The proof avoids
-valuations: it uses the `1.5`-generator property `IsDedekindDomain.exists_sup_span_eq`
-together with cancellation in the monoid of nonzero ideals.
+This file currently contains two helper families:
+
+* denominator clearing for square principal fractional-ideal multipliers;
+* in a Dedekind domain, integral ideal-class representatives coprime to a
+  prescribed nonzero ideal. The proof avoids valuations: it uses the `1.5`-generator
+  property `IsDedekindDomain.exists_sup_span_eq` together with cancellation in the
+  monoid of nonzero ideals.
 -/
 
 open scoped nonZeroDivisors
+
+namespace FractionalIdeal
+
+variable {R : Type*} [CommRing R] [IsDomain R]
+
+/-- Clear denominators in a square principal fractional-ideal multiplier.
+
+If `(z ^ 2) I = J` as fractional ideals, then after writing `z = x / y` one gets
+`(x) (x) I = (y) (y) J` as integral ideals. -/
+theorem exists_span_mul_span_mul_eq_of_spanSingleton_sq_mul_coeIdeal_eq_coeIdeal
+    {I J : Ideal R} {z : FractionRing R} (hz : z ≠ 0)
+    (hJ : spanSingleton R⁰ (z ^ 2) * (I : FractionalIdeal R⁰ (FractionRing R)) =
+      (J : FractionalIdeal R⁰ (FractionRing R))) :
+    ∃ x y : R, x ≠ 0 ∧ y ≠ 0 ∧
+      Ideal.span ({x} : Set R) * Ideal.span ({x} : Set R) * I =
+        Ideal.span ({y} : Set R) * Ideal.span ({y} : Set R) * J := by
+  obtain ⟨x, ⟨y, hy⟩, rfl⟩ := IsLocalization.exists_mk'_eq R⁰ z
+  have hy_ne : y ≠ 0 := mem_nonZeroDivisors_iff_ne_zero.mp hy
+  have hx_ne : x ≠ 0 := by
+    intro hx
+    apply hz
+    rw [hx, IsFractionRing.mk'_eq_div, map_zero, zero_div]
+  have hy2 : y ^ 2 ∈ R⁰ := mem_nonZeroDivisors_iff_ne_zero.mpr (pow_ne_zero 2 hy_ne)
+  refine ⟨x, y, hx_ne, hy_ne, ?_⟩
+  have hsq :
+      (IsLocalization.mk' (FractionRing R) x ⟨y, hy⟩) ^ 2 =
+        IsLocalization.mk' (FractionRing R) (x ^ 2) ⟨y ^ 2, hy2⟩ := by
+    rw [IsFractionRing.mk'_eq_div, IsFractionRing.mk'_eq_div]
+    field_simp [IsFractionRing.to_map_ne_zero_of_mem_nonZeroDivisors hy]
+    rw [map_pow, map_pow]
+    ring
+  have hclear : Ideal.span ({x ^ 2} : Set R) * I = Ideal.span ({y ^ 2} : Set R) * J := by
+    exact (FractionalIdeal.mk'_mul_coeIdeal_eq_coeIdeal (FractionRing R) hy2).mp (by
+      rw [← hsq]
+      exact hJ)
+  rw [Ideal.span_singleton_mul_span_singleton, Ideal.span_singleton_mul_span_singleton]
+  simpa [pow_two] using hclear
+
+end FractionalIdeal
 
 namespace ClassGroup
 
