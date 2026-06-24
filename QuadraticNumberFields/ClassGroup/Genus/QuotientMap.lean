@@ -27,7 +27,12 @@ attribute [-instance] DivisionRing.toRatAlgebra
 theorem square_le_genusCharacterMap_ker
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
     Subgroup.square (Cl⁺(d)) ≤ (genusCharacterMap d).ker := by
-  sorry
+  intro C hC
+  rw [Subgroup.mem_square] at hC
+  rcases hC with ⟨D, rfl⟩
+  rw [MonoidHom.mem_ker, map_mul]
+  ext q
+  simp [Int.units_mul_self]
 
 /-- The genus-character map descended to the quotient by the square subgroup. -/
 noncomputable def genusCharacterMapOnSquareQuotient
