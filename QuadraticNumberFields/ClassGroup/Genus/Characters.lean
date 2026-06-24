@@ -278,6 +278,17 @@ theorem genusCharacterOfSignedFactorRaw_eq_of_mul_eq_of_raw_eq
   rw [hKL] at hmul
   exact mul_right_cancel hmul
 
+/-- The raw signed-factor character is trivial on squares in the
+signed-factor-coprime ideal monoid. -/
+theorem genusCharacterOfSignedFactorRaw_sq
+      (q : {q // q ∈ signedPrimeDiscriminantFactors d})
+      (K : signedFactorCoprimeIdealSubmonoid d q) :
+      genusCharacterOfSignedFactorRaw d q (K ^ 2) = 1 := by
+  change (genusCharacterOfSignedFactorRawOnCoprimeIdeals d q) (K ^ 2) = 1
+  rw [map_pow]
+  ext
+  simp [pow_two]
+
 /-- The raw signed-factor character is unchanged by multiplication by a square in
 the signed-factor-coprime ideal monoid. -/
 theorem genusCharacterOfSignedFactorRaw_mul_sq
@@ -290,6 +301,18 @@ theorem genusCharacterOfSignedFactorRaw_mul_sq
   rw [map_mul, map_pow]
   ext
   simp [pow_two]
+
+/-- If two coprime ideal representatives become equal after multiplying by square
+coprime ideals, then their raw signed-factor characters agree. -/
+theorem genusCharacterOfSignedFactorRaw_eq_of_mul_sq_eq_mul_sq
+      (q : {q // q ∈ signedPrimeDiscriminantFactors d})
+      (I J K L : signedFactorCoprimeIdealSubmonoid d q)
+      (hprod : I * K ^ 2 = J * L ^ 2) :
+      genusCharacterOfSignedFactorRaw d q I =
+        genusCharacterOfSignedFactorRaw d q J :=
+  genusCharacterOfSignedFactorRaw_eq_of_mul_eq_of_raw_eq d q I J (K ^ 2) (L ^ 2)
+    hprod (by rw [genusCharacterOfSignedFactorRaw_sq d q K,
+      genusCharacterOfSignedFactorRaw_sq d q L])
 
 /-- The forgetful monoid hom from ideals with norm coprime to a signed
 prime-discriminant factor to nonzero integral ideals. -/
