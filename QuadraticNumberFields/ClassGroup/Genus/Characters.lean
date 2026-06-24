@@ -429,6 +429,10 @@ theorem exists_forall_ideal_coprime_representative_of_signedFactors
             (I : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) ⊔ Ideal.span
               ({(q.1.natAbs : NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))} :
                 Set (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) = ⊤ := by
+  by_cases hinj : Function.Injective (Qsqrtd.narrowToClassGroup d)
+  · exact
+      exists_forall_ideal_coprime_representative_of_signedFactors_of_narrowToClassGroup_injective
+        d hinj C
   sorry
 
 /-- Ideal-avoidance/approximation input: every narrow class has an integral ideal
@@ -579,6 +583,8 @@ theorem genusCharacterOfSignedFactorRaw_eq_of_narrowMk0OnSignedFactorCoprimeIdea
       (hIJ : narrowMk0OnSignedFactorCoprimeIdeals d q I =
         narrowMk0OnSignedFactorCoprimeIdeals d q J) :
       genusCharacterOfSignedFactorRaw d q I = genusCharacterOfSignedFactorRaw d q J := by
+  rcases (narrowMk0OnSignedFactorCoprimeIdeals_eq_iff_exists_fraction_ring d q I J).mp hIJ with
+    ⟨x, hxpos, hxIJ⟩
   sorry
 
 /-- The genus character attached to one signed prime-discriminant factor.
