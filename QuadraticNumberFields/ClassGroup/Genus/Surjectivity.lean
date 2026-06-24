@@ -6,6 +6,7 @@ Authors: Frankie Wang
 
 import Mathlib.GroupTheory.QuotientGroup.Finite
 import QuadraticNumberFields.ClassGroup.Genus.QuotientMap
+import QuadraticNumberFields.Splitting.Qsqrtd.Kronecker
 
 /-!
 # Surjectivity of Genus Characters
@@ -18,9 +19,22 @@ namespace QuadraticNumberFields
 namespace ClassGroup
 namespace Genus
 
-open scoped NumberField QuadraticNumberFields.ClassGroup
+open scoped NumberField nonZeroDivisors QuadraticNumberFields.ClassGroup
 
 attribute [-instance] DivisionRing.toRatAlgebra
+
+/-- A rational prime with Kronecker value `1` for the field discriminant gives a
+narrow ideal class represented by an integral ideal of absolute norm `p`. -/
+theorem exists_narrowClass_absNorm_eq_of_kroneckerSymNat_discr_eq_one
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (p : ℕ) [Fact p.Prime]
+    (hp : kroneckerSymNat (NumberField.discr (Qsqrtd (d : ℚ))) p = 1) :
+    ∃ C : Cl⁺(d), ∃ I : (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰,
+      NarrowClassGroup.mk0 I = C ∧
+        Ideal.absNorm (I : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) = p := by
+  rcases Splitting.exists_nonzero_ideal_absNorm_eq_of_kroneckerSymNat_discr_eq_one d p hp with
+    ⟨I, hI⟩
+  exact ⟨NarrowClassGroup.mk0 I, I, rfl, hI⟩
 
 /-- The genus-character map itself is surjective. -/
 theorem genusCharacterMap_surjective
