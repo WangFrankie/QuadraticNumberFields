@@ -154,22 +154,17 @@ theorem genus_divisibility_of_neg
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : d < 0) :
     2 ^ (ramifiedPrimeCount d - 1) ∣
       NumberField.classNumber (Qsqrtd (d : ℚ)) := by
-  have hgenus : genusFormula d := genusFormula_holds d
-  have hquot_dvd :
-      Nat.card (Cl⁺(d) ⧸ Subgroup.square (Cl⁺(d))) ∣ Nat.card (Cl⁺(d)) := by
-    rw [← Subgroup.index_eq_card]
-    exact (Subgroup.square (Cl⁺(d))).index_dvd_card
-  have hpow_dvd : 2 ^ (ramifiedPrimeCount d - 1) ∣ Nat.card (Cl⁺(d)) := by
-    rw [← hgenus]
-    exact hquot_dvd
+  have hdiv := genus_divisibility_narrowClassNumber d
   have hcard :
-      Nat.card (Cl⁺(d)) = NumberField.classNumber (Qsqrtd (d : ℚ)) := by
+      Qsqrtd.narrowClassNumber d = NumberField.classNumber (Qsqrtd (d : ℚ)) := by
     calc
-      Nat.card (Cl⁺(d)) = Nat.card (Cl(d)) :=
+      Qsqrtd.narrowClassNumber d = Nat.card (Cl⁺(d)) := by
+        rfl
+      _ = Nat.card (Cl(d)) :=
         Nat.card_congr (Qsqrtd.Imaginary.narrowMulEquivClassGroup d hd).toEquiv
       _ = NumberField.classNumber (Qsqrtd (d : ℚ)) := by
         simp [NumberField.classNumber, Nat.card_eq_fintype_card]
-  simpa [hcard] using hpow_dvd
+  simpa [hcard] using hdiv
 
 /-- **Genus-theory sieve for class number one.** An imaginary quadratic field with
 class number one has squarefree parameter
