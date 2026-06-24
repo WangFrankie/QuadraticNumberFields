@@ -554,7 +554,35 @@ theorem signedFactorKroneckerProduct_one_of_mem_signedFactorsCoprimeIdealSubmono
       Finset.univ.prod (fun q : {q // q ∈ signedPrimeDiscriminantFactors d} =>
         kroneckerSymNat q.1
           (Ideal.absNorm (I : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))))) = 1 := by
-  sorry
+  let n := Ideal.absNorm (I : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))
+  have hn : n ≠ 0 := by
+    have hI_nonzero := I.2
+    rw [mem_nonZeroDivisors_iff_ne_zero] at hI_nonzero
+    dsimp [n]
+    intro hzero
+    rw [Ideal.absNorm_eq_zero_iff] at hzero
+    rw [Ideal.zero_eq_bot] at hI_nonzero
+    exact hI_nonzero hzero
+  have hdisc :=
+    kroneckerSymNat_discr_absNorm_eq_one_of_mem_signedFactorsCoprimeIdealSubmonoid d I hI
+  change Finset.univ.prod (fun q : {q // q ∈ signedPrimeDiscriminantFactors d} =>
+      kroneckerSymNat q.1 n) = 1
+  calc
+    Finset.univ.prod (fun q : {q // q ∈ signedPrimeDiscriminantFactors d} =>
+        kroneckerSymNat q.1 n) =
+        (signedPrimeDiscriminantFactors d).attach.prod (fun q => kroneckerSymNat q.1 n) := by
+      simp
+    _ = kroneckerSymNat ((signedPrimeDiscriminantFactors d).attach.prod fun q => q.1) n := by
+      rw [← kroneckerSymNat_prod_left _ _ hn]
+    _ = kroneckerSymNat ((signedPrimeDiscriminantFactors d).prod id) n := by
+      congr 1
+      exact Finset.prod_attach (signedPrimeDiscriminantFactors d) id
+    _ = kroneckerSymNat (RingOfIntegers.discrFormula d) n := by
+      rw [prod_signedPrimeDiscriminantFactors_eq_discrFormula d]
+    _ = kroneckerSymNat (NumberField.discr (Qsqrtd (d : ℚ))) n := by
+      rw [← RingOfIntegers.discr_formula d]
+    _ = 1 := by
+      simpa [n] using hdisc
 
 /-- The raw unit-valued product formula follows from the corresponding integer
 Kronecker product formula. -/
