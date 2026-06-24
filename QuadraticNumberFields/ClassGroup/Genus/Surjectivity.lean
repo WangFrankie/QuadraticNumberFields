@@ -46,28 +46,6 @@ theorem exists_nat_legendreSym_eq_unit
       rw [Int.cast_natCast, ZMod.natCast_zmod_val]
       simpa using hx
 
-/-- The odd signed prime-discriminant factor is congruent to `1` modulo `4`. -/
-theorem oddPrimeDiscriminantFactor_emod_four_eq_one {p : ℕ}
-    (hp : p.Prime) (hp2 : p ≠ 2) :
-    oddPrimeDiscriminantFactor p % 4 = 1 := by
-  have hp_odd : p % 2 = 1 := (Nat.Prime.mod_two_eq_one_iff_ne_two hp).mpr hp2
-  rw [oddPrimeDiscriminantFactor]
-  by_cases hp4 : p % 4 = 1
-  · simp [hp4]
-    omega
-  · have hp4' : p % 4 = 3 := by omega
-    simp [hp4]
-    omega
-
-/-- Odd signed prime-discriminant factors evaluate as Legendre symbols. -/
-theorem kroneckerSymNat_oddPrimeDiscriminantFactor_eq_legendreSym
-    {p a : ℕ} [Fact p.Prime] (hp2 : p ≠ 2) :
-    kroneckerSymNat (oddPrimeDiscriminantFactor p) a = legendreSym p (a : ℤ) := by
-  have hD4 :=
-    oddPrimeDiscriminantFactor_emod_four_eq_one (Fact.out : p.Prime) hp2
-  rw [kroneckerSymNat_eq_jacobiSym_natAbs_of_emod_four_eq_one _ hD4,
-    natAbs_oddPrimeDiscriminantFactor, ← jacobiSym.legendreSym.to_jacobiSym]
-
 /-- Every sign occurs as an odd signed prime-discriminant Kronecker symbol. -/
 theorem exists_nat_kroneckerSymNat_oddPrimeDiscriminantFactor_eq_unit
     {p : ℕ} [Fact p.Prime] (hp2 : p ≠ 2) (u : ℤˣ) :
