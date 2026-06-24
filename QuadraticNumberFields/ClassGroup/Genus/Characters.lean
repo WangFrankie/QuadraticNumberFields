@@ -588,6 +588,30 @@ theorem genusCharacterOfSignedFactorDescent_apply_narrowMk0OnSignedFactorCoprime
   hdesc (Classical.choose (hsurj (narrowMk0OnSignedFactorCoprimeIdeals d q I))) I
     (Classical.choose_spec (hsurj (narrowMk0OnSignedFactorCoprimeIdeals d q I)))
 
+/-- Multiplication by a square principal fractional ideal preserves the restricted
+narrow class, when the result is again represented by an ideal whose norm is
+coprime to the signed factor. -/
+theorem narrowMk0OnSignedFactorCoprimeIdeals_eq_of_mul_toPrincipalIdeal_sq
+      (q : {q // q ∈ signedPrimeDiscriminantFactors d})
+      (I J : signedFactorCoprimeIdealSubmonoid d q)
+      {x : FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))} (hx : x ≠ 0)
+      (hJ : FractionalIdeal.mk0
+          (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))
+          (signedFactorCoprimeIdealNonzeroMonoidHom d q I) *
+        toPrincipalIdeal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))
+          (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))
+          (Units.mk0 (x ^ 2) (pow_ne_zero 2 hx)) =
+        FractionalIdeal.mk0
+          (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))
+          (signedFactorCoprimeIdealNonzeroMonoidHom d q J)) :
+      narrowMk0OnSignedFactorCoprimeIdeals d q I =
+        narrowMk0OnSignedFactorCoprimeIdeals d q J := by
+  simpa [narrowMk0OnSignedFactorCoprimeIdeals] using
+    (NarrowClassGroup.mk0_eq_mk0_of_mul_toPrincipalIdeal_sq
+      (R := NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))
+      (I := signedFactorCoprimeIdealNonzeroMonoidHom d q I)
+      (J := signedFactorCoprimeIdealNonzeroMonoidHom d q J) hx hJ)
+
 /-- Equality in the restricted narrow class-group map is equality after
 multiplication by a totally positive principal fractional ideal. -/
 theorem narrowMk0OnSignedFactorCoprimeIdeals_eq_iff_exists_fraction_ring
