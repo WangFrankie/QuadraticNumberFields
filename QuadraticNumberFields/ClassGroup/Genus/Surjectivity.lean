@@ -4,9 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 
-import Mathlib.Data.Nat.ChineseRemainder
 import Mathlib.GroupTheory.QuotientGroup.Finite
-import Mathlib.NumberTheory.LSeries.PrimesInAP
 import QuadraticNumberFields.ClassGroup.Genus.QuotientMap
 import QuadraticNumberFields.Splitting.Qsqrtd.Kronecker
 
@@ -114,6 +112,68 @@ theorem exists_nat_kroneckerSymNat_twoPrimeDiscriminantFactor_eq_unit
         norm_num
       · simp [hd2]
         norm_num [kroneckerSymNat, kroneckerTwo]
+
+/-- Signed prime-discriminant factors have nonzero absolute value. -/
+theorem natAbs_ne_zero_of_mem_signedPrimeDiscriminantFactors
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    {q : ℤ} (hq : q ∈ signedPrimeDiscriminantFactors d) :
+    q.natAbs ≠ 0 := by
+  rw [signedPrimeDiscriminantFactors] at hq
+  rcases Finset.mem_image.mp hq with ⟨p, hp, rfl⟩
+  have hp_prime : p.Prime := prime_of_mem_ramifiedPrimes hp
+  by_cases hp2 : p = 2
+  · subst p
+    rcases natAbs_twoPrimeDiscriminantFactor_eq_four_or_eight d with h4 | h8
+    · simp [primeDiscriminantFactor, h4]
+    · simp [primeDiscriminantFactor, h8]
+  · simp [primeDiscriminantFactor, hp2, natAbs_oddPrimeDiscriminantFactor,
+      hp_prime.ne_zero]
+
+/-- A signed prime-discriminant factor is congruent to `0` or `1` modulo `4`, so
+the Kronecker symbol is periodic modulo its absolute value. -/
+theorem emod_four_eq_zero_or_one_of_mem_signedPrimeDiscriminantFactors
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    {q : ℤ} (hq : q ∈ signedPrimeDiscriminantFactors d) :
+    q % 4 = 0 ∨ q % 4 = 1 := by
+  rw [signedPrimeDiscriminantFactors] at hq
+  rcases Finset.mem_image.mp hq with ⟨p, hp, rfl⟩
+  have hp_prime : p.Prime := prime_of_mem_ramifiedPrimes hp
+  by_cases hp2 : p = 2
+  · subst p
+    rw [primeDiscriminantFactor, if_pos rfl, twoPrimeDiscriminantFactor]
+    split_ifs <;> omega
+  · right
+    rw [primeDiscriminantFactor, if_neg hp2]
+    exact oddPrimeDiscriminantFactor_emod_four_eq_one hp_prime hp2
+
+/-- The signed-factor Kronecker symbol only depends on the denominator modulo the
+absolute value of that signed factor. -/
+theorem kroneckerSymNat_eq_of_modEq_natAbs
+    {D : ℤ} (hD : D % 4 = 0 ∨ D % 4 = 1) {a b : ℕ}
+    (hab : a ≡ b [MOD D.natAbs]) :
+    kroneckerSymNat D a = kroneckerSymNat D b := by
+  letI : Fact (D % 4 = 0 ∨ D % 4 = 1) := ⟨hD⟩
+  have hmod : a % D.natAbs = b % D.natAbs := by
+    simpa [Nat.ModEq] using hab
+  rw [← kroneckerSymNat_mod_natAbs_eq D a, ← kroneckerSymNat_mod_natAbs_eq D b, hmod]
+
+/-- Every sign occurs as a Kronecker symbol for an arbitrary signed
+prime-discriminant factor. -/
+theorem exists_nat_kroneckerSymNat_signedPrimeDiscriminantFactor_eq_unit
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (q : {q // q ∈ signedPrimeDiscriminantFactors d}) (u : ℤˣ) :
+    ∃ a : ℕ, a.Coprime q.1.natAbs ∧ kroneckerSymNat q.1 a = (u : ℤ) := by
+  rcases q with ⟨q, hq⟩
+  rw [signedPrimeDiscriminantFactors] at hq
+  rcases Finset.mem_image.mp hq with ⟨p, hp, rfl⟩
+  have hp_prime : p.Prime := prime_of_mem_ramifiedPrimes hp
+  by_cases hp2 : p = 2
+  · subst p
+    simpa [primeDiscriminantFactor] using
+      exists_nat_kroneckerSymNat_twoPrimeDiscriminantFactor_eq_unit d u
+  · letI : Fact p.Prime := ⟨hp_prime⟩
+    simpa [primeDiscriminantFactor, hp2] using
+      exists_nat_kroneckerSymNat_oddPrimeDiscriminantFactor_eq_unit hp2 u
 
 /-- A rational prime with Kronecker value `1` for the field discriminant gives a
 narrow ideal class represented by an integral ideal of absolute norm `p`. -/
