@@ -504,6 +504,46 @@ theorem genusCharacterOfSignedFactor_apply_mk0_of_mem_signedFactorsCoprimeIdealS
   rw [← hJ]
   simpa [J] using genusCharacterOfSignedFactor_apply_narrowMk0OnSignedFactorCoprimeIdeals d q J
 
+/-- If an ideal is coprime to every signed prime-discriminant factor, then its
+absolute norm has field-discriminant Kronecker value `1`. -/
+theorem kroneckerSymNat_discr_absNorm_eq_one_of_mem_signedFactorsCoprimeIdealSubmonoid
+      (I : (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰)
+      (hI : (I : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) ∈
+        signedFactorsCoprimeIdealSubmonoid d) :
+      kroneckerSymNat (NumberField.discr (Qsqrtd (d : ℚ)))
+        (Ideal.absNorm (I : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))) = 1 := by
+  have hI_ne : (I : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) ≠ ⊥ := by
+    have hI_nonzero := I.2
+    rw [mem_nonZeroDivisors_iff_ne_zero] at hI_nonzero
+    rwa [Ideal.zero_eq_bot] at hI_nonzero
+  refine Splitting.kroneckerSymNat_discr_absNorm_eq_one_of_forall_prime_dvd_not_isRamifiedIn
+    d hI_ne ?_
+  intro p hp_prime hp_dvd hram
+  have hp_ram : p ∈ ramifiedPrimes d :=
+    (mem_ramifiedPrimes_iff_isRamifiedIn d p).mpr ⟨hp_prime, hram⟩
+  let q : {q // q ∈ signedPrimeDiscriminantFactors d} :=
+    ⟨primeDiscriminantFactor d p, mem_signedPrimeDiscriminantFactors_of_mem_ramifiedPrimes d hp_ram⟩
+  have hcop := hI q
+  change Nat.Coprime
+    (Ideal.absNorm (I : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))))
+      (primeDiscriminantFactor d p).natAbs at hcop
+  have hp_dvd_q : p ∣ (primeDiscriminantFactor d p).natAbs :=
+    dvd_natAbs_primeDiscriminantFactor_of_mem_ramifiedPrimes hp_ram
+  have hp_dvd_one : p ∣ 1 := by
+    have hp_dvd_gcd :
+        p ∣ Nat.gcd
+          (Ideal.absNorm (I : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))))
+          (primeDiscriminantFactor d p).natAbs :=
+      Nat.dvd_gcd hp_dvd hp_dvd_q
+    have hgcd :
+        Nat.gcd
+          (Ideal.absNorm (I : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))))
+          (primeDiscriminantFactor d p).natAbs = 1 := hcop
+    rwa [hgcd] at hp_dvd_gcd
+  have hp_le_one : p ≤ 1 := Nat.le_of_dvd (by norm_num) hp_dvd_one
+  have hp_two_le : 2 ≤ p := hp_prime.two_le
+  omega
+
 /-- Pure Kronecker product formula on a common representative: if one nonzero
 integral ideal is coprime to every signed factor, the product of the
 signed-factor Kronecker values is `1`. -/

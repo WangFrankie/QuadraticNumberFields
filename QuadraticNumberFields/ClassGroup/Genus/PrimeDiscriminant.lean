@@ -60,6 +60,21 @@ theorem natAbs_twoPrimeDiscriminantFactor_eq_four_or_eight (d : ℤ) :
 def primeDiscriminantFactor (d : ℤ) (p : ℕ) : ℤ :=
   if p = 2 then twoPrimeDiscriminantFactor d else oddPrimeDiscriminantFactor p
 
+/-- A ramified rational prime divides the absolute value of its signed
+prime-discriminant factor. -/
+theorem dvd_natAbs_primeDiscriminantFactor_of_mem_ramifiedPrimes
+    {d : ℤ} [Fact (Squarefree d)] [Fact (d ≠ 1)] {p : ℕ}
+    (hp : p ∈ ramifiedPrimes d) :
+    p ∣ (primeDiscriminantFactor d p).natAbs := by
+  by_cases hp2 : p = 2
+  · subst p
+    rcases natAbs_twoPrimeDiscriminantFactor_eq_four_or_eight d with htwo | htwo
+    · rw [primeDiscriminantFactor, if_pos rfl, htwo]
+      norm_num
+    · rw [primeDiscriminantFactor, if_pos rfl, htwo]
+      norm_num
+  · rw [primeDiscriminantFactor, if_neg hp2, natAbs_oddPrimeDiscriminantFactor]
+
 section RamifiedDiscriminantFactors
 
 variable (d : ℤ) [hdSq : Fact (Squarefree d)] [hdNe : Fact (d ≠ 1)]
