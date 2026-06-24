@@ -140,6 +140,20 @@ def signedFactorCoprimeIdealSubmonoid
           exact Nat.Coprime.mul_left hI hJ
       }
 
+/-- Ideals in the signed-factor coprime submonoid have nonzero absolute norm. -/
+theorem absNorm_ne_zero_of_mem_signedFactorCoprimeIdealSubmonoid
+      (q : {q // q ∈ signedPrimeDiscriminantFactors d})
+      (I : signedFactorCoprimeIdealSubmonoid d q) :
+      Ideal.absNorm (I : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) ≠ 0 := by
+  intro hzero
+  have hcop := I.property
+  change Nat.Coprime
+      (Ideal.absNorm (I : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))))
+        q.1.natAbs at hcop
+  have hq1 : q.1.natAbs = 1 := by
+    simpa [Nat.Coprime, hzero] using hcop
+  exact (natAbs_ne_one_of_mem_signedPrimeDiscriminantFactors d q.property) hq1
+
 noncomputable def genusCharacterOfSignedFactorRaw
       (q : {q // q ∈ signedPrimeDiscriminantFactors d})
       (I : signedFactorCoprimeIdealSubmonoid d q) : ℤˣ := by
@@ -155,6 +169,23 @@ noncomputable def genusCharacterOfSignedFactorRaw
       simpa [x, pow_two] using kroneckerSymNat_sq_one_of_coprime q.1 I.property
     · change x * x = 1
       simpa [x, pow_two] using kroneckerSymNat_sq_one_of_coprime q.1 I.property
+
+/-- The raw genus character at a signed prime-discriminant factor as a monoid
+homomorphism on ideals whose absolute norm is coprime to that signed factor. -/
+noncomputable def genusCharacterOfSignedFactorRawOnCoprimeIdeals
+      (q : {q // q ∈ signedPrimeDiscriminantFactors d}) :
+      signedFactorCoprimeIdealSubmonoid d q →* ℤˣ where
+  toFun I := genusCharacterOfSignedFactorRaw d q I
+  map_one' := by
+    ext
+    simp [genusCharacterOfSignedFactorRaw, Ideal.absNorm_top, kroneckerSymNat]
+  map_mul' I J := by
+    ext
+    dsimp [genusCharacterOfSignedFactorRaw]
+    rw [Ideal.absNorm.map_mul]
+    rw [kroneckerSymNat_mul]
+    · exact absNorm_ne_zero_of_mem_signedFactorCoprimeIdealSubmonoid d q I
+    · exact absNorm_ne_zero_of_mem_signedFactorCoprimeIdealSubmonoid d q J
 
 /-- The genus character attached to one signed prime-discriminant factor.
 On a class represented by an ideal `I` whose norm is coprime to `q`, this should

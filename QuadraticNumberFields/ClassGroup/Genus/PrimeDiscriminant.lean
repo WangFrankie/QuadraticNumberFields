@@ -129,6 +129,26 @@ theorem signedPrimeDiscriminantFactors_nonempty_iff :
   rw [← Finset.card_pos, card_signedPrimeDiscriminantFactors_eq_ramifiedPrimeCount,
     ramifiedPrimeCount_eq_card, Finset.card_pos]
 
+/-- Every signed prime-discriminant factor has absolute value different from `1`. -/
+theorem natAbs_ne_one_of_mem_signedPrimeDiscriminantFactors {q : ℤ}
+    (hq : q ∈ signedPrimeDiscriminantFactors d) :
+    q.natAbs ≠ 1 := by
+  rw [signedPrimeDiscriminantFactors] at hq
+  rcases Finset.mem_image.mp hq with ⟨p, hp, rfl⟩
+  have hp_prime : p.Prime := prime_of_mem_ramifiedPrimes hp
+  by_cases hp2 : p = 2
+  · subst p
+    intro h
+    rcases natAbs_twoPrimeDiscriminantFactor_eq_four_or_eight d with h4 | h8
+    · rw [primeDiscriminantFactor, if_pos rfl, h4] at h
+      norm_num at h
+    · rw [primeDiscriminantFactor, if_pos rfl, h8] at h
+      norm_num at h
+  · intro h
+    have hp1 : p = 1 := by
+      simpa [primeDiscriminantFactor, hp2] using h
+    exact hp_prime.ne_one hp1
+
 end RamifiedDiscriminantFactors
 
 private theorem oddPrimeDiscriminantFactor_eq_legendreSym_neg_one_mul {p : ℕ}
