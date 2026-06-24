@@ -27,6 +27,8 @@ and `RingOfIntegers.discr_formula`.
   `(disc(d) / p) = 0`.
 * `exists_nonzero_ideal_absNorm_eq_of_isSplitIn`:
   a split rational prime has an integral ideal above it with absolute norm `p`.
+* `exists_nonzero_ideal_absNorm_eq_of_kroneckerSymNat_discr_eq_one`:
+  a prime with Kronecker value `1` for the field discriminant has such an ideal.
 * `kroneckerSymNat_discr_absNorm_eq_one_of_liesOver_of_not_isRamifiedIn`:
   if `P` lies over an unramified rational prime, then `(disc(d) / absNorm P) = 1`.
 * `kroneckerSymNat_discr_absNorm_eq_one_of_forall_prime_dvd_not_isRamifiedIn`:
@@ -227,6 +229,15 @@ theorem exists_nonzero_ideal_absNorm_eq_of_isSplitIn
   · rw [mem_nonZeroDivisors_iff_ne_zero]
     exact hP0
   · exact absNorm_eq_prime_of_liesOver_of_isSplitIn d p hsplit
+
+/-- A rational prime whose Kronecker value against the field discriminant is `1`
+has a nonzero integral ideal above it with absolute norm `p`. -/
+theorem exists_nonzero_ideal_absNorm_eq_of_kroneckerSymNat_discr_eq_one
+    (p : ℕ) [Fact p.Prime]
+    (hp : kroneckerSymNat (disc(d)) p = 1) :
+    ∃ I : (Ideal 𝓞(d))⁰, Ideal.absNorm (I : Ideal 𝓞(d)) = p :=
+  exists_nonzero_ideal_absNorm_eq_of_isSplitIn d p
+    ((isSplit_iff_kroneckerSymNat_discr_eq_one d p).mpr hp)
 
 /-- If `P` lies above an inert rational prime `p`, then its absolute norm is `p²`. -/
 theorem absNorm_eq_prime_sq_of_liesOver_of_isInertIn
