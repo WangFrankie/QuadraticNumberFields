@@ -4,7 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 
+import Mathlib.Data.Nat.ChineseRemainder
 import Mathlib.GroupTheory.QuotientGroup.Finite
+import Mathlib.NumberTheory.LSeries.PrimesInAP
 import QuadraticNumberFields.ClassGroup.Genus.QuotientMap
 import QuadraticNumberFields.Splitting.Qsqrtd.Kronecker
 
@@ -175,6 +177,102 @@ theorem exists_nat_kroneckerSymNat_signedPrimeDiscriminantFactor_eq_unit
     simpa [primeDiscriminantFactor, hp2] using
       exists_nat_kroneckerSymNat_oddPrimeDiscriminantFactor_eq_unit hp2 u
 
+/-- The `2`-primary signed factor has absolute value coprime to every odd prime. -/
+theorem coprime_natAbs_twoPrimeDiscriminantFactor_of_odd_prime
+    (d : ℤ) {p : ℕ} (hp : p.Prime) (hp2 : p ≠ 2) :
+    Nat.Coprime (twoPrimeDiscriminantFactor d).natAbs p := by
+  have hcop2p : Nat.Coprime 2 p :=
+    (Nat.coprime_primes Nat.prime_two hp).mpr hp2.symm
+  rcases natAbs_twoPrimeDiscriminantFactor_eq_four_or_eight d with h4 | h8
+  · rw [h4]
+    simpa [show (4 : ℕ) = 2 ^ 2 by norm_num] using hcop2p.pow_left 2
+  · rw [h8]
+    simpa [show (8 : ℕ) = 2 ^ 3 by norm_num] using hcop2p.pow_left 3
+
+/-- Distinct signed prime-discriminant factors have coprime absolute values. -/
+theorem pairwise_coprime_natAbs_signedPrimeDiscriminantFactors
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
+    Set.Pairwise ((Finset.univ : Finset {q // q ∈ signedPrimeDiscriminantFactors d}) :
+      Set {q // q ∈ signedPrimeDiscriminantFactors d})
+        (fun q r => Nat.Coprime q.1.natAbs r.1.natAbs) := by
+  intro q _ r _ hqr
+  rcases q with ⟨q, hq⟩
+  rcases r with ⟨r, hr⟩
+  rw [signedPrimeDiscriminantFactors] at hq hr
+  rcases Finset.mem_image.mp hq with ⟨p, hp, rfl⟩
+  rcases Finset.mem_image.mp hr with ⟨l, hl, rfl⟩
+  have hp_prime : p.Prime := prime_of_mem_ramifiedPrimes hp
+  have hl_prime : l.Prime := prime_of_mem_ramifiedPrimes hl
+  have hpl : p ≠ l := by
+    intro hpl
+    apply hqr
+    exact Subtype.ext (by simp [hpl])
+  by_cases hp2 : p = 2
+  · subst p
+    by_cases hl2 : l = 2
+    · exact (hpl hl2.symm).elim
+    · simpa [primeDiscriminantFactor, hl2] using
+        coprime_natAbs_twoPrimeDiscriminantFactor_of_odd_prime d hl_prime hl2
+  · by_cases hl2 : l = 2
+    · subst l
+      simpa [primeDiscriminantFactor, hp2] using
+        (coprime_natAbs_twoPrimeDiscriminantFactor_of_odd_prime d hp_prime hp2).symm
+    · have hcop : Nat.Coprime p l :=
+        (Nat.coprime_primes hp_prime hl_prime).mpr hpl
+      simpa [primeDiscriminantFactor, hp2, hl2, natAbs_oddPrimeDiscriminantFactor] using hcop
+
+/-- CRT package for a prescribed signed-factor sign vector: one natural residue
+class has all prescribed Kronecker symbols and is coprime to the product modulus. -/
+theorem exists_nat_residue_with_prescribed_signedFactor_symbols
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (χ : genusCharacterTargetRelation d) :
+    ∃ a : ℕ,
+      a.Coprime (Finset.univ.prod
+        (fun q : {q // q ∈ signedPrimeDiscriminantFactors d} => q.1.natAbs)) ∧
+      ∀ q : {q // q ∈ signedPrimeDiscriminantFactors d},
+        kroneckerSymNat q.1 a = ((χ : genusCharacterTarget d) q : ℤ) := by
+  classical
+  let residue : {q // q ∈ signedPrimeDiscriminantFactors d} → ℕ := fun q =>
+    Classical.choose
+      (exists_nat_kroneckerSymNat_signedPrimeDiscriminantFactor_eq_unit d q
+        ((χ : genusCharacterTarget d) q))
+  have hres_coprime :
+      ∀ q : {q // q ∈ signedPrimeDiscriminantFactors d},
+        (residue q).Coprime q.1.natAbs := by
+    intro q
+    exact (Classical.choose_spec
+      (exists_nat_kroneckerSymNat_signedPrimeDiscriminantFactor_eq_unit d q
+        ((χ : genusCharacterTarget d) q))).1
+  have hres_symbol :
+      ∀ q : {q // q ∈ signedPrimeDiscriminantFactors d},
+        kroneckerSymNat q.1 (residue q) = ((χ : genusCharacterTarget d) q : ℤ) := by
+    intro q
+    exact (Classical.choose_spec
+      (exists_nat_kroneckerSymNat_signedPrimeDiscriminantFactor_eq_unit d q
+        ((χ : genusCharacterTarget d) q))).2
+  have hs_nonzero :
+      ∀ q ∈ (Finset.univ : Finset {q // q ∈ signedPrimeDiscriminantFactors d}),
+        q.1.natAbs ≠ 0 := by
+    intro q _hq
+    exact natAbs_ne_zero_of_mem_signedPrimeDiscriminantFactors d q.property
+  let aCRT := Nat.chineseRemainderOfFinset
+    (a := residue) (s := fun q : {q // q ∈ signedPrimeDiscriminantFactors d} =>
+      q.1.natAbs)
+    Finset.univ hs_nonzero (pairwise_coprime_natAbs_signedPrimeDiscriminantFactors d)
+  refine ⟨aCRT, ?_, ?_⟩
+  · rw [Nat.coprime_prod_right_iff]
+    intro q _hq
+    have hmod : (aCRT : ℕ) ≡ residue q [MOD q.1.natAbs] := aCRT.2 q (by simp)
+    have hgcd := hmod.gcd_eq
+    have hres_gcd : Nat.gcd (residue q) q.1.natAbs = 1 := by
+      simpa [Nat.Coprime] using hres_coprime q
+    simpa [Nat.Coprime, hres_gcd] using hgcd
+  · intro q
+    have hmod : (aCRT : ℕ) ≡ residue q [MOD q.1.natAbs] := aCRT.2 q (by simp)
+    exact (kroneckerSymNat_eq_of_modEq_natAbs
+      (emod_four_eq_zero_or_one_of_mem_signedPrimeDiscriminantFactors d q.property) hmod).trans
+        (hres_symbol q)
+
 /-- A rational prime with Kronecker value `1` for the field discriminant gives a
 narrow ideal class represented by an integral ideal of absolute norm `p`. -/
 theorem exists_narrowClass_absNorm_eq_of_kroneckerSymNat_discr_eq_one
@@ -307,7 +405,31 @@ theorem exists_prime_with_prescribed_signedFactor_symbols
     ∃ p : ℕ, ∃ _ : p.Prime,
       ∀ q : {q // q ∈ signedPrimeDiscriminantFactors d},
         kroneckerSymNat q.1 p = ((χ : genusCharacterTarget d) q : ℤ) := by
-  sorry
+  classical
+  let M : ℕ := Finset.univ.prod
+    (fun q : {q // q ∈ signedPrimeDiscriminantFactors d} => q.1.natAbs)
+  rcases exists_nat_residue_with_prescribed_signedFactor_symbols d χ with
+    ⟨a, ha_coprime, ha_symbols⟩
+  have hM0 : M ≠ 0 := by
+    dsimp [M]
+    exact Finset.prod_ne_zero_iff.mpr fun q _ =>
+      natAbs_ne_zero_of_mem_signedPrimeDiscriminantFactors d q.property
+  have ha_coprime_M : a.Coprime M := by
+    simpa [M] using ha_coprime
+  rcases Nat.forall_exists_prime_gt_and_modEq 0 (q := M) (a := a) hM0 ha_coprime_M with
+    ⟨p, _hp_gt, hp_prime, hp_mod_M⟩
+  refine ⟨p, hp_prime, ?_⟩
+  intro q
+  have hq_dvd_M : q.1.natAbs ∣ M := by
+    dsimp [M]
+    exact Finset.dvd_prod_of_mem
+      (fun q : {q // q ∈ signedPrimeDiscriminantFactors d} => q.1.natAbs)
+      (Finset.mem_univ q)
+  have hp_mod_q : p ≡ a [MOD q.1.natAbs] :=
+    Nat.ModEq.of_dvd hq_dvd_M hp_mod_M
+  exact (kroneckerSymNat_eq_of_modEq_natAbs
+    (emod_four_eq_zero_or_one_of_mem_signedPrimeDiscriminantFactors d q.property) hp_mod_q).trans
+      (ha_symbols q)
 
 /-- The genus-character map itself is surjective. -/
 theorem genusCharacterMap_surjective
