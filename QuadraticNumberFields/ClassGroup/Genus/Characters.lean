@@ -903,6 +903,76 @@ theorem kroneckerSymNat_twoPrimeDiscriminantFactor_zsqrtd_norm_eq_one
         omega
       omega
 
+private theorem legendreSym_zsqrtd_norm_eq_one_of_dvd_param
+    {D : ℤ} {p : ℕ} [Fact p.Prime] (hpd : (p : ℤ) ∣ D) (z : Zsqrtd D)
+    (hz : ¬ (p : ℤ) ∣ Zsqrtd.norm z) :
+    legendreSym p (Zsqrtd.norm z) = 1 := by
+  have hnorm_ne : ((Zsqrtd.norm z : ℤ) : ZMod p) ≠ 0 := by
+    intro hzero
+    exact hz ((ZMod.intCast_zmod_eq_zero_iff_dvd (Zsqrtd.norm z) p).mp hzero)
+  refine (legendreSym.eq_one_iff p hnorm_ne).mpr ?_
+  refine ⟨(z.re : ZMod p), ?_⟩
+  have hD_zero : ((D : ℤ) : ZMod p) = 0 :=
+    (ZMod.intCast_zmod_eq_zero_iff_dvd D p).mpr hpd
+  rw [RingOfIntegers.norm_zsqrtd]
+  push_cast
+  rw [hD_zero]
+  ring
+
+private theorem odd_ramified_dvd_param_of_mod_four_ne_one
+    {D : ℤ} [Fact (Squarefree D)] [Fact (D ≠ 1)] {p : ℕ}
+    (hp_ram : p ∈ ramifiedPrimes D) (hp2 : p ≠ 2) (hd4 : D % 4 ≠ 1) :
+    (p : ℤ) ∣ D := by
+  have hp_prime : p.Prime := prime_of_mem_ramifiedPrimes hp_ram
+  have hp_dvd_disc : (p : ℤ) ∣ NumberField.discr (Qsqrtd (D : ℚ)) :=
+    dvd_discr_of_mem_ramifiedPrimes hp_ram
+  rw [RingOfIntegers.discr_formula,
+    RingOfIntegers.discrFormula_of_mod_four_ne_one hd4] at hp_dvd_disc
+  have hp_int_prime : Prime (p : ℤ) := Nat.prime_iff_prime_int.mp hp_prime
+  rcases hp_int_prime.dvd_or_dvd hp_dvd_disc with hp4 | hpD
+  · have hp_dvd_four_nat : p ∣ 4 := by
+      exact_mod_cast hp4
+    have hp_le4 : p ≤ 4 := Nat.le_of_dvd (by norm_num) hp_dvd_four_nat
+    interval_cases p
+    · norm_num at hp_prime
+    · norm_num at hp_prime
+    · exact (hp2 rfl).elim
+    · norm_num at hp_dvd_four_nat
+    · norm_num at hp_prime
+  · exact hpD
+
+/-- In the `ℤ[√d]` branch, nonnegative explicit norms prime to any signed
+prime-discriminant factor have trivial Kronecker value. -/
+theorem kroneckerSymNat_signedFactor_zsqrtd_norm_eq_one
+    {D : ℤ} [Fact (Squarefree D)] [Fact (D ≠ 1)]
+    (q : {q // q ∈ signedPrimeDiscriminantFactors D})
+    (z : Zsqrtd D) (hd4 : D % 4 ≠ 1) (hN_nonneg : 0 ≤ Zsqrtd.norm z)
+    (hcop : Nat.Coprime (Zsqrtd.norm z).natAbs q.1.natAbs) :
+    kroneckerSymNat q.1 (Zsqrtd.norm z).natAbs = 1 := by
+  rcases eq_twoPrimeDiscriminantFactor_or_exists_oddPrimeDiscriminantFactor_of_mem
+      (d := D) q.property with htwo | hodd
+  · rcases htwo with ⟨hq, _h2ram⟩
+    rw [hq] at hcop ⊢
+    exact kroneckerSymNat_twoPrimeDiscriminantFactor_zsqrtd_norm_eq_one
+      z hd4 hN_nonneg hcop
+  · rcases hodd with ⟨p, hp_ram, hp_prime, hp2, hq⟩
+    rw [hq] at hcop ⊢
+    letI : Fact p.Prime := ⟨hp_prime⟩
+    rw [kroneckerSymNat_oddPrimeDiscriminantFactor_eq_legendreSym hp2]
+    have hcop_p : Nat.Coprime (Zsqrtd.norm z).natAbs p := by
+      simpa [natAbs_oddPrimeDiscriminantFactor] using hcop
+    have hnot_p_nat : ¬ p ∣ (Zsqrtd.norm z).natAbs :=
+      (hp_prime.coprime_iff_not_dvd).mp hcop_p.symm
+    have hnot_p_int : ¬ (p : ℤ) ∣ Zsqrtd.norm z := by
+      intro hdiv
+      exact hnot_p_nat (Int.natCast_dvd.mp hdiv)
+    have hpd : (p : ℤ) ∣ D :=
+      odd_ramified_dvd_param_of_mod_four_ne_one hp_ram hp2 hd4
+    have h_absnorm_int : (((Zsqrtd.norm z).natAbs : ℕ) : ℤ) = Zsqrtd.norm z :=
+      Int.natAbs_of_nonneg hN_nonneg
+    rw [h_absnorm_int]
+    exact legendreSym_zsqrtd_norm_eq_one_of_dvd_param hpd z hnot_p_int
+
 /-- Well-definedness input for signed-factor genus characters: the raw Kronecker
 value is constant on fibers of the restricted narrow class-group map. -/
 theorem genusCharacterOfSignedFactorRaw_eq_of_narrowMk0OnSignedFactorCoprimeIdeals_eq
