@@ -230,6 +230,27 @@ theorem narrowMk0OnSignedFactorCoprimeIdeals_surjective_of_exists_absNorm_coprim
   simpa [narrowMk0OnSignedFactorCoprimeIdeals,
     signedFactorCoprimeIdealNonzeroMonoidHom] using hC
 
+/-- Ideal-avoidance/approximation input: every narrow class has an integral ideal
+representative whose absolute norm is coprime to a fixed signed discriminant
+factor. -/
+theorem exists_absNorm_coprime_representative_of_signedFactor
+      (q : {q // q ∈ signedPrimeDiscriminantFactors d})
+      (C : Cl⁺(d)) :
+      ∃ I : (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰,
+        NarrowClassGroup.mk0 I = C ∧
+          Nat.Coprime
+            (Ideal.absNorm (I : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))))
+            q.1.natAbs := by
+  sorry
+
+/-- The restricted narrow class-group map from ideals whose norms are coprime to a
+signed discriminant factor is surjective. -/
+theorem narrowMk0OnSignedFactorCoprimeIdeals_surjective
+      (q : {q // q ∈ signedPrimeDiscriminantFactors d}) :
+      Function.Surjective (narrowMk0OnSignedFactorCoprimeIdeals d q) :=
+  narrowMk0OnSignedFactorCoprimeIdeals_surjective_of_exists_absNorm_coprime_representative
+    d q (exists_absNorm_coprime_representative_of_signedFactor d q)
+
 /-- If the restricted narrow class-group map is surjective and the raw character is
 constant on its fibers, then the raw signed-factor character induces a genuine
 narrow class-group character. -/
@@ -289,24 +310,33 @@ theorem genusCharacterOfSignedFactorDescent_apply_narrowMk0OnSignedFactorCoprime
   hdesc (Classical.choose (hsurj (narrowMk0OnSignedFactorCoprimeIdeals d q I))) I
     (Classical.choose_spec (hsurj (narrowMk0OnSignedFactorCoprimeIdeals d q I)))
 
+/-- Well-definedness input for signed-factor genus characters: the raw Kronecker
+value is constant on fibers of the restricted narrow class-group map. -/
+theorem genusCharacterOfSignedFactorRaw_eq_of_narrowMk0OnSignedFactorCoprimeIdeals_eq
+      (q : {q // q ∈ signedPrimeDiscriminantFactors d})
+      (I J : signedFactorCoprimeIdealSubmonoid d q)
+      (hIJ : narrowMk0OnSignedFactorCoprimeIdeals d q I =
+        narrowMk0OnSignedFactorCoprimeIdeals d q J) :
+      genusCharacterOfSignedFactorRaw d q I = genusCharacterOfSignedFactorRaw d q J := by
+  sorry
+
 /-- The genus character attached to one signed prime-discriminant factor.
 On a class represented by an ideal `I` whose norm is coprime to `q`, this should
 evaluate as `kroneckerSymNat q.1 (Ideal.absNorm I)`. -/
 noncomputable def genusCharacterOfSignedFactor
       (q : {q // q ∈ signedPrimeDiscriminantFactors d}) :
-      Cl⁺(d) →* ℤˣ := by
-  have hsurj : Function.Surjective (narrowMk0OnSignedFactorCoprimeIdeals d q) := by
-    -- Ideal-avoidance/approximation input: every narrow class has an integral
-    -- representative whose norm is coprime to the signed discriminant factor.
-    sorry
-  have hdesc : ∀ I J : signedFactorCoprimeIdealSubmonoid d q,
-      narrowMk0OnSignedFactorCoprimeIdeals d q I =
-        narrowMk0OnSignedFactorCoprimeIdeals d q J →
-          genusCharacterOfSignedFactorRaw d q I = genusCharacterOfSignedFactorRaw d q J := by
-    -- Well-definedness input: multiplication by a narrow-principal multiplier
-    -- with norm prime to `q` has trivial Kronecker value.
-    sorry
-  exact genusCharacterOfSignedFactorDescent d q hsurj hdesc
+      Cl⁺(d) →* ℤˣ :=
+  genusCharacterOfSignedFactorDescent d q
+    (narrowMk0OnSignedFactorCoprimeIdeals_surjective d q)
+    (genusCharacterOfSignedFactorRaw_eq_of_narrowMk0OnSignedFactorCoprimeIdeals_eq d q)
+
+/-- Product formula input for genus characters: the signed-factor characters
+attached to a narrow ideal class have product `1`. -/
+theorem genusCharacterMap_product_one
+      (C : Cl⁺(d)) :
+      Finset.univ.prod (fun q : {q // q ∈ signedPrimeDiscriminantFactors d} =>
+        genusCharacterOfSignedFactor d q C) = 1 := by
+  sorry
 
 /-- The genus-character map from the narrow class group to the product-one sign
 relation subgroup. This is the main construction boundary for genus theory. -/
@@ -315,8 +345,7 @@ noncomputable def genusCharacterMap :
   refine
     { toFun := fun C =>
         ⟨fun q => genusCharacterOfSignedFactor d q C, by
-          -- product-one relation
-          sorry⟩
+          exact genusCharacterMap_product_one d C⟩
       map_one' := by
         ext q
         simp
