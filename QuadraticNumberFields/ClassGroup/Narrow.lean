@@ -63,6 +63,13 @@ theorem isTotallyPositive_of_isEmpty [IsEmpty (K →+* ℝ)] (x : K) :
   intro σ
   exact isEmptyElim σ
 
+/-- A nonzero square in a field is totally positive. -/
+theorem isTotallyPositive_sq_of_ne_zero {K : Type*} [Field K] (x : K) (hx : x ≠ 0) :
+    IsTotallyPositive (x ^ 2) := by
+  intro σ
+  have hσx : σ x ≠ 0 := (_root_.map_ne_zero σ).mpr hx
+  simpa using sq_pos_of_ne_zero hσx
+
 /-- The homomorphism sending a totally positive unit to its principal fractional
 ideal. Its range is the subgroup by which the narrow class group quotients. -/
 noncomputable def toNarrowPrincipalIdeal (R K : Type*) [CommRing R] [Field K]
@@ -186,6 +193,74 @@ theorem mk_eq_mk' (I : (FractionalIdeal R⁰ (FractionRing R))ˣ) :
     mk I = QuotientGroup.mk' (narrowPrincipalIdeals R (FractionRing R)) I := by
   rw [mk_def, canonicalEquiv_self]
   rfl
+
+/-- An integral ideal representative suited for narrow classes.
+
+Compared with the ordinary class-group numerator, this multiplies by one extra
+denominator so that the difference from the original fractional ideal is generated
+by a square, hence by a totally positive element. -/
+def integralRep (I : FractionalIdeal R⁰ (FractionRing R)) : Ideal R :=
+  Ideal.span ({(I.den : R)} : Set R) * I.num
+
+/-- The narrow integral representative of a nonzero fractional ideal is nonzero. -/
+theorem integralRep_mem_nonZeroDivisors
+    {I : FractionalIdeal R⁰ (FractionRing R)} (hI : I ≠ 0) :
+    integralRep I ∈ (Ideal R)⁰ := by
+  rw [mem_nonZeroDivisors_iff_ne_zero, integralRep]
+  apply mul_ne_zero
+  · rw [Ideal.zero_eq_bot, ne_eq, Ideal.span_singleton_eq_bot]
+    exact mem_nonZeroDivisors_iff_ne_zero.mp I.den.prop
+  · rwa [ne_eq, FractionalIdeal.num_eq_zero_iff]
+
+/-- The narrow class of the narrow integral representative is the original
+fractional-ideal class. -/
+theorem mk0_integralRep [IsDedekindDomain R]
+    (I : (FractionalIdeal R⁰ (FractionRing R))ˣ) :
+    mk0 ⟨integralRep I, integralRep_mem_nonZeroDivisors I.ne_zero⟩ = mk I := by
+  rw [← mk_mk0, mk_eq_mk', mk_eq_mk']
+  let a : FractionRing R := algebraMap R (FractionRing R) (I.1.den : R)
+  have ha0 : a ≠ 0 :=
+    IsFractionRing.to_map_ne_zero_of_mem_nonZeroDivisors I.1.den.prop
+  let u : (FractionRing R)ˣ := Units.mk0 (a ^ 2) (pow_ne_zero 2 ha0)
+  have hu_pos : u ∈ totallyPositiveUnits (FractionRing R) := by
+    exact isTotallyPositive_sq_of_ne_zero a ha0
+  let P : (FractionalIdeal R⁰ (FractionRing R))ˣ :=
+    toNarrowPrincipalIdeal R (FractionRing R) ⟨u, hu_pos⟩
+  have hP_mem : P ∈ narrowPrincipalIdeals R (FractionRing R) := by
+    exact ⟨⟨u, hu_pos⟩, rfl⟩
+  have hrep :
+      FractionalIdeal.mk0 (FractionRing R)
+          ⟨integralRep I, integralRep_mem_nonZeroDivisors I.ne_zero⟩ =
+        P * I := by
+    apply Units.ext
+    change ((integralRep I : Ideal R) : FractionalIdeal R⁰ (FractionRing R)) =
+      (P : (FractionalIdeal R⁰ (FractionRing R))ˣ) * I
+    calc
+      ((integralRep I : Ideal R) : FractionalIdeal R⁰ (FractionRing R)) =
+          spanSingleton R⁰ a * (I.1.num : FractionalIdeal R⁰ (FractionRing R)) := by
+        rw [integralRep, FractionalIdeal.coeIdeal_mul, FractionalIdeal.coeIdeal_span_singleton]
+      _ = spanSingleton R⁰ a *
+          (spanSingleton R⁰ a * (I : FractionalIdeal R⁰ (FractionRing R))) := by
+        rw [FractionalIdeal.den_mul_self_eq_num']
+      _ = spanSingleton R⁰ (a ^ 2) * (I : FractionalIdeal R⁰ (FractionRing R)) := by
+        rw [← mul_assoc, FractionalIdeal.spanSingleton_mul_spanSingleton, pow_two]
+      _ = (P : (FractionalIdeal R⁰ (FractionRing R))ˣ) * I := by
+        simp [P, u, toNarrowPrincipalIdeal, coe_toPrincipalIdeal]
+  rw [hrep, map_mul]
+  have hP_one : QuotientGroup.mk' (narrowPrincipalIdeals R (FractionRing R)) P = 1 :=
+    (QuotientGroup.eq_one_iff P).mpr hP_mem
+  rw [hP_one]
+  exact one_mul _
+
+/-- Every narrow ideal class has a nonzero integral ideal representative. -/
+theorem mk0_surjective [IsDedekindDomain R] :
+    Function.Surjective (mk0 : (Ideal R)⁰ → NarrowClassGroup R) := by
+  intro C
+  obtain ⟨I, hI⟩ :=
+    QuotientGroup.mk'_surjective (narrowPrincipalIdeals R (FractionRing R)) C
+  refine ⟨⟨integralRep I, integralRep_mem_nonZeroDivisors I.ne_zero⟩, ?_⟩
+  rw [mk0_integralRep]
+  simpa [mk_eq_mk'] using hI
 
 /-- If the narrow principal ideals are exactly the ordinary principal fractional
 ideals, then the narrow class group is naturally isomorphic to the ordinary wide
