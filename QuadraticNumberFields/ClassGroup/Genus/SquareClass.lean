@@ -31,7 +31,9 @@ theorem card_narrowClassGroupSquareQuotient_eq_card_narrowClassGroupTwoTorsion
       Nat.card (NarrowClassGroup.twoTorsion
         (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) :=
   by
-    sorry
+    simpa [NarrowClassGroup.squareQuotient, NarrowClassGroup.square] using
+      (NarrowClassGroup.card_squareQuotient_eq_card_twoTorsion
+        (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))
 
 end Genus
 end ClassGroup
