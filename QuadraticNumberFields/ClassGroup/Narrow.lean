@@ -5,6 +5,7 @@ Authors: Frankie Wang
 -/
 
 import Mathlib.Data.Real.Basic
+import Mathlib.NumberTheory.NumberField.InfinitePlace.Embeddings
 import Mathlib.RingTheory.ClassGroup
 import QuadraticNumberFields.ClassGroup.Basic
 import QuadraticNumberFields.Qsqrtd.TotallyRealComplex
@@ -114,6 +115,10 @@ deriving CommGroup, Inhabited
 namespace NarrowClassGroup
 
 variable {R K : Type*} [CommRing R] [IsDomain R] [Field K] [Algebra R K] [IsFractionRing R K]
+
+/-- The narrow class number of an integral domain. -/
+noncomputable def classNumber (R : Type*) [CommRing R] [IsDomain R] : ℕ :=
+  Nat.card (NarrowClassGroup R)
 
 /-- Send an invertible fractional ideal to its narrow ideal class. -/
 noncomputable def mk : (FractionalIdeal R⁰ K)ˣ →* NarrowClassGroup R :=
@@ -326,7 +331,27 @@ instance instFiniteUnitsQuotientTotallyPositiveUnits (K : Type*) [Field K]
   rw [totallyPositiveUnits_eq_ker]
   exact Finite.of_injective _ (QuotientGroup.kerLift_injective (signVectorHom K))
 
-/-- **The narrow class group is finite** whenever the wide class group is finite and
+/-- If a domain has a number field as a fraction field, then its chosen `FractionRing`
+has only finitely many real embeddings. -/
+theorem finite_fractionRing_realEmbeddings_of_isFractionRing
+    (R K : Type*) [CommRing R] [IsDomain R] [Field K] [NumberField K]
+    [Algebra R K] [IsFractionRing R K] :
+    Finite (FractionRing R →+* ℝ) := by
+  let e := IsLocalization.algEquiv (nonZeroDivisors R) (FractionRing R) K
+  let f : (FractionRing R →+* ℝ) → (K →+* ℝ) := fun σ => σ.comp e.symm.toRingHom
+  refine Finite.of_injective f ?_
+  intro σ τ hστ
+  ext x
+  obtain ⟨y, rfl⟩ := e.symm.surjective x
+  exact RingHom.congr_fun hστ y
+
+/-- The fraction field of the ring of integers of a number field has finitely many
+real embeddings. -/
+instance instFiniteRingOfIntegersFractionRingRealEmbeddings (K : Type*) [Field K]
+    [NumberField K] : Finite (FractionRing (𝓞 K) →+* ℝ) :=
+  finite_fractionRing_realEmbeddings_of_isFractionRing (𝓞 K) K
+
+/-- The narrow class group is finite whenever the wide class group is finite and
 there are finitely many real embeddings of the fraction field. Both hypotheses hold
 for the ring of integers of a number field. The kernel of `toClassGroup` is the image
 of the principal-ideal map restricted modulo totally positive units, hence finite. -/
@@ -398,6 +423,10 @@ section NarrowClassGroup
 variable (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
 
 local notation "OK" => 𝓞 (Qsqrtd (d : ℚ))
+
+/-- The narrow class number of `ℚ(√d)`. -/
+noncomputable def narrowClassNumber : ℕ :=
+  NarrowClassGroup.classNumber OK
 
 /-- The natural map from the narrow class group of `𝓞(ℚ(√d))` to the ordinary
 wide ideal class group. -/

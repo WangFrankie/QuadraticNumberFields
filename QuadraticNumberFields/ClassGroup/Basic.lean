@@ -28,14 +28,23 @@ scoped[QuadraticNumberFields.ClassGroup]
     (_root_.NumberField.RingOfIntegers
       (_root_.Qsqrtd ((d : ℤ) : ℚ)))
 
-/-- If every ideal class of a number field is trivial, then the class number is
+/-- If every ideal class of a number field is trivial iff the class number is
 one. -/
+theorem NumberField.classNumber_eq_one_iff_subsingleton_classGroup
+      {K : Type*} [Field K] [NumberField K] :
+      NumberField.classNumber K = 1 ↔ Subsingleton (ClassGroup (𝓞 K)) := by
+    rw [NumberField.classNumber, Fintype.card_eq_one_iff]
+    constructor
+    · rintro ⟨C₀, hC₀⟩
+      exact ⟨fun C D => (hC₀ C).trans (hC₀ D).symm⟩
+    · intro h
+      exact ⟨1, fun C => Subsingleton.elim C 1⟩
+
 theorem NumberField.classNumber_eq_one_of_forall_classGroup_eq_one
     {K : Type*} [Field K] [NumberField K]
     (h : ∀ C : ClassGroup (𝓞 K), C = 1) :
     NumberField.classNumber K = 1 := by
-  haveI : Unique (ClassGroup (𝓞 K)) := ⟨⟨1⟩, h⟩
-  simpa only [NumberField.classNumber] using
-    Fintype.card_unique (α := ClassGroup (𝓞 K))
+  rw [NumberField.classNumber, Fintype.card_eq_one_iff]
+  exact ⟨1, h⟩
 
 end QuadraticNumberFields
