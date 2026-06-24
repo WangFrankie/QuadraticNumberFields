@@ -385,6 +385,18 @@ noncomputable def genusCharacterOfSignedFactor
     (narrowMk0OnSignedFactorCoprimeIdeals_surjective d q)
     (genusCharacterOfSignedFactorRaw_eq_of_narrowMk0OnSignedFactorCoprimeIdeals_eq d q)
 
+/-- The descended signed-factor character evaluates as the raw Kronecker character
+on a narrow class represented by an ideal whose norm is coprime to that factor. -/
+theorem genusCharacterOfSignedFactor_apply_narrowMk0OnSignedFactorCoprimeIdeals
+      (q : {q // q ∈ signedPrimeDiscriminantFactors d})
+      (I : signedFactorCoprimeIdealSubmonoid d q) :
+      genusCharacterOfSignedFactor d q (narrowMk0OnSignedFactorCoprimeIdeals d q I) =
+        genusCharacterOfSignedFactorRaw d q I := by
+  simpa [genusCharacterOfSignedFactor] using
+    genusCharacterOfSignedFactorDescent_apply_narrowMk0OnSignedFactorCoprimeIdeals
+      d q (narrowMk0OnSignedFactorCoprimeIdeals_surjective d q)
+      (genusCharacterOfSignedFactorRaw_eq_of_narrowMk0OnSignedFactorCoprimeIdeals_eq d q) I
+
 /-- Product formula input for genus characters: the signed-factor characters
 attached to a narrow ideal class have product `1`. -/
 theorem genusCharacterMap_product_one
