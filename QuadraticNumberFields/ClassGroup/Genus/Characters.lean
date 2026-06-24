@@ -25,12 +25,14 @@ open scoped NumberField QuadraticNumberFields.ClassGroup
 
 attribute [-instance] DivisionRing.toRatAlgebra
 
+variable (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+
 /-- The finite product of sign groups indexed by signed prime-discriminant factors. -/
-abbrev genusCharacterTarget (d : ℤ) :=
+abbrev genusCharacterTarget :=
   (q : {q // q ∈ signedPrimeDiscriminantFactors d}) → ℤˣ
 
 /-- The product of all signed prime-discriminant signs. -/
-noncomputable def genusSignProductHom (d : ℤ) :
+noncomputable def genusSignProductHom :
     genusCharacterTarget d →* ℤˣ where
   toFun χ := Finset.univ.prod fun q : {q // q ∈ signedPrimeDiscriminantFactors d} => χ q
   map_one' := by
@@ -39,13 +41,13 @@ noncomputable def genusSignProductHom (d : ℤ) :
     simp [genusCharacterTarget, Finset.prod_mul_distrib]
 
 /-- The relation subgroup of sign vectors whose total product is `1`. -/
-noncomputable def genusCharacterTargetRelation (d : ℤ) :
+noncomputable def genusCharacterTargetRelation :
     Subgroup (genusCharacterTarget d) :=
   (genusSignProductHom d).ker
 
 /-- Membership in the relation subgroup is the product-one condition. -/
 theorem mem_genusCharacterTargetRelation_iff
-    (d : ℤ) (χ : genusCharacterTarget d) :
+    (χ : genusCharacterTarget d) :
     χ ∈ genusCharacterTargetRelation d ↔
       Finset.univ.prod (fun q : {q // q ∈ signedPrimeDiscriminantFactors d} => χ q) = 1 :=
   Iff.rfl
@@ -53,7 +55,7 @@ theorem mem_genusCharacterTargetRelation_iff
 /-- If there is at least one signed prime-discriminant factor, the coordinate-product
 map from sign vectors to `ℤˣ` is surjective. -/
 theorem genusSignProductHom_surjective_of_nonempty
-    (d : ℤ) (hS : (signedPrimeDiscriminantFactors d).Nonempty) :
+    (hS : (signedPrimeDiscriminantFactors d).Nonempty) :
     Function.Surjective (genusSignProductHom d) := by
   classical
   obtain ⟨q, hq⟩ := hS
@@ -66,7 +68,7 @@ theorem genusSignProductHom_surjective_of_nonempty
 
 /-- The full genus-character sign-vector space has cardinality `2 ^ t`, where
 `t = ramifiedPrimeCount d`. -/
-theorem card_genusCharacterTarget (d : ℤ) :
+theorem card_genusCharacterTarget :
     Nat.card (genusCharacterTarget d) = 2 ^ ramifiedPrimeCount d := by
   classical
   rw [Nat.card_eq_fintype_card, Fintype.card_fun]
@@ -76,7 +78,7 @@ theorem card_genusCharacterTarget (d : ℤ) :
 /-- If the signed prime-discriminant factor set is nonempty, the product-one sign
 relation has cardinality `2 ^ (t - 1)`. -/
 theorem card_genusCharacterTargetRelation_of_nonempty
-    (d : ℤ) (hS : (signedPrimeDiscriminantFactors d).Nonempty) :
+    (hS : (signedPrimeDiscriminantFactors d).Nonempty) :
     Nat.card (genusCharacterTargetRelation d) =
       2 ^ (ramifiedPrimeCount d - 1) := by
   classical
@@ -105,7 +107,7 @@ theorem card_genusCharacterTargetRelation_of_nonempty
 
 /-- The product-one genus-character target has cardinality `2 ^ (t - 1)`, where
 `t = ramifiedPrimeCount d`. -/
-theorem card_genusCharacterTargetRelation (d : ℤ) :
+theorem card_genusCharacterTargetRelation :
     Nat.card (genusCharacterTargetRelation d) =
       2 ^ (ramifiedPrimeCount d - 1) := by
   classical
@@ -127,7 +129,6 @@ theorem card_genusCharacterTargetRelation (d : ℤ) :
     norm_num
 
 def signedFactorCoprimeIdealSubmonoid
-        (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
         (q : {q // q ∈ signedPrimeDiscriminantFactors d}) :
         Submonoid (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) :=
       { carrier := {I | Nat.Coprime (Ideal.absNorm I) q.1.natAbs}
@@ -140,7 +141,6 @@ def signedFactorCoprimeIdealSubmonoid
       }
 
 noncomputable def genusCharacterOfSignedFactorRaw
-      (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
       (q : {q // q ∈ signedPrimeDiscriminantFactors d})
       (I : signedFactorCoprimeIdealSubmonoid d q) : ℤˣ := by
     let x : ℤ :=
@@ -160,7 +160,6 @@ noncomputable def genusCharacterOfSignedFactorRaw
 On a class represented by an ideal `I` whose norm is coprime to `q`, this should
 evaluate as `kroneckerSymNat q.1 (Ideal.absNorm I)`. -/
 noncomputable def genusCharacterOfSignedFactor
-      (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
       (q : {q // q ∈ signedPrimeDiscriminantFactors d}) :
       Cl⁺(d) →* ℤˣ := by
     refine
@@ -176,8 +175,7 @@ noncomputable def genusCharacterOfSignedFactor
 
 /-- The genus-character map from the narrow class group to the product-one sign
 relation subgroup. This is the main construction boundary for genus theory. -/
-noncomputable def genusCharacterMap
-    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
+noncomputable def genusCharacterMap :
     Cl⁺(d) →* genusCharacterTargetRelation d := by
   refine
     { toFun := fun C =>
@@ -194,7 +192,7 @@ noncomputable def genusCharacterMap
 
 @[simp]
 theorem genusCharacterMap_apply
-    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (C : Cl⁺(d))
+    (C : Cl⁺(d))
     (q : {q // q ∈ signedPrimeDiscriminantFactors d}) :
     (genusCharacterMap d C : genusCharacterTarget d) q =
       genusCharacterOfSignedFactor d q C := by

@@ -80,11 +80,13 @@ private theorem mem_primeFactors_natAbs_four_mul_of_mem_primeFactors_natAbs {d :
   exact ⟨hp.1, dvd_mul_of_dvd_right hp.2.1 4, mul_ne_zero (by decide) hp.2.2⟩
 
 private theorem prime_shape_of_mod_four_eq_one
-    (d : ℤ) (hsq : Squarefree d) (hdneg : d < 0) (hd4 : d % 4 = 1)
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (hsq : Squarefree d) (hdneg : d < 0) (hd4 : d % 4 = 1)
     (hcount : ramifiedPrimeCount d ≤ 1) :
     d = -1 ∨ d = -2 ∨ ∃ p : ℕ, Nat.Prime p ∧ p % 4 = 3 ∧ d = -(p : ℤ) := by
   have hcard : d.natAbs.primeFactors.card ≤ 1 := by
     simpa [ramifiedPrimeCount, ramifiedPrimes,
+      RingOfIntegers.discr_formula d,
       RingOfIntegers.discrFormula_of_mod_four_eq_one hd4] using hcount
   have hsq_nat : Squarefree d.natAbs := Int.squarefree_natAbs.mpr hsq
   rcases nat_eq_one_or_prime_of_squarefree_of_primeFactors_card_le_one hsq_nat hcard with
@@ -98,11 +100,13 @@ private theorem prime_shape_of_mod_four_eq_one
     · omega
 
 private theorem prime_shape_of_mod_four_ne_one
-    (d : ℤ) (hsq : Squarefree d) (hdneg : d < 0) (hd4 : d % 4 ≠ 1)
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (hsq : Squarefree d) (hdneg : d < 0) (hd4 : d % 4 ≠ 1)
     (hcount : ramifiedPrimeCount d ≤ 1) :
     d = -1 ∨ d = -2 ∨ ∃ p : ℕ, Nat.Prime p ∧ p % 4 = 3 ∧ d = -(p : ℤ) := by
   have hcardD : (4 * d).natAbs.primeFactors.card ≤ 1 := by
     simpa [ramifiedPrimeCount, ramifiedPrimes,
+      RingOfIntegers.discr_formula d,
       RingOfIntegers.discrFormula_of_mod_four_ne_one hd4] using hcount
   have htwoD : 2 ∈ (4 * d).natAbs.primeFactors :=
     two_mem_primeFactors_natAbs_four_mul_of_neg hdneg

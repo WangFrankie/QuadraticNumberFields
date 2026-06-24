@@ -60,9 +60,14 @@ theorem natAbs_twoPrimeDiscriminantFactor_eq_four_or_eight (d : ℤ) :
 def primeDiscriminantFactor (d : ℤ) (p : ℕ) : ℤ :=
   if p = 2 then twoPrimeDiscriminantFactor d else oddPrimeDiscriminantFactor p
 
+section RamifiedDiscriminantFactors
+
+variable (d : ℤ) [hdSq : Fact (Squarefree d)] [hdNe : Fact (d ≠ 1)]
+include hdSq hdNe
+
 /-- Distinct ramified rational primes give distinct signed prime-discriminant
 factors. -/
-theorem primeDiscriminantFactor_injOn_ramifiedPrimes (d : ℤ) :
+theorem primeDiscriminantFactor_injOn_ramifiedPrimes :
     Set.InjOn (primeDiscriminantFactor d) (ramifiedPrimes d) := by
   intro p hp q hq hpq
   have hp_prime : p.Prime := prime_of_mem_ramifiedPrimes hp
@@ -99,19 +104,19 @@ theorem primeDiscriminantFactor_injOn_ramifiedPrimes (d : ℤ) :
 This is the character-indexing refinement of `ramifiedPrimes d`: odd primes are
 replaced by `p* = (-1)^((p-1)/2) p`, while the ramified prime `2` contributes
 one of `-4`, `8`, or `-8`. -/
-def signedPrimeDiscriminantFactors (d : ℤ) : Finset ℤ :=
+noncomputable def signedPrimeDiscriminantFactors : Finset ℤ :=
   (ramifiedPrimes d).image (primeDiscriminantFactor d)
 
 @[simp]
 theorem mem_signedPrimeDiscriminantFactors_of_mem_ramifiedPrimes
-    {d : ℤ} {p : ℕ} (hp : p ∈ ramifiedPrimes d) :
+    {p : ℕ} (hp : p ∈ ramifiedPrimes d) :
     primeDiscriminantFactor d p ∈ signedPrimeDiscriminantFactors d :=
   Finset.mem_image.mpr ⟨p, hp, rfl⟩
 
 /-- The signed prime-discriminant factors are counted by the ramified rational
 primes. This is the bridge that keeps `ramifiedPrimeCount` as the genus-theory
 parameter `t`. -/
-theorem card_signedPrimeDiscriminantFactors_eq_ramifiedPrimeCount (d : ℤ) :
+theorem card_signedPrimeDiscriminantFactors_eq_ramifiedPrimeCount :
     (signedPrimeDiscriminantFactors d).card = ramifiedPrimeCount d := by
   rw [signedPrimeDiscriminantFactors,
     Finset.card_image_of_injOn (primeDiscriminantFactor_injOn_ramifiedPrimes d),
@@ -119,10 +124,12 @@ theorem card_signedPrimeDiscriminantFactors_eq_ramifiedPrimeCount (d : ℤ) :
 
 /-- The signed prime-discriminant factor set is nonempty exactly when the
 ramified rational-prime set is nonempty. -/
-theorem signedPrimeDiscriminantFactors_nonempty_iff (d : ℤ) :
+theorem signedPrimeDiscriminantFactors_nonempty_iff :
     (signedPrimeDiscriminantFactors d).Nonempty ↔ (ramifiedPrimes d).Nonempty := by
   rw [← Finset.card_pos, card_signedPrimeDiscriminantFactors_eq_ramifiedPrimeCount,
     ramifiedPrimeCount_eq_card, Finset.card_pos]
+
+end RamifiedDiscriminantFactors
 
 private theorem oddPrimeDiscriminantFactor_eq_legendreSym_neg_one_mul {p : ℕ}
     (hp : p.Prime) (hp_ne_two : p ≠ 2) :
@@ -155,16 +162,22 @@ private theorem prod_oddPrimeDiscriminantFactor_primeFactors_of_squarefree_odd
     omega
   simp [hp_prime, oddPrimeDiscriminantFactor_eq_legendreSym_neg_one_mul hp_prime hp_ne_two]
 
-private theorem prod_signedPrimeDiscriminantFactors_eq_prod_ramifiedPrimes (d : ℤ) :
+section ProductFormulaModFourEqOne
+
+variable (d : ℤ) [hdSq : Fact (Squarefree d)] [hdNe : Fact (d ≠ 1)]
+include hdSq hdNe
+
+private theorem prod_signedPrimeDiscriminantFactors_eq_prod_ramifiedPrimes :
     (signedPrimeDiscriminantFactors d).prod id =
       (ramifiedPrimes d).prod (primeDiscriminantFactor d) := by
   rw [signedPrimeDiscriminantFactors]
   exact Finset.prod_image (primeDiscriminantFactor_injOn_ramifiedPrimes d)
 
 private theorem prod_signedPrimeDiscriminantFactors_eq_discrFormula_of_mod_four_eq_one
-    (d : ℤ) (hsq : Squarefree d) (hd4 : d % 4 = 1) :
+    (hsq : Squarefree d) (hd4 : d % 4 = 1) :
     (signedPrimeDiscriminantFactors d).prod id = RingOfIntegers.discrFormula d := by
   rw [prod_signedPrimeDiscriminantFactors_eq_prod_ramifiedPrimes, ramifiedPrimes,
+    RingOfIntegers.discr_formula d,
     RingOfIntegers.discrFormula_of_mod_four_eq_one hd4]
   have hn_odd : Odd d.natAbs := by
     rw [Nat.odd_iff]
@@ -194,6 +207,8 @@ private theorem prod_signedPrimeDiscriminantFactors_eq_discrFormula_of_mod_four_
   · have hn4 : d.natAbs % 4 = 1 := by omega
     rw [ZMod.χ₄_nat_one_mod_four hn4]
     omega
+
+end ProductFormulaModFourEqOne
 
 private theorem primeFactors_four_eq_singleton_two : (4 : ℕ).primeFactors = {2} := by
   rw [show (4 : ℕ) = 2 ^ 2 by norm_num, Nat.primeFactors_pow]
@@ -232,12 +247,18 @@ private theorem primeFactors_erase_two_eq_primeFactors_div_two_of_squarefree
       ext p
       by_cases hp2 : p = 2 <;> simp [hp2, hnot_two_div]
 
+section ProductFormulaModFourNeOne
+
+variable (d : ℤ) [hdSq : Fact (Squarefree d)] [hdNe : Fact (d ≠ 1)]
+include hdSq hdNe
+
 private theorem prod_signedPrimeDiscriminantFactors_eq_discrFormula_of_mod_four_ne_one
-    (d : ℤ) (hsq : Squarefree d) (hd4 : d % 4 ≠ 1) :
+    (hsq : Squarefree d) (hd4 : d % 4 ≠ 1) :
     (signedPrimeDiscriminantFactors d).prod id = RingOfIntegers.discrFormula d := by
   have hd0 : d ≠ 0 := hsq.ne_zero
   have hdabs0 : d.natAbs ≠ 0 := Int.natAbs_ne_zero.mpr hd0
   rw [prod_signedPrimeDiscriminantFactors_eq_prod_ramifiedPrimes, ramifiedPrimes,
+    RingOfIntegers.discr_formula d,
     RingOfIntegers.discrFormula_of_mod_four_ne_one hd4, Int.natAbs_mul]
   change (4 * d.natAbs).primeFactors.prod (primeDiscriminantFactor d) = 4 * d
   have htwo_mem : 2 ∈ (4 * d.natAbs).primeFactors := by
@@ -325,14 +346,15 @@ private theorem prod_signedPrimeDiscriminantFactors_eq_discrFormula_of_mod_four_
 
 /-- For squarefree `d ≠ 1`, the product of the signed prime-discriminant factors
 is the field discriminant. -/
-theorem prod_signedPrimeDiscriminantFactors_eq_discrFormula
-    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
+theorem prod_signedPrimeDiscriminantFactors_eq_discrFormula :
     (signedPrimeDiscriminantFactors d).prod id = RingOfIntegers.discrFormula d := by
   by_cases hd4 : d % 4 = 1
   · exact prod_signedPrimeDiscriminantFactors_eq_discrFormula_of_mod_four_eq_one
       d (Fact.out : Squarefree d) hd4
   · exact prod_signedPrimeDiscriminantFactors_eq_discrFormula_of_mod_four_ne_one
       d (Fact.out : Squarefree d) hd4
+
+end ProductFormulaModFourNeOne
 
 end Genus
 end ClassGroup

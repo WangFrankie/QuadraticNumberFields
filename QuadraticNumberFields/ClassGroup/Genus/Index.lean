@@ -14,10 +14,10 @@ rational primes ramified in `ℚ(√d)` and the genus-theory parameter `t`, the 
 of ramified rational primes.
 
 The set `ramifiedPrimes d` is the distinct prime factors of the field discriminant
-`discrFormula d`, so it includes `2` whenever `2` ramifies (`d % 4 ≠ 1`, where
-`discrFormula d = 4 * d`). It is the full prime-discriminant index, valid for both
-odd and even field discriminants, and `t = ramifiedPrimeCount d` is its
-cardinality.
+`NumberField.discr (Qsqrtd (d : ℚ))`, so it includes `2` whenever `2` ramifies
+(`d % 4 ≠ 1`, where the discriminant is `4 * d`). It is the full
+prime-discriminant index, valid for both odd and even field discriminants, and
+`t = ramifiedPrimeCount d` is its cardinality.
 
 Mathematically, `t` is the number of prime discriminants in the factorization
 `D = d₁ ⋯ d_t` of the fundamental discriminant. Every distinct rational prime
@@ -35,79 +35,86 @@ open scoped NumberField QuadraticNumberFields.Splitting
 
 attribute [-instance] DivisionRing.toRatAlgebra
 
-/-- The rational primes ramified in `ℚ(√d)`: the distinct prime factors of the field
-discriminant `discrFormula d`.
+variable (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+
+/-- The rational primes ramified in `ℚ(√d)`: the distinct prime factors of the
+field discriminant `NumberField.discr (Qsqrtd (d : ℚ))`.
 
 This includes `2` exactly when `2` ramifies (`d % 4 ≠ 1`, where
-`discrFormula d = 4 * d`), so it indexes the full prime-discriminant factorization. -/
--- TODO change to NumberField.discr (Qsqrtd (d : ℚ)) maybe
-def ramifiedPrimes (d : ℤ) : Finset ℕ :=
-  (RingOfIntegers.discrFormula d).natAbs.primeFactors
+`NumberField.discr (Qsqrtd (d : ℚ)) = 4 * d`), so it indexes the full
+prime-discriminant factorization. -/
+noncomputable def ramifiedPrimes : Finset ℕ :=
+  (NumberField.discr (Qsqrtd (d : ℚ))).natAbs.primeFactors
 
 /-- The genus-theory parameter `t`: the number of prime-discriminant factors of the
 field discriminant for `ℚ(√d)`, equivalently the number of distinct rational primes
 ramified in `ℚ(√d)`. -/
-def ramifiedPrimeCount (d : ℤ) : ℕ :=
+noncomputable def ramifiedPrimeCount : ℕ :=
   (ramifiedPrimes d).card
 
 @[simp]
-theorem mem_ramifiedPrimes_iff (d : ℤ) (p : ℕ) :
-    p ∈ ramifiedPrimes d ↔ p ∈ (RingOfIntegers.discrFormula d).natAbs.primeFactors :=
+theorem mem_ramifiedPrimes_iff (p : ℕ) :
+    p ∈ ramifiedPrimes d ↔
+      p ∈ (NumberField.discr (Qsqrtd (d : ℚ))).natAbs.primeFactors :=
   Iff.rfl
 
-theorem ramifiedPrimeCount_eq_card (d : ℤ) :
+theorem ramifiedPrimes_eq_discrFormula_primeFactors :
+    ramifiedPrimes d = (RingOfIntegers.discrFormula d).natAbs.primeFactors := by
+  rw [ramifiedPrimes, RingOfIntegers.discr_formula d]
+
+theorem ramifiedPrimeCount_eq_card :
     ramifiedPrimeCount d = (ramifiedPrimes d).card :=
   rfl
 
+variable {d}
+
 /-- Members of `ramifiedPrimes d` are prime. -/
-theorem prime_of_mem_ramifiedPrimes {d : ℤ} {p : ℕ}
+theorem prime_of_mem_ramifiedPrimes {p : ℕ}
     (hp : p ∈ ramifiedPrimes d) : Nat.Prime p :=
   Nat.prime_of_mem_primeFactors hp
 
 /-- Members of `ramifiedPrimes d` divide the field discriminant. -/
-theorem dvd_discr_of_mem_ramifiedPrimes {d : ℤ} {p : ℕ}
+theorem dvd_discr_of_mem_ramifiedPrimes {p : ℕ}
     (hp : p ∈ ramifiedPrimes d) :
-    (p : ℤ) ∣ RingOfIntegers.discrFormula d := by
+    (p : ℤ) ∣ NumberField.discr (Qsqrtd (d : ℚ)) := by
   have hmem := Nat.mem_primeFactors.mp hp
   rw [← Int.dvd_natAbs]
   exact_mod_cast hmem.2.1
 
+variable (d)
+
 /-- Membership in `ramifiedPrimes d` is equivalent to ramification of `(p)` in
 `𝓞(ℚ(√d))`. -/
-theorem mem_ramifiedPrimes_iff_isRamifiedIn (d : ℤ) (p : ℕ)
-    [Fact (Squarefree d)] [Fact (d ≠ 1)] :
+theorem mem_ramifiedPrimes_iff_isRamifiedIn (p : ℕ) :
     p ∈ ramifiedPrimes d ↔ Nat.Prime p ∧ Ideal.IsRamifiedIn 𝔭(p) 𝓞(d) := by
   constructor
   · intro hp
     have hp_prime : Nat.Prime p := prime_of_mem_ramifiedPrimes hp
     letI : Fact p.Prime := ⟨hp_prime⟩
-    have hp_dvd_disc : (p : ℤ) ∣ NumberField.discr (Qsqrtd (d : ℚ)) := by
-      rw [RingOfIntegers.discr_formula d]
-      exact dvd_discr_of_mem_ramifiedPrimes hp
+    have hp_dvd_disc : (p : ℤ) ∣ NumberField.discr (Qsqrtd (d : ℚ)) :=
+      dvd_discr_of_mem_ramifiedPrimes hp
     exact ⟨hp_prime, (Splitting.isRamified_iff_dvd_disc d p).mpr hp_dvd_disc⟩
   · rintro ⟨hp_prime, hram⟩
     letI : Fact p.Prime := ⟨hp_prime⟩
-    have hp_dvd_disc : (p : ℤ) ∣ RingOfIntegers.discrFormula d := by
-      rw [← RingOfIntegers.discr_formula d]
-      exact (Splitting.isRamified_iff_dvd_disc d p).mp hram
+    have hp_dvd_disc : (p : ℤ) ∣ NumberField.discr (Qsqrtd (d : ℚ)) :=
+      (Splitting.isRamified_iff_dvd_disc d p).mp hram
     rw [ramifiedPrimes]
     apply hp_prime.mem_primeFactors
     · simpa using
-        (Int.natAbs_dvd_natAbs (a := (p : ℤ)) (b := RingOfIntegers.discrFormula d)).mpr
-          hp_dvd_disc
-    · rw [Int.natAbs_ne_zero, ← RingOfIntegers.discr_formula d]
+        (Int.natAbs_dvd_natAbs (a := (p : ℤ))
+          (b := NumberField.discr (Qsqrtd (d : ℚ)))).mpr hp_dvd_disc
+    · rw [Int.natAbs_ne_zero]
       exact NumberField.discr_ne_zero (Qsqrtd (d : ℚ))
 
 /-- For squarefree `d ≠ 1` the field discriminant has absolute value `> 1`, so there is
 at least one ramified prime and `t ≥ 1`. This makes the genus exponent `t - 1`
 well-behaved. -/
-theorem one_le_ramifiedPrimeCount (d : ℤ)
-    [Fact (Squarefree d)] [Fact (d ≠ 1)] :
+theorem one_le_ramifiedPrimeCount :
     1 ≤ ramifiedPrimeCount d := by
   have hsq : Squarefree d := Fact.out
   have hd1 : d ≠ 1 := Fact.out
   have hd0 : d ≠ 0 := hsq.ne_zero
-  rw [ramifiedPrimeCount, ramifiedPrimes, Finset.one_le_card,
+  rw [ramifiedPrimeCount, ramifiedPrimes, RingOfIntegers.discr_formula d, Finset.one_le_card,
     Nat.nonempty_primeFactors]
   by_cases hd4 : d % 4 = 1
   · rw [RingOfIntegers.discrFormula_of_mod_four_eq_one hd4]
