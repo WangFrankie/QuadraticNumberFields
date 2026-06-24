@@ -5,7 +5,7 @@ Authors: Frankie Wang
 -/
 
 import QuadraticNumberFields.ClassGroup.Genus.AmbiguousIdeals
-import QuadraticNumberFields.ClassGroup.Genus.Surjectivity
+import QuadraticNumberFields.ClassGroup.Genus.ExactSequence
 
 /-!
 # The Genus Quotient Equivalence
