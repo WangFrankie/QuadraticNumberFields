@@ -455,6 +455,29 @@ theorem genusCharacterOfSignedFactorDescent_apply_narrowMk0OnSignedFactorCoprime
   hdesc (Classical.choose (hsurj (narrowMk0OnSignedFactorCoprimeIdeals d q I))) I
     (Classical.choose_spec (hsurj (narrowMk0OnSignedFactorCoprimeIdeals d q I)))
 
+/-- Equality in the restricted narrow class-group map is equality after
+multiplication by a totally positive principal fractional ideal. -/
+theorem narrowMk0OnSignedFactorCoprimeIdeals_eq_iff_exists_fraction_ring
+      (q : {q // q ∈ signedPrimeDiscriminantFactors d})
+      (I J : signedFactorCoprimeIdealSubmonoid d q) :
+      narrowMk0OnSignedFactorCoprimeIdeals d q I =
+          narrowMk0OnSignedFactorCoprimeIdeals d q J ↔
+        ∃ x : (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))ˣ,
+          NarrowClassGroup.IsTotallyPositive
+              (x : FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) ∧
+            FractionalIdeal.mk0
+                (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))
+                (signedFactorCoprimeIdealNonzeroMonoidHom d q I) *
+              toPrincipalIdeal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))
+                (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) x =
+                FractionalIdeal.mk0
+                  (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))
+                  (signedFactorCoprimeIdealNonzeroMonoidHom d q J) := by
+  simpa [narrowMk0OnSignedFactorCoprimeIdeals] using
+    (NarrowClassGroup.mk0_eq_mk0_iff_exists_fraction_ring
+      (I := signedFactorCoprimeIdealNonzeroMonoidHom d q I)
+      (J := signedFactorCoprimeIdealNonzeroMonoidHom d q J))
+
 /-- Well-definedness input for signed-factor genus characters: the raw Kronecker
 value is constant on fibers of the restricted narrow class-group map. -/
 theorem genusCharacterOfSignedFactorRaw_eq_of_narrowMk0OnSignedFactorCoprimeIdeals_eq

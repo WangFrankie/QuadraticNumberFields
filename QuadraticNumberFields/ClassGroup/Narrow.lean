@@ -194,6 +194,37 @@ theorem mk_eq_mk' (I : (FractionalIdeal R⁰ (FractionRing R))ˣ) :
   rw [mk_def, canonicalEquiv_self]
   rfl
 
+set_option backward.isDefEq.respectTransparency false in
+/-- Equality of narrow ideal classes is equality up to a totally positive
+principal fractional ideal. -/
+theorem mk_eq_mk {I J : (FractionalIdeal R⁰ (FractionRing R))ˣ} :
+    mk I = mk J ↔
+      ∃ x : totallyPositiveUnits (FractionRing R),
+        I * toNarrowPrincipalIdeal R (FractionRing R) x = J := by
+  rw [mk_eq_mk', mk_eq_mk']
+  rw [QuotientGroup.mk'_eq_mk' (N := narrowPrincipalIdeals R (FractionRing R))]
+  constructor
+  · rintro ⟨P, hP, hIP⟩
+    rcases hP with ⟨x, rfl⟩
+    exact ⟨x, hIP⟩
+  · rintro ⟨x, hIP⟩
+    exact ⟨toNarrowPrincipalIdeal R (FractionRing R) x, ⟨x, rfl⟩, hIP⟩
+
+/-- Equality of narrow classes of nonzero integral ideals is equality after
+multiplication by a totally positive principal fractional ideal. -/
+theorem mk0_eq_mk0_iff_exists_fraction_ring [IsDedekindDomain R] {I J : (Ideal R)⁰} :
+    mk0 I = mk0 J ↔
+      ∃ x : (FractionRing R)ˣ,
+        IsTotallyPositive (x : FractionRing R) ∧
+          FractionalIdeal.mk0 (FractionRing R) I * toPrincipalIdeal R (FractionRing R) x =
+            FractionalIdeal.mk0 (FractionRing R) J := by
+  rw [← mk_mk0, ← mk_mk0, mk_eq_mk]
+  constructor
+  · rintro ⟨x, hx⟩
+    exact ⟨x, x.property, hx⟩
+  · rintro ⟨x, hxpos, hx⟩
+    exact ⟨⟨x, hxpos⟩, hx⟩
+
 /-- An integral ideal representative suited for narrow classes.
 
 Compared with the ordinary class-group numerator, this multiplies by one extra
