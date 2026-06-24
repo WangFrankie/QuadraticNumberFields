@@ -164,6 +164,21 @@ theorem natAbs_ne_one_of_mem_signedPrimeDiscriminantFactors {q : ℤ}
       simpa [primeDiscriminantFactor, hp2] using h
     exact hp_prime.ne_one hp1
 
+/-- Every signed prime-discriminant factor has nonzero absolute value. -/
+theorem natAbs_ne_zero_of_mem_signedPrimeDiscriminantFactors {q : ℤ}
+    (hq : q ∈ signedPrimeDiscriminantFactors d) :
+    q.natAbs ≠ 0 := by
+  rw [signedPrimeDiscriminantFactors] at hq
+  rcases Finset.mem_image.mp hq with ⟨p, hp, rfl⟩
+  have hp_prime : p.Prime := prime_of_mem_ramifiedPrimes hp
+  by_cases hp2 : p = 2
+  · subst p
+    rcases natAbs_twoPrimeDiscriminantFactor_eq_four_or_eight d with h4 | h8
+    · simp [primeDiscriminantFactor, h4]
+    · simp [primeDiscriminantFactor, h8]
+  · simp [primeDiscriminantFactor, hp2, natAbs_oddPrimeDiscriminantFactor,
+      hp_prime.ne_zero]
+
 end RamifiedDiscriminantFactors
 
 private theorem oddPrimeDiscriminantFactor_eq_legendreSym_neg_one_mul {p : ℕ}
