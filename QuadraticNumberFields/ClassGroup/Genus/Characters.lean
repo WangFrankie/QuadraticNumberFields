@@ -7,6 +7,7 @@ Authors: Frankie Wang
 import Mathlib.GroupTheory.Index
 import QuadraticNumberFields.ClassGroup.Genus.PrimeDiscriminant
 import QuadraticNumberFields.ClassGroup.Narrow
+import QuadraticNumberFields.RingOfIntegers.Norm
 import QNFMathlib.NumberTheory.LegendreSymbol.KroneckerSymbolPeriodicity
 import QNFMathlib.RingTheory.ClassGroup
 import QNFMathlib.RingTheory.Ideal.Norm.AbsNorm
@@ -680,6 +681,227 @@ theorem narrowMk0OnSignedFactorCoprimeIdeals_eq_iff_exists_fraction_ring
     (NarrowClassGroup.mk0_eq_mk0_iff_exists_fraction_ring
       (I := signedFactorCoprimeIdealNonzeroMonoidHom d q I)
       (J := signedFactorCoprimeIdealNonzeroMonoidHom d q J))
+
+private theorem int_emod_two_eq_one_of_natAbs_coprime_of_two_dvd
+    {m : ℤ} {N : ℕ} (hm : 0 ≤ m) (hcop : Nat.Coprime m.natAbs N)
+    (h2N : 2 ∣ N) :
+    m % 2 = 1 := by
+  have hcop2 : Nat.Coprime m.natAbs 2 :=
+    Nat.Coprime.coprime_dvd_right h2N hcop
+  have hnot_two : ¬ 2 ∣ m.natAbs :=
+    (Nat.prime_two.coprime_iff_not_dvd).mp hcop2.symm
+  have hnat : m.natAbs % 2 = 1 := by omega
+  have habs : ((m.natAbs : ℕ) : ℤ) = m := Int.natAbs_of_nonneg hm
+  omega
+
+private theorem sq_emod_eight_of_odd (n : ℤ) (hn : ¬ 2 ∣ n) :
+    n ^ 2 % 8 = 1 := by
+  have hn2 : n % 2 = 1 := by omega
+  have hn8 : n % 8 = 1 ∨ n % 8 = 3 ∨ n % 8 = 5 ∨ n % 8 = 7 := by omega
+  rcases hn8 with h1 | h3 | h5 | h7
+  · have hmod : n ≡ 1 [ZMOD 8] := by exact h1
+    simpa using (hmod.pow 2).eq
+  · have hmod : n ≡ 3 [ZMOD 8] := by exact h3
+    simpa using (hmod.pow 2).eq
+  · have hmod : n ≡ 5 [ZMOD 8] := by exact h5
+    simpa using (hmod.pow 2).eq
+  · have hmod : n ≡ 7 [ZMOD 8] := by exact h7
+    simpa using (hmod.pow 2).eq
+
+private theorem zsqrtd_norm_emod_four_eq_one_of_param_mod_four_three
+    {D : ℤ} (z : Zsqrtd D) (hd4 : D % 4 = 3)
+    (hnodd : (Zsqrtd.norm z) % 2 = 1) :
+    Zsqrtd.norm z % 4 = 1 := by
+  rw [RingOfIntegers.norm_zsqrtd]
+  by_cases ha2 : 2 ∣ z.re
+  · have ha4 : z.re ^ 2 ≡ 0 [ZMOD 4] := Int.sq_emod_four_of_even z.re ha2
+    by_cases hb2 : 2 ∣ z.im
+    · have hb4 : z.im ^ 2 ≡ 0 [ZMOD 4] := Int.sq_emod_four_of_even z.im hb2
+      have hnorm4 : z.re ^ 2 - D * z.im ^ 2 ≡ 0 [ZMOD 4] := by
+        simpa using ha4.sub ((Int.ModEq.refl D).mul hb4)
+      have hnorm2 : (z.re ^ 2 - D * z.im ^ 2) % 2 = 0 := by
+        have h := hnorm4.of_dvd (by norm_num : (2 : ℤ) ∣ 4)
+        simpa using h.eq
+      rw [RingOfIntegers.norm_zsqrtd] at hnodd
+      omega
+    · have hb4 : z.im ^ 2 ≡ 1 [ZMOD 4] := Int.sq_emod_four_of_odd z.im hb2
+      have hd4mod : D ≡ 3 [ZMOD 4] := by exact hd4
+      have hnorm4 : z.re ^ 2 - D * z.im ^ 2 ≡ 1 [ZMOD 4] := by
+        calc
+          z.re ^ 2 - D * z.im ^ 2 ≡ 0 - 3 * 1 [ZMOD 4] := ha4.sub (hd4mod.mul hb4)
+          _ ≡ 1 [ZMOD 4] := by decide +revert
+      exact hnorm4
+  · have ha4 : z.re ^ 2 ≡ 1 [ZMOD 4] := Int.sq_emod_four_of_odd z.re ha2
+    by_cases hb2 : 2 ∣ z.im
+    · have hb4 : z.im ^ 2 ≡ 0 [ZMOD 4] := Int.sq_emod_four_of_even z.im hb2
+      have hnorm4 : z.re ^ 2 - D * z.im ^ 2 ≡ 1 [ZMOD 4] := by
+        simpa using ha4.sub ((Int.ModEq.refl D).mul hb4)
+      exact hnorm4
+    · have hb4 : z.im ^ 2 ≡ 1 [ZMOD 4] := Int.sq_emod_four_of_odd z.im hb2
+      have hd4mod : D ≡ 3 [ZMOD 4] := by exact hd4
+      have hnorm4 : z.re ^ 2 - D * z.im ^ 2 ≡ 2 [ZMOD 4] := by
+        calc
+          z.re ^ 2 - D * z.im ^ 2 ≡ 1 - 3 * 1 [ZMOD 4] := ha4.sub (hd4mod.mul hb4)
+          _ ≡ 2 [ZMOD 4] := by decide +revert
+      have hnorm2 : (z.re ^ 2 - D * z.im ^ 2) % 2 = 0 := by
+        have h := hnorm4.of_dvd (by norm_num : (2 : ℤ) ∣ 4)
+        simpa using h.eq
+      rw [RingOfIntegers.norm_zsqrtd] at hnodd
+      omega
+
+private theorem zsqrtd_norm_emod_eight_eq_one_or_seven_of_param_mod_eight_two
+    {D : ℤ} (z : Zsqrtd D) (hd8 : D % 8 = 2)
+    (hnodd : (Zsqrtd.norm z) % 2 = 1) :
+    Zsqrtd.norm z % 8 = 1 ∨ Zsqrtd.norm z % 8 = 7 := by
+  rw [RingOfIntegers.norm_zsqrtd]
+  have hd8mod : D ≡ 2 [ZMOD 8] := by exact hd8
+  by_cases ha2 : 2 ∣ z.re
+  · have ha4 : z.re ^ 2 ≡ 0 [ZMOD 4] := Int.sq_emod_four_of_even z.re ha2
+    have hda2 : D ≡ 0 [ZMOD 2] := by
+      have hd2 : D % 2 = 0 := by omega
+      exact hd2
+    have hnorm2 : (z.re ^ 2 - D * z.im ^ 2) % 2 = 0 := by
+      have ha2mod : z.re ^ 2 ≡ 0 [ZMOD 2] :=
+        ha4.of_dvd (by norm_num : (2 : ℤ) ∣ 4)
+      have hprod2 : D * z.im ^ 2 ≡ 0 [ZMOD 2] := by
+        simpa using hda2.mul (Int.ModEq.refl (z.im ^ 2))
+      have hmod : z.re ^ 2 - D * z.im ^ 2 ≡ 0 [ZMOD 2] := by
+        simpa using ha2mod.sub hprod2
+      exact hmod.eq
+    rw [RingOfIntegers.norm_zsqrtd] at hnodd
+    omega
+  · have ha8 : z.re ^ 2 ≡ 1 [ZMOD 8] := sq_emod_eight_of_odd z.re ha2
+    by_cases hb2 : 2 ∣ z.im
+    · have hb4 : z.im ^ 2 ≡ 0 [ZMOD 4] := Int.sq_emod_four_of_even z.im hb2
+      have htwo_mul_b : (2 : ℤ) * z.im ^ 2 ≡ 0 [ZMOD 8] := by
+        simpa using hb4.mul_left' (c := (2 : ℤ))
+      have hdb : D * z.im ^ 2 ≡ 0 [ZMOD 8] :=
+        (hd8mod.mul (Int.ModEq.refl (z.im ^ 2))).trans htwo_mul_b
+      have hnorm8 : z.re ^ 2 - D * z.im ^ 2 ≡ 1 [ZMOD 8] := by
+        simpa using ha8.sub hdb
+      left
+      exact hnorm8
+    · have hb8 : z.im ^ 2 ≡ 1 [ZMOD 8] := sq_emod_eight_of_odd z.im hb2
+      have hdb : D * z.im ^ 2 ≡ 2 [ZMOD 8] := by
+        simpa using hd8mod.mul hb8
+      have hnorm8 : z.re ^ 2 - D * z.im ^ 2 ≡ 7 [ZMOD 8] := by
+        calc
+          z.re ^ 2 - D * z.im ^ 2 ≡ 1 - 2 [ZMOD 8] := ha8.sub hdb
+          _ ≡ 7 [ZMOD 8] := by decide +revert
+      right
+      exact hnorm8
+
+private theorem zsqrtd_norm_emod_eight_eq_one_or_three_of_param_mod_eight_six
+    {D : ℤ} (z : Zsqrtd D) (hd8 : D % 8 = 6)
+    (hnodd : (Zsqrtd.norm z) % 2 = 1) :
+    Zsqrtd.norm z % 8 = 1 ∨ Zsqrtd.norm z % 8 = 3 := by
+  rw [RingOfIntegers.norm_zsqrtd]
+  have hd8mod : D ≡ 6 [ZMOD 8] := by exact hd8
+  by_cases ha2 : 2 ∣ z.re
+  · have ha4 : z.re ^ 2 ≡ 0 [ZMOD 4] := Int.sq_emod_four_of_even z.re ha2
+    have hda2 : D ≡ 0 [ZMOD 2] := by
+      have hd2 : D % 2 = 0 := by omega
+      exact hd2
+    have hnorm2 : (z.re ^ 2 - D * z.im ^ 2) % 2 = 0 := by
+      have ha2mod : z.re ^ 2 ≡ 0 [ZMOD 2] :=
+        ha4.of_dvd (by norm_num : (2 : ℤ) ∣ 4)
+      have hprod2 : D * z.im ^ 2 ≡ 0 [ZMOD 2] := by
+        simpa using hda2.mul (Int.ModEq.refl (z.im ^ 2))
+      have hmod : z.re ^ 2 - D * z.im ^ 2 ≡ 0 [ZMOD 2] := by
+        simpa using ha2mod.sub hprod2
+      exact hmod.eq
+    rw [RingOfIntegers.norm_zsqrtd] at hnodd
+    omega
+  · have ha8 : z.re ^ 2 ≡ 1 [ZMOD 8] := sq_emod_eight_of_odd z.re ha2
+    by_cases hb2 : 2 ∣ z.im
+    · have hb4 : z.im ^ 2 ≡ 0 [ZMOD 4] := Int.sq_emod_four_of_even z.im hb2
+      have hsix_mul_b : (6 : ℤ) * z.im ^ 2 ≡ 0 [ZMOD 8] := by
+        have htwo_mul_b : (2 : ℤ) * z.im ^ 2 ≡ 0 [ZMOD 8] := by
+          simpa using hb4.mul_left' (c := (2 : ℤ))
+        have hfour_mul_b : (4 : ℤ) * z.im ^ 2 ≡ 0 [ZMOD 8] := by
+          have h := hb4.mul_left' (c := (4 : ℤ))
+          exact h.of_dvd (by norm_num : (8 : ℤ) ∣ 4 * 4)
+        calc
+          (6 : ℤ) * z.im ^ 2 = (2 : ℤ) * z.im ^ 2 + (4 : ℤ) * z.im ^ 2 := by ring
+          _ ≡ 0 + 0 [ZMOD 8] := htwo_mul_b.add hfour_mul_b
+          _ ≡ 0 [ZMOD 8] := by decide +revert
+      have hdb : D * z.im ^ 2 ≡ 0 [ZMOD 8] :=
+        (hd8mod.mul (Int.ModEq.refl (z.im ^ 2))).trans hsix_mul_b
+      have hnorm8 : z.re ^ 2 - D * z.im ^ 2 ≡ 1 [ZMOD 8] := by
+        simpa using ha8.sub hdb
+      left
+      exact hnorm8
+    · have hb8 : z.im ^ 2 ≡ 1 [ZMOD 8] := sq_emod_eight_of_odd z.im hb2
+      have hdb : D * z.im ^ 2 ≡ 6 [ZMOD 8] := by
+        simpa using hd8mod.mul hb8
+      have hnorm8 : z.re ^ 2 - D * z.im ^ 2 ≡ 3 [ZMOD 8] := by
+        calc
+          z.re ^ 2 - D * z.im ^ 2 ≡ 1 - 6 [ZMOD 8] := ha8.sub hdb
+          _ ≡ 3 [ZMOD 8] := by decide +revert
+      right
+      exact hnorm8
+
+/-- In the `ℤ[√d]` branch, nonnegative explicit norms prime to the `2`-primary
+signed factor have trivial `2`-primary Kronecker value. -/
+theorem kroneckerSymNat_twoPrimeDiscriminantFactor_zsqrtd_norm_eq_one
+    {D : ℤ} [Fact (Squarefree D)]
+    (z : Zsqrtd D) (hd4 : D % 4 ≠ 1) (hN_nonneg : 0 ≤ Zsqrtd.norm z)
+    (hcop : Nat.Coprime (Zsqrtd.norm z).natAbs (twoPrimeDiscriminantFactor D).natAbs) :
+    kroneckerSymNat (twoPrimeDiscriminantFactor D) (Zsqrtd.norm z).natAbs = 1 := by
+  refine kroneckerSymNat_twoPrimeDiscriminantFactor_eq_one_of_mod_conditions ?_ ?_ ?_
+  · intro hd2
+    have hcop4 : Nat.Coprime (Zsqrtd.norm z).natAbs 4 := by
+      simpa [twoPrimeDiscriminantFactor, hd2] using hcop
+    have hnodd : (Zsqrtd.norm z) % 2 = 1 :=
+      int_emod_two_eq_one_of_natAbs_coprime_of_two_dvd hN_nonneg hcop4
+        (by norm_num : 2 ∣ 4)
+    have hd43 : D % 4 = 3 := by omega
+    have hmod := zsqrtd_norm_emod_four_eq_one_of_param_mod_four_three z hd43 hnodd
+    have hcast : (((Zsqrtd.norm z).natAbs % 4 : ℕ) : ℤ) = 1 := by
+      have habs := Int.natAbs_of_nonneg hN_nonneg
+      omega
+    omega
+  · intro hd2 hd8
+    have hcop8 : Nat.Coprime (Zsqrtd.norm z).natAbs 8 := by
+      simpa [twoPrimeDiscriminantFactor, hd2, hd8] using hcop
+    have hnodd : (Zsqrtd.norm z) % 2 = 1 :=
+      int_emod_two_eq_one_of_natAbs_coprime_of_two_dvd hN_nonneg hcop8
+        (by norm_num : 2 ∣ 8)
+    rcases zsqrtd_norm_emod_eight_eq_one_or_seven_of_param_mod_eight_two z hd8 hnodd
+      with hmod | hmod
+    · left
+      have hcast : (((Zsqrtd.norm z).natAbs % 8 : ℕ) : ℤ) = 1 := by
+        have habs := Int.natAbs_of_nonneg hN_nonneg
+        omega
+      omega
+    · right
+      have hcast : (((Zsqrtd.norm z).natAbs % 8 : ℕ) : ℤ) = 7 := by
+        have habs := Int.natAbs_of_nonneg hN_nonneg
+        omega
+      omega
+  · intro hd2 hd8_ne
+    have hcop8 : Nat.Coprime (Zsqrtd.norm z).natAbs 8 := by
+      simpa [twoPrimeDiscriminantFactor, hd2, hd8_ne] using hcop
+    have hnodd : (Zsqrtd.norm z) % 2 = 1 :=
+      int_emod_two_eq_one_of_natAbs_coprime_of_two_dvd hN_nonneg hcop8
+        (by norm_num : 2 ∣ 8)
+    have hd4_ne_zero : D % 4 ≠ 0 := by
+      intro hd40
+      exact squarefree_int_not_dvd_four D (Fact.out : Squarefree D)
+        (Int.dvd_of_emod_eq_zero hd40)
+    have hd86 : D % 8 = 6 := by omega
+    rcases zsqrtd_norm_emod_eight_eq_one_or_three_of_param_mod_eight_six z hd86 hnodd
+      with hmod | hmod
+    · left
+      have hcast : (((Zsqrtd.norm z).natAbs % 8 : ℕ) : ℤ) = 1 := by
+        have habs := Int.natAbs_of_nonneg hN_nonneg
+        omega
+      omega
+    · right
+      have hcast : (((Zsqrtd.norm z).natAbs % 8 : ℕ) : ℤ) = 3 := by
+        have habs := Int.natAbs_of_nonneg hN_nonneg
+        omega
+      omega
 
 /-- Well-definedness input for signed-factor genus characters: the raw Kronecker
 value is constant on fibers of the restricted narrow class-group map. -/

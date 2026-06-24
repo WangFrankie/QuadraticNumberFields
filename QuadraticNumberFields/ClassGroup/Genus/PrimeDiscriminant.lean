@@ -79,6 +79,94 @@ theorem natAbs_twoPrimeDiscriminantFactor_eq_four_or_eight (d : ℤ) :
     · simp [h2, h8]
   · simp [h2]
 
+private theorem kroneckerSymNat_eight_seven : kroneckerSymNat (8 : ℤ) 7 = 1 := by
+  haveI : Fact (Nat.Prime 7) := ⟨by norm_num⟩
+  rw [kroneckerSymNat_eq_legendreSym_of_ne_two]
+  · refine (legendreSym.eq_one_iff 7 ?_).mpr ?_
+    · intro h
+      have hdiv : (7 : ℤ) ∣ (8 : ℤ) := (ZMod.intCast_zmod_eq_zero_iff_dvd 8 7).mp h
+      norm_num at hdiv
+    · refine ⟨(1 : ZMod 7), ?_⟩
+      rw [mul_one, ← sub_eq_zero]
+      change (((8 : ℤ) - 1 : ℤ) : ZMod 7) = 0
+      rw [ZMod.intCast_zmod_eq_zero_iff_dvd]
+      norm_num
+  · norm_num
+
+private theorem kroneckerSymNat_neg_eight_three : kroneckerSymNat (-8 : ℤ) 3 = 1 := by
+  haveI : Fact (Nat.Prime 3) := ⟨by norm_num⟩
+  rw [kroneckerSymNat_eq_legendreSym_of_ne_two]
+  · refine (legendreSym.eq_one_iff 3 ?_).mpr ?_
+    · intro h
+      have hdiv : (3 : ℤ) ∣ (-8 : ℤ) :=
+        (ZMod.intCast_zmod_eq_zero_iff_dvd (-8) 3).mp h
+      norm_num at hdiv
+    · refine ⟨(1 : ZMod 3), ?_⟩
+      rw [mul_one, ← sub_eq_zero]
+      change (((-8 : ℤ) - 1 : ℤ) : ZMod 3) = 0
+      rw [ZMod.intCast_zmod_eq_zero_iff_dvd]
+      norm_num
+  · norm_num
+
+/-- The `-4` Kronecker character is `1` on natural denominators congruent to `1`
+modulo `4`. -/
+theorem kroneckerSymNat_neg_four_eq_one_of_mod_four_eq_one {n : ℕ}
+    (hn : n % 4 = 1) :
+    kroneckerSymNat (-4 : ℤ) n = 1 := by
+  haveI : Fact (((-4 : ℤ) % 4 = 0) ∨ ((-4 : ℤ) % 4 = 1)) := ⟨by norm_num⟩
+  rw [← kroneckerSymNat_mod_natAbs_eq (-4 : ℤ) n]
+  rw [show (-4 : ℤ).natAbs = 4 by norm_num, hn]
+  simp [kroneckerSymNat]
+
+/-- The `8` Kronecker character is `1` on natural denominators congruent to `1`
+or `7` modulo `8`. -/
+theorem kroneckerSymNat_eight_eq_one_of_mod_eight_eq_one_or_seven {n : ℕ}
+    (hn : n % 8 = 1 ∨ n % 8 = 7) :
+    kroneckerSymNat (8 : ℤ) n = 1 := by
+  haveI : Fact (((8 : ℤ) % 4 = 0) ∨ ((8 : ℤ) % 4 = 1)) := ⟨by norm_num⟩
+  rw [← kroneckerSymNat_mod_natAbs_eq (8 : ℤ) n]
+  rw [show (8 : ℤ).natAbs = 8 by norm_num]
+  rcases hn with hn | hn
+  · rw [hn]
+    simp [kroneckerSymNat]
+  · rw [hn]
+    exact kroneckerSymNat_eight_seven
+
+/-- The `-8` Kronecker character is `1` on natural denominators congruent to `1`
+or `3` modulo `8`. -/
+theorem kroneckerSymNat_neg_eight_eq_one_of_mod_eight_eq_one_or_three {n : ℕ}
+    (hn : n % 8 = 1 ∨ n % 8 = 3) :
+    kroneckerSymNat (-8 : ℤ) n = 1 := by
+  haveI : Fact (((-8 : ℤ) % 4 = 0) ∨ ((-8 : ℤ) % 4 = 1)) := ⟨by norm_num⟩
+  rw [← kroneckerSymNat_mod_natAbs_eq (-8 : ℤ) n]
+  rw [show (-8 : ℤ).natAbs = 8 by norm_num]
+  rcases hn with hn | hn
+  · rw [hn]
+    simp [kroneckerSymNat]
+  · rw [hn]
+    exact kroneckerSymNat_neg_eight_three
+
+/-- The `2`-primary signed factor has Kronecker value `1` once the denominator
+satisfies the congruence condition matching the selected `-4`, `8`, or `-8`
+case. -/
+theorem kroneckerSymNat_twoPrimeDiscriminantFactor_eq_one_of_mod_conditions
+    {d : ℤ} {n : ℕ}
+    (hodd : d % 2 ≠ 0 → n % 4 = 1)
+    (height : d % 2 = 0 → d % 8 = 2 → n % 8 = 1 ∨ n % 8 = 7)
+    (hneight : d % 2 = 0 → d % 8 ≠ 2 → n % 8 = 1 ∨ n % 8 = 3) :
+    kroneckerSymNat (twoPrimeDiscriminantFactor d) n = 1 := by
+  rw [twoPrimeDiscriminantFactor]
+  by_cases hd2 : d % 2 = 0
+  · by_cases hd8 : d % 8 = 2
+    · simp only [hd2, hd8, ↓reduceIte]
+      exact kroneckerSymNat_eight_eq_one_of_mod_eight_eq_one_or_seven
+        (height hd2 hd8)
+    · simp only [hd2, hd8, ↓reduceIte]
+      exact kroneckerSymNat_neg_eight_eq_one_of_mod_eight_eq_one_or_three
+        (hneight hd2 hd8)
+  · simp only [hd2, ↓reduceIte]
+    exact kroneckerSymNat_neg_four_eq_one_of_mod_four_eq_one (hodd hd2)
+
 /-- The signed prime discriminant attached to a rational ramified prime `p`. -/
 def primeDiscriminantFactor (d : ℤ) (p : ℕ) : ℤ :=
   if p = 2 then twoPrimeDiscriminantFactor d else oddPrimeDiscriminantFactor p
