@@ -151,10 +151,10 @@ noncomputable def genusCharacterOfSignedFactorRaw
         inv := x
         val_inv := ?_
         inv_val := ?_ }
-    · -- need: x * x = 1
-      sorry
-    · -- same
-      sorry
+    · change x * x = 1
+      simpa [x, pow_two] using kroneckerSymNat_sq_one_of_coprime q.1 I.property
+    · change x * x = 1
+      simpa [x, pow_two] using kroneckerSymNat_sq_one_of_coprime q.1 I.property
 
 /-- The genus character attached to one signed prime-discriminant factor.
 On a class represented by an ideal `I` whose norm is coprime to `q`, this should
