@@ -40,6 +40,7 @@ discriminant `discrFormula d`.
 
 This includes `2` exactly when `2` ramifies (`d % 4 ≠ 1`, where
 `discrFormula d = 4 * d`), so it indexes the full prime-discriminant factorization. -/
+-- TODO change to NumberField.discr (Qsqrtd (d : ℚ)) maybe
 def ramifiedPrimes (d : ℤ) : Finset ℕ :=
   (RingOfIntegers.discrFormula d).natAbs.primeFactors
 

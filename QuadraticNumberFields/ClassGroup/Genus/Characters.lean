@@ -7,7 +7,8 @@ Authors: Frankie Wang
 import Mathlib.GroupTheory.Index
 import QuadraticNumberFields.ClassGroup.Genus.PrimeDiscriminant
 import QuadraticNumberFields.ClassGroup.Narrow
-
+import QNFMathlib.NumberTheory.LegendreSymbol.KroneckerSymbolPeriodicity
+import QuadraticNumberFields.Splitting.Qsqrtd.Kronecker
 /-!
 # Genus Characters
 
@@ -125,12 +126,79 @@ theorem card_genusCharacterTargetRelation (d : ℤ) :
     rw [← card_signedPrimeDiscriminantFactors_eq_ramifiedPrimeCount d, hempty]
     norm_num
 
+def signedFactorCoprimeIdealSubmonoid
+        (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+        (q : {q // q ∈ signedPrimeDiscriminantFactors d}) :
+        Submonoid (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) :=
+      { carrier := {I | Nat.Coprime (Ideal.absNorm I) q.1.natAbs}
+        one_mem' := by
+          simp
+        mul_mem' := by
+          intro I J hI hJ
+          simp only [Set.mem_setOf_eq, map_mul]
+          exact Nat.Coprime.mul_left hI hJ
+      }
+
+noncomputable def genusCharacterOfSignedFactorRaw
+      (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+      (q : {q // q ∈ signedPrimeDiscriminantFactors d})
+      (I : signedFactorCoprimeIdealSubmonoid d q) : ℤˣ := by
+    let x : ℤ :=
+      kroneckerSymNat q.1
+        (Ideal.absNorm (I : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))))
+    refine
+      { val := x
+        inv := x
+        val_inv := ?_
+        inv_val := ?_ }
+    · -- need: x * x = 1
+      sorry
+    · -- same
+      sorry
+
+/-- The genus character attached to one signed prime-discriminant factor.
+On a class represented by an ideal `I` whose norm is coprime to `q`, this should
+evaluate as `kroneckerSymNat q.1 (Ideal.absNorm I)`. -/
+noncomputable def genusCharacterOfSignedFactor
+      (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+      (q : {q // q ∈ signedPrimeDiscriminantFactors d}) :
+      Cl⁺(d) →* ℤˣ := by
+    refine
+      { toFun := fun C => by
+          -- choose I with mk0 I = C and norm coprime to q
+          -- return genusCharacterOfSignedFactorRaw d q I
+          sorry
+        map_one' := by
+          sorry
+        map_mul' := by
+          intro C D
+          sorry }
+
 /-- The genus-character map from the narrow class group to the product-one sign
 relation subgroup. This is the main construction boundary for genus theory. -/
 noncomputable def genusCharacterMap
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
     Cl⁺(d) →* genusCharacterTargetRelation d := by
-  sorry
+  refine
+    { toFun := fun C =>
+        ⟨fun q => genusCharacterOfSignedFactor d q C, by
+          -- product-one relation
+          sorry⟩
+      map_one' := by
+        ext q
+        simp
+      map_mul' := by
+        intro C D
+        ext q
+        simp }
+
+@[simp]
+theorem genusCharacterMap_apply
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (C : Cl⁺(d))
+    (q : {q // q ∈ signedPrimeDiscriminantFactors d}) :
+    (genusCharacterMap d C : genusCharacterTarget d) q =
+      genusCharacterOfSignedFactor d q C := by
+  rfl
 
 end Genus
 end ClassGroup
