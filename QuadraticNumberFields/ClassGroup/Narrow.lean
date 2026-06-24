@@ -225,6 +225,27 @@ theorem mk0_eq_mk0_iff_exists_fraction_ring [IsDedekindDomain R] {I J : (Ideal R
   · rintro ⟨x, hxpos, hx⟩
     exact ⟨⟨x, hxpos⟩, hx⟩
 
+/-- Multiplication by a square principal fractional ideal preserves the narrow
+ideal class. -/
+theorem mk_eq_mk_mul_toPrincipalIdeal_sq
+    (I : (FractionalIdeal R⁰ (FractionRing R))ˣ) (x : FractionRing R) (hx : x ≠ 0) :
+    mk I =
+      mk (I * toPrincipalIdeal R (FractionRing R) (Units.mk0 (x ^ 2) (pow_ne_zero 2 hx))) := by
+  exact (mk_eq_mk.mpr
+    ⟨⟨Units.mk0 (x ^ 2) (pow_ne_zero 2 hx), isTotallyPositive_sq_of_ne_zero x hx⟩, rfl⟩)
+
+/-- Integral-ideal version: multiplication by a square principal fractional
+ideal preserves the narrow class. -/
+theorem mk0_eq_mk0_of_mul_toPrincipalIdeal_sq [IsDedekindDomain R]
+    {I J : (Ideal R)⁰} {x : FractionRing R} (hx : x ≠ 0)
+    (hJ : FractionalIdeal.mk0 (FractionRing R) I *
+        toPrincipalIdeal R (FractionRing R) (Units.mk0 (x ^ 2) (pow_ne_zero 2 hx)) =
+      FractionalIdeal.mk0 (FractionRing R) J) :
+    mk0 I = mk0 J := by
+  rw [← mk_mk0, ← mk_mk0]
+  exact (mk_eq_mk.mpr
+    ⟨⟨Units.mk0 (x ^ 2) (pow_ne_zero 2 hx), isTotallyPositive_sq_of_ne_zero x hx⟩, hJ⟩)
+
 /-- An integral ideal representative suited for narrow classes.
 
 Compared with the ordinary class-group numerator, this multiplies by one extra
