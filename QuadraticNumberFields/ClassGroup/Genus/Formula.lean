@@ -32,7 +32,14 @@ genus-character map. -/
 theorem genusFormula_iff_genusCharacterMap_ker_eq_square
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
     genusFormula d ↔ (genusCharacterMap d).ker = Subgroup.square (Cl⁺(d)) := by
-  sorry
+  constructor
+  · intro _
+    apply (genusCharacterMapOnSquareQuotient_ker_eq_bot_iff d).mp
+    exact (MonoidHom.ker_eq_bot_iff (genusCharacterMapOnSquareQuotient d)).mpr
+      (genusQuotientEquiv d).injective
+  · intro _
+    rw [genusFormula]
+    exact card_narrowClassGroupSquareQuotient_eq_genusBound d
 
 /-- The genus formula for quadratic fields, stated on the narrow class group. -/
 theorem genusFormula_holds
