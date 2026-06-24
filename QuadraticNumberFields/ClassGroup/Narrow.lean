@@ -160,6 +160,11 @@ conjugation action in narrow-class-group terms. -/
 noncomputable def mk0 [IsDedekindDomain R] : (Ideal R)⁰ →* NarrowClassGroup R :=
   mk.comp (FractionalIdeal.mk0 (FractionRing R))
 
+/-- The narrow ideal-class map on an integral ideal agrees with `mk0`. -/
+theorem mk_mk0 [IsDedekindDomain R] (I : (Ideal R)⁰) :
+    mk (FractionalIdeal.mk0 (FractionRing R) I) = mk0 I := by
+  rfl
+
 /-- The natural map to the wide class group sends a narrow ideal class of an integral
 ideal to its ordinary ideal class. -/
 @[simp]
