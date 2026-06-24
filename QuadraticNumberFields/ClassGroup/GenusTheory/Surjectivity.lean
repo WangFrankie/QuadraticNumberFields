@@ -158,59 +158,39 @@ theorem exists_nat_residue_with_prescribed_odd_genus_symbols
         ⟨prime_of_mem_oddPrimeDiscriminantDivisors P.2⟩ _ _ (aCRT.2 P (by simp))).trans
       (hres_leg P)
 
-/-- **Prescribed split prime.** In the odd fundamental-discriminant branch, every
-sign vector satisfying the product-one relation is realized by the Legendre
-symbols of some rational prime `q` that splits in `ℚ(√d)`.
+private theorem prescribed_odd_genus_symbols_of_modEq
+    (d : ℤ) (ε : oddGenusSignRelationSubgroup d) {a q : ℕ}
+    (ha_symbols :
+      ∀ P : {p // p ∈ oddPrimeDiscriminantDivisors d},
+        @legendreSym P.1 ⟨prime_of_mem_oddPrimeDiscriminantDivisors P.2⟩ (a : ℤ) =
+          ((ε : (P : {p // p ∈ oddPrimeDiscriminantDivisors d}) → ℤˣ) P : ℤ))
+    (hq_mod_M :
+      q ≡ a [MOD Finset.univ.prod
+        (fun P : {p // p ∈ oddPrimeDiscriminantDivisors d} => P.1)]) :
+    ∀ P : {p // p ∈ oddPrimeDiscriminantDivisors d},
+      @legendreSym P.1 ⟨prime_of_mem_oddPrimeDiscriminantDivisors P.2⟩ (q : ℤ) =
+        ((ε : (P : {p // p ∈ oddPrimeDiscriminantDivisors d}) → ℤˣ) P : ℤ) := by
+  intro P
+  have hP_dvd_M :
+      P.1 ∣ Finset.univ.prod
+        (fun P : {p // p ∈ oddPrimeDiscriminantDivisors d} => P.1) := by
+    exact Finset.dvd_prod_of_mem
+      (fun P : {p // p ∈ oddPrimeDiscriminantDivisors d} => P.1) (Finset.mem_univ P)
+  have hq_mod_P : q ≡ a [MOD P.1] := Nat.ModEq.of_dvd hP_dvd_M hq_mod_M
+  exact (@legendreSym_natCast_eq_of_modEq P.1
+    ⟨prime_of_mem_oddPrimeDiscriminantDivisors P.2⟩ (a := q) (b := a) hq_mod_P).trans
+    (ha_symbols P)
 
-The proof is the Dirichlet/CRT/quadratic-reciprocity step: choose a unit residue
-class modulo the odd discriminant with prescribed Legendre symbols, use the
-product relation and `d % 4 = 1` to force `(d / q) = 1`, and apply
-Dirichlet's theorem to find a prime in that class. -/
-theorem exists_nat_prime_with_prescribed_odd_genus_symbols
-    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd_neg : d < 0)
-    (hd4 : d % 4 = 1) (ε : oddGenusSignRelationSubgroup d) :
-    ∃ q : ℕ, ∃ hq_prime : q.Prime,
-      q ≠ 2 ∧ ¬ (q : ℤ) ∣ d ∧ @legendreSym q ⟨hq_prime⟩ d = 1 ∧
+private theorem legendreSym_eq_one_of_prescribed_odd_genus_symbols
+    (d : ℤ) [Fact (Squarefree d)] (hd4 : d % 4 = 1)
+    {q : ℕ} (hq_prime : q.Prime) (hq_ne_two : q ≠ 2)
+    (ε : oddGenusSignRelationSubgroup d)
+    (hq_symbols :
       ∀ P : {p // p ∈ oddPrimeDiscriminantDivisors d},
         @legendreSym P.1 ⟨prime_of_mem_oddPrimeDiscriminantDivisors P.2⟩ (q : ℤ) =
-          ((ε : (P : {p // p ∈ oddPrimeDiscriminantDivisors d}) → ℤˣ) P : ℤ) := by
-  classical
-  let M : ℕ := Finset.univ.prod
-    (fun P : {p // p ∈ oddPrimeDiscriminantDivisors d} => P.1)
-  rcases exists_nat_residue_with_prescribed_odd_genus_symbols d ε with
-    ⟨a, ha_coprime, ha_symbols⟩
-  have hM0 : M ≠ 0 := by
-    dsimp [M]
-    exact Finset.prod_ne_zero_iff.mpr fun P _ =>
-      (prime_of_mem_oddPrimeDiscriminantDivisors P.2).ne_zero
-  have ha_coprime_M : a.Coprime M := by
-    simpa [M] using ha_coprime
-  rcases Nat.forall_exists_prime_gt_and_modEq (max d.natAbs 2)
-      (q := M) (a := a) hM0 ha_coprime_M with
-    ⟨q, hq_gt, hq_prime, hq_mod_M⟩
+          ((ε : (P : {p // p ∈ oddPrimeDiscriminantDivisors d}) → ℤˣ) P : ℤ)) :
+    @legendreSym q ⟨hq_prime⟩ d = 1 := by
   letI : Fact q.Prime := ⟨hq_prime⟩
-  have hq_ne_two : q ≠ 2 := by
-    intro hq2
-    omega
-  have hq_not_dvd : ¬ (q : ℤ) ∣ d := by
-    intro hq_dvd
-    have hq_le_abs : q ≤ d.natAbs := by
-      exact Nat.le_of_dvd (Int.natAbs_pos.mpr (ne_of_lt hd_neg))
-        (Int.natCast_dvd.mp hq_dvd)
-    omega
-  have hq_symbols :
-      ∀ P : {p // p ∈ oddPrimeDiscriminantDivisors d},
-        @legendreSym P.1 ⟨prime_of_mem_oddPrimeDiscriminantDivisors P.2⟩ (q : ℤ) =
-          ((ε : (P : {p // p ∈ oddPrimeDiscriminantDivisors d}) → ℤˣ) P : ℤ) := by
-    intro P
-    have hP_dvd_M : P.1 ∣ M := by
-      dsimp [M]
-      exact Finset.dvd_prod_of_mem
-        (fun P : {p // p ∈ oddPrimeDiscriminantDivisors d} => P.1) (Finset.mem_univ P)
-    have hq_mod_P : q ≡ a [MOD P.1] := Nat.ModEq.of_dvd hP_dvd_M hq_mod_M
-    exact (@legendreSym_natCast_eq_of_modEq P.1
-      ⟨prime_of_mem_oddPrimeDiscriminantDivisors P.2⟩ (a := q) (b := a) hq_mod_P).trans
-      (ha_symbols P)
   have hprod_units :
       Finset.univ.prod
           (fun P : {p // p ∈ oddPrimeDiscriminantDivisors d} =>
@@ -258,12 +238,60 @@ theorem exists_nat_prime_with_prescribed_odd_genus_symbols
         intro P _hP
         simp [prime_of_mem_oddPrimeDiscriminantDivisors P.2]
       _ = 1 := hprod_leg_attach
+  have hkron : kroneckerSymNat (RingOfIntegers.discrFormula d) q = 1 := by
+    rw [← jacobiSym_natAbs_eq_kroneckerSymNat_discrFormula_of_mod_four_eq_one d q hd4]
+    exact hjac
+  rw [RingOfIntegers.discrFormula_of_mod_four_eq_one hd4] at hkron
+  rwa [kroneckerSymNat_eq_legendreSym_of_ne_two d hq_ne_two] at hkron
+
+/-- Prescribed split prime. In the odd fundamental-discriminant branch, every
+sign vector satisfying the product-one relation is realized by the Legendre
+symbols of some rational prime `q` that splits in `ℚ(√d)`.
+
+The proof is the Dirichlet/CRT/quadratic-reciprocity step: choose a unit residue
+class modulo the odd discriminant with prescribed Legendre symbols, use the
+product relation and `d % 4 = 1` to force `(d / q) = 1`, and apply
+Dirichlet's theorem to find a prime in that class. -/
+theorem exists_nat_prime_with_prescribed_odd_genus_symbols
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd_neg : d < 0)
+    (hd4 : d % 4 = 1) (ε : oddGenusSignRelationSubgroup d) :
+    ∃ q : ℕ, ∃ hq_prime : q.Prime,
+      q ≠ 2 ∧ ¬ (q : ℤ) ∣ d ∧ @legendreSym q ⟨hq_prime⟩ d = 1 ∧
+      ∀ P : {p // p ∈ oddPrimeDiscriminantDivisors d},
+        @legendreSym P.1 ⟨prime_of_mem_oddPrimeDiscriminantDivisors P.2⟩ (q : ℤ) =
+          ((ε : (P : {p // p ∈ oddPrimeDiscriminantDivisors d}) → ℤˣ) P : ℤ) := by
+  classical
+  let M : ℕ := Finset.univ.prod
+    (fun P : {p // p ∈ oddPrimeDiscriminantDivisors d} => P.1)
+  rcases exists_nat_residue_with_prescribed_odd_genus_symbols d ε with
+    ⟨a, ha_coprime, ha_symbols⟩
+  have hM0 : M ≠ 0 := by
+    dsimp [M]
+    exact Finset.prod_ne_zero_iff.mpr fun P _ =>
+      (prime_of_mem_oddPrimeDiscriminantDivisors P.2).ne_zero
+  have ha_coprime_M : a.Coprime M := by
+    simpa [M] using ha_coprime
+  rcases Nat.forall_exists_prime_gt_and_modEq (max d.natAbs 2)
+      (q := M) (a := a) hM0 ha_coprime_M with
+    ⟨q, hq_gt, hq_prime, hq_mod_M⟩
+  letI : Fact q.Prime := ⟨hq_prime⟩
+  have hq_ne_two : q ≠ 2 := by
+    intro hq2
+    omega
+  have hq_not_dvd : ¬ (q : ℤ) ∣ d := by
+    intro hq_dvd
+    have hq_le_abs : q ≤ d.natAbs := by
+      exact Nat.le_of_dvd (Int.natAbs_pos.mpr (ne_of_lt hd_neg))
+        (Int.natCast_dvd.mp hq_dvd)
+    omega
+  have hq_symbols :
+      ∀ P : {p // p ∈ oddPrimeDiscriminantDivisors d},
+        @legendreSym P.1 ⟨prime_of_mem_oddPrimeDiscriminantDivisors P.2⟩ (q : ℤ) =
+          ((ε : (P : {p // p ∈ oddPrimeDiscriminantDivisors d}) → ℤˣ) P : ℤ) := by
+    simpa [M] using prescribed_odd_genus_symbols_of_modEq d ε ha_symbols hq_mod_M
   have hq_split : @legendreSym q ⟨hq_prime⟩ d = 1 := by
-    have hkron : kroneckerSymNat (RingOfIntegers.discrFormula d) q = 1 := by
-      rw [← jacobiSym_natAbs_eq_kroneckerSymNat_discrFormula_of_mod_four_eq_one d q hd4]
-      exact hjac
-    rw [RingOfIntegers.discrFormula_of_mod_four_eq_one hd4] at hkron
-    rwa [kroneckerSymNat_eq_legendreSym_of_ne_two d hq_ne_two] at hkron
+    exact legendreSym_eq_one_of_prescribed_odd_genus_symbols d hd4 hq_prime hq_ne_two
+      ε hq_symbols
   exact ⟨q, hq_prime, hq_ne_two, hq_not_dvd, hq_split, hq_symbols⟩
 
 /-- **Prescribed odd genus symbols.** In the odd fundamental-discriminant branch,
