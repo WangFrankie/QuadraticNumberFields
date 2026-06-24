@@ -83,6 +83,22 @@ theorem natAbs_twoPrimeDiscriminantFactor_eq_four_or_eight (d : ℤ) :
 def primeDiscriminantFactor (d : ℤ) (p : ℕ) : ℤ :=
   if p = 2 then twoPrimeDiscriminantFactor d else oddPrimeDiscriminantFactor p
 
+@[simp]
+theorem primeDiscriminantFactor_two (d : ℤ) :
+    primeDiscriminantFactor d 2 = twoPrimeDiscriminantFactor d := by
+  simp [primeDiscriminantFactor]
+
+theorem primeDiscriminantFactor_of_ne_two {d : ℤ} {p : ℕ} (hp2 : p ≠ 2) :
+    primeDiscriminantFactor d p = oddPrimeDiscriminantFactor p := by
+  simp [primeDiscriminantFactor, hp2]
+
+/-- Away from `2`, a prime-discriminant factor evaluates as the Legendre symbol. -/
+theorem kroneckerSymNat_primeDiscriminantFactor_eq_legendreSym_of_ne_two
+    {d : ℤ} {p a : ℕ} [Fact p.Prime] (hp2 : p ≠ 2) :
+    kroneckerSymNat (primeDiscriminantFactor d p) a = legendreSym p (a : ℤ) := by
+  rw [primeDiscriminantFactor_of_ne_two hp2,
+    kroneckerSymNat_oddPrimeDiscriminantFactor_eq_legendreSym hp2]
+
 /-- A ramified rational prime divides the absolute value of its signed
 prime-discriminant factor. -/
 theorem dvd_natAbs_primeDiscriminantFactor_of_mem_ramifiedPrimes
@@ -150,6 +166,23 @@ theorem mem_signedPrimeDiscriminantFactors_of_mem_ramifiedPrimes
     {p : ℕ} (hp : p ∈ ramifiedPrimes d) :
     primeDiscriminantFactor d p ∈ signedPrimeDiscriminantFactors d :=
   Finset.mem_image.mpr ⟨p, hp, rfl⟩
+
+/-- A signed prime-discriminant factor is either the `2`-primary factor or comes
+from an odd ramified rational prime. -/
+theorem eq_twoPrimeDiscriminantFactor_or_exists_oddPrimeDiscriminantFactor_of_mem
+    {q : ℤ} (hq : q ∈ signedPrimeDiscriminantFactors d) :
+    (q = twoPrimeDiscriminantFactor d ∧ 2 ∈ ramifiedPrimes d) ∨
+      ∃ p : ℕ, p ∈ ramifiedPrimes d ∧ p.Prime ∧ p ≠ 2 ∧
+        q = oddPrimeDiscriminantFactor p := by
+  rw [signedPrimeDiscriminantFactors] at hq
+  rcases Finset.mem_image.mp hq with ⟨p, hp, rfl⟩
+  by_cases hp2 : p = 2
+  · subst p
+    left
+    exact ⟨primeDiscriminantFactor_two d, hp⟩
+  · right
+    exact ⟨p, hp, prime_of_mem_ramifiedPrimes hp, hp2,
+      primeDiscriminantFactor_of_ne_two hp2⟩
 
 /-- The signed prime-discriminant factors are counted by the ramified rational
 primes. This is the bridge that keeps `ramifiedPrimeCount` as the genus-theory
