@@ -444,6 +444,23 @@ theorem genusCharacterOfSignedFactor_apply_narrowMk0OnSignedFactorCoprimeIdeals
       d q (narrowMk0OnSignedFactorCoprimeIdeals_surjective d q)
       (genusCharacterOfSignedFactorRaw_eq_of_narrowMk0OnSignedFactorCoprimeIdeals_eq d q) I
 
+/-- If a nonzero integral ideal is coprime to every signed factor, then each
+descended signed-factor character on its narrow class is computed by the raw
+Kronecker character at that ideal. -/
+theorem genusCharacterOfSignedFactor_apply_mk0_of_mem_signedFactorsCoprimeIdealSubmonoid
+      (q : {q // q ∈ signedPrimeDiscriminantFactors d})
+      (I : (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰)
+      (hI : (I : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) ∈
+        signedFactorsCoprimeIdealSubmonoid d) :
+      genusCharacterOfSignedFactor d q (NarrowClassGroup.mk0 I) =
+        genusCharacterOfSignedFactorRaw d q ⟨I, hI q⟩ := by
+  let J : signedFactorCoprimeIdealSubmonoid d q := ⟨I, hI q⟩
+  have hJ :
+      narrowMk0OnSignedFactorCoprimeIdeals d q J = NarrowClassGroup.mk0 I := by
+    simp [J, narrowMk0OnSignedFactorCoprimeIdeals, signedFactorCoprimeIdealNonzeroMonoidHom]
+  rw [← hJ]
+  simpa [J] using genusCharacterOfSignedFactor_apply_narrowMk0OnSignedFactorCoprimeIdeals d q J
+
 /-- Product formula input for genus characters: the signed-factor characters
 attached to a narrow ideal class have product `1`. -/
 theorem genusCharacterMap_product_one
@@ -475,6 +492,18 @@ theorem genusCharacterMap_apply
     (genusCharacterMap d C : genusCharacterTarget d) q =
       genusCharacterOfSignedFactor d q C := by
   rfl
+
+/-- Coordinate form of `genusCharacterMap` on a narrow class represented by an
+ideal coprime to every signed prime-discriminant factor. -/
+theorem genusCharacterMap_apply_mk0_of_mem_signedFactorsCoprimeIdealSubmonoid
+      (I : (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰)
+      (hI : (I : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) ∈
+        signedFactorsCoprimeIdealSubmonoid d)
+      (q : {q // q ∈ signedPrimeDiscriminantFactors d}) :
+      (genusCharacterMap d (NarrowClassGroup.mk0 I) : genusCharacterTarget d) q =
+        genusCharacterOfSignedFactorRaw d q ⟨I, hI q⟩ := by
+  rw [genusCharacterMap_apply]
+  exact genusCharacterOfSignedFactor_apply_mk0_of_mem_signedFactorsCoprimeIdealSubmonoid d q I hI
 
 end Genus
 end ClassGroup
