@@ -21,7 +21,7 @@ namespace QuadraticNumberFields
 namespace ClassGroup
 namespace Genus
 
-open scoped NumberField QuadraticNumberFields.ClassGroup
+open scoped NumberField nonZeroDivisors QuadraticNumberFields.ClassGroup
 
 attribute [-instance] DivisionRing.toRatAlgebra
 
@@ -186,6 +186,108 @@ noncomputable def genusCharacterOfSignedFactorRawOnCoprimeIdeals
     rw [kroneckerSymNat_mul]
     · exact absNorm_ne_zero_of_mem_signedFactorCoprimeIdealSubmonoid d q I
     · exact absNorm_ne_zero_of_mem_signedFactorCoprimeIdealSubmonoid d q J
+
+/-- The forgetful monoid hom from ideals with norm coprime to a signed
+prime-discriminant factor to nonzero integral ideals. -/
+def signedFactorCoprimeIdealNonzeroMonoidHom
+      (q : {q // q ∈ signedPrimeDiscriminantFactors d}) :
+      signedFactorCoprimeIdealSubmonoid d q →*
+        (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰ where
+  toFun I := ⟨I, by
+    rw [mem_nonZeroDivisors_iff_ne_zero]
+    intro hbot
+    exact absNorm_ne_zero_of_mem_signedFactorCoprimeIdealSubmonoid d q I (by
+      simp [hbot, Ideal.absNorm_bot])⟩
+  map_one' := by
+    ext
+    rfl
+  map_mul' I J := by
+    ext
+    rfl
+
+/-- The narrow class-group map restricted to ideals whose absolute norm is coprime
+to a signed prime-discriminant factor. -/
+noncomputable def narrowMk0OnSignedFactorCoprimeIdeals
+      (q : {q // q ∈ signedPrimeDiscriminantFactors d}) :
+      signedFactorCoprimeIdealSubmonoid d q →* Cl⁺(d) :=
+  NarrowClassGroup.mk0.comp (signedFactorCoprimeIdealNonzeroMonoidHom d q)
+
+/-- To prove surjectivity of the restricted narrow class-group map, it suffices to
+choose, in every narrow class, a nonzero integral ideal representative whose
+absolute norm is coprime to the signed factor. -/
+theorem narrowMk0OnSignedFactorCoprimeIdeals_surjective_of_exists_absNorm_coprime_representative
+      (q : {q // q ∈ signedPrimeDiscriminantFactors d})
+      (hrep : ∀ C : Cl⁺(d),
+        ∃ I : (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰,
+          NarrowClassGroup.mk0 I = C ∧
+            Nat.Coprime
+              (Ideal.absNorm (I : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))))
+              q.1.natAbs) :
+      Function.Surjective (narrowMk0OnSignedFactorCoprimeIdeals d q) := by
+  intro C
+  rcases hrep C with ⟨I, hC, hI⟩
+  refine ⟨⟨(I : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))), hI⟩, ?_⟩
+  simpa [narrowMk0OnSignedFactorCoprimeIdeals,
+    signedFactorCoprimeIdealNonzeroMonoidHom] using hC
+
+/-- If the restricted narrow class-group map is surjective and the raw character is
+constant on its fibers, then the raw signed-factor character induces a genuine
+narrow class-group character. -/
+noncomputable def genusCharacterOfSignedFactorDescent
+      (q : {q // q ∈ signedPrimeDiscriminantFactors d})
+      (hsurj : Function.Surjective (narrowMk0OnSignedFactorCoprimeIdeals d q))
+      (hdesc : ∀ I J : signedFactorCoprimeIdealSubmonoid d q,
+        narrowMk0OnSignedFactorCoprimeIdeals d q I =
+          narrowMk0OnSignedFactorCoprimeIdeals d q J →
+            genusCharacterOfSignedFactorRaw d q I = genusCharacterOfSignedFactorRaw d q J) :
+      Cl⁺(d) →* ℤˣ where
+  toFun C := genusCharacterOfSignedFactorRaw d q (Classical.choose (hsurj C))
+  map_one' := by
+    have hmk :
+        narrowMk0OnSignedFactorCoprimeIdeals d q (Classical.choose (hsurj 1)) =
+          narrowMk0OnSignedFactorCoprimeIdeals d q 1 := by
+      rw [Classical.choose_spec (hsurj 1)]
+      simp
+    calc
+      genusCharacterOfSignedFactorRaw d q (Classical.choose (hsurj 1)) =
+          genusCharacterOfSignedFactorRaw d q 1 :=
+        hdesc (Classical.choose (hsurj 1)) 1 hmk
+      _ = 1 := by
+        exact map_one (genusCharacterOfSignedFactorRawOnCoprimeIdeals d q)
+  map_mul' C D := by
+    have hmk :
+        narrowMk0OnSignedFactorCoprimeIdeals d q (Classical.choose (hsurj (C * D))) =
+          narrowMk0OnSignedFactorCoprimeIdeals d q
+            (Classical.choose (hsurj C) * Classical.choose (hsurj D)) := by
+      rw [Classical.choose_spec (hsurj (C * D))]
+      rw [map_mul]
+      rw [Classical.choose_spec (hsurj C), Classical.choose_spec (hsurj D)]
+    calc
+      genusCharacterOfSignedFactorRaw d q (Classical.choose (hsurj (C * D))) =
+          genusCharacterOfSignedFactorRaw d q
+            (Classical.choose (hsurj C) * Classical.choose (hsurj D)) :=
+        hdesc (Classical.choose (hsurj (C * D)))
+          (Classical.choose (hsurj C) * Classical.choose (hsurj D)) hmk
+      _ = genusCharacterOfSignedFactorRaw d q (Classical.choose (hsurj C)) *
+          genusCharacterOfSignedFactorRaw d q (Classical.choose (hsurj D)) := by
+        exact map_mul (genusCharacterOfSignedFactorRawOnCoprimeIdeals d q)
+          (Classical.choose (hsurj C)) (Classical.choose (hsurj D))
+
+/-- The descended signed-factor genus character agrees with the raw character on a
+class represented by an ideal whose norm is coprime to the signed factor. -/
+theorem genusCharacterOfSignedFactorDescent_apply_narrowMk0OnSignedFactorCoprimeIdeals
+      (q : {q // q ∈ signedPrimeDiscriminantFactors d})
+      (hsurj : Function.Surjective (narrowMk0OnSignedFactorCoprimeIdeals d q))
+      (hdesc : ∀ I J : signedFactorCoprimeIdealSubmonoid d q,
+        narrowMk0OnSignedFactorCoprimeIdeals d q I =
+          narrowMk0OnSignedFactorCoprimeIdeals d q J →
+            genusCharacterOfSignedFactorRaw d q I = genusCharacterOfSignedFactorRaw d q J)
+      (I : signedFactorCoprimeIdealSubmonoid d q) :
+      genusCharacterOfSignedFactorDescent d q hsurj hdesc
+          (narrowMk0OnSignedFactorCoprimeIdeals d q I) =
+        genusCharacterOfSignedFactorRaw d q I :=
+  hdesc (Classical.choose (hsurj (narrowMk0OnSignedFactorCoprimeIdeals d q I))) I
+    (Classical.choose_spec (hsurj (narrowMk0OnSignedFactorCoprimeIdeals d q I)))
 
 /-- The genus character attached to one signed prime-discriminant factor.
 On a class represented by an ideal `I` whose norm is coprime to `q`, this should
