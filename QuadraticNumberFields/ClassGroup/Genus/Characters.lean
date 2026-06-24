@@ -260,6 +260,24 @@ noncomputable def genusCharacterOfSignedFactorRawOnCoprimeIdeals
     · exact absNorm_ne_zero_of_mem_signedFactorCoprimeIdealSubmonoid d q I
     · exact absNorm_ne_zero_of_mem_signedFactorCoprimeIdealSubmonoid d q J
 
+/-- The raw character cancels equal multipliers with equal raw value. This is the
+formal part of reducing descent to principal-multiplier invariance. -/
+theorem genusCharacterOfSignedFactorRaw_eq_of_mul_eq_of_raw_eq
+      (q : {q // q ∈ signedPrimeDiscriminantFactors d})
+      (I J K L : signedFactorCoprimeIdealSubmonoid d q)
+      (hprod : I * K = J * L)
+      (hKL : genusCharacterOfSignedFactorRaw d q K =
+        genusCharacterOfSignedFactorRaw d q L) :
+      genusCharacterOfSignedFactorRaw d q I =
+        genusCharacterOfSignedFactorRaw d q J := by
+  have hmap := congrArg (genusCharacterOfSignedFactorRawOnCoprimeIdeals d q) hprod
+  have hmul :
+      genusCharacterOfSignedFactorRaw d q I * genusCharacterOfSignedFactorRaw d q K =
+        genusCharacterOfSignedFactorRaw d q J * genusCharacterOfSignedFactorRaw d q L := by
+    simpa using hmap
+  rw [hKL] at hmul
+  exact mul_right_cancel hmul
+
 /-- The forgetful monoid hom from ideals with norm coprime to a signed
 prime-discriminant factor to nonzero integral ideals. -/
 def signedFactorCoprimeIdealNonzeroMonoidHom
