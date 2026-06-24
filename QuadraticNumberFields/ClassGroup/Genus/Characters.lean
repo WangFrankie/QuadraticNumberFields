@@ -231,6 +231,17 @@ noncomputable def genusCharacterOfSignedFactorRaw
     · change x * x = 1
       simpa [x, pow_two] using kroneckerSymNat_sq_one_of_coprime q.1 I.property
 
+/-- The raw signed-factor character has underlying integer value
+`kroneckerSymNat q.1 (Ideal.absNorm I)`. -/
+@[simp]
+theorem genusCharacterOfSignedFactorRaw_val
+      (q : {q // q ∈ signedPrimeDiscriminantFactors d})
+      (I : signedFactorCoprimeIdealSubmonoid d q) :
+      (genusCharacterOfSignedFactorRaw d q I : ℤ) =
+        kroneckerSymNat q.1
+          (Ideal.absNorm (I : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))) := by
+  rfl
+
 /-- The raw genus character at a signed prime-discriminant factor as a monoid
 homomorphism on ideals whose absolute norm is coprime to that signed factor. -/
 noncomputable def genusCharacterOfSignedFactorRawOnCoprimeIdeals
@@ -493,6 +504,32 @@ theorem genusCharacterOfSignedFactor_apply_mk0_of_mem_signedFactorsCoprimeIdealS
   rw [← hJ]
   simpa [J] using genusCharacterOfSignedFactor_apply_narrowMk0OnSignedFactorCoprimeIdeals d q J
 
+/-- Pure Kronecker product formula on a common representative: if one nonzero
+integral ideal is coprime to every signed factor, the product of the
+signed-factor Kronecker values is `1`. -/
+theorem signedFactorKroneckerProduct_one_of_mem_signedFactorsCoprimeIdealSubmonoid
+      (I : (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰)
+      (hI : (I : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) ∈
+        signedFactorsCoprimeIdealSubmonoid d) :
+      Finset.univ.prod (fun q : {q // q ∈ signedPrimeDiscriminantFactors d} =>
+        kroneckerSymNat q.1
+          (Ideal.absNorm (I : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))))) = 1 := by
+  sorry
+
+/-- The raw unit-valued product formula follows from the corresponding integer
+Kronecker product formula. -/
+theorem signedFactorRawCharacters_product_one_of_kroneckerProduct
+      (I : (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰)
+      (hI : (I : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) ∈
+        signedFactorsCoprimeIdealSubmonoid d)
+      (hprod : Finset.univ.prod (fun q : {q // q ∈ signedPrimeDiscriminantFactors d} =>
+        kroneckerSymNat q.1
+          (Ideal.absNorm (I : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))))) = 1) :
+      Finset.univ.prod (fun q : {q // q ∈ signedPrimeDiscriminantFactors d} =>
+        genusCharacterOfSignedFactorRaw d q ⟨I, hI q⟩) = 1 := by
+  ext
+  simpa using hprod
+
 /-- Raw Kronecker product formula on a common representative: if one nonzero
 integral ideal is coprime to every signed factor, the product of the raw
 signed-factor values is `1`. -/
@@ -501,8 +538,9 @@ theorem signedFactorRawCharacters_product_one_of_mem_signedFactorsCoprimeIdealSu
       (hI : (I : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) ∈
         signedFactorsCoprimeIdealSubmonoid d) :
       Finset.univ.prod (fun q : {q // q ∈ signedPrimeDiscriminantFactors d} =>
-        genusCharacterOfSignedFactorRaw d q ⟨I, hI q⟩) = 1 := by
-  sorry
+        genusCharacterOfSignedFactorRaw d q ⟨I, hI q⟩) = 1 :=
+  signedFactorRawCharacters_product_one_of_kroneckerProduct d I hI
+    (signedFactorKroneckerProduct_one_of_mem_signedFactorsCoprimeIdealSubmonoid d I hI)
 
 /-- Product formula input for genus characters: the signed-factor characters
 attached to a narrow ideal class have product `1`. -/
