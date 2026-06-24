@@ -295,16 +295,18 @@ evaluate as `kroneckerSymNat q.1 (Ideal.absNorm I)`. -/
 noncomputable def genusCharacterOfSignedFactor
       (q : {q // q ∈ signedPrimeDiscriminantFactors d}) :
       Cl⁺(d) →* ℤˣ := by
-    refine
-      { toFun := fun C => by
-          -- choose I with mk0 I = C and norm coprime to q
-          -- return genusCharacterOfSignedFactorRaw d q I
-          sorry
-        map_one' := by
-          sorry
-        map_mul' := by
-          intro C D
-          sorry }
+  have hsurj : Function.Surjective (narrowMk0OnSignedFactorCoprimeIdeals d q) := by
+    -- Ideal-avoidance/approximation input: every narrow class has an integral
+    -- representative whose norm is coprime to the signed discriminant factor.
+    sorry
+  have hdesc : ∀ I J : signedFactorCoprimeIdealSubmonoid d q,
+      narrowMk0OnSignedFactorCoprimeIdeals d q I =
+        narrowMk0OnSignedFactorCoprimeIdeals d q J →
+          genusCharacterOfSignedFactorRaw d q I = genusCharacterOfSignedFactorRaw d q J := by
+    -- Well-definedness input: multiplication by a narrow-principal multiplier
+    -- with norm prime to `q` has trivial Kronecker value.
+    sorry
+  exact genusCharacterOfSignedFactorDescent d q hsurj hdesc
 
 /-- The genus-character map from the narrow class group to the product-one sign
 relation subgroup. This is the main construction boundary for genus theory. -/
