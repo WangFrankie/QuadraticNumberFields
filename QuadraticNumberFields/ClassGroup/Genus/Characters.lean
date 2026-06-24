@@ -493,13 +493,36 @@ theorem genusCharacterOfSignedFactor_apply_mk0_of_mem_signedFactorsCoprimeIdealS
   rw [← hJ]
   simpa [J] using genusCharacterOfSignedFactor_apply_narrowMk0OnSignedFactorCoprimeIdeals d q J
 
+/-- Raw Kronecker product formula on a common representative: if one nonzero
+integral ideal is coprime to every signed factor, the product of the raw
+signed-factor values is `1`. -/
+theorem signedFactorRawCharacters_product_one_of_mem_signedFactorsCoprimeIdealSubmonoid
+      (I : (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰)
+      (hI : (I : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) ∈
+        signedFactorsCoprimeIdealSubmonoid d) :
+      Finset.univ.prod (fun q : {q // q ∈ signedPrimeDiscriminantFactors d} =>
+        genusCharacterOfSignedFactorRaw d q ⟨I, hI q⟩) = 1 := by
+  sorry
+
 /-- Product formula input for genus characters: the signed-factor characters
 attached to a narrow ideal class have product `1`. -/
 theorem genusCharacterMap_product_one
       (C : Cl⁺(d)) :
       Finset.univ.prod (fun q : {q // q ∈ signedPrimeDiscriminantFactors d} =>
         genusCharacterOfSignedFactor d q C) = 1 := by
-  sorry
+  rcases exists_signedFactorsCoprime_representative d C with ⟨I, hC, hI⟩
+  rw [← hC]
+  calc
+    Finset.univ.prod (fun q : {q // q ∈ signedPrimeDiscriminantFactors d} =>
+        genusCharacterOfSignedFactor d q (NarrowClassGroup.mk0 I)) =
+        Finset.univ.prod (fun q : {q // q ∈ signedPrimeDiscriminantFactors d} =>
+          genusCharacterOfSignedFactorRaw d q ⟨I, hI q⟩) := by
+      apply Finset.prod_congr rfl
+      intro q hq
+      exact genusCharacterOfSignedFactor_apply_mk0_of_mem_signedFactorsCoprimeIdealSubmonoid
+        d q I hI
+    _ = 1 :=
+      signedFactorRawCharacters_product_one_of_mem_signedFactorsCoprimeIdealSubmonoid d I hI
 
 /-- The genus-character map from the narrow class group to the product-one sign
 relation subgroup. This is the main construction boundary for genus theory. -/
