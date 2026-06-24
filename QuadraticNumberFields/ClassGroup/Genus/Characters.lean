@@ -278,6 +278,19 @@ theorem genusCharacterOfSignedFactorRaw_eq_of_mul_eq_of_raw_eq
   rw [hKL] at hmul
   exact mul_right_cancel hmul
 
+/-- The raw signed-factor character is unchanged by multiplication by a square in
+the signed-factor-coprime ideal monoid. -/
+theorem genusCharacterOfSignedFactorRaw_mul_sq
+      (q : {q // q ∈ signedPrimeDiscriminantFactors d})
+      (I K : signedFactorCoprimeIdealSubmonoid d q) :
+      genusCharacterOfSignedFactorRaw d q (I * K ^ 2) =
+        genusCharacterOfSignedFactorRaw d q I := by
+  change (genusCharacterOfSignedFactorRawOnCoprimeIdeals d q) (I * K ^ 2) =
+    (genusCharacterOfSignedFactorRawOnCoprimeIdeals d q) I
+  rw [map_mul, map_pow]
+  ext
+  simp [pow_two]
+
 /-- The forgetful monoid hom from ideals with norm coprime to a signed
 prime-discriminant factor to nonzero integral ideals. -/
 def signedFactorCoprimeIdealNonzeroMonoidHom
