@@ -844,6 +844,11 @@ theorem card_narrowInversionFixedClass_le_genusBound
         ((Nat.prime_iff_prime_int.mp hp).irreducible)
     exact map_eq_mul_of_isSplitIn_of_mem_primesOver_of_ne
       (S := R) (p := 𝔭(p)) (by simp [ringChar.eq_zero]) hpbot hP hQ hne hsplit
+  have hmapSpanPrimePrincipal :
+      ∀ p : ℕ, (Ideal.map (algebraMap ℤ R) (𝔭(p))).IsPrincipal := by
+    intro p
+    rw [Ideal.map_span, Set.image_singleton]
+    exact ⟨_, rfl⟩
   have hsplitConjPairMapSpanEqMul :
       ∀ {P : Ideal R} {I : (Ideal R)⁰} {p : ℕ},
         IsAmbiguousIdeal (conjAutRingOfIntegers (Qsqrtd (d : ℚ))) I.1 →
@@ -869,6 +874,21 @@ theorem card_narrowInversionFixedClass_le_genusBound
       rw [← hcomap]
       exact (hambiguousPrimeFactorConj hI hP).2
     exact hsplitPairMapSpanEqMul hp hsplit hPover hconjOver hne
+  have hsplitConjPairPrincipal :
+      ∀ {P : Ideal R} {I : (Ideal R)⁰} {p : ℕ},
+        IsAmbiguousIdeal (conjAutRingOfIntegers (Qsqrtd (d : ℚ))) I.1 →
+          P ∈ UniqueFactorizationMonoid.normalizedFactors I.1 →
+            p.Prime →
+              P.comap (algebraMap ℤ R) = 𝔭(p) →
+                Ideal.IsSplitIn (𝔭(p)) R →
+                  P ≠ Ideal.map
+                    (conjAutRingOfIntegers (Qsqrtd (d : ℚ)) : R →+* R) P →
+                    (P *
+                      Ideal.map
+                        (conjAutRingOfIntegers (Qsqrtd (d : ℚ)) : R →+* R) P).IsPrincipal := by
+    intro P I p hI hP hp hcomap hsplit hne
+    rw [← hsplitConjPairMapSpanEqMul hI hP hp hcomap hsplit hne]
+    exact hmapSpanPrimePrincipal p
   have hfactorPrincipalOfInertBelow :
       ∀ {P : Ideal R} {I : (Ideal R)⁰} {p : ℕ},
         P ∈ UniqueFactorizationMonoid.normalizedFactors I.1 →
@@ -895,6 +915,15 @@ theorem card_narrowInversionFixedClass_le_genusBound
     have hPprime : P.IsPrime := (Ideal.mem_normalizedFactors_iff hI0).mp hP |>.1
     have hPover : P ∈ Ideal.primesOver (𝔭(p)) R := ⟨hPprime, ⟨hcomap.symm⟩⟩
     exact map_span_eq_sq_of_isRamifiedIn_of_mem_primesOver (d := d) hp hPover hram
+  have hramifiedFactorSquarePrincipal :
+      ∀ {P : Ideal R} {I : (Ideal R)⁰} {p : ℕ},
+        P ∈ UniqueFactorizationMonoid.normalizedFactors I.1 →
+          p.Prime →
+            P.comap (algebraMap ℤ R) = 𝔭(p) →
+              Ideal.IsRamifiedIn (𝔭(p)) R → (P ^ 2).IsPrincipal := by
+    intro P I p hP hp hcomap hram
+    rw [← hfactorMapSpanEqSqOfRamifiedBelow hP hp hcomap hram]
+    exact hmapSpanPrimePrincipal p
   sorry
 
 /-- Ambiguous-ideal upper bound: the two-torsion in the narrow class group has
