@@ -1208,6 +1208,20 @@ private noncomputable def idealRamifiedParityVector
         (ramifiedPrimeIdeal d ((Finset.mem_erase.mp p.2).2)) % 2,
       Nat.mod_lt _ (by decide : 0 < 2)⟩
 
+private noncomputable def ramifiedParityNarrowClassProduct
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    {p0 : ℕ} (_hp0 : p0 ∈ ramifiedPrimes d)
+    (v : ({p // p ∈ (ramifiedPrimes d).erase p0} → Fin 2)) :
+    NarrowClassGroup (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))) := by
+  classical
+  exact Finset.univ.prod fun p =>
+    if v p = 0 then 1 else
+      NarrowClassGroup.mk0
+        ⟨ramifiedPrimeIdeal d ((Finset.mem_erase.mp p.2).2),
+          mem_nonZeroDivisors_iff_ne_zero.mpr (by
+            simpa [Ideal.zero_eq_bot] using
+              ramifiedPrimeIdeal_ne_bot d ((Finset.mem_erase.mp p.2).2))⟩
+
 private theorem card_le_genusBound_of_injective_to_ramifiedParityVectors
     {α : Type*}
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
@@ -1759,11 +1773,17 @@ theorem card_narrowInversionFixedClass_le_genusBound
     rw [← Finset.card_pos, ← ramifiedPrimeCount_eq_card]
     exact Nat.lt_of_lt_of_le Nat.zero_lt_one (one_le_ramifiedPrimeCount d)
   let ramifiedParityVector := narrowInversionFixedClassRamifiedParityVector d hp0
-  have hramifiedParityVector_injective : Function.Injective ramifiedParityVector := by
-    -- Remaining gap: construct the parity vector by factoring a narrow
-    -- representative and using the split/inert principal-pair lemmas above
-    -- plus the single positive-principal relation to erase the `p0` coordinate.
+  have hrecoverByRamifiedParity :
+      ∀ C : NarrowInversionFixedClass R,
+        C.1 = ramifiedParityNarrowClassProduct d hp0 (ramifiedParityVector C) := by
+    -- Remaining gap: factor the chosen representative, discard split/inert
+    -- principal contributions, and use the positive-principal product relation
+    -- to remove the `p0` ramified coordinate.
     sorry
+  have hramifiedParityVector_injective : Function.Injective ramifiedParityVector := by
+    intro C D hCD
+    apply Subtype.ext
+    rw [hrecoverByRamifiedParity C, hrecoverByRamifiedParity D, hCD]
   exact card_le_genusBound_of_injective_to_ramifiedParityVectors (d := d) hp0
     ramifiedParityVector hramifiedParityVector_injective
 
