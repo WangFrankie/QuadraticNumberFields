@@ -130,6 +130,42 @@ private theorem map_ringEquiv_mem_nonZeroDivisors {R : Type*} [CommRing R] (σ :
   rw [← MulEquivClass.map_nonZeroDivisors (idealMapMulEquiv σ)]
   exact ⟨I, hI, rfl⟩
 
+/-- A ring equivalence preserves membership in the Dedekind ideal factorization
+multiset. -/
+private theorem map_ringEquiv_mem_normalizedFactors_iff {R : Type*}
+    [CommRing R] [IsDedekindDomain R] (σ : R ≃+* R) {P I : Ideal R}
+    (hI : I ≠ ⊥) :
+    Ideal.map (σ : R →+* R) P ∈ UniqueFactorizationMonoid.normalizedFactors
+        (Ideal.map (σ : R →+* R) I) ↔
+      P ∈ UniqueFactorizationMonoid.normalizedFactors I := by
+  have hmapI : Ideal.map (σ : R →+* R) I ≠ ⊥ := by
+    intro hbot
+    exact hI ((Ideal.map_eq_bot_iff_of_injective
+      (f := (σ : R →+* R)) σ.injective).mp hbot)
+  rw [Ideal.mem_normalizedFactors_iff hmapI, Ideal.mem_normalizedFactors_iff hI]
+  constructor
+  · rintro ⟨hPprime, hle⟩
+    constructor
+    · haveI : (Ideal.map (σ : R →+* R) P).IsPrime := hPprime
+      have hPcomap :
+          (Ideal.comap (σ : R →+* R) (Ideal.map (σ : R →+* R) P)).IsPrime :=
+        inferInstance
+      have hP_eq :
+          Ideal.comap (σ : R →+* R) (Ideal.map (σ : R →+* R) P) = P :=
+        Ideal.comap_map_of_bijective (f := (σ : R →+* R))
+          ⟨σ.injective, σ.surjective⟩
+      rwa [hP_eq] at hPcomap
+    · have hle' : I ≤ Ideal.comap (σ : R →+* R) (Ideal.map (σ : R →+* R) P) :=
+        Ideal.map_le_iff_le_comap.mp hle
+      have hP_eq :
+          Ideal.comap (σ : R →+* R) (Ideal.map (σ : R →+* R) P) = P :=
+        Ideal.comap_map_of_bijective (f := (σ : R →+* R))
+          ⟨σ.injective, σ.surjective⟩
+      rwa [hP_eq] at hle'
+  · rintro ⟨hPprime, hle⟩
+    haveI : P.IsPrime := hPprime
+    exact ⟨Ideal.map_isPrime_of_equiv σ, Ideal.map_mono hle⟩
+
 /-- The conjugate of a nonzero ideal is nonzero, since conjugation is bijective. -/
 theorem map_conjAut_mem_nonZeroDivisors (K : Type*) [Field K] [Algebra ℚ K]
     [QuadraticField K] [QuadraticField.Conj K]
@@ -139,6 +175,18 @@ theorem map_conjAut_mem_nonZeroDivisors (K : Type*) [Field K] [Algebra ℚ K]
       NumberField.RingOfIntegers K) I ∈
       nonZeroDivisors (Ideal (NumberField.RingOfIntegers K)) :=
   map_ringEquiv_mem_nonZeroDivisors (conjAutRingOfIntegers K) hI
+
+/-- Conjugation preserves membership in the Dedekind ideal factorization
+multiset of a nonzero ideal. -/
+theorem map_conjAut_mem_normalizedFactors_iff (K : Type*) [Field K] [Algebra ℚ K]
+    [QuadraticField K] [QuadraticField.Conj K] [IsDedekindDomain (NumberField.RingOfIntegers K)]
+    {P I : Ideal (NumberField.RingOfIntegers K)} (hI : I ≠ ⊥) :
+    Ideal.map (conjAutRingOfIntegers K : NumberField.RingOfIntegers K →+*
+      NumberField.RingOfIntegers K) P ∈ UniqueFactorizationMonoid.normalizedFactors
+        (Ideal.map (conjAutRingOfIntegers K : NumberField.RingOfIntegers K →+*
+          NumberField.RingOfIntegers K) I) ↔
+      P ∈ UniqueFactorizationMonoid.normalizedFactors I :=
+  map_ringEquiv_mem_normalizedFactors_iff (conjAutRingOfIntegers K) hI
 
 /-- Applying the ring-of-integers conjugation twice fixes every ideal. -/
 @[simp]
@@ -366,6 +414,15 @@ theorem card_narrowInversionFixedClass_le_genusBound
           conjAutNonzeroIdealMulEquiv (Qsqrtd (d : ℚ)) I = I := by
     intro I
     exact isAmbiguousIdeal_iff_conjAutNonzeroIdealMulEquiv_eq (Qsqrtd (d : ℚ)) I
+  have hconjFactors :
+      ∀ {P I : Ideal R}, I ≠ ⊥ →
+        (Ideal.map (conjAutRingOfIntegers (Qsqrtd (d : ℚ)) : R →+* R) P ∈
+            UniqueFactorizationMonoid.normalizedFactors
+              (Ideal.map (conjAutRingOfIntegers (Qsqrtd (d : ℚ)) : R →+* R) I) ↔
+          P ∈ UniqueFactorizationMonoid.normalizedFactors I) := by
+    intro P I
+    exact fun hI =>
+      map_conjAut_mem_normalizedFactors_iff (K := Qsqrtd (d : ℚ)) (P := P) (I := I) hI
   sorry
 
 /-- Ambiguous-ideal upper bound: the two-torsion in the narrow class group has
