@@ -655,6 +655,144 @@ private theorem map_eq_mul_of_isSplitIn_of_mem_primesOver_of_ne
   · simpa [mul_comm] using hmap
   · exact False.elim (hPne rfl)
 
+/-- Prime-ideal form of the Galois-orbit calculation: extending the norm prime
+power back to the ring of integers gives the product of `P` with its conjugate. -/
+theorem map_comap_pow_inertiaDeg_eq_mul_map_conjAut_of_isPrime
+    (K : Type*) [Field K] [NumberField K] [Algebra ℚ K]
+    [QuadraticField K] [QuadraticField.Conj K]
+    (P : Ideal (NumberField.RingOfIntegers K)) [P.IsPrime] (hP0 : P ≠ ⊥) :
+    Ideal.map (algebraMap ℤ (NumberField.RingOfIntegers K))
+        ((P.comap (algebraMap ℤ (NumberField.RingOfIntegers K))) ^
+          (P.comap (algebraMap ℤ (NumberField.RingOfIntegers K))).inertiaDeg P) =
+      P * Ideal.map (conjAutRingOfIntegers K :
+        NumberField.RingOfIntegers K →+* NumberField.RingOfIntegers K) P := by
+  let p : Ideal ℤ := P.comap (algebraMap ℤ (NumberField.RingOfIntegers K))
+  haveI : P.IsMaximal := Ideal.IsPrime.isMaximal inferInstance hP0
+  haveI : p.IsMaximal := by
+    dsimp [p]
+    exact Ideal.isMaximal_comap_of_isIntegral_of_isMaximal P
+  have hp0 : p ≠ ⊥ := by
+    dsimp [p]
+    exact Ideal.IsIntegralClosure.comap_ne_bot K hP0
+  have hPmem : P ∈ Ideal.primesOver p (NumberField.RingOfIntegers K) := by
+    dsimp [p]
+    exact ⟨inferInstance, ⟨rfl⟩⟩
+  have hσmem :
+      Ideal.map (conjAutRingOfIntegers K :
+          NumberField.RingOfIntegers K →+* NumberField.RingOfIntegers K) P ∈
+        Ideal.primesOver p (NumberField.RingOfIntegers K) := by
+    dsimp [p]
+    exact map_conjAut_mem_primesOver_comap K P
+  have htri :=
+    Ideal.efg_trichotomy p (NumberField.RingOfIntegers K)
+      (by norm_num : ringChar ℤ ≠ 2) hp0
+  rcases htri with hsplit | hinert | hram
+  · let σP : Ideal (NumberField.RingOfIntegers K) :=
+      Ideal.map (conjAutRingOfIntegers K :
+        NumberField.RingOfIntegers K →+* NumberField.RingOfIntegers K) P
+    have hsplit' : Ideal.IsSplitIn p (NumberField.RingOfIntegers K) :=
+      ⟨hsplit.2.1, hsplit.2.2⟩
+    have hσne : σP ≠ P := by
+      dsimp [σP]
+      exact map_conjAut_ne_of_mem_primesOver_of_isSplitIn K hp0 hPmem hsplit'
+    have hfP : p.inertiaDeg P = 1 :=
+      Ideal.inertiaDeg_eq_one_of_isSplitIn p (NumberField.RingOfIntegers K)
+        (by norm_num : ringChar ℤ ≠ 2) (P' := P) hsplit'
+    have hmap :
+        Ideal.map (algebraMap ℤ (NumberField.RingOfIntegers K)) p = P * σP := by
+      exact map_eq_mul_of_isSplitIn_of_mem_primesOver_of_ne
+        (S := NumberField.RingOfIntegers K) (p := p)
+        (by norm_num : ringChar ℤ ≠ 2) hp0 hPmem hσmem hσne.symm hsplit'
+    change Ideal.map (algebraMap ℤ (NumberField.RingOfIntegers K)) (p ^ p.inertiaDeg P) =
+      P * Ideal.map (conjAutRingOfIntegers K :
+        NumberField.RingOfIntegers K →+* NumberField.RingOfIntegers K) P
+    rw [hfP, pow_one, hmap]
+  · have hsingleton :
+        Ideal.primesOver p (NumberField.RingOfIntegers K) = {P} := by
+      rw [Set.ncard_eq_one] at hinert
+      obtain ⟨Q, hQ⟩ := hinert.1
+      have hPQ : P = Q := by
+        rw [hQ] at hPmem
+        exact hPmem
+      rw [← hPQ] at hQ
+      exact hQ
+    have hσP :
+        Ideal.map (conjAutRingOfIntegers K :
+          NumberField.RingOfIntegers K →+* NumberField.RingOfIntegers K) P = P := by
+      rw [hsingleton] at hσmem
+      exact hσmem
+    have hfP : p.inertiaDeg P = 2 := by
+      rw [← Ideal.inertiaDegIn_eq_inertiaDeg_of_primesOver_eq_singleton
+        (p := p) (S := NumberField.RingOfIntegers K) (P := P) hsingleton]
+      exact hinert.2.2
+    have hmap :
+        Ideal.map (algebraMap ℤ (NumberField.RingOfIntegers K)) p = P := by
+      have hfact :=
+        Ideal.map_algebraMap_eq_finset_prod_pow
+          (R := NumberField.RingOfIntegers K) (S := ℤ) hp0
+      have heP : p.ramificationIdx P = 1 := by
+        rw [← Ideal.ramificationIdxIn_eq_ramificationIdx_of_primesOver_eq_singleton
+          (p := p) (S := NumberField.RingOfIntegers K) (P := P) hsingleton]
+        exact hinert.2.1
+      have hfin : (Ideal.primesOver p (NumberField.RingOfIntegers K)).toFinset = {P} := by
+        ext Q
+        simp [hsingleton]
+      rw [hfin] at hfact
+      simpa [heP] using hfact
+    change Ideal.map (algebraMap ℤ (NumberField.RingOfIntegers K)) (p ^ p.inertiaDeg P) =
+      P * Ideal.map (conjAutRingOfIntegers K :
+        NumberField.RingOfIntegers K →+* NumberField.RingOfIntegers K) P
+    rw [hfP, Ideal.map_pow, hmap, hσP, pow_two]
+  · have hsingleton :
+        Ideal.primesOver p (NumberField.RingOfIntegers K) = {P} := by
+      rw [Set.ncard_eq_one] at hram
+      obtain ⟨Q, hQ⟩ := hram.1
+      have hPQ : P = Q := by
+        rw [hQ] at hPmem
+        exact hPmem
+      rw [← hPQ] at hQ
+      exact hQ
+    have hσP :
+        Ideal.map (conjAutRingOfIntegers K :
+          NumberField.RingOfIntegers K →+* NumberField.RingOfIntegers K) P = P := by
+      rw [hsingleton] at hσmem
+      exact hσmem
+    have hfP : p.inertiaDeg P = 1 := by
+      rw [← Ideal.inertiaDegIn_eq_inertiaDeg_of_primesOver_eq_singleton
+        (p := p) (S := NumberField.RingOfIntegers K) (P := P) hsingleton]
+      exact hram.2.2
+    have hmap :
+        Ideal.map (algebraMap ℤ (NumberField.RingOfIntegers K)) p = P ^ 2 := by
+      have hfact :=
+        Ideal.map_algebraMap_eq_finset_prod_pow
+          (R := NumberField.RingOfIntegers K) (S := ℤ) hp0
+      have heP : p.ramificationIdx P = 2 := by
+        rw [← Ideal.ramificationIdxIn_eq_ramificationIdx_of_primesOver_eq_singleton
+          (p := p) (S := NumberField.RingOfIntegers K) (P := P) hsingleton]
+        exact hram.2.1
+      have hfin : (Ideal.primesOver p (NumberField.RingOfIntegers K)).toFinset = {P} := by
+        ext Q
+        simp [hsingleton]
+      rw [hfin] at hfact
+      simpa [heP] using hfact
+    change Ideal.map (algebraMap ℤ (NumberField.RingOfIntegers K)) (p ^ p.inertiaDeg P) =
+      P * Ideal.map (conjAutRingOfIntegers K :
+        NumberField.RingOfIntegers K →+* NumberField.RingOfIntegers K) P
+    rw [hfP, pow_one, hmap, hσP, pow_two]
+
+/-- Prime-ideal case of the conjugation/norm identity. -/
+theorem mul_map_conjAut_eq_map_relNorm_of_isPrime
+    (K : Type*) [Field K] [NumberField K] [Algebra ℚ K]
+    [QuadraticField K] [QuadraticField.Conj K]
+    (P : Ideal (NumberField.RingOfIntegers K)) [P.IsPrime] :
+    P * Ideal.map (conjAutRingOfIntegers K :
+        NumberField.RingOfIntegers K →+* NumberField.RingOfIntegers K) P =
+      Ideal.map (algebraMap ℤ (NumberField.RingOfIntegers K)) (Ideal.relNorm ℤ P) := by
+  by_cases hP0 : P = ⊥
+  · simp [hP0, Ideal.relNorm_bot]
+  · rw [relNorm_eq_comap_pow_inertiaDeg_of_isPrime K P hP0,
+      map_comap_pow_inertiaDeg_eq_mul_map_conjAut_of_isPrime K P hP0]
+
 /-- Applying the ring-of-integers conjugation twice fixes every ideal. -/
 @[simp]
 theorem map_conjAut_map_conjAut (K : Type*) [Field K] [Algebra ℚ K]
