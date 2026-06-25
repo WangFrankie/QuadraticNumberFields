@@ -259,16 +259,6 @@ theorem map_conjAut_map_conjAut (K : Type*) [Field K] [Algebra ℚ K]
   ext x
   simp
 
-/-- Conjugating an ideal preserves the property of being ambiguous. -/
-theorem isAmbiguousIdeal_map_conjAut_iff (K : Type*) [Field K] [Algebra ℚ K]
-    [QuadraticField K] [QuadraticField.Conj K] (I : Ideal (NumberField.RingOfIntegers K)) :
-    IsAmbiguousIdeal (conjAutRingOfIntegers K)
-        (Ideal.map (conjAutRingOfIntegers K : NumberField.RingOfIntegers K →+*
-          NumberField.RingOfIntegers K) I) ↔
-      IsAmbiguousIdeal (conjAutRingOfIntegers K) I := by
-  rw [IsAmbiguousIdeal, IsAmbiguousIdeal, map_conjAut_map_conjAut]
-  exact eq_comm
-
 /-- Conjugation acts multiplicatively on nonzero integral ideals of a quadratic
 field. This is the nonzero-ideal action used to formulate ambiguous ideal
 representatives. -/
