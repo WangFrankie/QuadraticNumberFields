@@ -316,6 +316,20 @@ theorem map_conjAut_eq_of_primesOver_comap_eq_singleton (K : Type*) [Field K] [A
   rw [hsingleton] at hmem
   simpa using hmem
 
+/-- In a quadratic Dedekind extension, a ramified prime has a singleton fiber
+above it. -/
+private theorem exists_primesOver_eq_singleton_of_isRamifiedIn
+    {R S : Type*} [CommRing R] [CommRing S] [Algebra R S]
+    [Nontrivial R] [IsDedekindDomain R] [IsDedekindDomain S]
+    [Algebra.IsQuadraticExtension R S]
+    {p : Ideal R} (hchar : ringChar R ≠ 2) (hp : p ≠ ⊥) [p.IsMaximal]
+    (hr : Ideal.IsRamifiedIn p S) :
+    ∃ P : Ideal S, Ideal.primesOver p S = {P} := by
+  have hg : (Ideal.primesOver p S).ncard = 1 :=
+    ((Ideal.one_lt_ramificationIdxIn_iff_efg p S hchar hp).mp hr).1
+  rw [Set.ncard_eq_one] at hg
+  exact hg
+
 /-- In a quadratic Dedekind extension, a ramified prime has a unique prime above it. -/
 private theorem primesOver_eq_singleton_of_isRamifiedIn
     {R S : Type*} [CommRing R] [CommRing S] [Algebra R S]
@@ -325,10 +339,9 @@ private theorem primesOver_eq_singleton_of_isRamifiedIn
     {P : Ideal S} (hP : P ∈ Ideal.primesOver p S)
     (hr : Ideal.IsRamifiedIn p S) :
     Ideal.primesOver p S = {P} := by
-  have hg : (Ideal.primesOver p S).ncard = 1 :=
-    ((Ideal.one_lt_ramificationIdxIn_iff_efg p S hchar hp).mp hr).1
-  rw [Set.ncard_eq_one] at hg
-  obtain ⟨Q, hQ⟩ := hg
+  obtain ⟨Q, hQ⟩ :=
+    exists_primesOver_eq_singleton_of_isRamifiedIn
+      (S := S) (p := p) hchar hp hr
   have hPQ : P = Q := by
     rw [hQ] at hP
     exact hP
