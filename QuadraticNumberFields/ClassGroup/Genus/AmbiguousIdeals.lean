@@ -955,6 +955,31 @@ theorem isAmbiguousIdeal_iff_conjAutNonzeroIdealMulEquiv_eq (K : Type*)
   · intro hI
     exact congrArg Subtype.val hI
 
+/-- An ambiguous nonzero ideal represents a two-torsion class in the ordinary
+ideal class group. -/
+theorem mk0_sq_eq_one_of_isAmbiguousIdeal
+    (K : Type*) [Field K] [NumberField K] [Algebra ℚ K]
+    [QuadraticField K] [QuadraticField.Conj K]
+    (I : (Ideal (NumberField.RingOfIntegers K))⁰)
+    (hI : IsAmbiguousIdeal (conjAutRingOfIntegers K) I.1) :
+    (ClassGroup.mk0 I : ClassGroup (NumberField.RingOfIntegers K)) ^ 2 = 1 := by
+  have hfixed := (isAmbiguousIdeal_iff_conjAutNonzeroIdealMulEquiv_eq K I).mp hI
+  have hconjClass :
+      ClassGroup.mk0 (conjAutNonzeroIdealMulEquiv K I) = (ClassGroup.mk0 I)⁻¹ := by
+    change ClassGroup.mk0
+        ⟨Ideal.map (conjAutRingOfIntegers K :
+            NumberField.RingOfIntegers K →+* NumberField.RingOfIntegers K)
+          (I : Ideal (NumberField.RingOfIntegers K)),
+          map_conjAut_mem_nonZeroDivisors K I.2⟩ =
+      (ClassGroup.mk0 I)⁻¹
+    exact mk0_map_conjAut_eq_inv K I
+  rw [hfixed] at hconjClass
+  have hmul :
+      (ClassGroup.mk0 I : ClassGroup (NumberField.RingOfIntegers K)) * ClassGroup.mk0 I =
+        1 :=
+    eq_inv_iff_mul_eq_one.mp hconjClass
+  simpa [pow_two] using hmul
+
 /-- Narrow ideal classes fixed by inversion. For quadratic fields, this is the
 group-theoretic target that will be identified with conjugation-fixed classes. -/
 def NarrowInversionFixedClass (R : Type*) [CommRing R] [IsDomain R] :=
@@ -1099,32 +1124,12 @@ theorem card_narrowInversionFixedClass_le_genusBound
           conjAutNonzeroIdealMulEquiv (Qsqrtd (d : ℚ)) I = I := by
     intro I
     exact isAmbiguousIdeal_iff_conjAutNonzeroIdealMulEquiv_eq (Qsqrtd (d : ℚ)) I
-  have hclassConjInv :
-      ∀ I : (Ideal R)⁰,
-        ClassGroup.mk0
-            ⟨Ideal.map (conjAutRingOfIntegers (Qsqrtd (d : ℚ)) : R →+* R)
-              (I : Ideal R), map_conjAut_mem_nonZeroDivisors (Qsqrtd (d : ℚ)) I.2⟩ =
-          (ClassGroup.mk0 I)⁻¹ := by
-    intro I
-    exact mk0_map_conjAut_eq_inv (Qsqrtd (d : ℚ)) I
   have hambiguousClassSqEqOne :
       ∀ I : (Ideal R)⁰,
         IsAmbiguousIdeal (conjAutRingOfIntegers (Qsqrtd (d : ℚ))) I.1 →
           (ClassGroup.mk0 I : ClassGroup R) ^ 2 = 1 := by
     intro I hI
-    have hfixed := (hambiguousFixed I).mp hI
-    have hconjClass :
-        ClassGroup.mk0 (conjAutNonzeroIdealMulEquiv (Qsqrtd (d : ℚ)) I) =
-          (ClassGroup.mk0 I)⁻¹ := by
-      change ClassGroup.mk0
-          ⟨Ideal.map (conjAutRingOfIntegers (Qsqrtd (d : ℚ)) : R →+* R)
-            (I : Ideal R), map_conjAut_mem_nonZeroDivisors (Qsqrtd (d : ℚ)) I.2⟩ =
-        (ClassGroup.mk0 I)⁻¹
-      exact hclassConjInv I
-    rw [hfixed] at hconjClass
-    have hmul : (ClassGroup.mk0 I : ClassGroup R) * ClassGroup.mk0 I = 1 :=
-      (eq_inv_iff_mul_eq_one.mp hconjClass)
-    simpa [pow_two] using hmul
+    exact mk0_sq_eq_one_of_isAmbiguousIdeal (Qsqrtd (d : ℚ)) I hI
   have hconjFactors :
       ∀ {P I : Ideal R}, I ≠ ⊥ →
         (Ideal.map (conjAutRingOfIntegers (Qsqrtd (d : ℚ)) : R →+* R) P ∈
