@@ -1047,6 +1047,49 @@ theorem mk0_sq_eq_one_of_isAmbiguousIdeal
     eq_inv_iff_mul_eq_one.mp hconjClass
   simpa [pow_two] using hmul
 
+private theorem classGroup_mk0_eq_one_of_isPrincipal
+    {R : Type*} [CommRing R] [IsDomain R] [IsDedekindDomain R]
+    {J : Ideal R} (hJ0 : J ≠ ⊥) (hJ : J.IsPrincipal) :
+    ClassGroup.mk0 ⟨J, mem_nonZeroDivisors_iff_ne_zero.mpr (by
+      simpa [Ideal.zero_eq_bot] using hJ0)⟩ = (1 : ClassGroup R) :=
+  (ClassGroup.mk0_eq_one_iff
+    (mem_nonZeroDivisors_iff_ne_zero.mpr (by
+      simpa [Ideal.zero_eq_bot] using hJ0))).mpr hJ
+
+private theorem classGroup_mk0_mul_eq_one_of_mul_isPrincipal
+    {R : Type*} [CommRing R] [IsDomain R] [IsDedekindDomain R]
+    {P Q : Ideal R} (hP0 : P ≠ ⊥) (hQ0 : Q ≠ ⊥) (hPQ : (P * Q).IsPrincipal) :
+    ClassGroup.mk0 ⟨P, mem_nonZeroDivisors_iff_ne_zero.mpr (by
+      simpa [Ideal.zero_eq_bot] using hP0)⟩ *
+        ClassGroup.mk0 ⟨Q, mem_nonZeroDivisors_iff_ne_zero.mpr (by
+          simpa [Ideal.zero_eq_bot] using hQ0)⟩ = (1 : ClassGroup R) := by
+  let P0 : (Ideal R)⁰ :=
+    ⟨P, mem_nonZeroDivisors_iff_ne_zero.mpr (by
+      simpa [Ideal.zero_eq_bot] using hP0)⟩
+  let Q0 : (Ideal R)⁰ :=
+    ⟨Q, mem_nonZeroDivisors_iff_ne_zero.mpr (by
+      simpa [Ideal.zero_eq_bot] using hQ0)⟩
+  have hPQ0 : P * Q ∈ nonZeroDivisors (Ideal R) :=
+    mul_mem_nonZeroDivisors_of_mem_nonZeroDivisors P0.2 Q0.2
+  calc
+    ClassGroup.mk0 P0 * ClassGroup.mk0 Q0 = ClassGroup.mk0 (P0 * Q0) := by
+      rw [map_mul]
+    _ = ClassGroup.mk0 ⟨P * Q, hPQ0⟩ := rfl
+    _ = (1 : ClassGroup R) := (ClassGroup.mk0_eq_one_iff hPQ0).mpr hPQ
+
+private theorem classGroup_mk0_sq_eq_one_of_sq_isPrincipal
+    {R : Type*} [CommRing R] [IsDomain R] [IsDedekindDomain R]
+    {P : Ideal R} (hP0 : P ≠ ⊥) (hP2 : (P ^ 2).IsPrincipal) :
+    (ClassGroup.mk0 ⟨P, mem_nonZeroDivisors_iff_ne_zero.mpr (by
+      simpa [Ideal.zero_eq_bot] using hP0)⟩ : ClassGroup R) ^ 2 = 1 := by
+  let P0 : (Ideal R)⁰ :=
+    ⟨P, mem_nonZeroDivisors_iff_ne_zero.mpr (by
+      simpa [Ideal.zero_eq_bot] using hP0)⟩
+  calc
+    (ClassGroup.mk0 P0 : ClassGroup R) ^ 2 = ClassGroup.mk0 (P0 ^ 2) := by
+      rw [map_pow]
+    _ = (1 : ClassGroup R) := (ClassGroup.mk0_eq_one_iff (P0 ^ 2).2).mpr hP2
+
 /-- Narrow ideal classes fixed by inversion. For quadratic fields, this is the
 group-theoretic target that will be identified with conjugation-fixed classes. -/
 def NarrowInversionFixedClass (R : Type*) [CommRing R] [IsDomain R] :=
@@ -1348,47 +1391,6 @@ theorem card_narrowInversionFixedClass_le_genusBound
     intro p
     rw [Ideal.map_span, Set.image_singleton]
     exact ⟨_, rfl⟩
-  have hmk0EqOneOfPrincipal :
-      ∀ {J : Ideal R} (hJ0 : J ≠ ⊥), J.IsPrincipal →
-        ClassGroup.mk0 ⟨J, mem_nonZeroDivisors_iff_ne_zero.mpr (by
-          simpa [Ideal.zero_eq_bot] using hJ0)⟩ = (1 : ClassGroup R) := by
-    intro J hJ0 hJ
-    exact (ClassGroup.mk0_eq_one_iff
-      (mem_nonZeroDivisors_iff_ne_zero.mpr (by
-        simpa [Ideal.zero_eq_bot] using hJ0))).mpr hJ
-  have hmk0MulEqOneOfMulPrincipal :
-      ∀ {P Q : Ideal R} (hP0 : P ≠ ⊥) (hQ0 : Q ≠ ⊥),
-        (P * Q).IsPrincipal →
-          ClassGroup.mk0 ⟨P, mem_nonZeroDivisors_iff_ne_zero.mpr (by
-            simpa [Ideal.zero_eq_bot] using hP0)⟩ *
-            ClassGroup.mk0 ⟨Q, mem_nonZeroDivisors_iff_ne_zero.mpr (by
-              simpa [Ideal.zero_eq_bot] using hQ0)⟩ = (1 : ClassGroup R) := by
-    intro P Q hP0 hQ0 hprincipal
-    let P0 : (Ideal R)⁰ :=
-      ⟨P, mem_nonZeroDivisors_iff_ne_zero.mpr (by
-        simpa [Ideal.zero_eq_bot] using hP0)⟩
-    let Q0 : (Ideal R)⁰ :=
-      ⟨Q, mem_nonZeroDivisors_iff_ne_zero.mpr (by
-        simpa [Ideal.zero_eq_bot] using hQ0)⟩
-    have hPQ0 : P * Q ∈ nonZeroDivisors (Ideal R) :=
-      mul_mem_nonZeroDivisors_of_mem_nonZeroDivisors P0.2 Q0.2
-    calc
-      ClassGroup.mk0 P0 * ClassGroup.mk0 Q0 = ClassGroup.mk0 (P0 * Q0) := by
-        rw [map_mul]
-      _ = ClassGroup.mk0 ⟨P * Q, hPQ0⟩ := rfl
-      _ = (1 : ClassGroup R) := (ClassGroup.mk0_eq_one_iff hPQ0).mpr hprincipal
-  have hmk0SqEqOneOfSqPrincipal :
-      ∀ {P : Ideal R} (hP0 : P ≠ ⊥), (P ^ 2).IsPrincipal →
-        (ClassGroup.mk0 ⟨P, mem_nonZeroDivisors_iff_ne_zero.mpr (by
-          simpa [Ideal.zero_eq_bot] using hP0)⟩ : ClassGroup R) ^ 2 = 1 := by
-    intro P hP0 hprincipal
-    let P0 : (Ideal R)⁰ :=
-      ⟨P, mem_nonZeroDivisors_iff_ne_zero.mpr (by
-        simpa [Ideal.zero_eq_bot] using hP0)⟩
-    calc
-      (ClassGroup.mk0 P0 : ClassGroup R) ^ 2 = ClassGroup.mk0 (P0 ^ 2) := by
-        rw [map_pow]
-      _ = (1 : ClassGroup R) := (ClassGroup.mk0_eq_one_iff (P0 ^ 2).2).mpr hprincipal
   have hsplitConjPairMapSpanEqMul :
       ∀ {P : Ideal R} {I : (Ideal R)⁰} {p : ℕ},
         IsAmbiguousIdeal (conjAutRingOfIntegers (Qsqrtd (d : ℚ))) I.1 →
@@ -1535,7 +1537,7 @@ theorem card_narrowInversionFixedClass_le_genusBound
     have hconjP0 : Ideal.map σR P ≠ ⊥ := by
       simpa [Ideal.zero_eq_bot, σR] using
         UniqueFactorizationMonoid.ne_zero_of_mem_normalizedFactors hconjFactor
-    exact hmk0MulEqOneOfMulPrincipal hP0 hconjP0
+    exact classGroup_mk0_mul_eq_one_of_mul_isPrincipal hP0 hconjP0
       (by simpa [σR] using hsplitConjPairPrincipal hI hP hp hcomap hsplit)
   have hinertFactorClassEqOne :
       ∀ {P : Ideal R} {I : (Ideal R)⁰} {p : ℕ}
@@ -1547,7 +1549,7 @@ theorem card_narrowInversionFixedClass_le_genusBound
                   simpa [Ideal.zero_eq_bot] using hfactorNonzero hP)⟩ =
                   (1 : ClassGroup R) := by
     intro P I p hP hp hcomap hinert
-    exact hmk0EqOneOfPrincipal (hfactorNonzero hP)
+    exact classGroup_mk0_eq_one_of_isPrincipal (hfactorNonzero hP)
       (hfactorPrincipalOfInertBelow hP hp hcomap hinert)
   have hramifiedFactorClassSqEqOne :
       ∀ {P : Ideal R} {I : (Ideal R)⁰} {p : ℕ}
@@ -1559,7 +1561,7 @@ theorem card_narrowInversionFixedClass_le_genusBound
                   simpa [Ideal.zero_eq_bot] using hfactorNonzero hP)⟩ :
                   ClassGroup R) ^ 2 = 1 := by
     intro P I p hP hp hcomap hram
-    exact hmk0SqEqOneOfSqPrincipal (hfactorNonzero hP)
+    exact classGroup_mk0_sq_eq_one_of_sq_isPrincipal (hfactorNonzero hP)
       (hramifiedFactorSquarePrincipal hP hp hcomap hram)
   sorry
 
