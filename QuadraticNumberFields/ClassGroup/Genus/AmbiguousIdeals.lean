@@ -1208,6 +1208,15 @@ private noncomputable def idealRamifiedParityVector
         (ramifiedPrimeIdeal d ((Finset.mem_erase.mp p.2).2)) % 2,
       Nat.mod_lt _ (by decide : 0 < 2)⟩
 
+private noncomputable def ramifiedPrimeNarrowClass
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    {p : ℕ} (hp : p ∈ ramifiedPrimes d) :
+    NarrowClassGroup (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))) :=
+  NarrowClassGroup.mk0
+    ⟨ramifiedPrimeIdeal d hp,
+      mem_nonZeroDivisors_iff_ne_zero.mpr (by
+        simpa [Ideal.zero_eq_bot] using ramifiedPrimeIdeal_ne_bot d hp)⟩
+
 private noncomputable def ramifiedParityNarrowClassProduct
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
     {p0 : ℕ} (_hp0 : p0 ∈ ramifiedPrimes d)
@@ -1216,11 +1225,7 @@ private noncomputable def ramifiedParityNarrowClassProduct
   classical
   exact Finset.univ.prod fun p =>
     if v p = 0 then 1 else
-      NarrowClassGroup.mk0
-        ⟨ramifiedPrimeIdeal d ((Finset.mem_erase.mp p.2).2),
-          mem_nonZeroDivisors_iff_ne_zero.mpr (by
-            simpa [Ideal.zero_eq_bot] using
-              ramifiedPrimeIdeal_ne_bot d ((Finset.mem_erase.mp p.2).2))⟩
+      ramifiedPrimeNarrowClass d ((Finset.mem_erase.mp p.2).2)
 
 private theorem card_le_genusBound_of_injective_to_ramifiedParityVectors
     {α : Type*}
