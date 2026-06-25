@@ -1505,6 +1505,97 @@ theorem genusCharacterOfSignedFactorRaw_eq_of_exists_coprime_mk'
   exact genusCharacterOfSignedFactorRaw_eq_of_span_mul_eq_span_mul_of_isTotallyPositive_mk'
     q I J hb hmk hxpos habcop hbcop hprod
 
+/-- In a relation `(a) I = (b) J` between signed-factor-coprime ideals, if
+`(b)` is coprime to the signed factor then `(a)` is coprime to it as well. -/
+theorem absNorm_span_left_coprime_of_span_mul_eq_span_mul
+    {D : ℤ} [Fact (Squarefree D)] [Fact (D ≠ 1)]
+    (q : {q // q ∈ signedPrimeDiscriminantFactors D})
+    (I J : signedFactorCoprimeIdealSubmonoid D q)
+    {a b : NumberField.RingOfIntegers (Qsqrtd (D : ℚ))}
+    (hbcop : Nat.Coprime
+      (Ideal.absNorm (Ideal.span
+        ({b} : Set (NumberField.RingOfIntegers (Qsqrtd (D : ℚ)))))) q.1.natAbs)
+    (hprod : Ideal.span
+        ({a} : Set (NumberField.RingOfIntegers (Qsqrtd (D : ℚ)))) *
+          (I : Ideal (NumberField.RingOfIntegers (Qsqrtd (D : ℚ)))) =
+        Ideal.span ({b} : Set (NumberField.RingOfIntegers (Qsqrtd (D : ℚ)))) *
+          (J : Ideal (NumberField.RingOfIntegers (Qsqrtd (D : ℚ))))) :
+    Nat.Coprime
+      (Ideal.absNorm (Ideal.span
+        ({a} : Set (NumberField.RingOfIntegers (Qsqrtd (D : ℚ)))))) q.1.natAbs := by
+  have hnorm := congrArg Ideal.absNorm hprod
+  rw [Ideal.absNorm.map_mul, Ideal.absNorm.map_mul] at hnorm
+  have hright : Nat.Coprime
+      (Ideal.absNorm (Ideal.span
+          ({b} : Set (NumberField.RingOfIntegers (Qsqrtd (D : ℚ))))) *
+        Ideal.absNorm (J : Ideal (NumberField.RingOfIntegers (Qsqrtd (D : ℚ)))))
+      q.1.natAbs :=
+    Nat.Coprime.mul_left hbcop J.property
+  have hleft : Nat.Coprime
+      (Ideal.absNorm (Ideal.span
+          ({a} : Set (NumberField.RingOfIntegers (Qsqrtd (D : ℚ))))) *
+        Ideal.absNorm (I : Ideal (NumberField.RingOfIntegers (Qsqrtd (D : ℚ)))))
+      q.1.natAbs := by
+    rw [hnorm]
+    exact hright
+  exact Nat.Coprime.coprime_dvd_left (Nat.dvd_mul_right _ _) hleft
+
+/-- In a relation `(a) I = (b) J` between signed-factor-coprime ideals, if
+`(b)` is coprime to the signed factor then so is the principal ideal `(ab)`. -/
+theorem absNorm_span_mul_coprime_of_span_mul_eq_span_mul
+    {D : ℤ} [Fact (Squarefree D)] [Fact (D ≠ 1)]
+    (q : {q // q ∈ signedPrimeDiscriminantFactors D})
+    (I J : signedFactorCoprimeIdealSubmonoid D q)
+    {a b : NumberField.RingOfIntegers (Qsqrtd (D : ℚ))}
+    (hbcop : Nat.Coprime
+      (Ideal.absNorm (Ideal.span
+        ({b} : Set (NumberField.RingOfIntegers (Qsqrtd (D : ℚ)))))) q.1.natAbs)
+    (hprod : Ideal.span
+        ({a} : Set (NumberField.RingOfIntegers (Qsqrtd (D : ℚ)))) *
+          (I : Ideal (NumberField.RingOfIntegers (Qsqrtd (D : ℚ)))) =
+        Ideal.span ({b} : Set (NumberField.RingOfIntegers (Qsqrtd (D : ℚ)))) *
+          (J : Ideal (NumberField.RingOfIntegers (Qsqrtd (D : ℚ))))) :
+    Nat.Coprime
+      (Ideal.absNorm (Ideal.span
+        ({a * b} : Set (NumberField.RingOfIntegers (Qsqrtd (D : ℚ)))))) q.1.natAbs := by
+  have hacop :=
+    absNorm_span_left_coprime_of_span_mul_eq_span_mul q I J hbcop hprod
+  rw [← Ideal.span_singleton_mul_span_singleton, Ideal.absNorm.map_mul]
+  exact Nat.Coprime.mul_left hacop hbcop
+
+/-- A denominator-cleared integral representative with denominator coprime to
+the signed factor is enough to compare the raw signed-factor characters. The
+coprimality of the cleared numerator follows from the ideal relation. -/
+theorem genusCharacterOfSignedFactorRaw_eq_of_exists_denominator_coprime_mk'
+    {D : ℤ} [Fact (Squarefree D)] [Fact (D ≠ 1)]
+    (q : {q // q ∈ signedPrimeDiscriminantFactors D})
+    (I J : signedFactorCoprimeIdealSubmonoid D q)
+    {x : (FractionRing (NumberField.RingOfIntegers (Qsqrtd (D : ℚ))))ˣ}
+    (hxpos : NarrowClassGroup.IsTotallyPositive
+      (x : FractionRing (NumberField.RingOfIntegers (Qsqrtd (D : ℚ)))))
+    (hrep : ∃ a b : NumberField.RingOfIntegers (Qsqrtd (D : ℚ)), ∃ hb : b ≠ 0,
+      IsLocalization.mk'
+          (FractionRing (NumberField.RingOfIntegers (Qsqrtd (D : ℚ)))) a
+          ⟨b, mem_nonZeroDivisors_iff_ne_zero.mpr hb⟩ =
+        (x : FractionRing (NumberField.RingOfIntegers (Qsqrtd (D : ℚ)))) ∧
+      Nat.Coprime
+        (Ideal.absNorm (Ideal.span
+          ({b} : Set (NumberField.RingOfIntegers (Qsqrtd (D : ℚ)))))) q.1.natAbs ∧
+      Ideal.span ({a} : Set (NumberField.RingOfIntegers (Qsqrtd (D : ℚ)))) *
+          (I : Ideal (NumberField.RingOfIntegers (Qsqrtd (D : ℚ)))) =
+        Ideal.span ({b} : Set (NumberField.RingOfIntegers (Qsqrtd (D : ℚ)))) *
+          (J : Ideal (NumberField.RingOfIntegers (Qsqrtd (D : ℚ))))) :
+    genusCharacterOfSignedFactorRaw D q I =
+      genusCharacterOfSignedFactorRaw D q J := by
+  rcases hrep with ⟨a, b, hb, hmk, hbcop, hprod⟩
+  have habcop :
+      Nat.Coprime
+        (Ideal.absNorm (Ideal.span
+          ({a * b} : Set (NumberField.RingOfIntegers (Qsqrtd (D : ℚ)))))) q.1.natAbs :=
+    absNorm_span_mul_coprime_of_span_mul_eq_span_mul q I J hbcop hprod
+  exact genusCharacterOfSignedFactorRaw_eq_of_span_mul_eq_span_mul_of_isTotallyPositive_mk'
+    q I J hb hmk hxpos habcop hbcop hprod
+
 /-- Well-definedness input for signed-factor genus characters: the raw Kronecker
 value is constant on fibers of the restricted narrow class-group map. -/
 theorem genusCharacterOfSignedFactorRaw_eq_of_narrowMk0OnSignedFactorCoprimeIdeals_eq
