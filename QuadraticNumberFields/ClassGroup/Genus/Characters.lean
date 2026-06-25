@@ -614,6 +614,50 @@ theorem narrowMk0OnSignedFactorCoprimeIdeals_eq_of_mul_toPrincipalIdeal_sq
       (I := signedFactorCoprimeIdealNonzeroMonoidHom d q I)
       (J := signedFactorCoprimeIdealNonzeroMonoidHom d q J) hx hJ)
 
+/-- Clear denominators in a principal fractional multiplier relating two
+signed-factor-coprime ideal representatives. -/
+theorem exists_integral_multipliers_of_mul_toPrincipalIdeal_eq
+      (q : {q // q ∈ signedPrimeDiscriminantFactors d})
+      (I J : signedFactorCoprimeIdealSubmonoid d q)
+      {x : (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))ˣ}
+      (hJ : FractionalIdeal.mk0
+          (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))
+          (signedFactorCoprimeIdealNonzeroMonoidHom d q I) *
+        toPrincipalIdeal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))
+          (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) x =
+        FractionalIdeal.mk0
+          (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))
+          (signedFactorCoprimeIdealNonzeroMonoidHom d q J)) :
+      ∃ a b : NumberField.RingOfIntegers (Qsqrtd (d : ℚ)), b ≠ 0 ∧
+        Ideal.span ({a} : Set (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) *
+            (I : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) =
+          Ideal.span ({b} : Set (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) *
+            (J : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) := by
+  have hfrac : FractionalIdeal.spanSingleton
+        (nonZeroDivisors (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))
+        (x : FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) *
+        ((signedFactorCoprimeIdealNonzeroMonoidHom d q I :
+          Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) :
+          FractionalIdeal
+            (nonZeroDivisors (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))
+            (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))) =
+      ((signedFactorCoprimeIdealNonzeroMonoidHom d q J :
+          Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) :
+          FractionalIdeal
+            (nonZeroDivisors (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))
+            (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))) := by
+    have hJ_val := congrArg
+      (fun U : (FractionalIdeal
+          (nonZeroDivisors (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))
+          (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))))ˣ =>
+          (U : FractionalIdeal
+            (nonZeroDivisors (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))
+            (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))))) hJ
+    simpa [coe_toPrincipalIdeal, mul_comm] using hJ_val
+  simpa using
+    (FractionalIdeal.exists_span_mul_eq_span_mul_of_spanSingleton_mul_coeIdeal_eq_coeIdeal
+      (R := NumberField.RingOfIntegers (Qsqrtd (d : ℚ))) hfrac)
+
 /-- Clear denominators in a square principal fractional multiplier relating two
 signed-factor-coprime ideal representatives. -/
 theorem exists_integral_square_multipliers_of_mul_toPrincipalIdeal_sq_eq
