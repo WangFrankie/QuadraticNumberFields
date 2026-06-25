@@ -21,6 +21,7 @@ namespace ClassGroup
 namespace Genus
 
 open scoped nonZeroDivisors NumberField QuadraticNumberFields.ClassGroup
+open scoped QuadraticNumberFields.Splitting
 
 attribute [-instance] DivisionRing.toRatAlgebra
 
@@ -239,6 +240,61 @@ theorem map_conjAut_eq_of_primesOver_comap_eq_singleton (K : Type*) [Field K] [A
   have hmem := map_conjAut_mem_primesOver_comap (K := K) P
   rw [hsingleton] at hmem
   simpa using hmem
+
+/-- In a quadratic Dedekind extension, a ramified prime has a unique prime above it. -/
+private theorem primesOver_eq_singleton_of_isRamifiedIn
+    {R S : Type*} [CommRing R] [CommRing S] [Algebra R S]
+    [Nontrivial R] [IsDedekindDomain R] [IsDedekindDomain S]
+    [Algebra.IsQuadraticExtension R S]
+    {p : Ideal R} (hchar : ringChar R ≠ 2) (hp : p ≠ ⊥) [p.IsMaximal]
+    {P : Ideal S} (hP : P ∈ Ideal.primesOver p S)
+    (hr : Ideal.IsRamifiedIn p S) :
+    Ideal.primesOver p S = {P} := by
+  have hg : (Ideal.primesOver p S).ncard = 1 :=
+    ((Ideal.one_lt_ramificationIdxIn_iff_efg p S hchar hp).mp hr).1
+  rw [Set.ncard_eq_one] at hg
+  obtain ⟨Q, hQ⟩ := hg
+  have hPQ : P = Q := by
+    rw [hQ] at hP
+    exact hP
+  simpa [hPQ] using hQ
+
+/-- A prime ideal over a ramified rational prime in `ℚ(√d)` is fixed by
+quadratic conjugation. -/
+theorem map_conjAut_eq_of_mem_primesOver_of_isRamifiedIn
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] {p : ℕ} [Fact p.Prime]
+    {P : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))}
+    (hP : P ∈ Ideal.primesOver (𝔭(p))
+      (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))
+    (hr : Ideal.IsRamifiedIn (𝔭(p))
+      (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) :
+    Ideal.map (conjAutRingOfIntegers (Qsqrtd (d : ℚ)) :
+      NumberField.RingOfIntegers (Qsqrtd (d : ℚ)) →+*
+        NumberField.RingOfIntegers (Qsqrtd (d : ℚ))) P = P := by
+  have hp0 : (𝔭(p) : Ideal ℤ) ≠ ⊥ := by
+    rw [Ne, Ideal.span_singleton_eq_bot, Nat.cast_eq_zero]
+    exact (Fact.out : Nat.Prime p).ne_zero
+  haveI : (𝔭(p) : Ideal ℤ).IsMaximal :=
+    PrincipalIdealRing.isMaximal_of_irreducible
+      ((Nat.prime_iff_prime_int.mp (Fact.out : Nat.Prime p)).irreducible)
+  have hsingletonBase :
+      Ideal.primesOver (𝔭(p)) (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))) = {P} :=
+    primesOver_eq_singleton_of_isRamifiedIn
+      (S := NumberField.RingOfIntegers (Qsqrtd (d : ℚ))) (p := 𝔭(p))
+      (by simp [ringChar.eq_zero]) hp0 hP hr
+  have hPprime : P.IsPrime := hP.1
+  haveI : P.IsPrime := hPprime
+  letI : P.LiesOver (𝔭(p)) := hP.2
+  have hsingletonComap :
+      Ideal.primesOver
+          (P.comap (algebraMap ℤ (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))))
+          (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))) = {P} := by
+    change Ideal.primesOver (P.under ℤ)
+      (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))) = {P}
+    rw [← Ideal.LiesOver.over (p := 𝔭(p)) (P := P)]
+    exact hsingletonBase
+  exact map_conjAut_eq_of_primesOver_comap_eq_singleton
+    (K := Qsqrtd (d : ℚ)) P hsingletonComap
 
 /-- If `P` is a prime factor of an ambiguous ideal `I`, then its conjugate is
 again a prime factor of `I` and lies over the same rational prime ideal as `P`. -/
@@ -508,6 +564,14 @@ theorem card_narrowInversionFixedClass_le_genusBound
     haveI : P.IsPrime := hP
     exact map_conjAut_eq_of_primesOver_comap_eq_singleton
       (K := Qsqrtd (d : ℚ)) P hsingleton
+  have hconjFixedOfRamified :
+      ∀ {p : ℕ} [Fact p.Prime] {P : Ideal R},
+        P ∈ Ideal.primesOver (𝔭(p)) R →
+          Ideal.IsRamifiedIn (𝔭(p)) R →
+            Ideal.map (conjAutRingOfIntegers (Qsqrtd (d : ℚ)) : R →+* R) P = P := by
+    intro p hp P hP hram
+    letI : Fact p.Prime := hp
+    exact map_conjAut_eq_of_mem_primesOver_of_isRamifiedIn (d := d) hP hram
   have hambiguousPrimeFactorConj :
       ∀ {P : Ideal R} {I : (Ideal R)⁰},
         IsAmbiguousIdeal (conjAutRingOfIntegers (Qsqrtd (d : ℚ))) I.1 →
