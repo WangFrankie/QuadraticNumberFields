@@ -797,6 +797,12 @@ theorem card_narrowInversionFixedClass_le_genusBound
       rw [← Ideal.zero_eq_bot]
       exact UniqueFactorizationMonoid.ne_zero_of_mem_normalizedFactors hP
     exact hprimeBelow hPprime hP0
+  have hfactorNonzero :
+      ∀ {P : Ideal R} {I : (Ideal R)⁰},
+        P ∈ UniqueFactorizationMonoid.normalizedFactors I.1 → P ≠ ⊥ := by
+    intro P I hP
+    rw [← Ideal.zero_eq_bot]
+    exact UniqueFactorizationMonoid.ne_zero_of_mem_normalizedFactors hP
   have hambiguousPrimeFactorConjOverPrime :
       ∀ {P : Ideal R} {I : (Ideal R)⁰},
         IsAmbiguousIdeal (conjAutRingOfIntegers (Qsqrtd (d : ℚ))) I.1 →
@@ -858,6 +864,47 @@ theorem card_narrowInversionFixedClass_le_genusBound
     intro p
     rw [Ideal.map_span, Set.image_singleton]
     exact ⟨_, rfl⟩
+  have hmk0EqOneOfPrincipal :
+      ∀ {J : Ideal R} (hJ0 : J ≠ ⊥), J.IsPrincipal →
+        ClassGroup.mk0 ⟨J, mem_nonZeroDivisors_iff_ne_zero.mpr (by
+          simpa [Ideal.zero_eq_bot] using hJ0)⟩ = (1 : ClassGroup R) := by
+    intro J hJ0 hJ
+    exact (ClassGroup.mk0_eq_one_iff
+      (mem_nonZeroDivisors_iff_ne_zero.mpr (by
+        simpa [Ideal.zero_eq_bot] using hJ0))).mpr hJ
+  have hmk0MulEqOneOfMulPrincipal :
+      ∀ {P Q : Ideal R} (hP0 : P ≠ ⊥) (hQ0 : Q ≠ ⊥),
+        (P * Q).IsPrincipal →
+          ClassGroup.mk0 ⟨P, mem_nonZeroDivisors_iff_ne_zero.mpr (by
+            simpa [Ideal.zero_eq_bot] using hP0)⟩ *
+            ClassGroup.mk0 ⟨Q, mem_nonZeroDivisors_iff_ne_zero.mpr (by
+              simpa [Ideal.zero_eq_bot] using hQ0)⟩ = (1 : ClassGroup R) := by
+    intro P Q hP0 hQ0 hprincipal
+    let P0 : (Ideal R)⁰ :=
+      ⟨P, mem_nonZeroDivisors_iff_ne_zero.mpr (by
+        simpa [Ideal.zero_eq_bot] using hP0)⟩
+    let Q0 : (Ideal R)⁰ :=
+      ⟨Q, mem_nonZeroDivisors_iff_ne_zero.mpr (by
+        simpa [Ideal.zero_eq_bot] using hQ0)⟩
+    have hPQ0 : P * Q ∈ nonZeroDivisors (Ideal R) :=
+      mul_mem_nonZeroDivisors_of_mem_nonZeroDivisors P0.2 Q0.2
+    calc
+      ClassGroup.mk0 P0 * ClassGroup.mk0 Q0 = ClassGroup.mk0 (P0 * Q0) := by
+        rw [map_mul]
+      _ = ClassGroup.mk0 ⟨P * Q, hPQ0⟩ := rfl
+      _ = (1 : ClassGroup R) := (ClassGroup.mk0_eq_one_iff hPQ0).mpr hprincipal
+  have hmk0SqEqOneOfSqPrincipal :
+      ∀ {P : Ideal R} (hP0 : P ≠ ⊥), (P ^ 2).IsPrincipal →
+        (ClassGroup.mk0 ⟨P, mem_nonZeroDivisors_iff_ne_zero.mpr (by
+          simpa [Ideal.zero_eq_bot] using hP0)⟩ : ClassGroup R) ^ 2 = 1 := by
+    intro P hP0 hprincipal
+    let P0 : (Ideal R)⁰ :=
+      ⟨P, mem_nonZeroDivisors_iff_ne_zero.mpr (by
+        simpa [Ideal.zero_eq_bot] using hP0)⟩
+    calc
+      (ClassGroup.mk0 P0 : ClassGroup R) ^ 2 = ClassGroup.mk0 (P0 ^ 2) := by
+        rw [map_pow]
+      _ = (1 : ClassGroup R) := (ClassGroup.mk0_eq_one_iff (P0 ^ 2).2).mpr hprincipal
   have hsplitConjPairMapSpanEqMul :
       ∀ {P : Ideal R} {I : (Ideal R)⁰} {p : ℕ},
         IsAmbiguousIdeal (conjAutRingOfIntegers (Qsqrtd (d : ℚ))) I.1 →
@@ -967,6 +1014,54 @@ theorem card_narrowInversionFixedClass_le_genusBound
         ⟨hinert, hfactorPrincipalOfInertBelow hP hp hcomap hinert⟩
     · exact Or.inr <| Or.inr
         ⟨hram, hramifiedFactorSquarePrincipal hP hp hcomap hram⟩
+  have hsplitConjPairClassMulEqOne :
+      ∀ {P : Ideal R} {I : (Ideal R)⁰} {p : ℕ}
+        (hI : IsAmbiguousIdeal (conjAutRingOfIntegers (Qsqrtd (d : ℚ))) I.1)
+        (hP : P ∈ UniqueFactorizationMonoid.normalizedFactors I.1),
+          p.Prime →
+            P.comap (algebraMap ℤ R) = 𝔭(p) →
+              Ideal.IsSplitIn (𝔭(p)) R →
+                (hne : P ≠ Ideal.map σR P) →
+                  ClassGroup.mk0 ⟨P, mem_nonZeroDivisors_iff_ne_zero.mpr (by
+                    simpa [Ideal.zero_eq_bot] using hfactorNonzero hP)⟩ *
+                    ClassGroup.mk0
+                      ⟨Ideal.map σR P, mem_nonZeroDivisors_iff_ne_zero.mpr (by
+                        have hconjFactor := (hambiguousPrimeFactorConj hI hP).1
+                        simpa [σR] using
+                          UniqueFactorizationMonoid.ne_zero_of_mem_normalizedFactors
+                            hconjFactor)⟩ = (1 : ClassGroup R) := by
+    intro P I p hI hP hp hcomap hsplit hne
+    have hP0 : P ≠ ⊥ := hfactorNonzero hP
+    have hconjFactor := (hambiguousPrimeFactorConj hI hP).1
+    have hconjP0 : Ideal.map σR P ≠ ⊥ := by
+      simpa [Ideal.zero_eq_bot, σR] using
+        UniqueFactorizationMonoid.ne_zero_of_mem_normalizedFactors hconjFactor
+    exact hmk0MulEqOneOfMulPrincipal hP0 hconjP0
+      (by simpa [σR] using hsplitConjPairPrincipal hI hP hp hcomap hsplit hne)
+  have hinertFactorClassEqOne :
+      ∀ {P : Ideal R} {I : (Ideal R)⁰} {p : ℕ}
+        (hP : P ∈ UniqueFactorizationMonoid.normalizedFactors I.1),
+          p.Prime →
+            P.comap (algebraMap ℤ R) = 𝔭(p) →
+              Ideal.IsInertIn (𝔭(p)) R →
+                ClassGroup.mk0 ⟨P, mem_nonZeroDivisors_iff_ne_zero.mpr (by
+                  simpa [Ideal.zero_eq_bot] using hfactorNonzero hP)⟩ =
+                  (1 : ClassGroup R) := by
+    intro P I p hP hp hcomap hinert
+    exact hmk0EqOneOfPrincipal (hfactorNonzero hP)
+      (hfactorPrincipalOfInertBelow hP hp hcomap hinert)
+  have hramifiedFactorClassSqEqOne :
+      ∀ {P : Ideal R} {I : (Ideal R)⁰} {p : ℕ}
+        (hP : P ∈ UniqueFactorizationMonoid.normalizedFactors I.1),
+          p.Prime →
+            P.comap (algebraMap ℤ R) = 𝔭(p) →
+              Ideal.IsRamifiedIn (𝔭(p)) R →
+                (ClassGroup.mk0 ⟨P, mem_nonZeroDivisors_iff_ne_zero.mpr (by
+                  simpa [Ideal.zero_eq_bot] using hfactorNonzero hP)⟩ :
+                  ClassGroup R) ^ 2 = 1 := by
+    intro P I p hP hp hcomap hram
+    exact hmk0SqEqOneOfSqPrincipal (hfactorNonzero hP)
+      (hramifiedFactorSquarePrincipal hP hp hcomap hram)
   sorry
 
 /-- Ambiguous-ideal upper bound: the two-torsion in the narrow class group has
