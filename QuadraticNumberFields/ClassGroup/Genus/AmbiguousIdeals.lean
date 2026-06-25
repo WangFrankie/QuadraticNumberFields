@@ -1237,6 +1237,88 @@ private theorem classGroup_mk0_sq_eq_one_ramifiedPrimeIdeal
     exact ⟨_, rfl⟩
   exact classGroup_mk0_sq_eq_one_of_sq_isPrincipal (ramifiedPrimeIdeal_ne_bot d hp) hP2
 
+private theorem isTotallyPositive_natCast_fractionRing
+    {R : Type*} [CommRing R] [IsDomain R] (n : ℕ) (hn : 0 < n) :
+    NarrowClassGroup.IsTotallyPositive
+      (algebraMap R (FractionRing R) (n : R)) := by
+  intro σ
+  have hσ : σ (algebraMap R (FractionRing R) (n : R)) = (n : ℝ) := by
+    exact map_natCast (σ.comp (algebraMap R (FractionRing R))) n
+  rw [hσ]
+  exact Nat.cast_pos.mpr hn
+
+private theorem narrowClassGroup_mk0_span_singleton_eq_one_of_isTotallyPositive
+    {R : Type*} [CommRing R] [IsDomain R] [IsDedekindDomain R]
+    {a : R} (ha : a ≠ 0)
+    (hpos : NarrowClassGroup.IsTotallyPositive (algebraMap R (FractionRing R) a)) :
+    NarrowClassGroup.mk0
+      (R := R)
+      ⟨Ideal.span ({a} : Set R), by
+        rw [mem_nonZeroDivisors_iff_ne_zero, Ideal.zero_eq_bot, ne_eq,
+          Ideal.span_singleton_eq_bot]
+        exact ha⟩ = 1 := by
+  let K := FractionRing R
+  have haK : algebraMap R K a ≠ 0 := by
+    rw [ne_eq, FaithfulSMul.algebraMap_eq_zero_iff]
+    exact ha
+  let u : Kˣ := Units.mk0 (algebraMap R K a) haK
+  have hu_pos : u ∈ NarrowClassGroup.totallyPositiveUnits K := hpos
+  rw [← NarrowClassGroup.mk_mk0, NarrowClassGroup.mk_eq_mk']
+  exact (QuotientGroup.eq_one_iff _).mpr ⟨⟨u, hu_pos⟩, by
+    apply Units.ext
+    change (toPrincipalIdeal R K u : FractionalIdeal R⁰ K) =
+      FractionalIdeal.mk0 K
+        ⟨Ideal.span ({a} : Set R), by
+          rw [mem_nonZeroDivisors_iff_ne_zero, Ideal.zero_eq_bot, ne_eq,
+            Ideal.span_singleton_eq_bot]
+          exact ha⟩
+    rw [coe_toPrincipalIdeal]
+    change FractionalIdeal.spanSingleton R⁰ (algebraMap R K a) =
+      (Ideal.span ({a} : Set R) : FractionalIdeal R⁰ K)
+    rw [FractionalIdeal.coeIdeal_span_singleton]⟩
+
+private theorem narrowClassGroup_mk0_sq_eq_one_ramifiedPrimeIdeal
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    {p : ℕ} (hp : p ∈ ramifiedPrimes d) :
+    (ramifiedPrimeNarrowClass d hp :
+        NarrowClassGroup (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) ^ 2 = 1 := by
+  let R := NumberField.RingOfIntegers (Qsqrtd (d : ℚ))
+  have hpPrime : p.Prime := prime_of_mem_ramifiedPrimes hp
+  have hram :
+      Ideal.IsRamifiedIn (𝔭(p)) R :=
+    ((mem_ramifiedPrimes_iff_isRamifiedIn d p).mp hp).2
+  let P0 : (Ideal R)⁰ :=
+    ⟨ramifiedPrimeIdeal d hp,
+      mem_nonZeroDivisors_iff_ne_zero.mpr (by
+        simpa [Ideal.zero_eq_bot] using ramifiedPrimeIdeal_ne_bot d hp)⟩
+  have hP0 :
+      ramifiedPrimeNarrowClass d hp = NarrowClassGroup.mk0 P0 := by
+    rfl
+  have hmap :
+      Ideal.map (algebraMap ℤ R) (𝔭(p)) = (ramifiedPrimeIdeal d hp) ^ 2 := by
+    exact map_span_eq_sq_of_isRamifiedIn_of_mem_primesOver (d := d) hpPrime
+      (ramifiedPrimeIdeal_mem_primesOver d hp) hram
+  have hspan :
+      Ideal.map (algebraMap ℤ R) (𝔭(p)) = Ideal.span ({(p : R)} : Set R) := by
+    rw [Ideal.map_span, Set.image_singleton]
+    rfl
+  have hpR_ne : (p : R) ≠ 0 := by
+    change algebraMap ℤ R (p : ℤ) ≠ 0
+    exact (FaithfulSMul.algebraMap_injective ℤ R).ne (by
+      exact_mod_cast hpPrime.ne_zero)
+  have hP0_sq :
+      (P0 ^ 2 : (Ideal R)⁰) =
+        ⟨Ideal.span ({(p : R)} : Set R), by
+          rw [mem_nonZeroDivisors_iff_ne_zero, Ideal.zero_eq_bot, ne_eq,
+            Ideal.span_singleton_eq_bot]
+          exact hpR_ne⟩ := by
+    apply Subtype.ext
+    exact hmap.symm.trans hspan
+  rw [hP0, pow_two, ← map_mul, ← pow_two, hP0_sq]
+  exact narrowClassGroup_mk0_span_singleton_eq_one_of_isTotallyPositive
+    hpR_ne
+    (isTotallyPositive_natCast_fractionRing p hpPrime.pos)
+
 private noncomputable def ramifiedParityClassProduct
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
     {p0 : ℕ} (_hp0 : p0 ∈ ramifiedPrimes d)
@@ -1290,6 +1372,20 @@ private theorem toClassGroup_ramifiedParityNarrowClassProduct
   by_cases hpv : v p = 0
   · simp [hpv]
   · simp [hpv, toClassGroup_ramifiedPrimeNarrowClass]
+
+private theorem ramifiedParityNarrowClassProduct_sq_eq_one
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    {p0 : ℕ} (hp0 : p0 ∈ ramifiedPrimes d)
+    (v : ({p // p ∈ (ramifiedPrimes d).erase p0} → Fin 2)) :
+    (ramifiedParityNarrowClassProduct d hp0 v :
+      NarrowClassGroup (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) ^ 2 = 1 := by
+  classical
+  rw [ramifiedParityNarrowClassProduct, ← Finset.prod_pow]
+  refine Finset.prod_eq_one ?_
+  intro p _hp
+  by_cases hpv : v p = 0
+  · simp [hpv]
+  · simp [hpv, narrowClassGroup_mk0_sq_eq_one_ramifiedPrimeIdeal]
 
 private theorem card_le_genusBound_of_injective_to_ramifiedParityVectors
     {α : Type*}
@@ -1890,6 +1986,11 @@ theorem card_narrowInversionFixedClass_le_genusBound
           1 := by
       simpa [R] using
         ramifiedParityClassProduct_sq_eq_one d hp0 (ramifiedParityVector C)
+    have hramifiedParityNarrowSquareOne :
+        (ramifiedParityNarrowClassProduct d hp0 (ramifiedParityVector C) :
+          NarrowClassGroup R) ^ 2 = 1 := by
+      simpa [R] using
+        ramifiedParityNarrowClassProduct_sq_eq_one d hp0 (ramifiedParityVector C)
     rw [← hI_mk0]
     -- Remaining gap: factor the chosen representative, discard split/inert
     -- principal contributions, and use the positive-principal product relation
