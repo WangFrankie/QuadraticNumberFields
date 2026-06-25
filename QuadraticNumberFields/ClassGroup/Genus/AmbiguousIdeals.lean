@@ -1225,6 +1225,29 @@ private noncomputable def ramifiedParityNarrowClassProduct
     if v p = 0 then 1 else
       ramifiedPrimeNarrowClass d ((Finset.mem_erase.mp p.2).2)
 
+private theorem toClassGroup_ramifiedParityNarrowClassProduct
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    {p0 : ℕ} (hp0 : p0 ∈ ramifiedPrimes d)
+    (v : ({p // p ∈ (ramifiedPrimes d).erase p0} → Fin 2)) :
+    NarrowClassGroup.toClassGroup (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))
+        (ramifiedParityNarrowClassProduct d hp0 v) =
+      Finset.univ.prod fun p : {p // p ∈ (ramifiedPrimes d).erase p0} =>
+        if v p = 0 then 1 else
+          ClassGroup.mk0
+            (⟨ramifiedPrimeIdeal d ((Finset.mem_erase.mp p.2).2),
+              mem_nonZeroDivisors_iff_ne_zero.mpr (by
+                simpa [Ideal.zero_eq_bot] using
+                  ramifiedPrimeIdeal_ne_bot d ((Finset.mem_erase.mp p.2).2))⟩ :
+              (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰) := by
+  classical
+  rw [ramifiedParityNarrowClassProduct]
+  simp only [map_prod]
+  refine Finset.prod_congr rfl ?_
+  intro p _hp
+  by_cases hpv : v p = 0
+  · simp [hpv]
+  · simp [hpv, toClassGroup_ramifiedPrimeNarrowClass]
+
 private theorem card_le_genusBound_of_injective_to_ramifiedParityVectors
     {α : Type*}
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
@@ -1802,6 +1825,19 @@ theorem card_narrowInversionFixedClass_le_genusBound
       intro p
       simpa [R] using
         toClassGroup_ramifiedPrimeNarrowClass d ((Finset.mem_erase.mp p.2).2)
+    have htoWideRamifiedProduct :
+        NarrowClassGroup.toClassGroup R
+            (ramifiedParityNarrowClassProduct d hp0 (ramifiedParityVector C)) =
+          Finset.univ.prod fun p : {p // p ∈ (ramifiedPrimes d).erase p0} =>
+            if ramifiedParityVector C p = 0 then 1 else
+              ClassGroup.mk0
+                (⟨ramifiedPrimeIdeal d ((Finset.mem_erase.mp p.2).2),
+                  mem_nonZeroDivisors_iff_ne_zero.mpr (by
+                    simpa [Ideal.zero_eq_bot] using
+                      ramifiedPrimeIdeal_ne_bot d ((Finset.mem_erase.mp p.2).2))⟩ :
+                  (Ideal R)⁰) := by
+      simpa [R] using
+        toClassGroup_ramifiedParityNarrowClassProduct d hp0 (ramifiedParityVector C)
     -- Remaining gap: factor the chosen representative, discard split/inert
     -- principal contributions, and use the positive-principal product relation
     -- to remove the `p0` ramified coordinate.
