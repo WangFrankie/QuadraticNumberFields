@@ -1215,6 +1215,20 @@ private theorem toClassGroup_ramifiedPrimeNarrowClass
           (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰) := by
   simp [ramifiedPrimeNarrowClass]
 
+private noncomputable def ramifiedParityClassProduct
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    {p0 : ℕ} (_hp0 : p0 ∈ ramifiedPrimes d)
+    (v : ({p // p ∈ (ramifiedPrimes d).erase p0} → Fin 2)) :
+    ClassGroup (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))) :=
+  Finset.univ.prod fun p : {p // p ∈ (ramifiedPrimes d).erase p0} =>
+    if v p = 0 then 1 else
+      ClassGroup.mk0
+        (⟨ramifiedPrimeIdeal d ((Finset.mem_erase.mp p.2).2),
+          mem_nonZeroDivisors_iff_ne_zero.mpr (by
+            simpa [Ideal.zero_eq_bot] using
+              ramifiedPrimeIdeal_ne_bot d ((Finset.mem_erase.mp p.2).2))⟩ :
+          (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰)
+
 private noncomputable def ramifiedParityNarrowClassProduct
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
     {p0 : ℕ} (_hp0 : p0 ∈ ramifiedPrimes d)
@@ -1231,16 +1245,9 @@ private theorem toClassGroup_ramifiedParityNarrowClassProduct
     (v : ({p // p ∈ (ramifiedPrimes d).erase p0} → Fin 2)) :
     NarrowClassGroup.toClassGroup (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))
         (ramifiedParityNarrowClassProduct d hp0 v) =
-      Finset.univ.prod fun p : {p // p ∈ (ramifiedPrimes d).erase p0} =>
-        if v p = 0 then 1 else
-          ClassGroup.mk0
-            (⟨ramifiedPrimeIdeal d ((Finset.mem_erase.mp p.2).2),
-              mem_nonZeroDivisors_iff_ne_zero.mpr (by
-                simpa [Ideal.zero_eq_bot] using
-                  ramifiedPrimeIdeal_ne_bot d ((Finset.mem_erase.mp p.2).2))⟩ :
-              (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰) := by
+      ramifiedParityClassProduct d hp0 v := by
   classical
-  rw [ramifiedParityNarrowClassProduct]
+  rw [ramifiedParityNarrowClassProduct, ramifiedParityClassProduct]
   simp only [map_prod]
   refine Finset.prod_congr rfl ?_
   intro p _hp
@@ -1828,14 +1835,7 @@ theorem card_narrowInversionFixedClass_le_genusBound
     have htoWideRamifiedProduct :
         NarrowClassGroup.toClassGroup R
             (ramifiedParityNarrowClassProduct d hp0 (ramifiedParityVector C)) =
-          Finset.univ.prod fun p : {p // p ∈ (ramifiedPrimes d).erase p0} =>
-            if ramifiedParityVector C p = 0 then 1 else
-              ClassGroup.mk0
-                (⟨ramifiedPrimeIdeal d ((Finset.mem_erase.mp p.2).2),
-                  mem_nonZeroDivisors_iff_ne_zero.mpr (by
-                    simpa [Ideal.zero_eq_bot] using
-                      ramifiedPrimeIdeal_ne_bot d ((Finset.mem_erase.mp p.2).2))⟩ :
-                  (Ideal R)⁰) := by
+          ramifiedParityClassProduct d hp0 (ramifiedParityVector C) := by
       simpa [R] using
         toClassGroup_ramifiedParityNarrowClassProduct d hp0 (ramifiedParityVector C)
     -- Remaining gap: factor the chosen representative, discard split/inert
