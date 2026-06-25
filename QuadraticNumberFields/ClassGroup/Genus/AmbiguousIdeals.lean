@@ -163,6 +163,46 @@ theorem isAmbiguousIdeal_map_conjAut_iff (K : Type*) [Field K] [Algebra ℚ K]
   rw [IsAmbiguousIdeal, IsAmbiguousIdeal, map_conjAut_map_conjAut]
   exact eq_comm
 
+/-- Conjugation acts multiplicatively on nonzero integral ideals of a quadratic
+field. This is the nonzero-ideal action used to formulate ambiguous ideal
+representatives. -/
+noncomputable def conjAutNonzeroIdealMulEquiv (K : Type*) [Field K] [Algebra ℚ K]
+    [QuadraticField K] [QuadraticField.Conj K] :
+    (Ideal (NumberField.RingOfIntegers K))⁰ ≃*
+      (Ideal (NumberField.RingOfIntegers K))⁰ where
+  toFun I :=
+    ⟨Ideal.map (conjAutRingOfIntegers K : NumberField.RingOfIntegers K →+*
+      NumberField.RingOfIntegers K) I.1, map_conjAut_mem_nonZeroDivisors K I.2⟩
+  invFun I :=
+    ⟨Ideal.map (conjAutRingOfIntegers K : NumberField.RingOfIntegers K →+*
+      NumberField.RingOfIntegers K) I.1, map_conjAut_mem_nonZeroDivisors K I.2⟩
+  left_inv I := by
+    apply Subtype.ext
+    exact map_conjAut_map_conjAut K I.1
+  right_inv I := by
+    apply Subtype.ext
+    exact map_conjAut_map_conjAut K I.1
+  map_mul' I J := by
+    apply Subtype.ext
+    exact Ideal.map_mul (conjAutRingOfIntegers K : NumberField.RingOfIntegers K →+*
+      NumberField.RingOfIntegers K) I.1 J.1
+
+@[simp]
+theorem coe_conjAutNonzeroIdealMulEquiv_apply (K : Type*) [Field K] [Algebra ℚ K]
+    [QuadraticField K] [QuadraticField.Conj K] (I : (Ideal (NumberField.RingOfIntegers K))⁰) :
+    ((conjAutNonzeroIdealMulEquiv K I : (Ideal (NumberField.RingOfIntegers K))⁰) :
+        Ideal (NumberField.RingOfIntegers K)) =
+      Ideal.map (conjAutRingOfIntegers K : NumberField.RingOfIntegers K →+*
+        NumberField.RingOfIntegers K) I.1 :=
+  rfl
+
+@[simp]
+theorem conjAutNonzeroIdealMulEquiv_apply_apply (K : Type*) [Field K] [Algebra ℚ K]
+    [QuadraticField K] [QuadraticField.Conj K] (I : (Ideal (NumberField.RingOfIntegers K))⁰) :
+    conjAutNonzeroIdealMulEquiv K (conjAutNonzeroIdealMulEquiv K I) = I := by
+  apply Subtype.ext
+  exact map_conjAut_map_conjAut K I.1
+
 /-- Narrow ideal classes fixed by inversion. For quadratic fields, this is the
 group-theoretic target that will be identified with conjugation-fixed classes. -/
 def NarrowInversionFixedClass (R : Type*) [CommRing R] [IsDomain R] :=
@@ -300,6 +340,12 @@ theorem card_narrowInversionFixedClass_le_genusBound
                   (toPrincipalIdeal R (FractionRing R) x)⁻¹ := by
     intro C
     exact exists_integralIdeal_square_eq_principal_inverse_of_narrowInversionFixedClass C
+  have hconj :
+      ∀ I : (Ideal R)⁰,
+        conjAutNonzeroIdealMulEquiv (Qsqrtd (d : ℚ))
+            (conjAutNonzeroIdealMulEquiv (Qsqrtd (d : ℚ)) I) = I := by
+    intro I
+    exact conjAutNonzeroIdealMulEquiv_apply_apply (Qsqrtd (d : ℚ)) I
   sorry
 
 /-- Ambiguous-ideal upper bound: the two-torsion in the narrow class group has
