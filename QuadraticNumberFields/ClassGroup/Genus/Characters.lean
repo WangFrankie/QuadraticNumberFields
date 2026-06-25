@@ -1473,6 +1473,38 @@ theorem genusCharacterOfSignedFactorRaw_eq_of_span_mul_eq_span_mul_of_isTotallyP
           (J : Ideal (NumberField.RingOfIntegers (Qsqrtd (D : ℚ)))) := by
         ac_rfl
 
+/-- A coprime denominator-cleared integral representative of a totally positive
+fraction-field multiplier is enough to compare the raw signed-factor
+characters. The remaining input in the narrow-fiber argument is precisely the
+choice of such a representative. -/
+theorem genusCharacterOfSignedFactorRaw_eq_of_exists_coprime_mk'
+    {D : ℤ} [Fact (Squarefree D)] [Fact (D ≠ 1)]
+    (q : {q // q ∈ signedPrimeDiscriminantFactors D})
+    (I J : signedFactorCoprimeIdealSubmonoid D q)
+    {x : (FractionRing (NumberField.RingOfIntegers (Qsqrtd (D : ℚ))))ˣ}
+    (hxpos : NarrowClassGroup.IsTotallyPositive
+      (x : FractionRing (NumberField.RingOfIntegers (Qsqrtd (D : ℚ)))))
+    (hrep : ∃ a b : NumberField.RingOfIntegers (Qsqrtd (D : ℚ)), ∃ hb : b ≠ 0,
+      IsLocalization.mk'
+          (FractionRing (NumberField.RingOfIntegers (Qsqrtd (D : ℚ)))) a
+          ⟨b, mem_nonZeroDivisors_iff_ne_zero.mpr hb⟩ =
+        (x : FractionRing (NumberField.RingOfIntegers (Qsqrtd (D : ℚ)))) ∧
+      Nat.Coprime
+        (Ideal.absNorm (Ideal.span
+          ({a * b} : Set (NumberField.RingOfIntegers (Qsqrtd (D : ℚ)))))) q.1.natAbs ∧
+      Nat.Coprime
+        (Ideal.absNorm (Ideal.span
+          ({b} : Set (NumberField.RingOfIntegers (Qsqrtd (D : ℚ)))))) q.1.natAbs ∧
+      Ideal.span ({a} : Set (NumberField.RingOfIntegers (Qsqrtd (D : ℚ)))) *
+          (I : Ideal (NumberField.RingOfIntegers (Qsqrtd (D : ℚ)))) =
+        Ideal.span ({b} : Set (NumberField.RingOfIntegers (Qsqrtd (D : ℚ)))) *
+          (J : Ideal (NumberField.RingOfIntegers (Qsqrtd (D : ℚ))))) :
+    genusCharacterOfSignedFactorRaw D q I =
+      genusCharacterOfSignedFactorRaw D q J := by
+  rcases hrep with ⟨a, b, hb, hmk, habcop, hbcop, hprod⟩
+  exact genusCharacterOfSignedFactorRaw_eq_of_span_mul_eq_span_mul_of_isTotallyPositive_mk'
+    q I J hb hmk hxpos habcop hbcop hprod
+
 /-- Well-definedness input for signed-factor genus characters: the raw Kronecker
 value is constant on fibers of the restricted narrow class-group map. -/
 theorem genusCharacterOfSignedFactorRaw_eq_of_narrowMk0OnSignedFactorCoprimeIdeals_eq
