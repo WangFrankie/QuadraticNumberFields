@@ -384,6 +384,43 @@ theorem map_conjAut_eq_of_mem_primesOver_of_isRamifiedIn
   exact map_conjAut_eq_of_primesOver_comap_eq_singleton
     (K := Qsqrtd (d : ℚ)) P hsingletonComap
 
+/-- A rational prime from `ramifiedPrimes d` has a singleton prime-ideal fiber
+in the ring of integers of `ℚ(√d)`. -/
+theorem exists_primesOver_eq_singleton_of_mem_ramifiedPrimes
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    {p : ℕ} (hp : p ∈ ramifiedPrimes d) :
+    ∃ P : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))),
+      Ideal.primesOver (𝔭(p)) (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))) = {P} := by
+  have hpPrime : p.Prime := prime_of_mem_ramifiedPrimes hp
+  letI : Fact p.Prime := ⟨hpPrime⟩
+  have hp0 : (𝔭(p) : Ideal ℤ) ≠ ⊥ := by
+    rw [Ne, Ideal.span_singleton_eq_bot, Nat.cast_eq_zero]
+    exact hpPrime.ne_zero
+  haveI : (𝔭(p) : Ideal ℤ).IsMaximal :=
+    PrincipalIdealRing.isMaximal_of_irreducible
+      ((Nat.prime_iff_prime_int.mp hpPrime).irreducible)
+  have hram : Ideal.IsRamifiedIn (𝔭(p))
+      (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))) :=
+    ((mem_ramifiedPrimes_iff_isRamifiedIn d p).mp hp).2
+  exact exists_primesOver_eq_singleton_of_isRamifiedIn
+    (S := NumberField.RingOfIntegers (Qsqrtd (d : ℚ))) (p := 𝔭(p))
+    (by simp [ringChar.eq_zero]) hp0 hram
+
+/-- If `P` lies over a rational prime from `ramifiedPrimes d`, then that fiber
+is exactly `{P}`. -/
+theorem primesOver_eq_singleton_of_mem_ramifiedPrimes
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    {p : ℕ} (hp : p ∈ ramifiedPrimes d)
+    {P : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))}
+    (hP : P ∈ Ideal.primesOver (𝔭(p))
+      (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) :
+    Ideal.primesOver (𝔭(p)) (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))) = {P} := by
+  obtain ⟨Q, hQ⟩ := exists_primesOver_eq_singleton_of_mem_ramifiedPrimes (d := d) hp
+  have hPQ : P = Q := by
+    rw [hQ] at hP
+    exact hP
+  simpa [hPQ] using hQ
+
 /-- A prime ideal over a rational prime from the genus-theory ramified-prime set
 is fixed by quadratic conjugation. -/
 theorem map_conjAut_eq_of_mem_primesOver_of_mem_ramifiedPrimes
@@ -394,13 +431,25 @@ theorem map_conjAut_eq_of_mem_primesOver_of_mem_ramifiedPrimes
       (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) :
     Ideal.map (conjAutRingOfIntegers (Qsqrtd (d : ℚ)) :
       NumberField.RingOfIntegers (Qsqrtd (d : ℚ)) →+*
-        NumberField.RingOfIntegers (Qsqrtd (d : ℚ))) P = P := by
+      NumberField.RingOfIntegers (Qsqrtd (d : ℚ))) P = P := by
   have hpPrime : p.Prime := prime_of_mem_ramifiedPrimes hp
   letI : Fact p.Prime := ⟨hpPrime⟩
-  have hram : Ideal.IsRamifiedIn (𝔭(p))
-      (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))) :=
-    ((mem_ramifiedPrimes_iff_isRamifiedIn d p).mp hp).2
-  exact map_conjAut_eq_of_mem_primesOver_of_isRamifiedIn (d := d) hP hram
+  have hsingletonBase :
+      Ideal.primesOver (𝔭(p)) (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))) = {P} :=
+    primesOver_eq_singleton_of_mem_ramifiedPrimes (d := d) hp hP
+  have hPprime : P.IsPrime := hP.1
+  haveI : P.IsPrime := hPprime
+  letI : P.LiesOver (𝔭(p)) := hP.2
+  have hsingletonComap :
+      Ideal.primesOver
+          (P.comap (algebraMap ℤ (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))))
+          (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))) = {P} := by
+    change Ideal.primesOver (P.under ℤ)
+      (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))) = {P}
+    rw [← Ideal.LiesOver.over (p := 𝔭(p)) (P := P)]
+    exact hsingletonBase
+  exact map_conjAut_eq_of_primesOver_comap_eq_singleton
+    (K := Qsqrtd (d : ℚ)) P hsingletonComap
 
 /-- If a prime ideal lies over a rational prime in the genus-theory ramified-prime
 set, then conjugation fixes it. This comap form is the interface used after
