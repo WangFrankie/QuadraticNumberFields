@@ -7,6 +7,7 @@ Authors: Frankie Wang
 import QNFMathlib.RingTheory.Ideal.Norm.AbsNorm
 import QuadraticNumberFields.ClassGroup.Genus.SquareClass
 import QuadraticNumberFields.QuadraticField.Conj
+import QuadraticNumberFields.Splitting.Factorization
 
 /-!
 # Ambiguous Ideals
@@ -361,6 +362,45 @@ private theorem exists_nat_prime_comap_eq_p_and_dvd_absNorm
         p ∣ Ideal.absNorm P := by
   exact Ideal.exists_nat_prime_comap_eq_span_and_dvd_absNorm_of_isPrime hP hP0
 
+private theorem isPrincipal_of_isInertIn_of_comap_eq_p
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    {P : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))}
+    (hP : P.IsPrime) {p : ℕ} (hp : p.Prime)
+    (hcomap :
+      P.comap (algebraMap ℤ (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) = 𝔭(p))
+    (hinert : Ideal.IsInertIn (𝔭(p))
+      (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) :
+    P.IsPrincipal := by
+  have hchar : ringChar ℤ ≠ 2 := by simp [ringChar.eq_zero]
+  have hpbot : (𝔭(p)) ≠ (⊥ : Ideal ℤ) := by
+    rw [Ne, Ideal.span_singleton_eq_bot, Nat.cast_eq_zero]
+    exact hp.ne_zero
+  haveI : (𝔭(p)).IsMaximal :=
+    PrincipalIdealRing.isMaximal_of_irreducible
+      ((Nat.prime_iff_prime_int.mp hp).irreducible)
+  have hQprime :
+      (Ideal.map (algebraMap ℤ (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))
+        (𝔭(p))).IsPrime :=
+    Ideal.map_isPrime_of_isInertIn (𝔭(p))
+      (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))) hchar hpbot hinert
+  have hQle :
+      Ideal.map (algebraMap ℤ (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) (𝔭(p)) ≤
+        P := by
+    rw [← hcomap]
+    exact Ideal.map_comap_le
+  have hQbot :
+      Ideal.map (algebraMap ℤ (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) (𝔭(p)) ≠
+        ⊥ := by
+    rw [Ideal.map_span, Set.image_singleton, Ne, Ideal.span_singleton_eq_bot]
+    simp only [map_natCast, Nat.cast_eq_zero]
+    exact hp.ne_zero
+  have hPQ :
+      Ideal.map (algebraMap ℤ (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) (𝔭(p)) =
+        P :=
+    (hQprime.isMaximal hQbot).eq_of_le hP.ne_top hQle
+  rw [← hPQ, Ideal.map_span, Set.image_singleton]
+  exact ⟨_, rfl⟩
+
 /-- Applying the ring-of-integers conjugation twice fixes every ideal. -/
 @[simp]
 theorem map_conjAut_map_conjAut (K : Type*) [Field K] [Algebra ℚ K]
@@ -678,6 +718,25 @@ theorem card_narrowInversionFixedClass_le_genusBound
     obtain ⟨hconjFactor, hconjOver⟩ := hambiguousPrimeFactorConj hI hP
     refine ⟨p, hp, hcomap, hdiv, hconjFactor, ?_⟩
     rwa [← hcomap]
+  have hsplitInertRamified :
+      ∀ {p : ℕ}, p.Prime →
+        Ideal.IsSplitIn (𝔭(p)) R ∨ Ideal.IsInertIn (𝔭(p)) R ∨
+          Ideal.IsRamifiedIn (𝔭(p)) R := by
+    intro p hp
+    haveI : Fact p.Prime := ⟨hp⟩
+    exact QuadraticNumberFields.Splitting.split_or_inert_or_ramified (d := d) p
+  have hfactorPrincipalOfInertBelow :
+      ∀ {P : Ideal R} {I : (Ideal R)⁰} {p : ℕ},
+        P ∈ UniqueFactorizationMonoid.normalizedFactors I.1 →
+          p.Prime →
+            P.comap (algebraMap ℤ R) = 𝔭(p) →
+              Ideal.IsInertIn (𝔭(p)) R → P.IsPrincipal := by
+    intro P I p hP hp hcomap hinert
+    have hI0 : I.1 ≠ ⊥ := by
+      rw [← Ideal.zero_eq_bot]
+      exact mem_nonZeroDivisors_iff_ne_zero.mp I.2
+    have hPprime : P.IsPrime := (Ideal.mem_normalizedFactors_iff hI0).mp hP |>.1
+    exact isPrincipal_of_isInertIn_of_comap_eq_p (d := d) hPprime hp hcomap hinert
   sorry
 
 /-- Ambiguous-ideal upper bound: the two-torsion in the narrow class group has
