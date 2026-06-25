@@ -442,20 +442,6 @@ private theorem ramifiedPrimeIdeal_mem_primesOver
   rw [primesOver_eq_singleton_ramifiedPrimeIdeal]
   exact Set.mem_singleton _
 
-private theorem ramifiedPrimeIdeal_isPrime
-    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
-    {p : ℕ} (hp : p ∈ ramifiedPrimes d) :
-    (ramifiedPrimeIdeal d hp).IsPrime :=
-  (ramifiedPrimeIdeal_mem_primesOver d hp).1
-
-private theorem ramifiedPrimeIdeal_comap
-    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
-    {p : ℕ} (hp : p ∈ ramifiedPrimes d) :
-    (ramifiedPrimeIdeal d hp).comap
-        (algebraMap ℤ (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) =
-      𝔭(p) := by
-  exact (ramifiedPrimeIdeal_mem_primesOver d hp).2.over.symm
-
 private theorem ramifiedPrimeIdeal_ne_bot
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
     {p : ℕ} (hp : p ∈ ramifiedPrimes d) :
@@ -1781,6 +1767,16 @@ theorem card_narrowInversionFixedClass_le_genusBound
   have hrecoverByRamifiedParity :
       ∀ C : NarrowInversionFixedClass R,
         C.1 = ramifiedParityNarrowClassProduct d hp0 (ramifiedParityVector C) := by
+    intro C
+    let I := narrowInversionFixedRepresentativeIdeal d C
+    have hI_mk0 : NarrowClassGroup.mk0 I = C.1 :=
+      narrowInversionFixedRepresentativeIdeal_mk0 d C
+    obtain ⟨x, hxpos, hxI_sq⟩ :=
+      narrowInversionFixedRepresentativeIdeal_square_eq_principal_inverse d C
+    have hI_wide_sq :
+        (ClassGroup.mk0 I : ClassGroup R) ^ 2 = 1 := by
+      simpa [I, R] using
+        classGroup_mk0_sq_eq_one_narrowInversionFixedRepresentativeIdeal d C
     -- Remaining gap: factor the chosen representative, discard split/inert
     -- principal contributions, and use the positive-principal product relation
     -- to remove the `p0` ramified coordinate.
