@@ -203,6 +203,20 @@ theorem conjAutNonzeroIdealMulEquiv_apply_apply (K : Type*) [Field K] [Algebra �
   apply Subtype.ext
   exact map_conjAut_map_conjAut K I.1
 
+/-- A nonzero integral ideal is ambiguous exactly when it is fixed by the
+nonzero-ideal conjugation action. -/
+theorem isAmbiguousIdeal_iff_conjAutNonzeroIdealMulEquiv_eq (K : Type*)
+    [Field K] [Algebra ℚ K] [QuadraticField K] [QuadraticField.Conj K]
+    (I : (Ideal (NumberField.RingOfIntegers K))⁰) :
+    IsAmbiguousIdeal (conjAutRingOfIntegers K) I.1 ↔
+      conjAutNonzeroIdealMulEquiv K I = I := by
+  constructor
+  · intro hI
+    apply Subtype.ext
+    exact hI
+  · intro hI
+    exact congrArg Subtype.val hI
+
 /-- Narrow ideal classes fixed by inversion. For quadratic fields, this is the
 group-theoretic target that will be identified with conjugation-fixed classes. -/
 def NarrowInversionFixedClass (R : Type*) [CommRing R] [IsDomain R] :=
@@ -346,6 +360,12 @@ theorem card_narrowInversionFixedClass_le_genusBound
             (conjAutNonzeroIdealMulEquiv (Qsqrtd (d : ℚ)) I) = I := by
     intro I
     exact conjAutNonzeroIdealMulEquiv_apply_apply (Qsqrtd (d : ℚ)) I
+  have hambiguousFixed :
+      ∀ I : (Ideal R)⁰,
+        IsAmbiguousIdeal (conjAutRingOfIntegers (Qsqrtd (d : ℚ))) I.1 ↔
+          conjAutNonzeroIdealMulEquiv (Qsqrtd (d : ℚ)) I = I := by
+    intro I
+    exact isAmbiguousIdeal_iff_conjAutNonzeroIdealMulEquiv_eq (Qsqrtd (d : ℚ)) I
   sorry
 
 /-- Ambiguous-ideal upper bound: the two-torsion in the narrow class group has
