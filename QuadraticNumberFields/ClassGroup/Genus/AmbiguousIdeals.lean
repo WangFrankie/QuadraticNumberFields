@@ -1251,6 +1251,20 @@ private noncomputable def ramifiedParityClassProduct
               ramifiedPrimeIdeal_ne_bot d ((Finset.mem_erase.mp p.2).2))⟩ :
           (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰)
 
+private theorem ramifiedParityClassProduct_sq_eq_one
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    {p0 : ℕ} (hp0 : p0 ∈ ramifiedPrimes d)
+    (v : ({p // p ∈ (ramifiedPrimes d).erase p0} → Fin 2)) :
+    (ramifiedParityClassProduct d hp0 v :
+      ClassGroup (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) ^ 2 = 1 := by
+  classical
+  rw [ramifiedParityClassProduct, ← Finset.prod_pow]
+  refine Finset.prod_eq_one ?_
+  intro p _hp
+  by_cases hpv : v p = 0
+  · simp [hpv]
+  · simp [hpv, classGroup_mk0_sq_eq_one_ramifiedPrimeIdeal]
+
 private noncomputable def ramifiedParityNarrowClassProduct
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
     {p0 : ℕ} (_hp0 : p0 ∈ ramifiedPrimes d)
@@ -1871,6 +1885,11 @@ theorem card_narrowInversionFixedClass_le_genusBound
       intro p
       simpa [R] using
         classGroup_mk0_sq_eq_one_ramifiedPrimeIdeal d ((Finset.mem_erase.mp p.2).2)
+    have hramifiedParityWideSquareOne :
+        (ramifiedParityClassProduct d hp0 (ramifiedParityVector C) : ClassGroup R) ^ 2 =
+          1 := by
+      simpa [R] using
+        ramifiedParityClassProduct_sq_eq_one d hp0 (ramifiedParityVector C)
     -- Remaining gap: factor the chosen representative, discard split/inert
     -- principal contributions, and use the positive-principal product relation
     -- to remove the `p0` ramified coordinate.
