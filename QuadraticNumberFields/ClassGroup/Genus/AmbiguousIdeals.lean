@@ -296,6 +296,24 @@ theorem map_conjAut_eq_of_mem_primesOver_of_isRamifiedIn
   exact map_conjAut_eq_of_primesOver_comap_eq_singleton
     (K := Qsqrtd (d : ℚ)) P hsingletonComap
 
+/-- A prime ideal over a rational prime from the genus-theory ramified-prime set
+is fixed by quadratic conjugation. -/
+theorem map_conjAut_eq_of_mem_primesOver_of_mem_ramifiedPrimes
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    {p : ℕ} (hp : p ∈ ramifiedPrimes d)
+    {P : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))}
+    (hP : P ∈ Ideal.primesOver (𝔭(p))
+      (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) :
+    Ideal.map (conjAutRingOfIntegers (Qsqrtd (d : ℚ)) :
+      NumberField.RingOfIntegers (Qsqrtd (d : ℚ)) →+*
+        NumberField.RingOfIntegers (Qsqrtd (d : ℚ))) P = P := by
+  have hpPrime : p.Prime := prime_of_mem_ramifiedPrimes hp
+  letI : Fact p.Prime := ⟨hpPrime⟩
+  have hram : Ideal.IsRamifiedIn (𝔭(p))
+      (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))) :=
+    ((mem_ramifiedPrimes_iff_isRamifiedIn d p).mp hp).2
+  exact map_conjAut_eq_of_mem_primesOver_of_isRamifiedIn (d := d) hP hram
+
 /-- If `P` is a prime factor of an ambiguous ideal `I`, then its conjugate is
 again a prime factor of `I` and lies over the same rational prime ideal as `P`. -/
 theorem map_conjAut_mem_normalizedFactors_and_primesOver_comap_of_isAmbiguousIdeal
@@ -572,6 +590,12 @@ theorem card_narrowInversionFixedClass_le_genusBound
     intro p hp P hP hram
     letI : Fact p.Prime := hp
     exact map_conjAut_eq_of_mem_primesOver_of_isRamifiedIn (d := d) hP hram
+  have hconjFixedOfRamifiedPrime :
+      ∀ {p : ℕ}, p ∈ ramifiedPrimes d → ∀ {P : Ideal R},
+        P ∈ Ideal.primesOver (𝔭(p)) R →
+          Ideal.map (conjAutRingOfIntegers (Qsqrtd (d : ℚ)) : R →+* R) P = P := by
+    intro p hp P hP
+    exact map_conjAut_eq_of_mem_primesOver_of_mem_ramifiedPrimes (d := d) hp hP
   have hambiguousPrimeFactorConj :
       ∀ {P : Ideal R} {I : (Ideal R)⁰},
         IsAmbiguousIdeal (conjAutRingOfIntegers (Qsqrtd (d : ℚ))) I.1 →
