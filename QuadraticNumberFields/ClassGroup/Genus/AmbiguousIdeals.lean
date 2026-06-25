@@ -225,6 +225,21 @@ theorem map_conjAut_mem_primesOver_comap (K : Type*) [Field K] [Algebra ℚ K]
           (NumberField.RingOfIntegers K) :=
   ⟨Ideal.map_isPrime_of_equiv (conjAutRingOfIntegers K), map_conjAut_liesOver_comap K P⟩
 
+/-- If the prime ideal above the same rational prime is unique, conjugation fixes
+that prime ideal. -/
+theorem map_conjAut_eq_of_primesOver_comap_eq_singleton (K : Type*) [Field K] [Algebra ℚ K]
+    [QuadraticField K] [QuadraticField.Conj K]
+    (P : Ideal (NumberField.RingOfIntegers K)) [P.IsPrime]
+    (hsingleton :
+      Ideal.primesOver (P.comap (algebraMap ℤ (NumberField.RingOfIntegers K)))
+          (NumberField.RingOfIntegers K) =
+        {P}) :
+    Ideal.map (conjAutRingOfIntegers K : NumberField.RingOfIntegers K →+*
+      NumberField.RingOfIntegers K) P = P := by
+  have hmem := map_conjAut_mem_primesOver_comap (K := K) P
+  rw [hsingleton] at hmem
+  simpa using hmem
+
 /-- If `P` is a prime factor of an ambiguous ideal `I`, then its conjugate is
 again a prime factor of `I` and lies over the same rational prime ideal as `P`. -/
 theorem map_conjAut_mem_normalizedFactors_and_primesOver_comap_of_isAmbiguousIdeal
@@ -485,6 +500,14 @@ theorem card_narrowInversionFixedClass_le_genusBound
     intro P hP
     haveI : P.IsPrime := hP
     exact map_conjAut_mem_primesOver_comap (K := Qsqrtd (d : ℚ)) P
+  have hconjFixedOfSingleton :
+      ∀ {P : Ideal R}, P.IsPrime →
+        Ideal.primesOver (P.comap (algebraMap ℤ R)) R = {P} →
+          Ideal.map (conjAutRingOfIntegers (Qsqrtd (d : ℚ)) : R →+* R) P = P := by
+    intro P hP hsingleton
+    haveI : P.IsPrime := hP
+    exact map_conjAut_eq_of_primesOver_comap_eq_singleton
+      (K := Qsqrtd (d : ℚ)) P hsingleton
   have hambiguousPrimeFactorConj :
       ∀ {P : Ideal R} {I : (Ideal R)⁰},
         IsAmbiguousIdeal (conjAutRingOfIntegers (Qsqrtd (d : ℚ))) I.1 →
