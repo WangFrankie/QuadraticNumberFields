@@ -1203,6 +1203,18 @@ private noncomputable def ramifiedPrimeNarrowClass
       mem_nonZeroDivisors_iff_ne_zero.mpr (by
         simpa [Ideal.zero_eq_bot] using ramifiedPrimeIdeal_ne_bot d hp)⟩
 
+private theorem toClassGroup_ramifiedPrimeNarrowClass
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    {p : ℕ} (hp : p ∈ ramifiedPrimes d) :
+    NarrowClassGroup.toClassGroup (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))
+        (ramifiedPrimeNarrowClass d hp) =
+      ClassGroup.mk0
+        (⟨ramifiedPrimeIdeal d hp,
+          mem_nonZeroDivisors_iff_ne_zero.mpr (by
+            simpa [Ideal.zero_eq_bot] using ramifiedPrimeIdeal_ne_bot d hp)⟩ :
+          (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰) := by
+  simp [ramifiedPrimeNarrowClass]
+
 private noncomputable def ramifiedParityNarrowClassProduct
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
     {p0 : ℕ} (_hp0 : p0 ∈ ramifiedPrimes d)
@@ -1777,6 +1789,19 @@ theorem card_narrowInversionFixedClass_le_genusBound
         (ClassGroup.mk0 I : ClassGroup R) ^ 2 = 1 := by
       simpa [I, R] using
         classGroup_mk0_sq_eq_one_narrowInversionFixedRepresentativeIdeal d C
+    have htoWideRamifiedGenerator :
+        ∀ p : {p // p ∈ (ramifiedPrimes d).erase p0},
+          NarrowClassGroup.toClassGroup R
+              (ramifiedPrimeNarrowClass d ((Finset.mem_erase.mp p.2).2)) =
+            ClassGroup.mk0
+              (⟨ramifiedPrimeIdeal d ((Finset.mem_erase.mp p.2).2),
+                mem_nonZeroDivisors_iff_ne_zero.mpr (by
+                  simpa [Ideal.zero_eq_bot] using
+                    ramifiedPrimeIdeal_ne_bot d ((Finset.mem_erase.mp p.2).2))⟩ :
+                (Ideal R)⁰) := by
+      intro p
+      simpa [R] using
+        toClassGroup_ramifiedPrimeNarrowClass d ((Finset.mem_erase.mp p.2).2)
     -- Remaining gap: factor the chosen representative, discard split/inert
     -- principal contributions, and use the positive-principal product relation
     -- to remove the `p0` ramified coordinate.
