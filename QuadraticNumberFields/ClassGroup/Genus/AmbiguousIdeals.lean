@@ -1152,6 +1152,28 @@ private theorem classGroup_mk0_sq_eq_one_of_sq_isPrincipal
       rw [map_pow]
     _ = (1 : ClassGroup R) := (ClassGroup.mk0_eq_one_iff (P0 ^ 2).2).mpr hP2
 
+private theorem card_le_genusBound_of_injective_to_ramifiedParityVectors
+    {α : Type*}
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    {p0 : ℕ} (hp0 : p0 ∈ ramifiedPrimes d)
+    (f : α → ({p // p ∈ (ramifiedPrimes d).erase p0} → Fin 2))
+    (hf : Function.Injective f) :
+    Nat.card α ≤ 2 ^ (ramifiedPrimeCount d - 1) := by
+  classical
+  haveI : Finite α := Finite.of_injective f hf
+  have hle : Nat.card α ≤ Nat.card ({p // p ∈ (ramifiedPrimes d).erase p0} → Fin 2) :=
+    Nat.card_le_card_of_injective f hf
+  refine hle.trans_eq ?_
+  rw [Nat.card_eq_fintype_card, Fintype.card_fun]
+  have hdomain :
+      Fintype.card {p // p ∈ (ramifiedPrimes d).erase p0} =
+        ramifiedPrimeCount d - 1 := by
+    rw [Fintype.card_coe]
+    rw [Finset.card_erase_of_mem hp0]
+    rw [ramifiedPrimeCount_eq_card]
+  rw [hdomain]
+  norm_num
+
 /-- Narrow ideal classes fixed by inversion. For quadratic fields, this is the
 group-theoretic target that will be identified with conjugation-fixed classes. -/
 def NarrowInversionFixedClass (R : Type*) [CommRing R] [IsDomain R] :=
@@ -1625,7 +1647,19 @@ theorem card_narrowInversionFixedClass_le_genusBound
     intro P I p hP hp hcomap hram
     exact classGroup_mk0_sq_eq_one_of_sq_isPrincipal (hfactorNonzero hP)
       (hramifiedFactorSquarePrincipal hP hp hcomap hram)
-  sorry
+  obtain ⟨p0, hp0⟩ : (ramifiedPrimes d).Nonempty := by
+    rw [← Finset.card_pos, ← ramifiedPrimeCount_eq_card]
+    exact Nat.lt_of_lt_of_le Nat.zero_lt_one (one_le_ramifiedPrimeCount d)
+  obtain ⟨ramifiedParityVector, hramifiedParityVector_injective⟩ :
+      ∃ f : NarrowInversionFixedClass R →
+          ({p // p ∈ (ramifiedPrimes d).erase p0} → Fin 2),
+        Function.Injective f := by
+    -- Remaining gap: construct the parity vector by factoring a narrow
+    -- representative and using the split/inert principal-pair lemmas above
+    -- plus the single positive-principal relation to erase the `p0` coordinate.
+    sorry
+  exact card_le_genusBound_of_injective_to_ramifiedParityVectors (d := d) hp0
+    ramifiedParityVector hramifiedParityVector_injective
 
 /-- Ambiguous-ideal upper bound: the two-torsion in the narrow class group has
 size at most `2 ^ (t - 1)`, where `t` is the number of ramified rational primes. -/
