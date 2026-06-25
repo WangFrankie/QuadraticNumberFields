@@ -2024,6 +2024,21 @@ theorem card_narrowInversionFixedClass_le_genusBound
           NarrowClassGroup R) ^ 2 = 1 := by
       simpa [R] using
         ramifiedParityNarrowClassProduct_sq_eq_one d hp0 (ramifiedParityVector C)
+    have hJ_narrow_sq :
+        NarrowClassGroup.mk0 (J * J) = (1 : NarrowClassGroup R) := by
+      have hsq := hramifiedParityNarrowSquareOne
+      rw [← hJ_mk0] at hsq
+      simpa [map_mul, pow_two] using hsq
+    have hJ_square_relation :
+        ∃ y : (FractionRing R)ˣ,
+          NarrowClassGroup.IsTotallyPositive (y : FractionRing R) ∧
+            (FractionalIdeal.mk0 (FractionRing R) J) ^ 2 *
+                toPrincipalIdeal R (FractionRing R) y =
+              1 := by
+      obtain ⟨y, hypos, hy⟩ :=
+        (narrowClassGroup_mk0_eq_one_iff_exists_fraction_ring (J * J)).mp hJ_narrow_sq
+      refine ⟨y, hypos, ?_⟩
+      simpa [map_mul, pow_two] using hy
     rw [← hI_mk0]
     rw [← hJ_mk0]
     rw [NarrowClassGroup.mk0_eq_mk0_iff_exists_fraction_ring]
