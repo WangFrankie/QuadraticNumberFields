@@ -849,6 +849,45 @@ theorem mul_map_conjAut_eq_map_relNorm
   haveI : P.IsPrime := hP
   exact mul_map_conjAut_eq_map_relNorm_of_isPrime K P
 
+/-- The product of a nonzero ideal with its quadratic conjugate is principal. -/
+theorem exists_span_mul_map_conjAut
+    (K : Type*) [Field K] [NumberField K] [Algebra ℚ K]
+    [QuadraticField K] [QuadraticField.Conj K]
+    {I : Ideal (NumberField.RingOfIntegers K)} (hI : I ≠ ⊥) :
+    ∃ x : NumberField.RingOfIntegers K, x ≠ 0 ∧
+      I * Ideal.map (conjAutRingOfIntegers K :
+          NumberField.RingOfIntegers K →+* NumberField.RingOfIntegers K) I =
+        Ideal.span {x} := by
+  have hrel : Ideal.relNorm ℤ I ≠ ⊥ := by
+    rw [ne_eq, ← Ideal.spanNorm_eq, Ideal.spanNorm_eq_bot_iff]
+    exact hI
+  obtain ⟨n, hn⟩ := IsPrincipalIdealRing.principal (Ideal.relNorm ℤ I)
+  rw [Ideal.submodule_span_eq] at hn
+  have hn0 : n ≠ 0 := by
+    rintro rfl
+    exact hrel (by rw [hn, Ideal.span_singleton_eq_bot.mpr rfl])
+  refine ⟨algebraMap ℤ (NumberField.RingOfIntegers K) n, ?_, ?_⟩
+  · simpa only [map_zero] using
+      (FaithfulSMul.algebraMap_injective ℤ (NumberField.RingOfIntegers K)).ne hn0
+  · rw [mul_map_conjAut_eq_map_relNorm K, hn, Ideal.map_span, Set.image_singleton]
+
+/-- Quadratic conjugation acts on the ordinary ideal class group by inversion. -/
+theorem mk0_map_conjAut_eq_inv
+    (K : Type*) [Field K] [NumberField K] [Algebra ℚ K]
+    [QuadraticField K] [QuadraticField.Conj K]
+    (I : (Ideal (NumberField.RingOfIntegers K))⁰) :
+    ClassGroup.mk0
+        ⟨Ideal.map (conjAutRingOfIntegers K :
+            NumberField.RingOfIntegers K →+* NumberField.RingOfIntegers K)
+            (I : Ideal (NumberField.RingOfIntegers K)),
+          map_conjAut_mem_nonZeroDivisors K I.2⟩ =
+      (ClassGroup.mk0 I)⁻¹ := by
+  have hI : (I : Ideal (NumberField.RingOfIntegers K)) ≠ ⊥ := by
+    simpa [Ideal.zero_eq_bot] using mem_nonZeroDivisors_iff_ne_zero.mp I.2
+  rw [ClassGroup.mk0_eq_mk0_inv_iff]
+  obtain ⟨x, hx0, hx⟩ := exists_span_mul_map_conjAut K hI
+  exact ⟨x, hx0, by rw [mul_comm]; exact hx⟩
+
 /-- Applying the ring-of-integers conjugation twice fixes every ideal. -/
 @[simp]
 theorem map_conjAut_map_conjAut (K : Type*) [Field K] [Algebra ℚ K]
