@@ -231,6 +231,34 @@ theorem exists_integralIdeal_inverse_relation_of_narrowInversionFixedClass
     (I := FractionalIdeal.mk0 (FractionRing R) I)
     (J := (FractionalIdeal.mk0 (FractionRing R) I)⁻¹)).mp hmk
 
+/-- An inversion-fixed narrow class has a nonzero integral ideal representative
+whose square is cancelled by a totally positive principal fractional ideal. This
+is the parity relation used before reducing the representative to ramified
+prime exponents. -/
+theorem exists_integralIdeal_square_principal_relation_of_narrowInversionFixedClass
+    {R : Type*} [CommRing R] [IsDomain R] [IsDedekindDomain R]
+    (C : NarrowInversionFixedClass R) :
+    ∃ I : (Ideal R)⁰,
+      NarrowClassGroup.mk0 I = C.1 ∧
+        ∃ x : NarrowClassGroup.totallyPositiveUnits (FractionRing R),
+          (FractionalIdeal.mk0 (FractionRing R) I) ^ 2 *
+              NarrowClassGroup.toNarrowPrincipalIdeal R (FractionRing R) x =
+            1 := by
+  obtain ⟨I, hI, x, hx⟩ :=
+    exists_integralIdeal_inverse_relation_of_narrowInversionFixedClass C
+  refine ⟨I, hI, x, ?_⟩
+  calc
+    (FractionalIdeal.mk0 (FractionRing R) I) ^ 2 *
+        NarrowClassGroup.toNarrowPrincipalIdeal R (FractionRing R) x =
+        FractionalIdeal.mk0 (FractionRing R) I *
+          (FractionalIdeal.mk0 (FractionRing R) I *
+            NarrowClassGroup.toNarrowPrincipalIdeal R (FractionRing R) x) := by
+      rw [pow_two, mul_assoc]
+    _ = FractionalIdeal.mk0 (FractionRing R) I *
+        (FractionalIdeal.mk0 (FractionRing R) I)⁻¹ := by
+      rw [hx]
+    _ = 1 := mul_inv_cancel _
+
 /-- Remaining ambiguous-class-number input in inversion-fixed form: the
 inversion-fixed narrow classes are bounded by the genus count. The next
 mathematical step is to identify these classes with conjugation-fixed ideal
@@ -248,11 +276,11 @@ theorem card_narrowInversionFixedClass_le_genusBound
         ∃ I : (Ideal R)⁰,
           NarrowClassGroup.mk0 I = C.1 ∧
             ∃ x : NarrowClassGroup.totallyPositiveUnits (FractionRing R),
-              FractionalIdeal.mk0 (FractionRing R) I *
+              (FractionalIdeal.mk0 (FractionRing R) I) ^ 2 *
                   NarrowClassGroup.toNarrowPrincipalIdeal R (FractionRing R) x =
-                (FractionalIdeal.mk0 (FractionRing R) I)⁻¹ := by
+                1 := by
     intro C
-    exact exists_integralIdeal_inverse_relation_of_narrowInversionFixedClass C
+    exact exists_integralIdeal_square_principal_relation_of_narrowInversionFixedClass C
   sorry
 
 /-- Ambiguous-ideal upper bound: the two-torsion in the narrow class group has
