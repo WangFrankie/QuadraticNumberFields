@@ -1368,6 +1368,21 @@ private theorem narrowInversionFixedRepresentativeIdeal_square_eq_principal_inve
   (Classical.choose_spec
     (exists_integralIdeal_square_eq_principal_inverse_of_narrowInversionFixedClass C)).2
 
+private theorem classGroup_mk0_sq_eq_one_narrowInversionFixedRepresentativeIdeal
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (C : NarrowInversionFixedClass (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) :
+    (ClassGroup.mk0 (narrowInversionFixedRepresentativeIdeal d C) :
+        ClassGroup (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) ^ 2 = 1 := by
+  let R := NumberField.RingOfIntegers (Qsqrtd (d : ℚ))
+  let I := narrowInversionFixedRepresentativeIdeal d C
+  have hI : NarrowClassGroup.mk0 I = C.1 :=
+    narrowInversionFixedRepresentativeIdeal_mk0 d C
+  have hnarrow : NarrowClassGroup.mk0 (I * I) = (1 : NarrowClassGroup R) :=
+    narrowClassGroup_mk0_mul_self_eq_one_of_inversionFixed hI
+  have hwide := congrArg (NarrowClassGroup.toClassGroup R) hnarrow
+  simp [map_mul] at hwide
+  simpa [I, pow_two] using hwide
+
 private noncomputable def narrowInversionFixedClassRamifiedParityVector
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
     {p0 : ℕ} (hp0 : p0 ∈ ramifiedPrimes d) :
