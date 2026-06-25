@@ -362,7 +362,7 @@ private theorem exists_nat_prime_comap_eq_p_and_dvd_absNorm
         p ∣ Ideal.absNorm P := by
   exact Ideal.exists_nat_prime_comap_eq_span_and_dvd_absNorm_of_isPrime hP hP0
 
-private theorem isPrincipal_of_isInertIn_of_comap_eq_p
+private theorem map_span_eq_of_isInertIn_of_comap_eq_p
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
     {P : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))}
     (hP : P.IsPrime) {p : ℕ} (hp : p.Prime)
@@ -370,7 +370,8 @@ private theorem isPrincipal_of_isInertIn_of_comap_eq_p
       P.comap (algebraMap ℤ (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) = 𝔭(p))
     (hinert : Ideal.IsInertIn (𝔭(p))
       (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) :
-    P.IsPrincipal := by
+    Ideal.map (algebraMap ℤ (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) (𝔭(p)) =
+      P := by
   have hchar : ringChar ℤ ≠ 2 := by simp [ringChar.eq_zero]
   have hpbot : (𝔭(p)) ≠ (⊥ : Ideal ℤ) := by
     rw [Ne, Ideal.span_singleton_eq_bot, Nat.cast_eq_zero]
@@ -394,10 +395,18 @@ private theorem isPrincipal_of_isInertIn_of_comap_eq_p
     rw [Ideal.map_span, Set.image_singleton, Ne, Ideal.span_singleton_eq_bot]
     simp only [map_natCast, Nat.cast_eq_zero]
     exact hp.ne_zero
-  have hPQ :
-      Ideal.map (algebraMap ℤ (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) (𝔭(p)) =
-        P :=
-    (hQprime.isMaximal hQbot).eq_of_le hP.ne_top hQle
+  exact (hQprime.isMaximal hQbot).eq_of_le hP.ne_top hQle
+
+private theorem isPrincipal_of_isInertIn_of_comap_eq_p
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    {P : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))}
+    (hP : P.IsPrime) {p : ℕ} (hp : p.Prime)
+    (hcomap :
+      P.comap (algebraMap ℤ (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) = 𝔭(p))
+    (hinert : Ideal.IsInertIn (𝔭(p))
+      (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) :
+    P.IsPrincipal := by
+  have hPQ := map_span_eq_of_isInertIn_of_comap_eq_p (d := d) hP hp hcomap hinert
   rw [← hPQ, Ideal.map_span, Set.image_singleton]
   exact ⟨_, rfl⟩
 
@@ -889,6 +898,18 @@ theorem card_narrowInversionFixedClass_le_genusBound
     intro P I p hI hP hp hcomap hsplit hne
     rw [← hsplitConjPairMapSpanEqMul hI hP hp hcomap hsplit hne]
     exact hmapSpanPrimePrincipal p
+  have hfactorMapSpanEqOfInertBelow :
+      ∀ {P : Ideal R} {I : (Ideal R)⁰} {p : ℕ},
+        P ∈ UniqueFactorizationMonoid.normalizedFactors I.1 →
+          p.Prime →
+            P.comap (algebraMap ℤ R) = 𝔭(p) →
+              Ideal.IsInertIn (𝔭(p)) R → Ideal.map (algebraMap ℤ R) (𝔭(p)) = P := by
+    intro P I p hP hp hcomap hinert
+    have hI0 : I.1 ≠ ⊥ := by
+      rw [← Ideal.zero_eq_bot]
+      exact mem_nonZeroDivisors_iff_ne_zero.mp I.2
+    have hPprime : P.IsPrime := (Ideal.mem_normalizedFactors_iff hI0).mp hP |>.1
+    exact map_span_eq_of_isInertIn_of_comap_eq_p (d := d) hPprime hp hcomap hinert
   have hfactorPrincipalOfInertBelow :
       ∀ {P : Ideal R} {I : (Ideal R)⁰} {p : ℕ},
         P ∈ UniqueFactorizationMonoid.normalizedFactors I.1 →
