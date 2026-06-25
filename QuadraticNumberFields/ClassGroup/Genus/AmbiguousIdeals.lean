@@ -314,6 +314,22 @@ theorem map_conjAut_eq_of_mem_primesOver_of_mem_ramifiedPrimes
     ((mem_ramifiedPrimes_iff_isRamifiedIn d p).mp hp).2
   exact map_conjAut_eq_of_mem_primesOver_of_isRamifiedIn (d := d) hP hram
 
+/-- If a prime ideal lies over a rational prime in the genus-theory ramified-prime
+set, then conjugation fixes it. This comap form is the interface used after
+choosing the rational prime below a prime ideal factor. -/
+theorem map_conjAut_eq_of_comap_eq_of_mem_ramifiedPrimes
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    {p : ℕ} (hp : p ∈ ramifiedPrimes d)
+    {P : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))} [P.IsPrime]
+    (hcomap : P.comap (algebraMap ℤ (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) =
+      𝔭(p)) :
+    Ideal.map (conjAutRingOfIntegers (Qsqrtd (d : ℚ)) :
+      NumberField.RingOfIntegers (Qsqrtd (d : ℚ)) →+*
+        NumberField.RingOfIntegers (Qsqrtd (d : ℚ))) P = P := by
+  letI : P.LiesOver (𝔭(p)) := ⟨hcomap.symm⟩
+  exact map_conjAut_eq_of_mem_primesOver_of_mem_ramifiedPrimes (d := d) hp
+    (P := P) ⟨inferInstance, inferInstance⟩
+
 /-- If `P` is a prime factor of an ambiguous ideal `I`, then its conjugate is
 again a prime factor of `I` and lies over the same rational prime ideal as `P`. -/
 theorem map_conjAut_mem_normalizedFactors_and_primesOver_comap_of_isAmbiguousIdeal
@@ -596,6 +612,13 @@ theorem card_narrowInversionFixedClass_le_genusBound
           Ideal.map (conjAutRingOfIntegers (Qsqrtd (d : ℚ)) : R →+* R) P = P := by
     intro p hp P hP
     exact map_conjAut_eq_of_mem_primesOver_of_mem_ramifiedPrimes (d := d) hp hP
+  have hconjFixedOfRamifiedComap :
+      ∀ {p : ℕ}, p ∈ ramifiedPrimes d → ∀ {P : Ideal R}, P.IsPrime →
+        P.comap (algebraMap ℤ R) = 𝔭(p) →
+          Ideal.map (conjAutRingOfIntegers (Qsqrtd (d : ℚ)) : R →+* R) P = P := by
+    intro p hp P hP hcomap
+    haveI : P.IsPrime := hP
+    exact map_conjAut_eq_of_comap_eq_of_mem_ramifiedPrimes (d := d) hp hcomap
   have hambiguousPrimeFactorConj :
       ∀ {P : Ideal R} {I : (Ideal R)⁰},
         IsAmbiguousIdeal (conjAutRingOfIntegers (Qsqrtd (d : ℚ))) I.1 →
