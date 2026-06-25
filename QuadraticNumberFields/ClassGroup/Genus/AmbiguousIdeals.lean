@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 
+import QNFMathlib.NumberTheory.NumberField.Galois
 import QNFMathlib.RingTheory.Ideal.Norm.AbsNorm
 import QuadraticNumberFields.ClassGroup.Genus.SquareClass
 import QuadraticNumberFields.QuadraticField.Conj
@@ -26,6 +27,7 @@ open scoped nonZeroDivisors NumberField QuadraticNumberFields.ClassGroup
 open scoped QuadraticNumberFields.Splitting
 
 attribute [-instance] DivisionRing.toRatAlgebra
+attribute [local instance] FractionRing.liftAlgebra
 
 /-! ## Ambiguous ideals and quadratic conjugation -/
 
@@ -113,6 +115,36 @@ theorem conjAutRingOfIntegersAlgEquiv_ne_refl (K : Type*) [Field K] [NumberField
   change (1 : NumberField.RingOfIntegers K ≃ₐ[ℤ] NumberField.RingOfIntegers K) =
     (galRestrict ℤ ℚ K (NumberField.RingOfIntegers K)) (1 : Gal(K / ℚ))
   rw [map_one]
+
+/-- The fraction-field extension attached to the ring of integers of a quadratic
+number field has degree two. -/
+theorem finrank_fractionRing_ringOfIntegers_eq_two (K : Type*) [Field K] [NumberField K]
+    [Algebra ℚ K] [QuadraticField K] :
+    Module.finrank (FractionRing ℤ) (FractionRing (NumberField.RingOfIntegers K)) = 2 := by
+  haveI : Algebra.IsAlgebraic ℤ (NumberField.RingOfIntegers K) :=
+    Algebra.IsAlgebraic.of_finite ℤ (NumberField.RingOfIntegers K)
+  calc
+    Module.finrank (FractionRing ℤ) (FractionRing (NumberField.RingOfIntegers K)) =
+        Module.finrank ℤ (NumberField.RingOfIntegers K) := by
+      simpa using
+        (Algebra.IsAlgebraic.finrank_of_isFractionRing (R := ℤ) (R' := FractionRing ℤ)
+          (S := NumberField.RingOfIntegers K)
+          (S' := FractionRing (NumberField.RingOfIntegers K)))
+    _ = Module.finrank ℚ K := by
+      convert NumberField.RingOfIntegers.rank (K := K)
+      exact Subsingleton.elim _ _
+    _ = 2 := Algebra.IsQuadraticExtension.finrank_eq_two ℚ K
+
+/-- The Galois group of the fraction-field extension attached to `𝓞 K / ℤ` has
+two elements for a quadratic number field. -/
+theorem card_gal_fractionRing_ringOfIntegers_eq_two (K : Type*) [Field K] [NumberField K]
+    [Algebra ℚ K] [QuadraticField K] :
+    Nat.card Gal(FractionRing (NumberField.RingOfIntegers K) / FractionRing ℤ) = 2 := by
+  haveI : IsGalois ℚ K := Algebra.IsQuadraticExtension.isGalois ℚ K
+  haveI : IsGalois (FractionRing ℤ) (FractionRing (NumberField.RingOfIntegers K)) :=
+    NumberField.isGalois_fractionRing_ringOfIntegers K
+  rw [IsGalois.card_aut_eq_finrank]
+  exact finrank_fractionRing_ringOfIntegers_eq_two K
 
 @[simp]
 theorem conjAutRingOfIntegers_apply_apply (K : Type*) [Field K] [Algebra ℚ K]
