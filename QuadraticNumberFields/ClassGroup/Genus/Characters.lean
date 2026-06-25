@@ -658,6 +658,57 @@ theorem exists_integral_multipliers_of_mul_toPrincipalIdeal_eq
     (FractionalIdeal.exists_span_mul_eq_span_mul_of_spanSingleton_mul_coeIdeal_eq_coeIdeal
       (R := NumberField.RingOfIntegers (Qsqrtd (d : ℚ))) hfrac)
 
+/-- Clear denominators in a principal fractional multiplier while retaining the
+fraction-field element represented by the numerator and denominator. -/
+theorem exists_integral_multipliers_with_mk'_of_mul_toPrincipalIdeal_eq
+      (q : {q // q ∈ signedPrimeDiscriminantFactors d})
+      (I J : signedFactorCoprimeIdealSubmonoid d q)
+      {x : (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))ˣ}
+      (hJ : FractionalIdeal.mk0
+          (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))
+          (signedFactorCoprimeIdealNonzeroMonoidHom d q I) *
+        toPrincipalIdeal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))
+          (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) x =
+        FractionalIdeal.mk0
+          (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))
+          (signedFactorCoprimeIdealNonzeroMonoidHom d q J)) :
+      ∃ a b : NumberField.RingOfIntegers (Qsqrtd (d : ℚ)), ∃ hb : b ≠ 0,
+        IsLocalization.mk'
+            (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) a
+            ⟨b, mem_nonZeroDivisors_iff_ne_zero.mpr hb⟩ =
+          (x : FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) ∧
+        Ideal.span ({a} : Set (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) *
+            (I : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) =
+          Ideal.span ({b} : Set (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) *
+            (J : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) := by
+  have hfrac : FractionalIdeal.spanSingleton
+        (nonZeroDivisors (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))
+        (x : FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) *
+        ((signedFactorCoprimeIdealNonzeroMonoidHom d q I :
+          Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) :
+          FractionalIdeal
+            (nonZeroDivisors (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))
+            (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))) =
+      ((signedFactorCoprimeIdealNonzeroMonoidHom d q J :
+          Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) :
+          FractionalIdeal
+            (nonZeroDivisors (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))
+            (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))) := by
+    have hJ_val := congrArg
+      (fun U : (FractionalIdeal
+          (nonZeroDivisors (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))
+          (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))))ˣ =>
+          (U : FractionalIdeal
+            (nonZeroDivisors (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))
+            (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))))) hJ
+    simpa [coe_toPrincipalIdeal, mul_comm] using hJ_val
+  rcases
+    FractionalIdeal.exists_mk'_span_mul_eq_span_mul_of_spanSingleton_mul_coeIdeal_eq_coeIdeal
+      (R := NumberField.RingOfIntegers (Qsqrtd (d : ℚ))) hfrac with
+    ⟨a, b, hxb, hclear⟩
+  refine ⟨a, b, mem_nonZeroDivisors_iff_ne_zero.mp b.property, ?_, hclear⟩
+  simpa using hxb
+
 /-- Clear denominators in a square principal fractional multiplier relating two
 signed-factor-coprime ideal representatives. -/
 theorem exists_integral_square_multipliers_of_mul_toPrincipalIdeal_sq_eq
@@ -1235,6 +1286,42 @@ theorem algebraNorm_nonneg_of_isTotallyPositive
       Qsqrtd.algebraNorm_ratAlgebra_eq_qsqrtdNorm]
     exact le_of_lt hnorm_pos_rat
   exact_mod_cast hcast
+
+/-- If a totally positive fraction-field unit is represented as `a / b`, then
+the integral element `a * b` has nonnegative algebra norm. Multiplying by the
+positive square `b²` clears the denominator without changing signs at real
+embeddings. -/
+theorem algebraNorm_nonneg_mul_of_isTotallyPositive_mk'
+    {D : ℤ} [Fact (Squarefree D)] [Fact (D ≠ 1)]
+    {x : (FractionRing (NumberField.RingOfIntegers (Qsqrtd (D : ℚ))))ˣ}
+    {a b : NumberField.RingOfIntegers (Qsqrtd (D : ℚ))}
+    (hb : b ≠ 0)
+    (hmk : IsLocalization.mk'
+        (FractionRing (NumberField.RingOfIntegers (Qsqrtd (D : ℚ)))) a
+        ⟨b, mem_nonZeroDivisors_iff_ne_zero.mpr hb⟩ =
+      (x : FractionRing (NumberField.RingOfIntegers (Qsqrtd (D : ℚ)))))
+    (hxpos : NarrowClassGroup.IsTotallyPositive
+      (x : FractionRing (NumberField.RingOfIntegers (Qsqrtd (D : ℚ))))) :
+    0 ≤ Algebra.norm ℤ (a * b) := by
+  refine algebraNorm_nonneg_of_isTotallyPositive ?_
+  intro σ
+  have hb_map_ne :
+      algebraMap (NumberField.RingOfIntegers (Qsqrtd (D : ℚ)))
+          (FractionRing (NumberField.RingOfIntegers (Qsqrtd (D : ℚ)))) b ≠ 0 :=
+    IsFractionRing.to_map_ne_zero_of_mem_nonZeroDivisors
+      (mem_nonZeroDivisors_iff_ne_zero.mpr hb)
+  have hmul :
+      algebraMap (NumberField.RingOfIntegers (Qsqrtd (D : ℚ)))
+          (FractionRing (NumberField.RingOfIntegers (Qsqrtd (D : ℚ)))) (a * b) =
+        (x : FractionRing (NumberField.RingOfIntegers (Qsqrtd (D : ℚ)))) *
+          algebraMap (NumberField.RingOfIntegers (Qsqrtd (D : ℚ)))
+            (FractionRing (NumberField.RingOfIntegers (Qsqrtd (D : ℚ)))) b ^ 2 := by
+    rw [map_mul]
+    rw [← hmk, IsFractionRing.mk'_eq_div]
+    field_simp [hb_map_ne]
+  rw [hmul, map_mul, map_pow]
+  exact mul_pos (hxpos σ)
+    (sq_pos_of_ne_zero ((_root_.map_ne_zero σ).mpr hb_map_ne))
 
 /-- Multiplying by a principal ideal generated by an element of nonnegative
 algebra norm does not change the raw signed-factor character, provided the
