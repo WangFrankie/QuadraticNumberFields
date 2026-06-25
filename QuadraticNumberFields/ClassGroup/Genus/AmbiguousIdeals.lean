@@ -352,34 +352,34 @@ theorem card_narrowClassGroupTwoTorsion_eq_card_narrowInversionFixedClass
       Nat.card (NarrowInversionFixedClass R) :=
   Nat.card_congr (narrowTwoTorsionEquivInversionFixedClass R)
 
-/-- An inversion-fixed narrow class has a nonzero integral ideal representative
-whose associated fractional ideal differs from its inverse by a totally positive
-principal fractional ideal. This is the narrow fixed-class relation used before
-passing to the ramified-prime exponent-vector count. -/
-theorem exists_integralIdeal_inverse_relation_of_narrowInversionFixedClass
-    {R : Type*} [CommRing R] [IsDomain R] [IsDedekindDomain R]
-    (C : NarrowInversionFixedClass R) :
-    ∃ I : (Ideal R)⁰,
-      NarrowClassGroup.mk0 I = C.1 ∧
-        ∃ x : NarrowClassGroup.totallyPositiveUnits (FractionRing R),
+/-- Triviality of a narrow class represented by a nonzero integral ideal is
+equivalent to the ideal becoming the inverse of a totally positive principal
+fractional ideal. -/
+private theorem narrowClassGroup_mk0_eq_one_iff_exists_fraction_ring
+    {R : Type*} [CommRing R] [IsDomain R] [IsDedekindDomain R] (I : (Ideal R)⁰) :
+    NarrowClassGroup.mk0 I = 1 ↔
+      ∃ x : (FractionRing R)ˣ,
+        NarrowClassGroup.IsTotallyPositive (x : FractionRing R) ∧
           FractionalIdeal.mk0 (FractionRing R) I *
-              NarrowClassGroup.toNarrowPrincipalIdeal R (FractionRing R) x =
-            (FractionalIdeal.mk0 (FractionRing R) I)⁻¹ := by
-  obtain ⟨I, hI⟩ := NarrowClassGroup.mk0_surjective C.1
-  refine ⟨I, hI, ?_⟩
-  have hfixed : NarrowClassGroup.mk0 I = (NarrowClassGroup.mk0 I)⁻¹ := by
-    calc
-      NarrowClassGroup.mk0 I = C.1 := hI
-      _ = C.1⁻¹ := C.2
-      _ = (NarrowClassGroup.mk0 I)⁻¹ := congrArg Inv.inv hI.symm
-  have hmk :
-      NarrowClassGroup.mk (FractionalIdeal.mk0 (FractionRing R) I) =
-        NarrowClassGroup.mk ((FractionalIdeal.mk0 (FractionRing R) I)⁻¹) := by
-    rw [NarrowClassGroup.mk_mk0, map_inv, NarrowClassGroup.mk_mk0]
-    exact hfixed
-  exact (NarrowClassGroup.mk_eq_mk
-    (I := FractionalIdeal.mk0 (FractionRing R) I)
-    (J := (FractionalIdeal.mk0 (FractionRing R) I)⁻¹)).mp hmk
+              toPrincipalIdeal R (FractionRing R) x =
+            1 := by
+  rw [← map_one (NarrowClassGroup.mk0 : (Ideal R)⁰ →* NarrowClassGroup R)]
+  rw [NarrowClassGroup.mk0_eq_mk0_iff_exists_fraction_ring]
+  rw [map_one (FractionalIdeal.mk0 (FractionRing R) :
+    (Ideal R)⁰ →* (FractionalIdeal R⁰ (FractionRing R))ˣ)]
+
+/-- If a nonzero integral ideal represents an inversion-fixed narrow class, then
+its square represents the trivial narrow class. -/
+theorem narrowClassGroup_mk0_mul_self_eq_one_of_inversionFixed
+    {R : Type*} [CommRing R] [IsDomain R] [IsDedekindDomain R]
+    {C : NarrowInversionFixedClass R} {I : (Ideal R)⁰}
+    (hI : NarrowClassGroup.mk0 I = C.1) :
+    NarrowClassGroup.mk0 (I * I) = 1 := by
+  have hmul : (C.1 : NarrowClassGroup R) * C.1 = 1 := by
+    nth_rewrite 1 [C.2]
+    rw [inv_mul_cancel]
+  rw [map_mul, hI]
+  exact hmul
 
 /-- An inversion-fixed narrow class has a nonzero integral ideal representative
 whose square is cancelled by a totally positive principal fractional ideal. This
@@ -394,20 +394,15 @@ theorem exists_integralIdeal_square_principal_relation_of_narrowInversionFixedCl
           (FractionalIdeal.mk0 (FractionRing R) I) ^ 2 *
               NarrowClassGroup.toNarrowPrincipalIdeal R (FractionRing R) x =
             1 := by
-  obtain ⟨I, hI, x, hx⟩ :=
-    exists_integralIdeal_inverse_relation_of_narrowInversionFixedClass C
-  refine ⟨I, hI, x, ?_⟩
-  calc
-    (FractionalIdeal.mk0 (FractionRing R) I) ^ 2 *
-        NarrowClassGroup.toNarrowPrincipalIdeal R (FractionRing R) x =
-        FractionalIdeal.mk0 (FractionRing R) I *
-          (FractionalIdeal.mk0 (FractionRing R) I *
-            NarrowClassGroup.toNarrowPrincipalIdeal R (FractionRing R) x) := by
-      rw [pow_two, mul_assoc]
-    _ = FractionalIdeal.mk0 (FractionRing R) I *
-        (FractionalIdeal.mk0 (FractionRing R) I)⁻¹ := by
-      rw [hx]
-    _ = 1 := mul_inv_cancel _
+  obtain ⟨I, hI⟩ := NarrowClassGroup.mk0_surjective C.1
+  refine ⟨I, hI, ?_⟩
+  have hsq :
+      NarrowClassGroup.mk0 (I * I) = (1 : NarrowClassGroup R) :=
+    narrowClassGroup_mk0_mul_self_eq_one_of_inversionFixed hI
+  obtain ⟨x, hxpos, hx⟩ :=
+    (narrowClassGroup_mk0_eq_one_iff_exists_fraction_ring (I * I)).mp hsq
+  refine ⟨⟨x, hxpos⟩, ?_⟩
+  simpa [pow_two, NarrowClassGroup.toNarrowPrincipalIdeal] using hx
 
 /-- An inversion-fixed narrow class has a nonzero integral ideal representative
 whose fractional-ideal square is the inverse of an ordinary principal fractional
