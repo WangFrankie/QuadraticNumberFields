@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 
+import QNFMathlib.RingTheory.Ideal.Norm.AbsNorm
 import QuadraticNumberFields.ClassGroup.Genus.SquareClass
 import QuadraticNumberFields.QuadraticField.Conj
 
@@ -351,6 +352,15 @@ theorem map_conjAut_mem_normalizedFactors_and_primesOver_comap_of_isAmbiguousIde
     haveI : P.IsPrime := hPprime
     exact map_conjAut_mem_primesOver_comap K P
 
+private theorem exists_nat_prime_comap_eq_p_and_dvd_absNorm
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    {P : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))}
+    (hP : P.IsPrime) (hP0 : P ≠ ⊥) :
+    ∃ p : ℕ, p.Prime ∧
+      P.comap (algebraMap ℤ (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) = 𝔭(p) ∧
+        p ∣ Ideal.absNorm P := by
+  exact Ideal.exists_nat_prime_comap_eq_span_and_dvd_absNorm_of_isPrime hP hP0
+
 /-- Applying the ring-of-integers conjugation twice fixes every ideal. -/
 @[simp]
 theorem map_conjAut_map_conjAut (K : Type*) [Field K] [Algebra ℚ K]
@@ -633,6 +643,41 @@ theorem card_narrowInversionFixedClass_le_genusBound
       exact mem_nonZeroDivisors_iff_ne_zero.mp I.2
     exact map_conjAut_mem_normalizedFactors_and_primesOver_comap_of_isAmbiguousIdeal
       (K := Qsqrtd (d : ℚ)) (P := P) (I := I.1) hI0 hI hP
+  have hprimeBelow :
+      ∀ {P : Ideal R}, P.IsPrime → P ≠ ⊥ →
+        ∃ p : ℕ, p.Prime ∧ P.comap (algebraMap ℤ R) = 𝔭(p) ∧
+          p ∣ Ideal.absNorm P := by
+    intro P hP hP0
+    exact exists_nat_prime_comap_eq_p_and_dvd_absNorm (d := d) hP hP0
+  have hfactorPrimeBelow :
+      ∀ {P : Ideal R} {I : (Ideal R)⁰},
+        P ∈ UniqueFactorizationMonoid.normalizedFactors I.1 →
+          ∃ p : ℕ, p.Prime ∧ P.comap (algebraMap ℤ R) = 𝔭(p) ∧
+            p ∣ Ideal.absNorm P := by
+    intro P I hP
+    have hI0 : I.1 ≠ ⊥ := by
+      rw [← Ideal.zero_eq_bot]
+      exact mem_nonZeroDivisors_iff_ne_zero.mp I.2
+    have hPprime : P.IsPrime := (Ideal.mem_normalizedFactors_iff hI0).mp hP |>.1
+    have hP0 : P ≠ ⊥ := by
+      rw [← Ideal.zero_eq_bot]
+      exact UniqueFactorizationMonoid.ne_zero_of_mem_normalizedFactors hP
+    exact hprimeBelow hPprime hP0
+  have hambiguousPrimeFactorConjOverPrime :
+      ∀ {P : Ideal R} {I : (Ideal R)⁰},
+        IsAmbiguousIdeal (conjAutRingOfIntegers (Qsqrtd (d : ℚ))) I.1 →
+          P ∈ UniqueFactorizationMonoid.normalizedFactors I.1 →
+            ∃ p : ℕ, p.Prime ∧ P.comap (algebraMap ℤ R) = 𝔭(p) ∧
+              p ∣ Ideal.absNorm P ∧
+                Ideal.map (conjAutRingOfIntegers (Qsqrtd (d : ℚ)) : R →+* R) P ∈
+                  UniqueFactorizationMonoid.normalizedFactors I.1 ∧
+                Ideal.map (conjAutRingOfIntegers (Qsqrtd (d : ℚ)) : R →+* R) P ∈
+                  Ideal.primesOver (𝔭(p)) R := by
+    intro P I hI hP
+    obtain ⟨p, hp, hcomap, hdiv⟩ := hfactorPrimeBelow (I := I) hP
+    obtain ⟨hconjFactor, hconjOver⟩ := hambiguousPrimeFactorConj hI hP
+    refine ⟨p, hp, hcomap, hdiv, hconjFactor, ?_⟩
+    rwa [← hcomap]
   sorry
 
 /-- Ambiguous-ideal upper bound: the two-torsion in the narrow class group has
