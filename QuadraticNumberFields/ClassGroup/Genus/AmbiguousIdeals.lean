@@ -431,6 +431,16 @@ private theorem map_span_eq_sq_of_isRamifiedIn_of_mem_primesOver
     simpa using hQmem
   simpa [hQP] using hmap
 
+private theorem primesOver_ncard_eq_two_of_isSplitIn
+    {R S : Type*} [CommRing R] [CommRing S] [Algebra R S]
+    [Nontrivial R] [IsDedekindDomain R] [IsDedekindDomain S]
+    [Algebra.IsQuadraticExtension R S]
+    {p : Ideal R} (hchar : ringChar R ≠ 2) (hp : p ≠ ⊥) [p.IsMaximal]
+    (hsplit : Ideal.IsSplitIn p S) :
+    (Ideal.primesOver p S).ncard = 2 :=
+  ((Ideal.ramificationIdxIn_eq_one_and_inertiaDegIn_eq_one_iff_efg p S hchar hp).mp
+    hsplit).1
+
 /-- Applying the ring-of-integers conjugation twice fixes every ideal. -/
 @[simp]
 theorem map_conjAut_map_conjAut (K : Type*) [Field K] [Algebra ℚ K]
@@ -755,6 +765,18 @@ theorem card_narrowInversionFixedClass_le_genusBound
     intro p hp
     haveI : Fact p.Prime := ⟨hp⟩
     exact QuadraticNumberFields.Splitting.split_or_inert_or_ramified (d := d) p
+  have hsplitPrimesOverNcard :
+      ∀ {p : ℕ}, p.Prime →
+        Ideal.IsSplitIn (𝔭(p)) R → (Ideal.primesOver (𝔭(p)) R).ncard = 2 := by
+    intro p hp hsplit
+    have hpbot : (𝔭(p)) ≠ (⊥ : Ideal ℤ) := by
+      rw [Ne, Ideal.span_singleton_eq_bot, Nat.cast_eq_zero]
+      exact hp.ne_zero
+    haveI : (𝔭(p)).IsMaximal :=
+      PrincipalIdealRing.isMaximal_of_irreducible
+        ((Nat.prime_iff_prime_int.mp hp).irreducible)
+    exact primesOver_ncard_eq_two_of_isSplitIn
+      (S := R) (p := 𝔭(p)) (by simp [ringChar.eq_zero]) hpbot hsplit
   have hfactorPrincipalOfInertBelow :
       ∀ {P : Ideal R} {I : (Ideal R)⁰} {p : ℕ},
         P ∈ UniqueFactorizationMonoid.normalizedFactors I.1 →
