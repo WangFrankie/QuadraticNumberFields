@@ -1417,6 +1417,62 @@ theorem genusCharacterOfSignedFactorRaw_eq_of_span_mul_eq_span_sq_mul
   exact genusCharacterOfSignedFactorRaw_eq_of_mul_eq_of_raw_eq D q I J A (B ^ 2)
     hprod' (by rw [hA, hB])
 
+/-- A denominator-cleared principal relation coming from a totally positive
+fraction-field multiplier compares raw signed-factor characters, once the
+resulting principal ideals are known to remain coprime to the signed factor. -/
+theorem genusCharacterOfSignedFactorRaw_eq_of_span_mul_eq_span_mul_of_isTotallyPositive_mk'
+    {D : ℤ} [Fact (Squarefree D)] [Fact (D ≠ 1)]
+    (q : {q // q ∈ signedPrimeDiscriminantFactors D})
+    (I J : signedFactorCoprimeIdealSubmonoid D q)
+    {x : (FractionRing (NumberField.RingOfIntegers (Qsqrtd (D : ℚ))))ˣ}
+    {a b : NumberField.RingOfIntegers (Qsqrtd (D : ℚ))}
+    (hb : b ≠ 0)
+    (hmk : IsLocalization.mk'
+        (FractionRing (NumberField.RingOfIntegers (Qsqrtd (D : ℚ)))) a
+        ⟨b, mem_nonZeroDivisors_iff_ne_zero.mpr hb⟩ =
+      (x : FractionRing (NumberField.RingOfIntegers (Qsqrtd (D : ℚ)))))
+    (hxpos : NarrowClassGroup.IsTotallyPositive
+      (x : FractionRing (NumberField.RingOfIntegers (Qsqrtd (D : ℚ)))))
+    (habcop : Nat.Coprime
+      (Ideal.absNorm (Ideal.span
+        ({a * b} : Set (NumberField.RingOfIntegers (Qsqrtd (D : ℚ)))))) q.1.natAbs)
+    (hbcop : Nat.Coprime
+      (Ideal.absNorm (Ideal.span
+        ({b} : Set (NumberField.RingOfIntegers (Qsqrtd (D : ℚ)))))) q.1.natAbs)
+    (hprod : Ideal.span
+        ({a} : Set (NumberField.RingOfIntegers (Qsqrtd (D : ℚ)))) *
+          (I : Ideal (NumberField.RingOfIntegers (Qsqrtd (D : ℚ)))) =
+        Ideal.span ({b} : Set (NumberField.RingOfIntegers (Qsqrtd (D : ℚ)))) *
+          (J : Ideal (NumberField.RingOfIntegers (Qsqrtd (D : ℚ))))) :
+    genusCharacterOfSignedFactorRaw D q I =
+      genusCharacterOfSignedFactorRaw D q J := by
+  have hab_nonneg : 0 ≤ Algebra.norm ℤ (a * b) :=
+    algebraNorm_nonneg_mul_of_isTotallyPositive_mk' hb hmk hxpos
+  refine genusCharacterOfSignedFactorRaw_eq_of_span_mul_eq_span_sq_mul
+    q I J hab_nonneg habcop hbcop ?_
+  calc
+    Ideal.span ({a * b} : Set (NumberField.RingOfIntegers (Qsqrtd (D : ℚ)))) *
+        (I : Ideal (NumberField.RingOfIntegers (Qsqrtd (D : ℚ)))) =
+      (Ideal.span ({a} : Set (NumberField.RingOfIntegers (Qsqrtd (D : ℚ)))) *
+          Ideal.span ({b} : Set (NumberField.RingOfIntegers (Qsqrtd (D : ℚ))))) *
+        (I : Ideal (NumberField.RingOfIntegers (Qsqrtd (D : ℚ)))) := by
+        rw [Ideal.span_singleton_mul_span_singleton]
+    _ =
+      Ideal.span ({b} : Set (NumberField.RingOfIntegers (Qsqrtd (D : ℚ)))) *
+        (Ideal.span ({a} : Set (NumberField.RingOfIntegers (Qsqrtd (D : ℚ)))) *
+          (I : Ideal (NumberField.RingOfIntegers (Qsqrtd (D : ℚ))))) := by
+        ac_rfl
+    _ =
+      Ideal.span ({b} : Set (NumberField.RingOfIntegers (Qsqrtd (D : ℚ)))) *
+        (Ideal.span ({b} : Set (NumberField.RingOfIntegers (Qsqrtd (D : ℚ)))) *
+          (J : Ideal (NumberField.RingOfIntegers (Qsqrtd (D : ℚ))))) := by
+        rw [hprod]
+    _ =
+      Ideal.span ({b} : Set (NumberField.RingOfIntegers (Qsqrtd (D : ℚ)))) *
+        Ideal.span ({b} : Set (NumberField.RingOfIntegers (Qsqrtd (D : ℚ)))) *
+          (J : Ideal (NumberField.RingOfIntegers (Qsqrtd (D : ℚ)))) := by
+        ac_rfl
+
 /-- Well-definedness input for signed-factor genus characters: the raw Kronecker
 value is constant on fibers of the restricted narrow class-group map. -/
 theorem genusCharacterOfSignedFactorRaw_eq_of_narrowMk0OnSignedFactorCoprimeIdeals_eq
