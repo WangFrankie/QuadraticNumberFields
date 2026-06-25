@@ -401,6 +401,36 @@ private theorem isPrincipal_of_isInertIn_of_comap_eq_p
   rw [← hPQ, Ideal.map_span, Set.image_singleton]
   exact ⟨_, rfl⟩
 
+private theorem map_span_eq_sq_of_isRamifiedIn_of_mem_primesOver
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] {p : ℕ} (hp : p.Prime)
+    {P : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))}
+    (hP : P ∈ Ideal.primesOver (𝔭(p))
+      (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))
+    (hram : Ideal.IsRamifiedIn (𝔭(p))
+      (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) :
+    Ideal.map (algebraMap ℤ (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) (𝔭(p)) =
+      P ^ 2 := by
+  have hchar : ringChar ℤ ≠ 2 := by simp [ringChar.eq_zero]
+  have hpbot : (𝔭(p)) ≠ (⊥ : Ideal ℤ) := by
+    rw [Ne, Ideal.span_singleton_eq_bot, Nat.cast_eq_zero]
+    exact hp.ne_zero
+  haveI : (𝔭(p)).IsMaximal :=
+    PrincipalIdealRing.isMaximal_of_irreducible
+      ((Nat.prime_iff_prime_int.mp hp).irreducible)
+  obtain ⟨Q, hQ, hmap⟩ :=
+    Ideal.map_eq_sq_of_isRamifiedIn (𝔭(p))
+      (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))) hchar hpbot hram
+  have hsingleton :
+      Ideal.primesOver (𝔭(p)) (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))) = {P} :=
+    primesOver_eq_singleton_of_isRamifiedIn
+      (S := NumberField.RingOfIntegers (Qsqrtd (d : ℚ))) (p := 𝔭(p))
+      hchar hpbot hP hram
+  have hQP : Q = P := by
+    have hQmem : Q ∈ ({P} : Set (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))) := by
+      simpa [hsingleton] using hQ
+    simpa using hQmem
+  simpa [hQP] using hmap
+
 /-- Applying the ring-of-integers conjugation twice fixes every ideal. -/
 @[simp]
 theorem map_conjAut_map_conjAut (K : Type*) [Field K] [Algebra ℚ K]
@@ -737,6 +767,20 @@ theorem card_narrowInversionFixedClass_le_genusBound
       exact mem_nonZeroDivisors_iff_ne_zero.mp I.2
     have hPprime : P.IsPrime := (Ideal.mem_normalizedFactors_iff hI0).mp hP |>.1
     exact isPrincipal_of_isInertIn_of_comap_eq_p (d := d) hPprime hp hcomap hinert
+  have hfactorMapSpanEqSqOfRamifiedBelow :
+      ∀ {P : Ideal R} {I : (Ideal R)⁰} {p : ℕ},
+        P ∈ UniqueFactorizationMonoid.normalizedFactors I.1 →
+          p.Prime →
+            P.comap (algebraMap ℤ R) = 𝔭(p) →
+              Ideal.IsRamifiedIn (𝔭(p)) R →
+                Ideal.map (algebraMap ℤ R) (𝔭(p)) = P ^ 2 := by
+    intro P I p hP hp hcomap hram
+    have hI0 : I.1 ≠ ⊥ := by
+      rw [← Ideal.zero_eq_bot]
+      exact mem_nonZeroDivisors_iff_ne_zero.mp I.2
+    have hPprime : P.IsPrime := (Ideal.mem_normalizedFactors_iff hI0).mp hP |>.1
+    have hPover : P ∈ Ideal.primesOver (𝔭(p)) R := ⟨hPprime, ⟨hcomap.symm⟩⟩
+    exact map_span_eq_sq_of_isRamifiedIn_of_mem_primesOver (d := d) hp hPover hram
   sorry
 
 /-- Ambiguous-ideal upper bound: the two-torsion in the narrow class group has
