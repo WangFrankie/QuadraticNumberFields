@@ -1149,7 +1149,51 @@ theorem exists_denominator_coprime_mk'_of_mul_toPrincipalIdeal_eq
       Nat.Coprime
         (Ideal.absNorm (Ideal.span
           ({b} : Set (NumberField.RingOfIntegers (Qsqrtd (D : ℚ)))))) q.1.natAbs := by
-  sorry
+  let R := NumberField.RingOfIntegers (Qsqrtd (D : ℚ))
+  let K := FractionRing R
+  let b : R := Ideal.absNorm (I : Ideal R)
+  have hbI : b ∈ (I : Ideal R) := by
+    simpa [b, R] using Ideal.absNorm_mem (I : Ideal R)
+  have hb_ne : b ≠ 0 := by
+    have hI_norm_ne : Ideal.absNorm (I : Ideal R) ≠ 0 :=
+      absNorm_ne_zero_of_mem_signedFactorCoprimeIdealSubmonoid D q I
+    dsimp [b]
+    exact Nat.cast_ne_zero.mpr hI_norm_ne
+  have hfrac : FractionalIdeal.spanSingleton (nonZeroDivisors R) (x : K) *
+        ((signedFactorCoprimeIdealNonzeroMonoidHom D q I : Ideal R) :
+          FractionalIdeal (nonZeroDivisors R) K) =
+      ((signedFactorCoprimeIdealNonzeroMonoidHom D q J : Ideal R) :
+        FractionalIdeal (nonZeroDivisors R) K) := by
+    have hJ_val := congrArg
+      (fun U : (FractionalIdeal (nonZeroDivisors R) K)ˣ =>
+          (U : FractionalIdeal (nonZeroDivisors R) K)) hJ
+    simpa [R, K, coe_toPrincipalIdeal, mul_comm] using hJ_val
+  have hb_mem_frac :
+      algebraMap R K b ∈
+        ((signedFactorCoprimeIdealNonzeroMonoidHom D q I : Ideal R) :
+          FractionalIdeal (nonZeroDivisors R) K) :=
+    FractionalIdeal.mem_coeIdeal_of_mem (nonZeroDivisors R) hbI
+  have hxb_mem :
+      (x : K) * algebraMap R K b ∈
+        ((signedFactorCoprimeIdealNonzeroMonoidHom D q J : Ideal R) :
+          FractionalIdeal (nonZeroDivisors R) K) := by
+    rw [← hfrac]
+    exact FractionalIdeal.mem_singleton_mul.mpr ⟨algebraMap R K b, hb_mem_frac, rfl⟩
+  rcases (FractionalIdeal.mem_coeIdeal (S := nonZeroDivisors R)).mp hxb_mem with
+    ⟨a, _haJ, ha⟩
+  refine ⟨a, b, hb_ne, ?_, ?_⟩
+  · rw [IsLocalization.mk'_eq_iff_eq_mul]
+    simpa using ha
+  · have hb_norm_coprime :
+        Nat.Coprime (Ideal.absNorm (I : Ideal R)) q.1.natAbs := I.property
+    have hb_span :
+        Ideal.absNorm (Ideal.span ({b} : Set R)) =
+          Ideal.absNorm (I : Ideal R) ^ 2 := by
+      simpa [b, R] using
+        (RingOfIntegers.absNorm_span_intCast (d := D)
+          (n := (Ideal.absNorm (I : Ideal R) : ℤ)))
+    rw [hb_span]
+    exact hb_norm_coprime.pow_left 2
 
 /-- Well-definedness input for signed-factor genus characters: the raw Kronecker
 value is constant on fibers of the restricted narrow class-group map. -/
