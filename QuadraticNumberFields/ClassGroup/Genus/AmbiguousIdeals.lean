@@ -202,6 +202,29 @@ theorem map_conjAut_mem_normalizedFactors_iff_of_isAmbiguousIdeal (K : Type*)
   simpa [hI] using
     map_conjAut_mem_normalizedFactors_iff (K := K) (P := P) (I := I) hI0
 
+/-- The conjugate of a prime ideal lies over the same rational prime ideal. -/
+theorem map_conjAut_liesOver_comap (K : Type*) [Field K] [Algebra ℚ K]
+    [QuadraticField K] [QuadraticField.Conj K]
+    (P : Ideal (NumberField.RingOfIntegers K)) :
+    (Ideal.map (conjAutRingOfIntegers K : NumberField.RingOfIntegers K →+*
+      NumberField.RingOfIntegers K) P).LiesOver
+        (P.comap (algebraMap ℤ (NumberField.RingOfIntegers K))) := by
+  letI : P.LiesOver (P.comap (algebraMap ℤ (NumberField.RingOfIntegers K))) := ⟨rfl⟩
+  exact Ideal.LiesOver.of_eq_map_equiv
+    (P.comap (algebraMap ℤ (NumberField.RingOfIntegers K)))
+    (conjAutRingOfIntegersAlgEquiv K) rfl
+
+/-- The conjugate of a prime ideal is again a prime ideal over the same rational
+prime ideal. -/
+theorem map_conjAut_mem_primesOver_comap (K : Type*) [Field K] [Algebra ℚ K]
+    [QuadraticField K] [QuadraticField.Conj K]
+    (P : Ideal (NumberField.RingOfIntegers K)) [P.IsPrime] :
+    Ideal.map (conjAutRingOfIntegers K : NumberField.RingOfIntegers K →+*
+      NumberField.RingOfIntegers K) P ∈
+        Ideal.primesOver (P.comap (algebraMap ℤ (NumberField.RingOfIntegers K)))
+          (NumberField.RingOfIntegers K) :=
+  ⟨Ideal.map_isPrime_of_equiv (conjAutRingOfIntegers K), map_conjAut_liesOver_comap K P⟩
+
 /-- Applying the ring-of-integers conjugation twice fixes every ideal. -/
 @[simp]
 theorem map_conjAut_map_conjAut (K : Type*) [Field K] [Algebra ℚ K]
@@ -449,6 +472,13 @@ theorem card_narrowInversionFixedClass_le_genusBound
       exact mem_nonZeroDivisors_iff_ne_zero.mp I.2
     exact map_conjAut_mem_normalizedFactors_iff_of_isAmbiguousIdeal
       (K := Qsqrtd (d : ℚ)) (P := P) (I := I.1) hI0 hI
+  have hconjPrimesOver :
+      ∀ {P : Ideal R}, P.IsPrime →
+        Ideal.map (conjAutRingOfIntegers (Qsqrtd (d : ℚ)) : R →+* R) P ∈
+          Ideal.primesOver (P.comap (algebraMap ℤ R)) R := by
+    intro P hP
+    haveI : P.IsPrime := hP
+    exact map_conjAut_mem_primesOver_comap (K := Qsqrtd (d : ℚ)) P
   sorry
 
 /-- Ambiguous-ideal upper bound: the two-torsion in the narrow class group has
