@@ -1340,6 +1340,34 @@ theorem exists_integralIdeal_square_eq_principal_inverse_of_narrowInversionFixed
   refine (eq_inv_iff_mul_eq_one).2 ?_
   simpa [NarrowClassGroup.toNarrowPrincipalIdeal] using hx
 
+private noncomputable def narrowInversionFixedRepresentativeIdeal
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (C : NarrowInversionFixedClass (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) :
+    (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰ :=
+  Classical.choose
+    (exists_integralIdeal_square_eq_principal_inverse_of_narrowInversionFixedClass C)
+
+private theorem narrowInversionFixedRepresentativeIdeal_mk0
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (C : NarrowInversionFixedClass (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) :
+    NarrowClassGroup.mk0 (narrowInversionFixedRepresentativeIdeal d C) = C.1 :=
+  (Classical.choose_spec
+    (exists_integralIdeal_square_eq_principal_inverse_of_narrowInversionFixedClass C)).1
+
+private theorem narrowInversionFixedRepresentativeIdeal_square_eq_principal_inverse
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (C : NarrowInversionFixedClass (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) :
+    ∃ x : (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))ˣ,
+      NarrowClassGroup.IsTotallyPositive
+        (x : FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) ∧
+        (FractionalIdeal.mk0
+            (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))
+            (narrowInversionFixedRepresentativeIdeal d C)) ^ 2 =
+          (toPrincipalIdeal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))
+            (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) x)⁻¹ :=
+  (Classical.choose_spec
+    (exists_integralIdeal_square_eq_principal_inverse_of_narrowInversionFixedClass C)).2
+
 private noncomputable def narrowInversionFixedClassRamifiedParityVector
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
     {p0 : ℕ} (hp0 : p0 ∈ ramifiedPrimes d) :
@@ -1347,9 +1375,7 @@ private noncomputable def narrowInversionFixedClassRamifiedParityVector
       ({p // p ∈ (ramifiedPrimes d).erase p0} → Fin 2) := by
   classical
   intro C
-  exact idealRamifiedParityVector d hp0
-    (Classical.choose
-      (exists_integralIdeal_square_eq_principal_inverse_of_narrowInversionFixedClass C))
+  exact idealRamifiedParityVector d hp0 (narrowInversionFixedRepresentativeIdeal d C)
 
 /-- Remaining ambiguous-class-number input in inversion-fixed form: the
 inversion-fixed narrow classes are bounded by the genus count. The next
