@@ -421,6 +421,51 @@ theorem primesOver_eq_singleton_of_mem_ramifiedPrimes
     exact hP
   simpa [hPQ] using hQ
 
+private noncomputable def ramifiedPrimeIdeal
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    {p : ℕ} (hp : p ∈ ramifiedPrimes d) :
+    Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))) :=
+  (exists_primesOver_eq_singleton_of_mem_ramifiedPrimes (d := d) hp).choose
+
+private theorem primesOver_eq_singleton_ramifiedPrimeIdeal
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    {p : ℕ} (hp : p ∈ ramifiedPrimes d) :
+    Ideal.primesOver (𝔭(p)) (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))) =
+      {ramifiedPrimeIdeal d hp} :=
+  (exists_primesOver_eq_singleton_of_mem_ramifiedPrimes (d := d) hp).choose_spec
+
+private theorem ramifiedPrimeIdeal_mem_primesOver
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    {p : ℕ} (hp : p ∈ ramifiedPrimes d) :
+    ramifiedPrimeIdeal d hp ∈
+      Ideal.primesOver (𝔭(p)) (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))) := by
+  rw [primesOver_eq_singleton_ramifiedPrimeIdeal]
+  exact Set.mem_singleton _
+
+private theorem ramifiedPrimeIdeal_isPrime
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    {p : ℕ} (hp : p ∈ ramifiedPrimes d) :
+    (ramifiedPrimeIdeal d hp).IsPrime :=
+  (ramifiedPrimeIdeal_mem_primesOver d hp).1
+
+private theorem ramifiedPrimeIdeal_comap
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    {p : ℕ} (hp : p ∈ ramifiedPrimes d) :
+    (ramifiedPrimeIdeal d hp).comap
+        (algebraMap ℤ (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) =
+      𝔭(p) := by
+  exact (ramifiedPrimeIdeal_mem_primesOver d hp).2.over.symm
+
+private theorem ramifiedPrimeIdeal_ne_bot
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    {p : ℕ} (hp : p ∈ ramifiedPrimes d) :
+    ramifiedPrimeIdeal d hp ≠ ⊥ := by
+  have hpPrime : p.Prime := prime_of_mem_ramifiedPrimes hp
+  have hp0 : (𝔭(p) : Ideal ℤ) ≠ ⊥ := by
+    rw [Ne, Ideal.span_singleton_eq_bot, Nat.cast_eq_zero]
+    exact hpPrime.ne_zero
+  exact Ideal.ne_bot_of_mem_primesOver hp0 (ramifiedPrimeIdeal_mem_primesOver d hp)
+
 /-- A prime ideal over a rational prime from the genus-theory ramified-prime set
 is fixed by quadratic conjugation. -/
 theorem map_conjAut_eq_of_mem_primesOver_of_mem_ramifiedPrimes
@@ -1152,6 +1197,17 @@ private theorem classGroup_mk0_sq_eq_one_of_sq_isPrincipal
       rw [map_pow]
     _ = (1 : ClassGroup R) := (ClassGroup.mk0_eq_one_iff (P0 ^ 2).2).mpr hP2
 
+private noncomputable def idealRamifiedParityVector
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    {p0 : ℕ} (_hp0 : p0 ∈ ramifiedPrimes d)
+    (I : (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰) :
+    ({p // p ∈ (ramifiedPrimes d).erase p0} → Fin 2) := by
+  classical
+  exact fun p =>
+    ⟨(UniqueFactorizationMonoid.normalizedFactors I.1).count
+        (ramifiedPrimeIdeal d ((Finset.mem_erase.mp p.2).2)) % 2,
+      Nat.mod_lt _ (by decide : 0 < 2)⟩
+
 private theorem card_le_genusBound_of_injective_to_ramifiedParityVectors
     {α : Type*}
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
@@ -1283,6 +1339,17 @@ theorem exists_integralIdeal_square_eq_principal_inverse_of_narrowInversionFixed
   refine ⟨I, hI, x.1, x.2, ?_⟩
   refine (eq_inv_iff_mul_eq_one).2 ?_
   simpa [NarrowClassGroup.toNarrowPrincipalIdeal] using hx
+
+private noncomputable def narrowInversionFixedClassRamifiedParityVector
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    {p0 : ℕ} (hp0 : p0 ∈ ramifiedPrimes d) :
+    NarrowInversionFixedClass (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))) →
+      ({p // p ∈ (ramifiedPrimes d).erase p0} → Fin 2) := by
+  classical
+  intro C
+  exact idealRamifiedParityVector d hp0
+    (Classical.choose
+      (exists_integralIdeal_square_eq_principal_inverse_of_narrowInversionFixedClass C))
 
 /-- Remaining ambiguous-class-number input in inversion-fixed form: the
 inversion-fixed narrow classes are bounded by the genus count. The next
@@ -1650,10 +1717,8 @@ theorem card_narrowInversionFixedClass_le_genusBound
   obtain ⟨p0, hp0⟩ : (ramifiedPrimes d).Nonempty := by
     rw [← Finset.card_pos, ← ramifiedPrimeCount_eq_card]
     exact Nat.lt_of_lt_of_le Nat.zero_lt_one (one_le_ramifiedPrimeCount d)
-  obtain ⟨ramifiedParityVector, hramifiedParityVector_injective⟩ :
-      ∃ f : NarrowInversionFixedClass R →
-          ({p // p ∈ (ramifiedPrimes d).erase p0} → Fin 2),
-        Function.Injective f := by
+  let ramifiedParityVector := narrowInversionFixedClassRamifiedParityVector d hp0
+  have hramifiedParityVector_injective : Function.Injective ramifiedParityVector := by
     -- Remaining gap: construct the parity vector by factoring a narrow
     -- representative and using the split/inert principal-pair lemmas above
     -- plus the single positive-principal relation to erase the `p0` coordinate.
