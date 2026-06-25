@@ -709,6 +709,57 @@ theorem exists_integral_multipliers_with_mk'_of_mul_toPrincipalIdeal_eq
   refine ⟨a, b, mem_nonZeroDivisors_iff_ne_zero.mp b.property, ?_, hclear⟩
   simpa using hxb
 
+/-- Clear denominators in a chosen `mk'` representative of a principal fractional
+multiplier relating two signed-factor-coprime integral ideals. -/
+theorem span_mul_eq_span_mul_of_mk'_eq_of_mul_toPrincipalIdeal_eq
+      (q : {q // q ∈ signedPrimeDiscriminantFactors d})
+      (I J : signedFactorCoprimeIdealSubmonoid d q)
+      {x : (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))ˣ}
+      (hJ : FractionalIdeal.mk0
+          (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))
+          (signedFactorCoprimeIdealNonzeroMonoidHom d q I) *
+        toPrincipalIdeal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))
+          (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) x =
+        FractionalIdeal.mk0
+          (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))
+          (signedFactorCoprimeIdealNonzeroMonoidHom d q J))
+      {a b : NumberField.RingOfIntegers (Qsqrtd (d : ℚ))}
+      (hb : b ≠ 0)
+      (hmk : IsLocalization.mk'
+          (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) a
+          ⟨b, mem_nonZeroDivisors_iff_ne_zero.mpr hb⟩ =
+        (x : FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))) :
+      Ideal.span ({a} : Set (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) *
+          (I : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) =
+        Ideal.span ({b} : Set (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) *
+          (J : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) := by
+  have hfrac : FractionalIdeal.spanSingleton
+        (nonZeroDivisors (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))
+        (x : FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) *
+        ((signedFactorCoprimeIdealNonzeroMonoidHom d q I :
+          Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) :
+          FractionalIdeal
+            (nonZeroDivisors (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))
+            (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))) =
+      ((signedFactorCoprimeIdealNonzeroMonoidHom d q J :
+          Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) :
+          FractionalIdeal
+            (nonZeroDivisors (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))
+            (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))) := by
+    have hJ_val := congrArg
+      (fun U : (FractionalIdeal
+          (nonZeroDivisors (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))
+          (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))))ˣ =>
+          (U : FractionalIdeal
+            (nonZeroDivisors (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))
+            (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))))) hJ
+    simpa [coe_toPrincipalIdeal, mul_comm] using hJ_val
+  exact (FractionalIdeal.mk'_mul_coeIdeal_eq_coeIdeal
+    (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))
+    (mem_nonZeroDivisors_iff_ne_zero.mpr hb)).mp (by
+      rw [hmk]
+      simpa using hfrac)
+
 /-- Clear denominators in a square principal fractional multiplier relating two
 signed-factor-coprime ideal representatives. -/
 theorem exists_integral_square_multipliers_of_mul_toPrincipalIdeal_sq_eq
@@ -1595,6 +1646,44 @@ theorem genusCharacterOfSignedFactorRaw_eq_of_exists_denominator_coprime_mk'
     absNorm_span_mul_coprime_of_span_mul_eq_span_mul q I J hbcop hprod
   exact genusCharacterOfSignedFactorRaw_eq_of_span_mul_eq_span_mul_of_isTotallyPositive_mk'
     q I J hb hmk hxpos habcop hbcop hprod
+
+/-- A chosen denominator-coprime `mk'` representative of the totally positive
+principal multiplier in a narrow-fiber relation compares the raw signed-factor
+characters. -/
+theorem genusCharacterOfSignedFactorRaw_eq_of_denominator_coprime_mk'_of_mul_toPrincipalIdeal_eq
+    {D : ℤ} [Fact (Squarefree D)] [Fact (D ≠ 1)]
+    (q : {q // q ∈ signedPrimeDiscriminantFactors D})
+    (I J : signedFactorCoprimeIdealSubmonoid D q)
+    {x : (FractionRing (NumberField.RingOfIntegers (Qsqrtd (D : ℚ))))ˣ}
+    (hxpos : NarrowClassGroup.IsTotallyPositive
+      (x : FractionRing (NumberField.RingOfIntegers (Qsqrtd (D : ℚ)))))
+    (hJ : FractionalIdeal.mk0
+        (FractionRing (NumberField.RingOfIntegers (Qsqrtd (D : ℚ))))
+        (signedFactorCoprimeIdealNonzeroMonoidHom D q I) *
+      toPrincipalIdeal (NumberField.RingOfIntegers (Qsqrtd (D : ℚ)))
+        (FractionRing (NumberField.RingOfIntegers (Qsqrtd (D : ℚ)))) x =
+      FractionalIdeal.mk0
+        (FractionRing (NumberField.RingOfIntegers (Qsqrtd (D : ℚ))))
+        (signedFactorCoprimeIdealNonzeroMonoidHom D q J))
+    {a b : NumberField.RingOfIntegers (Qsqrtd (D : ℚ))}
+    (hb : b ≠ 0)
+    (hmk : IsLocalization.mk'
+        (FractionRing (NumberField.RingOfIntegers (Qsqrtd (D : ℚ)))) a
+        ⟨b, mem_nonZeroDivisors_iff_ne_zero.mpr hb⟩ =
+      (x : FractionRing (NumberField.RingOfIntegers (Qsqrtd (D : ℚ)))))
+    (hbcop : Nat.Coprime
+      (Ideal.absNorm (Ideal.span
+        ({b} : Set (NumberField.RingOfIntegers (Qsqrtd (D : ℚ)))))) q.1.natAbs) :
+    genusCharacterOfSignedFactorRaw D q I =
+      genusCharacterOfSignedFactorRaw D q J := by
+  have hprod :
+      Ideal.span ({a} : Set (NumberField.RingOfIntegers (Qsqrtd (D : ℚ)))) *
+          (I : Ideal (NumberField.RingOfIntegers (Qsqrtd (D : ℚ)))) =
+        Ideal.span ({b} : Set (NumberField.RingOfIntegers (Qsqrtd (D : ℚ)))) *
+          (J : Ideal (NumberField.RingOfIntegers (Qsqrtd (D : ℚ)))) :=
+    span_mul_eq_span_mul_of_mk'_eq_of_mul_toPrincipalIdeal_eq D q I J hJ hb hmk
+  exact genusCharacterOfSignedFactorRaw_eq_of_exists_denominator_coprime_mk'
+    q I J hxpos ⟨a, b, hb, hmk, hbcop, hprod⟩
 
 /-- Well-definedness input for signed-factor genus characters: the raw Kronecker
 value is constant on fibers of the restricted narrow class-group map. -/
