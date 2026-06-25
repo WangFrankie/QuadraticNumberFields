@@ -11,8 +11,9 @@ import Mathlib.RingTheory.DedekindDomain.Factorization
 
 Material destined for mathlib.
 
-This file currently contains two helper families:
+This file currently contains three helper families:
 
+* denominator clearing for single principal fractional-ideal multipliers;
 * denominator clearing for square principal fractional-ideal multipliers;
 * in a Dedekind domain, integral ideal-class representatives coprime to a
   prescribed nonzero ideal. The proof avoids valuations: it uses the `1.5`-generator
@@ -25,6 +26,19 @@ open scoped nonZeroDivisors
 namespace FractionalIdeal
 
 variable {R : Type*} [CommRing R] [IsDomain R]
+
+/-- Clear denominators in a principal fractional-ideal multiplier.
+
+If `z I = J` as fractional ideals, then after writing `z = x / y` one gets
+`(x) I = (y) J` as integral ideals. -/
+theorem exists_span_mul_eq_span_mul_of_spanSingleton_mul_coeIdeal_eq_coeIdeal
+    {I J : Ideal R} {z : FractionRing R}
+    (hJ : spanSingleton R⁰ z * (I : FractionalIdeal R⁰ (FractionRing R)) =
+      (J : FractionalIdeal R⁰ (FractionRing R))) :
+    ∃ x y : R, y ≠ 0 ∧ Ideal.span ({x} : Set R) * I = Ideal.span ({y} : Set R) * J := by
+  refine ⟨(IsLocalization.sec R⁰ z).1, (IsLocalization.sec R⁰ z).2, ?_, ?_⟩
+  · exact mem_nonZeroDivisors_iff_ne_zero.mp (IsLocalization.sec R⁰ z).2.prop
+  · exact (FractionalIdeal.spanSingleton_mul_coeIdeal_eq_coeIdeal (K := FractionRing R)).mp hJ
 
 /-- Clear denominators in a square principal fractional-ideal multiplier.
 
