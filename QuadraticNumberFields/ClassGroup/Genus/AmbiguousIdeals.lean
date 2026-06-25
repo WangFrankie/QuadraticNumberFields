@@ -1203,6 +1203,19 @@ private noncomputable def ramifiedPrimeNarrowClass
       mem_nonZeroDivisors_iff_ne_zero.mpr (by
         simpa [Ideal.zero_eq_bot] using ramifiedPrimeIdeal_ne_bot d hp)⟩
 
+private noncomputable def ramifiedParityIdealProduct
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    {p0 : ℕ} (_hp0 : p0 ∈ ramifiedPrimes d)
+    (v : ({p // p ∈ (ramifiedPrimes d).erase p0} → Fin 2)) :
+    (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰ := by
+  classical
+  exact Finset.univ.prod fun p : {p // p ∈ (ramifiedPrimes d).erase p0} =>
+    if v p = 0 then 1 else
+      ⟨ramifiedPrimeIdeal d ((Finset.mem_erase.mp p.2).2),
+        mem_nonZeroDivisors_iff_ne_zero.mpr (by
+          simpa [Ideal.zero_eq_bot] using
+            ramifiedPrimeIdeal_ne_bot d ((Finset.mem_erase.mp p.2).2))⟩
+
 private theorem toClassGroup_ramifiedPrimeNarrowClass
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
     {p : ℕ} (hp : p ∈ ramifiedPrimes d) :
@@ -1356,6 +1369,21 @@ private noncomputable def ramifiedParityNarrowClassProduct
   exact Finset.univ.prod fun p =>
     if v p = 0 then 1 else
       ramifiedPrimeNarrowClass d ((Finset.mem_erase.mp p.2).2)
+
+private theorem mk0_ramifiedParityIdealProduct
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    {p0 : ℕ} (hp0 : p0 ∈ ramifiedPrimes d)
+    (v : ({p // p ∈ (ramifiedPrimes d).erase p0} → Fin 2)) :
+    NarrowClassGroup.mk0 (ramifiedParityIdealProduct d hp0 v) =
+      ramifiedParityNarrowClassProduct d hp0 v := by
+  classical
+  rw [ramifiedParityIdealProduct, ramifiedParityNarrowClassProduct]
+  simp only [map_prod]
+  refine Finset.prod_congr rfl ?_
+  intro p _hp
+  by_cases hpv : v p = 0
+  · simp [hpv]
+  · simp [hpv, ramifiedPrimeNarrowClass]
 
 private theorem toClassGroup_ramifiedParityNarrowClassProduct
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
@@ -1943,8 +1971,13 @@ theorem card_narrowInversionFixedClass_le_genusBound
         C.1 = ramifiedParityNarrowClassProduct d hp0 (ramifiedParityVector C) := by
     intro C
     let I := narrowInversionFixedRepresentativeIdeal d C
+    let J := ramifiedParityIdealProduct d hp0 (ramifiedParityVector C)
     have hI_mk0 : NarrowClassGroup.mk0 I = C.1 :=
       narrowInversionFixedRepresentativeIdeal_mk0 d C
+    have hJ_mk0 :
+        NarrowClassGroup.mk0 J =
+          ramifiedParityNarrowClassProduct d hp0 (ramifiedParityVector C) := by
+      simpa [J] using mk0_ramifiedParityIdealProduct d hp0 (ramifiedParityVector C)
     obtain ⟨x, hxpos, hxI_sq⟩ :=
       narrowInversionFixedRepresentativeIdeal_square_eq_principal_inverse d C
     have hI_wide_sq :
@@ -1992,9 +2025,12 @@ theorem card_narrowInversionFixedClass_le_genusBound
       simpa [R] using
         ramifiedParityNarrowClassProduct_sq_eq_one d hp0 (ramifiedParityVector C)
     rw [← hI_mk0]
-    -- Remaining gap: factor the chosen representative, discard split/inert
-    -- principal contributions, and use the positive-principal product relation
-    -- to remove the `p0` ramified coordinate.
+    rw [← hJ_mk0]
+    rw [NarrowClassGroup.mk0_eq_mk0_iff_exists_fraction_ring]
+    -- Remaining gap: produce the totally positive principal multiplier from the
+    -- chosen fixed-class representative to the ramified parity ideal product.
+    -- This is the fixed-representative factorization plus the product-one
+    -- positive-principal relation removing the `p0` ramified coordinate.
     sorry
   have hramifiedParityVector_injective : Function.Injective ramifiedParityVector := by
     intro C D hCD
