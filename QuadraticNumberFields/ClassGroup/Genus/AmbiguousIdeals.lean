@@ -68,6 +68,152 @@ theorem coe_conjAutRingOfIntegers_apply (K : Type*) [Field K] [Algebra ℚ K]
   rw [conjAutRingOfIntegers, NumberField.RingOfIntegers.mapRingEquiv_apply]
   rfl
 
+/-! ## Ring-of-integers conjugation API -/
+
+/-- The conjugation of the ring of integers, regarded as a `ℤ`-algebra
+automorphism. -/
+noncomputable def conjAutRingOfIntegersAlgEquiv (K : Type*) [Field K] [Algebra ℚ K]
+    [QuadraticField K] [QuadraticField.Conj K] :
+    NumberField.RingOfIntegers K ≃ₐ[ℤ] NumberField.RingOfIntegers K :=
+  AlgEquiv.ofRingEquiv (f := conjAutRingOfIntegers K) (by
+    intro n
+    ext
+    rw [coe_conjAutRingOfIntegers_apply]
+    simp)
+
+@[simp]
+theorem coe_conjAutRingOfIntegersAlgEquiv_apply (K : Type*) [Field K] [Algebra ℚ K]
+    [QuadraticField K] [QuadraticField.Conj K] (x : NumberField.RingOfIntegers K) :
+    (conjAutRingOfIntegersAlgEquiv K x : K) = QuadraticField.conjAut K x := by
+  rw [conjAutRingOfIntegersAlgEquiv]
+  exact coe_conjAutRingOfIntegers_apply K x
+
+@[simp]
+theorem conjAutRingOfIntegers_apply_apply (K : Type*) [Field K] [Algebra ℚ K]
+    [QuadraticField K] [QuadraticField.Conj K] (x : NumberField.RingOfIntegers K) :
+    (conjAutRingOfIntegers K) ((conjAutRingOfIntegers K) x) = x := by
+  ext
+  simpa [coe_conjAutRingOfIntegers_apply] using
+    (QuadraticField.Conj.conj_conj (K := K) (x : K))
+
+@[simp]
+theorem conjAutRingOfIntegersAlgEquiv_apply_apply (K : Type*) [Field K] [Algebra ℚ K]
+    [QuadraticField K] [QuadraticField.Conj K] (x : NumberField.RingOfIntegers K) :
+    (conjAutRingOfIntegersAlgEquiv K) ((conjAutRingOfIntegersAlgEquiv K) x) = x := by
+  ext
+  simpa [coe_conjAutRingOfIntegersAlgEquiv_apply] using
+    (QuadraticField.Conj.conj_conj (K := K) (x : K))
+
+private def idealMapMulEquiv {R : Type*} [CommRing R] (σ : R ≃+* R) :
+    Ideal R ≃* Ideal R where
+  toFun I := Ideal.map (σ : R →+* R) I
+  invFun I := Ideal.map (σ.symm : R →+* R) I
+  left_inv I := by
+    change Ideal.map (σ.symm : R →+* R) (Ideal.map (σ : R →+* R) I) = I
+    rw [Ideal.map_map]
+    convert Ideal.map_id I
+    ext x
+    exact σ.symm_apply_apply x
+  right_inv I := by
+    change Ideal.map (σ : R →+* R) (Ideal.map (σ.symm : R →+* R) I) = I
+    rw [Ideal.map_map]
+    convert Ideal.map_id I
+    ext x
+    exact σ.apply_symm_apply x
+  map_mul' I J := Ideal.map_mul (σ : R →+* R) I J
+
+/-- The image of a non-zero-divisor ideal under a ring equivalence is again a
+non-zero-divisor ideal. -/
+private theorem map_ringEquiv_mem_nonZeroDivisors {R : Type*} [CommRing R] (σ : R ≃+* R)
+    {I : Ideal R} (hI : I ∈ nonZeroDivisors (Ideal R)) :
+    Ideal.map (σ : R →+* R) I ∈ nonZeroDivisors (Ideal R) := by
+  rw [← MulEquivClass.map_nonZeroDivisors (idealMapMulEquiv σ)]
+  exact ⟨I, hI, rfl⟩
+
+/-- The conjugate of a nonzero ideal is nonzero, since conjugation is bijective. -/
+theorem map_conjAut_mem_nonZeroDivisors (K : Type*) [Field K] [Algebra ℚ K]
+    [QuadraticField K] [QuadraticField.Conj K]
+    {I : Ideal (NumberField.RingOfIntegers K)}
+    (hI : I ∈ nonZeroDivisors (Ideal (NumberField.RingOfIntegers K))) :
+    Ideal.map (conjAutRingOfIntegers K : NumberField.RingOfIntegers K →+*
+      NumberField.RingOfIntegers K) I ∈
+      nonZeroDivisors (Ideal (NumberField.RingOfIntegers K)) :=
+  map_ringEquiv_mem_nonZeroDivisors (conjAutRingOfIntegers K) hI
+
+/-- Applying the ring-of-integers conjugation twice fixes every ideal. -/
+@[simp]
+theorem map_conjAut_map_conjAut (K : Type*) [Field K] [Algebra ℚ K]
+    [QuadraticField K] [QuadraticField.Conj K] (I : Ideal (NumberField.RingOfIntegers K)) :
+    Ideal.map (conjAutRingOfIntegers K : NumberField.RingOfIntegers K →+*
+      NumberField.RingOfIntegers K)
+        (Ideal.map (conjAutRingOfIntegers K : NumberField.RingOfIntegers K →+*
+          NumberField.RingOfIntegers K) I) = I := by
+  rw [Ideal.map_map]
+  convert Ideal.map_id I
+  ext x
+  simp
+
+/-- Conjugating an ideal preserves the property of being ambiguous. -/
+theorem isAmbiguousIdeal_map_conjAut_iff (K : Type*) [Field K] [Algebra ℚ K]
+    [QuadraticField K] [QuadraticField.Conj K] (I : Ideal (NumberField.RingOfIntegers K)) :
+    IsAmbiguousIdeal (conjAutRingOfIntegers K)
+        (Ideal.map (conjAutRingOfIntegers K : NumberField.RingOfIntegers K →+*
+          NumberField.RingOfIntegers K) I) ↔
+      IsAmbiguousIdeal (conjAutRingOfIntegers K) I := by
+  rw [IsAmbiguousIdeal, IsAmbiguousIdeal, map_conjAut_map_conjAut]
+  exact eq_comm
+
+/-- Narrow ideal classes fixed by inversion. For quadratic fields, this is the
+group-theoretic target that will be identified with conjugation-fixed classes. -/
+def NarrowInversionFixedClass (R : Type*) [CommRing R] [IsDomain R] :=
+  {C : NarrowClassGroup R // C = C⁻¹}
+
+/-- The two-torsion subgroup of the narrow class group is equivalent to the
+subtype of narrow ideal classes fixed by inversion. -/
+def narrowTwoTorsionEquivInversionFixedClass
+    (R : Type*) [CommRing R] [IsDomain R] :
+    NarrowClassGroup.twoTorsion R ≃ NarrowInversionFixedClass R where
+  toFun C := by
+    refine ⟨(C : NarrowClassGroup R), ?_⟩
+    have hpow : (C : NarrowClassGroup R) ^ 2 = 1 := by
+      simpa using (NarrowClassGroup.mem_twoTorsion_iff R C).mp C.2
+    have hmul : (C : NarrowClassGroup R) * C = 1 := by
+      simpa [pow_two] using hpow
+    exact (eq_inv_iff_mul_eq_one).2 hmul
+  invFun C := by
+    refine ⟨C.1, ?_⟩
+    rw [NarrowClassGroup.mem_twoTorsion_iff]
+    have hmul : (C.1 : NarrowClassGroup R) * C.1 = 1 := by
+      nth_rewrite 1 [C.2]
+      rw [inv_mul_cancel]
+    simpa [pow_two] using hmul
+  left_inv C := by
+    ext
+    rfl
+  right_inv C := by
+    apply Subtype.ext
+    rfl
+
+/-- Counting `Cl⁺[2]` is the same as counting inversion-fixed narrow ideal
+classes. -/
+theorem card_narrowClassGroupTwoTorsion_eq_card_narrowInversionFixedClass
+    (R : Type*) [CommRing R] [IsDomain R] :
+    Nat.card (NarrowClassGroup.twoTorsion R) =
+      Nat.card (NarrowInversionFixedClass R) :=
+  Nat.card_congr (narrowTwoTorsionEquivInversionFixedClass R)
+
+/-- Remaining ambiguous-class-number input in inversion-fixed form: the
+inversion-fixed narrow classes are bounded by the genus count. The next
+mathematical step is to identify these classes with conjugation-fixed ideal
+classes represented by ramified-prime exponent vectors, with the single
+positive-principal relation. -/
+theorem card_narrowInversionFixedClass_le_genusBound
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
+    Nat.card (NarrowInversionFixedClass
+      (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) ≤
+      2 ^ (ramifiedPrimeCount d - 1) := by
+  sorry
+
 /-- Ambiguous-ideal upper bound: the two-torsion in the narrow class group has
 size at most `2 ^ (t - 1)`, where `t` is the number of ramified rational primes. -/
 theorem card_narrowClassGroupTwoTorsion_le_genusBound
@@ -75,7 +221,8 @@ theorem card_narrowClassGroupTwoTorsion_le_genusBound
     Nat.card (NarrowClassGroup.twoTorsion
       (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) ≤
       2 ^ (ramifiedPrimeCount d - 1) := by
-  sorry
+  rw [card_narrowClassGroupTwoTorsion_eq_card_narrowInversionFixedClass]
+  exact card_narrowInversionFixedClass_le_genusBound d
 
 /-- Equivalent upper bound for the narrow square-class quotient. -/
 theorem card_narrowClassGroupSquareQuotient_le_genusBound
