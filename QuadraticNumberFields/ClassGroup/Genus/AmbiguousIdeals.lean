@@ -844,6 +844,31 @@ theorem card_narrowInversionFixedClass_le_genusBound
         ((Nat.prime_iff_prime_int.mp hp).irreducible)
     exact map_eq_mul_of_isSplitIn_of_mem_primesOver_of_ne
       (S := R) (p := 𝔭(p)) (by simp [ringChar.eq_zero]) hpbot hP hQ hne hsplit
+  have hsplitConjPairMapSpanEqMul :
+      ∀ {P : Ideal R} {I : (Ideal R)⁰} {p : ℕ},
+        IsAmbiguousIdeal (conjAutRingOfIntegers (Qsqrtd (d : ℚ))) I.1 →
+          P ∈ UniqueFactorizationMonoid.normalizedFactors I.1 →
+            p.Prime →
+              P.comap (algebraMap ℤ R) = 𝔭(p) →
+                Ideal.IsSplitIn (𝔭(p)) R →
+                  P ≠ Ideal.map
+                    (conjAutRingOfIntegers (Qsqrtd (d : ℚ)) : R →+* R) P →
+                    Ideal.map (algebraMap ℤ R) (𝔭(p)) =
+                      P *
+                        Ideal.map
+                          (conjAutRingOfIntegers (Qsqrtd (d : ℚ)) : R →+* R) P := by
+    intro P I p hI hP hp hcomap hsplit hne
+    have hI0 : I.1 ≠ ⊥ := by
+      rw [← Ideal.zero_eq_bot]
+      exact mem_nonZeroDivisors_iff_ne_zero.mp I.2
+    have hPprime : P.IsPrime := (Ideal.mem_normalizedFactors_iff hI0).mp hP |>.1
+    have hPover : P ∈ Ideal.primesOver (𝔭(p)) R := ⟨hPprime, ⟨hcomap.symm⟩⟩
+    have hconjOver :
+        Ideal.map (conjAutRingOfIntegers (Qsqrtd (d : ℚ)) : R →+* R) P ∈
+          Ideal.primesOver (𝔭(p)) R := by
+      rw [← hcomap]
+      exact (hambiguousPrimeFactorConj hI hP).2
+    exact hsplitPairMapSpanEqMul hp hsplit hPover hconjOver hne
   have hfactorPrincipalOfInertBelow :
       ∀ {P : Ideal R} {I : (Ideal R)⁰} {p : ℕ},
         P ∈ UniqueFactorizationMonoid.normalizedFactors I.1 →
