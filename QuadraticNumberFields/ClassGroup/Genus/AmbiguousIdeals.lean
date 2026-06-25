@@ -793,6 +793,62 @@ theorem mul_map_conjAut_eq_map_relNorm_of_isPrime
   · rw [relNorm_eq_comap_pow_inertiaDeg_of_isPrime K P hP0,
       map_comap_pow_inertiaDeg_eq_mul_map_conjAut_of_isPrime K P hP0]
 
+/-- Multiplicative assembly of the conjugation/norm identity from the prime
+ideal case. -/
+theorem mul_map_conjAut_eq_map_relNorm_of_prime_cases
+    (K : Type*) [Field K] [NumberField K] [Algebra ℚ K]
+    [QuadraticField K] [QuadraticField.Conj K]
+    (hprime : ∀ P : Ideal (NumberField.RingOfIntegers K), P.IsPrime →
+      P * Ideal.map (conjAutRingOfIntegers K :
+          NumberField.RingOfIntegers K →+* NumberField.RingOfIntegers K) P =
+        Ideal.map (algebraMap ℤ (NumberField.RingOfIntegers K)) (Ideal.relNorm ℤ P))
+    (I : Ideal (NumberField.RingOfIntegers K)) :
+    I * Ideal.map (conjAutRingOfIntegers K :
+        NumberField.RingOfIntegers K →+* NumberField.RingOfIntegers K) I =
+      Ideal.map (algebraMap ℤ (NumberField.RingOfIntegers K)) (Ideal.relNorm ℤ I) := by
+  by_cases hI : I = ⊥
+  · simp [hI, Ideal.relNorm_bot]
+  rw [← Ideal.prod_normalizedFactors_eq_self hI]
+  refine Multiset.prod_induction
+      (fun J : Ideal (NumberField.RingOfIntegers K) =>
+        J * Ideal.map (conjAutRingOfIntegers K :
+            NumberField.RingOfIntegers K →+* NumberField.RingOfIntegers K) J =
+          Ideal.map (algebraMap ℤ (NumberField.RingOfIntegers K)) (Ideal.relNorm ℤ J))
+      _ ?_ ?_ ?_
+  · intro J L hJ hL
+    rw [Ideal.map_mul, map_mul, Ideal.map_mul]
+    calc
+      J * L * (Ideal.map (conjAutRingOfIntegers K :
+            NumberField.RingOfIntegers K →+* NumberField.RingOfIntegers K) J *
+          Ideal.map (conjAutRingOfIntegers K :
+            NumberField.RingOfIntegers K →+* NumberField.RingOfIntegers K) L) =
+          (J * Ideal.map (conjAutRingOfIntegers K :
+              NumberField.RingOfIntegers K →+* NumberField.RingOfIntegers K) J) *
+            (L * Ideal.map (conjAutRingOfIntegers K :
+              NumberField.RingOfIntegers K →+* NumberField.RingOfIntegers K) L) := by
+        ac_rfl
+      _ = Ideal.map (algebraMap ℤ (NumberField.RingOfIntegers K)) (Ideal.relNorm ℤ J) *
+          Ideal.map (algebraMap ℤ (NumberField.RingOfIntegers K)) (Ideal.relNorm ℤ L) := by
+        rw [hJ, hL]
+  · simp [Ideal.relNorm_top, Ideal.map_top]
+  · intro Q hQ
+    rw [Ideal.mem_normalizedFactors_iff hI] at hQ
+    exact hprime Q hQ.1
+
+/-- Product of an ideal with its quadratic conjugate is the extension of its
+relative norm. -/
+theorem mul_map_conjAut_eq_map_relNorm
+    (K : Type*) [Field K] [NumberField K] [Algebra ℚ K]
+    [QuadraticField K] [QuadraticField.Conj K]
+    (I : Ideal (NumberField.RingOfIntegers K)) :
+    I * Ideal.map (conjAutRingOfIntegers K :
+        NumberField.RingOfIntegers K →+* NumberField.RingOfIntegers K) I =
+      Ideal.map (algebraMap ℤ (NumberField.RingOfIntegers K)) (Ideal.relNorm ℤ I) := by
+  refine mul_map_conjAut_eq_map_relNorm_of_prime_cases K ?_ I
+  intro P hP
+  haveI : P.IsPrime := hP
+  exact mul_map_conjAut_eq_map_relNorm_of_isPrime K P
+
 /-- Applying the ring-of-integers conjugation twice fixes every ideal. -/
 @[simp]
 theorem map_conjAut_map_conjAut (K : Type*) [Field K] [Algebra ℚ K]
