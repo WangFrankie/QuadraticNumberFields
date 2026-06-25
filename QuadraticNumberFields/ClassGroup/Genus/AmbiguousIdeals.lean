@@ -188,6 +188,20 @@ theorem map_conjAut_mem_normalizedFactors_iff (K : Type*) [Field K] [Algebra ℚ
       P ∈ UniqueFactorizationMonoid.normalizedFactors I :=
   map_ringEquiv_mem_normalizedFactors_iff (conjAutRingOfIntegers K) hI
 
+/-- For an ambiguous nonzero ideal, conjugation preserves the support of its
+Dedekind ideal factorization. -/
+theorem map_conjAut_mem_normalizedFactors_iff_of_isAmbiguousIdeal (K : Type*)
+    [Field K] [Algebra ℚ K] [QuadraticField K] [QuadraticField.Conj K]
+    [IsDedekindDomain (NumberField.RingOfIntegers K)]
+    {P I : Ideal (NumberField.RingOfIntegers K)} (hI0 : I ≠ ⊥)
+    (hI : IsAmbiguousIdeal (conjAutRingOfIntegers K) I) :
+    Ideal.map (conjAutRingOfIntegers K : NumberField.RingOfIntegers K →+*
+      NumberField.RingOfIntegers K) P ∈ UniqueFactorizationMonoid.normalizedFactors I ↔
+      P ∈ UniqueFactorizationMonoid.normalizedFactors I := by
+  rw [IsAmbiguousIdeal] at hI
+  simpa [hI] using
+    map_conjAut_mem_normalizedFactors_iff (K := K) (P := P) (I := I) hI0
+
 /-- Applying the ring-of-integers conjugation twice fixes every ideal. -/
 @[simp]
 theorem map_conjAut_map_conjAut (K : Type*) [Field K] [Algebra ℚ K]
@@ -423,6 +437,18 @@ theorem card_narrowInversionFixedClass_le_genusBound
     intro P I
     exact fun hI =>
       map_conjAut_mem_normalizedFactors_iff (K := Qsqrtd (d : ℚ)) (P := P) (I := I) hI
+  have hambiguousFactors :
+      ∀ {P : Ideal R} {I : (Ideal R)⁰},
+        IsAmbiguousIdeal (conjAutRingOfIntegers (Qsqrtd (d : ℚ))) I.1 →
+          (Ideal.map (conjAutRingOfIntegers (Qsqrtd (d : ℚ)) : R →+* R) P ∈
+              UniqueFactorizationMonoid.normalizedFactors I.1 ↔
+            P ∈ UniqueFactorizationMonoid.normalizedFactors I.1) := by
+    intro P I hI
+    have hI0 : I.1 ≠ ⊥ := by
+      rw [← Ideal.zero_eq_bot]
+      exact mem_nonZeroDivisors_iff_ne_zero.mp I.2
+    exact map_conjAut_mem_normalizedFactors_iff_of_isAmbiguousIdeal
+      (K := Qsqrtd (d : ℚ)) (P := P) (I := I.1) hI0 hI
   sorry
 
 /-- Ambiguous-ideal upper bound: the two-torsion in the narrow class group has
