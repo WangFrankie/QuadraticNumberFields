@@ -20,7 +20,7 @@ namespace QuadraticNumberFields
 namespace ClassGroup
 namespace Genus
 
-open scoped NumberField QuadraticNumberFields.ClassGroup
+open scoped nonZeroDivisors NumberField QuadraticNumberFields.ClassGroup
 
 attribute [-instance] DivisionRing.toRatAlgebra
 
@@ -202,6 +202,35 @@ theorem card_narrowClassGroupTwoTorsion_eq_card_narrowInversionFixedClass
       Nat.card (NarrowInversionFixedClass R) :=
   Nat.card_congr (narrowTwoTorsionEquivInversionFixedClass R)
 
+/-- An inversion-fixed narrow class has a nonzero integral ideal representative
+whose associated fractional ideal differs from its inverse by a totally positive
+principal fractional ideal. This is the narrow fixed-class relation used before
+passing to the ramified-prime exponent-vector count. -/
+theorem exists_integralIdeal_inverse_relation_of_narrowInversionFixedClass
+    {R : Type*} [CommRing R] [IsDomain R] [IsDedekindDomain R]
+    (C : NarrowInversionFixedClass R) :
+    ∃ I : (Ideal R)⁰,
+      NarrowClassGroup.mk0 I = C.1 ∧
+        ∃ x : NarrowClassGroup.totallyPositiveUnits (FractionRing R),
+          FractionalIdeal.mk0 (FractionRing R) I *
+              NarrowClassGroup.toNarrowPrincipalIdeal R (FractionRing R) x =
+            (FractionalIdeal.mk0 (FractionRing R) I)⁻¹ := by
+  obtain ⟨I, hI⟩ := NarrowClassGroup.mk0_surjective C.1
+  refine ⟨I, hI, ?_⟩
+  have hfixed : NarrowClassGroup.mk0 I = (NarrowClassGroup.mk0 I)⁻¹ := by
+    calc
+      NarrowClassGroup.mk0 I = C.1 := hI
+      _ = C.1⁻¹ := C.2
+      _ = (NarrowClassGroup.mk0 I)⁻¹ := congrArg Inv.inv hI.symm
+  have hmk :
+      NarrowClassGroup.mk (FractionalIdeal.mk0 (FractionRing R) I) =
+        NarrowClassGroup.mk ((FractionalIdeal.mk0 (FractionRing R) I)⁻¹) := by
+    rw [NarrowClassGroup.mk_mk0, map_inv, NarrowClassGroup.mk_mk0]
+    exact hfixed
+  exact (NarrowClassGroup.mk_eq_mk
+    (I := FractionalIdeal.mk0 (FractionRing R) I)
+    (J := (FractionalIdeal.mk0 (FractionRing R) I)⁻¹)).mp hmk
+
 /-- Remaining ambiguous-class-number input in inversion-fixed form: the
 inversion-fixed narrow classes are bounded by the genus count. The next
 mathematical step is to identify these classes with conjugation-fixed ideal
@@ -212,6 +241,18 @@ theorem card_narrowInversionFixedClass_le_genusBound
     Nat.card (NarrowInversionFixedClass
       (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) ≤
       2 ^ (ramifiedPrimeCount d - 1) := by
+  classical
+  let R := NumberField.RingOfIntegers (Qsqrtd (d : ℚ))
+  have hrel :
+      ∀ C : NarrowInversionFixedClass R,
+        ∃ I : (Ideal R)⁰,
+          NarrowClassGroup.mk0 I = C.1 ∧
+            ∃ x : NarrowClassGroup.totallyPositiveUnits (FractionRing R),
+              FractionalIdeal.mk0 (FractionRing R) I *
+                  NarrowClassGroup.toNarrowPrincipalIdeal R (FractionRing R) x =
+                (FractionalIdeal.mk0 (FractionRing R) I)⁻¹ := by
+    intro C
+    exact exists_integralIdeal_inverse_relation_of_narrowInversionFixedClass C
   sorry
 
 /-- Ambiguous-ideal upper bound: the two-torsion in the narrow class group has
