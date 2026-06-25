@@ -24,7 +24,7 @@ namespace QuadraticNumberFields
 namespace ClassGroup
 namespace Genus
 
-open scoped nonZeroDivisors NumberField QuadraticNumberFields.ClassGroup
+open scoped nonZeroDivisors NumberField Pointwise QuadraticNumberFields.ClassGroup
 open scoped QuadraticNumberFields.Splitting
 
 attribute [-instance] DivisionRing.toRatAlgebra
@@ -523,6 +523,93 @@ private theorem primesOver_ncard_eq_two_of_isSplitIn
   ((Ideal.ramificationIdxIn_eq_one_and_inertiaDegIn_eq_one_iff_efg p S hchar hp).mp
     hsplit).1
 
+/-- Over a split rational prime, quadratic conjugation swaps the two prime ideals
+above it rather than fixing either one. -/
+theorem map_conjAut_ne_of_mem_primesOver_of_isSplitIn
+    (K : Type*) [Field K] [NumberField K] [Algebra ℚ K]
+    [QuadraticField K] [QuadraticField.Conj K]
+    {p : Ideal ℤ} (hp0 : p ≠ ⊥) [p.IsMaximal]
+    {P : Ideal (NumberField.RingOfIntegers K)}
+    (hP : P ∈ Ideal.primesOver p (NumberField.RingOfIntegers K))
+    (hsplit : Ideal.IsSplitIn p (NumberField.RingOfIntegers K)) :
+    Ideal.map (conjAutRingOfIntegers K :
+      NumberField.RingOfIntegers K →+* NumberField.RingOfIntegers K) P ≠ P := by
+  intro hfix
+  haveI : P.IsPrime := hP.1
+  haveI : IsGalois ℚ K := Algebra.IsQuadraticExtension.isGalois ℚ K
+  haveI : IsGalois (FractionRing ℤ) (FractionRing (NumberField.RingOfIntegers K)) :=
+    NumberField.isGalois_fractionRing_ringOfIntegers K
+  let τ : Gal(FractionRing (NumberField.RingOfIntegers K) / FractionRing ℤ) :=
+    (galRestrict ℤ (FractionRing ℤ) (FractionRing (NumberField.RingOfIntegers K))
+      (NumberField.RingOfIntegers K)).symm
+      (conjAutRingOfIntegersAlgEquiv K)
+  letI := Ring.instAlgebraFractionRing
+  letI := IsIntegralClosure.MulSemiringAction ℤ (FractionRing ℤ)
+    (FractionRing (NumberField.RingOfIntegers K)) (NumberField.RingOfIntegers K)
+  letI := Algebra.IsQuadraticExtension.isGaloisGroup
+    (R := ℤ) (S := NumberField.RingOfIntegers K) (by norm_num : ringChar ℤ ≠ 2)
+  have hτne : τ ≠ 1 := by
+    intro hτ
+    apply conjAutRingOfIntegersAlgEquiv_ne_refl (K := K)
+    have h := congrArg
+      (galRestrict ℤ (FractionRing ℤ) (FractionRing (NumberField.RingOfIntegers K))
+        (NumberField.RingOfIntegers K)) hτ
+    simpa [τ] using h
+  have hτstab :
+      τ ∈ MulAction.stabilizer
+          Gal(FractionRing (NumberField.RingOfIntegers K) / FractionRing ℤ) P := by
+    change τ • P = P
+    change Ideal.map
+      ((galRestrict ℤ (FractionRing ℤ) (FractionRing (NumberField.RingOfIntegers K))
+        (NumberField.RingOfIntegers K) τ :
+          NumberField.RingOfIntegers K ≃ₐ[ℤ] NumberField.RingOfIntegers K) :
+            NumberField.RingOfIntegers K →+* NumberField.RingOfIntegers K) P = P
+    dsimp [τ]
+    rw [MulEquiv.apply_symm_apply]
+    exact hfix
+  have hcard_stab :
+      Nat.card (MulAction.stabilizer
+        Gal(FractionRing (NumberField.RingOfIntegers K) / FractionRing ℤ) P) = 1 := by
+    haveI : P.LiesOver p := hP.2
+    have horbit :
+        MulAction.orbit
+            Gal(FractionRing (NumberField.RingOfIntegers K) / FractionRing ℤ) P =
+          Ideal.primesOver p (NumberField.RingOfIntegers K) := by
+      exact Algebra.IsInvariant.orbit_eq_primesOver ℤ (NumberField.RingOfIntegers K)
+        Gal(FractionRing (NumberField.RingOfIntegers K) / FractionRing ℤ) p P
+    have horbit_card :
+        Nat.card (MulAction.orbit
+          Gal(FractionRing (NumberField.RingOfIntegers K) / FractionRing ℤ) P) = 2 := by
+      rw [horbit]
+      change (Ideal.primesOver p (NumberField.RingOfIntegers K)).ncard = 2
+      exact primesOver_ncard_eq_two_of_isSplitIn
+        (S := NumberField.RingOfIntegers K) (p := p) (by simp [ringChar.eq_zero])
+        hp0 hsplit
+    have hprod :
+        Nat.card (MulAction.orbit
+            Gal(FractionRing (NumberField.RingOfIntegers K) / FractionRing ℤ) P) *
+            Nat.card (MulAction.stabilizer
+              Gal(FractionRing (NumberField.RingOfIntegers K) / FractionRing ℤ) P) =
+          Nat.card Gal(FractionRing (NumberField.RingOfIntegers K) / FractionRing ℤ) := by
+      simpa [Nat.card_prod] using
+        Nat.card_congr
+          (MulAction.orbitProdStabilizerEquivGroup
+            Gal(FractionRing (NumberField.RingOfIntegers K) / FractionRing ℤ) P)
+    rw [horbit_card, card_gal_fractionRing_ringOfIntegers_eq_two K] at hprod
+    omega
+  have hsub :
+      Subsingleton (MulAction.stabilizer
+        Gal(FractionRing (NumberField.RingOfIntegers K) / FractionRing ℤ) P) :=
+    (Nat.card_eq_one_iff_unique.mp hcard_stab).1
+  have hτeq : τ = 1 := by
+    have hsubeq :
+        (⟨τ, hτstab⟩ :
+          MulAction.stabilizer
+            Gal(FractionRing (NumberField.RingOfIntegers K) / FractionRing ℤ) P) = 1 :=
+      Subsingleton.elim _ _
+    exact Subtype.ext_iff.mp hsubeq
+  exact hτne hτeq
+
 private theorem set_eq_pair_of_ncard_eq_two_of_mem_of_mem_of_ne
     {α : Type*} {s : Set α} {a b : α}
     (hs : s.ncard = 2) (ha : a ∈ s) (hb : b ∈ s) (hne : a ≠ b) :
@@ -1003,6 +1090,31 @@ theorem card_narrowInversionFixedClass_le_genusBound
       rw [← hcomap]
       exact (hambiguousPrimeFactorConj hI hP).2
     exact hsplitPairMapSpanEqMul hp hsplit hPover hconjOver hne
+  have hsplitConjPairNe :
+      ∀ {P : Ideal R} {I : (Ideal R)⁰} {p : ℕ},
+        P ∈ UniqueFactorizationMonoid.normalizedFactors I.1 →
+          p.Prime →
+            P.comap (algebraMap ℤ R) = 𝔭(p) →
+              Ideal.IsSplitIn (𝔭(p)) R →
+                P ≠ Ideal.map
+                  (conjAutRingOfIntegers (Qsqrtd (d : ℚ)) : R →+* R) P := by
+    intro P I p hP hp hcomap hsplit
+    have hI0 : I.1 ≠ ⊥ := by
+      rw [← Ideal.zero_eq_bot]
+      exact mem_nonZeroDivisors_iff_ne_zero.mp I.2
+    have hPprime : P.IsPrime := (Ideal.mem_normalizedFactors_iff hI0).mp hP |>.1
+    have hPover : P ∈ Ideal.primesOver (𝔭(p)) R := ⟨hPprime, ⟨hcomap.symm⟩⟩
+    have hpbot : (𝔭(p)) ≠ (⊥ : Ideal ℤ) := by
+      rw [Ne, Ideal.span_singleton_eq_bot, Nat.cast_eq_zero]
+      exact hp.ne_zero
+    haveI : (𝔭(p)).IsMaximal :=
+      PrincipalIdealRing.isMaximal_of_irreducible
+        ((Nat.prime_iff_prime_int.mp hp).irreducible)
+    have hne :=
+      map_conjAut_ne_of_mem_primesOver_of_isSplitIn
+        (K := Qsqrtd (d : ℚ)) (p := 𝔭(p)) hpbot hPover hsplit
+    intro hfix
+    exact hne (by simpa using hfix.symm)
   have hsplitConjPairPrincipal :
       ∀ {P : Ideal R} {I : (Ideal R)⁰} {p : ℕ},
         IsAmbiguousIdeal (conjAutRingOfIntegers (Qsqrtd (d : ℚ))) I.1 →
@@ -1010,13 +1122,12 @@ theorem card_narrowInversionFixedClass_le_genusBound
             p.Prime →
               P.comap (algebraMap ℤ R) = 𝔭(p) →
                 Ideal.IsSplitIn (𝔭(p)) R →
-                  P ≠ Ideal.map
-                    (conjAutRingOfIntegers (Qsqrtd (d : ℚ)) : R →+* R) P →
-                    (P *
-                      Ideal.map
-                        (conjAutRingOfIntegers (Qsqrtd (d : ℚ)) : R →+* R) P).IsPrincipal := by
-    intro P I p hI hP hp hcomap hsplit hne
-    rw [← hsplitConjPairMapSpanEqMul hI hP hp hcomap hsplit hne]
+                  (P *
+                    Ideal.map
+                      (conjAutRingOfIntegers (Qsqrtd (d : ℚ)) : R →+* R) P).IsPrincipal := by
+    intro P I p hI hP hp hcomap hsplit
+    rw [← hsplitConjPairMapSpanEqMul hI hP hp hcomap hsplit
+      (hsplitConjPairNe hP hp hcomap hsplit)]
     exact hmapSpanPrimePrincipal p
   have hfactorMapSpanEqOfInertBelow :
       ∀ {P : Ideal R} {I : (Ideal R)⁰} {p : ℕ},
@@ -1074,15 +1185,14 @@ theorem card_narrowInversionFixedClass_le_genusBound
             p.Prime →
               P.comap (algebraMap ℤ R) = 𝔭(p) →
                 (Ideal.IsSplitIn (𝔭(p)) R ∧
-                  (P ≠ Ideal.map σR P → (P * Ideal.map σR P).IsPrincipal)) ∨
+                  (P * Ideal.map σR P).IsPrincipal) ∨
                   (Ideal.IsInertIn (𝔭(p)) R ∧ P.IsPrincipal) ∨
                     (Ideal.IsRamifiedIn (𝔭(p)) R ∧ (P ^ 2).IsPrincipal) := by
     intro P I p hI hP hp hcomap
     rcases hsplitInertRamified hp with hsplit | hinert | hram
     · exact Or.inl
-        ⟨hsplit, fun hne => by
-          simpa [σR] using hsplitConjPairPrincipal hI hP hp hcomap hsplit
-            (by simpa [σR] using hne)⟩
+        ⟨hsplit, by
+          simpa [σR] using hsplitConjPairPrincipal hI hP hp hcomap hsplit⟩
     · exact Or.inr <| Or.inl
         ⟨hinert, hfactorPrincipalOfInertBelow hP hp hcomap hinert⟩
     · exact Or.inr <| Or.inr
@@ -1094,7 +1204,6 @@ theorem card_narrowInversionFixedClass_le_genusBound
           p.Prime →
             P.comap (algebraMap ℤ R) = 𝔭(p) →
               Ideal.IsSplitIn (𝔭(p)) R →
-                (hne : P ≠ Ideal.map σR P) →
                   ClassGroup.mk0 ⟨P, mem_nonZeroDivisors_iff_ne_zero.mpr (by
                     simpa [Ideal.zero_eq_bot] using hfactorNonzero hP)⟩ *
                     ClassGroup.mk0
@@ -1103,14 +1212,14 @@ theorem card_narrowInversionFixedClass_le_genusBound
                         simpa [σR] using
                           UniqueFactorizationMonoid.ne_zero_of_mem_normalizedFactors
                             hconjFactor)⟩ = (1 : ClassGroup R) := by
-    intro P I p hI hP hp hcomap hsplit hne
+    intro P I p hI hP hp hcomap hsplit
     have hP0 : P ≠ ⊥ := hfactorNonzero hP
     have hconjFactor := (hambiguousPrimeFactorConj hI hP).1
     have hconjP0 : Ideal.map σR P ≠ ⊥ := by
       simpa [Ideal.zero_eq_bot, σR] using
         UniqueFactorizationMonoid.ne_zero_of_mem_normalizedFactors hconjFactor
     exact hmk0MulEqOneOfMulPrincipal hP0 hconjP0
-      (by simpa [σR] using hsplitConjPairPrincipal hI hP hp hcomap hsplit hne)
+      (by simpa [σR] using hsplitConjPairPrincipal hI hP hp hcomap hsplit)
   have hinertFactorClassEqOne :
       ∀ {P : Ideal R} {I : (Ideal R)⁰} {p : ℕ}
         (hP : P ∈ UniqueFactorizationMonoid.normalizedFactors I.1),
