@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 
+import Mathlib.RingTheory.Ideal.Norm.RelNorm
 import QNFMathlib.NumberTheory.NumberField.Galois
 import QNFMathlib.RingTheory.Ideal.Norm.AbsNorm
 import QuadraticNumberFields.ClassGroup.Genus.SquareClass
@@ -145,6 +146,23 @@ theorem card_gal_fractionRing_ringOfIntegers_eq_two (K : Type*) [Field K] [Numbe
     NumberField.isGalois_fractionRing_ringOfIntegers K
   rw [IsGalois.card_aut_eq_finrank]
   exact finrank_fractionRing_ringOfIntegers_eq_two K
+
+/-- For a nonzero prime ideal `P` of `𝓞 K`, its relative ideal norm over `ℤ` is
+the prime below `P`, raised to the inertia degree. -/
+theorem relNorm_eq_comap_pow_inertiaDeg_of_isPrime (K : Type*) [Field K] [NumberField K]
+    [Algebra ℚ K] [QuadraticField K]
+    (P : Ideal (NumberField.RingOfIntegers K)) [P.IsPrime] (hP0 : P ≠ ⊥) :
+    Ideal.relNorm ℤ P =
+      (P.comap (algebraMap ℤ (NumberField.RingOfIntegers K))) ^
+        (P.comap (algebraMap ℤ (NumberField.RingOfIntegers K))).inertiaDeg P := by
+  haveI : IsGalois ℚ K := Algebra.IsQuadraticExtension.isGalois ℚ K
+  haveI : IsGalois (FractionRing ℤ) (FractionRing (NumberField.RingOfIntegers K)) :=
+    NumberField.isGalois_fractionRing_ringOfIntegers K
+  haveI : P.IsMaximal := Ideal.IsPrime.isMaximal inferInstance hP0
+  haveI : (P.comap (algebraMap ℤ (NumberField.RingOfIntegers K))).IsMaximal :=
+    Ideal.isMaximal_comap_of_isIntegral_of_isMaximal P
+  exact Ideal.relNorm_eq_pow_of_isPrime_isGalois P
+    (P.comap (algebraMap ℤ (NumberField.RingOfIntegers K)))
 
 @[simp]
 theorem conjAutRingOfIntegers_apply_apply (K : Type*) [Field K] [Algebra ℚ K]
