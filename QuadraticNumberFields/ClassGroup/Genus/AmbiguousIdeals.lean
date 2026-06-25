@@ -1216,6 +1216,49 @@ private noncomputable def ramifiedParityIdealProduct
           simpa [Ideal.zero_eq_bot] using
             ramifiedPrimeIdeal_ne_bot d ((Finset.mem_erase.mp p.2).2))⟩
 
+/-- A ramified prime ideal is fixed by quadratic conjugation. -/
+private theorem isAmbiguousIdeal_ramifiedPrimeIdeal
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    {p : ℕ} (hp : p ∈ ramifiedPrimes d) :
+    IsAmbiguousIdeal
+      (conjAutRingOfIntegers (Qsqrtd (d : ℚ)))
+      (ramifiedPrimeIdeal d hp) :=
+  map_conjAut_eq_of_mem_primesOver_of_mem_ramifiedPrimes (d := d) hp
+    (ramifiedPrimeIdeal_mem_primesOver d hp)
+
+/-- The ramified parity ideal product is fixed by quadratic conjugation. -/
+private theorem isAmbiguousIdeal_ramifiedParityIdealProduct
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    {p0 : ℕ} (hp0 : p0 ∈ ramifiedPrimes d)
+    (v : ({p // p ∈ (ramifiedPrimes d).erase p0} → Fin 2)) :
+    IsAmbiguousIdeal
+      (conjAutRingOfIntegers (Qsqrtd (d : ℚ)))
+      (ramifiedParityIdealProduct d hp0 v : Ideal
+        (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) := by
+  classical
+  let R := NumberField.RingOfIntegers (Qsqrtd (d : ℚ))
+  refine Finset.prod_induction
+    (s := Finset.univ)
+    (f := fun p : {p // p ∈ (ramifiedPrimes d).erase p0} =>
+      if v p = 0 then (1 : (Ideal R)⁰) else
+        ⟨ramifiedPrimeIdeal d ((Finset.mem_erase.mp p.2).2),
+          mem_nonZeroDivisors_iff_ne_zero.mpr (by
+            simpa [Ideal.zero_eq_bot] using
+              ramifiedPrimeIdeal_ne_bot d ((Finset.mem_erase.mp p.2).2))⟩)
+    (p := fun I : (Ideal R)⁰ =>
+      IsAmbiguousIdeal (conjAutRingOfIntegers (Qsqrtd (d : ℚ)))
+        (I : Ideal R))
+    ?_ ?_ ?_
+  · intro I J hI hJ
+    change IsAmbiguousIdeal (conjAutRingOfIntegers (Qsqrtd (d : ℚ)))
+      ((I : Ideal R) * (J : Ideal R))
+    exact hI.mul hJ
+  · simp
+  · intro p _hp
+    by_cases hpv : v p = 0
+    · simp [hpv]
+    · simp [hpv, isAmbiguousIdeal_ramifiedPrimeIdeal]
+
 private theorem toClassGroup_ramifiedPrimeNarrowClass
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
     {p : ℕ} (hp : p ∈ ramifiedPrimes d) :
@@ -1621,8 +1664,17 @@ private theorem exists_tp_multiplier_representative_to_ramifiedParityIdealProduc
           (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))
           (ramifiedParityIdealProduct d hp0
             (narrowInversionFixedClassRamifiedParityVector d hp0 C)) := by
+  have hJambiguous :
+      IsAmbiguousIdeal
+        (conjAutRingOfIntegers (Qsqrtd (d : ℚ)))
+        ((ramifiedParityIdealProduct d hp0
+          (narrowInversionFixedClassRamifiedParityVector d hp0 C)) :
+            Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) :=
+    isAmbiguousIdeal_ramifiedParityIdealProduct d hp0
+      (narrowInversionFixedClassRamifiedParityVector d hp0 C)
   -- Remaining gap: construct this totally positive multiplier from the
-  -- fixed-representative factorization and product-one relation.
+  -- fixed-representative factorization, using `hJambiguous` as the ramified
+  -- ambiguous product target, and the product-one relation.
   sorry
 
 /-- Remaining ambiguous-class-number input in inversion-fixed form: the
