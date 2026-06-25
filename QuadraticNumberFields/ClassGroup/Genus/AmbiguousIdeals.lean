@@ -1890,6 +1890,7 @@ theorem card_narrowInversionFixedClass_le_genusBound
           1 := by
       simpa [R] using
         ramifiedParityClassProduct_sq_eq_one d hp0 (ramifiedParityVector C)
+    rw [← hI_mk0]
     -- Remaining gap: factor the chosen representative, discard split/inert
     -- principal contributions, and use the positive-principal product relation
     -- to remove the `p0` ramified coordinate.
