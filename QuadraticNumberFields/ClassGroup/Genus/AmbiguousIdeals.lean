@@ -1099,6 +1099,32 @@ theorem card_narrowInversionFixedClass_le_genusBound
           conjAutNonzeroIdealMulEquiv (Qsqrtd (d : ℚ)) I = I := by
     intro I
     exact isAmbiguousIdeal_iff_conjAutNonzeroIdealMulEquiv_eq (Qsqrtd (d : ℚ)) I
+  have hclassConjInv :
+      ∀ I : (Ideal R)⁰,
+        ClassGroup.mk0
+            ⟨Ideal.map (conjAutRingOfIntegers (Qsqrtd (d : ℚ)) : R →+* R)
+              (I : Ideal R), map_conjAut_mem_nonZeroDivisors (Qsqrtd (d : ℚ)) I.2⟩ =
+          (ClassGroup.mk0 I)⁻¹ := by
+    intro I
+    exact mk0_map_conjAut_eq_inv (Qsqrtd (d : ℚ)) I
+  have hambiguousClassSqEqOne :
+      ∀ I : (Ideal R)⁰,
+        IsAmbiguousIdeal (conjAutRingOfIntegers (Qsqrtd (d : ℚ))) I.1 →
+          (ClassGroup.mk0 I : ClassGroup R) ^ 2 = 1 := by
+    intro I hI
+    have hfixed := (hambiguousFixed I).mp hI
+    have hconjClass :
+        ClassGroup.mk0 (conjAutNonzeroIdealMulEquiv (Qsqrtd (d : ℚ)) I) =
+          (ClassGroup.mk0 I)⁻¹ := by
+      change ClassGroup.mk0
+          ⟨Ideal.map (conjAutRingOfIntegers (Qsqrtd (d : ℚ)) : R →+* R)
+            (I : Ideal R), map_conjAut_mem_nonZeroDivisors (Qsqrtd (d : ℚ)) I.2⟩ =
+        (ClassGroup.mk0 I)⁻¹
+      exact hclassConjInv I
+    rw [hfixed] at hconjClass
+    have hmul : (ClassGroup.mk0 I : ClassGroup R) * ClassGroup.mk0 I = 1 :=
+      (eq_inv_iff_mul_eq_one.mp hconjClass)
+    simpa [pow_two] using hmul
   have hconjFactors :
       ∀ {P I : Ideal R}, I ≠ ⊥ →
         (Ideal.map (conjAutRingOfIntegers (Qsqrtd (d : ℚ)) : R →+* R) P ∈
