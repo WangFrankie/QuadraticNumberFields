@@ -945,6 +945,28 @@ theorem card_narrowInversionFixedClass_le_genusBound
     intro P I p hP hp hcomap hram
     rw [← hfactorMapSpanEqSqOfRamifiedBelow hP hp hcomap hram]
     exact hmapSpanPrimePrincipal p
+  let σR : R →+* R :=
+    (conjAutRingOfIntegers (Qsqrtd (d : ℚ)) : R →+* R)
+  have hfactorContributionBySplitting :
+      ∀ {P : Ideal R} {I : (Ideal R)⁰} {p : ℕ},
+        IsAmbiguousIdeal (conjAutRingOfIntegers (Qsqrtd (d : ℚ))) I.1 →
+          P ∈ UniqueFactorizationMonoid.normalizedFactors I.1 →
+            p.Prime →
+              P.comap (algebraMap ℤ R) = 𝔭(p) →
+                (Ideal.IsSplitIn (𝔭(p)) R ∧
+                  (P ≠ Ideal.map σR P → (P * Ideal.map σR P).IsPrincipal)) ∨
+                  (Ideal.IsInertIn (𝔭(p)) R ∧ P.IsPrincipal) ∨
+                    (Ideal.IsRamifiedIn (𝔭(p)) R ∧ (P ^ 2).IsPrincipal) := by
+    intro P I p hI hP hp hcomap
+    rcases hsplitInertRamified hp with hsplit | hinert | hram
+    · exact Or.inl
+        ⟨hsplit, fun hne => by
+          simpa [σR] using hsplitConjPairPrincipal hI hP hp hcomap hsplit
+            (by simpa [σR] using hne)⟩
+    · exact Or.inr <| Or.inl
+        ⟨hinert, hfactorPrincipalOfInertBelow hP hp hcomap hinert⟩
+    · exact Or.inr <| Or.inr
+        ⟨hram, hramifiedFactorSquarePrincipal hP hp hcomap hram⟩
   sorry
 
 /-- Ambiguous-ideal upper bound: the two-torsion in the narrow class group has
