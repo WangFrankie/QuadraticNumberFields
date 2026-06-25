@@ -1599,6 +1599,32 @@ private noncomputable def narrowInversionFixedClassRamifiedParityVector
   intro C
   exact idealRamifiedParityVector d hp0 (narrowInversionFixedRepresentativeIdeal d C)
 
+/-- Exact remaining fixed-representative recovery input for the ambiguous-ideal
+bound. It says that the chosen representative of an inversion-fixed narrow
+class differs from the ramified parity ideal product by a totally positive
+principal fractional ideal. This is the point where the proof still needs the
+fixed-ideal representative/factorization theorem and the product-one
+positive-principal relation for ramified primes. -/
+private theorem exists_tp_multiplier_representative_to_ramifiedParityIdealProduct
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    {p0 : ℕ} (hp0 : p0 ∈ ramifiedPrimes d)
+    (C : NarrowInversionFixedClass (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) :
+    ∃ x : (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))ˣ,
+      NarrowClassGroup.IsTotallyPositive
+        (x : FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) ∧
+        FractionalIdeal.mk0
+            (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))
+            (narrowInversionFixedRepresentativeIdeal d C) *
+          toPrincipalIdeal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))
+            (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) x =
+        FractionalIdeal.mk0
+          (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))
+          (ramifiedParityIdealProduct d hp0
+            (narrowInversionFixedClassRamifiedParityVector d hp0 C)) := by
+  -- Remaining gap: construct this totally positive multiplier from the
+  -- fixed-representative factorization and product-one relation.
+  sorry
+
 /-- Remaining ambiguous-class-number input in inversion-fixed form: the
 inversion-fixed narrow classes are bounded by the genus count. The next
 mathematical step is to identify these classes with conjugation-fixed ideal
@@ -2046,7 +2072,8 @@ theorem card_narrowInversionFixedClass_le_genusBound
     -- chosen fixed-class representative to the ramified parity ideal product.
     -- This is the fixed-representative factorization plus the product-one
     -- positive-principal relation removing the `p0` ramified coordinate.
-    sorry
+    simpa only [I, J, ramifiedParityVector] using
+      exists_tp_multiplier_representative_to_ramifiedParityIdealProduct d hp0 C
   have hramifiedParityVector_injective : Function.Injective ramifiedParityVector := by
     intro C D hCD
     apply Subtype.ext
