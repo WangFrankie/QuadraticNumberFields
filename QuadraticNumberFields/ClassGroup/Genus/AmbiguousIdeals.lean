@@ -91,6 +91,29 @@ theorem coe_conjAutRingOfIntegersAlgEquiv_apply (K : Type*) [Field K] [Algebra �
   rw [conjAutRingOfIntegersAlgEquiv]
   exact coe_conjAutRingOfIntegers_apply K x
 
+/-- Restricting field conjugation to the ring of integers gives the
+`ℤ`-algebra automorphism `conjAutRingOfIntegersAlgEquiv`. -/
+theorem galRestrict_conjAut_eq_conjAutRingOfIntegers (K : Type*) [Field K] [NumberField K]
+    [Algebra ℚ K] [QuadraticField K] [QuadraticField.Conj K] :
+    galRestrict ℤ ℚ K (NumberField.RingOfIntegers K) (QuadraticField.conjAut K) =
+      conjAutRingOfIntegersAlgEquiv K := by
+  ext x
+  simpa [conjAutRingOfIntegersAlgEquiv, coe_conjAutRingOfIntegers_apply] using
+    (algebraMap_galRestrict_apply (A := ℤ) (K := ℚ) (L := K)
+      (B := NumberField.RingOfIntegers K) (QuadraticField.conjAut K) x)
+
+/-- The induced `ℤ`-algebra conjugation on the ring of integers is nontrivial. -/
+theorem conjAutRingOfIntegersAlgEquiv_ne_refl (K : Type*) [Field K] [NumberField K]
+    [Algebra ℚ K] [QuadraticField K] [QuadraticField.Conj K] :
+    conjAutRingOfIntegersAlgEquiv K ≠ AlgEquiv.refl := by
+  intro h
+  apply QuadraticField.Conj.conj_ne_refl (K := K)
+  apply (galRestrict ℤ ℚ K (NumberField.RingOfIntegers K)).injective
+  rw [galRestrict_conjAut_eq_conjAutRingOfIntegers K, h]
+  change (1 : NumberField.RingOfIntegers K ≃ₐ[ℤ] NumberField.RingOfIntegers K) =
+    (galRestrict ℤ ℚ K (NumberField.RingOfIntegers K)) (1 : Gal(K / ℚ))
+  rw [map_one]
+
 @[simp]
 theorem conjAutRingOfIntegers_apply_apply (K : Type*) [Field K] [Algebra ℚ K]
     [QuadraticField K] [QuadraticField.Conj K] (x : NumberField.RingOfIntegers K) :
