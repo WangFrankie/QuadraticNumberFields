@@ -1215,6 +1215,28 @@ private theorem toClassGroup_ramifiedPrimeNarrowClass
           (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰) := by
   simp [ramifiedPrimeNarrowClass]
 
+private theorem classGroup_mk0_sq_eq_one_ramifiedPrimeIdeal
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    {p : ℕ} (hp : p ∈ ramifiedPrimes d) :
+    (ClassGroup.mk0
+        (⟨ramifiedPrimeIdeal d hp,
+          mem_nonZeroDivisors_iff_ne_zero.mpr (by
+            simpa [Ideal.zero_eq_bot] using ramifiedPrimeIdeal_ne_bot d hp)⟩ :
+          (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰) :
+        ClassGroup (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) ^ 2 = 1 := by
+  let R := NumberField.RingOfIntegers (Qsqrtd (d : ℚ))
+  have hpPrime : p.Prime := prime_of_mem_ramifiedPrimes hp
+  have hram :
+      Ideal.IsRamifiedIn (𝔭(p)) R :=
+    ((mem_ramifiedPrimes_iff_isRamifiedIn d p).mp hp).2
+  have hP2 :
+      ((ramifiedPrimeIdeal d hp) ^ 2).IsPrincipal := by
+    rw [← map_span_eq_sq_of_isRamifiedIn_of_mem_primesOver (d := d)
+      hpPrime (ramifiedPrimeIdeal_mem_primesOver d hp) hram]
+    rw [Ideal.map_span, Set.image_singleton]
+    exact ⟨_, rfl⟩
+  exact classGroup_mk0_sq_eq_one_of_sq_isPrincipal (ramifiedPrimeIdeal_ne_bot d hp) hP2
+
 private noncomputable def ramifiedParityClassProduct
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
     {p0 : ℕ} (_hp0 : p0 ∈ ramifiedPrimes d)
@@ -1838,6 +1860,17 @@ theorem card_narrowInversionFixedClass_le_genusBound
           ramifiedParityClassProduct d hp0 (ramifiedParityVector C) := by
       simpa [R] using
         toClassGroup_ramifiedParityNarrowClassProduct d hp0 (ramifiedParityVector C)
+    have hramifiedWideSquareOne :
+        ∀ p : {p // p ∈ (ramifiedPrimes d).erase p0},
+          (ClassGroup.mk0
+              (⟨ramifiedPrimeIdeal d ((Finset.mem_erase.mp p.2).2),
+                mem_nonZeroDivisors_iff_ne_zero.mpr (by
+                  simpa [Ideal.zero_eq_bot] using
+                    ramifiedPrimeIdeal_ne_bot d ((Finset.mem_erase.mp p.2).2))⟩ :
+                (Ideal R)⁰) : ClassGroup R) ^ 2 = 1 := by
+      intro p
+      simpa [R] using
+        classGroup_mk0_sq_eq_one_ramifiedPrimeIdeal d ((Finset.mem_erase.mp p.2).2)
     -- Remaining gap: factor the chosen representative, discard split/inert
     -- principal contributions, and use the positive-principal product relation
     -- to remove the `p0` ramified coordinate.
