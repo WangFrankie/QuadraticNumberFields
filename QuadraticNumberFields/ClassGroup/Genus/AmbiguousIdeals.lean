@@ -225,6 +225,27 @@ theorem map_conjAut_mem_primesOver_comap (K : Type*) [Field K] [Algebra ℚ K]
           (NumberField.RingOfIntegers K) :=
   ⟨Ideal.map_isPrime_of_equiv (conjAutRingOfIntegers K), map_conjAut_liesOver_comap K P⟩
 
+/-- If `P` is a prime factor of an ambiguous ideal `I`, then its conjugate is
+again a prime factor of `I` and lies over the same rational prime ideal as `P`. -/
+theorem map_conjAut_mem_normalizedFactors_and_primesOver_comap_of_isAmbiguousIdeal
+    (K : Type*) [Field K] [Algebra ℚ K] [QuadraticField K] [QuadraticField.Conj K]
+    [IsDedekindDomain (NumberField.RingOfIntegers K)]
+    {P I : Ideal (NumberField.RingOfIntegers K)} (hI0 : I ≠ ⊥)
+    (hI : IsAmbiguousIdeal (conjAutRingOfIntegers K) I)
+    (hP : P ∈ UniqueFactorizationMonoid.normalizedFactors I) :
+    Ideal.map (conjAutRingOfIntegers K : NumberField.RingOfIntegers K →+*
+        NumberField.RingOfIntegers K) P ∈ UniqueFactorizationMonoid.normalizedFactors I ∧
+      Ideal.map (conjAutRingOfIntegers K : NumberField.RingOfIntegers K →+*
+        NumberField.RingOfIntegers K) P ∈
+          Ideal.primesOver (P.comap (algebraMap ℤ (NumberField.RingOfIntegers K)))
+            (NumberField.RingOfIntegers K) := by
+  constructor
+  · exact (map_conjAut_mem_normalizedFactors_iff_of_isAmbiguousIdeal
+      (K := K) (P := P) (I := I) hI0 hI).mpr hP
+  · have hPprime : P.IsPrime := (Ideal.mem_normalizedFactors_iff hI0).mp hP |>.1
+    haveI : P.IsPrime := hPprime
+    exact map_conjAut_mem_primesOver_comap K P
+
 /-- Applying the ring-of-integers conjugation twice fixes every ideal. -/
 @[simp]
 theorem map_conjAut_map_conjAut (K : Type*) [Field K] [Algebra ℚ K]
@@ -479,6 +500,20 @@ theorem card_narrowInversionFixedClass_le_genusBound
     intro P hP
     haveI : P.IsPrime := hP
     exact map_conjAut_mem_primesOver_comap (K := Qsqrtd (d : ℚ)) P
+  have hambiguousPrimeFactorConj :
+      ∀ {P : Ideal R} {I : (Ideal R)⁰},
+        IsAmbiguousIdeal (conjAutRingOfIntegers (Qsqrtd (d : ℚ))) I.1 →
+          P ∈ UniqueFactorizationMonoid.normalizedFactors I.1 →
+            Ideal.map (conjAutRingOfIntegers (Qsqrtd (d : ℚ)) : R →+* R) P ∈
+                UniqueFactorizationMonoid.normalizedFactors I.1 ∧
+              Ideal.map (conjAutRingOfIntegers (Qsqrtd (d : ℚ)) : R →+* R) P ∈
+                Ideal.primesOver (P.comap (algebraMap ℤ R)) R := by
+    intro P I hI hP
+    have hI0 : I.1 ≠ ⊥ := by
+      rw [← Ideal.zero_eq_bot]
+      exact mem_nonZeroDivisors_iff_ne_zero.mp I.2
+    exact map_conjAut_mem_normalizedFactors_and_primesOver_comap_of_isAmbiguousIdeal
+      (K := Qsqrtd (d : ℚ)) (P := P) (I := I.1) hI0 hI hP
   sorry
 
 /-- Ambiguous-ideal upper bound: the two-torsion in the narrow class group has
