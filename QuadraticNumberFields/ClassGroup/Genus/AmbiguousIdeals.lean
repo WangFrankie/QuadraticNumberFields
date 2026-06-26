@@ -1544,6 +1544,34 @@ private theorem narrowClassGroup_mk0_eq_one_iff_exists_fraction_ring
   rw [map_one (FractionalIdeal.mk0 (FractionRing R) :
     (Ideal R)⁰ →* (FractionalIdeal R⁰ (FractionRing R))ˣ)]
 
+/-- The ramified parity ideal product has a fractional-ideal square cancelled by
+a totally positive principal fractional ideal. -/
+private theorem ramifiedParityIdealProduct_square_eq_principal_inverse
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    {p0 : ℕ} (hp0 : p0 ∈ ramifiedPrimes d)
+    (v : ({p // p ∈ (ramifiedPrimes d).erase p0} → Fin 2)) :
+    ∃ x : (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))ˣ,
+      NarrowClassGroup.IsTotallyPositive
+        (x : FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) ∧
+        (FractionalIdeal.mk0
+            (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))
+            (ramifiedParityIdealProduct d hp0 v)) ^ 2 =
+          (toPrincipalIdeal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))
+            (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) x)⁻¹ := by
+  let R := NumberField.RingOfIntegers (Qsqrtd (d : ℚ))
+  let J := ramifiedParityIdealProduct d hp0 v
+  have hJ_sq :
+      (NarrowClassGroup.mk0 J : NarrowClassGroup R) ^ 2 = 1 :=
+    narrowClassGroup_mk0_sq_eq_one_ramifiedParityIdealProduct d hp0 v
+  have hJ_mul :
+      NarrowClassGroup.mk0 (J * J) = (1 : NarrowClassGroup R) := by
+    simpa [pow_two, map_mul] using hJ_sq
+  obtain ⟨x, hxpos, hx⟩ :=
+    (narrowClassGroup_mk0_eq_one_iff_exists_fraction_ring (J * J)).mp hJ_mul
+  refine ⟨x, hxpos, ?_⟩
+  exact (eq_inv_iff_mul_eq_one).2 (by
+    simpa [J, pow_two] using hx)
+
 /-- If a nonzero integral ideal represents an inversion-fixed narrow class, then
 its square represents the trivial narrow class. -/
 theorem narrowClassGroup_mk0_mul_self_eq_one_of_inversionFixed
@@ -1670,10 +1698,15 @@ private theorem exists_tp_multiplier_of_square_principal_to_ambiguous_ramifiedPa
             (toPrincipalIdeal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))
               (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) x)⁻¹)
     (hJ_sq :
-      (NarrowClassGroup.mk0
-          (ramifiedParityIdealProduct d hp0
-            (narrowInversionFixedClassRamifiedParityVector d hp0 C)) :
-          NarrowClassGroup (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) ^ 2 = 1)
+      ∃ x : (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))ˣ,
+        NarrowClassGroup.IsTotallyPositive
+          (x : FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) ∧
+          (FractionalIdeal.mk0
+              (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))
+              (ramifiedParityIdealProduct d hp0
+                (narrowInversionFixedClassRamifiedParityVector d hp0 C))) ^ 2 =
+            (toPrincipalIdeal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))
+              (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) x)⁻¹)
     (hJambiguous :
       IsAmbiguousIdeal
         (conjAutRingOfIntegers (Qsqrtd (d : ℚ)))
@@ -1694,8 +1727,8 @@ private theorem exists_tp_multiplier_of_square_principal_to_ambiguous_ramifiedPa
             (narrowInversionFixedClassRamifiedParityVector d hp0 C)) := by
   -- Remaining gap: construct the positive principal multiplier from the fixed
   -- representative/factorization theorem and the product-one relation. The
-  -- checked inputs `hI_sq`, `hJ_sq`, and `hJambiguous` are the local data this
-  -- construction must consume.
+  -- checked square-principal inputs `hI_sq`, `hJ_sq`, and the fixedness input
+  -- `hJambiguous` are the local data this construction must consume.
   sorry
 
 /-- Exact remaining fixed-representative recovery input for the ambiguous-ideal
@@ -1731,11 +1764,16 @@ private theorem exists_tp_multiplier_representative_to_ramifiedParityIdealProduc
               (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) x)⁻¹ :=
     narrowInversionFixedRepresentativeIdeal_square_eq_principal_inverse d C
   have hJ_sq :
-      (NarrowClassGroup.mk0
-          (ramifiedParityIdealProduct d hp0
-            (narrowInversionFixedClassRamifiedParityVector d hp0 C)) :
-          NarrowClassGroup (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) ^ 2 = 1 :=
-    narrowClassGroup_mk0_sq_eq_one_ramifiedParityIdealProduct d hp0
+      ∃ x : (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))ˣ,
+        NarrowClassGroup.IsTotallyPositive
+          (x : FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) ∧
+          (FractionalIdeal.mk0
+              (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))
+              (ramifiedParityIdealProduct d hp0
+                (narrowInversionFixedClassRamifiedParityVector d hp0 C))) ^ 2 =
+            (toPrincipalIdeal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))
+              (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) x)⁻¹ :=
+    ramifiedParityIdealProduct_square_eq_principal_inverse d hp0
       (narrowInversionFixedClassRamifiedParityVector d hp0 C)
   have hJambiguous :
       IsAmbiguousIdeal
