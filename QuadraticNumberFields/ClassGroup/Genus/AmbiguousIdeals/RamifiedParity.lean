@@ -5,6 +5,7 @@ Authors: Frankie Wang
 -/
 
 import QuadraticNumberFields.ClassGroup.Genus.AmbiguousIdeals.Conjugation
+import QuadraticNumberFields.Splitting.Qsqrtd.SqrtD
 
 /-!
 # Ramified Parity Products
