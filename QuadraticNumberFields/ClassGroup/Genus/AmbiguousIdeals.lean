@@ -3917,14 +3917,44 @@ private theorem fullRamifiedParityNarrowClassHom_mem_ker_iff_exists_positivePrin
   exact NarrowClassGroup.mk0_eq_one_iff_exists_fraction_ring
 
 /-- Strict positive-principal denominator for the full finite ramified parity
-map. It constructs a nonzero parity vector whose full ramified ideal product is
-equivalent to the unit ideal by multiplying with a totally positive principal
-fractional ideal.
+map, stated at the actual linear-algebra boundary: the kernel of the full
+ramified-prime parity map has exactly two elements.
 
 This is the local `K = ℚ`, quadratic strict ambiguous-class-number denominator
-needed for the upper-bound direction. It is deliberately not identified with
-the ordinary all-ramified-prime relation, since that ordinary principal
+needed for the upper-bound direction. It is deliberately not identified with an
+ordinary all-ramified-prime product relation, since the ordinary principal
 generator need not be totally positive in real quadratic fields. -/
+private theorem card_fullRamifiedParityNarrowClassHom_ker_eq_two
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
+    Nat.card (fullRamifiedParityNarrowClassHom d).ker = 2 := by
+  -- Remaining gap: prove the strict/narrow ambiguous denominator. Equivalently,
+  -- the ramified-prime exponent-vector map has a single nontrivial kernel
+  -- relation coming from totally positive principal ideals.
+  sorry
+
+/-- Strict/narrow positive-principal denominator as a nontrivial kernel element
+for the finite ramified parity map. -/
+private theorem exists_nontrivial_mem_fullRamifiedParityNarrowClassHom_ker
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
+    ∃ r : Multiplicative ({p // p ∈ ramifiedPrimes d} → Fin 2),
+      r ≠ 1 ∧ r ∈ (fullRamifiedParityNarrowClassHom d).ker := by
+  classical
+  let H := (fullRamifiedParityNarrowClassHom d).ker
+  have hcard : Nat.card H = 2 := card_fullRamifiedParityNarrowClassHom_ker_eq_two d
+  have hnebot : H ≠ ⊥ := by
+    have hlt : 1 < Nat.card H := by omega
+    exact (Subgroup.one_lt_card_iff_ne_bot (H := H)).mp hlt
+  by_contra h
+  apply hnebot
+  rw [Subgroup.eq_bot_iff_forall]
+  intro r hr
+  by_contra hrne
+  exact h ⟨r, hrne, hr⟩
+
+/-- Strict positive-principal denominator for the full finite ramified parity
+map. It constructs a nonzero parity vector whose full ramified ideal product is
+equivalent to the unit ideal by multiplying with a totally positive principal
+fractional ideal. -/
 private theorem exists_positivePrincipal_fullRamifiedParityIdealProduct_relation
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
     let R := NumberField.RingOfIntegers (Qsqrtd (d : ℚ))
@@ -3935,49 +3965,25 @@ private theorem exists_positivePrincipal_fullRamifiedParityIdealProduct_relation
             FractionalIdeal.mk0 (FractionRing R) (fullRamifiedParityIdealProduct d r) *
               toPrincipalIdeal R (FractionRing R) x =
             1 := by
-  -- Remaining gap: prove the strict/narrow positive-principal denominator.
-  -- Equivalently, construct a nonzero kernel vector coming from a totally
-  -- positive principal relation, not the ordinary all-ramified-prime relation.
-  sorry
-
-/-- Strict/narrow positive-principal denominator as a nontrivial kernel element
-for the finite ramified parity map. -/
-private theorem exists_nontrivial_mem_fullRamifiedParityNarrowClassHom_ker
-    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
-    ∃ r : Multiplicative ({p // p ∈ ramifiedPrimes d} → Fin 2),
-      r ≠ 1 ∧ r ∈ (fullRamifiedParityNarrowClassHom d).ker := by
-  obtain ⟨r, hrnonzero, x, hxpos, hx⟩ :=
-    exists_positivePrincipal_fullRamifiedParityIdealProduct_relation d
-  refine ⟨Multiplicative.ofAdd r, ?_, ?_⟩
-  · obtain ⟨p, hp⟩ := hrnonzero
-    intro hr
-    apply hp
-    have h := congrArg
-      (fun v : Multiplicative ({p // p ∈ ramifiedPrimes d} → Fin 2) =>
-        Multiplicative.toAdd v p) hr
-    simpa using h
-  · exact (fullRamifiedParityNarrowClassHom_mem_ker_iff_exists_positivePrincipal d r).mpr
-      ⟨x, hxpos, hx⟩
+  obtain ⟨r, hrne, hrker⟩ := exists_nontrivial_mem_fullRamifiedParityNarrowClassHom_ker d
+  refine ⟨Multiplicative.toAdd r, ?_, ?_⟩
+  · by_contra hzero
+    apply hrne
+    apply Multiplicative.toAdd.injective
+    funext p
+    have hp0 : Multiplicative.toAdd r p = 0 := by
+      by_contra hp
+      exact (not_exists.mp hzero p) hp
+    simpa using hp0
+  · exact (fullRamifiedParityNarrowClassHom_mem_ker_iff_exists_positivePrincipal d
+      (Multiplicative.toAdd r)).mp hrker
 
 /-- Strict/narrow positive-principal denominator for the upper-bound direction:
 the finite ramified parity map has a nontrivial kernel relation. -/
 private theorem two_le_card_fullRamifiedParityNarrowClassHom_ker
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
     2 ≤ Nat.card (fullRamifiedParityNarrowClassHom d).ker := by
-  obtain ⟨r, hrne, hrker⟩ := exists_nontrivial_mem_fullRamifiedParityNarrowClassHom_ker d
-  have hnebot :
-      (fullRamifiedParityNarrowClassHom d).ker ≠ ⊥ := by
-    intro hbot
-    have hrbot : r ∈ (⊥ :
-        Subgroup (Multiplicative ({p // p ∈ ramifiedPrimes d} → Fin 2))) := by
-      simpa [hbot] using hrker
-    have hr : r = 1 := by
-      simpa using hrbot
-    exact hrne hr
-  have hlt : 1 < Nat.card (fullRamifiedParityNarrowClassHom d).ker :=
-    (Subgroup.one_lt_card_iff_ne_bot (H := (fullRamifiedParityNarrowClassHom d).ker)).mpr
-      hnebot
-  omega
+  rw [card_fullRamifiedParityNarrowClassHom_ker_eq_two d]
 
 /-- First-isomorphism cardinality for the full ramified parity map: source
 vectors split into image classes and kernel relations. -/
