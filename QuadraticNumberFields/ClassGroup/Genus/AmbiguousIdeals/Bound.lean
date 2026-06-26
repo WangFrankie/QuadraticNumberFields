@@ -587,6 +587,72 @@ theorem exists_normOne_unit_map_algebraMap_eq_conjAut_mul_inv_of_tp_generator
   obtain ⟨u, hu⟩ := exists_unit_map_algebraMap_eq_conjAut_mul_inv_of_tp_generator d r hγ
   exact ⟨u, hu, conjAutRingOfIntegers_unit_mul_self_eq_one_of_map_eq_conjAut_mul_inv d hu⟩
 
+/-- The equation `σu * u = 1` on an integral unit says that the corresponding
+field element has algebraic norm one. -/
+theorem algebra_norm_eq_one_of_conjAutRingOfIntegers_unit_mul_self_eq_one
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    {u : (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))ˣ}
+    (hu :
+      Units.mapEquiv (conjAutRingOfIntegers (Qsqrtd (d : ℚ))).toMulEquiv u * u = 1) :
+    Algebra.norm ℚ ((u : NumberField.RingOfIntegers (Qsqrtd (d : ℚ))) :
+      Qsqrtd (d : ℚ)) = 1 := by
+  let R := NumberField.RingOfIntegers (Qsqrtd (d : ℚ))
+  let K := Qsqrtd (d : ℚ)
+  have hR :
+      (conjAutRingOfIntegers K (u : R)) * (u : R) = 1 := by
+    simpa [R, K] using Units.ext_iff.mp hu
+  have hK :
+      QuadraticField.conjAut K ((u : R) : K) * ((u : R) : K) = 1 := by
+    simpa [R, K, map_mul, coe_conjAutRingOfIntegers_apply] using
+      congrArg (fun x : R => (x : K)) hR
+  apply FaithfulSMul.algebraMap_injective ℚ K
+  calc
+    algebraMap ℚ K (Algebra.norm ℚ ((u : R) : K)) =
+        ((u : R) : K) * QuadraticField.conjAut K ((u : R) : K) := by
+      rw [← QuadraticField.mul_conj_eq_norm_image]
+    _ = QuadraticField.conjAut K ((u : R) : K) * ((u : R) : K) := by
+      rw [mul_comm]
+    _ = 1 := hK
+
+/-- A norm-one integral unit obtained from the generator relation is a Hilbert
+90 coboundary in the ring of integers. -/
+theorem exists_hilbert90_coboundary_of_conjAutRingOfIntegers_unit_mul_self_eq_one
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    {u : (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))ˣ}
+    (hu :
+      Units.mapEquiv (conjAutRingOfIntegers (Qsqrtd (d : ℚ))).toMulEquiv u * u = 1) :
+    ∃ ε : NumberField.RingOfIntegers (Qsqrtd (d : ℚ)), ε ≠ 0 ∧
+      (u : NumberField.RingOfIntegers (Qsqrtd (d : ℚ))) *
+          conjAutRingOfIntegers (Qsqrtd (d : ℚ)) ε = ε := by
+  exact exists_mul_conjAutRingOfIntegers_eq_self_of_norm_eq_one (Qsqrtd (d : ℚ))
+    (algebra_norm_eq_one_of_conjAutRingOfIntegers_unit_mul_self_eq_one d hu)
+
+/-- For a generator of a full ramified parity product, the associated integral
+unit admits a Hilbert-90 coboundary representative. -/
+theorem exists_hilbert90_coboundary_unit_of_tp_generator
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (r : {p // p ∈ ramifiedPrimes d} → Fin 2)
+    {γ : (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))ˣ}
+    (hγ :
+      toPrincipalIdeal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))
+          (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) γ =
+        FractionalIdeal.mk0
+          (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))
+          (fullRamifiedParityIdealProduct d r)) :
+    ∃ u : (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))ˣ,
+      Units.map
+          (algebraMap (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))
+            (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))).toMonoidHom u =
+          Units.mapEquiv (conjAutFractionRingAlgEquiv (Qsqrtd (d : ℚ))).toRingEquiv γ *
+            γ⁻¹ ∧
+        ∃ ε : NumberField.RingOfIntegers (Qsqrtd (d : ℚ)), ε ≠ 0 ∧
+          (u : NumberField.RingOfIntegers (Qsqrtd (d : ℚ))) *
+              conjAutRingOfIntegers (Qsqrtd (d : ℚ)) ε = ε := by
+  obtain ⟨u, hu, hnorm⟩ :=
+    exists_normOne_unit_map_algebraMap_eq_conjAut_mul_inv_of_tp_generator d r hγ
+  exact ⟨u, hu, exists_hilbert90_coboundary_of_conjAutRingOfIntegers_unit_mul_self_eq_one
+    d hnorm⟩
+
 /-- Chevalley's narrow ambiguous class number formula, in the only form needed
 for the upper bound.
 
