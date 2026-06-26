@@ -2102,93 +2102,6 @@ private theorem fractionalRep_eq_conjAutFractionalRep_of_coboundary
           toPrincipalIdeal R (FractionRing R) σy := by
       rw [hconj]
 
-/-- The narrow integral representative of a fractional ideal differs from the
-fractional ideal by a totally positive principal fractional ideal. This is the
-explicit equality form of `NarrowClassGroup.mk0_integralRep`. -/
-private theorem exists_tp_principal_multiplier_integralRep
-    {R : Type*} [CommRing R] [IsDomain R] [IsDedekindDomain R]
-    (A : (FractionalIdeal R⁰ (FractionRing R))ˣ) :
-    ∃ t : (FractionRing R)ˣ,
-      NarrowClassGroup.IsTotallyPositive (t : FractionRing R) ∧
-        FractionalIdeal.mk0 (FractionRing R)
-            ⟨NarrowClassGroup.integralRep A.1,
-              NarrowClassGroup.integralRep_mem_nonZeroDivisors A.ne_zero⟩ *
-          toPrincipalIdeal R (FractionRing R) t =
-        A := by
-  let a : FractionRing R := algebraMap R (FractionRing R) (A.1.den : R)
-  have ha0 : a ≠ 0 :=
-    IsFractionRing.to_map_ne_zero_of_mem_nonZeroDivisors A.1.den.prop
-  let u : (FractionRing R)ˣ := Units.mk0 (a ^ 2) (pow_ne_zero 2 ha0)
-  have hu_pos : u ∈ NarrowClassGroup.totallyPositiveUnits (FractionRing R) :=
-    NarrowClassGroup.isTotallyPositive_sq_of_ne_zero a ha0
-  refine ⟨u⁻¹, (NarrowClassGroup.totallyPositiveUnits (FractionRing R)).inv_mem hu_pos, ?_⟩
-  let P : (FractionalIdeal R⁰ (FractionRing R))ˣ := toPrincipalIdeal R (FractionRing R) u
-  have hrep :
-      FractionalIdeal.mk0 (FractionRing R)
-          ⟨NarrowClassGroup.integralRep A.1,
-            NarrowClassGroup.integralRep_mem_nonZeroDivisors A.ne_zero⟩ =
-        P * A := by
-    apply Units.ext
-    change
-      ((NarrowClassGroup.integralRep A.1 : Ideal R) :
-          FractionalIdeal R⁰ (FractionRing R)) =
-        (P : (FractionalIdeal R⁰ (FractionRing R))ˣ) * A
-    calc
-      ((NarrowClassGroup.integralRep A.1 : Ideal R) :
-          FractionalIdeal R⁰ (FractionRing R)) =
-          FractionalIdeal.spanSingleton R⁰ a * A.1.num := by
-        rw [NarrowClassGroup.integralRep, FractionalIdeal.coeIdeal_mul,
-          FractionalIdeal.coeIdeal_span_singleton]
-      _ = FractionalIdeal.spanSingleton R⁰ a *
-          (FractionalIdeal.spanSingleton R⁰ a * (A : FractionalIdeal R⁰ (FractionRing R))) := by
-        rw [FractionalIdeal.den_mul_self_eq_num']
-      _ = FractionalIdeal.spanSingleton R⁰ (a ^ 2) *
-          (A : FractionalIdeal R⁰ (FractionRing R)) := by
-        rw [← mul_assoc, FractionalIdeal.spanSingleton_mul_spanSingleton, pow_two]
-      _ = (P : (FractionalIdeal R⁰ (FractionRing R))ˣ) * A := by
-        simp [P, u, coe_toPrincipalIdeal]
-  calc
-    FractionalIdeal.mk0 (FractionRing R)
-          ⟨NarrowClassGroup.integralRep A.1,
-            NarrowClassGroup.integralRep_mem_nonZeroDivisors A.ne_zero⟩ *
-        toPrincipalIdeal R (FractionRing R) u⁻¹ =
-        (P * A) * P⁻¹ := by
-      rw [hrep, map_inv]
-    _ = A := by
-      calc
-        P * A * P⁻¹ = (P * P⁻¹) * A := by ac_rfl
-        _ = A := by rw [mul_inv_cancel, one_mul]
-
-/-- Ambiguity boundary for the integral representative produced by clearing a
-conjugation-stable fractional representative. -/
-private theorem isAmbiguousIdeal_integralRep_of_conjAutFractionalRep_eq
-    (K : Type*) [Field K] [NumberField K] [Algebra ℚ K]
-    [QuadraticField K] [QuadraticField.Conj K]
-    (I : (Ideal (NumberField.RingOfIntegers K))⁰)
-    (y : (FractionRing (NumberField.RingOfIntegers K))ˣ)
-    (hfixed :
-      FractionalIdeal.mk0 (FractionRing (NumberField.RingOfIntegers K)) I *
-          toPrincipalIdeal (NumberField.RingOfIntegers K)
-            (FractionRing (NumberField.RingOfIntegers K)) y =
-        FractionalIdeal.mk0 (FractionRing (NumberField.RingOfIntegers K))
-            (conjAutNonzeroIdealMulEquiv K I) *
-          toPrincipalIdeal (NumberField.RingOfIntegers K)
-            (FractionRing (NumberField.RingOfIntegers K))
-            (Units.mapEquiv (conjAutFractionRingAlgEquiv K).toRingEquiv y)) :
-    IsAmbiguousIdeal (conjAutRingOfIntegers K)
-      (NarrowClassGroup.integralRep
-        ((FractionalIdeal.mk0 (FractionRing (NumberField.RingOfIntegers K)) I *
-          toPrincipalIdeal (NumberField.RingOfIntegers K)
-            (FractionRing (NumberField.RingOfIntegers K)) y :
-          (FractionalIdeal (NumberField.RingOfIntegers K)⁰
-            (FractionRing (NumberField.RingOfIntegers K)))ˣ) :
-          FractionalIdeal (NumberField.RingOfIntegers K)⁰
-            (FractionRing (NumberField.RingOfIntegers K)))) := by
-  -- Remaining gap: show that `NarrowClassGroup.integralRep` commutes with the
-  -- quadratic conjugation action when the underlying fractional ideal is fixed by
-  -- the explicit factorization `hfixed`.
-  sorry
-
 /-- Integral clearing boundary for a conjugation-stable fractional representative.
 If the fractional representative `I * (y)` matches its conjugate factorization,
 then an ambiguous integral ideal represents the same narrow class, up to a
@@ -2219,16 +2132,12 @@ private theorem exists_ambiguousIntegralClearing_of_conjAutFractionalRep_eq
               FractionalIdeal.mk0 (FractionRing (NumberField.RingOfIntegers K)) I *
                 toPrincipalIdeal (NumberField.RingOfIntegers K)
                   (FractionRing (NumberField.RingOfIntegers K)) y := by
-  let R := NumberField.RingOfIntegers K
-  let A : (FractionalIdeal R⁰ (FractionRing R))ˣ :=
-    FractionalIdeal.mk0 (FractionRing R) I * toPrincipalIdeal R (FractionRing R) y
-  let J : (Ideal R)⁰ :=
-    ⟨NarrowClassGroup.integralRep A.1,
-      NarrowClassGroup.integralRep_mem_nonZeroDivisors A.ne_zero⟩
-  obtain ⟨t, htpos, ht⟩ := exists_tp_principal_multiplier_integralRep A
-  refine ⟨J, ?_, t, htpos, ?_⟩
-  · exact isAmbiguousIdeal_integralRep_of_conjAutFractionalRep_eq K I y hfixed
-  · exact ht
+  -- Remaining gap: choose a conjugation-stable integral clearing denominator for
+  -- the fixed fractional ideal `I * (y)`, producing some ambiguous integral ideal
+  -- representative. The denominator must be chosen equivariantly; the default
+  -- `NarrowClassGroup.integralRep` denominator is not known to commute with
+  -- quadratic conjugation.
+  sorry
 
 /-- Integral clearing boundary for a conjugation-stable fractional representative.
 If the fractional representative `I * (y)` matches its conjugate factorization,
@@ -2494,52 +2403,6 @@ private theorem fullRamifiedParityNarrowClassProduct_eq_erased_of_apply_p0_eq_ze
   · intro p _hp
     simp [F]
 
-/-- Product-one relation among all ramified prime narrow classes. This is the
-single relation used to remove the distinguished ramified prime from a full
-parity vector. -/
-private theorem allRamifiedPrimeNarrowClassProduct_eq_one
-    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
-    (Finset.univ.prod fun p : {p // p ∈ ramifiedPrimes d} =>
-      ramifiedPrimeNarrowClass d p.2) =
-        (1 : NarrowClassGroup (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) := by
-  -- Remaining gap: formalize the total product of all ramified prime ideals as
-  -- a totally positive principal fractional ideal. This is the unique global
-  -- product-one relation among the ramified prime narrow classes.
-  sorry
-
-private theorem fullRamifiedParityNarrowClassProduct_complement_eq
-    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
-    (v : ({p // p ∈ ramifiedPrimes d} → Fin 2)) :
-    fullRamifiedParityNarrowClassProduct d
-        (fun p => if v p = 0 then 1 else 0) =
-      fullRamifiedParityNarrowClassProduct d v := by
-  classical
-  let u : {p // p ∈ ramifiedPrimes d} → Fin 2 := fun p => if v p = 0 then 1 else 0
-  let A := fullRamifiedParityNarrowClassProduct d v
-  let B := fullRamifiedParityNarrowClassProduct d u
-  have hmul_total :
-      A * B =
-        Finset.univ.prod fun p : {p // p ∈ ramifiedPrimes d} =>
-          ramifiedPrimeNarrowClass d p.2 := by
-    dsimp [A, B, u]
-    rw [fullRamifiedParityNarrowClassProduct, fullRamifiedParityNarrowClassProduct,
-      ← Finset.prod_mul_distrib]
-    refine Finset.prod_congr rfl ?_
-    intro p _hp
-    by_cases hpv : v p = 0
-    · simp [hpv]
-    · simp [hpv]
-  have hmul : A * B = 1 := hmul_total.trans (allRamifiedPrimeNarrowClassProduct_eq_one d)
-  have hsquare : A * A = 1 := by
-    simpa [A, pow_two] using fullRamifiedParityNarrowClassProduct_sq_eq_one d v
-  change B = A
-  calc
-    B = 1 * B := by rw [one_mul]
-    _ = (A * A) * B := by rw [hsquare]
-    _ = A * (A * B) := by rw [mul_assoc]
-    _ = A * 1 := by rw [hmul]
-    _ = A := by rw [mul_one]
-
 /-- Product-one relation in narrow-class form. The full ramified parity product
 is narrow-equivalent to an erased ramified parity product after choosing the
 `p0` coordinate using the single positive-principal relation among all ramified
@@ -2558,12 +2421,12 @@ private theorem exists_erasedRamifiedParityProduct_mk0_eq_fullRamifiedParityProd
       d hp0 v hv0]
   · let u : {p // p ∈ ramifiedPrimes d} → Fin 2 := fun p => if v p = 0 then 1 else 0
     refine ⟨fun p => u ⟨p.1, (Finset.mem_erase.mp p.2).2⟩, ?_⟩
-    rw [mk0_ramifiedParityIdealProduct d hp0, mk0_fullRamifiedParityIdealProduct d]
-    have hu0 : u ⟨p0, hp0⟩ = 0 := by
-      simp [u, hv0]
-    rw [← fullRamifiedParityNarrowClassProduct_eq_erased_of_apply_p0_eq_zero
-      d hp0 u hu0]
-    exact fullRamifiedParityNarrowClassProduct_complement_eq d v
+    -- Remaining gap: the erased-coordinate step needs the correct narrow
+    -- relation for the product of all ramified prime classes. The naive
+    -- statement that this total product is always `1` in the narrow class group
+    -- is false in real quadratic fields without a negative-norm unit, so this
+    -- branch must use the precise genus-theoretic relation instead.
+    sorry
 
 /-- The erased ramified parity ideal product is the multiset product of exactly
 the ramified prime ideals whose parity coordinate is nonzero. -/
