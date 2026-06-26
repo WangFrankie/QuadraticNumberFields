@@ -1792,6 +1792,27 @@ private theorem narrowClassGroup_mk0_eq_normalizedFactors_prod
     _ = ((UniqueFactorizationMonoid.normalizedFactors (I : Ideal R)).attach.map fun P =>
         NarrowClassGroup.mk0 (normalizedFactorNonzeroIdeal I P)).prod := rfl
 
+private theorem narrowClassGroup_mk0_eq_normalizedFactors_attach_toFinset_prod
+    {R : Type*} [CommRing R] [IsDomain R] [IsDedekindDomain R] [DecidableEq (Ideal R)]
+    (I : (Ideal R)⁰) :
+    NarrowClassGroup.mk0 I =
+      ∏ P ∈
+          (UniqueFactorizationMonoid.normalizedFactors (I : Ideal R)).attach.toFinset,
+        (NarrowClassGroup.mk0 (normalizedFactorNonzeroIdeal I P)) ^
+          (UniqueFactorizationMonoid.normalizedFactors (I : Ideal R)).count P.1 := by
+  let s := UniqueFactorizationMonoid.normalizedFactors (I : Ideal R)
+  let F : {P // P ∈ s} → NarrowClassGroup R := fun P =>
+    NarrowClassGroup.mk0 (normalizedFactorNonzeroIdeal I P)
+  calc
+    NarrowClassGroup.mk0 I = (s.attach.map F).prod := by
+      exact narrowClassGroup_mk0_eq_normalizedFactors_prod I
+    _ = ∏ P ∈ s.attach.toFinset, F P ^ s.attach.count P := by
+      exact Finset.prod_multiset_map_count s.attach F
+    _ = ∏ P ∈ s.attach.toFinset, F P ^ s.count P.1 := by
+      refine Finset.prod_congr rfl ?_
+      intro P _hP
+      rw [Multiset.count_attach]
+
 /-- Per-prime contribution in the narrow class group. A split prime factor
 cancels with its conjugate, an inert factor is narrowly principal, and a
 ramified factor has square one. -/
@@ -3205,6 +3226,8 @@ private theorem ambiguousIdeal_mk0_eq_fullRamifiedParityIdealProduct_of_factoriz
         (fullRamifiedParityIdealProduct d (fullRamifiedParityVector d J)) := by
   have hJ_factorization :=
     narrowClassGroup_mk0_eq_normalizedFactors_prod J
+  have hJ_factorization_count :=
+    narrowClassGroup_mk0_eq_normalizedFactors_attach_toFinset_prod J
   have hfactor_lower :
       ∀ (P :
           {P // P ∈ UniqueFactorizationMonoid.normalizedFactors
@@ -3310,11 +3333,12 @@ private theorem ambiguousIdeal_mk0_eq_fullRamifiedParityIdealProduct_of_factoriz
     intro p
     exact ramifiedPrimeNarrowClass_pow_normalizedFactors_count_eq_parity d J p
   -- Remaining gap: use `hJ_factorization` to multiply the explicit positive
-  -- base-prime span contributions, `hfactor_case`, and the conjugation
-  -- involution `hfactor_conj` over the Dedekind factorization of `J`. The
-  -- nonfixed split-pair certificate is `hfactor_split_ne`; inert prime factors
-  -- cancel as totally positive principal ideals, while ramified factors are
-  -- identified by `hfactor_ramified_eq`; their powers reduce to the parity
+  -- base-prime span contributions. The count-powered normal form is
+  -- `hJ_factorization_count`; combine it with `hfactor_case` and the
+  -- conjugation involution `hfactor_conj` over the Dedekind factorization of
+  -- `J`. The nonfixed split-pair certificate is `hfactor_split_ne`; inert prime
+  -- factors cancel as totally positive principal ideals, while ramified factors
+  -- are identified by `hfactor_ramified_eq`; their powers reduce to the parity
   -- terms recorded by `hfactor_ramified_pow`.
   sorry
 
