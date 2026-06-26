@@ -1563,6 +1563,14 @@ private noncomputable def ramifiedParityNarrowClassProduct
     if v p = 0 then 1 else
       ramifiedPrimeNarrowClass d ((Finset.mem_erase.mp p.2).2)
 
+private noncomputable def fullRamifiedParityNarrowClassProduct
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (v : ({p // p ∈ ramifiedPrimes d} → Fin 2)) :
+    NarrowClassGroup (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))) := by
+  classical
+  exact Finset.univ.prod fun p =>
+    if v p = 0 then 1 else ramifiedPrimeNarrowClass d p.2
+
 private theorem mk0_ramifiedParityIdealProduct
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
     {p0 : ℕ} (hp0 : p0 ∈ ramifiedPrimes d)
@@ -1571,6 +1579,20 @@ private theorem mk0_ramifiedParityIdealProduct
       ramifiedParityNarrowClassProduct d hp0 v := by
   classical
   rw [ramifiedParityIdealProduct, ramifiedParityNarrowClassProduct]
+  simp only [map_prod]
+  refine Finset.prod_congr rfl ?_
+  intro p _hp
+  by_cases hpv : v p = 0
+  · simp [hpv]
+  · simp [hpv, ramifiedPrimeNarrowClass]
+
+private theorem mk0_fullRamifiedParityIdealProduct
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (v : ({p // p ∈ ramifiedPrimes d} → Fin 2)) :
+    NarrowClassGroup.mk0 (fullRamifiedParityIdealProduct d v) =
+      fullRamifiedParityNarrowClassProduct d v := by
+  classical
+  rw [fullRamifiedParityIdealProduct, fullRamifiedParityNarrowClassProduct]
   simp only [map_prod]
   refine Finset.prod_congr rfl ?_
   intro p _hp
@@ -1602,6 +1624,19 @@ private theorem ramifiedParityNarrowClassProduct_sq_eq_one
       NarrowClassGroup (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) ^ 2 = 1 := by
   classical
   rw [ramifiedParityNarrowClassProduct, ← Finset.prod_pow]
+  refine Finset.prod_eq_one ?_
+  intro p _hp
+  by_cases hpv : v p = 0
+  · simp [hpv]
+  · simp [hpv, narrowClassGroup_mk0_sq_eq_one_ramifiedPrimeIdeal]
+
+private theorem fullRamifiedParityNarrowClassProduct_sq_eq_one
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (v : ({p // p ∈ ramifiedPrimes d} → Fin 2)) :
+    (fullRamifiedParityNarrowClassProduct d v :
+      NarrowClassGroup (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) ^ 2 = 1 := by
+  classical
+  rw [fullRamifiedParityNarrowClassProduct, ← Finset.prod_pow]
   refine Finset.prod_eq_one ?_
   intro p _hp
   by_cases hpv : v p = 0
@@ -2253,6 +2288,99 @@ private theorem fullRamifiedParityIdealProduct_eq_ramifiedParityIdealProduct_of_
   · intro p _hp
     simp [F]
 
+/-- If the distinguished coordinate is zero, the full ramified parity narrow
+class product is the erased product obtained by restricting away from that
+coordinate. -/
+private theorem fullRamifiedParityNarrowClassProduct_eq_erased_of_apply_p0_eq_zero
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    {p0 : ℕ} (hp0 : p0 ∈ ramifiedPrimes d)
+    (v : ({p // p ∈ ramifiedPrimes d} → Fin 2))
+    (hv0 : v ⟨p0, hp0⟩ = 0) :
+    fullRamifiedParityNarrowClassProduct d v =
+      ramifiedParityNarrowClassProduct d hp0
+        (fun p : {p // p ∈ (ramifiedPrimes d).erase p0} =>
+          v ⟨p.1, (Finset.mem_erase.mp p.2).2⟩) := by
+  classical
+  let F : {p // p ∈ ramifiedPrimes d} →
+      NarrowClassGroup (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))) :=
+    fun p => if v p = 0 then 1 else ramifiedPrimeNarrowClass d p.2
+  let G : {p // p ∈ (ramifiedPrimes d).erase p0} →
+      NarrowClassGroup (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))) :=
+    fun p =>
+      if v ⟨p.1, (Finset.mem_erase.mp p.2).2⟩ = 0 then 1 else
+        ramifiedPrimeNarrowClass d ((Finset.mem_erase.mp p.2).2)
+  change Finset.univ.prod F = Finset.univ.prod G
+  have hterm : F ⟨p0, hp0⟩ = 1 := by
+    simp [F, hv0]
+  rw [← Finset.prod_erase (s := Finset.univ) (a := ⟨p0, hp0⟩) (f := F) hterm]
+  symm
+  refine Finset.prod_bij
+    (fun p _hp => (⟨p.1, (Finset.mem_erase.mp p.2).2⟩ :
+      {p // p ∈ ramifiedPrimes d})) ?_ ?_ ?_ ?_
+  · intro p _hp
+    rw [Finset.mem_erase]
+    refine ⟨?_, Finset.mem_univ _⟩
+    intro hp
+    exact (Finset.mem_erase.mp p.2).1 (Subtype.ext_iff.mp hp)
+  · intro p _hp q _hq hpq
+    apply Subtype.ext
+    exact congrArg (fun x : {p // p ∈ ramifiedPrimes d} => (x : ℕ)) hpq
+  · intro q hq
+    rw [Finset.mem_erase] at hq
+    refine ⟨⟨q.1, Finset.mem_erase.mpr ⟨?_, q.2⟩⟩, Finset.mem_univ _, ?_⟩
+    · intro hq0
+      exact hq.1 (Subtype.ext hq0)
+    · apply Subtype.ext
+      rfl
+  · intro p _hp
+    simp [F]
+
+/-- Product-one relation among all ramified prime narrow classes. This is the
+single relation used to remove the distinguished ramified prime from a full
+parity vector. -/
+private theorem allRamifiedPrimeNarrowClassProduct_eq_one
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
+    (Finset.univ.prod fun p : {p // p ∈ ramifiedPrimes d} =>
+      ramifiedPrimeNarrowClass d p.2) =
+        (1 : NarrowClassGroup (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) := by
+  -- Remaining gap: formalize the total product of all ramified prime ideals as
+  -- a totally positive principal fractional ideal. This is the unique global
+  -- product-one relation among the ramified prime narrow classes.
+  sorry
+
+private theorem fullRamifiedParityNarrowClassProduct_complement_eq
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (v : ({p // p ∈ ramifiedPrimes d} → Fin 2)) :
+    fullRamifiedParityNarrowClassProduct d
+        (fun p => if v p = 0 then 1 else 0) =
+      fullRamifiedParityNarrowClassProduct d v := by
+  classical
+  let u : {p // p ∈ ramifiedPrimes d} → Fin 2 := fun p => if v p = 0 then 1 else 0
+  let A := fullRamifiedParityNarrowClassProduct d v
+  let B := fullRamifiedParityNarrowClassProduct d u
+  have hmul_total :
+      A * B =
+        Finset.univ.prod fun p : {p // p ∈ ramifiedPrimes d} =>
+          ramifiedPrimeNarrowClass d p.2 := by
+    dsimp [A, B, u]
+    rw [fullRamifiedParityNarrowClassProduct, fullRamifiedParityNarrowClassProduct,
+      ← Finset.prod_mul_distrib]
+    refine Finset.prod_congr rfl ?_
+    intro p _hp
+    by_cases hpv : v p = 0
+    · simp [hpv]
+    · simp [hpv]
+  have hmul : A * B = 1 := hmul_total.trans (allRamifiedPrimeNarrowClassProduct_eq_one d)
+  have hsquare : A * A = 1 := by
+    simpa [A, pow_two] using fullRamifiedParityNarrowClassProduct_sq_eq_one d v
+  change B = A
+  calc
+    B = 1 * B := by rw [one_mul]
+    _ = (A * A) * B := by rw [hsquare]
+    _ = A * (A * B) := by rw [mul_assoc]
+    _ = A * 1 := by rw [hmul]
+    _ = A := by rw [mul_one]
+
 /-- Product-one relation in narrow-class form. The full ramified parity product
 is narrow-equivalent to an erased ramified parity product after choosing the
 `p0` coordinate using the single positive-principal relation among all ramified
@@ -2269,10 +2397,14 @@ private theorem exists_erasedRamifiedParityProduct_mk0_eq_fullRamifiedParityProd
   · refine ⟨fun p => v ⟨p.1, (Finset.mem_erase.mp p.2).2⟩, ?_⟩
     rw [fullRamifiedParityIdealProduct_eq_ramifiedParityIdealProduct_of_apply_p0_eq_zero
       d hp0 v hv0]
-  · -- Remaining gap: formalize the total product of all ramified prime ideals as
-    -- a totally positive principal fractional ideal, then toggle the `p0`
-    -- coordinate to handle the remaining case `v ⟨p0, hp0⟩ ≠ 0`.
-    sorry
+  · let u : {p // p ∈ ramifiedPrimes d} → Fin 2 := fun p => if v p = 0 then 1 else 0
+    refine ⟨fun p => u ⟨p.1, (Finset.mem_erase.mp p.2).2⟩, ?_⟩
+    rw [mk0_ramifiedParityIdealProduct d hp0, mk0_fullRamifiedParityIdealProduct d]
+    have hu0 : u ⟨p0, hp0⟩ = 0 := by
+      simp [u, hv0]
+    rw [← fullRamifiedParityNarrowClassProduct_eq_erased_of_apply_p0_eq_zero
+      d hp0 u hu0]
+    exact fullRamifiedParityNarrowClassProduct_complement_eq d v
 
 /-- The erased ramified parity ideal product is the multiset product of exactly
 the ramified prime ideals whose parity coordinate is nonzero. -/
