@@ -2258,6 +2258,21 @@ private theorem ramifiedPrimeNarrowClass_pow_normalizedFactors_count_eq_parity
       a ^ n = a ^ (n % 2) := hpow
       _ = a := by rw [hnmod, pow_one]
 
+private theorem fullRamifiedParityNarrowClassProduct_eq_ramifiedPrime_count_prod
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (J : (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰) :
+    fullRamifiedParityNarrowClassProduct d (fullRamifiedParityVector d J) =
+      Finset.univ.prod fun p : {p // p ∈ ramifiedPrimes d} =>
+        (ramifiedPrimeNarrowClass d p.2) ^
+          (UniqueFactorizationMonoid.normalizedFactors
+            (J : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))).count
+            (ramifiedPrimeIdeal d p.2) := by
+  classical
+  rw [fullRamifiedParityNarrowClassProduct]
+  refine Finset.prod_congr rfl ?_
+  intro p _hp
+  exact (ramifiedPrimeNarrowClass_pow_normalizedFactors_count_eq_parity d J p).symm
+
 private theorem narrowClassGroup_mk0_sq_eq_one_ramifiedParityIdealProduct
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
     {p0 : ℕ} (hp0 : p0 ∈ ramifiedPrimes d)
@@ -3522,6 +3537,16 @@ private theorem ambiguousIdeal_mk0_eq_fullRamifiedParityIdealProduct_of_factoriz
             ramifiedPrimeNarrowClass d p.2 := by
     intro p
     exact ramifiedPrimeNarrowClass_pow_normalizedFactors_count_eq_parity d J p
+  have htarget_count :
+      NarrowClassGroup.mk0
+          (fullRamifiedParityIdealProduct d (fullRamifiedParityVector d J)) =
+        Finset.univ.prod fun p : {p // p ∈ ramifiedPrimes d} =>
+          (ramifiedPrimeNarrowClass d p.2) ^
+            (UniqueFactorizationMonoid.normalizedFactors
+              (J : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))).count
+              (ramifiedPrimeIdeal d p.2) := by
+    rw [mk0_fullRamifiedParityIdealProduct]
+    exact fullRamifiedParityNarrowClassProduct_eq_ramifiedPrime_count_prod d J
   -- Remaining gap: use `hJ_factorization` to multiply the explicit positive
   -- base-prime span contributions. The count-powered normal form is
   -- `hJ_factorization_count`; combine it with `hfactor_case` and the
@@ -3531,7 +3556,8 @@ private theorem ambiguousIdeal_mk0_eq_fullRamifiedParityIdealProduct_of_factoriz
   -- the paired count-powers cancel via `hfactor_split_pow`. Inert prime factors
   -- cancel by `hfactor_inert_pow`, while ramified factors are identified by
   -- `hfactor_ramified_eq`; their powers reduce to the parity terms recorded by
-  -- `hfactor_ramified_pow`.
+  -- `hfactor_ramified_pow`, and the target side is in count-powered form via
+  -- `htarget_count`.
   sorry
 
 /-- Per-factor assembly boundary in principal-multiplier form. A genuinely
