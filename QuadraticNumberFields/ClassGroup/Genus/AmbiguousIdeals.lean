@@ -3858,6 +3858,28 @@ ramified parity vector actually attached to an ambiguous ideal, the distinguishe
 ramified coordinate can be removed in `Cl⁺`. This is deliberately not stated for
 an arbitrary full vector: in real quadratic fields the naive total finite
 ramified-prime product is not generally narrow-principal. -/
+private theorem erasedComplementRamifiedParityProduct_mk0_eq_full_of_ambiguousIdeal
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    {p0 : ℕ} (hp0 : p0 ∈ ramifiedPrimes d)
+    (J : (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰)
+    (hJ : IsAmbiguousIdeal (conjAutRingOfIntegers (Qsqrtd (d : ℚ)))
+      (J : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))))
+    (hv0 : fullRamifiedParityVector d J ⟨p0, hp0⟩ ≠ 0) :
+    NarrowClassGroup.mk0
+        (ramifiedParityIdealProduct d hp0
+          (fun p : {p // p ∈ (ramifiedPrimes d).erase p0} =>
+            if fullRamifiedParityVector d J
+                ⟨p.1, (Finset.mem_erase.mp p.2).2⟩ = 0 then 1 else 0)) =
+      NarrowClassGroup.mk0
+        (fullRamifiedParityIdealProduct d (fullRamifiedParityVector d J)) := by
+  -- Remaining gap: prove the strict/narrow positive-principal denominator for
+  -- the actual ambiguous ideal `J`. This is the local `K = ℚ`, quadratic case
+  -- of the ambiguous class number formula's unit-index denominator.
+  sorry
+
+/-- Positive-principal denominator boundary in existential form. For the full
+ramified parity vector actually attached to an ambiguous ideal, there is an
+erased ramified parity product in the same narrow class. -/
 private theorem exists_erasedRamifiedParityProduct_mk0_eq_full_of_ambiguousIdeal
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
     {p0 : ℕ} (hp0 : p0 ∈ ramifiedPrimes d)
@@ -3876,11 +3898,8 @@ private theorem exists_erasedRamifiedParityProduct_mk0_eq_full_of_ambiguousIdeal
       d hp0 v hv0]
   · let u : {p // p ∈ ramifiedPrimes d} → Fin 2 := fun p => if v p = 0 then 1 else 0
     refine ⟨fun p => u ⟨p.1, (Finset.mem_erase.mp p.2).2⟩, ?_⟩
-    -- Remaining gap: use the strict/narrow ambiguous class number denominator
-    -- for the actual ambiguous ideal `J`. The older arbitrary-vector statement
-    -- was too strong: the finite total ramified product need not be
-    -- narrow-principal in real quadratic fields.
-    sorry
+    simpa [u, v] using
+      erasedComplementRamifiedParityProduct_mk0_eq_full_of_ambiguousIdeal d hp0 J hJ hv0
 
 /-- The full ramified parity ideal product is the multiset product of exactly the
 ramified prime ideals whose parity coordinate is nonzero. -/
