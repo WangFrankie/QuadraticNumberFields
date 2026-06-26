@@ -276,6 +276,75 @@ private theorem map_ringEquiv_mem_nonZeroDivisors {R : Type*} [CommRing R] (σ :
   rw [← MulEquivClass.map_nonZeroDivisors (idealMapMulEquiv σ)]
   exact ⟨I, hI, rfl⟩
 
+/-- Mapping ideals by a ring equivalence is injective. -/
+private theorem ideal_map_ringEquiv_injective {R : Type*} [CommRing R] (σ : R ≃+* R) :
+    Function.Injective (fun P : Ideal R => Ideal.map (σ : R →+* R) P) := by
+  intro P Q hPQ
+  change Ideal.map (σ : R →+* R) P = Ideal.map (σ : R →+* R) Q at hPQ
+  have hP : Ideal.comap (σ : R →+* R) (Ideal.map (σ : R →+* R) P) = P :=
+    Ideal.comap_map_of_bijective (f := (σ : R →+* R)) ⟨σ.injective, σ.surjective⟩
+  have hQ : Ideal.comap (σ : R →+* R) (Ideal.map (σ : R →+* R) Q) = Q :=
+    Ideal.comap_map_of_bijective (f := (σ : R →+* R)) ⟨σ.injective, σ.surjective⟩
+  rw [← hP, hPQ, hQ]
+
+/-- Mapping a multiset product of ideals by a ring equivalence maps each factor. -/
+private theorem ideal_map_ringEquiv_multiset_prod {R : Type*} [CommRing R]
+    (σ : R ≃+* R) (s : Multiset (Ideal R)) :
+    Ideal.map (σ : R →+* R) s.prod =
+      (s.map fun P => Ideal.map (σ : R →+* R) P).prod := by
+  induction s using Multiset.induction_on with
+  | empty =>
+      rw [Multiset.prod_zero, Multiset.map_zero, Multiset.prod_zero,
+        Ideal.one_eq_top, Ideal.map_top]
+  | cons P s ih => simp [Ideal.map_mul, ih]
+
+/-- A ring equivalence maps the normalized factorization multiset of a nonzero
+Dedekind ideal to the normalized factorization multiset of its image. -/
+private theorem normalizedFactors_map_ringEquiv {R : Type*}
+    [CommRing R] [IsDedekindDomain R] (σ : R ≃+* R)
+    {I : Ideal R} (hI : I ≠ ⊥) :
+    UniqueFactorizationMonoid.normalizedFactors (Ideal.map (σ : R →+* R) I) =
+      (UniqueFactorizationMonoid.normalizedFactors I).map
+        (fun P => Ideal.map (σ : R →+* R) P) := by
+  classical
+  have hprod : Ideal.map (σ : R →+* R) I =
+      ((UniqueFactorizationMonoid.normalizedFactors I).map
+        (fun P => Ideal.map (σ : R →+* R) P)).prod := by
+    calc
+      Ideal.map (σ : R →+* R) I =
+          Ideal.map (σ : R →+* R)
+            (UniqueFactorizationMonoid.normalizedFactors I).prod := by
+        rw [Ideal.prod_normalizedFactors_eq_self hI]
+      _ = ((UniqueFactorizationMonoid.normalizedFactors I).map
+          (fun P => Ideal.map (σ : R →+* R) P)).prod := by
+        exact ideal_map_ringEquiv_multiset_prod σ _
+  rw [hprod]
+  apply UniqueFactorizationMonoid.normalizedFactors_prod_of_prime
+  intro Q hQ
+  rcases Multiset.mem_map.mp hQ with ⟨P, hP, rfl⟩
+  have hPdata := (Ideal.mem_normalizedFactors_iff hI).mp hP
+  have hPprime : P.IsPrime := hPdata.1
+  have hPle : I ≤ P := hPdata.2
+  have hP0 : P ≠ ⊥ := by
+    intro hPbot
+    exact hI (le_bot_iff.mp (by simpa [hPbot] using hPle))
+  have hmapP0 : Ideal.map (σ : R →+* R) P ≠ ⊥ := by
+    intro hbot
+    exact hP0 ((Ideal.map_eq_bot_iff_of_injective
+      (f := (σ : R →+* R)) σ.injective).mp hbot)
+  exact (Ideal.prime_iff_isPrime hmapP0).mpr (Ideal.map_isPrime_of_equiv σ)
+
+/-- A ring equivalence preserves normalized-factor multiplicities after applying
+the equivalence to the counted factor. -/
+private theorem normalizedFactors_count_map_ringEquiv {R : Type*}
+    [CommRing R] [IsDedekindDomain R] (σ : R ≃+* R)
+    {P I : Ideal R} (hI : I ≠ ⊥) :
+    (UniqueFactorizationMonoid.normalizedFactors (Ideal.map (σ : R →+* R) I)).count
+        (Ideal.map (σ : R →+* R) P) =
+      (UniqueFactorizationMonoid.normalizedFactors I).count P := by
+  rw [normalizedFactors_map_ringEquiv σ hI]
+  rw [Multiset.count_map_eq_count' _ _ (ideal_map_ringEquiv_injective σ) P]
+
 /-- A ring equivalence preserves membership in the Dedekind ideal factorization
 multiset. -/
 private theorem map_ringEquiv_mem_normalizedFactors_iff {R : Type*}
@@ -284,33 +353,13 @@ private theorem map_ringEquiv_mem_normalizedFactors_iff {R : Type*}
     Ideal.map (σ : R →+* R) P ∈ UniqueFactorizationMonoid.normalizedFactors
         (Ideal.map (σ : R →+* R) I) ↔
       P ∈ UniqueFactorizationMonoid.normalizedFactors I := by
-  have hmapI : Ideal.map (σ : R →+* R) I ≠ ⊥ := by
-    intro hbot
-    exact hI ((Ideal.map_eq_bot_iff_of_injective
-      (f := (σ : R →+* R)) σ.injective).mp hbot)
-  rw [Ideal.mem_normalizedFactors_iff hmapI, Ideal.mem_normalizedFactors_iff hI]
   constructor
-  · rintro ⟨hPprime, hle⟩
-    constructor
-    · haveI : (Ideal.map (σ : R →+* R) P).IsPrime := hPprime
-      have hPcomap :
-          (Ideal.comap (σ : R →+* R) (Ideal.map (σ : R →+* R) P)).IsPrime :=
-        inferInstance
-      have hP_eq :
-          Ideal.comap (σ : R →+* R) (Ideal.map (σ : R →+* R) P) = P :=
-        Ideal.comap_map_of_bijective (f := (σ : R →+* R))
-          ⟨σ.injective, σ.surjective⟩
-      rwa [hP_eq] at hPcomap
-    · have hle' : I ≤ Ideal.comap (σ : R →+* R) (Ideal.map (σ : R →+* R) P) :=
-        Ideal.map_le_iff_le_comap.mp hle
-      have hP_eq :
-          Ideal.comap (σ : R →+* R) (Ideal.map (σ : R →+* R) P) = P :=
-        Ideal.comap_map_of_bijective (f := (σ : R →+* R))
-          ⟨σ.injective, σ.surjective⟩
-      rwa [hP_eq] at hle'
-  · rintro ⟨hPprime, hle⟩
-    haveI : P.IsPrime := hPprime
-    exact ⟨Ideal.map_isPrime_of_equiv σ, Ideal.map_mono hle⟩
+  · intro h
+    rw [← Multiset.count_pos] at h ⊢
+    rwa [← normalizedFactors_count_map_ringEquiv σ hI]
+  · intro h
+    rw [← Multiset.count_pos] at h ⊢
+    rwa [normalizedFactors_count_map_ringEquiv σ hI]
 
 /-- The conjugate of a nonzero ideal is nonzero, since conjugation is bijective. -/
 theorem map_conjAut_mem_nonZeroDivisors (K : Type*) [Field K] [Algebra ℚ K]
@@ -334,6 +383,22 @@ theorem map_conjAut_mem_normalizedFactors_iff (K : Type*) [Field K] [Algebra ℚ
       P ∈ UniqueFactorizationMonoid.normalizedFactors I :=
   map_ringEquiv_mem_normalizedFactors_iff (conjAutRingOfIntegers K) hI
 
+/-- For an ambiguous nonzero ideal, conjugation preserves normalized-factor
+multiplicity. -/
+theorem map_conjAut_count_normalizedFactors_eq_of_isAmbiguousIdeal (K : Type*)
+    [Field K] [Algebra ℚ K] [QuadraticField K] [QuadraticField.Conj K]
+    [IsDedekindDomain (NumberField.RingOfIntegers K)]
+    {P I : Ideal (NumberField.RingOfIntegers K)} (hI0 : I ≠ ⊥)
+    (hI : IsAmbiguousIdeal (conjAutRingOfIntegers K) I) :
+    (UniqueFactorizationMonoid.normalizedFactors I).count
+        (Ideal.map (conjAutRingOfIntegers K :
+          NumberField.RingOfIntegers K →+* NumberField.RingOfIntegers K) P) =
+      (UniqueFactorizationMonoid.normalizedFactors I).count P := by
+  rw [IsAmbiguousIdeal] at hI
+  simpa [hI] using
+    normalizedFactors_count_map_ringEquiv
+      (conjAutRingOfIntegers K) (P := P) (I := I) hI0
+
 /-- For an ambiguous nonzero ideal, conjugation preserves the support of its
 Dedekind ideal factorization. -/
 theorem map_conjAut_mem_normalizedFactors_iff_of_isAmbiguousIdeal (K : Type*)
@@ -344,9 +409,16 @@ theorem map_conjAut_mem_normalizedFactors_iff_of_isAmbiguousIdeal (K : Type*)
     Ideal.map (conjAutRingOfIntegers K : NumberField.RingOfIntegers K →+*
       NumberField.RingOfIntegers K) P ∈ UniqueFactorizationMonoid.normalizedFactors I ↔
       P ∈ UniqueFactorizationMonoid.normalizedFactors I := by
-  rw [IsAmbiguousIdeal] at hI
-  simpa [hI] using
-    map_conjAut_mem_normalizedFactors_iff (K := K) (P := P) (I := I) hI0
+  have hcount :=
+    map_conjAut_count_normalizedFactors_eq_of_isAmbiguousIdeal
+      (K := K) (P := P) (I := I) hI0 hI
+  constructor
+  · intro h
+    rw [← Multiset.count_pos] at h ⊢
+    rwa [hcount] at h
+  · intro h
+    rw [← Multiset.count_pos] at h ⊢
+    rwa [hcount]
 
 /-- The conjugate of a prime ideal lies over the same rational prime ideal. -/
 theorem map_conjAut_liesOver_comap (K : Type*) [Field K] [Algebra ℚ K]
