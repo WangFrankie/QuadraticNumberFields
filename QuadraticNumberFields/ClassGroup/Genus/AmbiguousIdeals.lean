@@ -3872,6 +3872,22 @@ private theorem fin_two_add_eq_zero_of_ne_zero_of_ne_zero {a b : Fin 2}
   have hb1 : b = 1 := Fin.eq_one_of_ne_zero b hb
   simp [ha1, hb1]
 
+/-- The full ramified parity product is trivial in the narrow class group exactly
+when the corresponding integral ideal product is killed by a totally positive
+principal fractional ideal. -/
+private theorem fullRamifiedParityNarrowClassProduct_eq_one_iff_exists_positivePrincipal
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (r : ({p // p ∈ ramifiedPrimes d} → Fin 2)) :
+    let R := NumberField.RingOfIntegers (Qsqrtd (d : ℚ))
+    fullRamifiedParityNarrowClassProduct d r = 1 ↔
+      ∃ x : (FractionRing R)ˣ,
+        NarrowClassGroup.IsTotallyPositive (x : FractionRing R) ∧
+          FractionalIdeal.mk0 (FractionRing R) (fullRamifiedParityIdealProduct d r) *
+            toPrincipalIdeal R (FractionRing R) x = 1 := by
+  let R := NumberField.RingOfIntegers (Qsqrtd (d : ℚ))
+  rw [← mk0_fullRamifiedParityIdealProduct d r]
+  exact NarrowClassGroup.mk0_eq_one_iff_exists_fraction_ring
+
 /-- Strict positive-principal denominator for the full finite ramified parity
 map. It constructs a nonzero parity vector whose full ramified ideal product is
 equivalent to the unit ideal by multiplying with a totally positive principal
@@ -3905,9 +3921,8 @@ private theorem exists_nonzero_fullRamifiedParityNarrowClassProduct_eq_one
   obtain ⟨r, hrnonzero, x, hxpos, hx⟩ :=
     exists_positivePrincipal_fullRamifiedParityIdealProduct_relation d
   refine ⟨r, hrnonzero, ?_⟩
-  rw [← mk0_fullRamifiedParityIdealProduct d r]
-  rw [NarrowClassGroup.mk0_eq_one_iff_exists_fraction_ring]
-  exact ⟨x, hxpos, hx⟩
+  exact (fullRamifiedParityNarrowClassProduct_eq_one_iff_exists_positivePrincipal d r).mpr
+    ⟨x, hxpos, hx⟩
 
 /-- A nonzero kernel vector for the finite ramified parity map acts trivially on
 all full ramified parity products. -/
