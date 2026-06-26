@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 
+import Mathlib.RepresentationTheory.Homological.GroupCohomology.Hilbert90
 import Mathlib.RingTheory.Ideal.Norm.RelNorm
 import QNFMathlib.NumberTheory.NumberField.Galois
 import QNFMathlib.RingTheory.Ideal.Norm.AbsNorm
@@ -116,6 +117,31 @@ theorem conjAutRingOfIntegersAlgEquiv_ne_refl (K : Type*) [Field K] [NumberField
   change (1 : NumberField.RingOfIntegers K ≃ₐ[ℤ] NumberField.RingOfIntegers K) =
     (galRestrict ℤ ℚ K (NumberField.RingOfIntegers K)) (1 : Gal(K / ℚ))
   rw [map_one]
+
+/-- Hilbert 90 in the form used for quadratic integer rings: a norm-one
+integer-ring element is a conjugation coboundary. -/
+private theorem exists_mul_conjAutRingOfIntegers_eq_self_of_norm_eq_one
+    (K : Type) [Field K] [NumberField K] [Algebra ℚ K]
+    [QuadraticField K] [QuadraticField.Conj K]
+    {η : NumberField.RingOfIntegers K}
+    (hη : Algebra.norm ℚ (η : K) = 1) :
+    ∃ ε : NumberField.RingOfIntegers K, ε ≠ 0 ∧
+      η * (conjAutRingOfIntegers K) ε = ε := by
+  haveI : IsGalois ℚ K := Algebra.IsQuadraticExtension.isGalois ℚ K
+  have hcard : Nat.card Gal(K / ℚ) = 2 := by
+    rw [IsGalois.card_aut_eq_finrank, Algebra.IsQuadraticExtension.finrank_eq_two]
+  haveI : IsCyclic Gal(K / ℚ) := isCyclic_of_prime_card hcard
+  have hconj_ne_one : (QuadraticField.conjAut K : Gal(K / ℚ)) ≠ 1 := by
+    simpa using (QuadraticField.Conj.conj_ne_refl (K := K))
+  have hg : ∀ σ : Gal(K / ℚ), σ ∈ Subgroup.zpowers (QuadraticField.conjAut K) := by
+    intro σ
+    exact mem_zpowers_of_prime_card (p := 2) hcard hconj_ne_one
+  obtain ⟨ε, hε0, hε⟩ :=
+    groupCohomology.exists_mul_galRestrict_of_norm_eq_one
+      (A := ℤ) (K := ℚ) (L := K) (B := NumberField.RingOfIntegers K)
+      (g := QuadraticField.conjAut K) hg (by simpa using hη)
+  refine ⟨ε, hε0, ?_⟩
+  simpa [galRestrict_conjAut_eq_conjAutRingOfIntegers K] using hε
 
 /-- The fraction-field extension attached to the ring of integers of a quadratic
 number field has degree two. -/
