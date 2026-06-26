@@ -118,6 +118,28 @@ theorem conjAutRingOfIntegersAlgEquiv_ne_refl (K : Type*) [Field K] [NumberField
     (galRestrict ℤ ℚ K (NumberField.RingOfIntegers K)) (1 : Gal(K / ℚ))
   rw [map_one]
 
+/-- Quadratic conjugation on the fraction field of the ring of integers, obtained
+by localizing the ring-of-integers conjugation. -/
+private noncomputable def conjAutFractionRingAlgEquiv
+    (K : Type*) [Field K] [NumberField K] [Algebra ℚ K]
+    [QuadraticField K] [QuadraticField.Conj K] :
+    FractionRing (NumberField.RingOfIntegers K) ≃ₐ[ℤ]
+      FractionRing (NumberField.RingOfIntegers K) :=
+  IsFractionRing.algEquivOfAlgEquiv (conjAutRingOfIntegersAlgEquiv K)
+
+@[simp]
+private theorem conjAutFractionRingAlgEquiv_algebraMap
+    (K : Type*) [Field K] [NumberField K] [Algebra ℚ K]
+    [QuadraticField K] [QuadraticField.Conj K]
+    (x : NumberField.RingOfIntegers K) :
+    conjAutFractionRingAlgEquiv K
+        (algebraMap (NumberField.RingOfIntegers K)
+          (FractionRing (NumberField.RingOfIntegers K)) x) =
+      algebraMap (NumberField.RingOfIntegers K)
+        (FractionRing (NumberField.RingOfIntegers K))
+        ((conjAutRingOfIntegers K) x) := by
+  simp [conjAutFractionRingAlgEquiv, conjAutRingOfIntegersAlgEquiv]
+
 /-- Hilbert 90 in the form used for quadratic integer rings: a norm-one
 integer-ring element is a conjugation coboundary. -/
 private theorem exists_mul_conjAutRingOfIntegers_eq_self_of_norm_eq_one
@@ -1735,6 +1757,57 @@ private theorem exists_integralIdeal_tp_multiplier_to_conjAut_of_narrowInversion
       _ = C.1 := C.2.symm
   exact (NarrowClassGroup.mk0_eq_mk0_iff_exists_fraction_ring).mp (hI.trans hconj.symm)
 
+/-- Narrow Hilbert-90 boundary. A totally positive principal multiplier relating
+an ideal to its conjugate should be a totally positive conjugation coboundary. -/
+private theorem exists_totallyPositive_conjAut_coboundary_of_tp_multiplier_to_conjAut
+    (K : Type*) [Field K] [NumberField K] [Algebra ℚ K]
+    [QuadraticField K] [QuadraticField.Conj K]
+    (I : (Ideal (NumberField.RingOfIntegers K))⁰)
+    {x : (FractionRing (NumberField.RingOfIntegers K))ˣ}
+    (hxpos : NarrowClassGroup.IsTotallyPositive
+      (x : FractionRing (NumberField.RingOfIntegers K)))
+    (hconj :
+      FractionalIdeal.mk0 (FractionRing (NumberField.RingOfIntegers K)) I *
+          toPrincipalIdeal (NumberField.RingOfIntegers K)
+            (FractionRing (NumberField.RingOfIntegers K)) x =
+        FractionalIdeal.mk0 (FractionRing (NumberField.RingOfIntegers K))
+          (conjAutNonzeroIdealMulEquiv K I)) :
+    ∃ y : (FractionRing (NumberField.RingOfIntegers K))ˣ,
+      NarrowClassGroup.IsTotallyPositive
+        (y : FractionRing (NumberField.RingOfIntegers K)) ∧
+        x = y * (Units.mapEquiv (conjAutFractionRingAlgEquiv K).toRingEquiv y)⁻¹ := by
+  -- Remaining gap: first derive the element-level norm-one condition from the
+  -- principal-ideal conjugation relation, then apply Hilbert 90 and choose the
+  -- coboundary with a uniform positive sign at all real embeddings.
+  sorry
+
+/-- Coboundary-to-ideal boundary. If the conjugation multiplier is a totally
+positive coboundary, multiplying by the coboundary gives an ambiguous integral
+ideal representative in the same narrow class. -/
+private theorem exists_integralIdeal_isAmbiguousIdeal_mk0_eq_of_conjAut_coboundary
+    (K : Type*) [Field K] [NumberField K] [Algebra ℚ K]
+    [QuadraticField K] [QuadraticField.Conj K]
+    (I : (Ideal (NumberField.RingOfIntegers K))⁰)
+    {x y : (FractionRing (NumberField.RingOfIntegers K))ˣ}
+    (hypos : NarrowClassGroup.IsTotallyPositive
+      (y : FractionRing (NumberField.RingOfIntegers K)))
+    (hy :
+      x = y * (Units.mapEquiv (conjAutFractionRingAlgEquiv K).toRingEquiv y)⁻¹)
+    (hconj :
+      FractionalIdeal.mk0 (FractionRing (NumberField.RingOfIntegers K)) I *
+          toPrincipalIdeal (NumberField.RingOfIntegers K)
+            (FractionRing (NumberField.RingOfIntegers K)) x =
+        FractionalIdeal.mk0 (FractionRing (NumberField.RingOfIntegers K))
+          (conjAutNonzeroIdealMulEquiv K I)) :
+    ∃ J : (Ideal (NumberField.RingOfIntegers K))⁰,
+      NarrowClassGroup.mk0 J = NarrowClassGroup.mk0 I ∧
+        IsAmbiguousIdeal (conjAutRingOfIntegers K)
+          (J : Ideal (NumberField.RingOfIntegers K)) := by
+  -- Remaining gap: form the fractional ideal `I * (y)`, use `hy` and `hconj`
+  -- to prove it is conjugation-fixed, then use the narrow integral
+  -- representative to clear denominators without changing the narrow class.
+  sorry
+
 /-- Hilbert-90 adjustment boundary. A representative whose conjugate differs by
 a totally positive principal fractional ideal can be changed within the same
 narrow class to a genuinely ambiguous integral ideal. -/
@@ -1756,10 +1829,11 @@ private theorem exists_integralIdeal_isAmbiguousIdeal_mk0_eq_of_tp_multiplier_to
       NarrowClassGroup.mk0 J = NarrowClassGroup.mk0 I ∧
         IsAmbiguousIdeal (conjAutRingOfIntegers (Qsqrtd (d : ℚ)))
           (J : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) := by
-  -- Remaining gap: convert the totally positive multiplier relation into a
-  -- norm-one coboundary using Hilbert 90, then clear denominators without
-  -- changing the narrow class.
-  sorry
+  obtain ⟨y, hypos, hy⟩ :=
+    exists_totallyPositive_conjAut_coboundary_of_tp_multiplier_to_conjAut
+      (Qsqrtd (d : ℚ)) I hxpos hconj
+  exact exists_integralIdeal_isAmbiguousIdeal_mk0_eq_of_conjAut_coboundary
+    (Qsqrtd (d : ℚ)) I hypos hy hconj
 
 /-- Per-factor assembly boundary. A genuinely ambiguous integral ideal class can
 be represented by the product of the ramified prime ideals with the same parity
