@@ -6,6 +6,7 @@ Authors: Frankie Wang
 
 import Mathlib.Algebra.CharP.CharAndCard
 import Mathlib.RingTheory.Ideal.Norm.AbsNorm
+import Mathlib.RingTheory.Ideal.Quotient.Operations
 import QNFMathlib.RingTheory.Ideal.Span
 
 /-!
@@ -15,6 +16,17 @@ Material destined for mathlib.
 -/
 
 namespace Ideal
+
+/-- The absolute norm of an ideal is invariant under a ring equivalence. -/
+theorem absNorm_map_equiv
+    {R S : Type*} [CommRing R] [CommRing S]
+    [Nontrivial R] [Nontrivial S]
+    [IsDedekindDomain R] [IsDedekindDomain S]
+    [Module.Free ℤ R] [Module.Free ℤ S]
+    (e : R ≃+* S) (I : Ideal R) :
+    Ideal.absNorm (I.map (e : R →+* S)) = Ideal.absNorm I := by
+  rw [Ideal.absNorm_apply, Ideal.absNorm_apply]
+  exact Nat.card_congr (Ideal.quotientEquiv I (I.map (e : R →+* S)) e rfl).symm.toEquiv
 
 /-- A nonzero prime ideal of a finite free `ℤ`-algebra lies over a rational prime
 that divides its absolute norm. -/

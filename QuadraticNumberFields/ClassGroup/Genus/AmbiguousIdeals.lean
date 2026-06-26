@@ -1834,6 +1834,24 @@ private theorem exists_integralIdeal_tp_multiplier_to_conjAut_of_narrowInversion
       _ = C.1 := C.2.symm
   exact (NarrowClassGroup.mk0_eq_mk0_iff_exists_fraction_ring).mp (hI.trans hconj.symm)
 
+/-- A totally positive fraction-field unit in a quadratic field has nonnegative
+field norm after transport to the field model. -/
+private theorem algebra_norm_nonneg_of_isTotallyPositive_fractionRing_algEquiv
+    (K : Type*) [Field K] [NumberField K] [Algebra ℚ K]
+    [QuadraticField K] [QuadraticField.Conj K]
+    {x : (FractionRing (NumberField.RingOfIntegers K))ˣ}
+    (hxpos : NarrowClassGroup.IsTotallyPositive
+      (x : FractionRing (NumberField.RingOfIntegers K))) :
+    0 ≤ Algebra.norm ℚ
+      (FractionRing.algEquiv (NumberField.RingOfIntegers K) K
+        (x : FractionRing (NumberField.RingOfIntegers K))) := by
+  -- Remaining gap: use `QuadraticField.mul_conj_eq_norm_image`.
+  -- In the real case, every real embedding of the conjugate is another real
+  -- embedding, so total positivity makes the product positive. In the imaginary
+  -- case, the quadratic norm is the product of a complex embedding with its
+  -- complex conjugate, hence nonnegative.
+  sorry
+
 /-- Norm-one extraction boundary. A totally positive principal multiplier
 relating an ideal to its conjugate has field norm `1`. -/
 private theorem norm_eq_one_of_tp_multiplier_to_conjAut
@@ -1852,10 +1870,54 @@ private theorem norm_eq_one_of_tp_multiplier_to_conjAut
     Algebra.norm ℚ
       (FractionRing.algEquiv (NumberField.RingOfIntegers K) K
         (x : FractionRing (NumberField.RingOfIntegers K))) = 1 := by
-  -- Remaining gap: compare absolute norms in
-  -- `I * (x) = σ(I)`. The ideal parts have the same norm, so the norm of
-  -- `(x)` is rationally `±1`; total positivity selects `+1`.
-  sorry
+  let R := NumberField.RingOfIntegers K
+  let e := FractionRing.algEquiv R K
+  have habs_map :
+      Ideal.absNorm (Ideal.map (conjAutRingOfIntegers K : R →+* R) (I : Ideal R)) =
+        Ideal.absNorm (I : Ideal R) := by
+    exact Ideal.absNorm_map_equiv (conjAutRingOfIntegers K) (I : Ideal R)
+  have habs_map_rat :
+      (Ideal.absNorm (Ideal.map (conjAutRingOfIntegers K : R →+* R) (I : Ideal R)) : ℚ) =
+        Ideal.absNorm (I : Ideal R) := by
+    exact_mod_cast habs_map
+  have hnorm_abs : |Algebra.norm ℚ (e (x : FractionRing R))| = 1 := by
+    let E := FractionalIdeal.canonicalEquiv R⁰ (FractionRing R) K
+    have h :=
+      congrArg
+        (fun J : (FractionalIdeal R⁰ (FractionRing R))ˣ =>
+          FractionalIdeal.absNorm (E (J : FractionalIdeal R⁰ (FractionRing R))))
+        hconj
+    have hIpos :
+        (0 : ℚ) < Ideal.absNorm (I : Ideal R) := by
+      exact_mod_cast Ideal.absNorm_pos_of_nonZeroDivisors I
+    have hIne : (Ideal.absNorm (I : Ideal R) : ℚ) ≠ 0 := ne_of_gt hIpos
+    have h' :
+        (Ideal.absNorm (I : Ideal R) : ℚ) *
+            |Algebra.norm ℚ (e (x : FractionRing R))| =
+          (Ideal.absNorm (I : Ideal R) : ℚ) := by
+      change
+        FractionalIdeal.absNorm
+            (E (((FractionalIdeal.mk0 (FractionRing R) I) *
+              toPrincipalIdeal R (FractionRing R) x :
+                (FractionalIdeal R⁰ (FractionRing R))ˣ) :
+              FractionalIdeal R⁰ (FractionRing R))) =
+          FractionalIdeal.absNorm
+            (E ((FractionalIdeal.mk0 (FractionRing R) (conjAutNonzeroIdealMulEquiv K I) :
+                (FractionalIdeal R⁰ (FractionRing R))ˣ) :
+              FractionalIdeal R⁰ (FractionRing R))) at h
+      rw [Units.val_mul, map_mul, FractionalIdeal.absNorm.map_mul] at h
+      simpa [R, e, E, FractionalIdeal.coe_mk0, FractionalIdeal.coeIdeal_absNorm,
+        coe_toPrincipalIdeal, FractionalIdeal.canonicalEquiv_spanSingleton,
+        FractionalIdeal.absNorm_span_singleton, coe_conjAutNonzeroIdealMulEquiv_apply,
+        habs_map_rat] using h
+    exact mul_left_cancel₀ hIne (by simpa using h')
+  have hnorm_nonneg : 0 ≤ Algebra.norm ℚ (e (x : FractionRing R)) := by
+    exact algebra_norm_nonneg_of_isTotallyPositive_fractionRing_algEquiv K hxpos
+  have hnorm_abs_self :
+      |Algebra.norm ℚ (e (x : FractionRing R))| = Algebra.norm ℚ (e (x : FractionRing R)) :=
+    abs_of_nonneg hnorm_nonneg
+  rw [hnorm_abs_self] at hnorm_abs
+  exact hnorm_abs
 
 /-- Fraction-field Hilbert 90 for the localized conjugation action. A norm-one
 fraction-field unit is an ordinary conjugation coboundary.
