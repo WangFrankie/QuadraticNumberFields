@@ -2485,6 +2485,34 @@ private theorem fullRamifiedParityNarrowClassProduct_sq_eq_one
   · simp [hpv]
   · simp [hpv, narrowClassGroup_mk0_sq_eq_one_ramifiedPrimeIdeal]
 
+/-- Indicator products for `Fin 2` add in any group where the indicated element
+has order dividing two. -/
+private theorem fin_two_indicator_mul_indicator {G : Type*} [Group G] {a : G}
+    (ha : a ^ 2 = 1) (x y : Fin 2) :
+    (if x + y = 0 then 1 else a) = (if x = 0 then 1 else a) *
+      (if y = 0 then 1 else a) := by
+  fin_cases x <;> fin_cases y
+  · simp
+  · simp
+  · simp
+  · simpa [pow_two] using ha.symm
+
+/-- The full ramified parity narrow-class product is additive in its
+`Fin 2`-valued parity vector. -/
+private theorem fullRamifiedParityNarrowClassProduct_add
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (v r : ({p // p ∈ ramifiedPrimes d} → Fin 2)) :
+    fullRamifiedParityNarrowClassProduct d (fun p => v p + r p) =
+      fullRamifiedParityNarrowClassProduct d v * fullRamifiedParityNarrowClassProduct d r := by
+  classical
+  rw [fullRamifiedParityNarrowClassProduct, fullRamifiedParityNarrowClassProduct,
+    fullRamifiedParityNarrowClassProduct]
+  rw [← Finset.prod_mul_distrib]
+  refine Finset.prod_congr rfl ?_
+  intro p _hp
+  exact fin_two_indicator_mul_indicator
+    (narrowClassGroup_mk0_sq_eq_one_ramifiedPrimeIdeal d p.2) (v p) (r p)
+
 private theorem ramifiedPrimeNarrowClass_pow_normalizedFactors_count_eq_parity
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
     (J : (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰)
@@ -3860,10 +3888,23 @@ private theorem fin_two_add_eq_zero_of_ne_zero_of_ne_zero {a b : Fin 2}
   have hb1 : b = 1 := Fin.eq_one_of_ne_zero b hb
   simp [ha1, hb1]
 
-/-- Positive-principal denominator boundary as a nonzero ramified parity
-relation. The relation is deliberately not identified with the all-one finite
-ramified vector: in real quadratic fields the ordinary principal generator of
-the full finite ramified product need not be totally positive. -/
+/-- Positive-principal denominator boundary as a nonzero kernel vector for the
+full finite ramified parity map to the narrow class group. The relation is
+deliberately not identified with the all-one finite ramified vector: in real
+quadratic fields the ordinary principal generator of the full finite ramified
+product need not be totally positive. -/
+private theorem exists_nonzero_fullRamifiedParityNarrowClassProduct_eq_one
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
+    ∃ r : ({p // p ∈ ramifiedPrimes d} → Fin 2),
+      (∃ p, r p ≠ 0) ∧ fullRamifiedParityNarrowClassProduct d r = 1 := by
+  -- Remaining gap: prove the strict/narrow positive-principal denominator.
+  -- This is the local `K = ℚ`, quadratic case of the ambiguous class number
+  -- formula's unit-index denominator, producing a nonzero kernel vector for
+  -- the finite ramified parity map.
+  sorry
+
+/-- A nonzero kernel vector for the finite ramified parity map acts trivially on
+all full ramified parity products. -/
 private theorem exists_nonzero_positivePrincipalRamifiedParityRelation
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
     ∃ r : ({p // p ∈ ramifiedPrimes d} → Fin 2),
@@ -3872,11 +3913,12 @@ private theorem exists_nonzero_positivePrincipalRamifiedParityRelation
           NarrowClassGroup.mk0
               (fullRamifiedParityIdealProduct d (fun p => v p + r p)) =
             NarrowClassGroup.mk0 (fullRamifiedParityIdealProduct d v) := by
-  -- Remaining gap: prove the strict/narrow positive-principal denominator,
-  -- equivalently a nonzero kernel vector for the finite ramified parity map.
-  -- This is the local `K = ℚ`, quadratic case of the ambiguous class number
-  -- formula's unit-index denominator.
-  sorry
+  obtain ⟨r, hrnonzero, hr⟩ :=
+    exists_nonzero_fullRamifiedParityNarrowClassProduct_eq_one d
+  refine ⟨r, hrnonzero, ?_⟩
+  intro v
+  rw [mk0_fullRamifiedParityIdealProduct, mk0_fullRamifiedParityIdealProduct]
+  rw [fullRamifiedParityNarrowClassProduct_add, hr, mul_one]
 
 /-- A nonzero positive-principal ramified parity relation lets us erase any
 coordinate in its support. This is the correct replacement for the false
