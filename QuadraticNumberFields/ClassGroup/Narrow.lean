@@ -225,6 +225,18 @@ theorem mk0_eq_mk0_iff_exists_fraction_ring [IsDedekindDomain R] {I J : (Ideal R
   · rintro ⟨x, hxpos, hx⟩
     exact ⟨⟨x, hxpos⟩, hx⟩
 
+/-- A nonzero integral ideal is trivial in the narrow class group exactly when it
+becomes the unit fractional ideal after multiplying by a totally positive
+principal fractional ideal. -/
+theorem mk0_eq_one_iff_exists_fraction_ring [IsDedekindDomain R] {I : (Ideal R)⁰} :
+    mk0 I = 1 ↔
+      ∃ x : (FractionRing R)ˣ,
+        IsTotallyPositive (x : FractionRing R) ∧
+          FractionalIdeal.mk0 (FractionRing R) I * toPrincipalIdeal R (FractionRing R) x =
+            1 := by
+  simpa using
+    (mk0_eq_mk0_iff_exists_fraction_ring (R := R) (I := I) (J := (1 : (Ideal R)⁰)))
+
 /-- Multiplication by a square principal fractional ideal preserves the narrow
 ideal class. -/
 theorem mk_eq_mk_mul_toPrincipalIdeal_sq

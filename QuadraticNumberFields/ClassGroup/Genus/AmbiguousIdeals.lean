@@ -2634,22 +2634,6 @@ theorem card_narrowClassGroupTwoTorsion_eq_card_narrowInversionFixedClass
       Nat.card (NarrowInversionFixedClass R) :=
   Nat.card_congr (narrowTwoTorsionEquivInversionFixedClass R)
 
-/-- Triviality of a narrow class represented by a nonzero integral ideal is
-equivalent to the ideal becoming the inverse of a totally positive principal
-fractional ideal. -/
-private theorem narrowClassGroup_mk0_eq_one_iff_exists_fraction_ring
-    {R : Type*} [CommRing R] [IsDomain R] [IsDedekindDomain R] (I : (Ideal R)⁰) :
-    NarrowClassGroup.mk0 I = 1 ↔
-      ∃ x : (FractionRing R)ˣ,
-        NarrowClassGroup.IsTotallyPositive (x : FractionRing R) ∧
-          FractionalIdeal.mk0 (FractionRing R) I *
-              toPrincipalIdeal R (FractionRing R) x =
-            1 := by
-  rw [← map_one (NarrowClassGroup.mk0 : (Ideal R)⁰ →* NarrowClassGroup R)]
-  rw [NarrowClassGroup.mk0_eq_mk0_iff_exists_fraction_ring]
-  rw [map_one (FractionalIdeal.mk0 (FractionRing R) :
-    (Ideal R)⁰ →* (FractionalIdeal R⁰ (FractionRing R))ˣ)]
-
 /-- If a nonzero integral ideal represents an inversion-fixed narrow class, then
 its square represents the trivial narrow class. -/
 private theorem narrowClassGroup_mk0_mul_self_eq_one_of_inversionFixed
@@ -2682,7 +2666,7 @@ private theorem exists_integralIdeal_square_principal_relation_of_narrowInversio
       NarrowClassGroup.mk0 (I * I) = (1 : NarrowClassGroup R) :=
     narrowClassGroup_mk0_mul_self_eq_one_of_inversionFixed hI
   obtain ⟨x, hxpos, hx⟩ :=
-    (narrowClassGroup_mk0_eq_one_iff_exists_fraction_ring (I * I)).mp hsq
+    (NarrowClassGroup.mk0_eq_one_iff_exists_fraction_ring (I := I * I)).mp hsq
   refine ⟨⟨x, hxpos⟩, ?_⟩
   simpa [pow_two, NarrowClassGroup.toNarrowPrincipalIdeal] using hx
 
@@ -3901,7 +3885,7 @@ private theorem exists_positivePrincipal_fullRamifiedParityIdealProduct_relation
           NarrowClassGroup.IsTotallyPositive (x : FractionRing R) ∧
             FractionalIdeal.mk0 (FractionRing R) (fullRamifiedParityIdealProduct d r) *
               toPrincipalIdeal R (FractionRing R) x =
-            FractionalIdeal.mk0 (FractionRing R) (1 : (Ideal R)⁰) := by
+            1 := by
   -- Remaining gap: prove the strict/narrow positive-principal denominator.
   -- This is the local `K = ℚ`, quadratic case of the ambiguous class number
   -- formula's unit-index denominator, producing a nonzero kernel vector for
@@ -3922,12 +3906,8 @@ private theorem exists_nonzero_fullRamifiedParityNarrowClassProduct_eq_one
     exists_positivePrincipal_fullRamifiedParityIdealProduct_relation d
   refine ⟨r, hrnonzero, ?_⟩
   rw [← mk0_fullRamifiedParityIdealProduct d r]
-  have hmk :
-      NarrowClassGroup.mk0 (fullRamifiedParityIdealProduct d r) =
-        NarrowClassGroup.mk0 (1 : (Ideal R)⁰) := by
-    rw [NarrowClassGroup.mk0_eq_mk0_iff_exists_fraction_ring]
-    exact ⟨x, hxpos, hx⟩
-  simpa [R] using hmk
+  rw [NarrowClassGroup.mk0_eq_one_iff_exists_fraction_ring]
+  exact ⟨x, hxpos, hx⟩
 
 /-- A nonzero kernel vector for the finite ramified parity map acts trivially on
 all full ramified parity products. -/
