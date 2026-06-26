@@ -3998,15 +3998,14 @@ private theorem card_fullRamifiedParityNarrowClassHom_range_mul_ker
   rw [Subgroup.index_ker f, card_fullRamifiedParityNarrowClassHom_domain d] at h
   simpa [f, mul_comm, mul_left_comm, mul_assoc] using h
 
-/-- If the strict positive-principal denominator supplies a nontrivial relation,
-the image of the full ramified parity map has at most the genus-bound
-cardinality. -/
-private theorem card_fullRamifiedParityNarrowClassHom_range_le_genusBound
+/-- If the strict positive-principal denominator has kernel size two, the image
+of the full ramified parity map has exactly the genus-bound cardinality. -/
+private theorem card_fullRamifiedParityNarrowClassHom_range_eq_genusBound
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
-    Nat.card (fullRamifiedParityNarrowClassHom d).range ≤
+    Nat.card (fullRamifiedParityNarrowClassHom d).range =
       2 ^ (ramifiedPrimeCount d - 1) := by
   have hmul := card_fullRamifiedParityNarrowClassHom_range_mul_ker d
-  have hker := two_le_card_fullRamifiedParityNarrowClassHom_ker d
+  have hker := card_fullRamifiedParityNarrowClassHom_ker_eq_two d
   have hpow :
       2 ^ ramifiedPrimeCount d = 2 ^ (ramifiedPrimeCount d - 1) * 2 := by
     have hcount : 1 ≤ ramifiedPrimeCount d := one_le_ramifiedPrimeCount (d := d)
@@ -4015,17 +4014,26 @@ private theorem card_fullRamifiedParityNarrowClassHom_range_le_genusBound
         rw [Nat.sub_add_cancel hcount]
       _ = 2 ^ (ramifiedPrimeCount d - 1) * 2 := by
         rw [pow_succ]
-  have hle :
-      Nat.card (fullRamifiedParityNarrowClassHom d).range * 2 ≤
+  have heq :
+      Nat.card (fullRamifiedParityNarrowClassHom d).range * 2 =
         2 ^ (ramifiedPrimeCount d - 1) * 2 := by
     calc
-      Nat.card (fullRamifiedParityNarrowClassHom d).range * 2 ≤
+      Nat.card (fullRamifiedParityNarrowClassHom d).range * 2 =
           Nat.card (fullRamifiedParityNarrowClassHom d).range *
             Nat.card (fullRamifiedParityNarrowClassHom d).ker := by
-        exact Nat.mul_le_mul_left _ hker
-      _ = 2 ^ (ramifiedPrimeCount d - 1) * 2 := by
-        rw [hmul, hpow]
+        rw [hker]
+      _ = 2 ^ ramifiedPrimeCount d := hmul
+      _ = 2 ^ (ramifiedPrimeCount d - 1) * 2 := hpow
   omega
+
+/-- If the strict positive-principal denominator supplies the unique nontrivial
+relation, the image of the full ramified parity map has at most the genus-bound
+cardinality. -/
+private theorem card_fullRamifiedParityNarrowClassHom_range_le_genusBound
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
+    Nat.card (fullRamifiedParityNarrowClassHom d).range ≤
+      2 ^ (ramifiedPrimeCount d - 1) := by
+  rw [card_fullRamifiedParityNarrowClassHom_range_eq_genusBound d]
 
 /-- Positive-principal denominator boundary as a nonzero kernel vector for the
 full finite ramified parity map to the narrow class group. The relation is
