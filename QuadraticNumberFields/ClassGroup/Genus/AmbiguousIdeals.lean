@@ -840,9 +840,10 @@ private theorem map_eq_mul_of_isSplitIn_of_mem_primesOver_of_ne
   · simpa [mul_comm] using hmap
   · exact False.elim (hPne rfl)
 
-/-- A prime factor of an ambiguous ideal contributes either a principal split
-pair, a principal inert factor, or a ramified square. -/
-theorem factor_contribution_by_splitting
+/-- A prime factor of an ambiguous ideal contributes a base-prime principal
+factor in each splitting case. This span form preserves the positive rational
+generator needed later for the narrow principal multiplier. -/
+private theorem factor_contribution_by_splitting_span
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
     {P : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))}
     {I : (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰}
@@ -852,14 +853,18 @@ theorem factor_contribution_by_splitting
     (hcomap : P.comap
       (algebraMap ℤ (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) = 𝔭(p)) :
     (Ideal.IsSplitIn (𝔭(p)) (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))) ∧
-        (P * Ideal.map
+        P * Ideal.map
           (conjAutRingOfIntegers (Qsqrtd (d : ℚ)) :
             NumberField.RingOfIntegers (Qsqrtd (d : ℚ)) →+*
-              NumberField.RingOfIntegers (Qsqrtd (d : ℚ))) P).IsPrincipal) ∨
+              NumberField.RingOfIntegers (Qsqrtd (d : ℚ))) P =
+          Ideal.span ({(p : NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))} : Set
+            (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))) ∨
       (Ideal.IsInertIn (𝔭(p)) (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))) ∧
-        P.IsPrincipal) ∨
+        P = Ideal.span ({(p : NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))} : Set
+          (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))) ∨
         (Ideal.IsRamifiedIn (𝔭(p)) (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))) ∧
-          (P ^ 2).IsPrincipal) := by
+          P ^ 2 = Ideal.span ({(p : NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))} :
+            Set (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))) := by
   let R := NumberField.RingOfIntegers (Qsqrtd (d : ℚ))
   have hI0 : I.1 ≠ ⊥ := by
     rw [← Ideal.zero_eq_bot]
@@ -872,10 +877,11 @@ theorem factor_contribution_by_splitting
   haveI : (𝔭(p)).IsMaximal :=
     PrincipalIdealRing.isMaximal_of_irreducible
       ((Nat.prime_iff_prime_int.mp hp).irreducible)
-  have hmapSpanPrincipal :
-      (Ideal.map (algebraMap ℤ R) (𝔭(p))).IsPrincipal := by
+  have hmapSpan :
+      Ideal.map (algebraMap ℤ R) (𝔭(p)) =
+        Ideal.span ({(p : R)} : Set R) := by
     rw [Ideal.map_span, Set.image_singleton]
-    exact ⟨_, rfl⟩
+    rfl
   haveI : Fact p.Prime := ⟨hp⟩
   rcases QuadraticNumberFields.Splitting.split_or_inert_or_ramified (d := d) p with
     hsplit | hinert | hram
@@ -898,14 +904,39 @@ theorem factor_contribution_by_splitting
       map_eq_mul_of_isSplitIn_of_mem_primesOver_of_ne
         (S := R) (p := 𝔭(p)) (by simp [ringChar.eq_zero]) hpbot
         hPover hconjOver hne hsplit
-    exact Or.inl ⟨hsplit, by rwa [← hmap]⟩
-  · have hprincipal : P.IsPrincipal := by
-      exact isPrincipal_of_isInertIn_of_comap_eq_p (d := d) hPprime hp hcomap hinert
-    exact Or.inr <| Or.inl ⟨hinert, hprincipal⟩
+    exact Or.inl ⟨hsplit, hmap.symm.trans hmapSpan⟩
+  · have hmap :=
+      map_span_eq_of_isInertIn_of_comap_eq_p (d := d) hPprime hp hcomap hinert
+    exact Or.inr <| Or.inl ⟨hinert, hmap.symm.trans hmapSpan⟩
   · have hmap :
         Ideal.map (algebraMap ℤ R) (𝔭(p)) = P ^ 2 :=
       map_span_eq_sq_of_isRamifiedIn_of_mem_primesOver (d := d) hp hPover hram
-    exact Or.inr <| Or.inr ⟨hram, by rwa [← hmap]⟩
+    exact Or.inr <| Or.inr ⟨hram, hmap.symm.trans hmapSpan⟩
+
+/-- A prime factor of an ambiguous ideal contributes either a principal split
+pair, a principal inert factor, or a ramified square. -/
+theorem factor_contribution_by_splitting
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    {P : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))}
+    {I : (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰}
+    (hI : IsAmbiguousIdeal (conjAutRingOfIntegers (Qsqrtd (d : ℚ))) I.1)
+    (hP : P ∈ UniqueFactorizationMonoid.normalizedFactors I.1)
+    {p : ℕ} (hp : p.Prime)
+    (hcomap : P.comap
+      (algebraMap ℤ (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) = 𝔭(p)) :
+    (Ideal.IsSplitIn (𝔭(p)) (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))) ∧
+        (P * Ideal.map
+          (conjAutRingOfIntegers (Qsqrtd (d : ℚ)) :
+            NumberField.RingOfIntegers (Qsqrtd (d : ℚ)) →+*
+              NumberField.RingOfIntegers (Qsqrtd (d : ℚ))) P).IsPrincipal) ∨
+      (Ideal.IsInertIn (𝔭(p)) (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))) ∧
+        P.IsPrincipal) ∨
+        (Ideal.IsRamifiedIn (𝔭(p)) (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))) ∧
+          (P ^ 2).IsPrincipal) := by
+  rcases factor_contribution_by_splitting_span d hI hP hp hcomap with hsplit | hinert | hram
+  · exact Or.inl ⟨hsplit.1, by rw [hsplit.2]; exact ⟨_, rfl⟩⟩
+  · exact Or.inr <| Or.inl ⟨hinert.1, by rw [hinert.2]; exact ⟨_, rfl⟩⟩
+  · exact Or.inr <| Or.inr ⟨hram.1, by rw [hram.2]; exact ⟨_, rfl⟩⟩
 
 /-- Prime-ideal form of the Galois-orbit calculation: extending the norm prime
 power back to the ring of integers gives the product of `P` with its conjugate. -/
