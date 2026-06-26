@@ -3888,6 +3888,26 @@ private theorem fin_two_add_eq_zero_of_ne_zero_of_ne_zero {a b : Fin 2}
   have hb1 : b = 1 := Fin.eq_one_of_ne_zero b hb
   simp [ha1, hb1]
 
+/-- Strict positive-principal denominator for the full finite ramified parity
+map. It constructs a nonzero parity vector whose full ramified ideal product is
+equivalent to the unit ideal by multiplying with a totally positive principal
+fractional ideal. -/
+private theorem exists_positivePrincipal_fullRamifiedParityIdealProduct_relation
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
+    let R := NumberField.RingOfIntegers (Qsqrtd (d : ℚ))
+    ∃ r : ({p // p ∈ ramifiedPrimes d} → Fin 2),
+      (∃ p, r p ≠ 0) ∧
+        ∃ x : (FractionRing R)ˣ,
+          NarrowClassGroup.IsTotallyPositive (x : FractionRing R) ∧
+            FractionalIdeal.mk0 (FractionRing R) (fullRamifiedParityIdealProduct d r) *
+              toPrincipalIdeal R (FractionRing R) x =
+            FractionalIdeal.mk0 (FractionRing R) (1 : (Ideal R)⁰) := by
+  -- Remaining gap: prove the strict/narrow positive-principal denominator.
+  -- This is the local `K = ℚ`, quadratic case of the ambiguous class number
+  -- formula's unit-index denominator, producing a nonzero kernel vector for
+  -- the finite ramified parity map.
+  sorry
+
 /-- Positive-principal denominator boundary as a nonzero kernel vector for the
 full finite ramified parity map to the narrow class group. The relation is
 deliberately not identified with the all-one finite ramified vector: in real
@@ -3897,11 +3917,17 @@ private theorem exists_nonzero_fullRamifiedParityNarrowClassProduct_eq_one
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
     ∃ r : ({p // p ∈ ramifiedPrimes d} → Fin 2),
       (∃ p, r p ≠ 0) ∧ fullRamifiedParityNarrowClassProduct d r = 1 := by
-  -- Remaining gap: prove the strict/narrow positive-principal denominator.
-  -- This is the local `K = ℚ`, quadratic case of the ambiguous class number
-  -- formula's unit-index denominator, producing a nonzero kernel vector for
-  -- the finite ramified parity map.
-  sorry
+  let R := NumberField.RingOfIntegers (Qsqrtd (d : ℚ))
+  obtain ⟨r, hrnonzero, x, hxpos, hx⟩ :=
+    exists_positivePrincipal_fullRamifiedParityIdealProduct_relation d
+  refine ⟨r, hrnonzero, ?_⟩
+  rw [← mk0_fullRamifiedParityIdealProduct d r]
+  have hmk :
+      NarrowClassGroup.mk0 (fullRamifiedParityIdealProduct d r) =
+        NarrowClassGroup.mk0 (1 : (Ideal R)⁰) := by
+    rw [NarrowClassGroup.mk0_eq_mk0_iff_exists_fraction_ring]
+    exact ⟨x, hxpos, hx⟩
+  simpa [R] using hmk
 
 /-- A nonzero kernel vector for the finite ramified parity map acts trivially on
 all full ramified parity products. -/
