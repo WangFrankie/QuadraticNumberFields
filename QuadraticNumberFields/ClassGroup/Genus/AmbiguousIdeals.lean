@@ -3022,6 +3022,98 @@ private theorem exists_erasedRamifiedParityProduct_mk0_eq_full_of_ambiguousIdeal
     -- narrow-principal in real quadratic fields.
     sorry
 
+/-- The full ramified parity ideal product is the multiset product of exactly the
+ramified prime ideals whose parity coordinate is nonzero. -/
+private theorem coe_fullRamifiedParityIdealProduct_eq_filtered_multiset_prod
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (v : ({p // p ∈ ramifiedPrimes d} → Fin 2)) :
+    (fullRamifiedParityIdealProduct d v :
+      Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) =
+      ((Finset.univ.filter fun p => v p ≠ 0).val.map fun p =>
+        ramifiedPrimeIdeal d p.2).prod := by
+  classical
+  let R := NumberField.RingOfIntegers (Qsqrtd (d : ℚ))
+  let P : {p // p ∈ ramifiedPrimes d} → Ideal R := fun p => ramifiedPrimeIdeal d p.2
+  let P0 : {p // p ∈ ramifiedPrimes d} → (Ideal R)⁰ :=
+    fun p =>
+      ⟨P p,
+        mem_nonZeroDivisors_iff_ne_zero.mpr (by
+          simpa [Ideal.zero_eq_bot, P] using ramifiedPrimeIdeal_ne_bot d p.2)⟩
+  change
+    (↑(Finset.univ.prod fun p =>
+      if v p = 0 then (1 : (Ideal R)⁰) else P0 p) : Ideal R) =
+      ((Finset.univ.filter fun p => v p ≠ 0).val.map P).prod
+  rw [SubmonoidClass.coe_finset_prod]
+  simp only [P0]
+  rw [← Finset.prod_eq_multiset_prod
+    (s := Finset.univ.filter fun p => v p ≠ 0) (f := P)]
+  rw [Finset.prod_filter]
+  apply Finset.prod_congr rfl
+  intro p _hp
+  by_cases hp : v p = 0
+  · simp [hp]
+  · simp [hp]
+
+/-- Normalized-factor count for full ramified parity products. Each ramified
+prime appears in the product with multiplicity exactly the corresponding
+`Fin 2` value. -/
+private theorem normalizedFactors_count_fullRamifiedParityIdealProduct
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (v : ({p // p ∈ ramifiedPrimes d} → Fin 2))
+    (p : {p // p ∈ ramifiedPrimes d}) :
+    (UniqueFactorizationMonoid.normalizedFactors
+        (fullRamifiedParityIdealProduct d v : Ideal
+          (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))).count
+      (ramifiedPrimeIdeal d p.2) = (v p).val := by
+  have hramifiedPrimeIdeal_injective :
+      Function.Injective fun q : {p // p ∈ ramifiedPrimes d} =>
+        ramifiedPrimeIdeal d q.2 := by
+    intro q r hqr
+    apply Subtype.ext
+    exact (ramifiedPrimeIdeal_eq_iff d q.2 r.2).mp hqr
+  rw [coe_fullRamifiedParityIdealProduct_eq_filtered_multiset_prod d v]
+  let R := NumberField.RingOfIntegers (Qsqrtd (d : ℚ))
+  let P : {p // p ∈ ramifiedPrimes d} → Ideal R := fun p => ramifiedPrimeIdeal d p.2
+  have hP_injective : Function.Injective P := by
+    simpa [P] using hramifiedPrimeIdeal_injective
+  have hfiltered_prime :
+      ∀ Q ∈ ((Finset.univ.filter fun q => v q ≠ 0).val.map P), Prime Q := by
+    intro Q hQ
+    rcases Multiset.mem_map.mp hQ with ⟨q, _hq, rfl⟩
+    exact (Ideal.prime_iff_isPrime (ramifiedPrimeIdeal_ne_bot d q.2)).mpr
+      (ramifiedPrimeIdeal_mem_primesOver d q.2).1
+  rw [UniqueFactorizationMonoid.normalizedFactors_prod_of_prime hfiltered_prime]
+  change ((Finset.univ.filter fun q => v q ≠ 0).val.map P).count (P p) = (v p).val
+  rw [Multiset.count_map_eq_count' P _ hP_injective p]
+  by_cases hp : v p = 0
+  · have hpnot : p ∉ (Finset.univ.filter fun q => v q ≠ 0).val := by
+      rw [Finset.mem_val, Finset.mem_filter]
+      exact fun h => h.2 hp
+    rw [Multiset.count_eq_zero_of_notMem hpnot]
+    simp [hp]
+  · have hpval : (v p).val = 1 := by
+      have hvp : v p = 1 := Fin.eq_one_of_ne_zero (v p) hp
+      rw [hvp]
+      rfl
+    have hpmem : p ∈ (Finset.univ.filter fun q => v q ≠ 0).val := by
+      rw [Finset.mem_val, Finset.mem_filter]
+      exact ⟨Finset.mem_univ p, hp⟩
+    have hnodup : (Finset.univ.filter fun q => v q ≠ 0).val.Nodup :=
+      (Finset.univ.filter fun q => v q ≠ 0).nodup
+    rw [Multiset.count_eq_one_of_mem hnodup hpmem, hpval]
+
+/-- The full product built from a parity vector has the expected full ramified
+parity vector. -/
+private theorem fullRamifiedParityVector_fullRamifiedParityIdealProduct
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (v : ({p // p ∈ ramifiedPrimes d} → Fin 2)) :
+    fullRamifiedParityVector d (fullRamifiedParityIdealProduct d v) = v := by
+  funext p
+  apply Fin.ext
+  dsimp [fullRamifiedParityVector]
+  rw [normalizedFactors_count_fullRamifiedParityIdealProduct d v p]
+  exact Nat.mod_eq_of_lt (v p).isLt
+
 /-- The erased ramified parity ideal product is the multiset product of exactly
 the ramified prime ideals whose parity coordinate is nonzero. -/
 private theorem coe_ramifiedParityIdealProduct_eq_filtered_multiset_prod
