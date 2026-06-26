@@ -2873,10 +2873,11 @@ private theorem exists_tp_multiplier_ambiguousIdeal_to_fullRamifiedParityIdealPr
         FractionalIdeal.mk0
           (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))
           (fullRamifiedParityIdealProduct d (fullRamifiedParityVector d J)) := by
-  -- Remaining gap: multiply the principal contributions supplied by
-  -- `factor_contribution_by_splitting` over the Dedekind factorization of `J`.
-  -- Split conjugate pairs and inert prime factors cancel as totally positive
-  -- principal ideals, while ramified factors reduce to their exponent modulo `2`.
+  -- Remaining gap: multiply the explicit positive base-prime span contributions
+  -- supplied by `factor_contribution_by_splitting_span` over the Dedekind
+  -- factorization of `J`. Split conjugate pairs and inert prime factors cancel
+  -- as totally positive principal ideals, while ramified factors reduce to their
+  -- exponent modulo `2`.
   sorry
 
 /-- Per-factor assembly boundary in class form. A genuinely ambiguous integral
