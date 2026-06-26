@@ -1876,6 +1876,99 @@ private theorem factor_contribution_by_splitting_narrowClass
         rw [hP0_sq]
       _ = 1 := hspanP0_one
 
+private theorem split_conj_normalizedFactor_powers_eq_one
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    {I : (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰}
+    (hI : IsAmbiguousIdeal (conjAutRingOfIntegers (Qsqrtd (d : ℚ)))
+      (I : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))))
+    (P :
+      {P // P ∈ UniqueFactorizationMonoid.normalizedFactors
+        (I : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))})
+    {p : ℕ} (hp : p.Prime)
+    (hcomap : P.1.comap
+      (algebraMap ℤ (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) = 𝔭(p))
+    (hsplit : Ideal.IsSplitIn (𝔭(p))
+      (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) :
+    (NarrowClassGroup.mk0 (normalizedFactorNonzeroIdeal I P) :
+        NarrowClassGroup (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) ^
+          (UniqueFactorizationMonoid.normalizedFactors
+            (I : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))).count P.1 *
+      (NarrowClassGroup.mk0
+          (normalizedFactorNonzeroIdeal I (conjAutNormalizedFactor d hI P)) :
+        NarrowClassGroup (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) ^
+          (UniqueFactorizationMonoid.normalizedFactors
+            (I : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))).count
+              (conjAutNormalizedFactor d hI P).1 =
+        1 := by
+  let R := NumberField.RingOfIntegers (Qsqrtd (d : ℚ))
+  let σP := conjAutNormalizedFactor d hI P
+  let P0 : (Ideal R)⁰ := normalizedFactorNonzeroIdeal I P
+  let σP0 : (Ideal R)⁰ := normalizedFactorNonzeroIdeal I σP
+  have hI0 : (I : Ideal R) ≠ ⊥ := by
+    simpa [Ideal.zero_eq_bot] using mem_nonZeroDivisors_iff_ne_zero.mp I.2
+  have hPprime : P.1.IsPrime := (Ideal.mem_normalizedFactors_iff hI0).mp P.2 |>.1
+  have hPover : P.1 ∈ Ideal.primesOver (𝔭(p)) R := ⟨hPprime, ⟨hcomap.symm⟩⟩
+  have hpbot : (𝔭(p)) ≠ (⊥ : Ideal ℤ) := by
+    rw [Ne, Ideal.span_singleton_eq_bot, Nat.cast_eq_zero]
+    exact hp.ne_zero
+  haveI : (𝔭(p)).IsMaximal :=
+    PrincipalIdealRing.isMaximal_of_irreducible
+      ((Nat.prime_iff_prime_int.mp hp).irreducible)
+  have hσPprime : σP.1.IsPrime := (Ideal.mem_normalizedFactors_iff hI0).mp σP.2 |>.1
+  have hσPover : σP.1 ∈ Ideal.primesOver (𝔭(p)) R := by
+    refine ⟨hσPprime, ⟨?_⟩⟩
+    change 𝔭(p) = σP.1.comap (algebraMap ℤ R)
+    rw [conjAutNormalizedFactor_comap_eq d hI P, hcomap]
+  have hne : P.1 ≠ σP.1 := by
+    have hne' := conjAutNormalizedFactor_ne_of_isSplitIn d hI P hp hcomap hsplit
+    intro h
+    exact hne' (Subtype.ext h.symm)
+  have hmap :
+      Ideal.map (algebraMap ℤ R) (𝔭(p)) = P.1 * σP.1 :=
+    map_eq_mul_of_isSplitIn_of_mem_primesOver_of_ne
+      (S := R) (p := 𝔭(p)) (by simp [ringChar.eq_zero]) hpbot
+      hPover hσPover hne hsplit
+  have hmapSpan :
+      Ideal.map (algebraMap ℤ R) (𝔭(p)) =
+        Ideal.span ({(p : R)} : Set R) := by
+    rw [Ideal.map_span, Set.image_singleton]
+    rfl
+  have hpR_ne : (p : R) ≠ 0 := by
+    change algebraMap ℤ R (p : ℤ) ≠ 0
+    exact (FaithfulSMul.algebraMap_injective ℤ R).ne (by
+      exact_mod_cast hp.ne_zero)
+  let spanP0 : (Ideal R)⁰ :=
+    ⟨Ideal.span ({(p : R)} : Set R), by
+      rw [mem_nonZeroDivisors_iff_ne_zero, Ideal.zero_eq_bot, ne_eq,
+        Ideal.span_singleton_eq_bot]
+      exact hpR_ne⟩
+  have hspanP0_one : NarrowClassGroup.mk0 spanP0 = 1 :=
+    narrowClassGroup_mk0_span_singleton_eq_one_of_isTotallyPositive
+      hpR_ne (isTotallyPositive_natCast_fractionRing p hp.pos)
+  have hPσP : P0 * σP0 = spanP0 := by
+    apply Subtype.ext
+    exact hmap.symm.trans hmapSpan
+  have hpair_one :
+      NarrowClassGroup.mk0 P0 * NarrowClassGroup.mk0 σP0 =
+        (1 : NarrowClassGroup R) := by
+    calc
+      NarrowClassGroup.mk0 P0 * NarrowClassGroup.mk0 σP0 =
+          NarrowClassGroup.mk0 (P0 * σP0) := by
+        rw [map_mul]
+      _ = NarrowClassGroup.mk0 spanP0 := by rw [hPσP]
+      _ = 1 := hspanP0_one
+  have hcount :
+      (UniqueFactorizationMonoid.normalizedFactors (I : Ideal R)).count σP.1 =
+        (UniqueFactorizationMonoid.normalizedFactors (I : Ideal R)).count P.1 :=
+    normalizedFactors_count_conjAutNormalizedFactor_eq d hI P
+  change
+    (NarrowClassGroup.mk0 P0 : NarrowClassGroup R) ^
+          (UniqueFactorizationMonoid.normalizedFactors (I : Ideal R)).count P.1 *
+      (NarrowClassGroup.mk0 σP0 : NarrowClassGroup R) ^
+          (UniqueFactorizationMonoid.normalizedFactors (I : Ideal R)).count σP.1 =
+        1
+  rw [hcount, ← mul_pow, hpair_one, one_pow]
+
 /-- Quadratic conjugation acts on the narrow ideal class group by inversion. The
 point not present in the ordinary class-group statement is positivity: the
 principal generator of `I * σ(I)` is the positive integer `absNorm I`. -/
@@ -3308,6 +3401,28 @@ private theorem ambiguousIdeal_mk0_eq_fullRamifiedParityIdealProduct_of_factoriz
         conjAutNormalizedFactor d hJ P ≠ P := by
     intro P p hp hcomap hsplit
     exact conjAutNormalizedFactor_ne_of_isSplitIn d hJ P hp hcomap hsplit
+  have hfactor_split_pow :
+      ∀ (P :
+          {P // P ∈ UniqueFactorizationMonoid.normalizedFactors
+            (J : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))})
+        {p : ℕ}, p.Prime →
+        P.1.comap
+            (algebraMap ℤ (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) =
+          𝔭(p) →
+        Ideal.IsSplitIn (𝔭(p)) (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))) →
+        (NarrowClassGroup.mk0 (normalizedFactorNonzeroIdeal J P) :
+            NarrowClassGroup (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) ^
+              (UniqueFactorizationMonoid.normalizedFactors
+                (J : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))).count P.1 *
+          (NarrowClassGroup.mk0
+              (normalizedFactorNonzeroIdeal J (conjAutNormalizedFactor d hJ P)) :
+            NarrowClassGroup (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) ^
+              (UniqueFactorizationMonoid.normalizedFactors
+                (J : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))).count
+                  (conjAutNormalizedFactor d hJ P).1 =
+            1 := by
+    intro P p hp hcomap hsplit
+    exact split_conj_normalizedFactor_powers_eq_one d hJ P hp hcomap hsplit
   have hfactor_conj_count :
       ∀ (P :
           {P // P ∈ UniqueFactorizationMonoid.normalizedFactors
@@ -3347,9 +3462,10 @@ private theorem ambiguousIdeal_mk0_eq_fullRamifiedParityIdealProduct_of_factoriz
   -- conjugation involution `hfactor_conj` over the Dedekind factorization of
   -- `J`. The nonfixed split-pair certificate is `hfactor_split_ne`, and
   -- `hfactor_conj_count` supplies equal multiplicities for each split pair;
-  -- inert prime factors cancel as totally positive principal ideals, while
-  -- ramified factors are identified by `hfactor_ramified_eq`; their powers
-  -- reduce to the parity terms recorded by `hfactor_ramified_pow`.
+  -- the paired count-powers cancel via `hfactor_split_pow`. Inert prime factors
+  -- cancel as totally positive principal ideals, while ramified factors are
+  -- identified by `hfactor_ramified_eq`; their powers reduce to the parity
+  -- terms recorded by `hfactor_ramified_pow`.
   sorry
 
 /-- Per-factor assembly boundary in principal-multiplier form. A genuinely
