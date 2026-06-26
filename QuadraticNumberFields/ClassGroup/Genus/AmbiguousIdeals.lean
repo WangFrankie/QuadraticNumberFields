@@ -1611,6 +1611,18 @@ private def normalizedFactorNonzeroIdeal
     intro hPbot
     exact hI0 (le_bot_iff.mp (by simpa [hPbot] using hPdata.2)))⟩
 
+/-- A normalized prime factor of an ideal lies over a ramified rational prime. -/
+private def normalizedFactorIsRamified
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    {I : (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰}
+    (P : {P // P ∈ UniqueFactorizationMonoid.normalizedFactors
+      (I : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))}) :
+    Prop :=
+  ∃ p : ℕ, p.Prime ∧
+    P.1.comap (algebraMap ℤ (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) =
+      𝔭(p) ∧
+    Ideal.IsRamifiedIn (𝔭(p)) (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))
+
 /-- Conjugation acts on the normalized prime factors of an ambiguous ideal. -/
 private noncomputable def conjAutNormalizedFactor
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
@@ -1659,6 +1671,25 @@ private theorem conjAutNormalizedFactor_comap_eq
       P.1.comap (algebraMap ℤ R)
   rw [← Ideal.under_def]
   exact hlies.over.symm
+
+private theorem normalizedFactorIsRamified_conjAutNormalizedFactor_iff
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    {I : (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰}
+    (hI : IsAmbiguousIdeal (conjAutRingOfIntegers (Qsqrtd (d : ℚ)))
+      (I : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))))
+    (P : {P // P ∈ UniqueFactorizationMonoid.normalizedFactors
+      (I : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))}) :
+    normalizedFactorIsRamified d (conjAutNormalizedFactor d hI P) ↔
+      normalizedFactorIsRamified d P := by
+  constructor
+  · rintro ⟨p, hp, hcomap, hram⟩
+    refine ⟨p, hp, ?_, hram⟩
+    rw [← conjAutNormalizedFactor_comap_eq d hI P]
+    exact hcomap
+  · rintro ⟨p, hp, hcomap, hram⟩
+    refine ⟨p, hp, ?_, hram⟩
+    rw [conjAutNormalizedFactor_comap_eq d hI P]
+    exact hcomap
 
 private theorem normalizedFactors_count_conjAutNormalizedFactor_eq
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
@@ -2041,6 +2072,116 @@ private theorem inert_normalizedFactor_power_eq_one
           (UniqueFactorizationMonoid.normalizedFactors (I : Ideal R)).count P.1 =
         1
   rw [hmk, one_pow]
+
+private theorem normalizedFactors_nonramified_count_prod_eq_one_of_isAmbiguousIdeal
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (J : (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰)
+    (hJ : IsAmbiguousIdeal (conjAutRingOfIntegers (Qsqrtd (d : ℚ)))
+      (J : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))))
+    [DecidablePred (fun P :
+        {P // P ∈ UniqueFactorizationMonoid.normalizedFactors
+          (J : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))} =>
+      ¬ normalizedFactorIsRamified d P)] :
+    (∏ P ∈
+        (UniqueFactorizationMonoid.normalizedFactors
+          (J : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))).attach.toFinset with
+        ¬ normalizedFactorIsRamified d P,
+      (NarrowClassGroup.mk0 (normalizedFactorNonzeroIdeal J P) :
+        NarrowClassGroup (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) ^
+        (UniqueFactorizationMonoid.normalizedFactors
+          (J : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))).count P.1) =
+      1 := by
+  classical
+  let R := NumberField.RingOfIntegers (Qsqrtd (d : ℚ))
+  let s := UniqueFactorizationMonoid.normalizedFactors (J : Ideal R)
+  let S := s.attach.toFinset
+  let f : {P // P ∈ s} → NarrowClassGroup R := fun P =>
+    (NarrowClassGroup.mk0 (normalizedFactorNonzeroIdeal J P) :
+        NarrowClassGroup R) ^ s.count P.1
+  let σ : {P // P ∈ s} → {P // P ∈ s} := conjAutNormalizedFactor d hJ
+  change (∏ P ∈ S with ¬ normalizedFactorIsRamified d P, f P) = 1
+  refine Finset.prod_involution
+    (s := S.filter fun P => ¬ normalizedFactorIsRamified d P)
+    (f := f) (g := fun P _hP => σ P) ?_ ?_ ?_ ?_
+  · intro P hP
+    have hPnonram : ¬ normalizedFactorIsRamified d P := (Finset.mem_filter.mp hP).2
+    have hJ0 : (J : Ideal R) ≠ ⊥ := by
+      simpa [Ideal.zero_eq_bot] using mem_nonZeroDivisors_iff_ne_zero.mp J.2
+    have hPdata := (Ideal.mem_normalizedFactors_iff hJ0).mp P.2
+    have hP0 : P.1 ≠ ⊥ := by
+      intro hPbot
+      exact hJ0 (le_bot_iff.mp (by simpa [hPbot] using hPdata.2))
+    obtain ⟨p, hp, hcomap, _hdvd⟩ :=
+      exists_nat_prime_comap_eq_p_and_dvd_absNorm d hPdata.1 hP0
+    rcases factor_contribution_by_splitting_narrowClass d hJ P hp hcomap with
+      hsplit | hinert | hram
+    · simpa [f, σ, s, R] using
+        split_conj_normalizedFactor_powers_eq_one d hJ P hp hcomap hsplit.1
+    · have hP_one : f P = 1 := by
+        simpa [f, s, R] using inert_normalizedFactor_power_eq_one d P hp hcomap hinert.1
+      have hσcomap : (σ P).1.comap (algebraMap ℤ R) = 𝔭(p) := by
+        simpa [σ, R] using
+          (conjAutNormalizedFactor_comap_eq d hJ P).trans hcomap
+      have hσ_one : f (σ P) = 1 := by
+        simpa [f, σ, s, R] using
+          inert_normalizedFactor_power_eq_one d (conjAutNormalizedFactor d hJ P)
+            hp hσcomap hinert.1
+      rw [hP_one, hσ_one, one_mul]
+    · exact False.elim (hPnonram ⟨p, hp, hcomap, hram.1⟩)
+  · intro P hP hfP
+    have hPnonram : ¬ normalizedFactorIsRamified d P := (Finset.mem_filter.mp hP).2
+    have hJ0 : (J : Ideal R) ≠ ⊥ := by
+      simpa [Ideal.zero_eq_bot] using mem_nonZeroDivisors_iff_ne_zero.mp J.2
+    have hPdata := (Ideal.mem_normalizedFactors_iff hJ0).mp P.2
+    have hP0 : P.1 ≠ ⊥ := by
+      intro hPbot
+      exact hJ0 (le_bot_iff.mp (by simpa [hPbot] using hPdata.2))
+    obtain ⟨p, hp, hcomap, _hdvd⟩ :=
+      exists_nat_prime_comap_eq_p_and_dvd_absNorm d hPdata.1 hP0
+    rcases factor_contribution_by_splitting_narrowClass d hJ P hp hcomap with
+      hsplit | hinert | hram
+    · exact conjAutNormalizedFactor_ne_of_isSplitIn d hJ P hp hcomap hsplit.1
+    · exact False.elim <| hfP <| by
+        simpa [f, s, R] using inert_normalizedFactor_power_eq_one d P hp hcomap hinert.1
+    · exact False.elim (hPnonram ⟨p, hp, hcomap, hram.1⟩)
+  · intro P hP
+    rw [Finset.mem_filter]
+    refine ⟨by simp [S, σ], ?_⟩
+    have hPnonram : ¬ normalizedFactorIsRamified d P := (Finset.mem_filter.mp hP).2
+    intro hσram
+    exact hPnonram ((normalizedFactorIsRamified_conjAutNormalizedFactor_iff d hJ P).mp hσram)
+  · intro P _hP
+    exact conjAutNormalizedFactor_involutive d hJ P
+
+private theorem normalizedFactors_ramified_count_prod_eq_ramifiedPrime_count_prod
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (J : (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰)
+    [DecidablePred (fun P :
+        {P // P ∈ UniqueFactorizationMonoid.normalizedFactors
+          (J : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))} =>
+      normalizedFactorIsRamified d P)] :
+    (∏ P ∈
+        (UniqueFactorizationMonoid.normalizedFactors
+          (J : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))).attach.toFinset with
+        normalizedFactorIsRamified d P,
+      (NarrowClassGroup.mk0 (normalizedFactorNonzeroIdeal J P) :
+        NarrowClassGroup (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) ^
+        (UniqueFactorizationMonoid.normalizedFactors
+          (J : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))).count P.1) =
+      Finset.univ.prod fun p : {p // p ∈ ramifiedPrimes d} =>
+        (ramifiedPrimeNarrowClass d p.2) ^
+          (UniqueFactorizationMonoid.normalizedFactors
+            (J : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))).count
+            (ramifiedPrimeIdeal d p.2) := by
+  classical
+  -- Remaining exact gap: build the bijection between normalized factors of
+  -- `J` that lie over ramified rational primes and the ramified primes whose
+  -- distinguished prime ideal has positive count in `normalizedFactors J`.
+  -- `normalizedFactor_eq_ramifiedPrimeIdeal_of_isRamifiedIn` gives the forward
+  -- identification, `ramifiedPrimeIdeal_eq_iff` gives injectivity, and terms
+  -- for ramified primes not appearing in the factorization are `1` because the
+  -- multiset count is zero.
+  sorry
 
 /-- Quadratic conjugation acts on the narrow ideal class group by inversion. The
 point not present in the ordinary class-group statement is positivity: the
@@ -3405,15 +3546,37 @@ private theorem normalizedFactors_count_prod_eq_ramifiedPrime_count_prod_of_isAm
             (J : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))).count
             (ramifiedPrimeIdeal d p.2) := by
   classical
-  -- Remaining exact gap: partition `normalizedFactors J` by the quadratic
-  -- conjugation involution. Use `split_conj_normalizedFactor_powers_eq_one`
-  -- on nonfixed split pairs, `inert_normalizedFactor_power_eq_one` on inert
-  -- fixed factors, and `conjAutNormalizedFactor_eq_self_of_isRamifiedIn` plus
-  -- `normalizedFactor_eq_ramifiedPrimeIdeal_of_isRamifiedIn` on ramified fixed
-  -- factors. The final finite product over ramified factors must be transported
-  -- along `ramifiedPrimeIdeal_eq_iff` to the displayed product over
-  -- `ramifiedPrimes d`.
-  sorry
+  let R := NumberField.RingOfIntegers (Qsqrtd (d : ℚ))
+  let s := UniqueFactorizationMonoid.normalizedFactors (J : Ideal R)
+  let S := s.attach.toFinset
+  let f : {P // P ∈ s} → NarrowClassGroup R := fun P =>
+    (NarrowClassGroup.mk0 (normalizedFactorNonzeroIdeal J P) :
+        NarrowClassGroup R) ^ s.count P.1
+  have hnonram :
+      (∏ P ∈ S with ¬ normalizedFactorIsRamified d P, f P) = 1 := by
+    simpa [S, f, s, R] using
+      normalizedFactors_nonramified_count_prod_eq_one_of_isAmbiguousIdeal d J hJ
+  have hram :
+      (∏ P ∈ S with normalizedFactorIsRamified d P, f P) =
+        Finset.univ.prod fun p : {p // p ∈ ramifiedPrimes d} =>
+          (ramifiedPrimeNarrowClass d p.2) ^
+            (UniqueFactorizationMonoid.normalizedFactors
+              (J : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))).count
+              (ramifiedPrimeIdeal d p.2) := by
+    simpa [S, f, s, R] using
+      normalizedFactors_ramified_count_prod_eq_ramifiedPrime_count_prod d J
+  calc
+    (∏ P ∈ S, f P) =
+        (∏ P ∈ S with ¬ normalizedFactorIsRamified d P, f P) *
+          ∏ P ∈ S with normalizedFactorIsRamified d P, f P := by
+      exact (Finset.prod_filter_not_mul_prod_filter S
+        (fun P => normalizedFactorIsRamified d P) f).symm
+    _ = Finset.univ.prod fun p : {p // p ∈ ramifiedPrimes d} =>
+          (ramifiedPrimeNarrowClass d p.2) ^
+            (UniqueFactorizationMonoid.normalizedFactors
+              (J : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))).count
+              (ramifiedPrimeIdeal d p.2) := by
+      rw [hnonram, hram, one_mul]
 
 /-- Exact class-level per-factor assembly boundary. A genuinely ambiguous
 integral ideal has the same narrow class as the product of the ramified-prime
@@ -3426,184 +3589,8 @@ private theorem ambiguousIdeal_mk0_eq_fullRamifiedParityIdealProduct_of_factoriz
     NarrowClassGroup.mk0 J =
       NarrowClassGroup.mk0
         (fullRamifiedParityIdealProduct d (fullRamifiedParityVector d J)) := by
-  have hJ_factorization :=
-    narrowClassGroup_mk0_eq_normalizedFactors_prod J
   have hJ_factorization_count :=
     narrowClassGroup_mk0_eq_normalizedFactors_attach_toFinset_prod J
-  have hfactor_lower :
-      ∀ (P :
-          {P // P ∈ UniqueFactorizationMonoid.normalizedFactors
-            (J : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))}),
-        ∃ p : ℕ, p.Prime ∧
-          P.1.comap
-              (algebraMap ℤ (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) =
-            𝔭(p) := by
-    intro P
-    let R := NumberField.RingOfIntegers (Qsqrtd (d : ℚ))
-    have hJ0 : (J : Ideal R) ≠ ⊥ := by
-      simpa [Ideal.zero_eq_bot] using mem_nonZeroDivisors_iff_ne_zero.mp J.2
-    have hPdata := (Ideal.mem_normalizedFactors_iff hJ0).mp P.2
-    have hP0 : P.1 ≠ ⊥ := by
-      intro hPbot
-      exact hJ0 (le_bot_iff.mp (by simpa [hPbot] using hPdata.2))
-    obtain ⟨p, hp, hcomap, _hdvd⟩ :=
-      exists_nat_prime_comap_eq_p_and_dvd_absNorm d hPdata.1 hP0
-    exact ⟨p, hp, hcomap⟩
-  have hfactor_narrow :
-      ∀ (P :
-          {P // P ∈ UniqueFactorizationMonoid.normalizedFactors
-            (J : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))})
-        {p : ℕ}, p.Prime →
-        P.1.comap
-            (algebraMap ℤ (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) =
-          𝔭(p) →
-        (Ideal.IsSplitIn (𝔭(p)) (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))) ∧
-            NarrowClassGroup.mk0 (normalizedFactorNonzeroIdeal J P) *
-              NarrowClassGroup.mk0
-                (conjAutNonzeroIdealMulEquiv (Qsqrtd (d : ℚ))
-                  (normalizedFactorNonzeroIdeal J P)) =
-              1) ∨
-          (Ideal.IsInertIn (𝔭(p)) (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))) ∧
-            NarrowClassGroup.mk0 (normalizedFactorNonzeroIdeal J P) = 1) ∨
-            (Ideal.IsRamifiedIn (𝔭(p)) (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))) ∧
-              (NarrowClassGroup.mk0 (normalizedFactorNonzeroIdeal J P) :
-                NarrowClassGroup (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) ^ 2 = 1) := by
-    intro P p hp hcomap
-    exact factor_contribution_by_splitting_narrowClass d hJ P hp hcomap
-  have hfactor_case :
-      ∀ (P :
-          {P // P ∈ UniqueFactorizationMonoid.normalizedFactors
-            (J : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))}),
-        ∃ p : ℕ, p.Prime ∧
-          P.1.comap
-              (algebraMap ℤ (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) =
-            𝔭(p) ∧
-          ((Ideal.IsSplitIn (𝔭(p)) (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))) ∧
-              NarrowClassGroup.mk0 (normalizedFactorNonzeroIdeal J P) *
-                NarrowClassGroup.mk0
-                  (conjAutNonzeroIdealMulEquiv (Qsqrtd (d : ℚ))
-                    (normalizedFactorNonzeroIdeal J P)) =
-                1) ∨
-            (Ideal.IsInertIn (𝔭(p)) (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))) ∧
-              NarrowClassGroup.mk0 (normalizedFactorNonzeroIdeal J P) = 1) ∨
-              (Ideal.IsRamifiedIn (𝔭(p)) (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))) ∧
-                (NarrowClassGroup.mk0 (normalizedFactorNonzeroIdeal J P) :
-                  NarrowClassGroup (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) ^ 2 =
-                  1)) := by
-    intro P
-    obtain ⟨p, hp, hcomap⟩ := hfactor_lower P
-    exact ⟨p, hp, hcomap, hfactor_narrow P hp hcomap⟩
-  have hfactor_conj :
-      ∀ (P :
-          {P // P ∈ UniqueFactorizationMonoid.normalizedFactors
-            (J : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))}),
-        conjAutNormalizedFactor d hJ (conjAutNormalizedFactor d hJ P) = P ∧
-          normalizedFactorNonzeroIdeal J (conjAutNormalizedFactor d hJ P) =
-            conjAutNonzeroIdealMulEquiv (Qsqrtd (d : ℚ))
-              (normalizedFactorNonzeroIdeal J P) ∧
-          (conjAutNormalizedFactor d hJ P).1.comap
-              (algebraMap ℤ (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) =
-            P.1.comap
-              (algebraMap ℤ (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) := by
-    intro P
-    exact ⟨conjAutNormalizedFactor_involutive d hJ P,
-      normalizedFactorNonzeroIdeal_conjAutNormalizedFactor d hJ P,
-      conjAutNormalizedFactor_comap_eq d hJ P⟩
-  have hfactor_split_ne :
-      ∀ (P :
-          {P // P ∈ UniqueFactorizationMonoid.normalizedFactors
-            (J : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))})
-        {p : ℕ}, p.Prime →
-        P.1.comap
-            (algebraMap ℤ (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) =
-          𝔭(p) →
-        Ideal.IsSplitIn (𝔭(p)) (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))) →
-        conjAutNormalizedFactor d hJ P ≠ P := by
-    intro P p hp hcomap hsplit
-    exact conjAutNormalizedFactor_ne_of_isSplitIn d hJ P hp hcomap hsplit
-  have hfactor_split_pow :
-      ∀ (P :
-          {P // P ∈ UniqueFactorizationMonoid.normalizedFactors
-            (J : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))})
-        {p : ℕ}, p.Prime →
-        P.1.comap
-            (algebraMap ℤ (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) =
-          𝔭(p) →
-        Ideal.IsSplitIn (𝔭(p)) (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))) →
-        (NarrowClassGroup.mk0 (normalizedFactorNonzeroIdeal J P) :
-            NarrowClassGroup (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) ^
-              (UniqueFactorizationMonoid.normalizedFactors
-                (J : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))).count P.1 *
-          (NarrowClassGroup.mk0
-              (normalizedFactorNonzeroIdeal J (conjAutNormalizedFactor d hJ P)) :
-            NarrowClassGroup (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) ^
-              (UniqueFactorizationMonoid.normalizedFactors
-                (J : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))).count
-                  (conjAutNormalizedFactor d hJ P).1 =
-            1 := by
-    intro P p hp hcomap hsplit
-    exact split_conj_normalizedFactor_powers_eq_one d hJ P hp hcomap hsplit
-  have hfactor_inert_pow :
-      ∀ (P :
-          {P // P ∈ UniqueFactorizationMonoid.normalizedFactors
-            (J : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))})
-        {p : ℕ}, p.Prime →
-        P.1.comap
-            (algebraMap ℤ (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) =
-          𝔭(p) →
-        Ideal.IsInertIn (𝔭(p)) (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))) →
-        (NarrowClassGroup.mk0 (normalizedFactorNonzeroIdeal J P) :
-            NarrowClassGroup (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) ^
-              (UniqueFactorizationMonoid.normalizedFactors
-                (J : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))).count P.1 =
-            1 := by
-    intro P p hp hcomap hinert
-    exact inert_normalizedFactor_power_eq_one d P hp hcomap hinert
-  have hfactor_conj_count :
-      ∀ (P :
-          {P // P ∈ UniqueFactorizationMonoid.normalizedFactors
-            (J : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))}),
-        (UniqueFactorizationMonoid.normalizedFactors
-            (J : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))).count
-          (conjAutNormalizedFactor d hJ P).1 =
-        (UniqueFactorizationMonoid.normalizedFactors
-            (J : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))).count P.1 := by
-    intro P
-    exact normalizedFactors_count_conjAutNormalizedFactor_eq d hJ P
-  have hfactor_ramified_eq :
-      ∀ (P :
-          {P // P ∈ UniqueFactorizationMonoid.normalizedFactors
-            (J : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))})
-        {p : ℕ}, p.Prime →
-        P.1.comap
-            (algebraMap ℤ (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) =
-          𝔭(p) →
-        Ideal.IsRamifiedIn (𝔭(p)) (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))) →
-        ∃ hpRamified : p ∈ ramifiedPrimes d, P.1 = ramifiedPrimeIdeal d hpRamified := by
-    intro P p hp hcomap hram
-    exact normalizedFactor_eq_ramifiedPrimeIdeal_of_isRamifiedIn d P hp hcomap hram
-  have hfactor_ramified_fixed :
-      ∀ (P :
-          {P // P ∈ UniqueFactorizationMonoid.normalizedFactors
-            (J : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))})
-        {p : ℕ}, p.Prime →
-        P.1.comap
-            (algebraMap ℤ (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) =
-          𝔭(p) →
-        Ideal.IsRamifiedIn (𝔭(p)) (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))) →
-        conjAutNormalizedFactor d hJ P = P := by
-    intro P p hp hcomap hram
-    exact conjAutNormalizedFactor_eq_self_of_isRamifiedIn d hJ P hp hcomap hram
-  have hfactor_ramified_pow :
-      ∀ p : {p // p ∈ ramifiedPrimes d},
-        (ramifiedPrimeNarrowClass d p.2) ^
-            (UniqueFactorizationMonoid.normalizedFactors
-              (J : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))).count
-                (ramifiedPrimeIdeal d p.2) =
-          if fullRamifiedParityVector d J p = 0 then 1 else
-            ramifiedPrimeNarrowClass d p.2 := by
-    intro p
-    exact ramifiedPrimeNarrowClass_pow_normalizedFactors_count_eq_parity d J p
   have htarget_count :
       NarrowClassGroup.mk0
           (fullRamifiedParityIdealProduct d (fullRamifiedParityVector d J)) =
@@ -3614,17 +3601,6 @@ private theorem ambiguousIdeal_mk0_eq_fullRamifiedParityIdealProduct_of_factoriz
               (ramifiedPrimeIdeal d p.2) := by
     rw [mk0_fullRamifiedParityIdealProduct]
     exact fullRamifiedParityNarrowClassProduct_eq_ramifiedPrime_count_prod d J
-  -- Remaining gap: use `hJ_factorization` to multiply the explicit positive
-  -- base-prime span contributions. The count-powered normal form is
-  -- `hJ_factorization_count`; combine it with `hfactor_case` and the
-  -- conjugation involution `hfactor_conj` over the Dedekind factorization of
-  -- `J`. The nonfixed split-pair certificate is `hfactor_split_ne`, and
-  -- `hfactor_conj_count` supplies equal multiplicities for each split pair;
-  -- the paired count-powers cancel via `hfactor_split_pow`. Inert prime factors
-  -- cancel by `hfactor_inert_pow`, while ramified factors are identified by
-  -- `hfactor_ramified_eq` and fixed by `hfactor_ramified_fixed`; their powers
-  -- reduce to the parity terms recorded by `hfactor_ramified_pow`, and the
-  -- target side is in count-powered form via `htarget_count`.
   calc
     NarrowClassGroup.mk0 J =
         ∏ P ∈
