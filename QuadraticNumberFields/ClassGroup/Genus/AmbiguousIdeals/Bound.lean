@@ -494,36 +494,18 @@ theorem exists_unit_map_algebraMap_eq_conjAut_mul_inv_of_tp_generator
   exact exists_unit_map_algebraMap_eq_of_toPrincipalIdeal_eq_one
     (toPrincipalIdeal_conjAut_mul_inv_eq_one_of_tp_generator d r hγ)
 
-/-- Genus relation in concrete ideal form: the single remaining genus-theory
-input. There is a narrow-trivial ambiguous integral ideal whose ramified-prime
-parity vector is nonzero — i.e. a totally-positive-principal ambiguous ideal with
-genuinely odd ramified content.
+/-- Chevalley's narrow ambiguous class number formula, in the only form needed
+for the upper bound.
 
-This is exactly the "`- 1`" of the narrow ambiguous class number count
-`|Cl⁺[2]| = 2 ^ (t - 1)`: the surjection `Φ⁺ : (ℤ/2)^t ↠ Cl⁺[2]` onto the
-inversion-fixed (two-torsion) classes is already available
-(`ambiguousIdeal_mk0_eq_fullRamifiedParityIdealProduct`), so the upper bound
-needs only that its kernel is nontrivial, equivalently that the narrow-principal
-ambiguous ideals form an index-two (codimension-one) subspace of the parity
-space.
-
-The relation is genuinely `d`-dependent, so no uniform witness exists and only
-its existence is asserted: e.g. `d = 3` needs the parity vector
-`(P₂, P₃) = (1, 1)`, whereas `d = -5` (also `≡ 3 [ZMOD 4]`) needs
-`(P₂, P₅) = (0, 1)`.
-
-It is stated on integral ideals because that is the form the Hilbert-90 / sign
-analysis of `Representatives` produces; via
-`ambiguousIdeal_mk0_eq_fullRamifiedParityIdealProduct` and
-`fullRamifiedParityVector_fullRamifiedParityIdealProduct` it is equivalent to
-`exists_nonzero_fullRamifiedParityNarrowClassProduct_eq_one` below. -/
-theorem exists_narrowTrivial_ambiguousIdeal_with_ramifiedParity
+This is the genuine global mathematical boundary: the full ramified parity map
+has a nonzero kernel vector. Equivalently, the narrow-principal ambiguous ideals
+form a codimension-one subspace of the ramified parity space, the `-1` in
+`|Am⁺| = 2 ^ (t - 1)`. This statement is uniform in `d`; the witness vector is
+not. -/
+theorem exists_nonzero_fullRamifiedParityNarrowClassProduct_eq_one_of_chevalley
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
-    ∃ J : (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰,
-      IsAmbiguousIdeal (conjAutRingOfIntegers (Qsqrtd (d : ℚ)))
-          (J : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) ∧
-        NarrowClassGroup.mk0 J = 1 ∧
-        ∃ p, fullRamifiedParityVector d J p ≠ 0 := by
+    ∃ r : ({p // p ∈ ramifiedPrimes d} → Fin 2),
+      (∃ p, r p ≠ 0) ∧ fullRamifiedParityNarrowClassProduct d r = 1 := by
   sorry
 
 /-- Weak positive-principal ramified relation needed for the upper bound. It
@@ -532,17 +514,14 @@ the narrow class group.
 
 This is weaker than computing the full kernel of the ramified parity map. It is
 the only global unit/sign input needed to erase one ramified coordinate in the
-upper-bound proof, and is reduced here to the concrete ideal-form relation
-`exists_narrowTrivial_ambiguousIdeal_with_ramifiedParity`. -/
+upper-bound proof, and is exactly the Chevalley kernel-nontriviality boundary
+recorded in
+`exists_nonzero_fullRamifiedParityNarrowClassProduct_eq_one_of_chevalley`. -/
 theorem exists_nonzero_fullRamifiedParityNarrowClassProduct_eq_one
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
     ∃ r : ({p // p ∈ ramifiedPrimes d} → Fin 2),
       (∃ p, r p ≠ 0) ∧ fullRamifiedParityNarrowClassProduct d r = 1 := by
-  obtain ⟨J, hJamb, hJ1, hJv⟩ := exists_narrowTrivial_ambiguousIdeal_with_ramifiedParity d
-  refine ⟨fullRamifiedParityVector d J, hJv, ?_⟩
-  rw [← mk0_fullRamifiedParityIdealProduct,
-    ← ambiguousIdeal_mk0_eq_fullRamifiedParityIdealProduct d J hJamb]
-  exact hJ1
+  exact exists_nonzero_fullRamifiedParityNarrowClassProduct_eq_one_of_chevalley d
 
 /-- A nonzero kernel vector for the finite ramified parity map acts trivially on
 all full ramified parity products. -/
@@ -681,6 +660,31 @@ theorem fullRamifiedParityVector_fullRamifiedParityIdealProduct
   dsimp [fullRamifiedParityVector]
   rw [normalizedFactors_count_fullRamifiedParityIdealProduct d v p]
   exact Nat.mod_eq_of_lt (v p).isLt
+
+/-- Genus relation in concrete ideal form, derived from the uniform Chevalley
+kernel boundary.
+
+There is a narrow-trivial ambiguous integral ideal whose ramified-prime parity
+vector is nonzero — i.e. a totally-positive-principal ambiguous ideal with
+genuinely odd ramified content. The relation is genuinely `d`-dependent, so no
+uniform witness exists: e.g. `d = 3` needs the parity vector `(P₂, P₃) = (1, 1)`,
+whereas `d = -5` needs `(P₂, P₅) = (0, 1)`. -/
+theorem exists_narrowTrivial_ambiguousIdeal_with_ramifiedParity
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
+    ∃ J : (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰,
+      IsAmbiguousIdeal (conjAutRingOfIntegers (Qsqrtd (d : ℚ)))
+          (J : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) ∧
+        NarrowClassGroup.mk0 J = 1 ∧
+        ∃ p, fullRamifiedParityVector d J p ≠ 0 := by
+  obtain ⟨r, hrnonzero, hr⟩ := exists_nonzero_fullRamifiedParityNarrowClassProduct_eq_one d
+  let J := fullRamifiedParityIdealProduct d r
+  refine ⟨J, ?_, ?_, ?_⟩
+  · exact isAmbiguousIdeal_fullRamifiedParityIdealProduct d r
+  · rw [mk0_fullRamifiedParityIdealProduct]
+    exact hr
+  · obtain ⟨p, hp⟩ := hrnonzero
+    refine ⟨p, ?_⟩
+    simpa [J, fullRamifiedParityVector_fullRamifiedParityIdealProduct d r] using hp
 
 /-- An ambiguous integral ideal class can be represented by the full ramified
 parity product, and that representative carries the expected full parity
