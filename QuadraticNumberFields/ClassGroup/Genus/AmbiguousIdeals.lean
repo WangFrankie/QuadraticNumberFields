@@ -500,6 +500,28 @@ private theorem ramifiedPrimeIdeal_ne_bot
     exact hpPrime.ne_zero
   exact Ideal.ne_bot_of_mem_primesOver hp0 (ramifiedPrimeIdeal_mem_primesOver d hp)
 
+/-- The distinguished ramified prime ideal remembers the rational prime below
+it. -/
+private theorem ramifiedPrimeIdeal_eq_iff
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    {p q : ℕ} (hp : p ∈ ramifiedPrimes d) (hq : q ∈ ramifiedPrimes d) :
+    ramifiedPrimeIdeal d hp = ramifiedPrimeIdeal d hq ↔ p = q := by
+  constructor
+  · intro h
+    have hp_under :=
+      (ramifiedPrimeIdeal_mem_primesOver d hp).2.1
+    have hq_under :=
+      (ramifiedPrimeIdeal_mem_primesOver d hq).2.1
+    have hspan :
+        (𝔭(p) : Ideal ℤ) = 𝔭(q) := by
+      rw [hp_under, hq_under, h]
+    have hassoc :
+        Associated (p : ℤ) (q : ℤ) :=
+      Ideal.span_singleton_eq_span_singleton.mp hspan
+    exact_mod_cast (Int.associated_iff_natAbs.mp hassoc)
+  · rintro rfl
+    rfl
+
 /-- A prime ideal over a rational prime from the genus-theory ramified-prime set
 is fixed by quadratic conjugation. -/
 theorem map_conjAut_eq_of_mem_primesOver_of_mem_ramifiedPrimes
@@ -2208,10 +2230,16 @@ private theorem normalizedFactors_count_ramifiedParityIdealProduct
           (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))).count
       (ramifiedPrimeIdeal d ((Finset.mem_erase.mp p.2).2)) =
         (w p).val := by
+  have hramifiedPrimeIdeal_injective :
+      Function.Injective fun q : {p // p ∈ (ramifiedPrimes d).erase p0} =>
+        ramifiedPrimeIdeal d ((Finset.mem_erase.mp q.2).2) := by
+    intro q r hqr
+    apply Subtype.ext
+    exact (ramifiedPrimeIdeal_eq_iff d
+      ((Finset.mem_erase.mp q.2).2) ((Finset.mem_erase.mp r.2).2)).mp hqr
   -- Remaining gap: rewrite the `if`-product as the product over
   -- `{p | w p ≠ 0}`, use `normalizedFactors_prod_of_prime`, and use
-  -- injectivity of `ramifiedPrimeIdeal` over distinct rational primes to
-  -- compute the multiset count.
+  -- `hramifiedPrimeIdeal_injective` to compute the multiset count.
   sorry
 
 /-- The erased product built from a parity vector has the expected erased
