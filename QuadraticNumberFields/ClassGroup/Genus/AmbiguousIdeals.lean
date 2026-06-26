@@ -140,6 +140,26 @@ private theorem conjAutFractionRingAlgEquiv_algebraMap
         ((conjAutRingOfIntegers K) x) := by
   simp [conjAutFractionRingAlgEquiv, conjAutRingOfIntegersAlgEquiv]
 
+@[simp]
+private theorem fractionRing_algEquiv_conjAutFractionRingAlgEquiv
+    (K : Type*) [Field K] [NumberField K] [Algebra ℚ K]
+    [QuadraticField K] [QuadraticField.Conj K]
+    (z : FractionRing (NumberField.RingOfIntegers K)) :
+    FractionRing.algEquiv (NumberField.RingOfIntegers K) K
+        ((conjAutFractionRingAlgEquiv K) z) =
+      QuadraticField.conjAut K
+        (FractionRing.algEquiv (NumberField.RingOfIntegers K) K z) := by
+  let R := NumberField.RingOfIntegers K
+  have hhom :
+      ((FractionRing.algEquiv R K).toRingHom.comp
+          (conjAutFractionRingAlgEquiv K).toRingHom) =
+        ((QuadraticField.conjAut K).toRingHom.comp
+          (FractionRing.algEquiv R K).toRingHom) := by
+    apply IsFractionRing.ringHom_ext (A := R) (K := FractionRing R) (L := K)
+    intro x
+    simp [R, RingHom.comp_apply, coe_conjAutRingOfIntegers_apply]
+  exact RingHom.congr_fun hhom z
+
 /-- Hilbert 90 in the form used for quadratic integer rings: a norm-one
 integer-ring element is a conjugation coboundary. -/
 private theorem exists_mul_conjAutRingOfIntegers_eq_self_of_norm_eq_one
@@ -1838,9 +1858,12 @@ private theorem norm_eq_one_of_tp_multiplier_to_conjAut
   sorry
 
 /-- Fraction-field Hilbert 90 for the localized conjugation action. A norm-one
-fraction-field unit is an ordinary conjugation coboundary. -/
+fraction-field unit is an ordinary conjugation coboundary.
+
+This private helper is universe-zero because the available mathlib Hilbert 90
+theorem is universe-zero; this is enough for the `Qsqrtd` application below. -/
 private theorem exists_conjAut_coboundary_of_norm_eq_one
-    (K : Type*) [Field K] [NumberField K] [Algebra ℚ K]
+    (K : Type) [Field K] [NumberField K] [Algebra ℚ K]
     [QuadraticField K] [QuadraticField.Conj K]
     {x : (FractionRing (NumberField.RingOfIntegers K))ˣ}
     (hxnorm :
@@ -1849,17 +1872,61 @@ private theorem exists_conjAut_coboundary_of_norm_eq_one
           (x : FractionRing (NumberField.RingOfIntegers K))) = 1) :
     ∃ y : (FractionRing (NumberField.RingOfIntegers K))ˣ,
       x = y * (Units.mapEquiv (conjAutFractionRingAlgEquiv K).toRingEquiv y)⁻¹ := by
-  -- Remaining gap: transport mathlib's Hilbert 90
-  -- `groupCohomology.exists_div_of_norm_eq_one` across
-  -- `FractionRing.algEquiv (𝓞 K) K`, identifying the transported automorphism
-  -- with `conjAutFractionRingAlgEquiv K`.
-  sorry
+  let R := NumberField.RingOfIntegers K
+  let e := FractionRing.algEquiv R K
+  haveI : IsGalois ℚ K := Algebra.IsQuadraticExtension.isGalois ℚ K
+  have hcard : Nat.card Gal(K / ℚ) = 2 := by
+    rw [IsGalois.card_aut_eq_finrank, Algebra.IsQuadraticExtension.finrank_eq_two]
+  haveI : IsCyclic Gal(K / ℚ) := isCyclic_of_prime_card hcard
+  have hconj_ne_one : (QuadraticField.conjAut K : Gal(K / ℚ)) ≠ 1 := by
+    simpa using (QuadraticField.Conj.conj_ne_refl (K := K))
+  have hg : ∀ σ : Gal(K / ℚ), σ ∈ Subgroup.zpowers (QuadraticField.conjAut K) := by
+    intro σ
+    exact mem_zpowers_of_prime_card (p := 2) hcard hconj_ne_one
+  obtain ⟨yK, hyK⟩ :=
+    groupCohomology.exists_div_of_norm_eq_one
+      (K := ℚ) (L := K) (g := QuadraticField.conjAut K) hg hxnorm
+  let y : (FractionRing R)ˣ := Units.mapEquiv e.symm.toRingEquiv yK
+  refine ⟨y, ?_⟩
+  apply Units.ext
+  apply e.injective
+  have hy_map : e (y : FractionRing R) = (yK : K) := by
+    change e (e.symm (yK : K)) = (yK : K)
+    exact e.apply_symm_apply (yK : K)
+  have hσ_map :
+      e (((Units.mapEquiv (conjAutFractionRingAlgEquiv K).toRingEquiv y) :
+          (FractionRing R)ˣ) : FractionRing R) =
+        QuadraticField.conjAut K (yK : K) := by
+    calc
+      e (((Units.mapEquiv (conjAutFractionRingAlgEquiv K).toRingEquiv y) :
+          (FractionRing R)ˣ) : FractionRing R) =
+          e ((conjAutFractionRingAlgEquiv K) (y : FractionRing R)) := rfl
+      _ = QuadraticField.conjAut K (e (y : FractionRing R)) := by
+        change FractionRing.algEquiv (NumberField.RingOfIntegers K) K
+            ((conjAutFractionRingAlgEquiv K) (y : FractionRing R)) =
+          QuadraticField.conjAut K
+            (FractionRing.algEquiv (NumberField.RingOfIntegers K) K (y : FractionRing R))
+        exact fractionRing_algEquiv_conjAutFractionRingAlgEquiv K (y : FractionRing R)
+      _ = QuadraticField.conjAut K (yK : K) := by
+        rw [hy_map]
+  calc
+    e (x : FractionRing R) = (yK : K) / QuadraticField.conjAut K (yK : K) := hyK.symm
+    _ =
+        e (y : FractionRing R) *
+          (e (((Units.mapEquiv (conjAutFractionRingAlgEquiv K).toRingEquiv y) :
+            (FractionRing R)ˣ) : FractionRing R))⁻¹ := by
+      rw [hy_map, hσ_map]
+      exact div_eq_mul_inv (yK : K) (QuadraticField.conjAut K (yK : K))
+    _ = e ((y * (Units.mapEquiv (conjAutFractionRingAlgEquiv K).toRingEquiv y)⁻¹ :
+          (FractionRing R)ˣ) : FractionRing R) := by
+      dsimp
+      simp
 
 /-- Hilbert-90 extraction boundary. A principal multiplier relating an ideal to
 its conjugate should be an ordinary conjugation coboundary in the fraction
 field. -/
 private theorem exists_conjAut_coboundary_of_tp_multiplier_to_conjAut
-    (K : Type*) [Field K] [NumberField K] [Algebra ℚ K]
+    (K : Type) [Field K] [NumberField K] [Algebra ℚ K]
     [QuadraticField K] [QuadraticField.Conj K]
     (I : (Ideal (NumberField.RingOfIntegers K))⁰)
     {x : (FractionRing (NumberField.RingOfIntegers K))ˣ}
@@ -1962,7 +2029,7 @@ private theorem exists_totallyPositive_conjAut_coboundary_of_conjAut_coboundary
 /-- Narrow Hilbert-90 boundary. A totally positive principal multiplier relating
 an ideal to its conjugate should be a totally positive conjugation coboundary. -/
 private theorem exists_totallyPositive_conjAut_coboundary_of_tp_multiplier_to_conjAut
-    (K : Type*) [Field K] [NumberField K] [Algebra ℚ K]
+    (K : Type) [Field K] [NumberField K] [Algebra ℚ K]
     [QuadraticField K] [QuadraticField.Conj K]
     (I : (Ideal (NumberField.RingOfIntegers K))⁰)
     {x : (FractionRing (NumberField.RingOfIntegers K))ˣ}
