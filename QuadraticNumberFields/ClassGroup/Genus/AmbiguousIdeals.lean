@@ -2200,6 +2200,59 @@ private theorem exists_integralIdeal_fullRamifiedParityRepresentative_of_isAmbig
   rw [NarrowClassGroup.mk0_eq_mk0_iff_exists_fraction_ring]
   exact exists_tp_multiplier_ambiguousIdeal_to_fullRamifiedParityIdealProduct d J hJ
 
+/-- If the distinguished coordinate is zero, the full ramified parity ideal
+product is literally the erased ramified parity ideal product obtained by
+restricting the vector away from that coordinate. -/
+private theorem fullRamifiedParityIdealProduct_eq_ramifiedParityIdealProduct_of_apply_p0_eq_zero
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    {p0 : ℕ} (hp0 : p0 ∈ ramifiedPrimes d)
+    (v : ({p // p ∈ ramifiedPrimes d} → Fin 2))
+    (hv0 : v ⟨p0, hp0⟩ = 0) :
+    fullRamifiedParityIdealProduct d v =
+      ramifiedParityIdealProduct d hp0
+        (fun p : {p // p ∈ (ramifiedPrimes d).erase p0} =>
+          v ⟨p.1, (Finset.mem_erase.mp p.2).2⟩) := by
+  classical
+  let R := NumberField.RingOfIntegers (Qsqrtd (d : ℚ))
+  let F : {p // p ∈ ramifiedPrimes d} → (Ideal R)⁰ :=
+    fun p =>
+      if v p = 0 then 1 else
+        ⟨ramifiedPrimeIdeal d p.2,
+          mem_nonZeroDivisors_iff_ne_zero.mpr (by
+            simpa [Ideal.zero_eq_bot] using ramifiedPrimeIdeal_ne_bot d p.2)⟩
+  let G : {p // p ∈ (ramifiedPrimes d).erase p0} → (Ideal R)⁰ :=
+    fun p =>
+      if v ⟨p.1, (Finset.mem_erase.mp p.2).2⟩ = 0 then 1 else
+        ⟨ramifiedPrimeIdeal d ((Finset.mem_erase.mp p.2).2),
+          mem_nonZeroDivisors_iff_ne_zero.mpr (by
+            simpa [Ideal.zero_eq_bot] using
+              ramifiedPrimeIdeal_ne_bot d ((Finset.mem_erase.mp p.2).2))⟩
+  change Finset.univ.prod F = Finset.univ.prod G
+  have hterm : F ⟨p0, hp0⟩ = 1 := by
+    simp [F, hv0]
+  rw [← Finset.prod_erase (s := Finset.univ) (a := ⟨p0, hp0⟩) (f := F) hterm]
+  symm
+  refine Finset.prod_bij
+    (fun p _hp => (⟨p.1, (Finset.mem_erase.mp p.2).2⟩ :
+      {p // p ∈ ramifiedPrimes d})) ?_ ?_ ?_ ?_
+  · intro p _hp
+    rw [Finset.mem_erase]
+    refine ⟨?_, Finset.mem_univ _⟩
+    intro hp
+    exact (Finset.mem_erase.mp p.2).1 (Subtype.ext_iff.mp hp)
+  · intro p _hp q _hq hpq
+    apply Subtype.ext
+    exact congrArg (fun x : {p // p ∈ ramifiedPrimes d} => (x : ℕ)) hpq
+  · intro q hq
+    rw [Finset.mem_erase] at hq
+    refine ⟨⟨q.1, Finset.mem_erase.mpr ⟨?_, q.2⟩⟩, Finset.mem_univ _, ?_⟩
+    · intro hq0
+      exact hq.1 (Subtype.ext hq0)
+    · apply Subtype.ext
+      rfl
+  · intro p _hp
+    simp [F]
+
 /-- Product-one relation in narrow-class form. The full ramified parity product
 is narrow-equivalent to an erased ramified parity product after choosing the
 `p0` coordinate using the single positive-principal relation among all ramified
@@ -2212,10 +2265,14 @@ private theorem exists_erasedRamifiedParityProduct_mk0_eq_fullRamifiedParityProd
       NarrowClassGroup.mk0
           (ramifiedParityIdealProduct d hp0 w) =
         NarrowClassGroup.mk0 (fullRamifiedParityIdealProduct d v) := by
-  -- Remaining gap: formalize the total product of all ramified prime ideals as
-  -- a totally positive principal fractional ideal, then toggle the `p0`
-  -- coordinate to replace a full parity vector by an erased one.
-  sorry
+  by_cases hv0 : v ⟨p0, hp0⟩ = 0
+  · refine ⟨fun p => v ⟨p.1, (Finset.mem_erase.mp p.2).2⟩, ?_⟩
+    rw [fullRamifiedParityIdealProduct_eq_ramifiedParityIdealProduct_of_apply_p0_eq_zero
+      d hp0 v hv0]
+  · -- Remaining gap: formalize the total product of all ramified prime ideals as
+    -- a totally positive principal fractional ideal, then toggle the `p0`
+    -- coordinate to handle the remaining case `v ⟨p0, hp0⟩ ≠ 0`.
+    sorry
 
 /-- The erased ramified parity ideal product is the multiset product of exactly
 the ramified prime ideals whose parity coordinate is nonzero. -/
