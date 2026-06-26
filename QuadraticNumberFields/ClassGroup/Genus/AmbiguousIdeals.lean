@@ -2555,6 +2555,23 @@ private theorem exists_apply_ne_zero_of_multiplicative_ne_one
   by_contra hi
   exact h ⟨i, hi⟩
 
+/-- The full ramified parity map has `2 ^ t` source vectors, where `t` is the
+number of ramified rational primes. -/
+private theorem card_fullRamifiedParityNarrowClassHom_domain
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
+    Nat.card (Multiplicative ({p // p ∈ ramifiedPrimes d} → Fin 2)) =
+      2 ^ ramifiedPrimeCount d := by
+  classical
+  calc
+    Nat.card (Multiplicative ({p // p ∈ ramifiedPrimes d} → Fin 2)) =
+        Nat.card ({p // p ∈ ramifiedPrimes d} → Fin 2) :=
+      Nat.card_congr Multiplicative.toAdd
+    _ = 2 ^ Nat.card {p // p ∈ ramifiedPrimes d} := by
+      rw [Nat.card_fun, Nat.card_fin]
+    _ = 2 ^ ramifiedPrimeCount d := by
+      congr 1
+      rw [Nat.card_eq_fintype_card, Fintype.card_coe, ramifiedPrimeCount_eq_card]
+
 private theorem ramifiedPrimeNarrowClass_pow_normalizedFactors_count_eq_parity
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
     (J : (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰)
@@ -2614,28 +2631,6 @@ private theorem narrowClassGroup_mk0_sq_eq_one_ramifiedParityIdealProduct
         NarrowClassGroup (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) ^ 2 = 1 := by
   rw [mk0_ramifiedParityIdealProduct d hp0 v]
   exact ramifiedParityNarrowClassProduct_sq_eq_one d hp0 v
-
-private theorem card_le_genusBound_of_injective_to_ramifiedParityVectors
-    {α : Type*}
-    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
-    {p0 : ℕ} (hp0 : p0 ∈ ramifiedPrimes d)
-    (f : α → ({p // p ∈ (ramifiedPrimes d).erase p0} → Fin 2))
-    (hf : Function.Injective f) :
-    Nat.card α ≤ 2 ^ (ramifiedPrimeCount d - 1) := by
-  classical
-  haveI : Finite α := Finite.of_injective f hf
-  have hle : Nat.card α ≤ Nat.card ({p // p ∈ (ramifiedPrimes d).erase p0} → Fin 2) :=
-    Nat.card_le_card_of_injective f hf
-  refine hle.trans_eq ?_
-  rw [Nat.card_eq_fintype_card, Fintype.card_fun]
-  have hdomain :
-      Fintype.card {p // p ∈ (ramifiedPrimes d).erase p0} =
-        ramifiedPrimeCount d - 1 := by
-    rw [Fintype.card_coe]
-    rw [Finset.card_erase_of_mem hp0]
-    rw [ramifiedPrimeCount_eq_card]
-  rw [hdomain]
-  norm_num
 
 /-- Narrow ideal classes fixed by inversion. For quadratic fields, this is the
 group-theoretic target that will be identified with conjugation-fixed classes. -/
@@ -3950,6 +3945,36 @@ private theorem card_fullRamifiedParityNarrowClassHom_ker_eq_two
   -- factor rather than only the ordinary principal all-ramified-prime relation.
   sorry
 
+/-- First-isomorphism cardinality for the full ramified parity map: source
+vectors split into image classes and kernel relations. -/
+private theorem card_fullRamifiedParityNarrowClassHom_range_mul_ker
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
+    Nat.card (fullRamifiedParityNarrowClassHom d).range *
+        Nat.card (fullRamifiedParityNarrowClassHom d).ker =
+      2 ^ ramifiedPrimeCount d := by
+  let f := fullRamifiedParityNarrowClassHom d
+  have h := f.ker.card_mul_index
+  rw [Subgroup.index_ker f, card_fullRamifiedParityNarrowClassHom_domain d] at h
+  simpa [f, mul_comm, mul_left_comm, mul_assoc] using h
+
+/-- If the strict positive-principal denominator has size `2`, the image of the
+full ramified parity map has the expected genus-bound cardinality. -/
+private theorem card_fullRamifiedParityNarrowClassHom_range_eq_genusBound
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
+    Nat.card (fullRamifiedParityNarrowClassHom d).range =
+      2 ^ (ramifiedPrimeCount d - 1) := by
+  have hmul := card_fullRamifiedParityNarrowClassHom_range_mul_ker d
+  rw [card_fullRamifiedParityNarrowClassHom_ker_eq_two d] at hmul
+  have hpow :
+      2 ^ ramifiedPrimeCount d = 2 ^ (ramifiedPrimeCount d - 1) * 2 := by
+    have hcount : 1 ≤ ramifiedPrimeCount d := one_le_ramifiedPrimeCount (d := d)
+    calc
+      2 ^ ramifiedPrimeCount d = 2 ^ ((ramifiedPrimeCount d - 1) + 1) := by
+        rw [Nat.sub_add_cancel hcount]
+      _ = 2 ^ (ramifiedPrimeCount d - 1) * 2 := by
+        rw [pow_succ]
+  exact mul_right_cancel₀ (by norm_num : (2 : ℕ) ≠ 0) (by simpa [hpow] using hmul)
+
 /-- Strict/narrow positive-principal denominator as a nontrivial kernel element
 for the finite ramified parity map. -/
 private theorem exists_nontrivial_mem_fullRamifiedParityNarrowClassHom_ker
@@ -4463,12 +4488,51 @@ theorem card_narrowInversionFixedClass_le_genusBound
     -- representative to the ramified parity ideal product.
     simpa only [I, J, ramifiedParityVector] using
       exists_tp_multiplier_representative_to_ramifiedParityIdealProduct d p0.2 r hrp0 hrel C
-  have hramifiedParityVector_injective : Function.Injective ramifiedParityVector := by
+  let fullVector : NarrowInversionFixedClass R → ({p // p ∈ ramifiedPrimes d} → Fin 2) :=
+    fun C p =>
+      if hp : (p : ℕ) = (p0 : ℕ) then 0
+      else ramifiedParityVector C ⟨p, Finset.mem_erase.mpr ⟨hp, p.2⟩⟩
+  have hfullVector_eq :
+      ∀ C : NarrowInversionFixedClass R,
+        fullRamifiedParityNarrowClassProduct d (fullVector C) =
+          ramifiedParityNarrowClassProduct d p0.2 (ramifiedParityVector C) := by
+    intro C
+    have hp0zero : fullVector C p0 = 0 := by
+      simp [fullVector]
+    have hrestrict :
+        (fun p : {p // p ∈ (ramifiedPrimes d).erase (p0 : ℕ)} =>
+          fullVector C ⟨p, (Finset.mem_erase.mp p.2).2⟩) =
+          ramifiedParityVector C := by
+      funext p
+      have hpne : (p : ℕ) ≠ (p0 : ℕ) := (Finset.mem_erase.mp p.2).1
+      by_cases hsub :
+          (⟨(p : ℕ), (Finset.mem_erase.mp p.2).2⟩ :
+            {q // q ∈ ramifiedPrimes d}) = p0
+      · exact False.elim (hpne (congrArg Subtype.val hsub))
+      · simp [fullVector, hsub]
+    rw [← hrestrict]
+    exact fullRamifiedParityNarrowClassProduct_eq_erased_of_apply_p0_eq_zero d p0.2
+      (fullVector C) hp0zero
+  let rangeVector :
+      NarrowInversionFixedClass R → (fullRamifiedParityNarrowClassHom d).range :=
+    fun C =>
+      ⟨fullRamifiedParityNarrowClassProduct d (fullVector C),
+        ⟨Multiplicative.ofAdd (fullVector C),
+          fullRamifiedParityNarrowClassHom_apply d (fullVector C)⟩⟩
+  have hrangeVector_injective : Function.Injective rangeVector := by
     intro C D hCD
     apply Subtype.ext
-    rw [hrecoverByRamifiedParity C, hrecoverByRamifiedParity D, hCD]
-  exact card_le_genusBound_of_injective_to_ramifiedParityVectors (d := d) p0.2
-    ramifiedParityVector hramifiedParityVector_injective
+    have hval := congrArg Subtype.val hCD
+    rw [hrecoverByRamifiedParity C, hrecoverByRamifiedParity D]
+    rw [← hfullVector_eq C, ← hfullVector_eq D]
+    simpa [rangeVector] using hval
+  haveI : Finite (NarrowInversionFixedClass R) :=
+    Finite.of_injective rangeVector hrangeVector_injective
+  have hle :
+      Nat.card (NarrowInversionFixedClass R) ≤
+        Nat.card (fullRamifiedParityNarrowClassHom d).range :=
+    Nat.card_le_card_of_injective rangeVector hrangeVector_injective
+  exact hle.trans_eq (card_fullRamifiedParityNarrowClassHom_range_eq_genusBound d)
 
 /-- Ambiguous-ideal upper bound: the two-torsion in the narrow class group has
 size at most `2 ^ (t - 1)`, where `t` is the number of ramified rational primes. -/
