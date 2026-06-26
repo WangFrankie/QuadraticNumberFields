@@ -2033,51 +2033,156 @@ private theorem exists_conjAut_coboundary_of_tp_multiplier_to_conjAut
   exact exists_conjAut_coboundary_of_norm_eq_one (Qsqrtd (d : ℚ))
     (norm_eq_one_of_tp_multiplier_to_conjAut d I hxpos hconj)
 
-/-- Sign-choice boundary for the quadratic Hilbert-90 representative. If a
-totally positive element is written as `y / σ(y)` and the fraction field has a
-real embedding, then either `y` or `-y` is totally positive. -/
-private theorem isTotallyPositive_or_neg_isTotallyPositive_of_totallyPositive_coboundary_of_nonempty
-    (K : Type*) [Field K] [NumberField K] [Algebra ℚ K]
-    [QuadraticField K] [QuadraticField.Conj K]
-    (hreal :
-      Nonempty (FractionRing (NumberField.RingOfIntegers K) →+* ℝ))
-    {x y : (FractionRing (NumberField.RingOfIntegers K))ˣ}
-    (hxpos : NarrowClassGroup.IsTotallyPositive
-      (x : FractionRing (NumberField.RingOfIntegers K)))
-    (hy :
-      x = y * (Units.mapEquiv (conjAutFractionRingAlgEquiv K).toRingEquiv y)⁻¹) :
-    NarrowClassGroup.IsTotallyPositive
-        (y : FractionRing (NumberField.RingOfIntegers K)) ∨
-      NarrowClassGroup.IsTotallyPositive
-        ((-y : (FractionRing (NumberField.RingOfIntegers K))ˣ) :
-          FractionRing (NumberField.RingOfIntegers K)) := by
-  -- Remaining gap: in the real quadratic case, real embeddings form one
-  -- conjugation orbit. Since `x = y / σ(y)` is positive at every real embedding,
-  -- the signs of `y` agree across this orbit; then one of `y` and `-y` is
-  -- totally positive.
-  sorry
+/-- A real embedding of `Q(√d)` sends the standard square root to one of the
+two real roots. -/
+private theorem qsqrt_algHom_omega_eq_sqrt_or_neg
+    (d : ℤ) (φ : Qsqrtd (d : ℚ) →ₐ[ℚ] ℝ) :
+    φ QuadraticAlgebra.omega = Real.sqrt (d : ℝ) ∨
+      φ QuadraticAlgebra.omega = -Real.sqrt (d : ℝ) := by
+  have hsq :
+      φ QuadraticAlgebra.omega * φ QuadraticAlgebra.omega = (d : ℝ) := by
+    have h :=
+      congrArg φ
+        (QuadraticAlgebra.omega_mul_omega_eq_add (R := ℚ) (a := (d : ℚ)) (b := 0))
+    simpa [Algebra.smul_def] using h
+  have hsq' : φ QuadraticAlgebra.omega ^ 2 = (d : ℝ) := by
+    simpa [sq] using hsq
+  have habs : |φ QuadraticAlgebra.omega| = Real.sqrt (d : ℝ) := by
+    rw [← Real.sqrt_sq_eq_abs (φ QuadraticAlgebra.omega), hsq']
+  rcases abs_cases (φ QuadraticAlgebra.omega) with h | h
+  · left
+    linarith
+  · right
+    linarith
 
-/-- Sign choice for a quadratic Hilbert-90 representative. The imaginary case
-is vacuous because there are no real embeddings; the real case is isolated in
-`isTotallyPositive_or_neg_isTotallyPositive_of_totallyPositive_coboundary_of_nonempty`. -/
-private theorem isTotallyPositive_or_neg_isTotallyPositive_of_totallyPositive_coboundary
-    (K : Type*) [Field K] [NumberField K] [Algebra ℚ K]
-    [QuadraticField K] [QuadraticField.Conj K]
-    {x y : (FractionRing (NumberField.RingOfIntegers K))ˣ}
+/-- The two explicit real embeddings exhaust the real embeddings of `Q(√d)`. -/
+private theorem qsqrt_algHom_eq_realEmbeddingPos_or_neg
+    (d : ℤ) (hd : 0 ≤ (d : ℝ)) (φ : Qsqrtd (d : ℚ) →ₐ[ℚ] ℝ) :
+    φ = Qsqrtd.realEmbeddingPos d hd ∨ φ = Qsqrtd.realEmbeddingNeg d hd := by
+  rcases qsqrt_algHom_omega_eq_sqrt_or_neg d φ with hω | hω
+  · left
+    apply QuadraticAlgebra.algHom_ext
+    change φ QuadraticAlgebra.omega = Qsqrtd.realEmbeddingPos d hd QuadraticAlgebra.omega
+    rw [hω, Qsqrtd.realEmbeddingPos_apply]
+    simp
+  · right
+    apply QuadraticAlgebra.algHom_ext
+    change φ QuadraticAlgebra.omega = Qsqrtd.realEmbeddingNeg d hd QuadraticAlgebra.omega
+    rw [hω, Qsqrtd.realEmbeddingNeg_apply]
+    simp
+
+private theorem qsqrt_realEmbeddingPos_conjAut
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (hd : 0 ≤ (d : ℝ)) (z : Qsqrtd (d : ℚ)) :
+    Qsqrtd.realEmbeddingPos d hd (QuadraticField.conjAut (Qsqrtd (d : ℚ)) z) =
+      Qsqrtd.realEmbeddingNeg d hd z := by
+  rw [show QuadraticField.conjAut (Qsqrtd (d : ℚ)) z = star z from rfl]
+  rw [Qsqrtd.realEmbeddingPos_apply, Qsqrtd.realEmbeddingNeg_apply]
+  simp [QuadraticAlgebra.re_star, QuadraticAlgebra.im_star]
+  ring
+
+private theorem qsqrt_ringHom_eval_eq_algHom_eval
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (σ : FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))) →+* ℝ)
+    (w : FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) :
+    let R := NumberField.RingOfIntegers (Qsqrtd (d : ℚ))
+    let e : FractionRing R ≃ₐ[R] Qsqrtd (d : ℚ) :=
+      FractionRing.algEquiv R (Qsqrtd (d : ℚ))
+    let φ : Qsqrtd (d : ℚ) →ₐ[ℚ] ℝ := (σ.comp e.symm.toRingHom).toRatAlgHom
+    σ w = φ (e w) := by
+  intro R e φ
+  dsimp [φ]
+  have hw : e.toRingEquiv.symm (e w) = w := by
+    exact e.toRingEquiv.symm_apply_apply w
+  rw [hw]
+
+/-- Sign choice for the quadratic Hilbert-90 representative in the standard
+model. If a totally positive element is written as `y / σ(y)`, then either `y`
+or `-y` is totally positive. -/
+private theorem qsqrt_isTotallyPositive_or_neg_isTotallyPositive_of_totallyPositive_coboundary
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    {x y : (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))ˣ}
     (hxpos : NarrowClassGroup.IsTotallyPositive
-      (x : FractionRing (NumberField.RingOfIntegers K)))
+      (x : FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))))
     (hy :
-      x = y * (Units.mapEquiv (conjAutFractionRingAlgEquiv K).toRingEquiv y)⁻¹) :
+      x =
+        y * (Units.mapEquiv (conjAutFractionRingAlgEquiv (Qsqrtd (d : ℚ))).toRingEquiv y)⁻¹) :
     NarrowClassGroup.IsTotallyPositive
-        (y : FractionRing (NumberField.RingOfIntegers K)) ∨
+        (y : FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) ∨
       NarrowClassGroup.IsTotallyPositive
-        ((-y : (FractionRing (NumberField.RingOfIntegers K))ˣ) :
-          FractionRing (NumberField.RingOfIntegers K)) := by
+        ((-y : (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))ˣ) :
+          FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) := by
   by_cases hreal :
-      Nonempty (FractionRing (NumberField.RingOfIntegers K) →+* ℝ)
-  · exact
-      isTotallyPositive_or_neg_isTotallyPositive_of_totallyPositive_coboundary_of_nonempty
-        K hreal hxpos hy
+      Nonempty (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))) →+* ℝ)
+  · let R := NumberField.RingOfIntegers (Qsqrtd (d : ℚ))
+    let e : FractionRing R ≃ₐ[R] Qsqrtd (d : ℚ) :=
+      FractionRing.algEquiv R (Qsqrtd (d : ℚ))
+    let z : Qsqrtd (d : ℚ) := e (y : FractionRing R)
+    let τy : (FractionRing R)ˣ :=
+      Units.mapEquiv (conjAutFractionRingAlgEquiv (Qsqrtd (d : ℚ))).toRingEquiv y
+    have hd_nonneg_real : 0 ≤ (d : ℝ) := by
+      by_contra hdn
+      have hdneg : d < 0 := by
+        have : (d : ℝ) < 0 := lt_of_not_ge hdn
+        exact_mod_cast this
+      haveI : IsEmpty (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))) →+* ℝ) :=
+        Qsqrtd.Imaginary.isEmpty_fractionRing_realEmbeddings d hdneg
+      rcases hreal with ⟨σ⟩
+      exact isEmptyElim σ
+    let σpos : FractionRing R →+* ℝ :=
+      (Qsqrtd.realEmbeddingPos d hd_nonneg_real).toRingHom.comp e.toRingHom
+    have hσpos_y :
+        σpos (y : FractionRing R) = Qsqrtd.realEmbeddingPos d hd_nonneg_real z := rfl
+    have hσpos_τy :
+        σpos (τy : FractionRing R) = Qsqrtd.realEmbeddingNeg d hd_nonneg_real z := by
+      calc
+        σpos (τy : FractionRing R) =
+            Qsqrtd.realEmbeddingPos d hd_nonneg_real
+              (e ((conjAutFractionRingAlgEquiv (Qsqrtd (d : ℚ)))
+                (y : FractionRing R))) := rfl
+        _ =
+            Qsqrtd.realEmbeddingPos d hd_nonneg_real
+              (QuadraticField.conjAut (Qsqrtd (d : ℚ)) (e (y : FractionRing R))) := by
+          rw [fractionRing_algEquiv_conjAutFractionRingAlgEquiv]
+        _ = Qsqrtd.realEmbeddingNeg d hd_nonneg_real z := by
+          simpa [z] using qsqrt_realEmbeddingPos_conjAut d hd_nonneg_real z
+    have hratio :
+        0 <
+          Qsqrtd.realEmbeddingPos d hd_nonneg_real z /
+            Qsqrtd.realEmbeddingNeg d hd_nonneg_real z := by
+      have hxσ := hxpos σpos
+      rw [hy] at hxσ
+      change 0 < σpos ((y * τy⁻¹ : (FractionRing R)ˣ) : FractionRing R) at hxσ
+      simpa [div_eq_mul_inv, hσpos_y, hσpos_τy] using hxσ
+    rcases div_pos_iff.mp hratio with hsign | hsign
+    · left
+      intro σ
+      let φ : Qsqrtd (d : ℚ) →ₐ[ℚ] ℝ :=
+        (σ.comp e.symm.toRingHom).toRatAlgHom
+      have hσy :
+          σ (y : FractionRing R) = φ (e (y : FractionRing R)) :=
+        qsqrt_ringHom_eval_eq_algHom_eval d σ (y : FractionRing R)
+      rcases qsqrt_algHom_eq_realEmbeddingPos_or_neg d hd_nonneg_real φ with hφ | hφ
+      · rw [hσy, hφ]
+        simpa [z] using hsign.1
+      · rw [hσy, hφ]
+        simpa [z] using hsign.2
+    · right
+      intro σ
+      let φ : Qsqrtd (d : ℚ) →ₐ[ℚ] ℝ :=
+        (σ.comp e.symm.toRingHom).toRatAlgHom
+      have hσy :
+          σ (y : FractionRing R) = φ (e (y : FractionRing R)) :=
+        qsqrt_ringHom_eval_eq_algHom_eval d σ (y : FractionRing R)
+      rcases qsqrt_algHom_eq_realEmbeddingPos_or_neg d hd_nonneg_real φ with hφ | hφ
+      · have hyneg : σ (y : FractionRing R) < 0 := by
+          rw [hσy, hφ]
+          simpa [z] using hsign.1
+        simpa using neg_pos.mpr hyneg
+      · have hyneg : σ (y : FractionRing R) < 0 := by
+          rw [hσy, hφ]
+          simpa [z] using hsign.2
+        simpa using neg_pos.mpr hyneg
   · left
     intro σ
     exact False.elim (hreal ⟨σ⟩)
@@ -2086,33 +2191,44 @@ private theorem isTotallyPositive_or_neg_isTotallyPositive_of_totallyPositive_co
 totally positive multiplier is an ordinary conjugation coboundary, the
 coboundary representative can be chosen totally positive. -/
 private theorem exists_totallyPositive_conjAut_coboundary_of_conjAut_coboundary
-    (K : Type*) [Field K] [NumberField K] [Algebra ℚ K]
-    [QuadraticField K] [QuadraticField.Conj K]
-    {x y : (FractionRing (NumberField.RingOfIntegers K))ˣ}
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    {x y : (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))ˣ}
     (hxpos : NarrowClassGroup.IsTotallyPositive
-      (x : FractionRing (NumberField.RingOfIntegers K)))
+      (x : FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))))
     (hy :
-      x = y * (Units.mapEquiv (conjAutFractionRingAlgEquiv K).toRingEquiv y)⁻¹) :
-    ∃ z : (FractionRing (NumberField.RingOfIntegers K))ˣ,
+      x =
+        y * (Units.mapEquiv (conjAutFractionRingAlgEquiv (Qsqrtd (d : ℚ))).toRingEquiv y)⁻¹) :
+    ∃ z : (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))ˣ,
       NarrowClassGroup.IsTotallyPositive
-        (z : FractionRing (NumberField.RingOfIntegers K)) ∧
-        x = z * (Units.mapEquiv (conjAutFractionRingAlgEquiv K).toRingEquiv z)⁻¹ := by
+        (z : FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) ∧
+        x =
+          z *
+            (Units.mapEquiv
+              (conjAutFractionRingAlgEquiv (Qsqrtd (d : ℚ))).toRingEquiv z)⁻¹ := by
   obtain hypos | hyneg :=
-    isTotallyPositive_or_neg_isTotallyPositive_of_totallyPositive_coboundary K hxpos hy
+    qsqrt_isTotallyPositive_or_neg_isTotallyPositive_of_totallyPositive_coboundary d hxpos hy
   · exact ⟨y, hypos, hy⟩
   · refine ⟨-y, hyneg, ?_⟩
+    let R := NumberField.RingOfIntegers (Qsqrtd (d : ℚ))
     let σy :=
       Units.mapEquiv
-        ((conjAutFractionRingAlgEquiv K).toRingEquiv :
-          FractionRing (NumberField.RingOfIntegers K) ≃*
-            FractionRing (NumberField.RingOfIntegers K)) y
+        ((conjAutFractionRingAlgEquiv (Qsqrtd (d : ℚ))).toRingEquiv :
+          FractionRing R ≃* FractionRing R) y
     have hmap_neg :
-        Units.mapEquiv (conjAutFractionRingAlgEquiv K).toRingEquiv (-y) = -σy := by
+        Units.mapEquiv
+            (conjAutFractionRingAlgEquiv (Qsqrtd (d : ℚ))).toRingEquiv (-y) =
+          -σy := by
       ext
       simp [σy]
     calc
-      x = y * (Units.mapEquiv (conjAutFractionRingAlgEquiv K).toRingEquiv y)⁻¹ := hy
-      _ = (-y) * (Units.mapEquiv (conjAutFractionRingAlgEquiv K).toRingEquiv (-y))⁻¹ := by
+      x =
+          y *
+            (Units.mapEquiv
+              (conjAutFractionRingAlgEquiv (Qsqrtd (d : ℚ))).toRingEquiv y)⁻¹ := hy
+      _ =
+          (-y) *
+            (Units.mapEquiv
+              (conjAutFractionRingAlgEquiv (Qsqrtd (d : ℚ))).toRingEquiv (-y))⁻¹ := by
         rw [hmap_neg]
         simp [σy]
 
@@ -2141,8 +2257,7 @@ private theorem exists_totallyPositive_conjAut_coboundary_of_tp_multiplier_to_co
               (conjAutFractionRingAlgEquiv (Qsqrtd (d : ℚ))).toRingEquiv y)⁻¹ := by
   obtain ⟨y, hy⟩ :=
     exists_conjAut_coboundary_of_tp_multiplier_to_conjAut d I hxpos hconj
-  exact exists_totallyPositive_conjAut_coboundary_of_conjAut_coboundary
-    (Qsqrtd (d : ℚ)) hxpos hy
+  exact exists_totallyPositive_conjAut_coboundary_of_conjAut_coboundary d hxpos hy
 
 /-- A coboundary multiplier turns the relation `I * (x) = σ(I)` into the
 fractional-ideal equality `I * (y) = σ(I) * (σ y)`. -/
