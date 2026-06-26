@@ -1684,6 +1684,36 @@ private theorem exists_integralIdeal_square_eq_principal_inverse_of_narrowInvers
   refine (eq_inv_iff_mul_eq_one).2 ?_
   simpa [NarrowClassGroup.toNarrowPrincipalIdeal] using hx
 
+/-- An inversion-fixed narrow class has an integral ideal representative whose
+conjugate differs from it by a totally positive principal fractional ideal. This
+is the class-level input for the Hilbert-90 adjustment to an ambiguous
+representative. -/
+private theorem exists_integralIdeal_tp_multiplier_to_conjAut_of_narrowInversionFixedClass
+    (K : Type*) [Field K] [NumberField K] [Algebra ℚ K]
+    [QuadraticField K] [QuadraticField.Conj K]
+    (C : NarrowInversionFixedClass (NumberField.RingOfIntegers K)) :
+    ∃ I : (Ideal (NumberField.RingOfIntegers K))⁰,
+      NarrowClassGroup.mk0 I = C.1 ∧
+        ∃ x : (FractionRing (NumberField.RingOfIntegers K))ˣ,
+          NarrowClassGroup.IsTotallyPositive
+            (x : FractionRing (NumberField.RingOfIntegers K)) ∧
+            FractionalIdeal.mk0 (FractionRing (NumberField.RingOfIntegers K)) I *
+                toPrincipalIdeal (NumberField.RingOfIntegers K)
+                  (FractionRing (NumberField.RingOfIntegers K)) x =
+              FractionalIdeal.mk0 (FractionRing (NumberField.RingOfIntegers K))
+                (conjAutNonzeroIdealMulEquiv K I) := by
+  obtain ⟨I, hI⟩ := NarrowClassGroup.mk0_surjective C.1
+  refine ⟨I, hI, ?_⟩
+  have hconj :
+      NarrowClassGroup.mk0 (conjAutNonzeroIdealMulEquiv K I) = C.1 := by
+    calc
+      NarrowClassGroup.mk0 (conjAutNonzeroIdealMulEquiv K I) =
+          (NarrowClassGroup.mk0 I)⁻¹ :=
+        narrowClassGroup_mk0_map_conjAut_eq_inv K I
+      _ = C.1⁻¹ := by rw [hI]
+      _ = C.1 := C.2.symm
+  exact (NarrowClassGroup.mk0_eq_mk0_iff_exists_fraction_ring).mp (hI.trans hconj.symm)
+
 /-- Hard representative selection for the ambiguous bound. It chooses a
 representative of an inversion-fixed narrow class whose ramified-prime parity
 vector actually represents the same narrow class. Proving this is the remaining
