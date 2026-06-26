@@ -2391,6 +2391,195 @@ private theorem ringEquivMap_conjAut_fractionalRep_eq_self_of_eq_conjAutFraction
     ringEquivMap_conjAut_toPrincipalIdeal]
   exact (congrArg Units.val hfixed).symm
 
+/-- A denominator-cleared integral representative using a conjugation-invariant
+square denominator. If `a` is a denominator for `F`, this is
+`(a * σ a ^ 2) * F.num`, whose associated fractional ideal is
+`(a * σ a)^2 * F`. -/
+private noncomputable def conjInvariantIntegralRep
+    (K : Type*) [Field K] [NumberField K] [Algebra ℚ K]
+    [QuadraticField K] [QuadraticField.Conj K]
+    (F : FractionalIdeal (NumberField.RingOfIntegers K)⁰
+      (FractionRing (NumberField.RingOfIntegers K))) :
+    Ideal (NumberField.RingOfIntegers K) :=
+  let a : NumberField.RingOfIntegers K := F.den
+  let b : NumberField.RingOfIntegers K := conjAutRingOfIntegers K a
+  Ideal.span ({a * b ^ 2} : Set (NumberField.RingOfIntegers K)) * F.num
+
+private theorem conjInvariantIntegralRep_mem_nonZeroDivisors
+    (K : Type*) [Field K] [NumberField K] [Algebra ℚ K]
+    [QuadraticField K] [QuadraticField.Conj K]
+    {F : FractionalIdeal (NumberField.RingOfIntegers K)⁰
+      (FractionRing (NumberField.RingOfIntegers K))}
+    (hF : F ≠ 0) :
+    conjInvariantIntegralRep K F ∈ (Ideal (NumberField.RingOfIntegers K))⁰ := by
+  let R := NumberField.RingOfIntegers K
+  let a : R := F.den
+  let b : R := conjAutRingOfIntegers K a
+  have ha0 : a ≠ 0 := mem_nonZeroDivisors_iff_ne_zero.mp F.den.prop
+  have hb0 : b ≠ 0 := by
+    dsimp [b]
+    intro hb
+    exact ha0 ((conjAutRingOfIntegers K).injective (by simpa using hb))
+  rw [mem_nonZeroDivisors_iff_ne_zero, conjInvariantIntegralRep]
+  dsimp [a, b]
+  apply mul_ne_zero
+  · rw [Ideal.zero_eq_bot, ne_eq, Ideal.span_singleton_eq_bot]
+    exact mul_ne_zero ha0 (pow_ne_zero 2 hb0)
+  · rwa [ne_eq, FractionalIdeal.num_eq_zero_iff]
+
+private theorem coe_conjInvariantIntegralRep
+    (K : Type*) [Field K] [NumberField K] [Algebra ℚ K]
+    [QuadraticField K] [QuadraticField.Conj K]
+    (F : FractionalIdeal (NumberField.RingOfIntegers K)⁰
+      (FractionRing (NumberField.RingOfIntegers K))) :
+    ((conjInvariantIntegralRep K F : Ideal (NumberField.RingOfIntegers K)) :
+        FractionalIdeal (NumberField.RingOfIntegers K)⁰
+          (FractionRing (NumberField.RingOfIntegers K))) =
+      FractionalIdeal.spanSingleton (NumberField.RingOfIntegers K)⁰
+          (algebraMap (NumberField.RingOfIntegers K)
+            (FractionRing (NumberField.RingOfIntegers K))
+            (((F.den : NumberField.RingOfIntegers K) *
+              conjAutRingOfIntegers K (F.den : NumberField.RingOfIntegers K)) ^ 2)) *
+        F := by
+  let R := NumberField.RingOfIntegers K
+  let a : R := F.den
+  let b : R := conjAutRingOfIntegers K a
+  change ((Ideal.span ({a * b ^ 2} : Set R) * F.num : Ideal R) :
+      FractionalIdeal R⁰ (FractionRing R)) =
+    FractionalIdeal.spanSingleton R⁰
+        (algebraMap R (FractionRing R) ((a * b) ^ 2)) * F
+  calc
+    ((Ideal.span ({a * b ^ 2} : Set R) * F.num : Ideal R) :
+        FractionalIdeal R⁰ (FractionRing R)) =
+        (Ideal.span ({a * b ^ 2} : Set R) : FractionalIdeal R⁰ (FractionRing R)) *
+          (F.num : FractionalIdeal R⁰ (FractionRing R)) := by
+      rw [FractionalIdeal.coeIdeal_mul]
+    _ =
+        FractionalIdeal.spanSingleton R⁰
+            (algebraMap R (FractionRing R) (a * b ^ 2)) *
+          (F.num : FractionalIdeal R⁰ (FractionRing R)) := by
+      rw [FractionalIdeal.coeIdeal_span_singleton]
+    _ =
+        FractionalIdeal.spanSingleton R⁰
+            (algebraMap R (FractionRing R) (a * b ^ 2)) *
+          (FractionalIdeal.spanSingleton R⁰ (algebraMap R (FractionRing R) a) * F) := by
+      rw [FractionalIdeal.den_mul_self_eq_num']
+    _ =
+        FractionalIdeal.spanSingleton R⁰
+            (algebraMap R (FractionRing R) ((a * b) ^ 2)) * F := by
+      rw [← mul_assoc, FractionalIdeal.spanSingleton_mul_spanSingleton]
+      congr 1
+      simp [pow_two, mul_left_comm, mul_comm]
+
+private theorem conjAutRingOfIntegers_mul_conj_fixed
+    (K : Type*) [Field K] [Algebra ℚ K]
+    [QuadraticField K] [QuadraticField.Conj K]
+    (a : NumberField.RingOfIntegers K) :
+    conjAutRingOfIntegers K (a * conjAutRingOfIntegers K a) =
+      a * conjAutRingOfIntegers K a := by
+  rw [map_mul, conjAutRingOfIntegers_apply_apply, mul_comm]
+
+private theorem conjInvariantIntegralRep_isAmbiguous
+    (K : Type*) [Field K] [NumberField K] [Algebra ℚ K]
+    [QuadraticField K] [QuadraticField.Conj K]
+    (F : (FractionalIdeal (NumberField.RingOfIntegers K)⁰
+      (FractionRing (NumberField.RingOfIntegers K)))ˣ)
+    (hFfixed :
+      FractionalIdeal.ringEquivMap
+          (K := FractionRing (NumberField.RingOfIntegers K))
+          (L := FractionRing (NumberField.RingOfIntegers K))
+          (conjAutRingOfIntegers K) F.1 = F.1) :
+    IsAmbiguousIdeal (conjAutRingOfIntegers K)
+      (conjInvariantIntegralRep K F.1) := by
+  let R := NumberField.RingOfIntegers K
+  let σ := conjAutRingOfIntegers K
+  let c : R := (F.1.den : R) * σ (F.1.den : R)
+  have hc : σ c = c := by
+    dsimp [c, σ]
+    exact conjAutRingOfIntegers_mul_conj_fixed K (F.1.den : R)
+  have hzc :
+      IsFractionRing.ringEquivOfRingEquiv
+          (K := FractionRing R) (L := FractionRing R) σ
+          (algebraMap R (FractionRing R) (c ^ 2)) =
+        algebraMap R (FractionRing R) (c ^ 2) := by
+    rw [IsFractionRing.ringEquivOfRingEquiv_algebraMap, map_pow, hc]
+  have hmap :
+      FractionalIdeal.ringEquivMap
+          (K := FractionRing R) (L := FractionRing R) σ
+          ((conjInvariantIntegralRep K F.1 : Ideal R) :
+            FractionalIdeal R⁰ (FractionRing R)) =
+        ((conjInvariantIntegralRep K F.1 : Ideal R) :
+          FractionalIdeal R⁰ (FractionRing R)) := by
+    rw [coe_conjInvariantIntegralRep, FractionalIdeal.ringEquivMap_mul,
+      FractionalIdeal.ringEquivMap_spanSingleton, hFfixed, hzc]
+  have hmapIdeal :
+      ((Ideal.map (σ : R →+* R) (conjInvariantIntegralRep K F.1) : Ideal R) :
+        FractionalIdeal R⁰ (FractionRing R)) =
+      ((conjInvariantIntegralRep K F.1 : Ideal R) :
+        FractionalIdeal R⁰ (FractionRing R)) := by
+    simpa [σ, FractionalIdeal.ringEquivMap_coeIdeal] using hmap
+  exact (FractionalIdeal.coeIdeal_inj (K := FractionRing R)).mp hmapIdeal
+
+private theorem exists_tp_multiplier_conjInvariantIntegralRep
+    (K : Type*) [Field K] [NumberField K] [Algebra ℚ K]
+    [QuadraticField K] [QuadraticField.Conj K]
+    (F : (FractionalIdeal (NumberField.RingOfIntegers K)⁰
+      (FractionRing (NumberField.RingOfIntegers K)))ˣ) :
+    ∃ t : (FractionRing (NumberField.RingOfIntegers K))ˣ,
+      NarrowClassGroup.IsTotallyPositive
+        (t : FractionRing (NumberField.RingOfIntegers K)) ∧
+        FractionalIdeal.mk0 (FractionRing (NumberField.RingOfIntegers K))
+            ⟨conjInvariantIntegralRep K F.1,
+              conjInvariantIntegralRep_mem_nonZeroDivisors K F.ne_zero⟩ *
+          toPrincipalIdeal (NumberField.RingOfIntegers K)
+            (FractionRing (NumberField.RingOfIntegers K)) t =
+        F := by
+  let R := NumberField.RingOfIntegers K
+  let a : R := F.1.den
+  let b : R := conjAutRingOfIntegers K a
+  let c : R := a * b
+  let z : FractionRing R := algebraMap R (FractionRing R) c
+  have ha0 : a ≠ 0 := mem_nonZeroDivisors_iff_ne_zero.mp F.1.den.prop
+  have hb0 : b ≠ 0 := by
+    dsimp [b]
+    intro hb
+    exact ha0 ((conjAutRingOfIntegers K).injective (by simpa using hb))
+  have hc0 : c ≠ 0 := mul_ne_zero ha0 hb0
+  have hz0 : z ≠ 0 :=
+    IsFractionRing.to_map_ne_zero_of_mem_nonZeroDivisors
+      (mem_nonZeroDivisors_iff_ne_zero.mpr hc0)
+  let t : (FractionRing R)ˣ := Units.mk0 (z⁻¹ ^ 2) (pow_ne_zero 2 (inv_ne_zero hz0))
+  refine ⟨t, ?_, ?_⟩
+  · exact NarrowClassGroup.isTotallyPositive_sq_of_ne_zero z⁻¹ (inv_ne_zero hz0)
+  · apply Units.ext
+    change
+      ((conjInvariantIntegralRep K F.1 : Ideal R) : FractionalIdeal R⁰ (FractionRing R)) *
+          (toPrincipalIdeal R (FractionRing R) t :
+            FractionalIdeal R⁰ (FractionRing R)) =
+        F.1
+    rw [coe_conjInvariantIntegralRep, coe_toPrincipalIdeal]
+    have hzsq :
+        algebraMap R (FractionRing R)
+            (((F.1.den : R) *
+              conjAutRingOfIntegers K (F.1.den : R)) ^ 2) =
+          z ^ 2 := by
+      simp [z, c, a, b, map_pow]
+    have ht : (t : FractionRing R) = z⁻¹ ^ 2 := rfl
+    rw [hzsq, ht]
+    calc
+      (FractionalIdeal.spanSingleton R⁰ (z ^ 2) * F.1) *
+          FractionalIdeal.spanSingleton R⁰ (z⁻¹ ^ 2) =
+          F.1 *
+            (FractionalIdeal.spanSingleton R⁰ (z ^ 2) *
+              FractionalIdeal.spanSingleton R⁰ (z⁻¹ ^ 2)) := by
+        ac_rfl
+      _ = F.1 * FractionalIdeal.spanSingleton R⁰ 1 := by
+        have hzinv : z ^ 2 * (z⁻¹ ^ 2) = 1 := by
+          rw [← mul_pow, mul_inv_cancel₀ hz0, one_pow]
+        rw [FractionalIdeal.spanSingleton_mul_spanSingleton, hzinv]
+      _ = F.1 := by
+        rw [FractionalIdeal.spanSingleton_one, mul_one]
+
 /-- Integral clearing boundary for a conjugation-stable fractional representative.
 If the fractional representative `I * (y)` matches its conjugate factorization,
 then an ambiguous integral ideal represents the same narrow class, up to a
@@ -2416,20 +2605,29 @@ private theorem exists_ambiguousIntegralClearing_of_conjAutFractionalRep_eq
           NarrowClassGroup.IsTotallyPositive
             (t : FractionRing (NumberField.RingOfIntegers K)) ∧
             FractionalIdeal.mk0 (FractionRing (NumberField.RingOfIntegers K)) J *
-              toPrincipalIdeal (NumberField.RingOfIntegers K)
-                (FractionRing (NumberField.RingOfIntegers K)) t =
+                toPrincipalIdeal (NumberField.RingOfIntegers K)
+                  (FractionRing (NumberField.RingOfIntegers K)) t =
               FractionalIdeal.mk0 (FractionRing (NumberField.RingOfIntegers K)) I *
                 toPrincipalIdeal (NumberField.RingOfIntegers K)
                   (FractionRing (NumberField.RingOfIntegers K)) y := by
-  have hFfixed :=
-    ringEquivMap_conjAut_fractionalRep_eq_self_of_eq_conjAutFractionalRep
-      K I y hfixed
-  -- Remaining gap: choose a conjugation-stable integral clearing denominator for
-  -- the fixed fractional ideal `I * (y)`, producing some ambiguous integral ideal
-  -- representative. The denominator must be chosen equivariantly; the default
-  -- `NarrowClassGroup.integralRep` denominator is not known to commute with
-  -- quadratic conjugation.
-  sorry
+  let R := NumberField.RingOfIntegers K
+  let F : (FractionalIdeal R⁰ (FractionRing R))ˣ :=
+    FractionalIdeal.mk0 (FractionRing R) I *
+      toPrincipalIdeal R (FractionRing R) y
+  have hFfixed :
+      FractionalIdeal.ringEquivMap
+          (K := FractionRing R) (L := FractionRing R)
+          (conjAutRingOfIntegers K) F.1 = F.1 := by
+    simpa [F, R] using
+      ringEquivMap_conjAut_fractionalRep_eq_self_of_eq_conjAutFractionalRep
+        K I y hfixed
+  let J : (Ideal R)⁰ :=
+    ⟨conjInvariantIntegralRep K F.1,
+      conjInvariantIntegralRep_mem_nonZeroDivisors K F.ne_zero⟩
+  obtain ⟨t, htpos, ht⟩ := exists_tp_multiplier_conjInvariantIntegralRep K F
+  refine ⟨J, ?_, t, htpos, ?_⟩
+  · simpa [J, R] using conjInvariantIntegralRep_isAmbiguous K F hFfixed
+  · simpa [J, F, R] using ht
 
 /-- Integral clearing boundary for a conjugation-stable fractional representative.
 If the fractional representative `I * (y)` matches its conjugate factorization,
