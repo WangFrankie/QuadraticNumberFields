@@ -1757,6 +1757,50 @@ private theorem exists_integralIdeal_tp_multiplier_to_conjAut_of_narrowInversion
       _ = C.1 := C.2.symm
   exact (NarrowClassGroup.mk0_eq_mk0_iff_exists_fraction_ring).mp (hI.trans hconj.symm)
 
+/-- Hilbert-90 extraction boundary. A principal multiplier relating an ideal to
+its conjugate should be an ordinary conjugation coboundary in the fraction
+field. The total-positivity hypothesis is used to select the correct norm-one
+unit from the principal-ideal relation. -/
+private theorem exists_conjAut_coboundary_of_tp_multiplier_to_conjAut
+    (K : Type*) [Field K] [NumberField K] [Algebra ℚ K]
+    [QuadraticField K] [QuadraticField.Conj K]
+    (I : (Ideal (NumberField.RingOfIntegers K))⁰)
+    {x : (FractionRing (NumberField.RingOfIntegers K))ˣ}
+    (hxpos : NarrowClassGroup.IsTotallyPositive
+      (x : FractionRing (NumberField.RingOfIntegers K)))
+    (hconj :
+      FractionalIdeal.mk0 (FractionRing (NumberField.RingOfIntegers K)) I *
+          toPrincipalIdeal (NumberField.RingOfIntegers K)
+            (FractionRing (NumberField.RingOfIntegers K)) x =
+        FractionalIdeal.mk0 (FractionRing (NumberField.RingOfIntegers K))
+          (conjAutNonzeroIdealMulEquiv K I)) :
+    ∃ y : (FractionRing (NumberField.RingOfIntegers K))ˣ,
+      x = y * (Units.mapEquiv (conjAutFractionRingAlgEquiv K).toRingEquiv y)⁻¹ := by
+  -- Remaining gap: first derive the element-level norm-one condition from the
+  -- principal-ideal conjugation relation, then apply Hilbert 90 on the fraction
+  -- field of the ring of integers.
+  sorry
+
+/-- Positivity adjustment boundary for the quadratic Hilbert-90 coboundary. If a
+totally positive multiplier is an ordinary conjugation coboundary, the
+coboundary representative can be chosen totally positive. -/
+private theorem exists_totallyPositive_conjAut_coboundary_of_conjAut_coboundary
+    (K : Type*) [Field K] [NumberField K] [Algebra ℚ K]
+    [QuadraticField K] [QuadraticField.Conj K]
+    {x y : (FractionRing (NumberField.RingOfIntegers K))ˣ}
+    (hxpos : NarrowClassGroup.IsTotallyPositive
+      (x : FractionRing (NumberField.RingOfIntegers K)))
+    (hy :
+      x = y * (Units.mapEquiv (conjAutFractionRingAlgEquiv K).toRingEquiv y)⁻¹) :
+    ∃ z : (FractionRing (NumberField.RingOfIntegers K))ˣ,
+      NarrowClassGroup.IsTotallyPositive
+        (z : FractionRing (NumberField.RingOfIntegers K)) ∧
+        x = z * (Units.mapEquiv (conjAutFractionRingAlgEquiv K).toRingEquiv z)⁻¹ := by
+  -- Remaining gap: use total positivity of `x` to show all real signs of the
+  -- Hilbert-90 representative agree on conjugate embeddings, then multiply by
+  -- a rational sign so that the representative is positive at every real place.
+  sorry
+
 /-- Narrow Hilbert-90 boundary. A totally positive principal multiplier relating
 an ideal to its conjugate should be a totally positive conjugation coboundary. -/
 private theorem exists_totallyPositive_conjAut_coboundary_of_tp_multiplier_to_conjAut
@@ -1776,10 +1820,9 @@ private theorem exists_totallyPositive_conjAut_coboundary_of_tp_multiplier_to_co
       NarrowClassGroup.IsTotallyPositive
         (y : FractionRing (NumberField.RingOfIntegers K)) ∧
         x = y * (Units.mapEquiv (conjAutFractionRingAlgEquiv K).toRingEquiv y)⁻¹ := by
-  -- Remaining gap: first derive the element-level norm-one condition from the
-  -- principal-ideal conjugation relation, then apply Hilbert 90 and choose the
-  -- coboundary with a uniform positive sign at all real embeddings.
-  sorry
+  obtain ⟨y, hy⟩ :=
+    exists_conjAut_coboundary_of_tp_multiplier_to_conjAut K I hxpos hconj
+  exact exists_totallyPositive_conjAut_coboundary_of_conjAut_coboundary K hxpos hy
 
 /-- A coboundary multiplier turns the relation `I * (x) = σ(I)` into the
 fractional-ideal equality `I * (y) = σ(I) * (σ y)`. -/
