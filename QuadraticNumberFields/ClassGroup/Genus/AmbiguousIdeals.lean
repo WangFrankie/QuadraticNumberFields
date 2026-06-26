@@ -1781,6 +1781,91 @@ private theorem exists_totallyPositive_conjAut_coboundary_of_tp_multiplier_to_co
   -- coboundary with a uniform positive sign at all real embeddings.
   sorry
 
+/-- A coboundary multiplier turns the relation `I * (x) = σ(I)` into the
+fractional-ideal equality `I * (y) = σ(I) * (σ y)`. -/
+private theorem fractionalRep_eq_conjAutFractionalRep_of_coboundary
+    (K : Type*) [Field K] [NumberField K] [Algebra ℚ K]
+    [QuadraticField K] [QuadraticField.Conj K]
+    (I : (Ideal (NumberField.RingOfIntegers K))⁰)
+    {x y : (FractionRing (NumberField.RingOfIntegers K))ˣ}
+    (hy :
+      x = y * (Units.mapEquiv (conjAutFractionRingAlgEquiv K).toRingEquiv y)⁻¹)
+    (hconj :
+      FractionalIdeal.mk0 (FractionRing (NumberField.RingOfIntegers K)) I *
+          toPrincipalIdeal (NumberField.RingOfIntegers K)
+            (FractionRing (NumberField.RingOfIntegers K)) x =
+        FractionalIdeal.mk0 (FractionRing (NumberField.RingOfIntegers K))
+          (conjAutNonzeroIdealMulEquiv K I)) :
+    FractionalIdeal.mk0 (FractionRing (NumberField.RingOfIntegers K)) I *
+        toPrincipalIdeal (NumberField.RingOfIntegers K)
+          (FractionRing (NumberField.RingOfIntegers K)) y =
+      FractionalIdeal.mk0 (FractionRing (NumberField.RingOfIntegers K))
+          (conjAutNonzeroIdealMulEquiv K I) *
+        toPrincipalIdeal (NumberField.RingOfIntegers K)
+          (FractionRing (NumberField.RingOfIntegers K))
+          (Units.mapEquiv (conjAutFractionRingAlgEquiv K).toRingEquiv y) := by
+  let R := NumberField.RingOfIntegers K
+  let σy : (FractionRing R)ˣ :=
+    Units.mapEquiv
+      ((conjAutFractionRingAlgEquiv K).toRingEquiv : FractionRing R ≃* FractionRing R) y
+  have hxy : x * σy = y := by
+    calc
+      x * σy = (y * σy⁻¹) * σy := by
+        rw [hy]
+      _ = y * (σy⁻¹ * σy) := by
+        rw [mul_assoc]
+      _ = y := by
+        rw [inv_mul_cancel, mul_one]
+  calc
+    FractionalIdeal.mk0 (FractionRing R) I * toPrincipalIdeal R (FractionRing R) y =
+        FractionalIdeal.mk0 (FractionRing R) I *
+          toPrincipalIdeal R (FractionRing R) (x * σy) := by
+      rw [hxy]
+    _ =
+        FractionalIdeal.mk0 (FractionRing R) I *
+          (toPrincipalIdeal R (FractionRing R) x * toPrincipalIdeal R (FractionRing R) σy) := by
+      rw [map_mul]
+    _ =
+        (FractionalIdeal.mk0 (FractionRing R) I * toPrincipalIdeal R (FractionRing R) x) *
+          toPrincipalIdeal R (FractionRing R) σy := by
+      rw [mul_assoc]
+    _ =
+        FractionalIdeal.mk0 (FractionRing R) (conjAutNonzeroIdealMulEquiv K I) *
+          toPrincipalIdeal R (FractionRing R) σy := by
+      rw [hconj]
+
+/-- Integral clearing boundary for a conjugation-stable fractional representative.
+If the fractional representative `I * (y)` matches its conjugate factorization,
+then it has an ambiguous integral ideal representative in the same narrow
+class. -/
+private theorem exists_integralIdeal_ambiguous_fractionalRep_of_conjAutFractionalRep_eq
+    (K : Type*) [Field K] [NumberField K] [Algebra ℚ K]
+    [QuadraticField K] [QuadraticField.Conj K]
+    (I : (Ideal (NumberField.RingOfIntegers K))⁰)
+    (y : (FractionRing (NumberField.RingOfIntegers K))ˣ)
+    (hfixed :
+      FractionalIdeal.mk0 (FractionRing (NumberField.RingOfIntegers K)) I *
+          toPrincipalIdeal (NumberField.RingOfIntegers K)
+            (FractionRing (NumberField.RingOfIntegers K)) y =
+        FractionalIdeal.mk0 (FractionRing (NumberField.RingOfIntegers K))
+            (conjAutNonzeroIdealMulEquiv K I) *
+          toPrincipalIdeal (NumberField.RingOfIntegers K)
+            (FractionRing (NumberField.RingOfIntegers K))
+            (Units.mapEquiv (conjAutFractionRingAlgEquiv K).toRingEquiv y)) :
+    ∃ J : (Ideal (NumberField.RingOfIntegers K))⁰,
+      NarrowClassGroup.mk0 J =
+        NarrowClassGroup.mk
+          (FractionalIdeal.mk0 (FractionRing (NumberField.RingOfIntegers K)) I *
+            toPrincipalIdeal (NumberField.RingOfIntegers K)
+              (FractionRing (NumberField.RingOfIntegers K)) y) ∧
+        IsAmbiguousIdeal (conjAutRingOfIntegers K)
+          (J : Ideal (NumberField.RingOfIntegers K)) := by
+  -- Remaining gap: choose a common integral clearing denominator for the fixed
+  -- fractional ideal `I * (y)` that is itself fixed by conjugation, and prove
+  -- this clearing changes the narrow class by a totally positive principal
+  -- fractional ideal.
+  sorry
+
 /-- Integral clearing boundary for a coboundary-adjusted fractional ideal. Under
 the coboundary relation, the fractional ideal `I * (y)` should have an ambiguous
 integral representative in the same narrow class. -/
@@ -1805,10 +1890,9 @@ private theorem exists_integralIdeal_ambiguous_fractionalRep_of_conjAut_cobounda
               (FractionRing (NumberField.RingOfIntegers K)) y) ∧
         IsAmbiguousIdeal (conjAutRingOfIntegers K)
           (J : Ideal (NumberField.RingOfIntegers K)) := by
-  -- Remaining gap: prove the fractional ideal `I * (y)` is fixed by conjugation
-  -- using `hy` and `hconj`, then show its narrow integral representative is
-  -- fixed by the ring-of-integers conjugation.
-  sorry
+  exact
+    exists_integralIdeal_ambiguous_fractionalRep_of_conjAutFractionalRep_eq
+      K I y (fractionalRep_eq_conjAutFractionalRep_of_coboundary K I hy hconj)
 
 /-- Coboundary-to-ideal boundary. If the conjugation multiplier is a totally
 positive coboundary, multiplying by the coboundary gives an ambiguous integral
