@@ -3932,24 +3932,25 @@ private theorem card_fullRamifiedParityNarrowClassHom_ker_eq_two
   -- relation coming from totally positive principal ideals.
   sorry
 
+/-- The strict kernel-cardinality denominator supplies exactly one nontrivial
+kernel relation. -/
+private theorem existsUnique_nontrivial_mem_fullRamifiedParityNarrowClassHom_ker
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
+    ∃! r : (fullRamifiedParityNarrowClassHom d).ker,
+      (r : Multiplicative ({p // p ∈ ramifiedPrimes d} → Fin 2)) ≠ 1 := by
+  let H := (fullRamifiedParityNarrowClassHom d).ker
+  have hcard : Nat.card H = 2 := card_fullRamifiedParityNarrowClassHom_ker_eq_two d
+  simpa [H] using (Nat.card_eq_two_iff' (1 : H)).mp hcard
+
 /-- Strict/narrow positive-principal denominator as a nontrivial kernel element
 for the finite ramified parity map. -/
 private theorem exists_nontrivial_mem_fullRamifiedParityNarrowClassHom_ker
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
     ∃ r : Multiplicative ({p // p ∈ ramifiedPrimes d} → Fin 2),
       r ≠ 1 ∧ r ∈ (fullRamifiedParityNarrowClassHom d).ker := by
-  classical
-  let H := (fullRamifiedParityNarrowClassHom d).ker
-  have hcard : Nat.card H = 2 := card_fullRamifiedParityNarrowClassHom_ker_eq_two d
-  have hnebot : H ≠ ⊥ := by
-    have hlt : 1 < Nat.card H := by omega
-    exact (Subgroup.one_lt_card_iff_ne_bot (H := H)).mp hlt
-  by_contra h
-  apply hnebot
-  rw [Subgroup.eq_bot_iff_forall]
-  intro r hr
-  by_contra hrne
-  exact h ⟨r, hrne, hr⟩
+  obtain ⟨r, hrne, _hruniq⟩ :=
+    existsUnique_nontrivial_mem_fullRamifiedParityNarrowClassHom_ker d
+  exact ⟨r, hrne, r.2⟩
 
 /-- Strict positive-principal denominator for the full finite ramified parity
 map. It constructs a nonzero parity vector whose full ramified ideal product is
