@@ -2069,6 +2069,42 @@ private theorem fullRamifiedParityNarrowClassProduct_sq_eq_one
   · simp [hpv]
   · simp [hpv, narrowClassGroup_mk0_sq_eq_one_ramifiedPrimeIdeal]
 
+private theorem ramifiedPrimeNarrowClass_pow_normalizedFactors_count_eq_parity
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (J : (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰)
+    (p : {p // p ∈ ramifiedPrimes d}) :
+    (ramifiedPrimeNarrowClass d p.2) ^
+        (UniqueFactorizationMonoid.normalizedFactors
+          (J : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))).count
+            (ramifiedPrimeIdeal d p.2) =
+      if fullRamifiedParityVector d J p = 0 then 1 else ramifiedPrimeNarrowClass d p.2 := by
+  let n :=
+    (UniqueFactorizationMonoid.normalizedFactors
+      (J : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))).count
+        (ramifiedPrimeIdeal d p.2)
+  let a := ramifiedPrimeNarrowClass d p.2
+  have ha2 : a ^ 2 = 1 := by
+    simpa [a] using narrowClassGroup_mk0_sq_eq_one_ramifiedPrimeIdeal d p.2
+  have hpow : a ^ n = a ^ (n % 2) :=
+    pow_eq_pow_of_modEq (Nat.mod_modEq n 2).symm ha2
+  by_cases hpv : fullRamifiedParityVector d J p = 0
+  · have hnmod : n % 2 = 0 := by
+      have hval := congrArg Fin.val hpv
+      simpa [fullRamifiedParityVector, n] using hval
+    rw [if_pos hpv]
+    calc
+      a ^ n = a ^ (n % 2) := hpow
+      _ = 1 := by rw [hnmod, pow_zero]
+  · have hpv_one : fullRamifiedParityVector d J p = 1 :=
+      Fin.eq_one_of_ne_zero (fullRamifiedParityVector d J p) hpv
+    have hnmod : n % 2 = 1 := by
+      have hval := congrArg Fin.val hpv_one
+      simpa [fullRamifiedParityVector, n] using hval
+    rw [if_neg hpv]
+    calc
+      a ^ n = a ^ (n % 2) := hpow
+      _ = a := by rw [hnmod, pow_one]
+
 private theorem narrowClassGroup_mk0_sq_eq_one_ramifiedParityIdealProduct
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
     {p0 : ℕ} (hp0 : p0 ∈ ramifiedPrimes d)
@@ -3263,12 +3299,23 @@ private theorem ambiguousIdeal_mk0_eq_fullRamifiedParityIdealProduct_of_factoriz
         ∃ hpRamified : p ∈ ramifiedPrimes d, P.1 = ramifiedPrimeIdeal d hpRamified := by
     intro P p hp hcomap hram
     exact normalizedFactor_eq_ramifiedPrimeIdeal_of_isRamifiedIn d P hp hcomap hram
+  have hfactor_ramified_pow :
+      ∀ p : {p // p ∈ ramifiedPrimes d},
+        (ramifiedPrimeNarrowClass d p.2) ^
+            (UniqueFactorizationMonoid.normalizedFactors
+              (J : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))).count
+                (ramifiedPrimeIdeal d p.2) =
+          if fullRamifiedParityVector d J p = 0 then 1 else
+            ramifiedPrimeNarrowClass d p.2 := by
+    intro p
+    exact ramifiedPrimeNarrowClass_pow_normalizedFactors_count_eq_parity d J p
   -- Remaining gap: use `hJ_factorization` to multiply the explicit positive
   -- base-prime span contributions, `hfactor_case`, and the conjugation
   -- involution `hfactor_conj` over the Dedekind factorization of `J`. The
   -- nonfixed split-pair certificate is `hfactor_split_ne`; inert prime factors
   -- cancel as totally positive principal ideals, while ramified factors are
-  -- identified by `hfactor_ramified_eq` and reduce to their exponent modulo `2`.
+  -- identified by `hfactor_ramified_eq`; their powers reduce to the parity
+  -- terms recorded by `hfactor_ramified_pow`.
   sorry
 
 /-- Per-factor assembly boundary in principal-multiplier form. A genuinely
