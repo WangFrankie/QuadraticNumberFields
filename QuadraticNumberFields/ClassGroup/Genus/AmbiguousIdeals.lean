@@ -1690,6 +1690,36 @@ private theorem conjAutNormalizedFactor_comap_eq
   rw [← Ideal.under_def]
   exact hlies.over.symm
 
+private theorem conjAutNormalizedFactor_ne_of_isSplitIn
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    {I : (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰}
+    (hI : IsAmbiguousIdeal (conjAutRingOfIntegers (Qsqrtd (d : ℚ)))
+      (I : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))))
+    (P : {P // P ∈ UniqueFactorizationMonoid.normalizedFactors
+      (I : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))})
+    {p : ℕ} (hp : p.Prime)
+    (hcomap : P.1.comap
+      (algebraMap ℤ (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) = 𝔭(p))
+    (hsplit : Ideal.IsSplitIn (𝔭(p))
+      (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) :
+    conjAutNormalizedFactor d hI P ≠ P := by
+  let R := NumberField.RingOfIntegers (Qsqrtd (d : ℚ))
+  have hI0 : (I : Ideal R) ≠ ⊥ := by
+    simpa [Ideal.zero_eq_bot] using mem_nonZeroDivisors_iff_ne_zero.mp I.2
+  have hPprime : P.1.IsPrime := (Ideal.mem_normalizedFactors_iff hI0).mp P.2 |>.1
+  have hPover : P.1 ∈ Ideal.primesOver (𝔭(p)) R := ⟨hPprime, ⟨hcomap.symm⟩⟩
+  have hpbot : (𝔭(p)) ≠ (⊥ : Ideal ℤ) := by
+    rw [Ne, Ideal.span_singleton_eq_bot, Nat.cast_eq_zero]
+    exact hp.ne_zero
+  haveI : (𝔭(p)).IsMaximal :=
+    PrincipalIdealRing.isMaximal_of_irreducible
+      ((Nat.prime_iff_prime_int.mp hp).irreducible)
+  have hne :=
+    map_conjAut_ne_of_mem_primesOver_of_isSplitIn
+      (K := Qsqrtd (d : ℚ)) (p := 𝔭(p)) hpbot hPover hsplit
+  intro hfix
+  exact hne (congrArg Subtype.val hfix)
+
 private theorem normalizedFactorNonzeroIdeal_conjAutNormalizedFactor
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
     {I : (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰}
@@ -3188,11 +3218,24 @@ private theorem ambiguousIdeal_mk0_eq_fullRamifiedParityIdealProduct_of_factoriz
     exact ⟨conjAutNormalizedFactor_involutive d hJ P,
       normalizedFactorNonzeroIdeal_conjAutNormalizedFactor d hJ P,
       conjAutNormalizedFactor_comap_eq d hJ P⟩
+  have hfactor_split_ne :
+      ∀ (P :
+          {P // P ∈ UniqueFactorizationMonoid.normalizedFactors
+            (J : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))})
+        {p : ℕ}, p.Prime →
+        P.1.comap
+            (algebraMap ℤ (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) =
+          𝔭(p) →
+        Ideal.IsSplitIn (𝔭(p)) (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))) →
+        conjAutNormalizedFactor d hJ P ≠ P := by
+    intro P p hp hcomap hsplit
+    exact conjAutNormalizedFactor_ne_of_isSplitIn d hJ P hp hcomap hsplit
   -- Remaining gap: use `hJ_factorization` to multiply the explicit positive
   -- base-prime span contributions, `hfactor_case`, and the conjugation
-  -- involution `hfactor_conj` over the Dedekind factorization of `J`. Split
-  -- conjugate pairs and inert prime factors cancel as totally positive
-  -- principal ideals, while ramified factors reduce to their exponent modulo `2`.
+  -- involution `hfactor_conj` over the Dedekind factorization of `J`. The
+  -- nonfixed split-pair certificate is `hfactor_split_ne`; inert prime factors
+  -- cancel as totally positive principal ideals, while ramified factors reduce
+  -- to their exponent modulo `2`.
   sorry
 
 /-- Per-factor assembly boundary in principal-multiplier form. A genuinely
