@@ -2545,15 +2545,6 @@ private theorem fullRamifiedParityNarrowClassHom_mem_ker_iff
       fullRamifiedParityNarrowClassProduct d v = 1 := by
   simp [MonoidHom.mem_ker, fullRamifiedParityNarrowClassHom_apply]
 
-private theorem multiplicative_ofAdd_ne_one_of_exists_apply_ne_zero
-    {ι : Type*} (v : ι → Fin 2) (hv : ∃ i, v i ≠ 0) :
-    Multiplicative.ofAdd v ≠ 1 := by
-  rintro h
-  obtain ⟨i, hi⟩ := hv
-  have hv0 : v = 0 := by
-    simpa using congrArg Multiplicative.toAdd h
-  exact hi (by simp [hv0])
-
 private theorem exists_apply_ne_zero_of_multiplicative_ne_one
     {ι : Type*} (v : Multiplicative (ι → Fin 2)) (hv : v ≠ 1) :
     ∃ i, Multiplicative.toAdd v i ≠ 0 := by
@@ -3998,10 +3989,12 @@ private theorem exists_nonzero_fullRamifiedParityNarrowClassProduct_eq_one
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
     ∃ r : ({p // p ∈ ramifiedPrimes d} → Fin 2),
       (∃ p, r p ≠ 0) ∧ fullRamifiedParityNarrowClassProduct d r = 1 := by
-  obtain ⟨r, hrne, hrker⟩ := exists_nontrivial_mem_fullRamifiedParityNarrowClassHom_ker d
-  refine ⟨Multiplicative.toAdd r, ?_, ?_⟩
-  · exact exists_apply_ne_zero_of_multiplicative_ne_one r hrne
-  · exact (fullRamifiedParityNarrowClassHom_mem_ker_iff d (Multiplicative.toAdd r)).mp hrker
+  obtain ⟨r, hrnonzero, x, hxpos, hx⟩ :=
+    exists_positivePrincipal_fullRamifiedParityIdealProduct_relation d
+  refine ⟨r, hrnonzero, ?_⟩
+  exact (fullRamifiedParityNarrowClassHom_mem_ker_iff d r).mp
+    ((fullRamifiedParityNarrowClassHom_mem_ker_iff_exists_positivePrincipal d r).mpr
+      ⟨x, hxpos, hx⟩)
 
 /-- A nonzero kernel vector for the finite ramified parity map acts trivially on
 all full ramified parity products. -/
