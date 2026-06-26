@@ -653,6 +653,81 @@ theorem exists_hilbert90_coboundary_unit_of_tp_generator
   exact ⟨u, hu, exists_hilbert90_coboundary_of_conjAutRingOfIntegers_unit_mul_self_eq_one
     d hnorm⟩
 
+/-- Combining `algebraMap u = σγ / γ` with the Hilbert-90 equation
+`u * σε = ε` makes `γ * ε` fixed by fraction-field conjugation. -/
+theorem conjAutFractionRingAlgEquiv_mul_algebraMap_eq_self_of_hilbert90_coboundary
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    {γ : (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))ˣ}
+    {u : (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))ˣ}
+    {ε : NumberField.RingOfIntegers (Qsqrtd (d : ℚ))}
+    (hu :
+      Units.map
+          (algebraMap (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))
+            (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))).toMonoidHom u =
+        Units.mapEquiv (conjAutFractionRingAlgEquiv (Qsqrtd (d : ℚ))).toRingEquiv γ *
+          γ⁻¹)
+    (hε :
+      (u : NumberField.RingOfIntegers (Qsqrtd (d : ℚ))) *
+          conjAutRingOfIntegers (Qsqrtd (d : ℚ)) ε = ε) :
+    conjAutFractionRingAlgEquiv (Qsqrtd (d : ℚ))
+        ((γ : FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) *
+          algebraMap (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))
+            (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) ε) =
+      (γ : FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) *
+        algebraMap (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))
+          (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) ε := by
+  let R := NumberField.RingOfIntegers (Qsqrtd (d : ℚ))
+  let K := Qsqrtd (d : ℚ)
+  let F := FractionRing R
+  let σ := conjAutFractionRingAlgEquiv K
+  let σU := Units.mapEquiv σ.toRingEquiv.toMulEquiv
+  let E : F := algebraMap R F ε
+  have huval :
+      algebraMap R F (u : R) = (σU γ : F) * ((γ⁻¹ : Fˣ) : F) := by
+    simpa [R, K, F, σ, σU] using congrArg Units.val hu
+  have hεmap :
+      algebraMap R F (u : R) * σ E = E := by
+    simpa [R, K, F, σ, E, map_mul, conjAutFractionRingAlgEquiv_algebraMap] using
+      congrArg (fun x : R => algebraMap R F x) hε
+  have hkey : ((σU γ : F) * ((γ⁻¹ : Fˣ) : F)) * σ E = E := by
+    rw [← huval]
+    exact hεmap
+  have hγinv : (γ : F) * ((γ⁻¹ : Fˣ) : F) = 1 := by
+    simp
+  calc
+    σ ((γ : F) * E) = (σU γ : F) * σ E := by
+      simp [σU]
+    _ = ((γ : F) * ((γ⁻¹ : Fˣ) : F)) * ((σU γ : F) * σ E) := by
+      rw [hγinv, one_mul]
+    _ = (γ : F) * (((σU γ : F) * ((γ⁻¹ : Fˣ) : F)) * σ E) := by
+      ring
+    _ = (γ : F) * E := by
+      rw [hkey]
+
+/-- A generator of a full ramified parity product yields a nonzero integral
+factor `ε` such that `γ * ε` is fixed by fraction-field conjugation. -/
+theorem exists_fixed_mul_algebraMap_of_tp_generator
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (r : {p // p ∈ ramifiedPrimes d} → Fin 2)
+    {γ : (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))ˣ}
+    (hγ :
+      toPrincipalIdeal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))
+          (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) γ =
+        FractionalIdeal.mk0
+          (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))
+          (fullRamifiedParityIdealProduct d r)) :
+    ∃ ε : NumberField.RingOfIntegers (Qsqrtd (d : ℚ)), ε ≠ 0 ∧
+      conjAutFractionRingAlgEquiv (Qsqrtd (d : ℚ))
+          ((γ : FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) *
+            algebraMap (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))
+              (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) ε) =
+        (γ : FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) *
+          algebraMap (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))
+            (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) ε := by
+  obtain ⟨u, hu, ε, hε0, hε⟩ := exists_hilbert90_coboundary_unit_of_tp_generator d r hγ
+  exact ⟨ε, hε0,
+    conjAutFractionRingAlgEquiv_mul_algebraMap_eq_self_of_hilbert90_coboundary d hu hε⟩
+
 /-- Chevalley's narrow ambiguous class number formula, in the only form needed
 for the upper bound.
 
