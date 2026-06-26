@@ -2217,6 +2217,41 @@ private theorem exists_erasedRamifiedParityProduct_mk0_eq_fullRamifiedParityProd
   -- coordinate to replace a full parity vector by an erased one.
   sorry
 
+/-- The erased ramified parity ideal product is the multiset product of exactly
+the ramified prime ideals whose parity coordinate is nonzero. -/
+private theorem coe_ramifiedParityIdealProduct_eq_filtered_multiset_prod
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    {p0 : ℕ} (hp0 : p0 ∈ ramifiedPrimes d)
+    (w : ({p // p ∈ (ramifiedPrimes d).erase p0} → Fin 2)) :
+    (ramifiedParityIdealProduct d hp0 w :
+      Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) =
+      ((Finset.univ.filter fun p => w p ≠ 0).val.map fun p =>
+        ramifiedPrimeIdeal d ((Finset.mem_erase.mp p.2).2)).prod := by
+  classical
+  let R := NumberField.RingOfIntegers (Qsqrtd (d : ℚ))
+  let P : {p // p ∈ (ramifiedPrimes d).erase p0} → Ideal R :=
+    fun p => ramifiedPrimeIdeal d ((Finset.mem_erase.mp p.2).2)
+  let P0 : {p // p ∈ (ramifiedPrimes d).erase p0} → (Ideal R)⁰ :=
+    fun p =>
+      ⟨P p,
+        mem_nonZeroDivisors_iff_ne_zero.mpr (by
+          simpa [Ideal.zero_eq_bot, P] using
+            ramifiedPrimeIdeal_ne_bot d ((Finset.mem_erase.mp p.2).2))⟩
+  change
+    (↑(Finset.univ.prod fun p =>
+      if w p = 0 then (1 : (Ideal R)⁰) else P0 p) : Ideal R) =
+      ((Finset.univ.filter fun p => w p ≠ 0).val.map P).prod
+  rw [SubmonoidClass.coe_finset_prod]
+  simp only [P0]
+  rw [← Finset.prod_eq_multiset_prod
+    (s := Finset.univ.filter fun p => w p ≠ 0) (f := P)]
+  rw [Finset.prod_filter]
+  apply Finset.prod_congr rfl
+  intro p _hp
+  by_cases hp : w p = 0
+  · simp [hp]
+  · simp [hp]
+
 /-- Normalized-factor count for erased ramified parity products. Each erased
 ramified prime appears in the product with multiplicity exactly the corresponding
 `Fin 2` value. -/
@@ -2237,10 +2272,38 @@ private theorem normalizedFactors_count_ramifiedParityIdealProduct
     apply Subtype.ext
     exact (ramifiedPrimeIdeal_eq_iff d
       ((Finset.mem_erase.mp q.2).2) ((Finset.mem_erase.mp r.2).2)).mp hqr
-  -- Remaining gap: rewrite the `if`-product as the product over
-  -- `{p | w p ≠ 0}`, use `normalizedFactors_prod_of_prime`, and use
-  -- `hramifiedPrimeIdeal_injective` to compute the multiset count.
-  sorry
+  rw [coe_ramifiedParityIdealProduct_eq_filtered_multiset_prod d hp0 w]
+  let R := NumberField.RingOfIntegers (Qsqrtd (d : ℚ))
+  let P : {p // p ∈ (ramifiedPrimes d).erase p0} → Ideal R :=
+    fun p => ramifiedPrimeIdeal d ((Finset.mem_erase.mp p.2).2)
+  have hP_injective : Function.Injective P := by
+    simpa [P] using hramifiedPrimeIdeal_injective
+  have hfiltered_prime :
+      ∀ Q ∈ ((Finset.univ.filter fun q => w q ≠ 0).val.map P), Prime Q := by
+    intro Q hQ
+    rcases Multiset.mem_map.mp hQ with ⟨q, _hq, rfl⟩
+    exact (Ideal.prime_iff_isPrime
+      (ramifiedPrimeIdeal_ne_bot d ((Finset.mem_erase.mp q.2).2))).mpr
+      (ramifiedPrimeIdeal_mem_primesOver d ((Finset.mem_erase.mp q.2).2)).1
+  rw [UniqueFactorizationMonoid.normalizedFactors_prod_of_prime hfiltered_prime]
+  change ((Finset.univ.filter fun q => w q ≠ 0).val.map P).count (P p) = (w p).val
+  rw [Multiset.count_map_eq_count' P _ hP_injective p]
+  by_cases hp : w p = 0
+  · have hpnot : p ∉ (Finset.univ.filter fun q => w q ≠ 0).val := by
+      rw [Finset.mem_val, Finset.mem_filter]
+      exact fun h => h.2 hp
+    rw [Multiset.count_eq_zero_of_notMem hpnot]
+    simp [hp]
+  · have hpval : (w p).val = 1 := by
+      have hwp : w p = 1 := Fin.eq_one_of_ne_zero (w p) hp
+      rw [hwp]
+      rfl
+    have hpmem : p ∈ (Finset.univ.filter fun q => w q ≠ 0).val := by
+      rw [Finset.mem_val, Finset.mem_filter]
+      exact ⟨Finset.mem_univ p, hp⟩
+    have hnodup : (Finset.univ.filter fun q => w q ≠ 0).val.Nodup :=
+      (Finset.univ.filter fun q => w q ≠ 0).nodup
+    rw [Multiset.count_eq_one_of_mem hnodup hpmem, hpval]
 
 /-- The erased product built from a parity vector has the expected erased
 ramified parity vector. -/
