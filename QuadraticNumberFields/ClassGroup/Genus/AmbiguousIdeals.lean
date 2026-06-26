@@ -1969,6 +1969,56 @@ private theorem split_conj_normalizedFactor_powers_eq_one
         1
   rw [hcount, ← mul_pow, hpair_one, one_pow]
 
+private theorem inert_normalizedFactor_power_eq_one
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    {I : (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰}
+    (P :
+      {P // P ∈ UniqueFactorizationMonoid.normalizedFactors
+        (I : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))})
+    {p : ℕ} (hp : p.Prime)
+    (hcomap : P.1.comap
+      (algebraMap ℤ (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) = 𝔭(p))
+    (hinert : Ideal.IsInertIn (𝔭(p))
+      (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) :
+    (NarrowClassGroup.mk0 (normalizedFactorNonzeroIdeal I P) :
+        NarrowClassGroup (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) ^
+          (UniqueFactorizationMonoid.normalizedFactors
+            (I : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))).count P.1 =
+        1 := by
+  let R := NumberField.RingOfIntegers (Qsqrtd (d : ℚ))
+  let P0 : (Ideal R)⁰ := normalizedFactorNonzeroIdeal I P
+  have hI0 : (I : Ideal R) ≠ ⊥ := by
+    simpa [Ideal.zero_eq_bot] using mem_nonZeroDivisors_iff_ne_zero.mp I.2
+  have hPprime : P.1.IsPrime := (Ideal.mem_normalizedFactors_iff hI0).mp P.2 |>.1
+  have hmap :=
+    map_span_eq_of_isInertIn_of_comap_eq_p (d := d) hPprime hp hcomap hinert
+  have hmapSpan :
+      Ideal.map (algebraMap ℤ R) (𝔭(p)) =
+        Ideal.span ({(p : R)} : Set R) := by
+    rw [Ideal.map_span, Set.image_singleton]
+    rfl
+  have hpR_ne : (p : R) ≠ 0 := by
+    change algebraMap ℤ R (p : ℤ) ≠ 0
+    exact (FaithfulSMul.algebraMap_injective ℤ R).ne (by
+      exact_mod_cast hp.ne_zero)
+  let spanP0 : (Ideal R)⁰ :=
+    ⟨Ideal.span ({(p : R)} : Set R), by
+      rw [mem_nonZeroDivisors_iff_ne_zero, Ideal.zero_eq_bot, ne_eq,
+        Ideal.span_singleton_eq_bot]
+      exact hpR_ne⟩
+  have hP0 : P0 = spanP0 := by
+    apply Subtype.ext
+    exact hmap.symm.trans hmapSpan
+  have hmk : NarrowClassGroup.mk0 P0 = (1 : NarrowClassGroup R) := by
+    rw [hP0]
+    exact narrowClassGroup_mk0_span_singleton_eq_one_of_isTotallyPositive
+      hpR_ne (isTotallyPositive_natCast_fractionRing p hp.pos)
+  change
+    (NarrowClassGroup.mk0 P0 : NarrowClassGroup R) ^
+          (UniqueFactorizationMonoid.normalizedFactors (I : Ideal R)).count P.1 =
+        1
+  rw [hmk, one_pow]
+
 /-- Quadratic conjugation acts on the narrow ideal class group by inversion. The
 point not present in the ordinary class-group statement is positivity: the
 principal generator of `I * σ(I)` is the positive integer `absNorm I`. -/
@@ -3423,6 +3473,22 @@ private theorem ambiguousIdeal_mk0_eq_fullRamifiedParityIdealProduct_of_factoriz
             1 := by
     intro P p hp hcomap hsplit
     exact split_conj_normalizedFactor_powers_eq_one d hJ P hp hcomap hsplit
+  have hfactor_inert_pow :
+      ∀ (P :
+          {P // P ∈ UniqueFactorizationMonoid.normalizedFactors
+            (J : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))})
+        {p : ℕ}, p.Prime →
+        P.1.comap
+            (algebraMap ℤ (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) =
+          𝔭(p) →
+        Ideal.IsInertIn (𝔭(p)) (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))) →
+        (NarrowClassGroup.mk0 (normalizedFactorNonzeroIdeal J P) :
+            NarrowClassGroup (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) ^
+              (UniqueFactorizationMonoid.normalizedFactors
+                (J : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))).count P.1 =
+            1 := by
+    intro P p hp hcomap hinert
+    exact inert_normalizedFactor_power_eq_one d P hp hcomap hinert
   have hfactor_conj_count :
       ∀ (P :
           {P // P ∈ UniqueFactorizationMonoid.normalizedFactors
@@ -3463,9 +3529,9 @@ private theorem ambiguousIdeal_mk0_eq_fullRamifiedParityIdealProduct_of_factoriz
   -- `J`. The nonfixed split-pair certificate is `hfactor_split_ne`, and
   -- `hfactor_conj_count` supplies equal multiplicities for each split pair;
   -- the paired count-powers cancel via `hfactor_split_pow`. Inert prime factors
-  -- cancel as totally positive principal ideals, while ramified factors are
-  -- identified by `hfactor_ramified_eq`; their powers reduce to the parity
-  -- terms recorded by `hfactor_ramified_pow`.
+  -- cancel by `hfactor_inert_pow`, while ramified factors are identified by
+  -- `hfactor_ramified_eq`; their powers reduce to the parity terms recorded by
+  -- `hfactor_ramified_pow`.
   sorry
 
 /-- Per-factor assembly boundary in principal-multiplier form. A genuinely
