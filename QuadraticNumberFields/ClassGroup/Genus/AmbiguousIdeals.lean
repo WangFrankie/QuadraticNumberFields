@@ -3940,18 +3940,34 @@ private theorem fullRamifiedParityNarrowClassHom_mem_ker_iff_exists_positivePrin
   rw [← mk0_fullRamifiedParityIdealProduct d r]
   exact NarrowClassGroup.mk0_eq_one_iff_exists_fraction_ring
 
+private theorem subgroup_exists_ne_one_of_nat_card_eq_two
+    {G : Type*} [Group G] (H : Subgroup G) (hH : Nat.card H = 2) :
+    ∃ x : G, x ≠ 1 ∧ x ∈ H := by
+  obtain ⟨y, hyne, _hyuniq⟩ := (Nat.card_eq_two_iff' (x := (1 : H))).mp hH
+  refine ⟨(y : G), ?_, y.2⟩
+  intro hy
+  exact hyne (Subtype.ext hy)
+
+/-- Strict/narrow positive-principal denominator as a cardinality statement for
+the kernel of the finite ramified parity map. This is the local `K = ℚ`,
+quadratic case of the ambiguous class number formula's unit-index denominator. -/
+private theorem card_fullRamifiedParityNarrowClassHom_ker_eq_two
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
+    Nat.card (fullRamifiedParityNarrowClassHom d).ker = 2 := by
+  -- Remaining gap: prove the strict/narrow positive-principal denominator.
+  -- Equivalently, the kernel has precisely the positive-principal unit-index
+  -- factor rather than only the ordinary principal all-ramified-prime relation.
+  sorry
+
 /-- Strict/narrow positive-principal denominator as a nontrivial kernel element
-for the finite ramified parity map. This is the local `K = ℚ`, quadratic case of
-the ambiguous class number formula's unit-index denominator. -/
+for the finite ramified parity map. -/
 private theorem exists_nontrivial_mem_fullRamifiedParityNarrowClassHom_ker
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
     ∃ r : Multiplicative ({p // p ∈ ramifiedPrimes d} → Fin 2),
       r ≠ 1 ∧ r ∈ (fullRamifiedParityNarrowClassHom d).ker := by
-  -- Remaining gap: prove the strict/narrow positive-principal denominator.
-  -- Equivalently, the kernel of the finite ramified parity map has the
-  -- positive-principal unit-index factor rather than only the ordinary
-  -- principal all-ramified-prime relation.
-  sorry
+  exact subgroup_exists_ne_one_of_nat_card_eq_two
+    (fullRamifiedParityNarrowClassHom d).ker
+    (card_fullRamifiedParityNarrowClassHom_ker_eq_two d)
 
 /-- Strict positive-principal denominator for the full finite ramified parity
 map. It constructs a nonzero parity vector whose full ramified ideal product is
