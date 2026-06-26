@@ -1757,10 +1757,50 @@ private theorem exists_integralIdeal_tp_multiplier_to_conjAut_of_narrowInversion
       _ = C.1 := C.2.symm
   exact (NarrowClassGroup.mk0_eq_mk0_iff_exists_fraction_ring).mp (hI.trans hconj.symm)
 
+/-- Norm-one extraction boundary. A totally positive principal multiplier
+relating an ideal to its conjugate has field norm `1`. -/
+private theorem norm_eq_one_of_tp_multiplier_to_conjAut
+    (K : Type*) [Field K] [NumberField K] [Algebra ℚ K]
+    [QuadraticField K] [QuadraticField.Conj K]
+    (I : (Ideal (NumberField.RingOfIntegers K))⁰)
+    {x : (FractionRing (NumberField.RingOfIntegers K))ˣ}
+    (hxpos : NarrowClassGroup.IsTotallyPositive
+      (x : FractionRing (NumberField.RingOfIntegers K)))
+    (hconj :
+      FractionalIdeal.mk0 (FractionRing (NumberField.RingOfIntegers K)) I *
+          toPrincipalIdeal (NumberField.RingOfIntegers K)
+            (FractionRing (NumberField.RingOfIntegers K)) x =
+        FractionalIdeal.mk0 (FractionRing (NumberField.RingOfIntegers K))
+          (conjAutNonzeroIdealMulEquiv K I)) :
+    Algebra.norm ℚ
+      (FractionRing.algEquiv (NumberField.RingOfIntegers K) K
+        (x : FractionRing (NumberField.RingOfIntegers K))) = 1 := by
+  -- Remaining gap: compare absolute norms in
+  -- `I * (x) = σ(I)`. The ideal parts have the same norm, so the norm of
+  -- `(x)` is rationally `±1`; total positivity selects `+1`.
+  sorry
+
+/-- Fraction-field Hilbert 90 for the localized conjugation action. A norm-one
+fraction-field unit is an ordinary conjugation coboundary. -/
+private theorem exists_conjAut_coboundary_of_norm_eq_one
+    (K : Type*) [Field K] [NumberField K] [Algebra ℚ K]
+    [QuadraticField K] [QuadraticField.Conj K]
+    {x : (FractionRing (NumberField.RingOfIntegers K))ˣ}
+    (hxnorm :
+      Algebra.norm ℚ
+        (FractionRing.algEquiv (NumberField.RingOfIntegers K) K
+          (x : FractionRing (NumberField.RingOfIntegers K))) = 1) :
+    ∃ y : (FractionRing (NumberField.RingOfIntegers K))ˣ,
+      x = y * (Units.mapEquiv (conjAutFractionRingAlgEquiv K).toRingEquiv y)⁻¹ := by
+  -- Remaining gap: transport mathlib's Hilbert 90
+  -- `groupCohomology.exists_div_of_norm_eq_one` across
+  -- `FractionRing.algEquiv (𝓞 K) K`, identifying the transported automorphism
+  -- with `conjAutFractionRingAlgEquiv K`.
+  sorry
+
 /-- Hilbert-90 extraction boundary. A principal multiplier relating an ideal to
 its conjugate should be an ordinary conjugation coboundary in the fraction
-field. The total-positivity hypothesis is used to select the correct norm-one
-unit from the principal-ideal relation. -/
+field. -/
 private theorem exists_conjAut_coboundary_of_tp_multiplier_to_conjAut
     (K : Type*) [Field K] [NumberField K] [Algebra ℚ K]
     [QuadraticField K] [QuadraticField.Conj K]
@@ -1776,10 +1816,8 @@ private theorem exists_conjAut_coboundary_of_tp_multiplier_to_conjAut
           (conjAutNonzeroIdealMulEquiv K I)) :
     ∃ y : (FractionRing (NumberField.RingOfIntegers K))ˣ,
       x = y * (Units.mapEquiv (conjAutFractionRingAlgEquiv K).toRingEquiv y)⁻¹ := by
-  -- Remaining gap: first derive the element-level norm-one condition from the
-  -- principal-ideal conjugation relation, then apply Hilbert 90 on the fraction
-  -- field of the ring of integers.
-  sorry
+  exact exists_conjAut_coboundary_of_norm_eq_one K
+    (norm_eq_one_of_tp_multiplier_to_conjAut K I hxpos hconj)
 
 /-- Sign-choice boundary for the quadratic Hilbert-90 representative. If a
 totally positive element is written as `y / σ(y)` and the fraction field has a
