@@ -1781,6 +1781,35 @@ private theorem exists_totallyPositive_conjAut_coboundary_of_tp_multiplier_to_co
   -- coboundary with a uniform positive sign at all real embeddings.
   sorry
 
+/-- Integral clearing boundary for a coboundary-adjusted fractional ideal. Under
+the coboundary relation, the fractional ideal `I * (y)` should have an ambiguous
+integral representative in the same narrow class. -/
+private theorem exists_integralIdeal_ambiguous_fractionalRep_of_conjAut_coboundary
+    (K : Type*) [Field K] [NumberField K] [Algebra ℚ K]
+    [QuadraticField K] [QuadraticField.Conj K]
+    (I : (Ideal (NumberField.RingOfIntegers K))⁰)
+    {x y : (FractionRing (NumberField.RingOfIntegers K))ˣ}
+    (hy :
+      x = y * (Units.mapEquiv (conjAutFractionRingAlgEquiv K).toRingEquiv y)⁻¹)
+    (hconj :
+      FractionalIdeal.mk0 (FractionRing (NumberField.RingOfIntegers K)) I *
+          toPrincipalIdeal (NumberField.RingOfIntegers K)
+            (FractionRing (NumberField.RingOfIntegers K)) x =
+        FractionalIdeal.mk0 (FractionRing (NumberField.RingOfIntegers K))
+          (conjAutNonzeroIdealMulEquiv K I)) :
+    ∃ J : (Ideal (NumberField.RingOfIntegers K))⁰,
+      NarrowClassGroup.mk0 J =
+        NarrowClassGroup.mk
+          (FractionalIdeal.mk0 (FractionRing (NumberField.RingOfIntegers K)) I *
+            toPrincipalIdeal (NumberField.RingOfIntegers K)
+              (FractionRing (NumberField.RingOfIntegers K)) y) ∧
+        IsAmbiguousIdeal (conjAutRingOfIntegers K)
+          (J : Ideal (NumberField.RingOfIntegers K)) := by
+  -- Remaining gap: prove the fractional ideal `I * (y)` is fixed by conjugation
+  -- using `hy` and `hconj`, then show its narrow integral representative is
+  -- fixed by the ring-of-integers conjugation.
+  sorry
+
 /-- Coboundary-to-ideal boundary. If the conjugation multiplier is a totally
 positive coboundary, multiplying by the coboundary gives an ambiguous integral
 ideal representative in the same narrow class. -/
@@ -1803,10 +1832,19 @@ private theorem exists_integralIdeal_isAmbiguousIdeal_mk0_eq_of_conjAut_cobounda
       NarrowClassGroup.mk0 J = NarrowClassGroup.mk0 I ∧
         IsAmbiguousIdeal (conjAutRingOfIntegers K)
           (J : Ideal (NumberField.RingOfIntegers K)) := by
-  -- Remaining gap: form the fractional ideal `I * (y)`, use `hy` and `hconj`
-  -- to prove it is conjugation-fixed, then use the narrow integral
-  -- representative to clear denominators without changing the narrow class.
-  sorry
+  obtain ⟨J, hJmk, hJamb⟩ :=
+    exists_integralIdeal_ambiguous_fractionalRep_of_conjAut_coboundary
+      K I hy hconj
+  refine ⟨J, ?_, hJamb⟩
+  have hmk :
+      NarrowClassGroup.mk (FractionalIdeal.mk0 (FractionRing (NumberField.RingOfIntegers K)) I) =
+        NarrowClassGroup.mk
+          (FractionalIdeal.mk0 (FractionRing (NumberField.RingOfIntegers K)) I *
+            toPrincipalIdeal (NumberField.RingOfIntegers K)
+              (FractionRing (NumberField.RingOfIntegers K)) y) := by
+    refine NarrowClassGroup.mk_eq_mk.mpr ?_
+    exact ⟨⟨y, hypos⟩, rfl⟩
+  exact hJmk.trans hmk.symm
 
 /-- Hilbert-90 adjustment boundary. A representative whose conjugate differs by
 a totally positive principal fractional ideal can be changed within the same
