@@ -1596,6 +1596,60 @@ private theorem narrowClassGroup_mk0_span_singleton_eq_one_of_isTotallyPositive
       (Ideal.span ({a} : Set R) : FractionalIdeal R⁰ K)
     rw [FractionalIdeal.coeIdeal_span_singleton]⟩
 
+/-- The narrow class of a nonzero integral ideal is the product of the narrow
+classes of its Dedekind prime factors, counted with multiplicity. -/
+private theorem narrowClassGroup_mk0_eq_normalizedFactors_prod
+    {R : Type*} [CommRing R] [IsDomain R] [IsDedekindDomain R]
+    (I : (Ideal R)⁰) :
+    NarrowClassGroup.mk0 I =
+      ((UniqueFactorizationMonoid.normalizedFactors (I : Ideal R)).attach.map fun P =>
+        NarrowClassGroup.mk0
+          (⟨P.1, mem_nonZeroDivisors_iff_ne_zero.mpr (by
+            have hI0 : (I : Ideal R) ≠ ⊥ := by
+              simpa [Ideal.zero_eq_bot] using mem_nonZeroDivisors_iff_ne_zero.mp I.2
+            have hPdata := (Ideal.mem_normalizedFactors_iff hI0).mp P.2
+            intro hPbot
+            exact hI0 (le_bot_iff.mp (by simpa [hPbot] using hPdata.2)))⟩ :
+              (Ideal R)⁰)).prod := by
+  classical
+  let s := UniqueFactorizationMonoid.normalizedFactors (I : Ideal R)
+  have hI0 : (I : Ideal R) ≠ ⊥ := by
+    simpa [Ideal.zero_eq_bot] using mem_nonZeroDivisors_iff_ne_zero.mp I.2
+  have hprod : s.prod = (I : Ideal R) :=
+    Ideal.prod_normalizedFactors_eq_self hI0
+  let F : {P // P ∈ s} → (Ideal R)⁰ := fun P =>
+    ⟨P.1, mem_nonZeroDivisors_iff_ne_zero.mpr (by
+      have hPdata := (Ideal.mem_normalizedFactors_iff hI0).mp P.2
+      intro hPbot
+      exact hI0 (le_bot_iff.mp (by simpa [hPbot] using hPdata.2)))⟩
+  have hFprod : ((s.attach.map F).prod : Ideal R) = (I : Ideal R) := by
+    rw [SubmonoidClass.coe_multiset_prod]
+    rw [Multiset.map_map]
+    change (s.attach.map (fun P : {P // P ∈ s} => (F P : Ideal R))).prod = I
+    have hmap :
+        s.attach.map (fun P : {P // P ∈ s} => (F P : Ideal R)) = s := by
+      simp [F]
+    rw [hmap]
+    exact hprod
+  calc
+    NarrowClassGroup.mk0 I = NarrowClassGroup.mk0 ((s.attach.map F).prod) := by
+      congr 1
+      apply Subtype.ext
+      exact hFprod.symm
+    _ = ((s.attach.map fun P => NarrowClassGroup.mk0 (F P)).prod) := by
+      rw [map_multiset_prod]
+      rw [Multiset.map_map]
+      simp only [Function.comp_apply]
+    _ = ((UniqueFactorizationMonoid.normalizedFactors (I : Ideal R)).attach.map fun P =>
+        NarrowClassGroup.mk0
+          (⟨P.1, mem_nonZeroDivisors_iff_ne_zero.mpr (by
+            have hI0 : (I : Ideal R) ≠ ⊥ := by
+              simpa [Ideal.zero_eq_bot] using mem_nonZeroDivisors_iff_ne_zero.mp I.2
+            have hPdata := (Ideal.mem_normalizedFactors_iff hI0).mp P.2
+            intro hPbot
+            exact hI0 (le_bot_iff.mp (by simpa [hPbot] using hPdata.2)))⟩ :
+              (Ideal R)⁰)).prod := rfl
+
 /-- Quadratic conjugation acts on the narrow ideal class group by inversion. The
 point not present in the ordinary class-group statement is positivity: the
 principal generator of `I * σ(I)` is the positive integer `absNorm I`. -/
@@ -2904,11 +2958,13 @@ private theorem exists_tp_multiplier_ambiguousIdeal_to_fullRamifiedParityIdealPr
         FractionalIdeal.mk0
           (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))
           (fullRamifiedParityIdealProduct d (fullRamifiedParityVector d J)) := by
-  -- Remaining gap: multiply the explicit positive base-prime span contributions
-  -- supplied by `factor_contribution_by_splitting_span` over the Dedekind
-  -- factorization of `J`. Split conjugate pairs and inert prime factors cancel
-  -- as totally positive principal ideals, while ramified factors reduce to their
-  -- exponent modulo `2`.
+  have hJ_factorization :=
+    narrowClassGroup_mk0_eq_normalizedFactors_prod J
+  -- Remaining gap: use `hJ_factorization` to multiply the explicit positive
+  -- base-prime span contributions supplied by `factor_contribution_by_splitting_span`
+  -- over the Dedekind factorization of `J`. Split conjugate pairs and inert
+  -- prime factors cancel as totally positive principal ideals, while ramified
+  -- factors reduce to their exponent modulo `2`.
   sorry
 
 /-- Per-factor assembly boundary in class form. A genuinely ambiguous integral
