@@ -2178,6 +2178,35 @@ private theorem exists_integralIdeal_fullRamifiedParityRepresentative_of_isAmbig
   rw [NarrowClassGroup.mk0_eq_mk0_iff_exists_fraction_ring]
   exact exists_tp_multiplier_ambiguousIdeal_to_fullRamifiedParityIdealProduct d J hJ
 
+/-- Product-one relation in narrow-class form. The full ramified parity product
+is narrow-equivalent to an erased ramified parity product after choosing the
+`p0` coordinate using the single positive-principal relation among all ramified
+prime ideals. -/
+private theorem exists_erasedRamifiedParityProduct_mk0_eq_fullRamifiedParityProduct
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    {p0 : ℕ} (hp0 : p0 ∈ ramifiedPrimes d)
+    (v : ({p // p ∈ ramifiedPrimes d} → Fin 2)) :
+    ∃ w : ({p // p ∈ (ramifiedPrimes d).erase p0} → Fin 2),
+      NarrowClassGroup.mk0
+          (ramifiedParityIdealProduct d hp0 w) =
+        NarrowClassGroup.mk0 (fullRamifiedParityIdealProduct d v) := by
+  -- Remaining gap: formalize the total product of all ramified prime ideals as
+  -- a totally positive principal fractional ideal, then toggle the `p0`
+  -- coordinate to replace a full parity vector by an erased one.
+  sorry
+
+/-- Vector bookkeeping boundary for erased ramified parity products. The erased
+product built from a parity vector has the expected erased ramified parity
+vector. -/
+private theorem idealRamifiedParityVector_ramifiedParityIdealProduct
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    {p0 : ℕ} (hp0 : p0 ∈ ramifiedPrimes d)
+    (w : ({p // p ∈ (ramifiedPrimes d).erase p0} → Fin 2)) :
+    idealRamifiedParityVector d hp0 (ramifiedParityIdealProduct d hp0 w) = w := by
+  -- Remaining gap: compute normalized-factor counts in the finite product of
+  -- pairwise distinct ramified prime ideals.
+  sorry
+
 /-- Product-one elimination boundary. Once an ambiguous class is represented by
 the full ramified parity product, the single relation among all ramified prime
 ideals lets us choose a parity-compatible representative omitting the
@@ -2195,9 +2224,13 @@ private theorem exists_integralIdeal_erasedRamifiedParityRepresentative_of_fullR
         NarrowClassGroup.mk0 J =
           NarrowClassGroup.mk0
             (ramifiedParityIdealProduct d hp0 (idealRamifiedParityVector d hp0 J)) := by
-  -- Remaining gap: formalize the total product of ramified prime ideals as a
-  -- totally positive principal ideal and use it to normalize the `p0` parity.
-  sorry
+  obtain ⟨w, hw⟩ :=
+    exists_erasedRamifiedParityProduct_mk0_eq_fullRamifiedParityProduct
+      d hp0 (fullRamifiedParityVector d I)
+  let J := ramifiedParityIdealProduct d hp0 w
+  refine ⟨J, ?_, ?_⟩
+  · rw [hfull, hw]
+  · simp [J, idealRamifiedParityVector_ramifiedParityIdealProduct d hp0 w]
 
 /-- Hard representative selection for the ambiguous bound. It chooses a
 representative of an inversion-fixed narrow class whose ramified-prime parity
