@@ -346,22 +346,55 @@ theorem fullRamifiedParityProduct_positivePrincipal_iff_mk0_add_relation
       ((fullRamifiedParityNarrowClassHom_mem_ker_iff d r).mpr
         ((fullRamifiedParityNarrowClassProduct_eq_one_iff_mk0_add_relation d r).mpr hrel))
 
+/-- Genus relation in concrete ideal form: the single remaining genus-theory
+input. There is a narrow-trivial ambiguous integral ideal whose ramified-prime
+parity vector is nonzero — i.e. a totally-positive-principal ambiguous ideal with
+genuinely odd ramified content.
+
+This is exactly the "`- 1`" of the narrow ambiguous class number count
+`|Cl⁺[2]| = 2 ^ (t - 1)`: the surjection `Φ⁺ : (ℤ/2)^t ↠ Cl⁺[2]` onto the
+inversion-fixed (two-torsion) classes is already available
+(`ambiguousIdeal_mk0_eq_fullRamifiedParityIdealProduct`), so the upper bound
+needs only that its kernel is nontrivial, equivalently that the narrow-principal
+ambiguous ideals form an index-two (codimension-one) subspace of the parity
+space.
+
+The relation is genuinely `d`-dependent, so no uniform witness exists and only
+its existence is asserted: e.g. `d = 3` needs the parity vector
+`(P₂, P₃) = (1, 1)`, whereas `d = -5` (also `≡ 3 [ZMOD 4]`) needs
+`(P₂, P₅) = (0, 1)`.
+
+It is stated on integral ideals because that is the form the Hilbert-90 / sign
+analysis of `Representatives` produces; via
+`ambiguousIdeal_mk0_eq_fullRamifiedParityIdealProduct` and
+`fullRamifiedParityVector_fullRamifiedParityIdealProduct` it is equivalent to
+`exists_nonzero_fullRamifiedParityNarrowClassProduct_eq_one` below. -/
+theorem exists_narrowTrivial_ambiguousIdeal_with_ramifiedParity
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
+    ∃ J : (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰,
+      IsAmbiguousIdeal (conjAutRingOfIntegers (Qsqrtd (d : ℚ)))
+          (J : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) ∧
+        NarrowClassGroup.mk0 J = 1 ∧
+        ∃ p, fullRamifiedParityVector d J p ≠ 0 := by
+  sorry
+
 /-- Weak positive-principal ramified relation needed for the upper bound. It
 asserts that some nonzero product of ramified prime ideal classes is trivial in
 the narrow class group.
 
 This is weaker than computing the full kernel of the ramified parity map. It is
 the only global unit/sign input needed to erase one ramified coordinate in the
-upper-bound proof. -/
+upper-bound proof, and is reduced here to the concrete ideal-form relation
+`exists_narrowTrivial_ambiguousIdeal_with_ramifiedParity`. -/
 theorem exists_nonzero_fullRamifiedParityNarrowClassProduct_eq_one
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
     ∃ r : ({p // p ∈ ramifiedPrimes d} → Fin 2),
       (∃ p, r p ≠ 0) ∧ fullRamifiedParityNarrowClassProduct d r = 1 := by
-  rw [exists_nonzero_fullRamifiedParityProduct_eq_one_iff_positivePrincipal]
-  -- Remaining gap: construct the nonzero ramified parity vector and totally
-  -- positive principal multiplier directly, without using the ambiguous class
-  -- number formula or a packaged kernel-cardinality theorem.
-  sorry
+  obtain ⟨J, hJamb, hJ1, hJv⟩ := exists_narrowTrivial_ambiguousIdeal_with_ramifiedParity d
+  refine ⟨fullRamifiedParityVector d J, hJv, ?_⟩
+  rw [← mk0_fullRamifiedParityIdealProduct,
+    ← ambiguousIdeal_mk0_eq_fullRamifiedParityIdealProduct d J hJamb]
+  exact hJ1
 
 /-- A nonzero kernel vector for the finite ramified parity map acts trivially on
 all full ramified parity products. -/
