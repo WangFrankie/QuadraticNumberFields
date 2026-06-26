@@ -1670,6 +1670,26 @@ private theorem conjAutNormalizedFactor_involutive
   apply Subtype.ext
   exact map_conjAut_map_conjAut (Qsqrtd (d : ℚ)) P.1
 
+private theorem conjAutNormalizedFactor_comap_eq
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    {I : (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰}
+    (hI : IsAmbiguousIdeal (conjAutRingOfIntegers (Qsqrtd (d : ℚ)))
+      (I : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))))
+    (P : {P // P ∈ UniqueFactorizationMonoid.normalizedFactors
+      (I : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))}) :
+    (conjAutNormalizedFactor d hI P).1.comap
+        (algebraMap ℤ (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) =
+      P.1.comap (algebraMap ℤ (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) := by
+  let R := NumberField.RingOfIntegers (Qsqrtd (d : ℚ))
+  have hlies :=
+    map_conjAut_liesOver_comap (K := Qsqrtd (d : ℚ)) P.1
+  change
+    (Ideal.map (conjAutRingOfIntegers (Qsqrtd (d : ℚ)) : R →+* R) P.1).comap
+        (algebraMap ℤ R) =
+      P.1.comap (algebraMap ℤ R)
+  rw [← Ideal.under_def]
+  exact hlies.over.symm
+
 private theorem normalizedFactorNonzeroIdeal_conjAutNormalizedFactor
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
     {I : (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰}
@@ -3159,10 +3179,15 @@ private theorem ambiguousIdeal_mk0_eq_fullRamifiedParityIdealProduct_of_factoriz
         conjAutNormalizedFactor d hJ (conjAutNormalizedFactor d hJ P) = P ∧
           normalizedFactorNonzeroIdeal J (conjAutNormalizedFactor d hJ P) =
             conjAutNonzeroIdealMulEquiv (Qsqrtd (d : ℚ))
-              (normalizedFactorNonzeroIdeal J P) := by
+              (normalizedFactorNonzeroIdeal J P) ∧
+          (conjAutNormalizedFactor d hJ P).1.comap
+              (algebraMap ℤ (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) =
+            P.1.comap
+              (algebraMap ℤ (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) := by
     intro P
     exact ⟨conjAutNormalizedFactor_involutive d hJ P,
-      normalizedFactorNonzeroIdeal_conjAutNormalizedFactor d hJ P⟩
+      normalizedFactorNonzeroIdeal_conjAutNormalizedFactor d hJ P,
+      conjAutNormalizedFactor_comap_eq d hJ P⟩
   -- Remaining gap: use `hJ_factorization` to multiply the explicit positive
   -- base-prime span contributions, `hfactor_case`, and the conjugation
   -- involution `hfactor_conj` over the Dedekind factorization of `J`. Split
