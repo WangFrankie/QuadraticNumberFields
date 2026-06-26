@@ -2513,6 +2513,57 @@ private theorem fullRamifiedParityNarrowClassProduct_add
   exact fin_two_indicator_mul_indicator
     (narrowClassGroup_mk0_sq_eq_one_ramifiedPrimeIdeal d p.2) (v p) (r p)
 
+/-- The full ramified parity construction as a multiplicative homomorphism from
+the additive `Fin 2` parity-vector group (viewed multiplicatively) to the narrow
+class group. -/
+private noncomputable def fullRamifiedParityNarrowClassHom
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
+    Multiplicative ({p // p ∈ ramifiedPrimes d} → Fin 2) →*
+      NarrowClassGroup (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))) where
+  toFun v := fullRamifiedParityNarrowClassProduct d (Multiplicative.toAdd v)
+  map_one' := by
+    change fullRamifiedParityNarrowClassProduct d 0 = 1
+    simp [fullRamifiedParityNarrowClassProduct]
+  map_mul' v r := by
+    change fullRamifiedParityNarrowClassProduct d (Multiplicative.toAdd (v * r)) =
+      fullRamifiedParityNarrowClassProduct d (Multiplicative.toAdd v) *
+        fullRamifiedParityNarrowClassProduct d (Multiplicative.toAdd r)
+    simpa using fullRamifiedParityNarrowClassProduct_add d
+      (Multiplicative.toAdd v) (Multiplicative.toAdd r)
+
+private theorem fullRamifiedParityNarrowClassHom_apply
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (v : ({p // p ∈ ramifiedPrimes d} → Fin 2)) :
+    fullRamifiedParityNarrowClassHom d (Multiplicative.ofAdd v) =
+      fullRamifiedParityNarrowClassProduct d v :=
+  rfl
+
+private theorem fullRamifiedParityNarrowClassHom_mem_ker_iff
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (v : ({p // p ∈ ramifiedPrimes d} → Fin 2)) :
+    Multiplicative.ofAdd v ∈ (fullRamifiedParityNarrowClassHom d).ker ↔
+      fullRamifiedParityNarrowClassProduct d v = 1 := by
+  simp [MonoidHom.mem_ker, fullRamifiedParityNarrowClassHom_apply]
+
+private theorem multiplicative_ofAdd_ne_one_of_exists_apply_ne_zero
+    {ι : Type*} (v : ι → Fin 2) (hv : ∃ i, v i ≠ 0) :
+    Multiplicative.ofAdd v ≠ 1 := by
+  rintro h
+  obtain ⟨i, hi⟩ := hv
+  have hv0 : v = 0 := by
+    simpa using congrArg Multiplicative.toAdd h
+  exact hi (by simp [hv0])
+
+private theorem exists_apply_ne_zero_of_multiplicative_ne_one
+    {ι : Type*} (v : Multiplicative (ι → Fin 2)) (hv : v ≠ 1) :
+    ∃ i, Multiplicative.toAdd v i ≠ 0 := by
+  by_contra h
+  apply hv
+  apply Multiplicative.toAdd.injective
+  funext i
+  by_contra hi
+  exact h ⟨i, hi⟩
+
 private theorem ramifiedPrimeNarrowClass_pow_normalizedFactors_count_eq_parity
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
     (J : (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰)
@@ -3872,19 +3923,20 @@ private theorem fin_two_add_eq_zero_of_ne_zero_of_ne_zero {a b : Fin 2}
   have hb1 : b = 1 := Fin.eq_one_of_ne_zero b hb
   simp [ha1, hb1]
 
-/-- The full ramified parity product is trivial in the narrow class group exactly
-when the corresponding integral ideal product is killed by a totally positive
-principal fractional ideal. -/
-private theorem fullRamifiedParityNarrowClassProduct_eq_one_iff_exists_positivePrincipal
+/-- A full ramified parity vector lies in the kernel of the narrow-class map
+exactly when the corresponding integral ideal product is killed by a totally
+positive principal fractional ideal. -/
+private theorem fullRamifiedParityNarrowClassHom_mem_ker_iff_exists_positivePrincipal
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
     (r : ({p // p ∈ ramifiedPrimes d} → Fin 2)) :
     let R := NumberField.RingOfIntegers (Qsqrtd (d : ℚ))
-    fullRamifiedParityNarrowClassProduct d r = 1 ↔
+    Multiplicative.ofAdd r ∈ (fullRamifiedParityNarrowClassHom d).ker ↔
       ∃ x : (FractionRing R)ˣ,
         NarrowClassGroup.IsTotallyPositive (x : FractionRing R) ∧
           FractionalIdeal.mk0 (FractionRing R) (fullRamifiedParityIdealProduct d r) *
             toPrincipalIdeal R (FractionRing R) x = 1 := by
   let R := NumberField.RingOfIntegers (Qsqrtd (d : ℚ))
+  rw [fullRamifiedParityNarrowClassHom_mem_ker_iff]
   rw [← mk0_fullRamifiedParityIdealProduct d r]
   exact NarrowClassGroup.mk0_eq_one_iff_exists_fraction_ring
 
@@ -3908,6 +3960,19 @@ private theorem exists_positivePrincipal_fullRamifiedParityIdealProduct_relation
   -- the finite ramified parity map.
   sorry
 
+/-- The strict/narrow positive-principal denominator supplies a nontrivial
+kernel element for the finite ramified parity map. -/
+private theorem exists_nontrivial_mem_fullRamifiedParityNarrowClassHom_ker
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
+    ∃ r : Multiplicative ({p // p ∈ ramifiedPrimes d} → Fin 2),
+      r ≠ 1 ∧ r ∈ (fullRamifiedParityNarrowClassHom d).ker := by
+  obtain ⟨r, hrnonzero, x, hxpos, hx⟩ :=
+    exists_positivePrincipal_fullRamifiedParityIdealProduct_relation d
+  refine ⟨Multiplicative.ofAdd r, ?_, ?_⟩
+  · exact multiplicative_ofAdd_ne_one_of_exists_apply_ne_zero r hrnonzero
+  · exact (fullRamifiedParityNarrowClassHom_mem_ker_iff_exists_positivePrincipal d r).mpr
+      ⟨x, hxpos, hx⟩
+
 /-- Positive-principal denominator boundary as a nonzero kernel vector for the
 full finite ramified parity map to the narrow class group. The relation is
 deliberately not identified with the all-one finite ramified vector: in real
@@ -3917,12 +3982,10 @@ private theorem exists_nonzero_fullRamifiedParityNarrowClassProduct_eq_one
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
     ∃ r : ({p // p ∈ ramifiedPrimes d} → Fin 2),
       (∃ p, r p ≠ 0) ∧ fullRamifiedParityNarrowClassProduct d r = 1 := by
-  let R := NumberField.RingOfIntegers (Qsqrtd (d : ℚ))
-  obtain ⟨r, hrnonzero, x, hxpos, hx⟩ :=
-    exists_positivePrincipal_fullRamifiedParityIdealProduct_relation d
-  refine ⟨r, hrnonzero, ?_⟩
-  exact (fullRamifiedParityNarrowClassProduct_eq_one_iff_exists_positivePrincipal d r).mpr
-    ⟨x, hxpos, hx⟩
+  obtain ⟨r, hrne, hrker⟩ := exists_nontrivial_mem_fullRamifiedParityNarrowClassHom_ker d
+  refine ⟨Multiplicative.toAdd r, ?_, ?_⟩
+  · exact exists_apply_ne_zero_of_multiplicative_ne_one r hrne
+  · exact (fullRamifiedParityNarrowClassHom_mem_ker_iff d (Multiplicative.toAdd r)).mp hrker
 
 /-- A nonzero kernel vector for the finite ramified parity map acts trivially on
 all full ramified parity products. -/
