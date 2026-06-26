@@ -3918,6 +3918,84 @@ private theorem fullRamifiedParityNarrowClassHom_mem_ker_iff_exists_positivePrin
   rw [← mk0_fullRamifiedParityIdealProduct d r]
   exact NarrowClassGroup.mk0_eq_one_iff_exists_fraction_ring
 
+/-- **Strict unit-principal genus denominator**, in the concrete form needed here:
+there is a unique nonzero ramified-prime parity vector whose full ramified ideal
+product is killed by a totally positive principal fractional ideal.
+
+This is the quadratic `K = ℚ` specialization of the positive-principal
+denominator in the strict ambiguous class number formula. It is deliberately
+stated in narrow, totally-positive terms rather than through the ordinary
+principal ideal relation. -/
+private theorem existsUnique_nonzero_positivePrincipal_fullRamifiedParityIdealProduct_relation
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
+    let R := NumberField.RingOfIntegers (Qsqrtd (d : ℚ))
+    ∃! r : ({p // p ∈ ramifiedPrimes d} → Fin 2),
+      (∃ p, r p ≠ 0) ∧
+        ∃ x : (FractionRing R)ˣ,
+          NarrowClassGroup.IsTotallyPositive (x : FractionRing R) ∧
+            FractionalIdeal.mk0 (FractionRing R) (fullRamifiedParityIdealProduct d r) *
+              toPrincipalIdeal R (FractionRing R) x =
+            1 := by
+  -- Remaining gap: prove the strict positive-principal denominator. Equivalently,
+  -- the ramified-prime parity map has a single nonzero relation coming from
+  -- totally positive principal ideals.
+  sorry
+
+/-- The strict positive-principal denominator supplies exactly one nontrivial
+kernel relation for the finite ramified-prime parity map. -/
+private theorem existsUnique_nontrivial_mem_fullRamifiedParityNarrowClassHom_ker
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
+    ∃! r : (fullRamifiedParityNarrowClassHom d).ker,
+      (r : Multiplicative ({p // p ∈ ramifiedPrimes d} → Fin 2)) ≠ 1 := by
+  classical
+  let R := NumberField.RingOfIntegers (Qsqrtd (d : ℚ))
+  obtain ⟨r, hr, huniq⟩ :=
+    existsUnique_nonzero_positivePrincipal_fullRamifiedParityIdealProduct_relation d
+  let k : (fullRamifiedParityNarrowClassHom d).ker :=
+    ⟨Multiplicative.ofAdd r,
+      (fullRamifiedParityNarrowClassHom_mem_ker_iff_exists_positivePrincipal d r).mpr hr.2⟩
+  refine ⟨k, ?_, ?_⟩
+  · intro hk
+    rcases hr.1 with ⟨p, hp⟩
+    apply hp
+    have hzero : r = 0 := by
+      apply Multiplicative.ofAdd.injective
+      simpa [k] using hk
+    exact congrFun hzero p
+  · intro s hs
+    let v : ({p // p ∈ ramifiedPrimes d} → Fin 2) :=
+      Multiplicative.toAdd
+        (s : Multiplicative ({p // p ∈ ramifiedPrimes d} → Fin 2))
+    have hsker :
+        Multiplicative.ofAdd v ∈ (fullRamifiedParityNarrowClassHom d).ker := by
+      change Multiplicative.ofAdd
+          (Multiplicative.toAdd
+            (s : Multiplicative ({p // p ∈ ramifiedPrimes d} → Fin 2))) ∈
+        (fullRamifiedParityNarrowClassHom d).ker
+      rw [ofAdd_toAdd]
+      exact s.2
+    have hvpos :
+        ∃ x : (FractionRing R)ˣ,
+          NarrowClassGroup.IsTotallyPositive (x : FractionRing R) ∧
+            FractionalIdeal.mk0 (FractionRing R) (fullRamifiedParityIdealProduct d v) *
+              toPrincipalIdeal R (FractionRing R) x =
+            1 :=
+      (fullRamifiedParityNarrowClassHom_mem_ker_iff_exists_positivePrincipal d v).mp hsker
+    have hvnonzero : ∃ p, v p ≠ 0 := by
+      by_contra hzero
+      apply hs
+      have hvzero : v = 0 := by
+        funext p
+        exact of_not_not (not_exists.mp hzero p)
+      simpa [v, hvzero] using
+        (ofAdd_toAdd
+          (s : Multiplicative ({p // p ∈ ramifiedPrimes d} → Fin 2))).symm
+    have hvr : v = r := huniq v ⟨hvnonzero, hvpos⟩
+    apply Subtype.ext
+    simpa [k, v, hvr] using
+      (ofAdd_toAdd
+        (s : Multiplicative ({p // p ∈ ramifiedPrimes d} → Fin 2))).symm
+
 /-- Strict positive-principal denominator for the full finite ramified parity
 map, stated at the actual linear-algebra boundary: the kernel of the full
 ramified-prime parity map has exactly two elements.
@@ -3929,20 +4007,14 @@ generator need not be totally positive in real quadratic fields. -/
 private theorem card_fullRamifiedParityNarrowClassHom_ker_eq_two
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
     Nat.card (fullRamifiedParityNarrowClassHom d).ker = 2 := by
-  -- Remaining gap: prove the strict/narrow ambiguous denominator. Equivalently,
-  -- the ramified-prime exponent-vector map has a single nontrivial kernel
-  -- relation coming from totally positive principal ideals.
-  sorry
-
-/-- The strict kernel-cardinality denominator supplies exactly one nontrivial
-kernel relation. -/
-private theorem existsUnique_nontrivial_mem_fullRamifiedParityNarrowClassHom_ker
-    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
-    ∃! r : (fullRamifiedParityNarrowClassHom d).ker,
-      (r : Multiplicative ({p // p ∈ ramifiedPrimes d} → Fin 2)) ≠ 1 := by
   let H := (fullRamifiedParityNarrowClassHom d).ker
-  have hcard : Nat.card H = 2 := card_fullRamifiedParityNarrowClassHom_ker_eq_two d
-  simpa [H] using (Nat.card_eq_two_iff' (1 : H)).mp hcard
+  have huniq :
+      ∃! r : H,
+        (r : Multiplicative ({p // p ∈ ramifiedPrimes d} → Fin 2)) ≠ 1 :=
+    existsUnique_nontrivial_mem_fullRamifiedParityNarrowClassHom_ker d
+  have huniq' : ∃! r : H, r ≠ 1 := by
+    simpa using huniq
+  simpa [H] using (Nat.card_eq_two_iff' (1 : H)).mpr huniq'
 
 /-- Strict/narrow positive-principal denominator as a nontrivial kernel element
 for the finite ramified parity map. -/
