@@ -1660,6 +1660,25 @@ private theorem conjAutNormalizedFactor_comap_eq
   rw [← Ideal.under_def]
   exact hlies.over.symm
 
+private theorem normalizedFactors_count_conjAutNormalizedFactor_eq
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    {I : (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰}
+    (hI : IsAmbiguousIdeal (conjAutRingOfIntegers (Qsqrtd (d : ℚ)))
+      (I : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))))
+    (P : {P // P ∈ UniqueFactorizationMonoid.normalizedFactors
+      (I : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))}) :
+    (UniqueFactorizationMonoid.normalizedFactors
+        (I : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))).count
+      (conjAutNormalizedFactor d hI P).1 =
+    (UniqueFactorizationMonoid.normalizedFactors
+        (I : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))).count P.1 := by
+  let R := NumberField.RingOfIntegers (Qsqrtd (d : ℚ))
+  have hI0 : (I : Ideal R) ≠ ⊥ := by
+    simpa [Ideal.zero_eq_bot] using mem_nonZeroDivisors_iff_ne_zero.mp I.2
+  exact
+    map_conjAut_count_normalizedFactors_eq_of_isAmbiguousIdeal
+      (K := Qsqrtd (d : ℚ)) (P := P.1) (I := (I : Ideal R)) hI0 hI
+
 private theorem conjAutNormalizedFactor_ne_of_isSplitIn
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
     {I : (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰}
@@ -3289,6 +3308,17 @@ private theorem ambiguousIdeal_mk0_eq_fullRamifiedParityIdealProduct_of_factoriz
         conjAutNormalizedFactor d hJ P ≠ P := by
     intro P p hp hcomap hsplit
     exact conjAutNormalizedFactor_ne_of_isSplitIn d hJ P hp hcomap hsplit
+  have hfactor_conj_count :
+      ∀ (P :
+          {P // P ∈ UniqueFactorizationMonoid.normalizedFactors
+            (J : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))}),
+        (UniqueFactorizationMonoid.normalizedFactors
+            (J : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))).count
+          (conjAutNormalizedFactor d hJ P).1 =
+        (UniqueFactorizationMonoid.normalizedFactors
+            (J : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))).count P.1 := by
+    intro P
+    exact normalizedFactors_count_conjAutNormalizedFactor_eq d hJ P
   have hfactor_ramified_eq :
       ∀ (P :
           {P // P ∈ UniqueFactorizationMonoid.normalizedFactors
@@ -3315,10 +3345,11 @@ private theorem ambiguousIdeal_mk0_eq_fullRamifiedParityIdealProduct_of_factoriz
   -- base-prime span contributions. The count-powered normal form is
   -- `hJ_factorization_count`; combine it with `hfactor_case` and the
   -- conjugation involution `hfactor_conj` over the Dedekind factorization of
-  -- `J`. The nonfixed split-pair certificate is `hfactor_split_ne`; inert prime
-  -- factors cancel as totally positive principal ideals, while ramified factors
-  -- are identified by `hfactor_ramified_eq`; their powers reduce to the parity
-  -- terms recorded by `hfactor_ramified_pow`.
+  -- `J`. The nonfixed split-pair certificate is `hfactor_split_ne`, and
+  -- `hfactor_conj_count` supplies equal multiplicities for each split pair;
+  -- inert prime factors cancel as totally positive principal ideals, while
+  -- ramified factors are identified by `hfactor_ramified_eq`; their powers
+  -- reduce to the parity terms recorded by `hfactor_ramified_pow`.
   sorry
 
 /-- Per-factor assembly boundary in principal-multiplier form. A genuinely
