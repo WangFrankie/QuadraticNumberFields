@@ -2513,38 +2513,6 @@ private theorem fullRamifiedParityNarrowClassProduct_add
   exact fin_two_indicator_mul_indicator
     (narrowClassGroup_mk0_sq_eq_one_ramifiedPrimeIdeal d p.2) (v p) (r p)
 
-/-- The full ramified parity construction as a multiplicative homomorphism from
-the additive `Fin 2` parity-vector group (viewed multiplicatively) to the narrow
-class group. -/
-private noncomputable def fullRamifiedParityNarrowClassHom
-    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
-    Multiplicative ({p // p ∈ ramifiedPrimes d} → Fin 2) →*
-      NarrowClassGroup (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))) where
-  toFun v := fullRamifiedParityNarrowClassProduct d (Multiplicative.toAdd v)
-  map_one' := by
-    change fullRamifiedParityNarrowClassProduct d 0 = 1
-    simp [fullRamifiedParityNarrowClassProduct]
-  map_mul' v r := by
-    change fullRamifiedParityNarrowClassProduct d (Multiplicative.toAdd (v * r)) =
-      fullRamifiedParityNarrowClassProduct d (Multiplicative.toAdd v) *
-        fullRamifiedParityNarrowClassProduct d (Multiplicative.toAdd r)
-    simpa using fullRamifiedParityNarrowClassProduct_add d
-      (Multiplicative.toAdd v) (Multiplicative.toAdd r)
-
-private theorem fullRamifiedParityNarrowClassHom_apply
-    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
-    (v : ({p // p ∈ ramifiedPrimes d} → Fin 2)) :
-    fullRamifiedParityNarrowClassHom d (Multiplicative.ofAdd v) =
-      fullRamifiedParityNarrowClassProduct d v :=
-  rfl
-
-private theorem fullRamifiedParityNarrowClassHom_mem_ker_iff
-    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
-    (v : ({p // p ∈ ramifiedPrimes d} → Fin 2)) :
-    Multiplicative.ofAdd v ∈ (fullRamifiedParityNarrowClassHom d).ker ↔
-      fullRamifiedParityNarrowClassProduct d v = 1 := by
-  simp [MonoidHom.mem_ker, fullRamifiedParityNarrowClassHom_apply]
-
 /-- After erasing one ramified rational prime, the remaining `Fin 2` parity
 vectors have cardinality `2 ^ (t - 1)`. -/
 private theorem card_erasedRamifiedParityVectorDomain
@@ -3901,62 +3869,20 @@ private theorem fin_two_add_eq_zero_of_ne_zero_of_ne_zero {a b : Fin 2}
   have hb1 : b = 1 := Fin.eq_one_of_ne_zero b hb
   simp [ha1, hb1]
 
-/-- A full ramified parity vector lies in the kernel of the narrow-class map
-exactly when the corresponding integral ideal product is killed by a totally
-positive principal fractional ideal. -/
-private theorem fullRamifiedParityNarrowClassHom_mem_ker_iff_exists_positivePrincipal
-    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
-    (r : ({p // p ∈ ramifiedPrimes d} → Fin 2)) :
-    let R := NumberField.RingOfIntegers (Qsqrtd (d : ℚ))
-    Multiplicative.ofAdd r ∈ (fullRamifiedParityNarrowClassHom d).ker ↔
-      ∃ x : (FractionRing R)ˣ,
-        NarrowClassGroup.IsTotallyPositive (x : FractionRing R) ∧
-          FractionalIdeal.mk0 (FractionRing R) (fullRamifiedParityIdealProduct d r) *
-            toPrincipalIdeal R (FractionRing R) x = 1 := by
-  let R := NumberField.RingOfIntegers (Qsqrtd (d : ℚ))
-  rw [fullRamifiedParityNarrowClassHom_mem_ker_iff]
-  rw [← mk0_fullRamifiedParityIdealProduct d r]
-  exact NarrowClassGroup.mk0_eq_one_iff_exists_fraction_ring
+/-- Weak positive-principal ramified relation needed for the upper bound. It
+asserts that some nonzero product of ramified prime ideal classes is trivial in
+the narrow class group.
 
-/-- Strict positive-principal denominator for the full finite ramified parity
-map. It constructs a nonzero parity vector whose full ramified ideal product is
-equivalent to the unit ideal by multiplying with a totally positive principal
-fractional ideal.
-
-This is the exact remaining input needed by the upper-bound proof. It is weaker
-than the full strict ambiguous-class-number denominator, which identifies this
-as the unique nonzero kernel relation. The upper bound only needs one nonzero
-strict relation so that a coordinate in its support can be erased. -/
-private theorem exists_positivePrincipal_fullRamifiedParityIdealProduct_relation
-    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
-    let R := NumberField.RingOfIntegers (Qsqrtd (d : ℚ))
-    ∃ r : ({p // p ∈ ramifiedPrimes d} → Fin 2),
-      (∃ p, r p ≠ 0) ∧
-        ∃ x : (FractionRing R)ˣ,
-          NarrowClassGroup.IsTotallyPositive (x : FractionRing R) ∧
-            FractionalIdeal.mk0 (FractionRing R) (fullRamifiedParityIdealProduct d r) *
-              toPrincipalIdeal R (FractionRing R) x =
-            1 := by
-  -- Remaining gap: prove the strict positive-principal denominator in its
-  -- existence form. Equivalently, the finite ramified-prime parity map has a
-  -- nonzero kernel vector killed by a totally positive principal ideal.
-  sorry
-
-/-- Positive-principal denominator boundary as a nonzero kernel vector for the
-full finite ramified parity map to the narrow class group. The relation is
-deliberately not identified with the all-one finite ramified vector: in real
-quadratic fields the ordinary principal generator of the full finite ramified
-product need not be totally positive. -/
+This is weaker than computing the full kernel of the ramified parity map. It is
+the only global unit/sign input needed to erase one ramified coordinate in the
+upper-bound proof. -/
 private theorem exists_nonzero_fullRamifiedParityNarrowClassProduct_eq_one
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
     ∃ r : ({p // p ∈ ramifiedPrimes d} → Fin 2),
       (∃ p, r p ≠ 0) ∧ fullRamifiedParityNarrowClassProduct d r = 1 := by
-  obtain ⟨r, hrnonzero, x, hxpos, hx⟩ :=
-    exists_positivePrincipal_fullRamifiedParityIdealProduct_relation d
-  refine ⟨r, hrnonzero, ?_⟩
-  exact (fullRamifiedParityNarrowClassHom_mem_ker_iff d r).mp
-    ((fullRamifiedParityNarrowClassHom_mem_ker_iff_exists_positivePrincipal d r).mpr
-      ⟨x, hxpos, hx⟩)
+  -- Remaining gap: compute enough of the global unit/sign contribution to
+  -- produce a nonzero ramified parity product that is narrow-principal.
+  sorry
 
 /-- A nonzero kernel vector for the finite ramified parity map acts trivially on
 all full ramified parity products. -/
@@ -4442,7 +4368,7 @@ private theorem card_narrowInversionFixedClass_le_genusBound_of_positivePrincipa
     _ = 2 ^ (ramifiedPrimeCount d - 1) :=
       card_erasedRamifiedParityVectorDomain d hp0
 
-/-- Remaining ambiguous-class-number input in inversion-fixed form: the
+/-- Remaining positive-principal input in inversion-fixed form: the
 inversion-fixed narrow classes are bounded by the genus count. The next
 mathematical step is to identify these classes with conjugation-fixed ideal
 classes represented by ramified-prime exponent vectors, with the single
