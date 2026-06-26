@@ -1258,6 +1258,27 @@ private noncomputable def ramifiedParityIdealProduct
           simpa [Ideal.zero_eq_bot] using
             ramifiedPrimeIdeal_ne_bot d ((Finset.mem_erase.mp p.2).2))⟩
 
+private noncomputable def fullRamifiedParityVector
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (I : (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰) :
+    ({p // p ∈ ramifiedPrimes d} → Fin 2) := by
+  classical
+  exact fun p =>
+    ⟨(UniqueFactorizationMonoid.normalizedFactors I.1).count
+        (ramifiedPrimeIdeal d p.2) % 2,
+      Nat.mod_lt _ (by decide : 0 < 2)⟩
+
+private noncomputable def fullRamifiedParityIdealProduct
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (v : ({p // p ∈ ramifiedPrimes d} → Fin 2)) :
+    (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰ := by
+  classical
+  exact Finset.univ.prod fun p : {p // p ∈ ramifiedPrimes d} =>
+    if v p = 0 then 1 else
+      ⟨ramifiedPrimeIdeal d p.2,
+        mem_nonZeroDivisors_iff_ne_zero.mpr (by
+          simpa [Ideal.zero_eq_bot] using ramifiedPrimeIdeal_ne_bot d p.2)⟩
+
 /-- A ramified prime ideal is fixed by quadratic conjugation. -/
 private theorem isAmbiguousIdeal_ramifiedPrimeIdeal
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
@@ -1714,6 +1735,70 @@ private theorem exists_integralIdeal_tp_multiplier_to_conjAut_of_narrowInversion
       _ = C.1 := C.2.symm
   exact (NarrowClassGroup.mk0_eq_mk0_iff_exists_fraction_ring).mp (hI.trans hconj.symm)
 
+/-- Hilbert-90 adjustment boundary. A representative whose conjugate differs by
+a totally positive principal fractional ideal can be changed within the same
+narrow class to a genuinely ambiguous integral ideal. -/
+private theorem exists_integralIdeal_isAmbiguousIdeal_mk0_eq_of_tp_multiplier_to_conjAut
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (I : (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰)
+    {x : (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))ˣ}
+    (hxpos : NarrowClassGroup.IsTotallyPositive
+      (x : FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))))
+    (hconj :
+      FractionalIdeal.mk0
+          (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) I *
+        toPrincipalIdeal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))
+          (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) x =
+      FractionalIdeal.mk0
+        (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))
+        (conjAutNonzeroIdealMulEquiv (Qsqrtd (d : ℚ)) I)) :
+    ∃ J : (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰,
+      NarrowClassGroup.mk0 J = NarrowClassGroup.mk0 I ∧
+        IsAmbiguousIdeal (conjAutRingOfIntegers (Qsqrtd (d : ℚ)))
+          (J : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) := by
+  -- Remaining gap: convert the totally positive multiplier relation into a
+  -- norm-one coboundary using Hilbert 90, then clear denominators without
+  -- changing the narrow class.
+  sorry
+
+/-- Per-factor assembly boundary. A genuinely ambiguous integral ideal class can
+be represented by the product of the ramified prime ideals with the same parity
+vector over all ramified primes. -/
+private theorem exists_integralIdeal_fullRamifiedParityRepresentative_of_isAmbiguousIdeal
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (J : (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰)
+    (hJ : IsAmbiguousIdeal (conjAutRingOfIntegers (Qsqrtd (d : ℚ)))
+      (J : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))) :
+    ∃ I : (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰,
+      NarrowClassGroup.mk0 I = NarrowClassGroup.mk0 J ∧
+        NarrowClassGroup.mk0 I =
+          NarrowClassGroup.mk0
+            (fullRamifiedParityIdealProduct d (fullRamifiedParityVector d I)) := by
+  -- Remaining gap: use unique factorization of ideals and the split/inert/
+  -- ramified per-factor lemmas to cancel non-ramified conjugate pairs.
+  sorry
+
+/-- Product-one elimination boundary. Once an ambiguous class is represented by
+the full ramified parity product, the single relation among all ramified prime
+ideals lets us choose a parity-compatible representative omitting the
+distinguished ramified prime `p0`. -/
+private theorem exists_integralIdeal_erasedRamifiedParityRepresentative_of_fullRamifiedParity
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    {p0 : ℕ} (hp0 : p0 ∈ ramifiedPrimes d)
+    (I : (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰)
+    (hfull :
+      NarrowClassGroup.mk0 I =
+        NarrowClassGroup.mk0
+          (fullRamifiedParityIdealProduct d (fullRamifiedParityVector d I))) :
+    ∃ J : (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰,
+      NarrowClassGroup.mk0 J = NarrowClassGroup.mk0 I ∧
+        NarrowClassGroup.mk0 J =
+          NarrowClassGroup.mk0
+            (ramifiedParityIdealProduct d hp0 (idealRamifiedParityVector d hp0 J)) := by
+  -- Remaining gap: formalize the total product of ramified prime ideals as a
+  -- totally positive principal ideal and use it to normalize the `p0` parity.
+  sorry
+
 /-- Hard representative selection for the ambiguous bound. It chooses a
 representative of an inversion-fixed narrow class whose ramified-prime parity
 vector actually represents the same narrow class. Proving this is the remaining
@@ -1729,9 +1814,20 @@ private theorem exists_integralIdeal_ramifiedParityRepresentative_of_narrowInver
         NarrowClassGroup.mk0 I =
           NarrowClassGroup.mk0
             (ramifiedParityIdealProduct d hp0 (idealRamifiedParityVector d hp0 I)) := by
-  -- Remaining gap: construct a factorization-compatible representative for
-  -- each inversion-fixed narrow class.
-  sorry
+  obtain ⟨I, hI, x, hxpos, hconj⟩ :=
+    exists_integralIdeal_tp_multiplier_to_conjAut_of_narrowInversionFixedClass
+      (Qsqrtd (d : ℚ)) C
+  obtain ⟨J, hJmk0, hJamb⟩ :=
+    exists_integralIdeal_isAmbiguousIdeal_mk0_eq_of_tp_multiplier_to_conjAut
+      d I hxpos hconj
+  obtain ⟨I', hI'mk0, hIfull⟩ :=
+    exists_integralIdeal_fullRamifiedParityRepresentative_of_isAmbiguousIdeal
+      d J hJamb
+  obtain ⟨J', hJ'mk0, hJ'parity⟩ :=
+    exists_integralIdeal_erasedRamifiedParityRepresentative_of_fullRamifiedParity
+      d hp0 I' hIfull
+  refine ⟨J', ?_, hJ'parity⟩
+  exact hJ'mk0.trans (hI'mk0.trans (hJmk0.trans hI))
 
 private noncomputable def narrowInversionFixedRepresentativeIdeal
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
