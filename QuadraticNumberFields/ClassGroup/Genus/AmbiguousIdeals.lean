@@ -1798,29 +1798,6 @@ private theorem normalizedFactor_eq_ramifiedPrimeIdeal_ramifiedPrimeOfNormalized
   Classical.choose_spec
     ((normalizedFactorIsRamified_iff_exists_eq_ramifiedPrimeIdeal d P).mp hP)
 
-private theorem conjAutNormalizedFactor_eq_self_of_isRamifiedIn
-    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
-    {I : (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰}
-    (hI : IsAmbiguousIdeal (conjAutRingOfIntegers (Qsqrtd (d : ℚ)))
-      (I : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))))
-    (P : {P // P ∈ UniqueFactorizationMonoid.normalizedFactors
-      (I : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))})
-    {p : ℕ} (hp : p.Prime)
-    (hcomap : P.1.comap
-      (algebraMap ℤ (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) = 𝔭(p))
-    (hram : Ideal.IsRamifiedIn (𝔭(p))
-      (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) :
-    conjAutNormalizedFactor d hI P = P := by
-  obtain ⟨hpRamified, hP⟩ :=
-    normalizedFactor_eq_ramifiedPrimeIdeal_of_isRamifiedIn d P hp hcomap hram
-  apply Subtype.ext
-  change Ideal.map (conjAutRingOfIntegers (Qsqrtd (d : ℚ)) :
-      NumberField.RingOfIntegers (Qsqrtd (d : ℚ)) →+*
-        NumberField.RingOfIntegers (Qsqrtd (d : ℚ))) P.1 = P.1
-  rw [hP]
-  exact map_conjAut_eq_of_mem_primesOver_of_mem_ramifiedPrimes (d := d) hpRamified
-    (ramifiedPrimeIdeal_mem_primesOver d hpRamified)
-
 private theorem normalizedFactorNonzeroIdeal_conjAutNormalizedFactor
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
     {I : (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰}
