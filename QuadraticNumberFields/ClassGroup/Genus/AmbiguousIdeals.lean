@@ -1458,6 +1458,37 @@ private theorem isAmbiguousIdeal_ramifiedPrimeIdeal
   map_conjAut_eq_of_mem_primesOver_of_mem_ramifiedPrimes (d := d) hp
     (ramifiedPrimeIdeal_mem_primesOver d hp)
 
+/-- The full ramified parity ideal product is fixed by quadratic conjugation. -/
+private theorem isAmbiguousIdeal_fullRamifiedParityIdealProduct
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (v : ({p // p ∈ ramifiedPrimes d} → Fin 2)) :
+    IsAmbiguousIdeal
+      (conjAutRingOfIntegers (Qsqrtd (d : ℚ)))
+      (fullRamifiedParityIdealProduct d v : Ideal
+        (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) := by
+  classical
+  let R := NumberField.RingOfIntegers (Qsqrtd (d : ℚ))
+  refine Finset.prod_induction
+    (s := Finset.univ)
+    (f := fun p : {p // p ∈ ramifiedPrimes d} =>
+      if v p = 0 then (1 : (Ideal R)⁰) else
+        ⟨ramifiedPrimeIdeal d p.2,
+          mem_nonZeroDivisors_iff_ne_zero.mpr (by
+            simpa [Ideal.zero_eq_bot] using ramifiedPrimeIdeal_ne_bot d p.2)⟩)
+    (p := fun I : (Ideal R)⁰ =>
+      IsAmbiguousIdeal (conjAutRingOfIntegers (Qsqrtd (d : ℚ)))
+        (I : Ideal R))
+    ?_ ?_ ?_
+  · intro I J hI hJ
+    change IsAmbiguousIdeal (conjAutRingOfIntegers (Qsqrtd (d : ℚ)))
+      ((I : Ideal R) * (J : Ideal R))
+    exact hI.mul hJ
+  · simp
+  · intro p _hp
+    by_cases hpv : v p = 0
+    · simp [hpv]
+    · simp [hpv, isAmbiguousIdeal_ramifiedPrimeIdeal]
+
 /-- The ramified parity ideal product is fixed by quadratic conjugation. -/
 private theorem isAmbiguousIdeal_ramifiedParityIdealProduct
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
@@ -3114,6 +3145,29 @@ private theorem fullRamifiedParityVector_fullRamifiedParityIdealProduct
   rw [normalizedFactors_count_fullRamifiedParityIdealProduct d v p]
   exact Nat.mod_eq_of_lt (v p).isLt
 
+/-- An ambiguous integral ideal class can be represented by the full ramified
+parity product, and that representative carries the expected full parity
+vector. -/
+private theorem exists_integralIdeal_fullRamifiedParityRepresentative_of_isAmbiguousIdeal
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (J : (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰)
+    (hJ : IsAmbiguousIdeal (conjAutRingOfIntegers (Qsqrtd (d : ℚ)))
+      (J : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))) :
+    ∃ I : (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰,
+      NarrowClassGroup.mk0 I = NarrowClassGroup.mk0 J ∧
+        IsAmbiguousIdeal (conjAutRingOfIntegers (Qsqrtd (d : ℚ)))
+          (I : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) ∧
+        NarrowClassGroup.mk0 I =
+          NarrowClassGroup.mk0
+            (fullRamifiedParityIdealProduct d (fullRamifiedParityVector d I)) := by
+  let I := fullRamifiedParityIdealProduct d (fullRamifiedParityVector d J)
+  refine ⟨I, ?_, ?_, ?_⟩
+  · exact (ambiguousIdeal_mk0_eq_fullRamifiedParityIdealProduct d J hJ).symm
+  · exact isAmbiguousIdeal_fullRamifiedParityIdealProduct d (fullRamifiedParityVector d J)
+  · dsimp [I]
+    rw [fullRamifiedParityVector_fullRamifiedParityIdealProduct d
+      (fullRamifiedParityVector d J)]
+
 /-- The erased ramified parity ideal product is the multiset product of exactly
 the ramified prime ideals whose parity coordinate is nonzero. -/
 private theorem coe_ramifiedParityIdealProduct_eq_filtered_multiset_prod
@@ -3229,12 +3283,14 @@ private theorem exists_integralIdeal_erasedRamifiedParityRepresentative_of_isAmb
         NarrowClassGroup.mk0 I =
           NarrowClassGroup.mk0
             (ramifiedParityIdealProduct d hp0 (idealRamifiedParityVector d hp0 I)) := by
+  obtain ⟨I₀, hI₀mk0, hI₀amb, hI₀full⟩ :=
+    exists_integralIdeal_fullRamifiedParityRepresentative_of_isAmbiguousIdeal d J hJ
   obtain ⟨w, hw⟩ :=
     exists_erasedRamifiedParityProduct_mk0_eq_full_of_ambiguousIdeal
-      d hp0 J hJ
+      d hp0 I₀ hI₀amb
   let I := ramifiedParityIdealProduct d hp0 w
   refine ⟨I, ?_, ?_⟩
-  · exact hw.trans (ambiguousIdeal_mk0_eq_fullRamifiedParityIdealProduct d J hJ).symm
+  · exact hw.trans (hI₀full.symm.trans hI₀mk0)
   · simp [I, idealRamifiedParityVector_ramifiedParityIdealProduct d hp0 w]
 
 /-- Hard representative selection for the ambiguous bound. It chooses a
