@@ -2776,20 +2776,16 @@ private theorem exists_tp_multiplier_ambiguousIdeal_to_fullRamifiedParityIdealPr
   -- principal ideals, while ramified factors reduce to their exponent modulo `2`.
   sorry
 
-/-- Per-factor assembly boundary. A genuinely ambiguous integral ideal class can
-be represented by the product of the ramified prime ideals with the same parity
-vector over all ramified primes. -/
-private theorem exists_integralIdeal_fullRamifiedParityRepresentative_of_isAmbiguousIdeal
+/-- Per-factor assembly boundary in class form. A genuinely ambiguous integral
+ideal class is the class of the full ramified-prime parity product. -/
+private theorem ambiguousIdeal_mk0_eq_fullRamifiedParityIdealProduct
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
     (J : (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰)
     (hJ : IsAmbiguousIdeal (conjAutRingOfIntegers (Qsqrtd (d : ℚ)))
       (J : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))) :
-    ∃ I : (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰,
-      NarrowClassGroup.mk0 I = NarrowClassGroup.mk0 J ∧
-        NarrowClassGroup.mk0 I =
-          NarrowClassGroup.mk0
-            (fullRamifiedParityIdealProduct d (fullRamifiedParityVector d I)) := by
-  refine ⟨J, rfl, ?_⟩
+    NarrowClassGroup.mk0 J =
+      NarrowClassGroup.mk0
+        (fullRamifiedParityIdealProduct d (fullRamifiedParityVector d J)) := by
   rw [NarrowClassGroup.mk0_eq_mk0_iff_exists_fraction_ring]
   exact exists_tp_multiplier_ambiguousIdeal_to_fullRamifiedParityIdealProduct d J hJ
 
@@ -2893,29 +2889,33 @@ private theorem fullRamifiedParityNarrowClassProduct_eq_erased_of_apply_p0_eq_ze
   · intro p _hp
     simp [F]
 
-/-- Product-one relation in narrow-class form. The full ramified parity product
-is narrow-equivalent to an erased ramified parity product after choosing the
-`p0` coordinate using the single positive-principal relation among all ramified
-prime ideals. -/
-private theorem exists_erasedRamifiedParityProduct_mk0_eq_fullRamifiedParityProduct
+/-- Positive-principal denominator boundary in narrow-class form. For the full
+ramified parity vector actually attached to an ambiguous ideal, the distinguished
+ramified coordinate can be removed in `Cl⁺`. This is deliberately not stated for
+an arbitrary full vector: in real quadratic fields the naive total finite
+ramified-prime product is not generally narrow-principal. -/
+private theorem exists_erasedRamifiedParityProduct_mk0_eq_full_of_ambiguousIdeal
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
     {p0 : ℕ} (hp0 : p0 ∈ ramifiedPrimes d)
-    (v : ({p // p ∈ ramifiedPrimes d} → Fin 2)) :
+    (J : (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰)
+    (hJ : IsAmbiguousIdeal (conjAutRingOfIntegers (Qsqrtd (d : ℚ)))
+      (J : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))) :
     ∃ w : ({p // p ∈ (ramifiedPrimes d).erase p0} → Fin 2),
       NarrowClassGroup.mk0
           (ramifiedParityIdealProduct d hp0 w) =
-        NarrowClassGroup.mk0 (fullRamifiedParityIdealProduct d v) := by
+        NarrowClassGroup.mk0
+          (fullRamifiedParityIdealProduct d (fullRamifiedParityVector d J)) := by
+  let v := fullRamifiedParityVector d J
   by_cases hv0 : v ⟨p0, hp0⟩ = 0
   · refine ⟨fun p => v ⟨p.1, (Finset.mem_erase.mp p.2).2⟩, ?_⟩
     rw [fullRamifiedParityIdealProduct_eq_ramifiedParityIdealProduct_of_apply_p0_eq_zero
       d hp0 v hv0]
   · let u : {p // p ∈ ramifiedPrimes d} → Fin 2 := fun p => if v p = 0 then 1 else 0
     refine ⟨fun p => u ⟨p.1, (Finset.mem_erase.mp p.2).2⟩, ?_⟩
-    -- Remaining gap: the erased-coordinate step needs the correct narrow
-    -- relation for the product of all ramified prime classes. The naive
-    -- statement that this total product is always `1` in the narrow class group
-    -- is false in real quadratic fields without a negative-norm unit, so this
-    -- branch must use the precise genus-theoretic relation instead.
+    -- Remaining gap: use the strict/narrow ambiguous class number denominator
+    -- for the actual ambiguous ideal `J`. The older arbitrary-vector statement
+    -- was too strong: the finite total ramified product need not be
+    -- narrow-principal in real quadratic fields.
     sorry
 
 /-- The erased ramified parity ideal product is the multiset product of exactly
@@ -3019,30 +3019,27 @@ private theorem idealRamifiedParityVector_ramifiedParityIdealProduct
   rw [normalizedFactors_count_ramifiedParityIdealProduct d hp0 w p]
   exact Nat.mod_eq_of_lt (w p).isLt
 
-/-- Product-one elimination boundary. Once an ambiguous class is represented by
-the full ramified parity product, the single relation among all ramified prime
-ideals lets us choose a parity-compatible representative omitting the
-distinguished ramified prime `p0`. -/
-private theorem exists_integralIdeal_erasedRamifiedParityRepresentative_of_fullRamifiedParity
+/-- Erased-coordinate representative boundary for ambiguous ideals. A genuinely
+ambiguous ideal class has a representative whose erased ramified parity product
+recovers its narrow class. -/
+private theorem exists_integralIdeal_erasedRamifiedParityRepresentative_of_isAmbiguousIdeal
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
     {p0 : ℕ} (hp0 : p0 ∈ ramifiedPrimes d)
-    (I : (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰)
-    (hfull :
-      NarrowClassGroup.mk0 I =
-        NarrowClassGroup.mk0
-          (fullRamifiedParityIdealProduct d (fullRamifiedParityVector d I))) :
-    ∃ J : (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰,
-      NarrowClassGroup.mk0 J = NarrowClassGroup.mk0 I ∧
-        NarrowClassGroup.mk0 J =
+    (J : (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰)
+    (hJ : IsAmbiguousIdeal (conjAutRingOfIntegers (Qsqrtd (d : ℚ)))
+      (J : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))) :
+    ∃ I : (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰,
+      NarrowClassGroup.mk0 I = NarrowClassGroup.mk0 J ∧
+        NarrowClassGroup.mk0 I =
           NarrowClassGroup.mk0
-            (ramifiedParityIdealProduct d hp0 (idealRamifiedParityVector d hp0 J)) := by
+            (ramifiedParityIdealProduct d hp0 (idealRamifiedParityVector d hp0 I)) := by
   obtain ⟨w, hw⟩ :=
-    exists_erasedRamifiedParityProduct_mk0_eq_fullRamifiedParityProduct
-      d hp0 (fullRamifiedParityVector d I)
-  let J := ramifiedParityIdealProduct d hp0 w
-  refine ⟨J, ?_, ?_⟩
-  · rw [hfull, hw]
-  · simp [J, idealRamifiedParityVector_ramifiedParityIdealProduct d hp0 w]
+    exists_erasedRamifiedParityProduct_mk0_eq_full_of_ambiguousIdeal
+      d hp0 J hJ
+  let I := ramifiedParityIdealProduct d hp0 w
+  refine ⟨I, ?_, ?_⟩
+  · exact hw.trans (ambiguousIdeal_mk0_eq_fullRamifiedParityIdealProduct d J hJ).symm
+  · simp [I, idealRamifiedParityVector_ramifiedParityIdealProduct d hp0 w]
 
 /-- Hard representative selection for the ambiguous bound. It chooses a
 representative of an inversion-fixed narrow class whose ramified-prime parity
@@ -3065,14 +3062,11 @@ private theorem exists_integralIdeal_ramifiedParityRepresentative_of_narrowInver
   obtain ⟨J, hJmk0, hJamb⟩ :=
     exists_integralIdeal_isAmbiguousIdeal_mk0_eq_of_tp_multiplier_to_conjAut
       d I hxpos hconj
-  obtain ⟨I', hI'mk0, hIfull⟩ :=
-    exists_integralIdeal_fullRamifiedParityRepresentative_of_isAmbiguousIdeal
-      d J hJamb
   obtain ⟨J', hJ'mk0, hJ'parity⟩ :=
-    exists_integralIdeal_erasedRamifiedParityRepresentative_of_fullRamifiedParity
-      d hp0 I' hIfull
+    exists_integralIdeal_erasedRamifiedParityRepresentative_of_isAmbiguousIdeal
+      d hp0 J hJamb
   refine ⟨J', ?_, hJ'parity⟩
-  exact hJ'mk0.trans (hI'mk0.trans (hJmk0.trans hI))
+  exact hJ'mk0.trans (hJmk0.trans hI)
 
 private noncomputable def narrowInversionFixedRepresentativeIdeal
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
