@@ -1596,6 +1596,21 @@ private theorem narrowClassGroup_mk0_span_singleton_eq_one_of_isTotallyPositive
       (Ideal.span ({a} : Set R) : FractionalIdeal R⁰ K)
     rw [FractionalIdeal.coeIdeal_span_singleton]⟩
 
+/-- A Dedekind prime factor of a nonzero integral ideal, regarded as a nonzero
+ideal. The nonzeroness follows from containment of the original nonzero ideal
+in the prime factor. -/
+private def normalizedFactorNonzeroIdeal
+    {R : Type*} [CommRing R] [IsDomain R] [IsDedekindDomain R]
+    (I : (Ideal R)⁰)
+    (P : {P // P ∈ UniqueFactorizationMonoid.normalizedFactors (I : Ideal R)}) :
+    (Ideal R)⁰ :=
+  ⟨P.1, mem_nonZeroDivisors_iff_ne_zero.mpr (by
+    have hI0 : (I : Ideal R) ≠ ⊥ := by
+      simpa [Ideal.zero_eq_bot] using mem_nonZeroDivisors_iff_ne_zero.mp I.2
+    have hPdata := (Ideal.mem_normalizedFactors_iff hI0).mp P.2
+    intro hPbot
+    exact hI0 (le_bot_iff.mp (by simpa [hPbot] using hPdata.2)))⟩
+
 /-- The narrow class of a nonzero integral ideal is the product of the narrow
 classes of its Dedekind prime factors, counted with multiplicity. -/
 private theorem narrowClassGroup_mk0_eq_normalizedFactors_prod
@@ -1603,14 +1618,7 @@ private theorem narrowClassGroup_mk0_eq_normalizedFactors_prod
     (I : (Ideal R)⁰) :
     NarrowClassGroup.mk0 I =
       ((UniqueFactorizationMonoid.normalizedFactors (I : Ideal R)).attach.map fun P =>
-        NarrowClassGroup.mk0
-          (⟨P.1, mem_nonZeroDivisors_iff_ne_zero.mpr (by
-            have hI0 : (I : Ideal R) ≠ ⊥ := by
-              simpa [Ideal.zero_eq_bot] using mem_nonZeroDivisors_iff_ne_zero.mp I.2
-            have hPdata := (Ideal.mem_normalizedFactors_iff hI0).mp P.2
-            intro hPbot
-            exact hI0 (le_bot_iff.mp (by simpa [hPbot] using hPdata.2)))⟩ :
-              (Ideal R)⁰)).prod := by
+        NarrowClassGroup.mk0 (normalizedFactorNonzeroIdeal I P)).prod := by
   classical
   let s := UniqueFactorizationMonoid.normalizedFactors (I : Ideal R)
   have hI0 : (I : Ideal R) ≠ ⊥ := by
@@ -1618,17 +1626,15 @@ private theorem narrowClassGroup_mk0_eq_normalizedFactors_prod
   have hprod : s.prod = (I : Ideal R) :=
     Ideal.prod_normalizedFactors_eq_self hI0
   let F : {P // P ∈ s} → (Ideal R)⁰ := fun P =>
-    ⟨P.1, mem_nonZeroDivisors_iff_ne_zero.mpr (by
-      have hPdata := (Ideal.mem_normalizedFactors_iff hI0).mp P.2
-      intro hPbot
-      exact hI0 (le_bot_iff.mp (by simpa [hPbot] using hPdata.2)))⟩
+    normalizedFactorNonzeroIdeal I P
   have hFprod : ((s.attach.map F).prod : Ideal R) = (I : Ideal R) := by
     rw [SubmonoidClass.coe_multiset_prod]
     rw [Multiset.map_map]
     change (s.attach.map (fun P : {P // P ∈ s} => (F P : Ideal R))).prod = I
     have hmap :
         s.attach.map (fun P : {P // P ∈ s} => (F P : Ideal R)) = s := by
-      simp [F]
+      change s.attach.map (fun P : {P // P ∈ s} => (P.1 : Ideal R)) = s
+      rw [Multiset.attach_map_val]
     rw [hmap]
     exact hprod
   calc
@@ -1641,14 +1647,81 @@ private theorem narrowClassGroup_mk0_eq_normalizedFactors_prod
       rw [Multiset.map_map]
       simp only [Function.comp_apply]
     _ = ((UniqueFactorizationMonoid.normalizedFactors (I : Ideal R)).attach.map fun P =>
-        NarrowClassGroup.mk0
-          (⟨P.1, mem_nonZeroDivisors_iff_ne_zero.mpr (by
-            have hI0 : (I : Ideal R) ≠ ⊥ := by
-              simpa [Ideal.zero_eq_bot] using mem_nonZeroDivisors_iff_ne_zero.mp I.2
-            have hPdata := (Ideal.mem_normalizedFactors_iff hI0).mp P.2
-            intro hPbot
-            exact hI0 (le_bot_iff.mp (by simpa [hPbot] using hPdata.2)))⟩ :
-              (Ideal R)⁰)).prod := rfl
+        NarrowClassGroup.mk0 (normalizedFactorNonzeroIdeal I P)).prod := rfl
+
+/-- Per-prime contribution in the narrow class group. A split prime factor
+cancels with its conjugate, an inert factor is narrowly principal, and a
+ramified factor has square one. -/
+private theorem factor_contribution_by_splitting_narrowClass
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    {I : (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰}
+    (hI : IsAmbiguousIdeal (conjAutRingOfIntegers (Qsqrtd (d : ℚ))) I.1)
+    (P :
+      {P // P ∈ UniqueFactorizationMonoid.normalizedFactors
+        (I : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))})
+    {p : ℕ} (hp : p.Prime)
+    (hcomap : P.1.comap
+      (algebraMap ℤ (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) = 𝔭(p)) :
+    (Ideal.IsSplitIn (𝔭(p)) (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))) ∧
+        NarrowClassGroup.mk0 (normalizedFactorNonzeroIdeal I P) *
+          NarrowClassGroup.mk0
+            (conjAutNonzeroIdealMulEquiv (Qsqrtd (d : ℚ))
+              (normalizedFactorNonzeroIdeal I P)) =
+          1) ∨
+      (Ideal.IsInertIn (𝔭(p)) (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))) ∧
+        NarrowClassGroup.mk0 (normalizedFactorNonzeroIdeal I P) = 1) ∨
+        (Ideal.IsRamifiedIn (𝔭(p)) (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))) ∧
+          (NarrowClassGroup.mk0 (normalizedFactorNonzeroIdeal I P) :
+            NarrowClassGroup (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) ^ 2 = 1) := by
+  let R := NumberField.RingOfIntegers (Qsqrtd (d : ℚ))
+  let P0 : (Ideal R)⁰ := normalizedFactorNonzeroIdeal I P
+  let σP0 : (Ideal R)⁰ := conjAutNonzeroIdealMulEquiv (Qsqrtd (d : ℚ)) P0
+  have hpR_ne : (p : R) ≠ 0 := by
+    change algebraMap ℤ R (p : ℤ) ≠ 0
+    exact (FaithfulSMul.algebraMap_injective ℤ R).ne (by
+      exact_mod_cast hp.ne_zero)
+  let spanP0 : (Ideal R)⁰ :=
+    ⟨Ideal.span ({(p : R)} : Set R), by
+      rw [mem_nonZeroDivisors_iff_ne_zero, Ideal.zero_eq_bot, ne_eq,
+        Ideal.span_singleton_eq_bot]
+      exact hpR_ne⟩
+  have hspanP0_one : NarrowClassGroup.mk0 spanP0 = 1 :=
+    narrowClassGroup_mk0_span_singleton_eq_one_of_isTotallyPositive
+      hpR_ne (isTotallyPositive_natCast_fractionRing p hp.pos)
+  rcases factor_contribution_by_splitting_span d hI P.2 hp hcomap with hsplit | hinert | hram
+  · refine Or.inl ⟨hsplit.1, ?_⟩
+    calc
+      NarrowClassGroup.mk0 (normalizedFactorNonzeroIdeal I P) *
+          NarrowClassGroup.mk0
+            (conjAutNonzeroIdealMulEquiv (Qsqrtd (d : ℚ))
+              (normalizedFactorNonzeroIdeal I P)) =
+          NarrowClassGroup.mk0 (P0 * σP0) := by
+        simp [P0, σP0, map_mul]
+      _ = NarrowClassGroup.mk0 spanP0 := by
+        congr 1
+        apply Subtype.ext
+        exact hsplit.2
+      _ = 1 := hspanP0_one
+  · refine Or.inr <| Or.inl ⟨hinert.1, ?_⟩
+    calc
+      NarrowClassGroup.mk0 (normalizedFactorNonzeroIdeal I P) =
+          NarrowClassGroup.mk0 spanP0 := by
+        congr 1
+        apply Subtype.ext
+        exact hinert.2
+      _ = 1 := hspanP0_one
+  · refine Or.inr <| Or.inr ⟨hram.1, ?_⟩
+    have hP0_sq : P0 ^ 2 = spanP0 := by
+      apply Subtype.ext
+      exact hram.2
+    calc
+      (NarrowClassGroup.mk0 (normalizedFactorNonzeroIdeal I P) :
+          NarrowClassGroup R) ^ 2 =
+          NarrowClassGroup.mk0 (P0 ^ 2) := by
+        simp [P0, map_pow]
+      _ = NarrowClassGroup.mk0 spanP0 := by
+        rw [hP0_sq]
+      _ = 1 := hspanP0_one
 
 /-- Quadratic conjugation acts on the narrow ideal class group by inversion. The
 point not present in the ordinary class-group statement is positivity: the
@@ -2960,11 +3033,32 @@ private theorem exists_tp_multiplier_ambiguousIdeal_to_fullRamifiedParityIdealPr
           (fullRamifiedParityIdealProduct d (fullRamifiedParityVector d J)) := by
   have hJ_factorization :=
     narrowClassGroup_mk0_eq_normalizedFactors_prod J
+  have hfactor_narrow :
+      ∀ (P :
+          {P // P ∈ UniqueFactorizationMonoid.normalizedFactors
+            (J : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))})
+        {p : ℕ}, p.Prime →
+        P.1.comap
+            (algebraMap ℤ (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) =
+          𝔭(p) →
+        (Ideal.IsSplitIn (𝔭(p)) (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))) ∧
+            NarrowClassGroup.mk0 (normalizedFactorNonzeroIdeal J P) *
+              NarrowClassGroup.mk0
+                (conjAutNonzeroIdealMulEquiv (Qsqrtd (d : ℚ))
+                  (normalizedFactorNonzeroIdeal J P)) =
+              1) ∨
+          (Ideal.IsInertIn (𝔭(p)) (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))) ∧
+            NarrowClassGroup.mk0 (normalizedFactorNonzeroIdeal J P) = 1) ∨
+            (Ideal.IsRamifiedIn (𝔭(p)) (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))) ∧
+              (NarrowClassGroup.mk0 (normalizedFactorNonzeroIdeal J P) :
+                NarrowClassGroup (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) ^ 2 = 1) := by
+    intro P p hp hcomap
+    exact factor_contribution_by_splitting_narrowClass d hJ P hp hcomap
   -- Remaining gap: use `hJ_factorization` to multiply the explicit positive
-  -- base-prime span contributions supplied by `factor_contribution_by_splitting_span`
-  -- over the Dedekind factorization of `J`. Split conjugate pairs and inert
-  -- prime factors cancel as totally positive principal ideals, while ramified
-  -- factors reduce to their exponent modulo `2`.
+  -- base-prime span contributions and `hfactor_narrow` over the Dedekind
+  -- factorization of `J`. Split conjugate pairs and inert prime factors cancel
+  -- as totally positive principal ideals, while ramified factors reduce to their
+  -- exponent modulo `2`.
   sorry
 
 /-- Per-factor assembly boundary in class form. A genuinely ambiguous integral
