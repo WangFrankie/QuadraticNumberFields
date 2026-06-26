@@ -1980,6 +1980,42 @@ private theorem fractionalRep_eq_conjAutFractionalRep_of_coboundary
 
 /-- Integral clearing boundary for a conjugation-stable fractional representative.
 If the fractional representative `I * (y)` matches its conjugate factorization,
+then an ambiguous integral ideal represents the same narrow class, up to a
+totally positive principal multiplier. -/
+private theorem exists_ambiguousIntegralClearing_of_conjAutFractionalRep_eq
+    (K : Type*) [Field K] [NumberField K] [Algebra ℚ K]
+    [QuadraticField K] [QuadraticField.Conj K]
+    (I : (Ideal (NumberField.RingOfIntegers K))⁰)
+    (y : (FractionRing (NumberField.RingOfIntegers K))ˣ)
+    (hfixed :
+      FractionalIdeal.mk0 (FractionRing (NumberField.RingOfIntegers K)) I *
+          toPrincipalIdeal (NumberField.RingOfIntegers K)
+            (FractionRing (NumberField.RingOfIntegers K)) y =
+        FractionalIdeal.mk0 (FractionRing (NumberField.RingOfIntegers K))
+            (conjAutNonzeroIdealMulEquiv K I) *
+          toPrincipalIdeal (NumberField.RingOfIntegers K)
+            (FractionRing (NumberField.RingOfIntegers K))
+            (Units.mapEquiv (conjAutFractionRingAlgEquiv K).toRingEquiv y)) :
+    ∃ J : (Ideal (NumberField.RingOfIntegers K))⁰,
+      IsAmbiguousIdeal (conjAutRingOfIntegers K)
+          (J : Ideal (NumberField.RingOfIntegers K)) ∧
+        ∃ t : (FractionRing (NumberField.RingOfIntegers K))ˣ,
+          NarrowClassGroup.IsTotallyPositive
+            (t : FractionRing (NumberField.RingOfIntegers K)) ∧
+            FractionalIdeal.mk0 (FractionRing (NumberField.RingOfIntegers K)) J *
+                toPrincipalIdeal (NumberField.RingOfIntegers K)
+                  (FractionRing (NumberField.RingOfIntegers K)) t =
+              FractionalIdeal.mk0 (FractionRing (NumberField.RingOfIntegers K)) I *
+                toPrincipalIdeal (NumberField.RingOfIntegers K)
+                  (FractionRing (NumberField.RingOfIntegers K)) y := by
+  -- Remaining gap: choose a common integral clearing denominator for the fixed
+  -- fractional ideal `I * (y)` that is itself fixed by conjugation, and prove
+  -- this clearing changes the narrow class by a totally positive principal
+  -- fractional ideal.
+  sorry
+
+/-- Integral clearing boundary for a conjugation-stable fractional representative.
+If the fractional representative `I * (y)` matches its conjugate factorization,
 then it has an ambiguous integral ideal representative in the same narrow
 class. -/
 private theorem exists_integralIdeal_ambiguous_fractionalRep_of_conjAutFractionalRep_eq
@@ -2004,11 +2040,11 @@ private theorem exists_integralIdeal_ambiguous_fractionalRep_of_conjAutFractiona
               (FractionRing (NumberField.RingOfIntegers K)) y) ∧
         IsAmbiguousIdeal (conjAutRingOfIntegers K)
           (J : Ideal (NumberField.RingOfIntegers K)) := by
-  -- Remaining gap: choose a common integral clearing denominator for the fixed
-  -- fractional ideal `I * (y)` that is itself fixed by conjugation, and prove
-  -- this clearing changes the narrow class by a totally positive principal
-  -- fractional ideal.
-  sorry
+  obtain ⟨J, hJamb, t, htpos, ht⟩ :=
+    exists_ambiguousIntegralClearing_of_conjAutFractionalRep_eq K I y hfixed
+  refine ⟨J, ?_, hJamb⟩
+  rw [← NarrowClassGroup.mk_mk0]
+  exact NarrowClassGroup.mk_eq_mk.mpr ⟨⟨t, htpos⟩, ht⟩
 
 /-- Integral clearing boundary for a coboundary-adjusted fractional ideal. Under
 the coboundary relation, the fractional ideal `I * (y)` should have an ambiguous
