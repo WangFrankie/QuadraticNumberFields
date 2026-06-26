@@ -1761,6 +1761,43 @@ private theorem normalizedFactor_eq_ramifiedPrimeIdeal_of_isRamifiedIn
   rw [primesOver_eq_singleton_ramifiedPrimeIdeal d hpRamified] at hPover
   exact ⟨hpRamified, by simpa using hPover⟩
 
+private theorem normalizedFactorIsRamified_iff_exists_eq_ramifiedPrimeIdeal
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    {I : (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰}
+    (P : {P // P ∈ UniqueFactorizationMonoid.normalizedFactors
+      (I : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))}) :
+    normalizedFactorIsRamified d P ↔
+      ∃ p : {p // p ∈ ramifiedPrimes d}, P.1 = ramifiedPrimeIdeal d p.2 := by
+  constructor
+  · rintro ⟨p, hp, hcomap, hram⟩
+    obtain ⟨hpRamified, hP⟩ :=
+      normalizedFactor_eq_ramifiedPrimeIdeal_of_isRamifiedIn d P hp hcomap hram
+    exact ⟨⟨p, hpRamified⟩, hP⟩
+  · rintro ⟨p, hP⟩
+    refine ⟨p.1, prime_of_mem_ramifiedPrimes p.2, ?_, ?_⟩
+    · rw [hP]
+      exact (ramifiedPrimeIdeal_mem_primesOver d p.2).2.1.symm
+    · exact ((mem_ramifiedPrimes_iff_isRamifiedIn d p.1).mp p.2).2
+
+private noncomputable def ramifiedPrimeOfNormalizedFactor
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    {I : (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰}
+    (P : {P // P ∈ UniqueFactorizationMonoid.normalizedFactors
+      (I : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))})
+    (hP : normalizedFactorIsRamified d P) :
+    {p // p ∈ ramifiedPrimes d} :=
+  Classical.choose ((normalizedFactorIsRamified_iff_exists_eq_ramifiedPrimeIdeal d P).mp hP)
+
+private theorem normalizedFactor_eq_ramifiedPrimeIdeal_ramifiedPrimeOfNormalizedFactor
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    {I : (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰}
+    (P : {P // P ∈ UniqueFactorizationMonoid.normalizedFactors
+      (I : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))})
+    (hP : normalizedFactorIsRamified d P) :
+    P.1 = ramifiedPrimeIdeal d (ramifiedPrimeOfNormalizedFactor d P hP).2 :=
+  Classical.choose_spec
+    ((normalizedFactorIsRamified_iff_exists_eq_ramifiedPrimeIdeal d P).mp hP)
+
 private theorem conjAutNormalizedFactor_eq_self_of_isRamifiedIn
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
     {I : (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰}
@@ -2174,14 +2211,99 @@ private theorem normalizedFactors_ramified_count_prod_eq_ramifiedPrime_count_pro
             (J : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))).count
             (ramifiedPrimeIdeal d p.2) := by
   classical
-  -- Remaining exact gap: build the bijection between normalized factors of
-  -- `J` that lie over ramified rational primes and the ramified primes whose
-  -- distinguished prime ideal has positive count in `normalizedFactors J`.
-  -- `normalizedFactor_eq_ramifiedPrimeIdeal_of_isRamifiedIn` gives the forward
-  -- identification, `ramifiedPrimeIdeal_eq_iff` gives injectivity, and terms
-  -- for ramified primes not appearing in the factorization are `1` because the
-  -- multiset count is zero.
-  sorry
+  let R := NumberField.RingOfIntegers (Qsqrtd (d : ℚ))
+  let s := UniqueFactorizationMonoid.normalizedFactors (J : Ideal R)
+  let S := s.attach.toFinset
+  let f : {P // P ∈ s} → NarrowClassGroup R := fun P =>
+    (NarrowClassGroup.mk0 (normalizedFactorNonzeroIdeal J P) :
+        NarrowClassGroup R) ^ s.count P.1
+  let term : {p // p ∈ ramifiedPrimes d} → NarrowClassGroup R := fun p =>
+    (ramifiedPrimeNarrowClass d p.2) ^ s.count (ramifiedPrimeIdeal d p.2)
+  let T := Finset.univ.filter fun p : {p // p ∈ ramifiedPrimes d} =>
+    ramifiedPrimeIdeal d p.2 ∈ s
+  have hleft :
+      (∏ P ∈ S with normalizedFactorIsRamified d P, f P) = ∏ p ∈ T, term p := by
+    refine Finset.prod_bij
+      (fun P hP => ramifiedPrimeOfNormalizedFactor d P (Finset.mem_filter.mp hP).2)
+      ?_ ?_ ?_ ?_
+    · intro P hP
+      rw [Finset.mem_filter]
+      refine ⟨Finset.mem_univ _, ?_⟩
+      have hPram : normalizedFactorIsRamified d P := (Finset.mem_filter.mp hP).2
+      have hP_eq :=
+        normalizedFactor_eq_ramifiedPrimeIdeal_ramifiedPrimeOfNormalizedFactor d P hPram
+      rw [← hP_eq]
+      exact P.2
+    · intro P hP Q hQ hpq
+      apply Subtype.ext
+      have hP_eq :=
+        normalizedFactor_eq_ramifiedPrimeIdeal_ramifiedPrimeOfNormalizedFactor d P
+          (Finset.mem_filter.mp hP).2
+      have hQ_eq :=
+        normalizedFactor_eq_ramifiedPrimeIdeal_ramifiedPrimeOfNormalizedFactor d Q
+          (Finset.mem_filter.mp hQ).2
+      calc
+        P.1 =
+            ramifiedPrimeIdeal d
+              (ramifiedPrimeOfNormalizedFactor d P (Finset.mem_filter.mp hP).2).2 :=
+          hP_eq
+        _ =
+            ramifiedPrimeIdeal d
+              (ramifiedPrimeOfNormalizedFactor d Q (Finset.mem_filter.mp hQ).2).2 :=
+          congrArg (fun p : {p // p ∈ ramifiedPrimes d} => ramifiedPrimeIdeal d p.2) hpq
+        _ = Q.1 := hQ_eq.symm
+    · intro p hpT
+      have hpMem : ramifiedPrimeIdeal d p.2 ∈ s := (Finset.mem_filter.mp hpT).2
+      let P : {P // P ∈ s} := ⟨ramifiedPrimeIdeal d p.2, hpMem⟩
+      have hPram : normalizedFactorIsRamified d P :=
+        (normalizedFactorIsRamified_iff_exists_eq_ramifiedPrimeIdeal d P).mpr
+          ⟨p, rfl⟩
+      have hPmem : P ∈ S.filter fun P => normalizedFactorIsRamified d P := by
+        rw [Finset.mem_filter]
+        exact ⟨by simp [S, P], hPram⟩
+      refine ⟨P, hPmem, ?_⟩
+      apply Subtype.ext
+      have hP_eq :=
+        normalizedFactor_eq_ramifiedPrimeIdeal_ramifiedPrimeOfNormalizedFactor d P hPram
+      have hIdeal :
+          ramifiedPrimeIdeal d (ramifiedPrimeOfNormalizedFactor d P hPram).2 =
+            ramifiedPrimeIdeal d p.2 := by
+        simpa [P] using hP_eq.symm
+      exact (ramifiedPrimeIdeal_eq_iff d
+        (ramifiedPrimeOfNormalizedFactor d P hPram).2 p.2).mp hIdeal
+    · intro P hP
+      have hPram : normalizedFactorIsRamified d P := (Finset.mem_filter.mp hP).2
+      let p := ramifiedPrimeOfNormalizedFactor d P hPram
+      have hP_eq :
+          P.1 = ramifiedPrimeIdeal d p.2 :=
+        normalizedFactor_eq_ramifiedPrimeIdeal_ramifiedPrimeOfNormalizedFactor d P hPram
+      have hmk :
+          NarrowClassGroup.mk0 (normalizedFactorNonzeroIdeal J P) =
+            ramifiedPrimeNarrowClass d p.2 := by
+        rw [ramifiedPrimeNarrowClass]
+        congr 1
+        apply Subtype.ext
+        exact hP_eq
+      dsimp [f, term, p]
+      rw [hmk, hP_eq]
+  have hright :
+      (∏ p ∈ T, term p) =
+        Finset.univ.prod fun p : {p // p ∈ ramifiedPrimes d} =>
+          (ramifiedPrimeNarrowClass d p.2) ^
+            (UniqueFactorizationMonoid.normalizedFactors
+              (J : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))).count
+              (ramifiedPrimeIdeal d p.2) := by
+    have hfilter :
+        (∏ p ∈ Finset.univ with ramifiedPrimeIdeal d p.2 ∈ s, term p) =
+          ∏ p : {p // p ∈ ramifiedPrimes d}, term p := by
+      refine Finset.prod_filter_of_ne ?_
+      intro p _hp hp_ne
+      by_contra hmem
+      have hcount0 : s.count (ramifiedPrimeIdeal d p.2) = 0 :=
+        Multiset.count_eq_zero_of_notMem hmem
+      exact hp_ne (by simp [term, hcount0])
+    simpa [T, term, s, R] using hfilter
+  exact hleft.trans hright
 
 /-- Quadratic conjugation acts on the narrow ideal class group by inversion. The
 point not present in the ordinary class-group statement is positivity: the
