@@ -3013,24 +3013,17 @@ private theorem exists_integralIdeal_isAmbiguousIdeal_mk0_eq_of_tp_multiplier_to
   exact exists_integralIdeal_isAmbiguousIdeal_mk0_eq_of_conjAut_coboundary
     (Qsqrtd (d : ℚ)) I hypos hy hconj
 
-/-- Per-factor assembly boundary in principal-multiplier form. A genuinely
-ambiguous integral ideal differs from the product of its ramified-prime parity
-factors by a totally positive principal fractional ideal. -/
-private theorem exists_tp_multiplier_ambiguousIdeal_to_fullRamifiedParityIdealProduct
+/-- Exact class-level per-factor assembly boundary. A genuinely ambiguous
+integral ideal has the same narrow class as the product of the ramified-prime
+factors selected by its parity vector. -/
+private theorem ambiguousIdeal_mk0_eq_fullRamifiedParityIdealProduct_of_factorization
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
     (J : (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰)
     (hJ : IsAmbiguousIdeal (conjAutRingOfIntegers (Qsqrtd (d : ℚ)))
       (J : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))) :
-    ∃ x : (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))ˣ,
-      NarrowClassGroup.IsTotallyPositive
-        (x : FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) ∧
-        FractionalIdeal.mk0
-            (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) J *
-          toPrincipalIdeal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))
-            (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) x =
-        FractionalIdeal.mk0
-          (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))
-          (fullRamifiedParityIdealProduct d (fullRamifiedParityVector d J)) := by
+    NarrowClassGroup.mk0 J =
+      NarrowClassGroup.mk0
+        (fullRamifiedParityIdealProduct d (fullRamifiedParityVector d J)) := by
   have hJ_factorization :=
     narrowClassGroup_mk0_eq_normalizedFactors_prod J
   have hfactor_narrow :
@@ -3061,6 +3054,27 @@ private theorem exists_tp_multiplier_ambiguousIdeal_to_fullRamifiedParityIdealPr
   -- exponent modulo `2`.
   sorry
 
+/-- Per-factor assembly boundary in principal-multiplier form. A genuinely
+ambiguous integral ideal differs from the product of its ramified-prime parity
+factors by a totally positive principal fractional ideal. -/
+private theorem exists_tp_multiplier_ambiguousIdeal_to_fullRamifiedParityIdealProduct
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (J : (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰)
+    (hJ : IsAmbiguousIdeal (conjAutRingOfIntegers (Qsqrtd (d : ℚ)))
+      (J : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))) :
+    ∃ x : (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))ˣ,
+      NarrowClassGroup.IsTotallyPositive
+        (x : FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) ∧
+        FractionalIdeal.mk0
+            (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) J *
+          toPrincipalIdeal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))
+            (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) x =
+        FractionalIdeal.mk0
+          (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))
+          (fullRamifiedParityIdealProduct d (fullRamifiedParityVector d J)) := by
+  exact (NarrowClassGroup.mk0_eq_mk0_iff_exists_fraction_ring).mp
+    (ambiguousIdeal_mk0_eq_fullRamifiedParityIdealProduct_of_factorization d J hJ)
+
 /-- Per-factor assembly boundary in class form. A genuinely ambiguous integral
 ideal class is the class of the full ramified-prime parity product. -/
 private theorem ambiguousIdeal_mk0_eq_fullRamifiedParityIdealProduct
@@ -3071,8 +3085,7 @@ private theorem ambiguousIdeal_mk0_eq_fullRamifiedParityIdealProduct
     NarrowClassGroup.mk0 J =
       NarrowClassGroup.mk0
         (fullRamifiedParityIdealProduct d (fullRamifiedParityVector d J)) := by
-  rw [NarrowClassGroup.mk0_eq_mk0_iff_exists_fraction_ring]
-  exact exists_tp_multiplier_ambiguousIdeal_to_fullRamifiedParityIdealProduct d J hJ
+  exact ambiguousIdeal_mk0_eq_fullRamifiedParityIdealProduct_of_factorization d J hJ
 
 /-- If the distinguished coordinate is zero, the full ramified parity ideal
 product is literally the erased ramified parity ideal product obtained by
