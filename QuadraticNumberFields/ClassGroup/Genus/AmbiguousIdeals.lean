@@ -2195,17 +2195,37 @@ private theorem exists_erasedRamifiedParityProduct_mk0_eq_fullRamifiedParityProd
   -- coordinate to replace a full parity vector by an erased one.
   sorry
 
-/-- Vector bookkeeping boundary for erased ramified parity products. The erased
-product built from a parity vector has the expected erased ramified parity
-vector. -/
+/-- Normalized-factor count for erased ramified parity products. Each erased
+ramified prime appears in the product with multiplicity exactly the corresponding
+`Fin 2` value. -/
+private theorem normalizedFactors_count_ramifiedParityIdealProduct
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    {p0 : ℕ} (hp0 : p0 ∈ ramifiedPrimes d)
+    (w : ({p // p ∈ (ramifiedPrimes d).erase p0} → Fin 2))
+    (p : {p // p ∈ (ramifiedPrimes d).erase p0}) :
+    (UniqueFactorizationMonoid.normalizedFactors
+        (ramifiedParityIdealProduct d hp0 w : Ideal
+          (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))).count
+      (ramifiedPrimeIdeal d ((Finset.mem_erase.mp p.2).2)) =
+        (w p).val := by
+  -- Remaining gap: rewrite the `if`-product as the product over
+  -- `{p | w p ≠ 0}`, use `normalizedFactors_prod_of_prime`, and use
+  -- injectivity of `ramifiedPrimeIdeal` over distinct rational primes to
+  -- compute the multiset count.
+  sorry
+
+/-- The erased product built from a parity vector has the expected erased
+ramified parity vector. -/
 private theorem idealRamifiedParityVector_ramifiedParityIdealProduct
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
     {p0 : ℕ} (hp0 : p0 ∈ ramifiedPrimes d)
     (w : ({p // p ∈ (ramifiedPrimes d).erase p0} → Fin 2)) :
     idealRamifiedParityVector d hp0 (ramifiedParityIdealProduct d hp0 w) = w := by
-  -- Remaining gap: compute normalized-factor counts in the finite product of
-  -- pairwise distinct ramified prime ideals.
-  sorry
+  funext p
+  apply Fin.ext
+  dsimp [idealRamifiedParityVector]
+  rw [normalizedFactors_count_ramifiedParityIdealProduct d hp0 w p]
+  exact Nat.mod_eq_of_lt (w p).isLt
 
 /-- Product-one elimination boundary. Once an ambiguous class is represented by
 the full ramified parity product, the single relation among all ramified prime
