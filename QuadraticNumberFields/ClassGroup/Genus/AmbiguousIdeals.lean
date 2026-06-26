@@ -1720,6 +1720,27 @@ private theorem conjAutNormalizedFactor_ne_of_isSplitIn
   intro hfix
   exact hne (congrArg Subtype.val hfix)
 
+private theorem normalizedFactor_eq_ramifiedPrimeIdeal_of_isRamifiedIn
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    {I : (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰}
+    (P : {P // P ∈ UniqueFactorizationMonoid.normalizedFactors
+      (I : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))})
+    {p : ℕ} (hp : p.Prime)
+    (hcomap : P.1.comap
+      (algebraMap ℤ (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) = 𝔭(p))
+    (hram : Ideal.IsRamifiedIn (𝔭(p))
+      (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) :
+    ∃ hpRamified : p ∈ ramifiedPrimes d, P.1 = ramifiedPrimeIdeal d hpRamified := by
+  let R := NumberField.RingOfIntegers (Qsqrtd (d : ℚ))
+  have hpRamified : p ∈ ramifiedPrimes d :=
+    (mem_ramifiedPrimes_iff_isRamifiedIn d p).mpr ⟨hp, hram⟩
+  have hI0 : (I : Ideal R) ≠ ⊥ := by
+    simpa [Ideal.zero_eq_bot] using mem_nonZeroDivisors_iff_ne_zero.mp I.2
+  have hPprime : P.1.IsPrime := (Ideal.mem_normalizedFactors_iff hI0).mp P.2 |>.1
+  have hPover : P.1 ∈ Ideal.primesOver (𝔭(p)) R := ⟨hPprime, ⟨hcomap.symm⟩⟩
+  rw [primesOver_eq_singleton_ramifiedPrimeIdeal d hpRamified] at hPover
+  exact ⟨hpRamified, by simpa using hPover⟩
+
 private theorem normalizedFactorNonzeroIdeal_conjAutNormalizedFactor
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
     {I : (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰}
@@ -3230,12 +3251,24 @@ private theorem ambiguousIdeal_mk0_eq_fullRamifiedParityIdealProduct_of_factoriz
         conjAutNormalizedFactor d hJ P ≠ P := by
     intro P p hp hcomap hsplit
     exact conjAutNormalizedFactor_ne_of_isSplitIn d hJ P hp hcomap hsplit
+  have hfactor_ramified_eq :
+      ∀ (P :
+          {P // P ∈ UniqueFactorizationMonoid.normalizedFactors
+            (J : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))})
+        {p : ℕ}, p.Prime →
+        P.1.comap
+            (algebraMap ℤ (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) =
+          𝔭(p) →
+        Ideal.IsRamifiedIn (𝔭(p)) (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))) →
+        ∃ hpRamified : p ∈ ramifiedPrimes d, P.1 = ramifiedPrimeIdeal d hpRamified := by
+    intro P p hp hcomap hram
+    exact normalizedFactor_eq_ramifiedPrimeIdeal_of_isRamifiedIn d P hp hcomap hram
   -- Remaining gap: use `hJ_factorization` to multiply the explicit positive
   -- base-prime span contributions, `hfactor_case`, and the conjugation
   -- involution `hfactor_conj` over the Dedekind factorization of `J`. The
   -- nonfixed split-pair certificate is `hfactor_split_ne`; inert prime factors
-  -- cancel as totally positive principal ideals, while ramified factors reduce
-  -- to their exponent modulo `2`.
+  -- cancel as totally positive principal ideals, while ramified factors are
+  -- identified by `hfactor_ramified_eq` and reduce to their exponent modulo `2`.
   sorry
 
 /-- Per-factor assembly boundary in principal-multiplier form. A genuinely
