@@ -28,6 +28,7 @@ import QNFMathlib.NumberTheory.Zsqrtd.Basic
 import QNFMathlib.RingTheory.ClassGroup
 import QNFMathlib.RingTheory.Coprime
 import QNFMathlib.RingTheory.PrincipalIdealDomain
+import QNFMathlib.RingTheory.FractionalIdeal.RingEquiv
 import QNFMathlib.RingTheory.Ideal.Span
 import QNFMathlib.RingTheory.Ideal.Norm.AbsNorm
 import QNFMathlib.RingTheory.Krull
