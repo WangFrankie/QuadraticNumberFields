@@ -1641,6 +1641,48 @@ private theorem normalizedFactor_exists_natPrime_comap_eq_span
     exact hI0 (le_bot_iff.mp (by simpa [hPbot] using hPdata.2))
   exact exists_natPrime_comap_eq_span_of_primeIdeal hP0
 
+/-- Conjugation acts on the normalized prime factors of an ambiguous ideal. -/
+private noncomputable def conjAutNormalizedFactor
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    {I : (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰}
+    (hI : IsAmbiguousIdeal (conjAutRingOfIntegers (Qsqrtd (d : ℚ)))
+      (I : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))))
+    (P : {P // P ∈ UniqueFactorizationMonoid.normalizedFactors
+      (I : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))}) :
+    {P // P ∈ UniqueFactorizationMonoid.normalizedFactors
+      (I : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))} := by
+  let R := NumberField.RingOfIntegers (Qsqrtd (d : ℚ))
+  have hI0 : (I : Ideal R) ≠ ⊥ := by
+    simpa [Ideal.zero_eq_bot] using mem_nonZeroDivisors_iff_ne_zero.mp I.2
+  exact
+    ⟨Ideal.map (conjAutRingOfIntegers (Qsqrtd (d : ℚ)) : R →+* R) P.1,
+      (map_conjAut_mem_normalizedFactors_iff_of_isAmbiguousIdeal
+        (K := Qsqrtd (d : ℚ)) (P := P.1) (I := (I : Ideal R)) hI0 hI).mpr P.2⟩
+
+private theorem conjAutNormalizedFactor_involutive
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    {I : (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰}
+    (hI : IsAmbiguousIdeal (conjAutRingOfIntegers (Qsqrtd (d : ℚ)))
+      (I : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))))
+    (P : {P // P ∈ UniqueFactorizationMonoid.normalizedFactors
+      (I : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))}) :
+    conjAutNormalizedFactor d hI (conjAutNormalizedFactor d hI P) = P := by
+  apply Subtype.ext
+  exact map_conjAut_map_conjAut (Qsqrtd (d : ℚ)) P.1
+
+private theorem normalizedFactorNonzeroIdeal_conjAutNormalizedFactor
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    {I : (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰}
+    (hI : IsAmbiguousIdeal (conjAutRingOfIntegers (Qsqrtd (d : ℚ)))
+      (I : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))))
+    (P : {P // P ∈ UniqueFactorizationMonoid.normalizedFactors
+      (I : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))}) :
+    normalizedFactorNonzeroIdeal I (conjAutNormalizedFactor d hI P) =
+      conjAutNonzeroIdealMulEquiv (Qsqrtd (d : ℚ))
+        (normalizedFactorNonzeroIdeal I P) := by
+  apply Subtype.ext
+  rfl
+
 /-- The narrow class of a nonzero integral ideal is the product of the narrow
 classes of its Dedekind prime factors, counted with multiplicity. -/
 private theorem narrowClassGroup_mk0_eq_normalizedFactors_prod
@@ -3110,11 +3152,22 @@ private theorem ambiguousIdeal_mk0_eq_fullRamifiedParityIdealProduct_of_factoriz
     intro P
     obtain ⟨p, hp, hcomap⟩ := hfactor_lower P
     exact ⟨p, hp, hcomap, hfactor_narrow P hp hcomap⟩
+  have hfactor_conj :
+      ∀ (P :
+          {P // P ∈ UniqueFactorizationMonoid.normalizedFactors
+            (J : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))}),
+        conjAutNormalizedFactor d hJ (conjAutNormalizedFactor d hJ P) = P ∧
+          normalizedFactorNonzeroIdeal J (conjAutNormalizedFactor d hJ P) =
+            conjAutNonzeroIdealMulEquiv (Qsqrtd (d : ℚ))
+              (normalizedFactorNonzeroIdeal J P) := by
+    intro P
+    exact ⟨conjAutNormalizedFactor_involutive d hJ P,
+      normalizedFactorNonzeroIdeal_conjAutNormalizedFactor d hJ P⟩
   -- Remaining gap: use `hJ_factorization` to multiply the explicit positive
-  -- base-prime span contributions and `hfactor_case` over the Dedekind
-  -- factorization of `J`. Split conjugate pairs and inert prime factors cancel
-  -- as totally positive principal ideals, while ramified factors reduce to their
-  -- exponent modulo `2`.
+  -- base-prime span contributions, `hfactor_case`, and the conjugation
+  -- involution `hfactor_conj` over the Dedekind factorization of `J`. Split
+  -- conjugate pairs and inert prime factors cancel as totally positive
+  -- principal ideals, while ramified factors reduce to their exponent modulo `2`.
   sorry
 
 /-- Per-factor assembly boundary in principal-multiplier form. A genuinely
