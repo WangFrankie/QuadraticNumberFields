@@ -494,6 +494,99 @@ theorem exists_unit_map_algebraMap_eq_conjAut_mul_inv_of_tp_generator
   exact exists_unit_map_algebraMap_eq_of_toPrincipalIdeal_eq_one
     (toPrincipalIdeal_conjAut_mul_inv_eq_one_of_tp_generator d r hγ)
 
+private theorem conjAutFractionRingAlgEquiv_apply_apply
+    (K : Type*) [Field K] [NumberField K] [Algebra ℚ K]
+    [QuadraticField K] [QuadraticField.Conj K]
+    (x : FractionRing (NumberField.RingOfIntegers K)) :
+    conjAutFractionRingAlgEquiv K (conjAutFractionRingAlgEquiv K x) = x := by
+  let R := NumberField.RingOfIntegers K
+  have hhom :
+      ((conjAutFractionRingAlgEquiv K).toRingHom.comp
+          (conjAutFractionRingAlgEquiv K).toRingHom) =
+        RingHom.id (FractionRing R) := by
+    apply IsFractionRing.ringHom_ext (A := R) (K := FractionRing R)
+      (L := FractionRing R)
+    intro x
+    simp [R, RingHom.comp_apply]
+  exact RingHom.congr_fun hhom x
+
+private theorem map_conjAutRingOfIntegers_unit_eq_conjAutFractionRing_map_unit
+    (K : Type*) [Field K] [NumberField K] [Algebra ℚ K]
+    [QuadraticField K] [QuadraticField.Conj K]
+    (u : (NumberField.RingOfIntegers K)ˣ) :
+    Units.map
+        (algebraMap (NumberField.RingOfIntegers K)
+          (FractionRing (NumberField.RingOfIntegers K))).toMonoidHom
+        (Units.mapEquiv (conjAutRingOfIntegers K).toMulEquiv u) =
+      Units.mapEquiv (conjAutFractionRingAlgEquiv K).toRingEquiv.toMulEquiv
+        (Units.map
+          (algebraMap (NumberField.RingOfIntegers K)
+            (FractionRing (NumberField.RingOfIntegers K))).toMonoidHom u) := by
+  apply Units.ext
+  simp
+
+/-- If an integral unit maps to `σγ / γ`, then it has quadratic norm one:
+`σu * u = 1`. This is the unit-theoretic shape needed before applying the
+Hilbert-90/sign analysis. -/
+theorem conjAutRingOfIntegers_unit_mul_self_eq_one_of_map_eq_conjAut_mul_inv
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    {γ : (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))ˣ}
+    {u : (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))ˣ}
+    (hu :
+      Units.map
+          (algebraMap (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))
+            (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))).toMonoidHom u =
+        Units.mapEquiv (conjAutFractionRingAlgEquiv (Qsqrtd (d : ℚ))).toRingEquiv γ *
+          γ⁻¹) :
+    Units.mapEquiv (conjAutRingOfIntegers (Qsqrtd (d : ℚ))).toMulEquiv u * u = 1 := by
+  let R := NumberField.RingOfIntegers (Qsqrtd (d : ℚ))
+  let K := Qsqrtd (d : ℚ)
+  let σF := Units.mapEquiv (conjAutFractionRingAlgEquiv K).toRingEquiv.toMulEquiv
+  let algUnits : Rˣ →* (FractionRing R)ˣ :=
+    Units.map (algebraMap R (FractionRing R)).toMonoidHom
+  have hσhu : σF (algUnits u) = γ * (σF γ)⁻¹ := by
+    rw [hu]
+    apply Units.ext
+    simp [σF, K, conjAutFractionRingAlgEquiv_apply_apply]
+  have hmap :
+      algUnits (Units.mapEquiv (conjAutRingOfIntegers K).toMulEquiv u * u) = 1 := by
+    rw [map_mul]
+    rw [map_conjAutRingOfIntegers_unit_eq_conjAutFractionRing_map_unit]
+    rw [hσhu, hu]
+    change γ * (σF γ)⁻¹ * (σF γ * γ⁻¹) = 1
+    calc
+      γ * (σF γ)⁻¹ * (σF γ * γ⁻¹) = γ * ((σF γ)⁻¹ * σF γ) * γ⁻¹ := by
+        ac_rfl
+      _ = γ * 1 * γ⁻¹ := by
+        rw [inv_mul_cancel]
+      _ = 1 := by
+        rw [mul_one, mul_inv_cancel]
+  apply Units.ext
+  apply FaithfulSMul.algebraMap_injective R (FractionRing R)
+  simpa [algUnits, R, K] using Units.ext_iff.mp hmap
+
+/-- For a generator of a full ramified parity product, the integral unit
+representing `σγ / γ` may be chosen with quadratic norm one. -/
+theorem exists_normOne_unit_map_algebraMap_eq_conjAut_mul_inv_of_tp_generator
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (r : {p // p ∈ ramifiedPrimes d} → Fin 2)
+    {γ : (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))ˣ}
+    (hγ :
+      toPrincipalIdeal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))
+          (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) γ =
+        FractionalIdeal.mk0
+          (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))
+          (fullRamifiedParityIdealProduct d r)) :
+    ∃ u : (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))ˣ,
+      Units.map
+          (algebraMap (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))
+            (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))).toMonoidHom u =
+          Units.mapEquiv (conjAutFractionRingAlgEquiv (Qsqrtd (d : ℚ))).toRingEquiv γ *
+            γ⁻¹ ∧
+        Units.mapEquiv (conjAutRingOfIntegers (Qsqrtd (d : ℚ))).toMulEquiv u * u = 1 := by
+  obtain ⟨u, hu⟩ := exists_unit_map_algebraMap_eq_conjAut_mul_inv_of_tp_generator d r hγ
+  exact ⟨u, hu, conjAutRingOfIntegers_unit_mul_self_eq_one_of_map_eq_conjAut_mul_inv d hu⟩
+
 /-- Chevalley's narrow ambiguous class number formula, in the only form needed
 for the upper bound.
 
