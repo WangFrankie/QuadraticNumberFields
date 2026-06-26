@@ -3926,23 +3926,16 @@ private theorem fullRamifiedParityNarrowClassHom_mem_ker_iff_exists_positivePrin
   rw [← mk0_fullRamifiedParityIdealProduct d r]
   exact NarrowClassGroup.mk0_eq_one_iff_exists_fraction_ring
 
-private theorem subgroup_exists_ne_one_of_nat_card_eq_two
-    {G : Type*} [Group G] (H : Subgroup G) (hH : Nat.card H = 2) :
-    ∃ x : G, x ≠ 1 ∧ x ∈ H := by
-  obtain ⟨y, hyne, _hyuniq⟩ := (Nat.card_eq_two_iff' (x := (1 : H))).mp hH
-  refine ⟨(y : G), ?_, y.2⟩
-  intro hy
-  exact hyne (Subtype.ext hy)
-
-/-- Strict/narrow positive-principal denominator as a cardinality statement for
-the kernel of the finite ramified parity map. This is the local `K = ℚ`,
-quadratic case of the ambiguous class number formula's unit-index denominator. -/
-private theorem card_fullRamifiedParityNarrowClassHom_ker_eq_two
+/-- Strict/narrow positive-principal denominator for the upper-bound direction:
+the finite ramified parity map has a nontrivial kernel relation. This is the
+part of the local `K = ℚ`, quadratic ambiguous-class-number denominator needed
+for the `≤ 2^(t-1)` bound. -/
+private theorem two_le_card_fullRamifiedParityNarrowClassHom_ker
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
-    Nat.card (fullRamifiedParityNarrowClassHom d).ker = 2 := by
+    2 ≤ Nat.card (fullRamifiedParityNarrowClassHom d).ker := by
   -- Remaining gap: prove the strict/narrow positive-principal denominator.
-  -- Equivalently, the kernel has precisely the positive-principal unit-index
-  -- factor rather than only the ordinary principal all-ramified-prime relation.
+  -- Equivalently, construct a nonzero kernel vector coming from a totally
+  -- positive principal relation, not the ordinary all-ramified-prime relation.
   sorry
 
 /-- First-isomorphism cardinality for the full ramified parity map: source
@@ -3957,14 +3950,15 @@ private theorem card_fullRamifiedParityNarrowClassHom_range_mul_ker
   rw [Subgroup.index_ker f, card_fullRamifiedParityNarrowClassHom_domain d] at h
   simpa [f, mul_comm, mul_left_comm, mul_assoc] using h
 
-/-- If the strict positive-principal denominator has size `2`, the image of the
-full ramified parity map has the expected genus-bound cardinality. -/
-private theorem card_fullRamifiedParityNarrowClassHom_range_eq_genusBound
+/-- If the strict positive-principal denominator supplies a nontrivial relation,
+the image of the full ramified parity map has at most the genus-bound
+cardinality. -/
+private theorem card_fullRamifiedParityNarrowClassHom_range_le_genusBound
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
-    Nat.card (fullRamifiedParityNarrowClassHom d).range =
+    Nat.card (fullRamifiedParityNarrowClassHom d).range ≤
       2 ^ (ramifiedPrimeCount d - 1) := by
   have hmul := card_fullRamifiedParityNarrowClassHom_range_mul_ker d
-  rw [card_fullRamifiedParityNarrowClassHom_ker_eq_two d] at hmul
+  have hker := two_le_card_fullRamifiedParityNarrowClassHom_ker d
   have hpow :
       2 ^ ramifiedPrimeCount d = 2 ^ (ramifiedPrimeCount d - 1) * 2 := by
     have hcount : 1 ≤ ramifiedPrimeCount d := one_le_ramifiedPrimeCount (d := d)
@@ -3973,7 +3967,17 @@ private theorem card_fullRamifiedParityNarrowClassHom_range_eq_genusBound
         rw [Nat.sub_add_cancel hcount]
       _ = 2 ^ (ramifiedPrimeCount d - 1) * 2 := by
         rw [pow_succ]
-  exact mul_right_cancel₀ (by norm_num : (2 : ℕ) ≠ 0) (by simpa [hpow] using hmul)
+  have hle :
+      Nat.card (fullRamifiedParityNarrowClassHom d).range * 2 ≤
+        2 ^ (ramifiedPrimeCount d - 1) * 2 := by
+    calc
+      Nat.card (fullRamifiedParityNarrowClassHom d).range * 2 ≤
+          Nat.card (fullRamifiedParityNarrowClassHom d).range *
+            Nat.card (fullRamifiedParityNarrowClassHom d).ker := by
+        exact Nat.mul_le_mul_left _ hker
+      _ = 2 ^ (ramifiedPrimeCount d - 1) * 2 := by
+        rw [hmul, hpow]
+  omega
 
 /-- Strict/narrow positive-principal denominator as a nontrivial kernel element
 for the finite ramified parity map. -/
@@ -3981,9 +3985,25 @@ private theorem exists_nontrivial_mem_fullRamifiedParityNarrowClassHom_ker
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
     ∃ r : Multiplicative ({p // p ∈ ramifiedPrimes d} → Fin 2),
       r ≠ 1 ∧ r ∈ (fullRamifiedParityNarrowClassHom d).ker := by
-  exact subgroup_exists_ne_one_of_nat_card_eq_two
-    (fullRamifiedParityNarrowClassHom d).ker
-    (card_fullRamifiedParityNarrowClassHom_ker_eq_two d)
+  have hker : 1 < Nat.card (fullRamifiedParityNarrowClassHom d).ker := by
+    have := two_le_card_fullRamifiedParityNarrowClassHom_ker d
+    omega
+  have hnebot :
+      (fullRamifiedParityNarrowClassHom d).ker ≠ ⊥ := by
+    exact (Subgroup.one_lt_card_iff_ne_bot (H := (fullRamifiedParityNarrowClassHom d).ker)).mp
+      hker
+  by_contra hnone
+  apply hnebot
+  ext r
+  constructor
+  · intro _hr
+    rw [Subgroup.mem_bot]
+    by_contra hrne
+    exact hnone ⟨r, hrne, _hr⟩
+  · intro hr
+    rw [Subgroup.mem_bot] at hr
+    rw [hr]
+    exact (fullRamifiedParityNarrowClassHom d).ker.one_mem
 
 /-- Strict positive-principal denominator for the full finite ramified parity
 map. It constructs a nonzero parity vector whose full ramified ideal product is
@@ -4532,7 +4552,7 @@ theorem card_narrowInversionFixedClass_le_genusBound
       Nat.card (NarrowInversionFixedClass R) ≤
         Nat.card (fullRamifiedParityNarrowClassHom d).range :=
     Nat.card_le_card_of_injective rangeVector hrangeVector_injective
-  exact hle.trans_eq (card_fullRamifiedParityNarrowClassHom_range_eq_genusBound d)
+  exact hle.trans (card_fullRamifiedParityNarrowClassHom_range_le_genusBound d)
 
 /-- Ambiguous-ideal upper bound: the two-torsion in the narrow class group has
 size at most `2 ^ (t - 1)`, where `t` is the number of ramified rational primes. -/
