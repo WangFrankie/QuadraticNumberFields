@@ -1873,6 +1873,30 @@ private theorem exists_integralIdeal_isAmbiguousIdeal_mk0_eq_of_tp_multiplier_to
   exact exists_integralIdeal_isAmbiguousIdeal_mk0_eq_of_conjAut_coboundary
     (Qsqrtd (d : ℚ)) I hypos hy hconj
 
+/-- Per-factor assembly boundary in principal-multiplier form. A genuinely
+ambiguous integral ideal differs from the product of its ramified-prime parity
+factors by a totally positive principal fractional ideal. -/
+private theorem exists_tp_multiplier_ambiguousIdeal_to_fullRamifiedParityIdealProduct
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (J : (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰)
+    (hJ : IsAmbiguousIdeal (conjAutRingOfIntegers (Qsqrtd (d : ℚ)))
+      (J : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))) :
+    ∃ x : (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))ˣ,
+      NarrowClassGroup.IsTotallyPositive
+        (x : FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) ∧
+        FractionalIdeal.mk0
+            (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) J *
+          toPrincipalIdeal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))
+            (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) x =
+        FractionalIdeal.mk0
+          (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))
+          (fullRamifiedParityIdealProduct d (fullRamifiedParityVector d J)) := by
+  -- Remaining gap: multiply the principal contributions supplied by
+  -- `factor_contribution_by_splitting` over the Dedekind factorization of `J`.
+  -- Split conjugate pairs and inert prime factors cancel as totally positive
+  -- principal ideals, while ramified factors reduce to their exponent modulo `2`.
+  sorry
+
 /-- Per-factor assembly boundary. A genuinely ambiguous integral ideal class can
 be represented by the product of the ramified prime ideals with the same parity
 vector over all ramified primes. -/
@@ -1886,9 +1910,9 @@ private theorem exists_integralIdeal_fullRamifiedParityRepresentative_of_isAmbig
         NarrowClassGroup.mk0 I =
           NarrowClassGroup.mk0
             (fullRamifiedParityIdealProduct d (fullRamifiedParityVector d I)) := by
-  -- Remaining gap: use unique factorization of ideals and the split/inert/
-  -- ramified per-factor lemmas to cancel non-ramified conjugate pairs.
-  sorry
+  refine ⟨J, rfl, ?_⟩
+  rw [NarrowClassGroup.mk0_eq_mk0_iff_exists_fraction_ring]
+  exact exists_tp_multiplier_ambiguousIdeal_to_fullRamifiedParityIdealProduct d J hJ
 
 /-- Product-one elimination boundary. Once an ambiguous class is represented by
 the full ramified parity product, the single relation among all ramified prime
@@ -2045,10 +2069,8 @@ theorem card_narrowInversionFixedClass_le_genusBound
     rw [← hI_mk0]
     rw [← hJ_mk0]
     rw [NarrowClassGroup.mk0_eq_mk0_iff_exists_fraction_ring]
-    -- Remaining gap: produce the totally positive principal multiplier from the
-    -- chosen fixed-class representative to the ramified parity ideal product.
-    -- This is the fixed-representative factorization plus the product-one
-    -- positive-principal relation removing the `p0` ramified coordinate.
+    -- This named boundary supplies the multiplier from the chosen fixed-class
+    -- representative to the ramified parity ideal product.
     simpa only [I, J, ramifiedParityVector] using
       exists_tp_multiplier_representative_to_ramifiedParityIdealProduct d hp0 C
   have hramifiedParityVector_injective : Function.Injective ramifiedParityVector := by
