@@ -10,6 +10,7 @@ import QNFMathlib.NumberTheory.NumberField.Galois
 import QNFMathlib.RingTheory.Ideal.Norm.AbsNorm
 import QuadraticNumberFields.ClassGroup.Genus.SquareClass
 import QuadraticNumberFields.QuadraticField.Conj
+import QuadraticNumberFields.RingOfIntegers.Norm
 import QuadraticNumberFields.Splitting.Factorization
 
 /-!
@@ -1834,54 +1835,78 @@ private theorem exists_integralIdeal_tp_multiplier_to_conjAut_of_narrowInversion
       _ = C.1 := C.2.symm
   exact (NarrowClassGroup.mk0_eq_mk0_iff_exists_fraction_ring).mp (hI.trans hconj.symm)
 
-/-- A totally positive fraction-field unit in a quadratic field has nonnegative
-field norm after transport to the field model. -/
-private theorem algebra_norm_nonneg_of_isTotallyPositive_fractionRing_algEquiv
-    (K : Type*) [Field K] [NumberField K] [Algebra ℚ K]
-    [QuadraticField K] [QuadraticField.Conj K]
-    {x : (FractionRing (NumberField.RingOfIntegers K))ˣ}
+/-- A totally positive fraction-field unit in `Q(√d)` has nonnegative field norm
+after transport to the standard field model. -/
+private theorem algebra_norm_nonneg_of_isTotallyPositive_fractionRing_algEquiv_qsqrtd
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    {x : (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))ˣ}
     (hxpos : NarrowClassGroup.IsTotallyPositive
-      (x : FractionRing (NumberField.RingOfIntegers K))) :
+      (x : FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))) :
     0 ≤ Algebra.norm ℚ
-      (FractionRing.algEquiv (NumberField.RingOfIntegers K) K
-        (x : FractionRing (NumberField.RingOfIntegers K))) := by
-  -- Remaining gap: use `QuadraticField.mul_conj_eq_norm_image`.
-  -- In the real case, every real embedding of the conjugate is another real
-  -- embedding, so total positivity makes the product positive. In the imaginary
-  -- case, the quadratic norm is the product of a complex embedding with its
-  -- complex conjugate, hence nonnegative.
-  sorry
+      (FractionRing.algEquiv (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))
+        (Qsqrtd (d : ℚ))
+        (x : FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))) := by
+  let R := NumberField.RingOfIntegers (Qsqrtd (d : ℚ))
+  let e : FractionRing R ≃ₐ[R] Qsqrtd (d : ℚ) :=
+    FractionRing.algEquiv R (Qsqrtd (d : ℚ))
+  let z : Qsqrtd (d : ℚ) := e (x : FractionRing R)
+  change 0 ≤ Algebra.norm ℚ z
+  rw [Qsqrtd.algebraNorm_eq_qsqrtdNorm]
+  by_cases hdneg : d < 0
+  · exact Qsqrtd.norm_nonneg_of_neg hdneg z
+  have hd_ne_zero : d ≠ 0 := Squarefree.ne_zero (Fact.out : Squarefree d)
+  have hdpos : 0 < d := by omega
+  have hd_nonneg_real : 0 ≤ (d : ℝ) := by exact_mod_cast le_of_lt hdpos
+  let σpos : FractionRing R →+* ℝ :=
+    (Qsqrtd.realEmbeddingPos d hd_nonneg_real).toRingHom.comp e.toRingHom
+  let σneg : FractionRing R →+* ℝ :=
+    (Qsqrtd.realEmbeddingNeg d hd_nonneg_real).toRingHom.comp e.toRingHom
+  have hpos_pos : 0 < Qsqrtd.realEmbeddingPos d hd_nonneg_real z := by
+    simpa [σpos, z, e, R] using hxpos σpos
+  have hpos_neg : 0 < Qsqrtd.realEmbeddingNeg d hd_nonneg_real z := by
+    simpa [σneg, z, e, R] using hxpos σneg
+  have hnorm_pos_real : 0 < (Qsqrtd.norm z : ℝ) :=
+    Qsqrtd.norm_pos_of_realEmbedding_pos d hd_nonneg_real hpos_pos hpos_neg
+  have hnorm_pos_rat : 0 < Qsqrtd.norm z := by
+    exact_mod_cast hnorm_pos_real
+  exact le_of_lt hnorm_pos_rat
 
 /-- Norm-one extraction boundary. A totally positive principal multiplier
 relating an ideal to its conjugate has field norm `1`. -/
 private theorem norm_eq_one_of_tp_multiplier_to_conjAut
-    (K : Type*) [Field K] [NumberField K] [Algebra ℚ K]
-    [QuadraticField K] [QuadraticField.Conj K]
-    (I : (Ideal (NumberField.RingOfIntegers K))⁰)
-    {x : (FractionRing (NumberField.RingOfIntegers K))ˣ}
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (I : (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰)
+    {x : (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))ˣ}
     (hxpos : NarrowClassGroup.IsTotallyPositive
-      (x : FractionRing (NumberField.RingOfIntegers K)))
+      (x : FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))))
     (hconj :
-      FractionalIdeal.mk0 (FractionRing (NumberField.RingOfIntegers K)) I *
-          toPrincipalIdeal (NumberField.RingOfIntegers K)
-            (FractionRing (NumberField.RingOfIntegers K)) x =
-        FractionalIdeal.mk0 (FractionRing (NumberField.RingOfIntegers K))
-          (conjAutNonzeroIdealMulEquiv K I)) :
+      FractionalIdeal.mk0
+          (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) I *
+          toPrincipalIdeal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))
+            (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) x =
+        FractionalIdeal.mk0
+          (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))
+          (conjAutNonzeroIdealMulEquiv (Qsqrtd (d : ℚ)) I)) :
     Algebra.norm ℚ
-      (FractionRing.algEquiv (NumberField.RingOfIntegers K) K
-        (x : FractionRing (NumberField.RingOfIntegers K))) = 1 := by
-  let R := NumberField.RingOfIntegers K
-  let e := FractionRing.algEquiv R K
+      (FractionRing.algEquiv (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))
+        (Qsqrtd (d : ℚ))
+        (x : FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))) = 1 := by
+  let R := NumberField.RingOfIntegers (Qsqrtd (d : ℚ))
+  let e := FractionRing.algEquiv R (Qsqrtd (d : ℚ))
   have habs_map :
-      Ideal.absNorm (Ideal.map (conjAutRingOfIntegers K : R →+* R) (I : Ideal R)) =
+      Ideal.absNorm
+          (Ideal.map (conjAutRingOfIntegers (Qsqrtd (d : ℚ)) : R →+* R)
+            (I : Ideal R)) =
         Ideal.absNorm (I : Ideal R) := by
-    exact Ideal.absNorm_map_equiv (conjAutRingOfIntegers K) (I : Ideal R)
+    exact Ideal.absNorm_map_equiv (conjAutRingOfIntegers (Qsqrtd (d : ℚ))) (I : Ideal R)
   have habs_map_rat :
-      (Ideal.absNorm (Ideal.map (conjAutRingOfIntegers K : R →+* R) (I : Ideal R)) : ℚ) =
+      (Ideal.absNorm
+          (Ideal.map (conjAutRingOfIntegers (Qsqrtd (d : ℚ)) : R →+* R)
+            (I : Ideal R)) : ℚ) =
         Ideal.absNorm (I : Ideal R) := by
     exact_mod_cast habs_map
   have hnorm_abs : |Algebra.norm ℚ (e (x : FractionRing R))| = 1 := by
-    let E := FractionalIdeal.canonicalEquiv R⁰ (FractionRing R) K
+    let E := FractionalIdeal.canonicalEquiv R⁰ (FractionRing R) (Qsqrtd (d : ℚ))
     have h :=
       congrArg
         (fun J : (FractionalIdeal R⁰ (FractionRing R))ˣ =>
@@ -1902,8 +1927,9 @@ private theorem norm_eq_one_of_tp_multiplier_to_conjAut
                 (FractionalIdeal R⁰ (FractionRing R))ˣ) :
               FractionalIdeal R⁰ (FractionRing R))) =
           FractionalIdeal.absNorm
-            (E ((FractionalIdeal.mk0 (FractionRing R) (conjAutNonzeroIdealMulEquiv K I) :
-                (FractionalIdeal R⁰ (FractionRing R))ˣ) :
+            (E ((FractionalIdeal.mk0 (FractionRing R)
+                (conjAutNonzeroIdealMulEquiv (Qsqrtd (d : ℚ)) I) :
+                  (FractionalIdeal R⁰ (FractionRing R))ˣ) :
               FractionalIdeal R⁰ (FractionRing R))) at h
       rw [Units.val_mul, map_mul, FractionalIdeal.absNorm.map_mul] at h
       simpa [R, e, E, FractionalIdeal.coe_mk0, FractionalIdeal.coeIdeal_absNorm,
@@ -1912,7 +1938,7 @@ private theorem norm_eq_one_of_tp_multiplier_to_conjAut
         habs_map_rat] using h
     exact mul_left_cancel₀ hIne (by simpa using h')
   have hnorm_nonneg : 0 ≤ Algebra.norm ℚ (e (x : FractionRing R)) := by
-    exact algebra_norm_nonneg_of_isTotallyPositive_fractionRing_algEquiv K hxpos
+    exact algebra_norm_nonneg_of_isTotallyPositive_fractionRing_algEquiv_qsqrtd d hxpos
   have hnorm_abs_self :
       |Algebra.norm ℚ (e (x : FractionRing R))| = Algebra.norm ℚ (e (x : FractionRing R)) :=
     abs_of_nonneg hnorm_nonneg
@@ -1988,22 +2014,24 @@ private theorem exists_conjAut_coboundary_of_norm_eq_one
 its conjugate should be an ordinary conjugation coboundary in the fraction
 field. -/
 private theorem exists_conjAut_coboundary_of_tp_multiplier_to_conjAut
-    (K : Type) [Field K] [NumberField K] [Algebra ℚ K]
-    [QuadraticField K] [QuadraticField.Conj K]
-    (I : (Ideal (NumberField.RingOfIntegers K))⁰)
-    {x : (FractionRing (NumberField.RingOfIntegers K))ˣ}
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (I : (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰)
+    {x : (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))ˣ}
     (hxpos : NarrowClassGroup.IsTotallyPositive
-      (x : FractionRing (NumberField.RingOfIntegers K)))
+      (x : FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))))
     (hconj :
-      FractionalIdeal.mk0 (FractionRing (NumberField.RingOfIntegers K)) I *
-          toPrincipalIdeal (NumberField.RingOfIntegers K)
-            (FractionRing (NumberField.RingOfIntegers K)) x =
-        FractionalIdeal.mk0 (FractionRing (NumberField.RingOfIntegers K))
-          (conjAutNonzeroIdealMulEquiv K I)) :
-    ∃ y : (FractionRing (NumberField.RingOfIntegers K))ˣ,
-      x = y * (Units.mapEquiv (conjAutFractionRingAlgEquiv K).toRingEquiv y)⁻¹ := by
-  exact exists_conjAut_coboundary_of_norm_eq_one K
-    (norm_eq_one_of_tp_multiplier_to_conjAut K I hxpos hconj)
+      FractionalIdeal.mk0
+          (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) I *
+          toPrincipalIdeal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))
+            (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) x =
+        FractionalIdeal.mk0
+          (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))
+          (conjAutNonzeroIdealMulEquiv (Qsqrtd (d : ℚ)) I)) :
+    ∃ y : (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))ˣ,
+      x =
+        y * (Units.mapEquiv (conjAutFractionRingAlgEquiv (Qsqrtd (d : ℚ))).toRingEquiv y)⁻¹ := by
+  exact exists_conjAut_coboundary_of_norm_eq_one (Qsqrtd (d : ℚ))
+    (norm_eq_one_of_tp_multiplier_to_conjAut d I hxpos hconj)
 
 /-- Sign-choice boundary for the quadratic Hilbert-90 representative. If a
 totally positive element is written as `y / σ(y)` and the fraction field has a
@@ -2091,25 +2119,30 @@ private theorem exists_totallyPositive_conjAut_coboundary_of_conjAut_coboundary
 /-- Narrow Hilbert-90 boundary. A totally positive principal multiplier relating
 an ideal to its conjugate should be a totally positive conjugation coboundary. -/
 private theorem exists_totallyPositive_conjAut_coboundary_of_tp_multiplier_to_conjAut
-    (K : Type) [Field K] [NumberField K] [Algebra ℚ K]
-    [QuadraticField K] [QuadraticField.Conj K]
-    (I : (Ideal (NumberField.RingOfIntegers K))⁰)
-    {x : (FractionRing (NumberField.RingOfIntegers K))ˣ}
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (I : (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰)
+    {x : (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))ˣ}
     (hxpos : NarrowClassGroup.IsTotallyPositive
-      (x : FractionRing (NumberField.RingOfIntegers K)))
+      (x : FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))))
     (hconj :
-      FractionalIdeal.mk0 (FractionRing (NumberField.RingOfIntegers K)) I *
-          toPrincipalIdeal (NumberField.RingOfIntegers K)
-            (FractionRing (NumberField.RingOfIntegers K)) x =
-        FractionalIdeal.mk0 (FractionRing (NumberField.RingOfIntegers K))
-          (conjAutNonzeroIdealMulEquiv K I)) :
-    ∃ y : (FractionRing (NumberField.RingOfIntegers K))ˣ,
+      FractionalIdeal.mk0
+          (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) I *
+          toPrincipalIdeal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))
+            (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) x =
+        FractionalIdeal.mk0
+          (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))
+          (conjAutNonzeroIdealMulEquiv (Qsqrtd (d : ℚ)) I)) :
+    ∃ y : (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))ˣ,
       NarrowClassGroup.IsTotallyPositive
-        (y : FractionRing (NumberField.RingOfIntegers K)) ∧
-        x = y * (Units.mapEquiv (conjAutFractionRingAlgEquiv K).toRingEquiv y)⁻¹ := by
+        (y : FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) ∧
+        x =
+          y *
+            (Units.mapEquiv
+              (conjAutFractionRingAlgEquiv (Qsqrtd (d : ℚ))).toRingEquiv y)⁻¹ := by
   obtain ⟨y, hy⟩ :=
-    exists_conjAut_coboundary_of_tp_multiplier_to_conjAut K I hxpos hconj
-  exact exists_totallyPositive_conjAut_coboundary_of_conjAut_coboundary K hxpos hy
+    exists_conjAut_coboundary_of_tp_multiplier_to_conjAut d I hxpos hconj
+  exact exists_totallyPositive_conjAut_coboundary_of_conjAut_coboundary
+    (Qsqrtd (d : ℚ)) hxpos hy
 
 /-- A coboundary multiplier turns the relation `I * (x) = σ(I)` into the
 fractional-ideal equality `I * (y) = σ(I) * (σ y)`. -/
@@ -2320,7 +2353,7 @@ private theorem exists_integralIdeal_isAmbiguousIdeal_mk0_eq_of_tp_multiplier_to
           (J : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) := by
   obtain ⟨y, hypos, hy⟩ :=
     exists_totallyPositive_conjAut_coboundary_of_tp_multiplier_to_conjAut
-      (Qsqrtd (d : ℚ)) I hxpos hconj
+      d I hxpos hconj
   exact exists_integralIdeal_isAmbiguousIdeal_mk0_eq_of_conjAut_coboundary
     (Qsqrtd (d : ℚ)) I hypos hy hconj
 
