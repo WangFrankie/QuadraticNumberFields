@@ -3940,6 +3940,19 @@ private theorem fullRamifiedParityNarrowClassHom_mem_ker_iff_exists_positivePrin
   rw [← mk0_fullRamifiedParityIdealProduct d r]
   exact NarrowClassGroup.mk0_eq_one_iff_exists_fraction_ring
 
+/-- Strict/narrow positive-principal denominator as a nontrivial kernel element
+for the finite ramified parity map. This is the local `K = ℚ`, quadratic case of
+the ambiguous class number formula's unit-index denominator. -/
+private theorem exists_nontrivial_mem_fullRamifiedParityNarrowClassHom_ker
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
+    ∃ r : Multiplicative ({p // p ∈ ramifiedPrimes d} → Fin 2),
+      r ≠ 1 ∧ r ∈ (fullRamifiedParityNarrowClassHom d).ker := by
+  -- Remaining gap: prove the strict/narrow positive-principal denominator.
+  -- Equivalently, the kernel of the finite ramified parity map has the
+  -- positive-principal unit-index factor rather than only the ordinary
+  -- principal all-ramified-prime relation.
+  sorry
+
 /-- Strict positive-principal denominator for the full finite ramified parity
 map. It constructs a nonzero parity vector whose full ramified ideal product is
 equivalent to the unit ideal by multiplying with a totally positive principal
@@ -3954,24 +3967,11 @@ private theorem exists_positivePrincipal_fullRamifiedParityIdealProduct_relation
             FractionalIdeal.mk0 (FractionRing R) (fullRamifiedParityIdealProduct d r) *
               toPrincipalIdeal R (FractionRing R) x =
             1 := by
-  -- Remaining gap: prove the strict/narrow positive-principal denominator.
-  -- This is the local `K = ℚ`, quadratic case of the ambiguous class number
-  -- formula's unit-index denominator, producing a nonzero kernel vector for
-  -- the finite ramified parity map.
-  sorry
-
-/-- The strict/narrow positive-principal denominator supplies a nontrivial
-kernel element for the finite ramified parity map. -/
-private theorem exists_nontrivial_mem_fullRamifiedParityNarrowClassHom_ker
-    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
-    ∃ r : Multiplicative ({p // p ∈ ramifiedPrimes d} → Fin 2),
-      r ≠ 1 ∧ r ∈ (fullRamifiedParityNarrowClassHom d).ker := by
-  obtain ⟨r, hrnonzero, x, hxpos, hx⟩ :=
-    exists_positivePrincipal_fullRamifiedParityIdealProduct_relation d
-  refine ⟨Multiplicative.ofAdd r, ?_, ?_⟩
-  · exact multiplicative_ofAdd_ne_one_of_exists_apply_ne_zero r hrnonzero
-  · exact (fullRamifiedParityNarrowClassHom_mem_ker_iff_exists_positivePrincipal d r).mpr
-      ⟨x, hxpos, hx⟩
+  obtain ⟨r, hrne, hrker⟩ := exists_nontrivial_mem_fullRamifiedParityNarrowClassHom_ker d
+  refine ⟨Multiplicative.toAdd r, ?_, ?_⟩
+  · exact exists_apply_ne_zero_of_multiplicative_ne_one r hrne
+  · exact (fullRamifiedParityNarrowClassHom_mem_ker_iff_exists_positivePrincipal d
+      (Multiplicative.toAdd r)).mp hrker
 
 /-- Positive-principal denominator boundary as a nonzero kernel vector for the
 full finite ramified parity map to the narrow class group. The relation is
