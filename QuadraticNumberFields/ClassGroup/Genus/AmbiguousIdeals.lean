@@ -3383,6 +3383,38 @@ private theorem exists_integralIdeal_isAmbiguousIdeal_mk0_eq_of_tp_multiplier_to
   exact exists_integralIdeal_isAmbiguousIdeal_mk0_eq_of_conjAut_coboundary
     (Qsqrtd (d : ℚ)) I hypos hy hconj
 
+/-- Count-powered finite-product assembly for a genuinely ambiguous integral
+ideal. In the product over distinct normalized prime factors, split conjugate
+pairs cancel, inert factors are narrowly principal, and the ramified fixed
+factors leave exactly the ramified-prime count product. -/
+private theorem normalizedFactors_count_prod_eq_ramifiedPrime_count_prod_of_isAmbiguousIdeal
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (J : (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰)
+    (hJ : IsAmbiguousIdeal (conjAutRingOfIntegers (Qsqrtd (d : ℚ)))
+      (J : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))) :
+    (∏ P ∈
+        (UniqueFactorizationMonoid.normalizedFactors
+          (J : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))).attach.toFinset,
+      (NarrowClassGroup.mk0 (normalizedFactorNonzeroIdeal J P) :
+        NarrowClassGroup (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) ^
+        (UniqueFactorizationMonoid.normalizedFactors
+          (J : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))).count P.1) =
+      Finset.univ.prod fun p : {p // p ∈ ramifiedPrimes d} =>
+        (ramifiedPrimeNarrowClass d p.2) ^
+          (UniqueFactorizationMonoid.normalizedFactors
+            (J : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))).count
+            (ramifiedPrimeIdeal d p.2) := by
+  classical
+  -- Remaining exact gap: partition `normalizedFactors J` by the quadratic
+  -- conjugation involution. Use `split_conj_normalizedFactor_powers_eq_one`
+  -- on nonfixed split pairs, `inert_normalizedFactor_power_eq_one` on inert
+  -- fixed factors, and `conjAutNormalizedFactor_eq_self_of_isRamifiedIn` plus
+  -- `normalizedFactor_eq_ramifiedPrimeIdeal_of_isRamifiedIn` on ramified fixed
+  -- factors. The final finite product over ramified factors must be transported
+  -- along `ramifiedPrimeIdeal_eq_iff` to the displayed product over
+  -- `ramifiedPrimes d`.
+  sorry
+
 /-- Exact class-level per-factor assembly boundary. A genuinely ambiguous
 integral ideal has the same narrow class as the product of the ramified-prime
 factors selected by its parity vector. -/
@@ -3593,7 +3625,25 @@ private theorem ambiguousIdeal_mk0_eq_fullRamifiedParityIdealProduct_of_factoriz
   -- `hfactor_ramified_eq` and fixed by `hfactor_ramified_fixed`; their powers
   -- reduce to the parity terms recorded by `hfactor_ramified_pow`, and the
   -- target side is in count-powered form via `htarget_count`.
-  sorry
+  calc
+    NarrowClassGroup.mk0 J =
+        ∏ P ∈
+            (UniqueFactorizationMonoid.normalizedFactors
+              (J : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))).attach.toFinset,
+          (NarrowClassGroup.mk0 (normalizedFactorNonzeroIdeal J P) :
+            NarrowClassGroup (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) ^
+            (UniqueFactorizationMonoid.normalizedFactors
+              (J : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))).count P.1 := by
+      exact hJ_factorization_count
+    _ = Finset.univ.prod fun p : {p // p ∈ ramifiedPrimes d} =>
+          (ramifiedPrimeNarrowClass d p.2) ^
+            (UniqueFactorizationMonoid.normalizedFactors
+              (J : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))).count
+              (ramifiedPrimeIdeal d p.2) := by
+      exact normalizedFactors_count_prod_eq_ramifiedPrime_count_prod_of_isAmbiguousIdeal d J hJ
+    _ = NarrowClassGroup.mk0
+          (fullRamifiedParityIdealProduct d (fullRamifiedParityVector d J)) :=
+      htarget_count.symm
 
 /-- Per-factor assembly boundary in principal-multiplier form. A genuinely
 ambiguous integral ideal differs from the product of its ramified-prime parity
