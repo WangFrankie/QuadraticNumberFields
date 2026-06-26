@@ -1781,6 +1781,28 @@ private theorem exists_conjAut_coboundary_of_tp_multiplier_to_conjAut
   -- field of the ring of integers.
   sorry
 
+/-- Sign-choice boundary for the quadratic Hilbert-90 representative. If a
+totally positive element is written as `y / σ(y)`, then either `y` or `-y` is
+totally positive. -/
+private theorem isTotallyPositive_or_neg_isTotallyPositive_of_totallyPositive_coboundary
+    (K : Type*) [Field K] [NumberField K] [Algebra ℚ K]
+    [QuadraticField K] [QuadraticField.Conj K]
+    {x y : (FractionRing (NumberField.RingOfIntegers K))ˣ}
+    (hxpos : NarrowClassGroup.IsTotallyPositive
+      (x : FractionRing (NumberField.RingOfIntegers K)))
+    (hy :
+      x = y * (Units.mapEquiv (conjAutFractionRingAlgEquiv K).toRingEquiv y)⁻¹) :
+    NarrowClassGroup.IsTotallyPositive
+        (y : FractionRing (NumberField.RingOfIntegers K)) ∨
+      NarrowClassGroup.IsTotallyPositive
+        ((-y : (FractionRing (NumberField.RingOfIntegers K))ˣ) :
+          FractionRing (NumberField.RingOfIntegers K)) := by
+  -- Remaining gap: real embeddings of a quadratic field form one conjugation
+  -- orbit. Since `x = y / σ(y)` is positive at every real embedding, the signs
+  -- of `y` agree across this orbit; then one of `y` and `-y` is totally
+  -- positive.
+  sorry
+
 /-- Positivity adjustment boundary for the quadratic Hilbert-90 coboundary. If a
 totally positive multiplier is an ordinary conjugation coboundary, the
 coboundary representative can be chosen totally positive. -/
@@ -1796,10 +1818,24 @@ private theorem exists_totallyPositive_conjAut_coboundary_of_conjAut_coboundary
       NarrowClassGroup.IsTotallyPositive
         (z : FractionRing (NumberField.RingOfIntegers K)) ∧
         x = z * (Units.mapEquiv (conjAutFractionRingAlgEquiv K).toRingEquiv z)⁻¹ := by
-  -- Remaining gap: use total positivity of `x` to show all real signs of the
-  -- Hilbert-90 representative agree on conjugate embeddings, then multiply by
-  -- a rational sign so that the representative is positive at every real place.
-  sorry
+  obtain hypos | hyneg :=
+    isTotallyPositive_or_neg_isTotallyPositive_of_totallyPositive_coboundary K hxpos hy
+  · exact ⟨y, hypos, hy⟩
+  · refine ⟨-y, hyneg, ?_⟩
+    let σy :=
+      Units.mapEquiv
+        ((conjAutFractionRingAlgEquiv K).toRingEquiv :
+          FractionRing (NumberField.RingOfIntegers K) ≃*
+            FractionRing (NumberField.RingOfIntegers K)) y
+    have hmap_neg :
+        Units.mapEquiv (conjAutFractionRingAlgEquiv K).toRingEquiv (-y) = -σy := by
+      ext
+      simp [σy]
+    calc
+      x = y * (Units.mapEquiv (conjAutFractionRingAlgEquiv K).toRingEquiv y)⁻¹ := hy
+      _ = (-y) * (Units.mapEquiv (conjAutFractionRingAlgEquiv K).toRingEquiv (-y))⁻¹ := by
+        rw [hmap_neg]
+        simp [σy]
 
 /-- Narrow Hilbert-90 boundary. A totally positive principal multiplier relating
 an ideal to its conjugate should be a totally positive conjugation coboundary. -/
