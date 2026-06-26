@@ -1679,6 +1679,51 @@ private noncomputable def narrowInversionFixedClassRamifiedParityVector
   intro C
   exact idealRamifiedParityVector d hp0 (narrowInversionFixedRepresentativeIdeal d C)
 
+/-- Remaining factorization theorem for the ambiguous bound. It identifies the
+narrow class of the chosen inversion-fixed representative with the ramified
+parity product extracted from its prime-ideal factorization. This is the real
+mathematical boundary: make the representative conjugation-fixed up to a
+totally positive principal multiplier, then cancel split/inert/non-ramified
+orbits and use the single product-one relation among ramified primes. -/
+private theorem mk0_repr_eq_ramifiedParityProduct_of_squareWitnesses
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    {p0 : ℕ} (hp0 : p0 ∈ ramifiedPrimes d)
+    (C : NarrowInversionFixedClass (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))
+    (xI : (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))ˣ)
+    (hxI_pos :
+      NarrowClassGroup.IsTotallyPositive
+        (xI : FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))))
+    (hxI_sq :
+      (FractionalIdeal.mk0
+          (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))
+          (narrowInversionFixedRepresentativeIdeal d C)) ^ 2 =
+        (toPrincipalIdeal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))
+          (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) xI)⁻¹)
+    (xJ : (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))ˣ)
+    (hxJ_pos :
+      NarrowClassGroup.IsTotallyPositive
+        (xJ : FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))))
+    (hxJ_sq :
+      (FractionalIdeal.mk0
+          (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))
+          (ramifiedParityIdealProduct d hp0
+            (narrowInversionFixedClassRamifiedParityVector d hp0 C))) ^ 2 =
+        (toPrincipalIdeal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))
+          (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) xJ)⁻¹)
+    (hJambiguous :
+      IsAmbiguousIdeal
+        (conjAutRingOfIntegers (Qsqrtd (d : ℚ)))
+        ((ramifiedParityIdealProduct d hp0
+          (narrowInversionFixedClassRamifiedParityVector d hp0 C)) :
+            Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))) :
+    NarrowClassGroup.mk0 (narrowInversionFixedRepresentativeIdeal d C) =
+      NarrowClassGroup.mk0
+        (ramifiedParityIdealProduct d hp0
+          (narrowInversionFixedClassRamifiedParityVector d hp0 C)) := by
+  -- Remaining gap: prove the product-level ambiguous factorization for the
+  -- representative chosen from an inversion-fixed narrow class.
+  sorry
+
 /-- Remaining positive-principal lift once the two square-principal witnesses
 have been chosen explicitly. Future work should construct the displayed
 multiplier from these witnesses, the fixedness of the ramified parity ideal, and
@@ -1726,10 +1771,14 @@ private theorem exists_tp_multiplier_of_squareWitnesses_to_ramifiedParityProduct
           (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))
           (ramifiedParityIdealProduct d hp0
             (narrowInversionFixedClassRamifiedParityVector d hp0 C)) := by
-  -- Remaining gap: use the explicit positive square-principal witnesses
-  -- `xI`, `xJ`, together with the ambiguity of the ramified parity product, to
-  -- construct the positive principal multiplier from the chosen representative.
-  sorry
+  have hclass :
+      NarrowClassGroup.mk0 (narrowInversionFixedRepresentativeIdeal d C) =
+        NarrowClassGroup.mk0
+          (ramifiedParityIdealProduct d hp0
+            (narrowInversionFixedClassRamifiedParityVector d hp0 C)) :=
+    mk0_repr_eq_ramifiedParityProduct_of_squareWitnesses
+      d hp0 C xI hxI_pos hxI_sq xJ hxJ_pos hxJ_sq hJambiguous
+  exact (NarrowClassGroup.mk0_eq_mk0_iff_exists_fraction_ring).mp hclass
 
 /-- Remaining positive-principal lift after the local square-principal relation
 for the chosen representative and the two-torsion/ambiguous facts for the
