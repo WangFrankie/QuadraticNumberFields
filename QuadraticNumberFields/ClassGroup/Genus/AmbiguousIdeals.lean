@@ -1724,10 +1724,10 @@ private theorem mk0_repr_eq_ramifiedParityProduct_of_squareWitnesses
   -- representative chosen from an inversion-fixed narrow class.
   sorry
 
-/-- Remaining positive-principal lift once the two square-principal witnesses
-have been chosen explicitly. Future work should construct the displayed
-multiplier from these witnesses, the fixedness of the ramified parity ideal, and
-the product-one relation among ramified-prime characters. -/
+/-- Convert the remaining ramified-parity class equality into the displayed
+totally positive principal multiplier. The square-principal witnesses are kept
+in the signature because they are the current inputs to the factorization
+boundary `mk0_repr_eq_ramifiedParityProduct_of_squareWitnesses`. -/
 private theorem exists_tp_multiplier_of_squareWitnesses_to_ramifiedParityProduct
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
     {p0 : ℕ} (hp0 : p0 ∈ ramifiedPrimes d)
