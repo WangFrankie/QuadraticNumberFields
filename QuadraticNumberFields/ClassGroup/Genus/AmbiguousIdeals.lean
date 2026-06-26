@@ -2545,16 +2545,6 @@ private theorem fullRamifiedParityNarrowClassHom_mem_ker_iff
       fullRamifiedParityNarrowClassProduct d v = 1 := by
   simp [MonoidHom.mem_ker, fullRamifiedParityNarrowClassHom_apply]
 
-private theorem exists_apply_ne_zero_of_multiplicative_ne_one
-    {ι : Type*} (v : Multiplicative (ι → Fin 2)) (hv : v ≠ 1) :
-    ∃ i, Multiplicative.toAdd v i ≠ 0 := by
-  by_contra h
-  apply hv
-  apply Multiplicative.toAdd.injective
-  funext i
-  by_contra hi
-  exact h ⟨i, hi⟩
-
 /-- The full ramified parity map has `2 ^ t` source vectors, where `t` is the
 number of ramified rational primes. -/
 private theorem card_fullRamifiedParityNarrowClassHom_domain
