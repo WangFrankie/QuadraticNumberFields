@@ -1782,8 +1782,32 @@ private theorem exists_conjAut_coboundary_of_tp_multiplier_to_conjAut
   sorry
 
 /-- Sign-choice boundary for the quadratic Hilbert-90 representative. If a
-totally positive element is written as `y / σ(y)`, then either `y` or `-y` is
-totally positive. -/
+totally positive element is written as `y / σ(y)` and the fraction field has a
+real embedding, then either `y` or `-y` is totally positive. -/
+private theorem isTotallyPositive_or_neg_isTotallyPositive_of_totallyPositive_coboundary_of_nonempty
+    (K : Type*) [Field K] [NumberField K] [Algebra ℚ K]
+    [QuadraticField K] [QuadraticField.Conj K]
+    (hreal :
+      Nonempty (FractionRing (NumberField.RingOfIntegers K) →+* ℝ))
+    {x y : (FractionRing (NumberField.RingOfIntegers K))ˣ}
+    (hxpos : NarrowClassGroup.IsTotallyPositive
+      (x : FractionRing (NumberField.RingOfIntegers K)))
+    (hy :
+      x = y * (Units.mapEquiv (conjAutFractionRingAlgEquiv K).toRingEquiv y)⁻¹) :
+    NarrowClassGroup.IsTotallyPositive
+        (y : FractionRing (NumberField.RingOfIntegers K)) ∨
+      NarrowClassGroup.IsTotallyPositive
+        ((-y : (FractionRing (NumberField.RingOfIntegers K))ˣ) :
+          FractionRing (NumberField.RingOfIntegers K)) := by
+  -- Remaining gap: in the real quadratic case, real embeddings form one
+  -- conjugation orbit. Since `x = y / σ(y)` is positive at every real embedding,
+  -- the signs of `y` agree across this orbit; then one of `y` and `-y` is
+  -- totally positive.
+  sorry
+
+/-- Sign choice for a quadratic Hilbert-90 representative. The imaginary case
+is vacuous because there are no real embeddings; the real case is isolated in
+`isTotallyPositive_or_neg_isTotallyPositive_of_totallyPositive_coboundary_of_nonempty`. -/
 private theorem isTotallyPositive_or_neg_isTotallyPositive_of_totallyPositive_coboundary
     (K : Type*) [Field K] [NumberField K] [Algebra ℚ K]
     [QuadraticField K] [QuadraticField.Conj K]
@@ -1797,11 +1821,14 @@ private theorem isTotallyPositive_or_neg_isTotallyPositive_of_totallyPositive_co
       NarrowClassGroup.IsTotallyPositive
         ((-y : (FractionRing (NumberField.RingOfIntegers K))ˣ) :
           FractionRing (NumberField.RingOfIntegers K)) := by
-  -- Remaining gap: real embeddings of a quadratic field form one conjugation
-  -- orbit. Since `x = y / σ(y)` is positive at every real embedding, the signs
-  -- of `y` agree across this orbit; then one of `y` and `-y` is totally
-  -- positive.
-  sorry
+  by_cases hreal :
+      Nonempty (FractionRing (NumberField.RingOfIntegers K) →+* ℝ)
+  · exact
+      isTotallyPositive_or_neg_isTotallyPositive_of_totallyPositive_coboundary_of_nonempty
+        K hreal hxpos hy
+  · left
+    intro σ
+    exact False.elim (hreal ⟨σ⟩)
 
 /-- Positivity adjustment boundary for the quadratic Hilbert-90 coboundary. If a
 totally positive multiplier is an ordinary conjugation coboundary, the
