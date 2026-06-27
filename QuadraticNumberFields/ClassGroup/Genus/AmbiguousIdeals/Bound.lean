@@ -1216,10 +1216,10 @@ theorem exists_tp_multiplier_representative_to_ramifiedParityIdealProduct
         d hp0 r hrp0 hrel C
   exact (NarrowClassGroup.mk0_eq_mk0_iff_exists_fraction_ring).mp hclass
 
-/-- If a nonzero strict positive-principal relation among the full ramified
-parity vectors is available, then one coordinate can be erased and
-inversion-fixed narrow classes inject into the erased parity-vector space. -/
-theorem card_narrowInversionFixedClass_le_genusBound_of_positivePrincipal_relation
+/-- A nonzero strict positive-principal relation among full ramified parity
+vectors lets one coordinate be erased in the count of inversion-fixed narrow
+classes. -/
+theorem card_narrowInversionFixedClass_le_two_pow_sub_one_of_positivePrincipal_relation
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
     {p0 : ℕ} (hp0 : p0 ∈ ramifiedPrimes d)
     (r : ({p // p ∈ ramifiedPrimes d} → Fin 2))
@@ -1269,12 +1269,9 @@ theorem card_narrowInversionFixedClass_le_genusBound_of_positivePrincipal_relati
     _ = 2 ^ (ramifiedPrimeCount d - 1) :=
       card_erasedRamifiedParityVectorDomain d hp0
 
-/-- Remaining positive-principal input in inversion-fixed form: the
-inversion-fixed narrow classes are bounded by the genus count. The next
-mathematical step is to identify these classes with conjugation-fixed ideal
-classes represented by ramified-prime exponent vectors, with the single
-positive-principal relation. -/
-theorem card_narrowInversionFixedClass_le_genusBound
+/-- Inversion-fixed narrow classes are bounded by the genus-formula value
+`2 ^ (t - 1)`. -/
+theorem card_narrowInversionFixedClass_le_two_pow_sub_one
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
     Nat.card (NarrowInversionFixedClass
       (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) ≤
@@ -1283,26 +1280,26 @@ theorem card_narrowInversionFixedClass_le_genusBound
   obtain ⟨r, hnonzero, hrel⟩ :=
     exists_nonzero_positivePrincipalRamifiedParityRelation d
   obtain ⟨p0, hrp0⟩ := hnonzero
-  exact card_narrowInversionFixedClass_le_genusBound_of_positivePrincipal_relation
+  exact card_narrowInversionFixedClass_le_two_pow_sub_one_of_positivePrincipal_relation
     d p0.2 r hrp0 hrel
 
 /-- Ambiguous-ideal upper bound: the two-torsion in the narrow class group has
 size at most `2 ^ (t - 1)`, where `t` is the number of ramified rational primes. -/
-theorem card_narrowClassGroupTwoTorsion_le_genusBound
+theorem card_narrowClassGroupTwoTorsion_le_two_pow_sub_one
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
     Nat.card (NarrowClassGroup.twoTorsion
       (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) ≤
       2 ^ (ramifiedPrimeCount d - 1) := by
   rw [card_narrowClassGroupTwoTorsion_eq_card_narrowInversionFixedClass]
-  exact card_narrowInversionFixedClass_le_genusBound d
+  exact card_narrowInversionFixedClass_le_two_pow_sub_one d
 
 /-- Equivalent upper bound for the narrow square-class quotient. -/
-theorem card_narrowClassGroupSquareQuotient_le_genusBound
+theorem card_narrowClassGroupSquareQuotient_le_two_pow_sub_one
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
     Nat.card (Cl⁺(d) ⧸ Subgroup.square (Cl⁺(d))) ≤
       2 ^ (ramifiedPrimeCount d - 1) := by
   rw [card_narrowClassGroupSquareQuotient_eq_card_narrowClassGroupTwoTorsion]
-  exact card_narrowClassGroupTwoTorsion_le_genusBound d
+  exact card_narrowClassGroupTwoTorsion_le_two_pow_sub_one d
 
 end Genus
 end ClassGroup

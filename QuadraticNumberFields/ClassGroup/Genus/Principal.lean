@@ -26,7 +26,7 @@ class group is the subgroup of squares. -/
 theorem genusCharacterMap_ker_eq_square
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
     (genusCharacterMap d).ker = Subgroup.square (Cl⁺(d)) := by
-  exact (genusFormula_iff_genusCharacterMap_ker_eq_square d).mp (genusFormula_holds d)
+  exact (genusFormula_iff_genusCharacterMap_ker_eq_square d).mp (genusFormula d)
 
 end Genus
 end ClassGroup

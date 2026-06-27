@@ -410,7 +410,7 @@ theorem genusCharacterMapOnSquareQuotient_surjective_of_genusCharacterMap_surjec
   simpa [genusCharacterMapOnSquareQuotient_mk'] using hC
 
 /-- Surjectivity gives the lower bound for the narrow square-class quotient. -/
-theorem genusBound_le_card_narrowClassGroupSquareQuotient
+theorem two_pow_sub_one_le_card_narrowClassGroupSquareQuotient
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
     2 ^ (ramifiedPrimeCount d - 1) ≤
       Nat.card (Cl⁺(d) ⧸ Subgroup.square (Cl⁺(d))) := by

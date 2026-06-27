@@ -8,6 +8,7 @@ import QuadraticNumberFields.ClassGroup.Genus.Index
 import QuadraticNumberFields.ClassGroup.Genus.PrimeDiscriminant
 import QuadraticNumberFields.ClassGroup.Genus.Characters
 import QuadraticNumberFields.ClassGroup.Genus.SquareClass
+import QuadraticNumberFields.ClassGroup.Genus.NumberOfGenera
 import QuadraticNumberFields.ClassGroup.Genus.QuotientMap
 import QuadraticNumberFields.ClassGroup.Genus.Surjectivity
 import QuadraticNumberFields.ClassGroup.Genus.ExactSequence

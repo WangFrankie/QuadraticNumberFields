@@ -6,6 +6,7 @@ Authors: Frankie Wang
 
 import QuadraticNumberFields.ClassGroup.Genus.AmbiguousIdeals
 import QuadraticNumberFields.ClassGroup.Genus.ExactSequence
+import QuadraticNumberFields.ClassGroup.Genus.NumberOfGenera
 
 /-!
 # The Genus Quotient Equivalence
@@ -22,35 +23,28 @@ open scoped NumberField QuadraticNumberFields.ClassGroup
 
 attribute [-instance] DivisionRing.toRatAlgebra
 
-/-- Cardinality form of the genus quotient, obtained by squeezing the square-class quotient
-between the surjectivity lower bound and the ambiguous-ideal upper bound. -/
-theorem card_narrowClassGroupSquareQuotient_eq_genusBound
+/-- Cardinality form of the genus quotient. -/
+theorem card_narrowClassGroupSquareQuotient_eq_two_pow_sub_one
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
     Nat.card (Cl⁺(d) ⧸ Subgroup.square (Cl⁺(d))) = 2 ^ (ramifiedPrimeCount d - 1) :=
-  le_antisymm (card_narrowClassGroupSquareQuotient_le_genusBound d)
-    (genusBound_le_card_narrowClassGroupSquareQuotient d)
+  le_antisymm (card_narrowClassGroupSquareQuotient_le_two_pow_sub_one d)
+    (two_pow_sub_one_le_card_narrowClassGroupSquareQuotient d)
 
-/-- The genus-theory square-class quotient is finite. This instance belongs here,
-because its current proof uses the genus-theory cardinality squeeze. -/
+/-- The genus-theory square-class quotient is finite. -/
 instance instFiniteNarrowClassGroupSquareQuotient
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
     Finite (Cl⁺(d) ⧸ Subgroup.square (Cl⁺(d))) :=
   Nat.finite_of_card_ne_zero <| by
-    rw [card_narrowClassGroupSquareQuotient_eq_genusBound]
+    rw [card_narrowClassGroupSquareQuotient_eq_two_pow_sub_one]
     exact pow_ne_zero _ (by norm_num : (2 : ℕ) ≠ 0)
-
-/-- A concrete finite type structure on the genus-theory square-class quotient. -/
-noncomputable instance instFintypeNarrowClassGroupSquareQuotient
-    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
-    Fintype (Cl⁺(d) ⧸ Subgroup.square (Cl⁺(d))) :=
-  Fintype.ofFinite _
 
 /-- Cardinality equality between the square-class quotient and the genus-character target. -/
 theorem card_narrowClassGroupSquareQuotient_eq_genusCharacterTargetRelation
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
     Nat.card (Cl⁺(d) ⧸ Subgroup.square (Cl⁺(d))) =
       Nat.card (genusCharacterTargetRelation d) := by
-  rw [card_narrowClassGroupSquareQuotient_eq_genusBound, card_genusCharacterTargetRelation]
+  rw [card_narrowClassGroupSquareQuotient_eq_two_pow_sub_one,
+    card_genusCharacterTargetRelation]
 
 /-- The final genus quotient isomorphism:
 `Cl⁺(d) / Cl⁺(d)^2` is the product-one group of signed prime-discriminant
@@ -61,6 +55,8 @@ noncomputable def genusQuotientEquiv
   refine MulEquiv.ofBijective (genusCharacterMapOnSquareQuotient d) ?_
   constructor
   · classical
+    haveI : Fintype (Cl⁺(d) ⧸ Subgroup.square (Cl⁺(d))) :=
+      Fintype.ofFinite _
     have hcard := card_narrowClassGroupSquareQuotient_eq_genusCharacterTargetRelation d
     have hcard' : Fintype.card (Cl⁺(d) ⧸ Subgroup.square (Cl⁺(d))) =
         Fintype.card (genusCharacterTargetRelation d) := by
