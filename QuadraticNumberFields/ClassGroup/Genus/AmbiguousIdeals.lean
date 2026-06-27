@@ -6,7 +6,7 @@ Authors: Frankie Wang
 
 import QuadraticNumberFields.ClassGroup.Genus.AmbiguousIdeals.Bound
 import QuadraticNumberFields.ClassGroup.Genus.AmbiguousIdeals.Conjugation
-import QuadraticNumberFields.ClassGroup.Genus.AmbiguousIdeals.PositivePrincipal
+import QuadraticNumberFields.ClassGroup.Genus.AmbiguousIdeals.PositivePrincipal.Generators
 import QuadraticNumberFields.ClassGroup.Genus.AmbiguousIdeals.RamifiedParity
 import QuadraticNumberFields.ClassGroup.Genus.AmbiguousIdeals.Representatives
 
