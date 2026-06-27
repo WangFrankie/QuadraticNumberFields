@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 
-import QuadraticNumberFields.ClassGroup.Genus.AmbiguousIdeals.Representatives
+import QuadraticNumberFields.ClassGroup.Genus.AmbiguousIdeals.PositivePrincipal
 
 /-!
 # Ambiguous-Ideal Upper Bound
@@ -728,19 +728,24 @@ theorem exists_fixed_mul_algebraMap_of_tp_generator
   exact ⟨ε, hε0,
     conjAutFractionRingAlgEquiv_mul_algebraMap_eq_self_of_hilbert90_coboundary d hu hε⟩
 
-/-- Chevalley's narrow ambiguous class number formula, in the only form needed
-for the upper bound.
+/-- Chevalley's narrow genus relation, in the only form needed for the upper
+bound.
 
 This is the genuine global mathematical boundary: the full ramified parity map
 has a nonzero kernel vector. Equivalently, the narrow-principal ambiguous ideals
 form a codimension-one subspace of the ramified parity space, the `-1` in
 `|Am⁺| = 2 ^ (t - 1)`. This statement is uniform in `d`; the witness vector is
-not. -/
+not. In particular, the constant-one vector is not a valid uniform shortcut:
+the relation depends on the prime-discriminant/sign contribution for `d`. -/
 theorem exists_nonzero_fullRamifiedParityNarrowClassProduct_eq_one_of_chevalley
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
     ∃ r : ({p // p ∈ ramifiedPrimes d} → Fin 2),
       (∃ p, r p ≠ 0) ∧ fullRamifiedParityNarrowClassProduct d r = 1 := by
-  sorry
+  classical
+  obtain ⟨r, hrnonzero, γ, hγpos, hγ⟩ := exists_nonzero_ramifiedParity_tp_generator d
+  refine ⟨r, hrnonzero, ?_⟩
+  exact (fullRamifiedParityNarrowClassProduct_eq_one_iff_exists_tp_generator d r).mpr
+    ⟨γ, hγpos, hγ⟩
 
 /-- Weak positive-principal ramified relation needed for the upper bound. It
 asserts that some nonzero product of ramified prime ideal classes is trivial in
