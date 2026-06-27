@@ -78,6 +78,16 @@ noncomputable def fullRamifiedParityIdealProduct
         mem_nonZeroDivisors_iff_ne_zero.mpr (by
           simpa [Ideal.zero_eq_bot] using ramifiedPrimeIdeal_ne_bot d p.2)⟩
 
+/-- The full ramified parity ideal product of the zero parity vector is the unit
+ideal. -/
+theorem fullRamifiedParityIdealProduct_eq_one_of_forall_eq_zero
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    {v : ({p // p ∈ ramifiedPrimes d} → Fin 2)} (hv : ∀ p, v p = 0) :
+    fullRamifiedParityIdealProduct d v =
+      (1 : (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰) := by
+  classical
+  simp [fullRamifiedParityIdealProduct, hv]
+
 /-- A ramified prime ideal is fixed by quadratic conjugation. -/
 theorem isAmbiguousIdeal_ramifiedPrimeIdeal
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
