@@ -3,8 +3,7 @@ Copyright (c) 2026 Frankie Wang. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
-import QuadraticNumberFields.ClassGroup.GenusTheory.Formula
-import QuadraticNumberFields.ClassGroup.GenusTheory.Sieve
+import QuadraticNumberFields.ClassGroup.Genus.Sieve
 import ImaginaryClassNumberOne.ClassNumberOne
 import ImaginaryClassNumberOne.Framework
 import ImaginaryClassNumberOne.IdealReductions
@@ -44,7 +43,7 @@ open ClassGroup
 /-
 TODO roadmap for the remaining forward direction:
 
-* Genus route: keep the full `Cl / Cl²` formula in `ClassGroup.GenusTheory`.
+* Genus route: keep the unified genus-theory sieve in `ClassGroup.Genus`.
   The Baker-Heegner-Stark assembly no longer depends on that formula for the
   odd fundamental-discriminant prime-shape sieve.
 * Weber/CM route: keep the inert-prime core routed through
@@ -106,8 +105,8 @@ theorem classNumber_eq_one_imp_mem_heegnerSet_of_discriminant_prime_shape
         omega
       exact classNumber_eq_one_imp_mem_heegnerSet_of_mod_eight_eq_one d hd hd8 h
 
-/-- **Odd genus-formula branch of Baker-Heegner-Stark.** For odd fundamental
-discriminants, the standard genus formula feeds the prime-shape sieve and leaves
+/-- **Odd genus-theory branch of Baker-Heegner-Stark.** For odd fundamental
+discriminants, the rebuilt genus sieve gives the prime-shape reduction and leaves
 only the existing inert-prime provider. -/
 theorem classNumber_eq_one_imp_mem_heegnerSet_of_oddGenusFormula_of_mod_four_eq_one
     (hprovider : InertPrimeWeberDataProvider)
@@ -115,10 +114,15 @@ theorem classNumber_eq_one_imp_mem_heegnerSet_of_oddGenusFormula_of_mod_four_eq_
     (hd4 : d % 4 = 1)
     (h : NumberField.classNumber (Qsqrtd (d : ℚ)) = 1) :
     d ∈ heegnerSet := by
-  have hprime :=
-    ClassGroup.classNumber_eq_one_imp_exists_prime_of_mod_four_eq_one d hd hd4 h
-  exact classNumber_eq_one_imp_mem_heegnerSet_of_discriminant_prime_shape hprovider d hd
-    (Or.inr (Or.inr hprime)) h
+  have hshape :=
+    ClassGroup.Genus.classNumber_eq_one_imp_discriminant_prime_shape d hd h
+  rcases hshape with hneg1 | hneg2 | hprime
+  · subst hneg1
+    norm_num at hd4
+  · subst hneg2
+    norm_num at hd4
+  · exact classNumber_eq_one_imp_mem_heegnerSet_of_discriminant_prime_shape hprovider d hd
+      (Or.inr (Or.inr hprime)) h
 
 /-- **Inert half-integral branch of Baker-Heegner-Stark.** In the `d % 8 = 5`
 branch, the ideal-theoretic odd prime-shape sieve reduces class number one to
