@@ -85,11 +85,9 @@ theorem card_squareQuotient_eq_card_twoTorsion
     Nat.card (squareQuotient R) = Nat.card (twoTorsion R) := by
   haveI : (powMonoidHom (α := ClassGroup R) 2).ker.FiniteIndex :=
     Subgroup.finiteIndex_of_finite
-  change Nat.card (ClassGroup R ⧸ square R) =
-    Nat.card (twoTorsion R)
-  rw [← Subgroup.index_eq_card]
-  rw [square_eq_powMonoidHom_range, twoTorsion, torsionBy, Subgroup.powTorsion]
-  rw [Subgroup.index_range]
+  simpa [squareQuotient, square_eq_powMonoidHom_range, twoTorsion, torsionBy,
+    Subgroup.powTorsion, Subgroup.index_eq_card] using
+    (Subgroup.index_range (f := powMonoidHom (α := ClassGroup R) 2))
 
 local notation "Cl[" R "][" n "]" =>
   Subgroup.powTorsion (ClassGroup R) n
@@ -171,9 +169,8 @@ theorem card_squareQuotient_eq_card_twoTorsion
     Nat.card (squareQuotient R) = Nat.card (twoTorsion R) := by
   haveI : (powMonoidHom (α := NarrowClassGroup R) 2).ker.FiniteIndex :=
     Subgroup.finiteIndex_of_finite
-  change Nat.card (NarrowClassGroup R ⧸ square R) = Nat.card (twoTorsion R)
-  rw [← Subgroup.index_eq_card]
-  rw [square_eq_powMonoidHom_range, twoTorsion, torsionBy, Subgroup.powTorsion]
-  rw [Subgroup.index_range]
+  simpa [squareQuotient, square_eq_powMonoidHom_range, twoTorsion, torsionBy,
+    Subgroup.powTorsion, Subgroup.index_eq_card] using
+    (Subgroup.index_range (f := powMonoidHom (α := NarrowClassGroup R) 2))
 
 end NarrowClassGroup
