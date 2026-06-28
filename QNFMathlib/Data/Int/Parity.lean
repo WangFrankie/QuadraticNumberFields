@@ -73,9 +73,8 @@ negative twice a square. -/
 theorem Int.exists_eq_neg_two_mul_sq_of_two_mul_eq_neg_sq {A z : ℤ}
     (h : 2 * A = -z ^ 2) :
     ∃ w : ℤ, A = -2 * w ^ 2 := by
-  have hneg : 2 * (-A) = z ^ 2 := by
-    nlinarith
-  obtain ⟨w, hw⟩ := Int.exists_eq_two_mul_sq_of_two_mul_eq_sq hneg
+  obtain ⟨w, hw⟩ := Int.exists_eq_two_mul_sq_of_two_mul_eq_sq (A := -A) (z := z)
+    (by nlinarith)
   use w
   nlinarith
 
