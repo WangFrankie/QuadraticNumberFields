@@ -58,12 +58,9 @@ theorem Int.odd_of_modEq_odd {B b a : ℤ} (hb : Odd b) (hB : B ≡ b [ZMOD 2 * 
 theorem Int.exists_eq_two_mul_sq_of_two_mul_eq_sq {A z : ℤ}
     (h : 2 * A = z ^ 2) :
     ∃ w : ℤ, A = 2 * w ^ 2 := by
-  have hz_even_sq : Even (z ^ 2) := by
+  rcases (Int.even_pow' (m := z) (n := 2) (by norm_num)).mp (by
     rw [← h]
-    exact even_two_mul A
-  have hz_even : Even z :=
-    (Int.even_pow' (m := z) (n := 2) (by norm_num)).mp hz_even_sq
-  rcases hz_even with ⟨w, hw⟩
+    exact even_two_mul A) with ⟨w, hw⟩
   use w
   subst z
   nlinarith
