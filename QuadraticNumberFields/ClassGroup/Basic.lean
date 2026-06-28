@@ -33,12 +33,8 @@ one. -/
 theorem NumberField.classNumber_eq_one_iff_subsingleton_classGroup
       {K : Type*} [Field K] [NumberField K] :
       NumberField.classNumber K = 1 ↔ Subsingleton (ClassGroup (𝓞 K)) := by
-    rw [NumberField.classNumber, Fintype.card_eq_one_iff]
-    constructor
-    · rintro ⟨C₀, hC₀⟩
-      exact ⟨fun C D => (hC₀ C).trans (hC₀ D).symm⟩
-    · intro h
-      exact ⟨1, fun C => Subsingleton.elim C 1⟩
+    rw [NumberField.classNumber, ← Nat.card_eq_fintype_card, Nat.card_eq_one_iff_unique]
+    exact ⟨fun h => h.1, fun h => ⟨h, ⟨1⟩⟩⟩
 
 theorem NumberField.classNumber_eq_one_of_forall_classGroup_eq_one
     {K : Type*} [Field K] [NumberField K]
