@@ -105,34 +105,34 @@ Counts exclude blank lines.
 
 | Library | Code Lines | Comment Lines | Total Lines |
 |--------|------------|---------------|-------------|
-| `QuadraticNumberFields` | 7672 | 2808 | 10480 |
+| `QuadraticNumberFields` | 16874 | 3448 | 20322 |
 | `FormClassGroup` | 4946 | 1044 | 5990 |
 | `BinaryQuadraticForms` | 3126 | 664 | 3790 |
-| `QNFMathlib` | 2456 | 763 | 3219 |
+| `QNFMathlib` | 2743 | 801 | 3544 |
 | `Examples` | 1179 | 579 | 1758 |
-| `ImaginaryClassNumberOne` | 1113 | 395 | 1508 |
-| **Total** | **20492** | **6253** | **26745** |
+| `ImaginaryClassNumberOne` | 1117 | 395 | 1512 |
+| **Total** | **29985** | **6931** | **36916** |
 
 ### Library Tree
 
 <details>
-<summary><code>QuadraticNumberFields</code> (7672 code, 2808 comments, 10480 total)</summary>
+<summary><code>QuadraticNumberFields</code> (16874 code, 3448 comments, 20322 total)</summary>
 
 | Subtree | Code Lines | Comment Lines | Total Lines |
 |--------|------------|---------------|-------------|
-| `├── QuadraticNumberFields.lean` | 46 | 21 | 67 |
-| `├── ClassGroup/` | 2659 | 685 | 3344 |
+| `├── QuadraticNumberFields.lean` | 48 | 21 | 69 |
+| `├── ClassGroup/` | 11763 | 1287 | 13050 |
 | `├── ContinuedFraction/` | 21 | 36 | 57 |
 | `├── Euclidean/` | 52 | 25 | 77 |
 | `├── Families/` | 38 | 49 | 87 |
-| `├── Qsqrtd/` | 559 | 291 | 850 |
+| `├── Qsqrtd/` | 605 | 301 | 906 |
 | `├── QuadraticField/` | 586 | 397 | 983 |
 | `├── RingOfIntegers/` | 773 | 362 | 1135 |
-| `├── Splitting/` | 1672 | 501 | 2173 |
+| `├── Splitting/` | 1722 | 529 | 2251 |
 | `├── Units/` | 409 | 156 | 565 |
 | `├── ZOnePlusSqrtdOverTwo/` | 127 | 50 | 177 |
 | `└── Zsqrtd/` | 730 | 235 | 965 |
-| **QuadraticNumberFields total** | **7672** | **2808** | **10480** |
+| **QuadraticNumberFields total** | **16874** | **3448** | **20322** |
 
 </details>
 
@@ -166,18 +166,18 @@ Counts exclude blank lines.
 </details>
 
 <details>
-<summary><code>QNFMathlib</code> (2456 code, 763 comments, 3219 total)</summary>
+<summary><code>QNFMathlib</code> (2743 code, 801 comments, 3544 total)</summary>
 
 | Subtree | Code Lines | Comment Lines | Total Lines |
 |--------|------------|---------------|-------------|
-| `├── QNFMathlib.lean` | 29 | 12 | 41 |
+| `├── QNFMathlib.lean` | 30 | 12 | 42 |
 | `├── Algebra/` | 151 | 88 | 239 |
 | `├── Data/` | 578 | 144 | 722 |
 | `├── FieldTheory/` | 41 | 19 | 60 |
 | `├── GroupTheory/` | 18 | 13 | 31 |
-| `├── NumberTheory/` | 1272 | 340 | 1612 |
-| `└── RingTheory/` | 367 | 147 | 514 |
-| **QNFMathlib total** | **2456** | **763** | **3219** |
+| `├── NumberTheory/` | 1352 | 348 | 1700 |
+| `└── RingTheory/` | 573 | 177 | 750 |
+| **QNFMathlib total** | **2743** | **801** | **3544** |
 
 </details>
 
@@ -199,7 +199,7 @@ Counts exclude blank lines.
 </details>
 
 <details>
-<summary><code>ImaginaryClassNumberOne</code> (1113 code, 395 comments, 1508 total)</summary>
+<summary><code>ImaginaryClassNumberOne</code> (1117 code, 395 comments, 1512 total)</summary>
 
 | Subtree | Code Lines | Comment Lines | Total Lines |
 |--------|------------|---------------|-------------|
@@ -209,9 +209,9 @@ Counts exclude blank lines.
 | `├── Diophantine.lean` | 399 | 65 | 464 |
 | `├── Framework.lean` | 43 | 25 | 68 |
 | `├── IdealReductions.lean` | 305 | 41 | 346 |
-| `├── StarkHeegner.lean` | 85 | 68 | 153 |
+| `├── StarkHeegner.lean` | 89 | 68 | 157 |
 | `└── WeberData/` | 128 | 123 | 251 |
-| **ImaginaryClassNumberOne total** | **1113** | **395** | **1508** |
+| **ImaginaryClassNumberOne total** | **1117** | **395** | **1512** |
 
 </details>
 
