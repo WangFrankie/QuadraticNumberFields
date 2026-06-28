@@ -124,9 +124,7 @@ theorem eq_zero_or_eq_one_or_neg_one_of_quartic_sub_sq_add_one_eq_sq
   · right
     have hmul : W * W = 1 := by
       simpa [pow_two] using hWsq
-    rcases Int.mul_eq_one_iff_eq_one_or_neg_one.mp hmul with ⟨h1, _⟩ | ⟨h1, _⟩
-    · exact Or.inl h1
-    · exact Or.inr h1
+    exact (Int.mul_eq_one_iff_eq_one_or_neg_one.mp hmul).imp And.left And.left
 
 /-- If `9 * A` is a square, then `A` is a square. -/
 -- Repository use: Cox's Exercise 12.29 divides a square identity by `3 ^ 2`
