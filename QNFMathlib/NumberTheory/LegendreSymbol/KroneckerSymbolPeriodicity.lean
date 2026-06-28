@@ -300,8 +300,7 @@ private lemma jacobiSym_nat_four_mul_sub_one (A : ℕ) (hA : A ≠ 0) :
     rcases k with rfl | k
     · simp
     · have hmul : 4 * (2 ^ (k + 1) * m) = 8 * (2 ^ k * m) := by
-        rw [pow_succ]
-        ring
+        ring_nf
       have hmod8 : (4 * (2 ^ (k + 1) * m) - 1) % 8 = 7 := by
         rw [hmul]
         have hmpos : 0 < m := hm.pos
