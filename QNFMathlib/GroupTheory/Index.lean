@@ -20,11 +20,7 @@ theorem injective_iff_nat_card_eq_of_surjective
     {G H : Type*} [Group G] [Group H] [Finite G] [Finite H]
     (f : G →* H) (hf : Function.Surjective f) :
     Function.Injective f ↔ Nat.card G = Nat.card H := by
-  constructor
-  · intro hinj
-    exact Nat.card_congr (Equiv.ofBijective f ⟨hinj, hf⟩)
-  · intro hcard
-    exact (hf.bijective_of_nat_card_le (le_of_eq hcard)).1
+  simpa [Function.Bijective, hf] using Nat.bijective_iff_surjective_and_card (f : G → H)
 
 /-- A surjective homomorphism between finite groups has trivial kernel iff its
 domain and codomain have the same cardinality. -/
