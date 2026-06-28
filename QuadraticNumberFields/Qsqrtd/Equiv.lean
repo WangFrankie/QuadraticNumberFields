@@ -46,8 +46,7 @@ def IsSquareRatioByDivision (d d' : ℚ) : Prop :=
 rational square factor. -/
 theorem nonempty_algEquiv_of_isSquareRatio {d d' : ℚ} :
     IsSquareRatio d d' → Nonempty (Qsqrtd d ≃ₐ[ℚ] Qsqrtd d') := by
-  rintro ⟨a, rfl⟩
-  exact ⟨Qsqrtd.rescale d a⟩
+  exact fun ⟨a, h⟩ => h ▸ ⟨Qsqrtd.rescale d a⟩
 
 /-- Multiplicative and division forms of square-ratio equivalence agree away
 from `d = 0`. -/
