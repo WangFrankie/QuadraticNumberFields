@@ -158,13 +158,9 @@ theorem genus_divisibility_of_neg
   have hdiv := genus_divisibility_narrowClassNumber d
   have hcard :
       Qsqrtd.narrowClassNumber d = NumberField.classNumber (Qsqrtd (d : ℚ)) := by
-    calc
-      Qsqrtd.narrowClassNumber d = Nat.card (Cl⁺(d)) := by
-        rfl
-      _ = Nat.card (Cl(d)) :=
-        Nat.card_congr (Qsqrtd.Imaginary.narrowMulEquivClassGroup d hd).toEquiv
-      _ = NumberField.classNumber (Qsqrtd (d : ℚ)) := by
-        simp [NumberField.classNumber, Nat.card_eq_fintype_card]
+    change Nat.card (Cl⁺(d)) = NumberField.classNumber (Qsqrtd (d : ℚ))
+    simpa [NumberField.classNumber, Nat.card_eq_fintype_card] using
+      Nat.card_congr (Qsqrtd.Imaginary.narrowMulEquivClassGroup d hd).toEquiv
   simpa [hcard] using hdiv
 
 /-- **Genus-theory sieve for class number one.** An imaginary quadratic field with
