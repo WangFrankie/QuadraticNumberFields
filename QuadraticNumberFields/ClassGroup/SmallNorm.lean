@@ -31,7 +31,7 @@ theorem Ideal.isPrime_of_absNorm_eq_two {R : Type*} [CommRing R] [Nontrivial R]
     [IsDedekindDomain R] [Module.Free ℤ R] {I : Ideal R} (hI : Ideal.absNorm I = 2) :
     I.IsPrime :=
   Ideal.isPrime_of_irreducible_absNorm
-    (by rw [hI]; exact irreducible_two_nat)
+    (hI ▸ irreducible_two_nat)
 
 /-- If every ideal class has a representative of absolute norm `< 3`, and all
 norm-`2` ideals are principal, then every ideal class is trivial. -/
