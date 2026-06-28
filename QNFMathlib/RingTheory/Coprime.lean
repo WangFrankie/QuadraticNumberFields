@@ -24,9 +24,7 @@ variable {R : Type*} [CommSemiring R] {a b : R}
 -- `X ^ 3 + 1` as twice a square.
 theorem four_mul_right_of_two_mul_right (h : IsCoprime a ((2 : R) * b)) :
     IsCoprime a ((4 : R) * b) := by
-  have hparts := IsCoprime.mul_right_iff.mp h
-  have hcop2 : IsCoprime a (2 : R) := hparts.1
-  convert hcop2.mul_right h using 1
+  convert ((IsCoprime.mul_right_iff.mp h).1).mul_right h using 1
   ring
 
 variable {S : Type*} [CommSemiring S] [GCDMonoid S] {x y z : S}
