@@ -461,7 +461,7 @@ theorem totallyPositiveUnits_eq_ker (K : Type*) [Field K] :
     rw [signVectorHom_apply, realSignUnitHom_apply, if_pos (by rw [hcoe]; exact hx σ)]
     rfl
   · intro hx σ
-    have hxσ : signVectorHom K x σ = 1 := by rw [hx]; rfl
+    have hxσ : signVectorHom K x σ = 1 := congrFun hx σ
     rw [signVectorHom_apply, realSignUnitHom_apply] at hxσ
     by_contra hpos
     rw [if_neg (by rw [hcoe]; exact hpos)] at hxσ
