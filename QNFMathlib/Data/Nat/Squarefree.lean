@@ -76,9 +76,7 @@ theorem exists_prime_dvd_and_four_mul_lt_succ_of_squarefree_of_odd_of_not_prime
       have hq_le_s : q ≤ s := Nat.minFac_le_of_dvd hs.two_le hsn
       omega
     have hq_ne_four : q ≠ 4 := by
-      intro hq4
-      have hnot : ¬ Nat.Prime 4 := by decide
-      exact hnot (by simpa [hq4] using hqprime)
+      exact fun hq4 => (by decide : ¬ Nat.Prime 4) (by simpa [hq4] using hqprime)
     have hq5 : 5 ≤ q := by omega
     rw [hn_eq]
     nlinarith
