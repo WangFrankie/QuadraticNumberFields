@@ -54,8 +54,7 @@ theorem Algebra.IsQuadraticExtension.isSeparable_of_field_of_char_ne_two
     | zero => simp at h2
     | succ n =>
         have hq_dvd : ringExpChar F ∣ 2 := by
-          rw [pow_succ] at h2
-          exact ⟨(ringExpChar F) ^ n, by simpa [Nat.mul_comm] using h2.symm⟩
+          exact ⟨(ringExpChar F) ^ n, by simpa [pow_succ, Nat.mul_comm] using h2.symm⟩
         rcases (Nat.dvd_prime Nat.prime_two).1 hq_dvd with hq1 | hq2
         · simp [hq1] at h2
         · exact (hexp hq2).elim
