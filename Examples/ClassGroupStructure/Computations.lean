@@ -90,8 +90,8 @@ noncomputable def classGroup_qsqrtd_neg23_mulEquiv :
     (G := ClassGroup (NumberField.RingOfIntegers (Qsqrtd ((-23 : ℤ) : ℚ))))
     (G' := Multiplicative (ZMod 3))
     (by
-      simpa [NumberField.classNumber, ← Nat.card_eq_fintype_card] using classNumber_qsqrtd_neg23)
-    (by simp [Nat.card_eq_fintype_card])
+      simpa [NumberField.classNumber, Fintype.card_eq_nat_card] using classNumber_qsqrtd_neg23)
+    (by simp)
 
 /-! ## Non-cyclic standard-output checks
 

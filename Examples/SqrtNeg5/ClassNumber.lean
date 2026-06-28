@@ -212,7 +212,7 @@ noncomputable def classGroupMulEquivZMod2 :
     (G := ClassGroup O)
     (G' := Multiplicative (ZMod 2))
     (by
-      simpa [O, NumberField.classNumber, ← Nat.card_eq_fintype_card] using classNumber_eq_two)
-    (by simp [Nat.card_eq_fintype_card])
+      simpa [O, NumberField.classNumber, Fintype.card_eq_nat_card] using classNumber_eq_two)
+    (by simp)
 
 end QuadraticNumberFields.Examples.SqrtNeg5
