@@ -87,8 +87,8 @@ theorem card_genusCharacterTargetRelation_of_nonempty
   classical
   have hsurj := genusSignProductHom_surjective_of_nonempty d hS
   have hindex : (genusCharacterTargetRelation d).index = 2 := by
-    rw [genusCharacterTargetRelation, Subgroup.index_ker, MonoidHom.range_eq_top.mpr hsurj,
-      Subgroup.card_top, Nat.card_eq_fintype_card, Fintype.card_units_int]
+    simp [genusCharacterTargetRelation, Subgroup.index_ker, MonoidHom.range_eq_top.mpr hsurj,
+      Fintype.card_units_int]
   have hmul := (genusCharacterTargetRelation d).card_mul_index
   rw [hindex, card_genusCharacterTarget d] at hmul
   have hcard_pos : 0 < ramifiedPrimeCount d := by
