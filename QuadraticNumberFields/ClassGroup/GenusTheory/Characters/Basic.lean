@@ -95,7 +95,7 @@ theorem card_genusCharacterTargetRelation_of_nonempty
     rw [← card_signedPrimeDiscriminantFactors_eq_ramifiedPrimeCount]
     exact Finset.card_pos.mpr hS
   have hpow : 2 ^ ramifiedPrimeCount d = 2 ^ (ramifiedPrimeCount d - 1) * 2 := by
-    rw [← pow_succ, Nat.sub_add_cancel hcard_pos]
+    exact (Nat.two_pow_pred_mul_two hcard_pos).symm
   rw [hpow] at hmul
   exact Nat.mul_right_cancel (by norm_num : 0 < 2) hmul
 
