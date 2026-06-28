@@ -87,34 +87,16 @@ theorem span_pair_mul_span_pair_le {R : Type*} [CommRing R]
 theorem comap_span_singleton_of_ringEquiv {R S : Type*} [CommRing R] [CommRing S]
     (e : R ≃+* S) (x : S) :
     Ideal.comap (e : R →+* S) (span ({x} : Set S)) = span ({e.symm x} : Set R) := by
-  ext z
-  change e z ∈ span ({x} : Set S) ↔ z ∈ span ({e.symm x} : Set R)
-  rw [mem_span_singleton, mem_span_singleton]
-  constructor
-  · rintro ⟨s, hs⟩
-    refine ⟨e.symm s, ?_⟩
-    apply e.injective
-    simp [hs]
-  · rintro ⟨r, hr⟩
-    refine ⟨e r, ?_⟩
-    simpa using congrArg e hr
+  simpa [Ideal.map_span] using
+    (Ideal.map_comap_of_equiv (I := span ({x} : Set S)) e.symm).symm
 
 /-- Pull back a two-generator ideal span along a ring equivalence. -/
 theorem comap_span_pair_of_ringEquiv {R S : Type*} [CommRing R] [CommRing S]
     (e : R ≃+* S) (a b : S) :
     Ideal.comap e.toRingHom (span ({a, b} : Set S)) =
       span ({e.symm a, e.symm b} : Set R) := by
-  ext z
-  change e z ∈ span ({a, b} : Set S) ↔ z ∈ span ({e.symm a, e.symm b} : Set R)
-  rw [mem_span_pair, mem_span_pair]
-  constructor
-  · rintro ⟨u, v, huv⟩
-    refine ⟨e.symm u, e.symm v, ?_⟩
-    apply e.injective
-    simp [huv]
-  · rintro ⟨u, v, huv⟩
-    refine ⟨e u, e v, ?_⟩
-    simpa using congrArg e huv
+  simpa [Ideal.map_span, Set.image_insert_eq] using
+    (Ideal.map_comap_of_equiv (I := span ({a, b} : Set S)) e.symm).symm
 
 /-- Pulling ideals back along a ring equivalence preserves ideal products. -/
 theorem comap_mul_of_ringEquiv {R S : Type*} [CommRing R] [CommRing S]
