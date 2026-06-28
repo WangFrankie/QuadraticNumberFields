@@ -53,9 +53,9 @@ noncomputable def genusQuotientEquiv
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
     Cl⁺(d) ⧸ Subgroup.square (Cl⁺(d)) ≃* genusCharacterTargetRelation d := by
   refine MulEquiv.ofBijective (genusCharacterMapOnSquareQuotient d) ?_
-  exact (Nat.bijective_iff_surjective_and_card (genusCharacterMapOnSquareQuotient d)).2
-    ⟨genusCharacterMapOnSquareQuotient_surjective d,
-      card_narrowClassGroupSquareQuotient_eq_genusCharacterTargetRelation d⟩
+  exact Function.Surjective.bijective_of_nat_card_le
+    (genusCharacterMapOnSquareQuotient_surjective d)
+    (le_of_eq (card_narrowClassGroupSquareQuotient_eq_genusCharacterTargetRelation d))
 
 /-- The genus quotient equivalence agrees with the genus-character map on
 representatives. -/
