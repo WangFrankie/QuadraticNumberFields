@@ -29,9 +29,8 @@ theorem exists_prime_dvd_and_four_mul_lt_succ_of_squarefree_of_odd_of_not_prime
     intro hq2
     have h2dvd : 2 ∣ n := by simpa [q, hq2] using hqdvd
     exact hodd.not_two_dvd_nat h2dvd
-  have hq_ge_three : 3 ≤ q := by
-    have hq2le : 2 ≤ q := hqprime.two_le
-    omega
+  have hq_ge_three : 3 ≤ q :=
+    (Nat.two_lt_of_ne hqprime.ne_zero hqprime.ne_one hq_ne_two).succ_le
   let r := n / q
   have hn_eq : n = q * r := by
     dsimp [r]
