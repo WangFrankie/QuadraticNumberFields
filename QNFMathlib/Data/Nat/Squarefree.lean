@@ -48,10 +48,8 @@ theorem exists_prime_dvd_and_four_mul_lt_succ_of_squarefree_of_odd_of_not_prime
     have hq2dvd_n : q * q ∣ n := by
       rw [hn_eq]
       exact Nat.mul_dvd_mul_left q hqr
-    have hq_not_unit : ¬ IsUnit q := by
-      intro hu
-      exact hqprime.ne_one (isUnit_iff_eq_one.mp hu)
-    exact Squarefree.not_mul_self_dvd_of_not_isUnit hsq hq_not_unit hq2dvd_n
+    exact Squarefree.not_mul_self_dvd_of_not_isUnit hsq
+      (fun hu => hqprime.ne_one (isUnit_iff_eq_one.mp hu)) hq2dvd_n
   refine ⟨q, hqprime, hqdvd, ?_⟩
   by_cases hq3 : q = 3
   · have hrodd : Odd r := by
