@@ -158,8 +158,7 @@ theorem genus_divisibility_of_neg
   have hdiv := genus_divisibility_narrowClassNumber d
   have hcard :
       Qsqrtd.narrowClassNumber d = NumberField.classNumber (Qsqrtd (d : ℚ)) := by
-    change Nat.card (Cl⁺(d)) = NumberField.classNumber (Qsqrtd (d : ℚ))
-    simpa [NumberField.classNumber, Nat.card_eq_fintype_card] using
+    simpa [Qsqrtd.narrowClassNumber, NumberField.classNumber] using
       Nat.card_congr (Qsqrtd.Imaginary.narrowMulEquivClassGroup d hd).toEquiv
   simpa [hcard] using hdiv
 
