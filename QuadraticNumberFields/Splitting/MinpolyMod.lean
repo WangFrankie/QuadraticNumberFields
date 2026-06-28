@@ -139,7 +139,7 @@ theorem normalizedFactors_X_sq_sub_C_sq_card_eq_two
     {r : ZMod p} (hr : r ≠ 0) (hp2 : (2 : ZMod p) ≠ 0) :
     ((normalizedFactors ((X ^ 2 - C (r * r)) : (ZMod p)[X])).toFinset.card = 2) := by
   have hfac : (X ^ 2 - C (r * r) : (ZMod p)[X]) = (X - C r) * (X + C r) := by
-    rw [show r * r = r ^ 2 by rw [pow_two], map_pow]
+    rw [← pow_two, map_pow]
     ring
   rw [hfac, normalizedFactors_mul]
   · rw [normalizedFactors_irreducible (Polynomial.irreducible_X_sub_C r)]
