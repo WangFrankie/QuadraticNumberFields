@@ -18,8 +18,7 @@ Material destined for mathlib.
 lemma Squarefree.not_mul_self_dvd_of_not_isUnit {R : Type*} [Monoid R]
     {r p : R} (hr : Squarefree r) (hp : ¬ IsUnit p) : ¬ p * p ∣ r := by
   intro h
-  have hp2 : p ^ 2 ∣ r := by simpa [pow_two] using h
-  have hsq : Squarefree (p ^ 2) := Squarefree.squarefree_of_dvd hp2 hr
+  have hsq : Squarefree (p ^ 2) := Squarefree.squarefree_of_dvd (by simpa [pow_two] using h) hr
   have hbad : (2 : ℕ) = 0 ∨ (2 : ℕ) = 1 :=
     Squarefree.eq_zero_or_one_of_pow_of_not_isUnit hsq hp
   omega
