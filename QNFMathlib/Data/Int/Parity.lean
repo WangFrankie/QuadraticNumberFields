@@ -27,9 +27,7 @@ theorem Int.two_mul_neg_ediv_two_of_even {b : ℤ} (hb : Even b) : 2 * ((-b) / 2
 -- from the middle coefficient in the half-integral branch.
 theorem Int.two_mul_neg_succ_ediv_two_of_odd {b : ℤ} (hb : Odd b) :
     2 * (-(b + 1) / 2) = -(b + 1) := by
-  have hb_even : Even (b + 1) := by
-    simpa using hb.add_odd (show Odd (1 : ℤ) by exact odd_one)
-  exact Int.two_mul_ediv_two_of_even hb_even.neg
+  exact Int.two_mul_ediv_two_of_even ((hb.add_odd odd_one : Even (b + 1))).neg
 
 /-- An integer congruent modulo an even modulus to an even integer is even. -/
 -- Repository use: `composeMiddleB` parity in computable Gauss composition.
