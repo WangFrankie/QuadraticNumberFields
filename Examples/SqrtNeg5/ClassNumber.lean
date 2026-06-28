@@ -211,11 +211,8 @@ noncomputable def classGroupMulEquivZMod2 :
   mulEquivOfPrimeCardEq (p := 2)
     (G := ClassGroup O)
     (G' := Multiplicative (ZMod 2))
-    (by
-      rw [Nat.card_eq_fintype_card]
-      simpa [O, NumberField.classNumber] using classNumber_eq_two)
-    (by
-      rw [Nat.card_eq_fintype_card]
-      simp)
+    (Nat.card_eq_fintype_card.trans (by
+      simpa [O, NumberField.classNumber] using classNumber_eq_two))
+    (Nat.card_eq_fintype_card.trans (by simp))
 
 end QuadraticNumberFields.Examples.SqrtNeg5
