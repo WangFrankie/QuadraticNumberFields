@@ -124,7 +124,7 @@ theorem one_le_ramifiedPrimeCount :
   · rw [RingOfIntegers.discrFormula_of_mod_four_ne_one hd4]
     -- `|4 * d| = 4 * |d| ≥ 4 > 1` since `d ≠ 0`.
     have : (4 * d).natAbs = 4 * d.natAbs := by
-      rw [Int.natAbs_mul]; rfl
+      simpa using Int.natAbs_mul 4 d
     rw [this]
     have hpos : 0 < d.natAbs := Int.natAbs_pos.mpr hd0
     omega
