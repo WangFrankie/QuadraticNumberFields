@@ -7,7 +7,7 @@ Authors: Frankie Wang
 import Mathlib.Data.Nat.ChineseRemainder
 import Mathlib.GroupTheory.QuotientGroup.Finite
 import Mathlib.NumberTheory.LSeries.PrimesInAP
-import QuadraticNumberFields.ClassGroup.Genus.QuotientMap
+import QuadraticNumberFields.ClassGroup.GenusTheory.QuotientMap
 import QuadraticNumberFields.Splitting.Qsqrtd.Kronecker
 
 /-!
@@ -19,7 +19,7 @@ admissible sign vector is represented by a narrow ideal class.
 
 namespace QuadraticNumberFields
 namespace ClassGroup
-namespace Genus
+namespace GenusTheory
 
 open scoped NumberField nonZeroDivisors QuadraticNumberFields.ClassGroup
 
@@ -436,6 +436,6 @@ theorem genus_divisibility_narrowClassNumber
       (Subgroup.square (Cl⁺(d))).index_dvd_card
   rw [card_genusCharacterTargetRelation d] at htarget_dvd_quot
   exact dvd_trans htarget_dvd_quot hquot_dvd
-end Genus
+end GenusTheory
 end ClassGroup
 end QuadraticNumberFields

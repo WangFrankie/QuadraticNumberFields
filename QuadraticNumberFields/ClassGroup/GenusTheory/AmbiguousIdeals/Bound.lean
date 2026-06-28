@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 
-import QuadraticNumberFields.ClassGroup.Genus.AmbiguousIdeals.PositivePrincipal.Generators
+import QuadraticNumberFields.ClassGroup.GenusTheory.AmbiguousIdeals.PositivePrincipal.Generators
 
 /-!
 # Ambiguous-Ideal Upper Bound
@@ -15,7 +15,7 @@ upper bound for narrow class-group two-torsion.
 
 namespace QuadraticNumberFields
 namespace ClassGroup
-namespace Genus
+namespace GenusTheory
 
 open scoped nonZeroDivisors NumberField Pointwise QuadraticNumberFields.ClassGroup
 open scoped QuadraticNumberFields.Splitting
@@ -1301,6 +1301,6 @@ theorem card_narrowClassGroupSquareQuotient_le_two_pow_sub_one
   rw [card_narrowClassGroupSquareQuotient_eq_card_narrowClassGroupTwoTorsion]
   exact card_narrowClassGroupTwoTorsion_le_two_pow_sub_one d
 
-end Genus
+end GenusTheory
 end ClassGroup
 end QuadraticNumberFields

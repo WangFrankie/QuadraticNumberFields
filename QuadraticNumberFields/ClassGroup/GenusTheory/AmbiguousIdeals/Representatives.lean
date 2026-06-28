@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 
-import QuadraticNumberFields.ClassGroup.Genus.AmbiguousIdeals.RamifiedParity
+import QuadraticNumberFields.ClassGroup.GenusTheory.AmbiguousIdeals.RamifiedParity
 
 /-!
 # Ambiguous Representatives
@@ -15,7 +15,7 @@ ideal representatives using the quadratic Hilbert-90 adjustment.
 
 namespace QuadraticNumberFields
 namespace ClassGroup
-namespace Genus
+namespace GenusTheory
 
 open scoped nonZeroDivisors NumberField Pointwise QuadraticNumberFields.ClassGroup
 open scoped QuadraticNumberFields.Splitting
@@ -1024,6 +1024,6 @@ theorem exists_integralIdeal_isAmbiguousIdeal_mk0_eq_of_tp_multiplier_to_conjAut
   exact exists_integralIdeal_isAmbiguousIdeal_mk0_eq_of_conjAut_coboundary
     (Qsqrtd (d : ℚ)) I hypos hy hconj
 
-end Genus
+end GenusTheory
 end ClassGroup
 end QuadraticNumberFields

@@ -5,7 +5,7 @@ Authors: Frankie Wang
 -/
 
 import Mathlib.NumberTheory.Pell
-import QuadraticNumberFields.ClassGroup.Genus.AmbiguousIdeals.Representatives
+import QuadraticNumberFields.ClassGroup.GenusTheory.AmbiguousIdeals.Representatives
 import QuadraticNumberFields.ClassGroup.SmallNorm
 
 /-!
@@ -19,7 +19,7 @@ totally positive element.
 
 namespace QuadraticNumberFields
 namespace ClassGroup
-namespace Genus
+namespace GenusTheory
 
 open scoped nonZeroDivisors NumberField Pointwise QuadraticNumberFields.ClassGroup
 open scoped QuadraticNumberFields.Splitting
@@ -2855,6 +2855,6 @@ theorem exists_nonzero_ramifiedParity_tp_generator
     exact exists_nonzero_ramifiedParity_tp_generator_of_real d hdpos
       (exists_nonzero_ramifiedParity_principal_generator d)
 
-end Genus
+end GenusTheory
 end ClassGroup
 end QuadraticNumberFields

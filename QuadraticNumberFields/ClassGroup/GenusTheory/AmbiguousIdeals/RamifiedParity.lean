@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 
-import QuadraticNumberFields.ClassGroup.Genus.AmbiguousIdeals.Conjugation
+import QuadraticNumberFields.ClassGroup.GenusTheory.AmbiguousIdeals.Conjugation
 import QuadraticNumberFields.Splitting.Qsqrtd.SqrtD
 
 /-!
@@ -16,7 +16,7 @@ ambiguous-ideal upper bound.
 
 namespace QuadraticNumberFields
 namespace ClassGroup
-namespace Genus
+namespace GenusTheory
 
 open scoped nonZeroDivisors NumberField Pointwise QuadraticNumberFields.ClassGroup
 open scoped QuadraticNumberFields.Splitting
@@ -1347,6 +1347,6 @@ theorem card_narrowClassGroupTwoTorsion_eq_card_narrowInversionFixedClass
       Nat.card (NarrowInversionFixedClass R) :=
   Nat.card_congr (narrowTwoTorsionEquivInversionFixedClass R)
 
-end Genus
+end GenusTheory
 end ClassGroup
 end QuadraticNumberFields

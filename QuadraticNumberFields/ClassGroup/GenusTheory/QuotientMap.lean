@@ -6,7 +6,7 @@ Authors: Frankie Wang
 
 import Mathlib.Algebra.Group.Subgroup.Even
 import Mathlib.GroupTheory.QuotientGroup.Basic
-import QuadraticNumberFields.ClassGroup.Genus.Characters
+import QuadraticNumberFields.ClassGroup.GenusTheory.Characters
 
 /-!
 # Genus Character Quotient Map
@@ -17,7 +17,7 @@ quotient of the narrow class group by squares.
 
 namespace QuadraticNumberFields
 namespace ClassGroup
-namespace Genus
+namespace GenusTheory
 
 open scoped NumberField QuadraticNumberFields.ClassGroup
 
@@ -85,6 +85,6 @@ theorem genusCharacterMapOnSquareQuotient_ker_eq_bot_iff
       exact (QuotientGroup.eq_one_iff _).mpr hC
     · exact bot_le
 
-end Genus
+end GenusTheory
 end ClassGroup
 end QuadraticNumberFields

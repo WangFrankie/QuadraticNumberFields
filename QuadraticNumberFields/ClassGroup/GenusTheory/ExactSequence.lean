@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 
-import QuadraticNumberFields.ClassGroup.Genus.Surjectivity
+import QuadraticNumberFields.ClassGroup.GenusTheory.Surjectivity
 
 /-!
 # Genus Character Exact Sequence
@@ -15,7 +15,7 @@ narrow-class-group genus-character map.
 
 namespace QuadraticNumberFields
 namespace ClassGroup
-namespace Genus
+namespace GenusTheory
 
 open scoped NumberField QuadraticNumberFields.ClassGroup
 
@@ -38,6 +38,6 @@ theorem genusCharacterMapOnSquareQuotient_shortExact
   ⟨genusCharacterMapOnSquareQuotient_surjective d,
     genusCharacterMapOnSquareQuotient_ker_eq_bot_iff d⟩
 
-end Genus
+end GenusTheory
 end ClassGroup
 end QuadraticNumberFields

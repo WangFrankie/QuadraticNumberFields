@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 
-import QuadraticNumberFields.ClassGroup.Genus.Surjectivity
+import QuadraticNumberFields.ClassGroup.GenusTheory.Surjectivity
 
 /-!
 # Class-Number-One Genus Sieve
@@ -15,7 +15,7 @@ narrow-class-group genus-theory layer.
 
 namespace QuadraticNumberFields
 namespace ClassGroup
-namespace Genus
+namespace GenusTheory
 
 open scoped NumberField QuadraticNumberFields.ClassGroup
 
@@ -180,6 +180,6 @@ theorem classNumber_eq_one_imp_discriminant_prime_shape
   exact discriminant_prime_shape_of_ramifiedPrimeCount_le_one d hd
     (ramifiedPrimeCount_le_one_of_genus_divisibility d (genus_divisibility_of_neg d hd) h)
 
-end Genus
+end GenusTheory
 end ClassGroup
 end QuadraticNumberFields

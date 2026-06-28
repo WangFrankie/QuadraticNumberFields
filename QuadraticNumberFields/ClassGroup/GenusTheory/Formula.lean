@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 
-import QuadraticNumberFields.ClassGroup.Genus.QuotientEquiv
+import QuadraticNumberFields.ClassGroup.GenusTheory.QuotientEquiv
 
 /-!
 # Genus Formula
@@ -15,7 +15,7 @@ layer.
 
 namespace QuadraticNumberFields
 namespace ClassGroup
-namespace Genus
+namespace GenusTheory
 
 open scoped NumberField QuadraticNumberFields.ClassGroup
 
@@ -59,6 +59,6 @@ theorem card_narrowInversionFixedClass_eq_numberOfGenera
   exact (card_narrowClassGroupTwoTorsion_eq_card_narrowInversionFixedClass
     (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))).symm
 
-end Genus
+end GenusTheory
 end ClassGroup
 end QuadraticNumberFields

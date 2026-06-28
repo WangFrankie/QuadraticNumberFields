@@ -9,7 +9,7 @@ import Mathlib.RingTheory.Ideal.Norm.RelNorm
 import QNFMathlib.NumberTheory.NumberField.Galois
 import QNFMathlib.RingTheory.FractionalIdeal.RingEquiv
 import QNFMathlib.RingTheory.Ideal.Norm.AbsNorm
-import QuadraticNumberFields.ClassGroup.Genus.SquareClass
+import QuadraticNumberFields.ClassGroup.GenusTheory.SquareClass
 import QuadraticNumberFields.QuadraticField.Conj
 import QuadraticNumberFields.RingOfIntegers.Norm
 import QuadraticNumberFields.Splitting.Factorization
@@ -25,7 +25,7 @@ ideals contribute non-principal generators.
 
 namespace QuadraticNumberFields
 namespace ClassGroup
-namespace Genus
+namespace GenusTheory
 
 open scoped nonZeroDivisors NumberField Pointwise QuadraticNumberFields.ClassGroup
 open scoped QuadraticNumberFields.Splitting
@@ -1394,6 +1394,6 @@ theorem classGroup_mk0_sq_eq_one_of_sq_isPrincipal
       rw [map_pow]
     _ = (1 : ClassGroup R) := (ClassGroup.mk0_eq_one_iff (P0 ^ 2).2).mpr hP2
 
-end Genus
+end GenusTheory
 end ClassGroup
 end QuadraticNumberFields

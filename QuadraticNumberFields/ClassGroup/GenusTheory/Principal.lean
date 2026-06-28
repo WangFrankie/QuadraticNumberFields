@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 
-import QuadraticNumberFields.ClassGroup.Genus.Formula
+import QuadraticNumberFields.ClassGroup.GenusTheory.Formula
 
 /-!
 # Principal Genus
@@ -15,7 +15,7 @@ genus-theory layer.
 
 namespace QuadraticNumberFields
 namespace ClassGroup
-namespace Genus
+namespace GenusTheory
 
 open scoped NumberField QuadraticNumberFields.ClassGroup
 
@@ -28,6 +28,6 @@ theorem genusCharacterMap_ker_eq_square
     (genusCharacterMap d).ker = Subgroup.square (Cl⁺(d)) := by
   exact (genusFormula_iff_genusCharacterMap_ker_eq_square d).mp (genusFormula d)
 
-end Genus
+end GenusTheory
 end ClassGroup
 end QuadraticNumberFields

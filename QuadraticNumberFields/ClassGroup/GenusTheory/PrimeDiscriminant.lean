@@ -6,7 +6,7 @@ Authors: Frankie Wang
 
 import QNFMathlib.NumberTheory.LegendreSymbol.JacobiSymbol
 import QNFMathlib.NumberTheory.LegendreSymbol.KroneckerSymbolPeriodicity
-import QuadraticNumberFields.ClassGroup.Genus.Index
+import QuadraticNumberFields.ClassGroup.GenusTheory.Index
 
 /-!
 # Signed Prime-Discriminant Factors
@@ -19,7 +19,7 @@ factors `q*` in the factorization of a fundamental discriminant.
 
 namespace QuadraticNumberFields
 namespace ClassGroup
-namespace Genus
+namespace GenusTheory
 
 open scoped NumberField QuadraticNumberFields.Splitting
 
@@ -550,6 +550,6 @@ theorem prod_signedPrimeDiscriminantFactors_eq_discrFormula :
 
 end ProductFormulaModFourNeOne
 
-end Genus
+end GenusTheory
 end ClassGroup
 end QuadraticNumberFields

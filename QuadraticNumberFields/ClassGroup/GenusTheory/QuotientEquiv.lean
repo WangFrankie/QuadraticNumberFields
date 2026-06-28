@@ -4,9 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 
-import QuadraticNumberFields.ClassGroup.Genus.AmbiguousIdeals
-import QuadraticNumberFields.ClassGroup.Genus.ExactSequence
-import QuadraticNumberFields.ClassGroup.Genus.NumberOfGenera
+import QuadraticNumberFields.ClassGroup.GenusTheory.AmbiguousIdeals
+import QuadraticNumberFields.ClassGroup.GenusTheory.ExactSequence
+import QuadraticNumberFields.ClassGroup.GenusTheory.NumberOfGenera
 
 /-!
 # The Genus Quotient Equivalence
@@ -17,7 +17,7 @@ square-class quotient and the product-one sign-vector target.
 
 namespace QuadraticNumberFields
 namespace ClassGroup
-namespace Genus
+namespace GenusTheory
 
 open scoped NumberField QuadraticNumberFields.ClassGroup
 
@@ -74,6 +74,6 @@ theorem genusQuotientEquiv_apply_mk'
   rw [genusQuotientEquiv]
   exact genusCharacterMapOnSquareQuotient_mk' d C
 
-end Genus
+end GenusTheory
 end ClassGroup
 end QuadraticNumberFields

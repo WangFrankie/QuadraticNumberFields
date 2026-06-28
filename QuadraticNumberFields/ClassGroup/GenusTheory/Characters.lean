@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 
-import QuadraticNumberFields.ClassGroup.Genus.Characters.Basic
+import QuadraticNumberFields.ClassGroup.GenusTheory.Characters.Basic
 import QuadraticNumberFields.Qsqrtd.TotallyRealComplex
 import QuadraticNumberFields.RingOfIntegers.Norm
 import QNFMathlib.NumberTheory.LegendreSymbol.KroneckerSymbolPeriodicity
@@ -21,7 +21,7 @@ packages the final genus-character map.
 
 namespace QuadraticNumberFields
 namespace ClassGroup
-namespace Genus
+namespace GenusTheory
 
 open scoped NumberField nonZeroDivisors QuadraticNumberFields.ClassGroup
 
@@ -1411,6 +1411,6 @@ theorem genusCharacterMap_apply_mk0_of_mem_signedFactorsCoprimeIdealSubmonoid
   rw [genusCharacterMap_apply]
   exact genusCharacterOfSignedFactor_apply_mk0_of_mem_signedFactorsCoprimeIdealSubmonoid d q I hI
 
-end Genus
+end GenusTheory
 end ClassGroup
 end QuadraticNumberFields

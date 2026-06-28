@@ -29,7 +29,7 @@ explicit prime-discriminant factorization is needed to compute it.
 
 namespace QuadraticNumberFields
 namespace ClassGroup
-namespace Genus
+namespace GenusTheory
 
 open scoped NumberField QuadraticNumberFields.Splitting
 
@@ -129,6 +129,6 @@ theorem one_le_ramifiedPrimeCount :
     have hpos : 0 < d.natAbs := Int.natAbs_pos.mpr hd0
     omega
 
-end Genus
+end GenusTheory
 end ClassGroup
 end QuadraticNumberFields

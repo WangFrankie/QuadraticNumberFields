@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 
-import QuadraticNumberFields.ClassGroup.Genus.SquareClass
+import QuadraticNumberFields.ClassGroup.GenusTheory.SquareClass
 
 /-!
 # The Number of Genera
@@ -15,7 +15,7 @@ of the narrow class group modulo squares.
 
 namespace QuadraticNumberFields
 namespace ClassGroup
-namespace Genus
+namespace GenusTheory
 
 open scoped NumberField QuadraticNumberFields.ClassGroup
 
@@ -33,6 +33,6 @@ theorem numberOfGenera_eq_card :
     numberOfGenera d = Nat.card (Cl⁺(d) ⧸ Subgroup.square (Cl⁺(d))) :=
   rfl
 
-end Genus
+end GenusTheory
 end ClassGroup
 end QuadraticNumberFields

@@ -5,7 +5,7 @@ Authors: Frankie Wang
 -/
 
 import Mathlib.GroupTheory.Index
-import QuadraticNumberFields.ClassGroup.Genus.PrimeDiscriminant
+import QuadraticNumberFields.ClassGroup.GenusTheory.PrimeDiscriminant
 import QuadraticNumberFields.ClassGroup.Narrow
 import QuadraticNumberFields.Qsqrtd.TotallyRealComplex
 import QuadraticNumberFields.RingOfIntegers.Norm
@@ -24,7 +24,7 @@ genus-character map are packaged in `Genus.Characters`.
 
 namespace QuadraticNumberFields
 namespace ClassGroup
-namespace Genus
+namespace GenusTheory
 
 open scoped NumberField nonZeroDivisors QuadraticNumberFields.ClassGroup
 
@@ -816,6 +816,6 @@ theorem genusCharacterOfSignedFactorDescent_apply_narrowMk0OnSignedFactorCoprime
   hdesc (Classical.choose (hsurj (narrowMk0OnSignedFactorCoprimeIdeals d q I))) I
     (Classical.choose_spec (hsurj (narrowMk0OnSignedFactorCoprimeIdeals d q I)))
 
-end Genus
+end GenusTheory
 end ClassGroup
 end QuadraticNumberFields

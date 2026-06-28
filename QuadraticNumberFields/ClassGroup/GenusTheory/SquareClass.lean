@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 
-import QuadraticNumberFields.ClassGroup.Genus.Index
+import QuadraticNumberFields.ClassGroup.GenusTheory.Index
 import QuadraticNumberFields.ClassGroup.Torsion
 
 /-!
@@ -17,7 +17,7 @@ objects live in the `NarrowClassGroup` namespace.
 
 namespace QuadraticNumberFields
 namespace ClassGroup
-namespace Genus
+namespace GenusTheory
 
 open scoped NumberField QuadraticNumberFields.ClassGroup
 
@@ -35,6 +35,6 @@ theorem card_narrowClassGroupSquareQuotient_eq_card_narrowClassGroupTwoTorsion
       (NarrowClassGroup.card_squareQuotient_eq_card_twoTorsion
         (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))
 
-end Genus
+end GenusTheory
 end ClassGroup
 end QuadraticNumberFields
