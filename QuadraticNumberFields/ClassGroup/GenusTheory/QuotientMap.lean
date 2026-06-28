@@ -56,34 +56,9 @@ theorem genusCharacterMapOnSquareQuotient_ker_eq_bot_iff
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
     (genusCharacterMapOnSquareQuotient d).ker = ⊥ ↔
       (genusCharacterMap d).ker = Subgroup.square (Cl⁺(d)) := by
-  constructor
-  · intro hker
-    apply le_antisymm
-    · intro C hC
-      have hmk :
-          QuotientGroup.mk' (Subgroup.square (Cl⁺(d))) C ∈
-            (genusCharacterMapOnSquareQuotient d).ker := by
-        rw [MonoidHom.mem_ker, genusCharacterMapOnSquareQuotient_mk']
-        exact hC
-      have hmk_one :
-          QuotientGroup.mk' (Subgroup.square (Cl⁺(d))) C = 1 := by
-        have : QuotientGroup.mk' (Subgroup.square (Cl⁺(d))) C ∈
-            (⊥ : Subgroup (Cl⁺(d) ⧸ Subgroup.square (Cl⁺(d)))) := by
-          simpa [hker] using hmk
-        simpa using this
-      exact (QuotientGroup.eq_one_iff _).mp hmk_one
-    · exact square_le_genusCharacterMap_ker d
-  · intro hker
-    apply le_antisymm
-    · intro Q hQ
-      obtain ⟨C, rfl⟩ :=
-        QuotientGroup.mk'_surjective (Subgroup.square (Cl⁺(d))) Q
-      rw [MonoidHom.mem_ker, genusCharacterMapOnSquareQuotient_mk'] at hQ
-      have hC : C ∈ Subgroup.square (Cl⁺(d)) := by
-        rw [← hker]
-        exact hQ
-      exact (QuotientGroup.eq_one_iff _).mpr hC
-    · exact bot_le
+  rw [genusCharacterMapOnSquareQuotient, QuotientGroup.ker_lift,
+    Subgroup.map_eq_bot_iff, QuotientGroup.ker_mk']
+  exact ⟨fun h => le_antisymm h (square_le_genusCharacterMap_ker d), fun h => h.le⟩
 
 end GenusTheory
 end ClassGroup

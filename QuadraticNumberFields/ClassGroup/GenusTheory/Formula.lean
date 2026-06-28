@@ -24,9 +24,8 @@ attribute [-instance] DivisionRing.toRatAlgebra
 /-- The genus formula for quadratic fields, stated on the narrow class group. -/
 theorem genusFormula
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
-    numberOfGenera d = 2 ^ (ramifiedPrimeCount d - 1) := by
-  rw [numberOfGenera_eq_card]
-  exact card_narrowClassGroupSquareQuotient_eq_two_pow_sub_one d
+    numberOfGenera d = 2 ^ (ramifiedPrimeCount d - 1) :=
+  card_narrowClassGroupSquareQuotient_eq_two_pow_sub_one d
 
 /-- The genus formula is equivalent to the principal-genus kernel statement for the
 genus-character map. -/
@@ -46,9 +45,8 @@ theorem genusFormula_iff_genusCharacterMap_ker_eq_square
 theorem card_narrowClassGroupTwoTorsion_eq_numberOfGenera
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
     Nat.card (NarrowClassGroup.twoTorsion
-      (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) = numberOfGenera d := by
-  rw [numberOfGenera_eq_card,
-    card_narrowClassGroupSquareQuotient_eq_card_narrowClassGroupTwoTorsion]
+      (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) = numberOfGenera d :=
+  (card_narrowClassGroupSquareQuotient_eq_card_narrowClassGroupTwoTorsion d).symm
 
 /-- Inversion-fixed narrow classes have cardinality equal to the number of genera. -/
 theorem card_narrowInversionFixedClass_eq_numberOfGenera
