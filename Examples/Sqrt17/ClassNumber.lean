@@ -189,10 +189,10 @@ theorem isPrincipal_of_absNorm_eq_two
   rcases hIprimeElem.dvd_mul.mp hdvd2 with hx | hxc
   · have hmax : (Ideal.span {x}).IsMaximal := isPrime_span_x.isMaximal hxbot
     have heq : Ideal.span {x} = I := hmax.eq_of_le hItop (Ideal.le_of_dvd hx)
-    rw [← heq]; exact ⟨x, rfl⟩
+    exact ⟨x, heq.symm⟩
   · have hmax : (Ideal.span {xConj}).IsMaximal := isPrime_span_xConj.isMaximal hxcbot
     have heq : Ideal.span {xConj} = I := hmax.eq_of_le hItop (Ideal.le_of_dvd hxc)
-    rw [← heq]; exact ⟨xConj, rfl⟩
+    exact ⟨xConj, heq.symm⟩
 
 /-- Every prime ideal above `(2)` in `𝓞(ℚ(√17))` is principal. -/
 theorem isPrincipal_of_mem_primesOver_two
