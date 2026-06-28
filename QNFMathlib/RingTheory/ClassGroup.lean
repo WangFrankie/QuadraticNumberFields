@@ -106,7 +106,7 @@ theorem exists_integralRep_isCoprime
     have hA0 : (A : Ideal R) ≠ 0 := by
       have h := A.2
       rwa [mem_nonZeroDivisors_iff_ne_zero] at h
-    have hM0 : M ≠ 0 := by rw [Ideal.zero_eq_bot]; exact hM
+    have hM0 : M ≠ 0 := by simpa using hM
     have hle : (A : Ideal R) * M ≤ (A : Ideal R) := Ideal.mul_le_inf.trans inf_le_left
     have hAM0 : (A : Ideal R) * M ≠ 0 := mul_ne_zero hA0 hM0
     obtain ⟨a, hsup⟩ := IsDedekindDomain.exists_sup_span_eq hle hAM0
