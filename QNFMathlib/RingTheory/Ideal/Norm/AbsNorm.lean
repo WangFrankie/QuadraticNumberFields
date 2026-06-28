@@ -82,7 +82,7 @@ theorem absNorm_coprime_prime_of_isCoprime_span_natCast
   have hfinite : Finite (R ⧸ I) := (Ideal.absNorm_ne_zero_iff I).mp hnorm_ne
   letI : Fintype (R ⧸ I) := Fintype.ofFinite _
   have hp_card : p ∣ Fintype.card (R ⧸ I) := by
-    simpa [Ideal.absNorm_apply, Submodule.cardQuot_apply, Nat.card_eq_fintype_card] using hp_dvd
+    simpa [Ideal.absNorm_apply, Submodule.cardQuot_apply] using hp_dvd
   have hp_unit : IsUnit ((p : ℕ) : R ⧸ I) := by
     have hone : (1 : R) ∈ I ⊔ Ideal.span ({(p : R)} : Set R) := by
       rw [Ideal.isCoprime_iff_sup_eq.mp hcop]
