@@ -59,8 +59,7 @@ theorem exists_prime_dvd_and_four_mul_lt_succ_of_squarefree_of_odd_of_not_prime
       exact Nat.Odd.of_mul_right hodd
     have hr_ne_three : r ≠ 3 := by
       intro hr3
-      have hq_dvd_r : q ∣ r := by rw [hq3, hr3]
-      exact hq_not_dvd_r hq_dvd_r
+      exact hq_not_dvd_r (by simp [hq3, hr3])
     have hr5 : 5 ≤ r := by
       rcases hrodd with ⟨t, ht⟩
       omega
