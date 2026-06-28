@@ -36,9 +36,8 @@ associated to a `k`-th power. -/
 theorem exists_associated_pow_left_of_mul_eq_pow (hcop : IsCoprime x y)
     {k : ℕ} (h : x * y = z ^ k) :
     ∃ w, Associated (w ^ k) x := by
-  have hgcd : IsUnit (gcd x y) :=
-    hcop.isUnit_of_dvd' (GCDMonoid.gcd_dvd_left x y) (GCDMonoid.gcd_dvd_right x y)
-  exact exists_associated_pow_of_mul_eq_pow hgcd h
+  exact exists_associated_pow_of_mul_eq_pow
+    (hcop.isUnit_of_dvd' (gcd_dvd_left x y) (gcd_dvd_right x y)) h
 
 end IsCoprime
 
