@@ -46,8 +46,7 @@ theorem exists_nat_prime_comap_eq_span_and_dvd_absNorm_of_isPrime
     simpa using Ideal.absNorm_mem P
   have hq0 : q ≠ 0 := by
     rintro rfl
-    rw [hq, Ideal.span_singleton_eq_bot.mpr rfl, Ideal.mem_bot, Nat.cast_eq_zero] at hmem
-    exact habs0 hmem
+    exact habs0 (by simpa [hq] using hmem)
   have hqprime : Prime q := by
     rw [← Ideal.span_singleton_prime hq0, ← hq]
     exact hP.comap _
