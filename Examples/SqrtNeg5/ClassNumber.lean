@@ -203,7 +203,7 @@ theorem classP_mul_self_eq_one :
 theorem classP_mem_torsion :
     classP ∈ CommGroup.torsion (ClassGroup O) := by
   rw [CommGroup.mem_torsion, isOfFinOrder_iff_pow_eq_one]
-  exact ⟨2, by norm_num, by rw [pow_two]; exact classP_mul_self_eq_one⟩
+  exact ⟨2, by norm_num, by simpa only [pow_two] using classP_mul_self_eq_one⟩
 
 /-- The ideal class group of `ℚ(√-5)` is cyclic of order two. -/
 noncomputable def classGroupMulEquivZMod2 :
