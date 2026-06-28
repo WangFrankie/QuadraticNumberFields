@@ -26,12 +26,8 @@ theorem Algebra.IsQuadraticExtension.fractionRing
     Algebra.IsQuadraticExtension K L := by
   letI : Algebra.IsAlgebraic R S := Algebra.IsAlgebraic.of_finite R S
   refine ⟨?_⟩
-  calc
-    Module.finrank K L = Module.finrank R S := by
-      simpa using
-        (Algebra.IsAlgebraic.finrank_of_isFractionRing (R := R) (R' := K) (S := S)
-          (S' := L))
-    _ = 2 := Algebra.IsQuadraticExtension.finrank_eq_two R S
+  exact (Algebra.IsAlgebraic.finrank_of_isFractionRing (R := R) (R' := K) (S := S)
+    (S' := L)).trans (Algebra.IsQuadraticExtension.finrank_eq_two R S)
 
 /-- If `K` is a quadratic extension of a field `F` of characteristic not equal to
 `2`, then `K/F` is separable. -/
