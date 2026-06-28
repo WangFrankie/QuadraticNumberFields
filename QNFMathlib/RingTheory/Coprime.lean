@@ -52,10 +52,8 @@ namespace Int
 theorem isUnit_of_dvd_odd_cube_and_dvd_four {n m : ℤ} (hn : Odd n)
     (hmn : m ∣ n ^ 3) (hm4 : m ∣ (4 : ℤ)) :
     IsUnit m := by
-  have hn3odd : Odd (n ^ 3) := by
-    exact (Int.odd_pow' (m := n) (n := 3) (by norm_num)).mpr hn
   have hcop2 : IsCoprime (n ^ 3) (2 : ℤ) := by
-    exact Int.isCoprime_two_right.mpr hn3odd
+    exact Int.isCoprime_two_right.mpr ((Int.odd_pow' (m := n) (n := 3) (by norm_num)).mpr hn)
   have hcop4 : IsCoprime (n ^ 3) (4 : ℤ) := by
     simpa [show (4 : ℤ) = 2 ^ 2 by norm_num] using (hcop2.pow_right (n := 2))
   have hcop_nm : IsCoprime (n ^ 3) m := by
