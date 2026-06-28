@@ -36,8 +36,7 @@ theorem Int.even_of_modEq_even {B b a : ℤ} (hb : Even b) (hB : B ≡ b [ZMOD 2
   rcases hb with ⟨m, hm⟩
   rcases Int.modEq_iff_dvd.mp hB with ⟨k, hk⟩
   refine ⟨m - a * k, ?_⟩
-  have hB_eq : B = b - 2 * a * k := by linarith
-  rw [hB_eq, hm]
+  rw [show B = b - 2 * a * k by linarith, hm]
   ring
 
 /-- An integer congruent modulo an even modulus to an odd integer is odd. -/
@@ -47,8 +46,7 @@ theorem Int.odd_of_modEq_odd {B b a : ℤ} (hb : Odd b) (hB : B ≡ b [ZMOD 2 * 
   rcases hb with ⟨m, hm⟩
   rcases Int.modEq_iff_dvd.mp hB with ⟨k, hk⟩
   refine ⟨m - a * k, ?_⟩
-  have hB_eq : B = b - 2 * a * k := by linarith
-  rw [hB_eq, hm]
+  rw [show B = b - 2 * a * k by linarith, hm]
   ring
 
 /-- If twice an integer is a square, then the integer is twice a square. -/
