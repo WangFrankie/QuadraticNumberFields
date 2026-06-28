@@ -62,9 +62,8 @@ representatives. -/
 theorem genusQuotientEquiv_apply_mk'
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (C : Cl⁺(d)) :
     genusQuotientEquiv d (QuotientGroup.mk' (Subgroup.square (Cl⁺(d))) C) =
-      genusCharacterMap d C := by
-  rw [genusQuotientEquiv]
-  exact genusCharacterMapOnSquareQuotient_mk' d C
+      genusCharacterMap d C :=
+  genusCharacterMapOnSquareQuotient_mk' d C
 
 end GenusTheory
 end ClassGroup
