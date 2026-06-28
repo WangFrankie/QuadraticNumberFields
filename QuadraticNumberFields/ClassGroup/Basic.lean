@@ -39,8 +39,8 @@ theorem NumberField.classNumber_eq_one_iff_subsingleton_classGroup
 theorem NumberField.classNumber_eq_one_of_forall_classGroup_eq_one
     {K : Type*} [Field K] [NumberField K]
     (h : ∀ C : ClassGroup (𝓞 K), C = 1) :
-    NumberField.classNumber K = 1 := by
-  rw [NumberField.classNumber, Fintype.card_eq_one_iff]
-  exact ⟨1, h⟩
+    NumberField.classNumber K = 1 :=
+  NumberField.classNumber_eq_one_iff_subsingleton_classGroup.mpr
+    ⟨fun C D => (h C).trans (h D).symm⟩
 
 end QuadraticNumberFields
