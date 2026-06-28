@@ -70,24 +70,13 @@ theorem mem_twoTorsion_iff (R : Type*) [CommRing R] [IsDomain R]
 theorem mem_square_iff (R : Type*) [CommRing R] [IsDomain R]
     (C : ClassGroup R) :
     C ∈ square R ↔ ∃ D : ClassGroup R, D ^ 2 = C := by
-  rw [square, Subgroup.mem_square]
-  constructor
-  · rintro ⟨D, hD⟩
-    exact ⟨D, by simpa [pow_two] using hD.symm⟩
-  · rintro ⟨D, hD⟩
-    exact ⟨D, by simpa [pow_two] using hD.symm⟩
+  simp [square, Subgroup.mem_square, IsSquare, pow_two, eq_comm]
 
 /-- The mathlib square-subgroup definition agrees with the range of the square map. -/
 theorem square_eq_powMonoidHom_range (R : Type*) [CommRing R] [IsDomain R] :
     square R = (powMonoidHom (α := ClassGroup R) 2).range := by
   ext C
-  constructor
-  · intro hC
-    rcases (Subgroup.mem_square.mp hC) with ⟨D, hD⟩
-    exact ⟨D, by simpa [pow_two] using hD.symm⟩
-  · intro hC
-    rcases hC with ⟨D, hD⟩
-    exact Subgroup.mem_square.mpr ⟨D, by simpa [pow_two] using hD.symm⟩
+  simp [square, Subgroup.mem_square, IsSquare, pow_two, eq_comm]
 
 /-- For a finite class group, the square-class quotient has the same cardinality as
 the two-torsion subgroup. -/
@@ -173,13 +162,7 @@ theorem mem_twoTorsion_iff (R : Type*) [CommRing R] [IsDomain R]
 theorem square_eq_powMonoidHom_range (R : Type*) [CommRing R] [IsDomain R] :
     square R = (powMonoidHom (α := NarrowClassGroup R) 2).range := by
   ext C
-  constructor
-  · intro hC
-    rcases (Subgroup.mem_square.mp hC) with ⟨D, hD⟩
-    exact ⟨D, by simpa [pow_two] using hD.symm⟩
-  · intro hC
-    rcases hC with ⟨D, hD⟩
-    exact Subgroup.mem_square.mpr ⟨D, by simpa [pow_two] using hD.symm⟩
+  simp [square, Subgroup.mem_square, IsSquare, pow_two, eq_comm]
 
 /-- For a finite narrow class group, the square-class quotient has the same
 cardinality as the two-torsion subgroup. -/
