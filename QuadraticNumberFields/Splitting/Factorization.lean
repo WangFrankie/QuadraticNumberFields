@@ -106,9 +106,8 @@ theorem map_eq_of_ramificationIdxIn_eq_one_of_inertiaDegIn_eq_one
     (ramificationIdxIn_eq_one_and_inertiaDegIn_eq_one_iff_efg p S hchar hp).mp hs
   rw [Set.ncard_eq_two] at *
   obtain ⟨P₁, P₂, hne, hset⟩ := ‹∃ _, _›
-  have hP1 : P₁ ∈ P(p) := by rw [hset]; exact Set.mem_insert _ _
-  have hP2 : P₂ ∈ P(p) := by
-    rw [hset]; exact Set.mem_insert_of_mem _ rfl
+  have hP1 : P₁ ∈ P(p) := hset.symm ▸ Set.mem_insert P₁ {P₂}
+  have hP2 : P₂ ∈ P(p) := by simp [hset]
   refine ⟨P₁, hP1, P₂, hP2, hne, ?_⟩
   have hfact := map_eq_prod_pow_ramificationIdxIn p S hchar hp
   have hfin : P(p).toFinset = {P₁, P₂} := by
