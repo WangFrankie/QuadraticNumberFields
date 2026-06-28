@@ -121,13 +121,8 @@ theorem comap_mul_of_ringEquiv {R S : Type*} [CommRing R] [CommRing S]
     (e : R ≃+* S) (I J : Ideal S) :
     Ideal.comap (e : R →+* S) (I * J) =
       Ideal.comap (e : R →+* S) I * Ideal.comap (e : R →+* S) J := by
-  apply_fun Ideal.map (e : R →+* S) using fun A B h =>
-    calc
-      A = Ideal.comap (e : R →+* S) (Ideal.map (e : R →+* S) A) := by
-        rw [Ideal.comap_map_of_bijective (f := (e : R →+* S)) e.bijective]
-      _ = Ideal.comap (e : R →+* S) (Ideal.map (e : R →+* S) B) := by rw [h]
-      _ = B := by
-        rw [Ideal.comap_map_of_bijective (f := (e : R →+* S)) e.bijective]
+  apply_fun Ideal.map (e : R →+* S) using
+    (Ideal.relIsoOfBijective (e : R →+* S) e.bijective).symm.injective
   rw [Ideal.map_comap_of_surjective (e : R →+* S) e.surjective]
   rw [Ideal.map_mul]
   rw [Ideal.map_comap_of_surjective (e : R →+* S) e.surjective]
