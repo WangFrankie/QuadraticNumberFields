@@ -59,9 +59,8 @@ theorem isSquareRatio_iff_isSquareRatioByDivision {d d' : ℚ} (hd : d ≠ 0) :
     field_simp [hd]
   · rintro ⟨a, ha⟩
     refine ⟨a, ?_⟩
-    calc
-      d' = d' / d * d := by field_simp [hd]
-      _ = (a : ℚ) ^ 2 * d := by rw [ha]
+    rw [← ha]
+    field_simp [hd]
 
 /-- WIP classification interface: non-square standard models are equivalent
 exactly when their parameters differ by a rational square factor.
