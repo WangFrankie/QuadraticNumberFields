@@ -205,8 +205,7 @@ theorem algEquiv_param_rel {d d' : ℚ} (hd : ¬ IsSquare d)
       (QuadraticAlgebra.algebraMap_eq (R := ℚ) (a := d) (b := 0) d).symm
     have hright : (⟨d, 0⟩ : Qsqrtd d') = algebraMap ℚ (Qsqrtd d') d :=
       (QuadraticAlgebra.algebraMap_eq (R := ℚ) (a := d') (b := 0) d).symm
-    rw [show (φ.toRingEquiv ⟨d, 0⟩ : Qsqrtd d') = φ ⟨d, 0⟩ from rfl, hleft, hright]
-    exact φ.commutes d
+    simp [hleft, hright]
 
 end Qsqrtd
 
