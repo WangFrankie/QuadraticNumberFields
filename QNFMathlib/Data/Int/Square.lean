@@ -209,11 +209,7 @@ theorem exists_sq_factors_of_pos_pairwise_isCoprime_mul_mul_eq_sq
 /-- A natural prime is not a unit after coercion to `ℤ`. -/
 theorem not_isUnit_natCast_of_prime {p : ℕ} (hp : Nat.Prime p) : ¬ IsUnit (p : ℤ) := by
   intro hunit
-  have hp_unit_nat : IsUnit p := Int.ofNat_isUnit.mp hunit
-  have hp_eq_one : p = 1 := by
-    simpa using hp_unit_nat
-  have hp_two : 2 ≤ p := hp.two_le
-  omega
+  exact hp.ne_one (by simpa using (Int.ofNat_isUnit.mp hunit : IsUnit p))
 
 /-- If two positive coprime integers multiply to twice a square, then one is a
 square and the other is twice a square. -/
