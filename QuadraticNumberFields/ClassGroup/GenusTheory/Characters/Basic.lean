@@ -75,9 +75,7 @@ theorem genusSignProductHom_surjective_of_nonempty
 `t = ramifiedPrimeCount d`. -/
 theorem card_genusCharacterTarget :
     Nat.card (genusCharacterTarget d) = 2 ^ ramifiedPrimeCount d := by
-  classical
-  rw [Nat.card_eq_fintype_card, Fintype.card_fun]
-  rw [Fintype.card_units_int, Fintype.card_coe,
+  simp [genusCharacterTarget, Fintype.card_units_int,
     card_signedPrimeDiscriminantFactors_eq_ramifiedPrimeCount]
 
 /-- If the signed prime-discriminant factor set is nonempty, the product-one sign
@@ -89,13 +87,8 @@ theorem card_genusCharacterTargetRelation_of_nonempty
   classical
   have hsurj := genusSignProductHom_surjective_of_nonempty d hS
   have hindex : (genusCharacterTargetRelation d).index = 2 := by
-    calc
-      (genusCharacterTargetRelation d).index = Nat.card (genusSignProductHom d).range := by
-        rw [genusCharacterTargetRelation, Subgroup.index_ker]
-      _ = Nat.card (⊤ : Subgroup ℤˣ) := by
-        rw [MonoidHom.range_eq_top.mpr hsurj]
-      _ = 2 := by
-        rw [Subgroup.card_top, Nat.card_eq_fintype_card, Fintype.card_units_int]
+    rw [genusCharacterTargetRelation, Subgroup.index_ker, MonoidHom.range_eq_top.mpr hsurj,
+      Subgroup.card_top, Nat.card_eq_fintype_card, Fintype.card_units_int]
   have hmul := (genusCharacterTargetRelation d).card_mul_index
   rw [hindex, card_genusCharacterTarget d] at hmul
   have hcard_pos : 0 < ramifiedPrimeCount d := by
