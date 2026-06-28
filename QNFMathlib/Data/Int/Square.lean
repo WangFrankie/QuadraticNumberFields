@@ -30,9 +30,8 @@ theorem eq_zero_of_sq_add_one_eq_sq {W U : ℤ} (h : W ^ 2 + 1 = U ^ 2) :
     W = 0 := by
   have hmul : (U - W) * (U + W) = 1 := by
     nlinarith
-  rcases Int.mul_eq_one_iff_eq_one_or_neg_one.mp hmul with ⟨h1, h2⟩ | ⟨h1, h2⟩
-  · nlinarith
-  · nlinarith
+  rcases Int.mul_eq_one_iff_eq_one_or_neg_one.mp hmul with ⟨h1, h2⟩ | ⟨h1, h2⟩ <;>
+    nlinarith
 
 /-- If `n ≥ 0` and `n ^ 2 - n + 1` is a square, then `n` is `0` or `1`. -/
 -- Repository use: Cox's Heegner Diophantine reduction applies this to
