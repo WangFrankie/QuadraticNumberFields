@@ -67,7 +67,7 @@ theorem algEquiv_self_eq_refl_or_star
   set b := (σ (⟨0, 1⟩ : Qsqrtd (d : ℚ))).im
   have hφ_eta : σ (⟨0, 1⟩ : Qsqrtd (d : ℚ)) = ⟨a, b⟩ := by ext <;> rfl
   have hdQ : (d : ℚ) ≠ 0 := by exact_mod_cast (Squarefree.ne_zero (Fact.out : Squarefree d))
-  have hbsq : b ^ 2 = 1 := mul_left_cancel₀ hdQ (by rw [mul_one]; exact hr.symm)
+  have hbsq : b ^ 2 = 1 := mul_left_cancel₀ hdQ (by simpa using hr.symm)
   -- The rational algebra map sends `q ↦ ⟨q, 0⟩`.
   have hAM : ∀ q : ℚ, algebraMap ℚ (Qsqrtd (d : ℚ)) q = (⟨q, 0⟩ : Qsqrtd (d : ℚ)) := by
     intro q
