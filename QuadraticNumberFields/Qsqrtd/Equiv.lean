@@ -89,7 +89,7 @@ theorem algEquiv_iff_isSquareRatioByDivision
     Nonempty (Qsqrtd d ≃ₐ[ℚ] Qsqrtd d') ↔ IsSquareRatioByDivision d d' := by
   have hd : d ≠ 0 := by
     intro hd
-    exact (Fact.out : ¬ IsSquare d) (by rw [hd]; exact ⟨0, by ring⟩)
+    exact (Fact.out : ¬ IsSquare d) (by simp [hd])
   exact (algEquiv_iff_isSquareRatio d d').trans (isSquareRatio_iff_isSquareRatioByDivision hd)
 
 end Qsqrtd
