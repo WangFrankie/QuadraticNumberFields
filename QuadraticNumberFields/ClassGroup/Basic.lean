@@ -33,8 +33,8 @@ one. -/
 theorem NumberField.classNumber_eq_one_iff_subsingleton_classGroup
       {K : Type*} [Field K] [NumberField K] :
       NumberField.classNumber K = 1 ↔ Subsingleton (ClassGroup (𝓞 K)) := by
-    rw [NumberField.classNumber, ← Nat.card_eq_fintype_card, Nat.card_eq_one_iff_unique]
-    exact and_iff_left ⟨1⟩
+    simpa [NumberField.classNumber] using
+      (Nat.card_eq_one_iff_unique (α := ClassGroup (𝓞 K))).trans (and_iff_left ⟨1⟩)
 
 theorem NumberField.classNumber_eq_one_of_forall_classGroup_eq_one
     {K : Type*} [Field K] [NumberField K]
