@@ -48,8 +48,7 @@ lemma eq_one_of_squarefree_isSquare {d : ℤ} (hd : Squarefree d) (hsq : IsSquar
   obtain ⟨z, rfl⟩ := hsq
   have huz : IsUnit z := by
     by_contra hne
-    have h01 : (2 : ℕ) = 0 ∨ (2 : ℕ) = 1 :=
-      Squarefree.eq_zero_or_one_of_pow_of_not_isUnit (x := z) (n := 2)
-        (by simpa [pow_two] using hd) hne
-    norm_num at h01
+    exact (by norm_num : ¬ ((2 : ℕ) = 0 ∨ (2 : ℕ) = 1))
+      (Squarefree.eq_zero_or_one_of_pow_of_not_isUnit (x := z) (n := 2)
+        (by simpa [pow_two] using hd) hne)
   rcases Int.isUnit_iff.mp huz with rfl | rfl <;> simp
