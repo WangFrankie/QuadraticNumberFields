@@ -52,32 +52,24 @@ private lemma even_odd_impossible_of_mod_eq_zero
     (d a' b' : ℤ) (hd : Squarefree d)
     (hmod : (a' ^ 2 - d * b' ^ 2) % 4 = 0)
     (ha : 2 ∣ a') (hb : ¬ 2 ∣ b') : False := by
-  have hmod' := hmod
-  have ha_eq : a' ^ 2 = 4 * (a' ^ 2 / 4) := sq_eq_four_mul_div_of_even a' ha
-  have hb_eq : b' ^ 2 = 4 * (b' ^ 2 / 4) + 1 := sq_eq_four_mul_div_add_one_of_odd b' hb
-  rw [hb_eq] at hmod'
-  ring_nf at hmod'
+  rw [sq_eq_four_mul_div_of_even a' ha, sq_eq_four_mul_div_add_one_of_odd b' hb] at hmod
+  ring_nf at hmod
   have hdvd : (4 : ℤ) ∣ d := by omega
   exact squarefree_int_not_dvd_four d hd hdvd
 
 private lemma odd_even_impossible_of_mod_eq_zero
     (d a' b' : ℤ) (hmod : (a' ^ 2 - d * b' ^ 2) % 4 = 0)
     (ha : ¬ 2 ∣ a') (hb : 2 ∣ b') : False := by
-  have hmod' := hmod
-  have ha_eq : a' ^ 2 = 4 * (a' ^ 2 / 4) + 1 := sq_eq_four_mul_div_add_one_of_odd a' ha
-  have hb_eq : b' ^ 2 = 4 * (b' ^ 2 / 4) := sq_eq_four_mul_div_of_even b' hb
-  rw [ha_eq, hb_eq] at hmod'
-  ring_nf at hmod'
+  rw [sq_eq_four_mul_div_add_one_of_odd a' ha, sq_eq_four_mul_div_of_even b' hb] at hmod
+  ring_nf at hmod
   omega
 
 private lemma mod_four_eq_one_of_odd_odd_of_mod_eq_zero
     (d a' b' : ℤ) (hmod : (a' ^ 2 - d * b' ^ 2) % 4 = 0)
     (ha : ¬ 2 ∣ a') (hb : ¬ 2 ∣ b') : d % 4 = 1 := by
-  have hmod' := hmod
-  have ha_eq : a' ^ 2 = 4 * (a' ^ 2 / 4) + 1 := sq_eq_four_mul_div_add_one_of_odd a' ha
-  have hb_eq : b' ^ 2 = 4 * (b' ^ 2 / 4) + 1 := sq_eq_four_mul_div_add_one_of_odd b' hb
-  rw [ha_eq, hb_eq] at hmod'
-  ring_nf at hmod'
+  rw [sq_eq_four_mul_div_add_one_of_odd a' ha, sq_eq_four_mul_div_add_one_of_odd b' hb]
+    at hmod
+  ring_nf at hmod
   omega
 
 /-- Main mod-4 criterion for the binary quadratic form `a'² − d·b'²`. -/
@@ -100,12 +92,9 @@ theorem dvd_four_sub_sq_iff_even_even_or_odd_odd_mod_four_one
     · obtain ⟨p, rfl⟩ := ha
       obtain ⟨q, rfl⟩ := hb
       exact ⟨p ^ 2 - d * q ^ 2, by ring⟩
-    · have ha_eq : a' = 2 * (a' / 2) + 1 := odd_eq_two_mul_div_add_one a' ha
-      have hb_eq : b' = 2 * (b' / 2) + 1 := odd_eq_two_mul_div_add_one b' hb
-      rw [ha_eq, hb_eq]
+    · rw [odd_eq_two_mul_div_add_one a' ha, odd_eq_two_mul_div_add_one b' hb]
       ring_nf
-      have hd_eq : d = 4 * (d / 4) + 1 := by omega
-      rw [hd_eq]
+      rw [show d = 4 * (d / 4) + 1 by omega]
       ring_nf
       omega
 
