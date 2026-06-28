@@ -75,6 +75,4 @@ instance (d : ℤ) [Fact (Prime d)] : Fact (-d ≠ 1) := by
   refine ⟨by
     intro h
     have hd : d = -1 := by omega
-    have h_unit : IsUnit (-1 : ℤ) := by simp
-    have h_u : IsUnit d := by rwa [hd]
-    exact hp.not_unit h_u⟩
+    exact hp.not_unit (by rw [hd]; simp)⟩
