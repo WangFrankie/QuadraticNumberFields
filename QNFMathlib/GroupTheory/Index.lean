@@ -27,8 +27,7 @@ domain and codomain have the same cardinality. -/
 theorem ker_eq_bot_iff_nat_card_eq_of_surjective
     {G H : Type*} [Group G] [Group H] [Finite G] [Finite H]
     (f : G →* H) (hf : Function.Surjective f) :
-    f.ker = ⊥ ↔ Nat.card G = Nat.card H := by
-  rw [← injective_iff_nat_card_eq_of_surjective f hf]
-  exact MonoidHom.ker_eq_bot_iff f
+    f.ker = ⊥ ↔ Nat.card G = Nat.card H :=
+  (MonoidHom.ker_eq_bot_iff f).trans (injective_iff_nat_card_eq_of_surjective f hf)
 
 end MonoidHom
