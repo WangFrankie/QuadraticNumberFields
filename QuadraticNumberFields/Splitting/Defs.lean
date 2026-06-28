@@ -212,8 +212,8 @@ theorem ncard_primesOver_mul_ramificationIdxIn_mul_inertiaDegIn_eq_two
   have := IsGaloisGroup.of_isFractionRing Gal(L/K) R S K L
   have h_mul := Ideal.ncard_primesOver_mul_ramificationIdxIn_mul_inertiaDegIn hp S Gal(L/K)
   have : Nat.card Gal(L/K) = 2 := by
-    rw [← Algebra.IsQuadraticExtension.finrank_eq_two K L]
-    exact IsGaloisGroup.card_eq_finrank Gal(L/K) K L
+    simpa [Algebra.IsQuadraticExtension.finrank_eq_two K L] using
+      IsGaloisGroup.card_eq_finrank Gal(L/K) K L
   rw [this] at h_mul
   rw [mul_assoc]
   exact h_mul
