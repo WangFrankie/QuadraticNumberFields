@@ -163,8 +163,8 @@ theorem univ_aut_eq_pair [DecidableEq (K ≃ₐ[ℚ] K)] :
   haveI : IsGalois ℚ K := Algebra.IsQuadraticExtension.isGalois ℚ K
   have hne : (AlgEquiv.refl : K ≃ₐ[ℚ] K) ≠ conjAut K := (Conj.conj_ne_refl).symm
   have hcard : Fintype.card (K ≃ₐ[ℚ] K) = 2 := by
-    rw [Fintype.card_eq_nat_card, IsGalois.card_aut_eq_finrank,
-      Algebra.IsQuadraticExtension.finrank_eq_two]
+    simpa using (IsGalois.card_aut_eq_finrank ℚ K).trans
+      (Algebra.IsQuadraticExtension.finrank_eq_two ℚ K)
   refine (Finset.eq_univ_of_card _ ?_).symm
   rw [Finset.card_pair hne, hcard]
 
