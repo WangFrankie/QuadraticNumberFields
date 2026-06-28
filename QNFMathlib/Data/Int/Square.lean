@@ -69,25 +69,19 @@ theorem isCoprime_sq_add_one_three (W : ℤ) : IsCoprime (W ^ 2 + 1) (3 : ℤ) :
   rcases hcases with hW | hW | hW
   · let q : ℤ := W / 3
     have hWdecomp : W = 3 * q := by
-      calc
-        W = W % 3 + 3 * (W / 3) := (Int.emod_add_mul_ediv W 3).symm
-        _ = 3 * q := by rw [hW]; simp [q]
+      omega
     refine ⟨1, -3 * q ^ 2, ?_⟩
     rw [hWdecomp]
     ring
   · let q : ℤ := W / 3
     have hWdecomp : W = 3 * q + 1 := by
-      calc
-        W = W % 3 + 3 * (W / 3) := (Int.emod_add_mul_ediv W 3).symm
-        _ = 3 * q + 1 := by rw [hW]; simp [q]; ring
+      omega
     refine ⟨-1, 3 * q ^ 2 + 2 * q + 1, ?_⟩
     rw [hWdecomp]
     ring
   · let q : ℤ := W / 3
     have hWdecomp : W = 3 * q + 2 := by
-      calc
-        W = W % 3 + 3 * (W / 3) := (Int.emod_add_mul_ediv W 3).symm
-        _ = 3 * q + 2 := by rw [hW]; simp [q]; ring
+      omega
     refine ⟨-1, 3 * q ^ 2 + 4 * q + 2, ?_⟩
     rw [hWdecomp]
     ring
