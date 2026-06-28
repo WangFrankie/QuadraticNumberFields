@@ -1006,9 +1006,9 @@ theorem factor_contribution_by_splitting
         (Ideal.IsRamifiedIn (𝔭(p)) (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))) ∧
           (P ^ 2).IsPrincipal) := by
   rcases factor_contribution_by_splitting_span d hI hP hp hcomap with hsplit | hinert | hram
-  · exact Or.inl ⟨hsplit.1, by rw [hsplit.2]; exact ⟨_, rfl⟩⟩
-  · exact Or.inr <| Or.inl ⟨hinert.1, by rw [hinert.2]; exact ⟨_, rfl⟩⟩
-  · exact Or.inr <| Or.inr ⟨hram.1, by rw [hram.2]; exact ⟨_, rfl⟩⟩
+  · exact Or.inl ⟨hsplit.1, ⟨_, hsplit.2⟩⟩
+  · exact Or.inr <| Or.inl ⟨hinert.1, ⟨_, hinert.2⟩⟩
+  · exact Or.inr <| Or.inr ⟨hram.1, ⟨_, hram.2⟩⟩
 
 /-- Prime-ideal form of the Galois-orbit calculation: extending the norm prime
 power back to the ring of integers gives the product of `P` with its conjugate. -/

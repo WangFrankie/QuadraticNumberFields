@@ -349,7 +349,7 @@ theorem qsqrt_realEmbeddingPos_conjAut
     (hd : 0 ≤ (d : ℝ)) (z : Qsqrtd (d : ℚ)) :
     Qsqrtd.realEmbeddingPos d hd (QuadraticField.conjAut (Qsqrtd (d : ℚ)) z) =
       Qsqrtd.realEmbeddingNeg d hd z := by
-  rw [show QuadraticField.conjAut (Qsqrtd (d : ℚ)) z = star z from rfl]
+  change Qsqrtd.realEmbeddingPos d hd (star z) = Qsqrtd.realEmbeddingNeg d hd z
   rw [Qsqrtd.realEmbeddingPos_apply, Qsqrtd.realEmbeddingNeg_apply]
   simp [QuadraticAlgebra.re_star, QuadraticAlgebra.im_star]
   ring
