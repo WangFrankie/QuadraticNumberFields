@@ -1237,16 +1237,8 @@ theorem card_erasedRamifiedParityVectorDomain
     Nat.card ({p // p ∈ (ramifiedPrimes d).erase p0} → Fin 2) =
       2 ^ (ramifiedPrimeCount d - 1) := by
   classical
-  calc
-    Nat.card ({p // p ∈ (ramifiedPrimes d).erase p0} → Fin 2) =
-        2 ^ Nat.card {p // p ∈ (ramifiedPrimes d).erase p0} := by
-      rw [Nat.card_fun, Nat.card_fin]
-    _ = 2 ^ ((ramifiedPrimes d).erase p0).card := by
-      congr 1
-      rw [Nat.card_eq_fintype_card, Fintype.card_coe]
-    _ = 2 ^ (ramifiedPrimeCount d - 1) := by
-      congr 1
-      rw [Finset.card_erase_of_mem hp0, ← ramifiedPrimeCount_eq_card]
+  rw [Nat.card_fun, Nat.card_fin, Nat.card_eq_fintype_card, Fintype.card_coe,
+    Finset.card_erase_of_mem hp0, ← ramifiedPrimeCount_eq_card]
 
 theorem ramifiedPrimeNarrowClass_pow_normalizedFactors_count_eq_parity
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
