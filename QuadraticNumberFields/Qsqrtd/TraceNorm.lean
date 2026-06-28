@@ -133,10 +133,8 @@ private lemma double_im_sq_eq_ratio
     (ha'trace : (a' : ℚ) = Algebra.trace ℚ (Qsqrtd d) x)
     (hn'norm : (n' : ℚ) = Qsqrtd.norm x) :
     (2 * x.im) ^ 2 = (a' ^ 2 - 4 * n' : ℤ) / (d : ℚ) := by
-  calc
-    (2 * x.im) ^ 2 = ((d : ℚ) * (2 * x.im) ^ 2) / (d : ℚ) := by field_simp [hd0Q]
-    _ = (a' ^ 2 - 4 * n' : ℤ) / (d : ℚ) := by
-      simp [double_im_sq_mul_eq d ha'trace hn'norm]
+  rw [← double_im_sq_mul_eq d ha'trace hn'norm]
+  field_simp [hd0Q]
 
 /-- The ratio `(a'^2 - 4 n') / d` is a square. -/
 private lemma isSquare_trace_norm_ratio
@@ -165,11 +163,8 @@ private lemma double_im_sq_eq_int
     (2 * x.im) ^ 2 = (k : ℚ) := by
   have hmk : ((a' ^ 2 - 4 * n' : ℤ) : ℚ) = (d : ℚ) * k := by
     exact_mod_cast hk
-  calc
-    (2 * x.im) ^ 2 = (a' ^ 2 - 4 * n' : ℤ) / (d : ℚ) :=
-      double_im_sq_eq_ratio d hd0Q ha'trace hn'norm
-    _ = ((d : ℚ) * k) / (d : ℚ) := by simp [hmk]
-    _ = (k : ℚ) := by field_simp [hd0Q]
+  rw [double_im_sq_eq_ratio d hd0Q ha'trace hn'norm, hmk]
+  field_simp [hd0Q]
 
 /-- Turning an integral doubled imaginary part into an integer witness. -/
 private lemma exists_int_of_isIntegral_rat {q : ℚ} (hq : IsIntegral ℤ q) :
