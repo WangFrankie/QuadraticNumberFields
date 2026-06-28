@@ -102,11 +102,7 @@ theorem card_genusCharacterTargetRelation_of_nonempty
     rw [← card_signedPrimeDiscriminantFactors_eq_ramifiedPrimeCount]
     exact Finset.card_pos.mpr hS
   have hpow : 2 ^ ramifiedPrimeCount d = 2 ^ (ramifiedPrimeCount d - 1) * 2 := by
-    have hsucc : ramifiedPrimeCount d = (ramifiedPrimeCount d - 1) + 1 := by omega
-    calc
-      2 ^ ramifiedPrimeCount d = 2 ^ ((ramifiedPrimeCount d - 1) + 1) := by
-        rw [← hsucc]
-      _ = 2 ^ (ramifiedPrimeCount d - 1) * 2 := by rw [pow_succ]
+    rw [← pow_succ, Nat.sub_add_cancel hcard_pos]
   rw [hpow] at hmul
   exact Nat.mul_right_cancel (by norm_num : 0 < 2) hmul
 
@@ -115,23 +111,10 @@ theorem card_genusCharacterTargetRelation_of_nonempty
 theorem card_genusCharacterTargetRelation :
     Nat.card (genusCharacterTargetRelation d) =
       2 ^ (ramifiedPrimeCount d - 1) := by
-  classical
-  by_cases hS : (signedPrimeDiscriminantFactors d).Nonempty
-  · exact card_genusCharacterTargetRelation_of_nonempty d hS
-  · have hempty : signedPrimeDiscriminantFactors d = ∅ :=
-      Finset.not_nonempty_iff_eq_empty.mp hS
-    have hrel_top : genusCharacterTargetRelation d = ⊤ := by
-      haveI : IsEmpty {q // q ∈ signedPrimeDiscriminantFactors d} := by
-        refine ⟨?_⟩
-        intro Q
-        have hq_empty : Q.1 ∈ (∅ : Finset ℤ) := by
-          simpa [hempty] using Q.property
-        simp at hq_empty
-      ext χ
-      simp [genusCharacterTargetRelation, genusSignProductHom]
-    rw [hrel_top, Subgroup.card_top, card_genusCharacterTarget d]
-    rw [← card_signedPrimeDiscriminantFactors_eq_ramifiedPrimeCount d, hempty]
-    norm_num
+  refine card_genusCharacterTargetRelation_of_nonempty d ?_
+  rw [signedPrimeDiscriminantFactors_nonempty_iff, ← Finset.card_pos,
+    ← ramifiedPrimeCount_eq_card]
+  exact one_le_ramifiedPrimeCount d
 
 def signedFactorCoprimeIdealSubmonoid
         (q : {q // q ∈ signedPrimeDiscriminantFactors d}) :
