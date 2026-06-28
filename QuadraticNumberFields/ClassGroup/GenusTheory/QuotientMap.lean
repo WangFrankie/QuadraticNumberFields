@@ -58,7 +58,7 @@ theorem genusCharacterMapOnSquareQuotient_ker_eq_bot_iff
       (genusCharacterMap d).ker = Subgroup.square (Cl⁺(d)) := by
   rw [genusCharacterMapOnSquareQuotient, QuotientGroup.ker_lift,
     Subgroup.map_eq_bot_iff, QuotientGroup.ker_mk']
-  exact ⟨fun h => le_antisymm h (square_le_genusCharacterMap_ker d), fun h => h.le⟩
+  simp [le_antisymm_iff, square_le_genusCharacterMap_ker d]
 
 end GenusTheory
 end ClassGroup
