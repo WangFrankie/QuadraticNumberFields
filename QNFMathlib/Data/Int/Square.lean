@@ -104,11 +104,9 @@ theorem not_exists_sq_add_one_eq_sq_of_sixth_add_one_eq_two_mul_sq
   rintro ⟨U, hU⟩
   have hW0 : W = 0 := Int.eq_zero_of_sq_add_one_eq_sq hU
   subst W
-  have hone : (1 : ℤ) = 2 * Z ^ 2 := by simpa using h
-  have hone_even : Even (1 : ℤ) := by
-    rw [hone]
+  exact Int.not_even_one <| by
+    rw [show (1 : ℤ) = 2 * Z ^ 2 by simpa using h]
     exact even_two_mul (Z ^ 2)
-  exact Int.not_even_one hone_even
 
 /-- If `W ^ 4 - W ^ 2 + 1` is a square, then `W` is `0`, `1`, or `-1`. -/
 -- Repository use: Cox's Heegner Diophantine reduction applies this to the
@@ -315,11 +313,9 @@ theorem eq_one_or_neg_one_of_sixth_add_one_eq_two_mul_sq
     rcases Int.eq_zero_or_eq_one_or_neg_one_of_quartic_sub_sq_add_one_eq_sq hK with
       hW | hW | hW
     · subst W
-      have hone : (1 : ℤ) = 2 * Z ^ 2 := by simpa using h
-      have hone_even : Even (1 : ℤ) := by
-        rw [hone]
+      exact False.elim <| Int.not_even_one <| by
+        rw [show (1 : ℤ) = 2 * Z ^ 2 by simpa using h]
         exact even_two_mul (Z ^ 2)
-      exact False.elim (Int.not_even_one hone_even)
     · exact Or.inl hW
     · exact Or.inr hW
 
