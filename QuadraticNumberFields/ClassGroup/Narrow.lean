@@ -8,6 +8,8 @@ import QNFMathlib.RingTheory.ClassGroup.Narrow
 import QuadraticNumberFields.ClassGroup.Basic
 import QuadraticNumberFields.Qsqrtd.TotallyRealComplex
 
+attribute [-instance] DivisionRing.toRatAlgebra
+
 /-!
 # Narrow Class Groups of Quadratic Fields
 
@@ -53,6 +55,21 @@ theorem narrowToClassGroup_surjective :
     Function.Surjective (narrowToClassGroup d) :=
   NarrowClassGroup.toClassGroup_surjective OK
 
+/-- The kernel of `Cl⁺(d) → Cl(d)` is controlled by the sign vectors realized by
+units of the fraction field. -/
+theorem card_narrowToClassGroup_ker_dvd_card_signVectorRange :
+    Nat.card (narrowToClassGroup d).ker ∣
+      Nat.card (NarrowClassGroup.signVectorHom (FractionRing OK)).range :=
+  NarrowClassGroup.card_toClassGroup_ker_dvd_card_signVectorRange OK
+
+/-- The class of `-1` in the fraction-field sign quotient is killed by
+`Kˣ/K⁺ → P/P⁺`. -/
+theorem negOne_mem_unitsQuotientTotallyPositiveToPrincipalIdealQuotient_ker :
+    QuotientGroup.mk' (NarrowClassGroup.totallyPositiveUnits (FractionRing OK))
+        (-1 : (FractionRing OK)ˣ) ∈
+      (NarrowClassGroup.unitsQuotientTotallyPositiveToPrincipalIdealQuotient OK).ker :=
+  NarrowClassGroup.negOne_mem_unitsQuotientTotallyPositiveToPrincipalIdealQuotient_ker OK
+
 /-- If every unit of the fraction field of `𝓞(ℚ(√d))` is totally positive, then
 the narrow class group and ordinary wide class group are isomorphic. -/
 theorem nonempty_narrowMulEquivClassGroup_of_forall_isTotallyPositive
@@ -69,6 +86,32 @@ theorem narrowToClassGroup_bijective_of_forall_isTotallyPositive
       NarrowClassGroup.IsTotallyPositive (x : FractionRing OK)) :
     Function.Bijective (narrowToClassGroup d) :=
   NarrowClassGroup.toClassGroup_bijective_of_forall_isTotallyPositive OK hpos
+
+namespace Real
+
+/-- If `d > 0`, the fraction field of `𝓞(ℚ(√d))` has a real embedding. -/
+theorem nonempty_fractionRing_realEmbeddings (hd : 0 < d) :
+    Nonempty (FractionRing OK →+* ℝ) := by
+  haveI : Algebra.IsQuadraticExtension ℚ (Qsqrtd (d : ℚ)) :=
+    { finrank_eq_two' := QuadraticAlgebra.finrank_eq_two ((d : ℤ) : ℚ) 0 }
+  haveI : QuadraticField (Qsqrtd (d : ℚ)) :=
+    { isQuadratic := inferInstance }
+  haveI : NumberField (Qsqrtd (d : ℚ)) :=
+    QuadraticField.instNumberField (Qsqrtd (d : ℚ))
+  haveI : IsFractionRing OK (Qsqrtd (d : ℚ)) := inferInstance
+  let e := IsLocalization.algEquiv OK⁰ (FractionRing OK) (Qsqrtd (d : ℚ))
+  have hd_nonneg_real : 0 ≤ (d : ℝ) := by exact_mod_cast le_of_lt hd
+  exact ⟨(Qsqrtd.realEmbeddingPos d hd_nonneg_real).toRingHom.comp e.toRingHom⟩
+
+/-- For `d > 0`, the class of `-1` in `Kˣ/K⁺` is nontrivial. -/
+theorem quotient_mk'_negOne_ne_one (hd : 0 < d) :
+    QuotientGroup.mk' (NarrowClassGroup.totallyPositiveUnits (FractionRing OK))
+        (-1 : (FractionRing OK)ˣ) ≠ 1 := by
+  haveI : Nonempty (FractionRing OK →+* ℝ) :=
+    nonempty_fractionRing_realEmbeddings d hd
+  exact NarrowClassGroup.quotient_mk'_negOne_ne_one_of_nonempty_realEmbeddings
+
+end Real
 
 namespace Imaginary
 
