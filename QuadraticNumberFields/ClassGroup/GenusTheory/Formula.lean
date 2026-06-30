@@ -40,6 +40,63 @@ private noncomputable def powTorsionMulEquiv {G H : Type*} [CommGroup G] [CommGr
     ext
     simp
 
+private theorem comap_square_eq_square_sup_ker_of_surjective
+    {G H : Type*} [CommGroup G] [CommGroup H]
+    (f : G →* H) (hf : Function.Surjective f) :
+    (Subgroup.square H).comap f = Subgroup.square G ⊔ f.ker := by
+  apply le_antisymm
+  · intro x hx
+    rw [Subgroup.mem_comap, Subgroup.mem_square] at hx
+    rcases hx with ⟨y, hy⟩
+    obtain ⟨a, ha⟩ := hf y
+    rw [Subgroup.mem_sup]
+    refine ⟨a * a, ?_, x * (a * a)⁻¹, ?_, ?_⟩
+    · rw [Subgroup.mem_square]
+      exact ⟨a, rfl⟩
+    · rw [MonoidHom.mem_ker, map_mul, map_inv, map_mul, ha, hy]
+      group
+    · simp [mul_assoc, mul_left_comm]
+  · intro x hx
+    rw [Subgroup.mem_comap]
+    rw [Subgroup.mem_sup] at hx
+    rcases hx with ⟨y, hy, z, hz, hxy⟩
+    rw [← hxy, map_mul, MonoidHom.mem_ker.mp hz, mul_one]
+    exact (Subgroup.mem_square.mp hy).map f
+
+private theorem squareQuotientMap_ker_eq_map_ker_of_surjective
+    {G H : Type*} [CommGroup G] [CommGroup H]
+    (f : G →* H) (hf : Function.Surjective f)
+    (hmap : Subgroup.square G ≤ (Subgroup.square H).comap f) :
+    (QuotientGroup.map (Subgroup.square G) (Subgroup.square H) f hmap).ker =
+      Subgroup.map (QuotientGroup.mk' (Subgroup.square G)) f.ker := by
+  rw [QuotientGroup.ker_map]
+  rw [comap_square_eq_square_sup_ker_of_surjective f hf]
+  rw [Subgroup.map_sup, QuotientGroup.map_mk'_self, bot_sup_eq]
+
+private theorem card_map_mk'_eq_of_inf_square_eq_bot
+    {G : Type*} [CommGroup G] (K : Subgroup G)
+    (hdisj : K ⊓ Subgroup.square G = ⊥) :
+    Nat.card (Subgroup.map (QuotientGroup.mk' (Subgroup.square G)) K) = Nat.card K := by
+  let q : G →* G ⧸ Subgroup.square G := QuotientGroup.mk' (Subgroup.square G)
+  have hker : (q.subgroupMap K).ker = ⊥ := by
+    ext x
+    constructor
+    · intro hx
+      rw [MonoidHom.mem_ker] at hx
+      have hquot : q (x : G) = 1 := congrArg Subtype.val hx
+      have hsq : (x : G) ∈ Subgroup.square G := by
+        simpa [q] using (QuotientGroup.eq_one_iff (x : G)).mp hquot
+      have hxinf : (x : G) ∈ K ⊓ Subgroup.square G := ⟨x.2, hsq⟩
+      have hxbot : (x : G) ∈ (⊥ : Subgroup G) := by simpa [hdisj] using hxinf
+      rw [Subgroup.mem_bot] at hxbot
+      exact Subtype.ext hxbot
+    · intro hx
+      rw [Subgroup.mem_bot] at hx
+      simp [hx]
+  exact (Nat.card_congr (MulEquiv.ofBijective (q.subgroupMap K)
+    ⟨(MonoidHom.ker_eq_bot_iff (q.subgroupMap K)).mp hker,
+      q.subgroupMap_surjective K⟩).toEquiv).symm
+
 /-- The genus formula for quadratic fields, stated on the narrow class group. -/
 theorem genusFormula
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
@@ -101,6 +158,37 @@ theorem narrowSquareQuotientToClassGroup_surjective
     rw [Function.comp_apply, hDplus]
     exact hD⟩
 
+/-- The correction kernel on square quotients is the image of the kernel of
+`Cl⁺(d) → Cl(d)` in the narrow square quotient. -/
+theorem narrowSquareQuotientToClassGroup_ker_eq_map_narrowToClassGroup_ker
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
+    (narrowSquareQuotientToClassGroup d).ker =
+      Subgroup.map (QuotientGroup.mk' (Subgroup.square (Cl⁺(d))))
+        (Qsqrtd.narrowToClassGroup d).ker :=
+  squareQuotientMap_ker_eq_map_ker_of_surjective
+    (Qsqrtd.narrowToClassGroup d) (Qsqrtd.narrowToClassGroup_surjective d) _
+
+/-- If no nontrivial element of `ker(Cl⁺(d) → Cl(d))` is a square in `Cl⁺(d)`,
+then the square-quotient correction has the same cardinality as the
+narrow-to-wide kernel. -/
+theorem card_narrowSquareQuotientToClassGroup_ker_eq_card_narrowToClassGroup_ker_of_disjoint_square
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (hdisj : (Qsqrtd.narrowToClassGroup d).ker ⊓ Subgroup.square (Cl⁺(d)) = ⊥) :
+    Nat.card (narrowSquareQuotientToClassGroup d).ker =
+      Nat.card (Qsqrtd.narrowToClassGroup d).ker := by
+  rw [narrowSquareQuotientToClassGroup_ker_eq_map_narrowToClassGroup_ker]
+  exact card_map_mk'_eq_of_inf_square_eq_bot (Qsqrtd.narrowToClassGroup d).ker hdisj
+
+/-- A `2`-element narrow-to-wide kernel gives correction factor `2` on square
+quotients once its nontrivial element is not a square narrow class. -/
+theorem card_narrowSquareQuotientToClassGroup_ker_eq_two_of_narrowToClassGroup_ker
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (hker : Nat.card (Qsqrtd.narrowToClassGroup d).ker = 2)
+    (hdisj : (Qsqrtd.narrowToClassGroup d).ker ⊓ Subgroup.square (Cl⁺(d)) = ⊥) :
+    Nat.card (narrowSquareQuotientToClassGroup d).ker = 2 := by
+  rw [card_narrowSquareQuotientToClassGroup_ker_eq_card_narrowToClassGroup_ker_of_disjoint_square
+    d hdisj, hker]
+
 /-- Exact correction formula comparing the narrow and ordinary class-group
 square-quotient genus formulas.
 
@@ -133,6 +221,19 @@ theorem two_mul_card_classGroupSquareQuotient_eq_two_pow_sub_one_of_correction_e
     _ = 2 ^ (ramifiedPrimeCount d - 1) :=
         card_classGroupSquareQuotient_mul_correction_eq_two_pow_sub_one d
 
+/-- If the narrow-to-wide kernel has cardinality `2` and its nontrivial element
+is not a square narrow class, the ordinary square quotient satisfies the
+corrected genus formula before dividing by `2`. -/
+theorem two_mul_card_classGroupSquareQuotient_eq_two_pow_sub_one_of_narrowToClassGroup_ker
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (hker : Nat.card (Qsqrtd.narrowToClassGroup d).ker = 2)
+    (hdisj : (Qsqrtd.narrowToClassGroup d).ker ⊓ Subgroup.square (Cl⁺(d)) = ⊥) :
+    2 * Nat.card (Cl(d) ⧸ Subgroup.square (Cl(d))) =
+      2 ^ (ramifiedPrimeCount d - 1) :=
+  two_mul_card_classGroupSquareQuotient_eq_two_pow_sub_one_of_correction_eq_two d
+    (card_narrowSquareQuotientToClassGroup_ker_eq_two_of_narrowToClassGroup_ker d hker
+      hdisj)
+
 /-- In the nontrivial correction branch, the ordinary class-group square quotient
 has cardinality `2 ^ (t - 2)`, where `t = ramifiedPrimeCount d`. -/
 theorem card_classGroupSquareQuotient_eq_two_pow_sub_two_of_correction_eq_two
@@ -148,6 +249,21 @@ theorem card_classGroupSquareQuotient_eq_two_pow_sub_two_of_correction_eq_two
     rw [hs, pow_succ, mul_comm]
   rw [hpow] at hmain
   exact Nat.mul_left_cancel (by norm_num : 0 < 2) hmain
+
+/-- If the narrow-to-wide kernel has cardinality `2` and its nontrivial element
+is not a square narrow class, the ordinary class-group square quotient has
+cardinality `2 ^ (t - 2)`, where `t = ramifiedPrimeCount d`. -/
+theorem card_classGroupSquareQuotient_eq_two_pow_sub_two_of_narrowToClassGroup_ker
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (hker : Nat.card (Qsqrtd.narrowToClassGroup d).ker = 2)
+    (hdisj : (Qsqrtd.narrowToClassGroup d).ker ⊓ Subgroup.square (Cl⁺(d)) = ⊥)
+    (hcount : 2 ≤ ramifiedPrimeCount d) :
+    Nat.card (Cl(d) ⧸ Subgroup.square (Cl(d))) =
+      2 ^ (ramifiedPrimeCount d - 2) :=
+  card_classGroupSquareQuotient_eq_two_pow_sub_two_of_correction_eq_two d
+    (card_narrowSquareQuotientToClassGroup_ker_eq_two_of_narrowToClassGroup_ker d hker
+      hdisj)
+    hcount
 
 /-- The genus formula is equivalent to the principal-genus kernel statement for the
 genus-character map. -/
