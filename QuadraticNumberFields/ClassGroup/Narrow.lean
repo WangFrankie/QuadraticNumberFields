@@ -111,6 +111,19 @@ theorem quotient_mk'_negOne_ne_one (hd : 0 < d) :
     nonempty_fractionRing_realEmbeddings d hd
   exact NarrowClassGroup.quotient_mk'_negOne_ne_one_of_nonempty_realEmbeddings
 
+/-- For `d > 0`, the sign-unit map `Kˣ/K⁺ → P/P⁺` has nontrivial kernel. -/
+theorem unitsQuotientTotallyPositiveToPrincipalIdealQuotient_ker_ne_bot (hd : 0 < d) :
+    (NarrowClassGroup.unitsQuotientTotallyPositiveToPrincipalIdealQuotient OK).ker ≠ ⊥ := by
+  intro hker
+  have hmem := negOne_mem_unitsQuotientTotallyPositiveToPrincipalIdealQuotient_ker d
+  have hbot : QuotientGroup.mk' (NarrowClassGroup.totallyPositiveUnits (FractionRing OK))
+      (-1 : (FractionRing OK)ˣ) ∈
+        (⊥ : Subgroup ((FractionRing OK)ˣ ⧸
+          NarrowClassGroup.totallyPositiveUnits (FractionRing OK))) := by
+    simpa [hker] using hmem
+  rw [Subgroup.mem_bot] at hbot
+  exact quotient_mk'_negOne_ne_one d hd hbot
+
 end Real
 
 namespace Imaginary
