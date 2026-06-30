@@ -189,6 +189,16 @@ theorem card_narrowSquareQuotientToClassGroup_ker_dvd_card_signVectorRange
   (card_narrowSquareQuotientToClassGroup_ker_dvd_card_narrowToClassGroup_ker d).trans
     (Qsqrtd.card_narrowToClassGroup_ker_dvd_card_signVectorRange d)
 
+/-- The square-quotient correction kernel is bounded by the sign quotient after
+quotienting by the diagonal sign represented by `-1`. -/
+theorem card_narrowSquareQuotientToClassGroup_ker_dvd_card_signQuotientModuloNegOne
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
+    Nat.card (narrowSquareQuotientToClassGroup d).ker ∣
+      Nat.card (NarrowClassGroup.signQuotientModuloNegOne
+        (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) :=
+  (card_narrowSquareQuotientToClassGroup_ker_dvd_card_narrowToClassGroup_ker d).trans
+    (Qsqrtd.card_narrowToClassGroup_ker_dvd_card_signQuotientModuloNegOne d)
+
 /-- If the narrow-to-wide kernel has cardinality dividing `2`, then so does the
 square-quotient correction kernel. -/
 theorem card_narrowSquareQuotientToClassGroup_ker_dvd_two_of_narrowToClassGroup_ker_dvd_two
@@ -242,6 +252,11 @@ theorem card_narrowSquareQuotientToClassGroup_ker_eq_two_of_narrowToClassGroup_k
   rw [card_narrowSquareQuotientToClassGroup_ker_eq_card_narrowToClassGroup_ker_of_disjoint_square
     d hdisj, hker]
 
+private theorem two_pow_sub_one_eq_two_mul_two_pow_sub_two {n : ℕ} (hn : 2 ≤ n) :
+    2 ^ (n - 1) = 2 * 2 ^ (n - 2) := by
+  have hs : n - 1 = n - 2 + 1 := by omega
+  rw [hs, pow_succ, mul_comm]
+
 /-- Exact correction formula comparing the narrow and ordinary class-group
 square-quotient genus formulas.
 
@@ -274,32 +289,6 @@ theorem two_mul_card_classGroupSquareQuotient_eq_two_pow_sub_one_of_correction_e
     _ = 2 ^ (ramifiedPrimeCount d - 1) :=
         card_classGroupSquareQuotient_mul_correction_eq_two_pow_sub_one d
 
-/-- If the narrow-to-wide kernel has cardinality `2` and its nontrivial element
-is not a square narrow class, the ordinary square quotient satisfies the
-corrected genus formula before dividing by `2`. -/
-theorem two_mul_card_classGroupSquareQuotient_eq_two_pow_sub_one_of_narrowToClassGroup_ker
-    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
-    (hker : Nat.card (Qsqrtd.narrowToClassGroup d).ker = 2)
-    (hdisj : (Qsqrtd.narrowToClassGroup d).ker ⊓ Subgroup.square (Cl⁺(d)) = ⊥) :
-    2 * Nat.card (Cl(d) ⧸ Subgroup.square (Cl(d))) =
-      2 ^ (ramifiedPrimeCount d - 1) :=
-  two_mul_card_classGroupSquareQuotient_eq_two_pow_sub_one_of_correction_eq_two d
-    (card_narrowSquareQuotientToClassGroup_ker_eq_two_of_narrowToClassGroup_ker d hker
-      hdisj)
-
-/-- If the narrow-to-wide kernel is at most `2` and the square-quotient
-correction is nontrivial, the ordinary square quotient satisfies the corrected
-genus formula before dividing by `2`. -/
-theorem two_mul_card_classGroupSquareQuotient_eq_two_pow_sub_one_of_narrowToClassGroup_ker_dvd_two
-    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
-    (hker : Nat.card (Qsqrtd.narrowToClassGroup d).ker ∣ 2)
-    (hne : Nat.card (narrowSquareQuotientToClassGroup d).ker ≠ 1) :
-    2 * Nat.card (Cl(d) ⧸ Subgroup.square (Cl(d))) =
-      2 ^ (ramifiedPrimeCount d - 1) :=
-  two_mul_card_classGroupSquareQuotient_eq_two_pow_sub_one_of_correction_eq_two d
-    (card_narrowSquareQuotientToClassGroup_ker_eq_two_of_narrowToClassGroup_ker_dvd_two
-      d hker hne)
-
 /-- In the nontrivial correction branch, the ordinary class-group square quotient
 has cardinality `2 ^ (t - 2)`, where `t = ramifiedPrimeCount d`. -/
 theorem card_classGroupSquareQuotient_eq_two_pow_sub_two_of_correction_eq_two
@@ -310,41 +299,8 @@ theorem card_classGroupSquareQuotient_eq_two_pow_sub_two_of_correction_eq_two
       2 ^ (ramifiedPrimeCount d - 2) := by
   have hmain :=
     two_mul_card_classGroupSquareQuotient_eq_two_pow_sub_one_of_correction_eq_two d hcor
-  have hpow : 2 ^ (ramifiedPrimeCount d - 1) = 2 * 2 ^ (ramifiedPrimeCount d - 2) := by
-    have hs : ramifiedPrimeCount d - 1 = ramifiedPrimeCount d - 2 + 1 := by omega
-    rw [hs, pow_succ, mul_comm]
-  rw [hpow] at hmain
+  rw [two_pow_sub_one_eq_two_mul_two_pow_sub_two hcount] at hmain
   exact Nat.mul_left_cancel (by norm_num : 0 < 2) hmain
-
-/-- If the narrow-to-wide kernel has cardinality `2` and its nontrivial element
-is not a square narrow class, the ordinary class-group square quotient has
-cardinality `2 ^ (t - 2)`, where `t = ramifiedPrimeCount d`. -/
-theorem card_classGroupSquareQuotient_eq_two_pow_sub_two_of_narrowToClassGroup_ker
-    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
-    (hker : Nat.card (Qsqrtd.narrowToClassGroup d).ker = 2)
-    (hdisj : (Qsqrtd.narrowToClassGroup d).ker ⊓ Subgroup.square (Cl⁺(d)) = ⊥)
-    (hcount : 2 ≤ ramifiedPrimeCount d) :
-    Nat.card (Cl(d) ⧸ Subgroup.square (Cl(d))) =
-      2 ^ (ramifiedPrimeCount d - 2) :=
-  card_classGroupSquareQuotient_eq_two_pow_sub_two_of_correction_eq_two d
-    (card_narrowSquareQuotientToClassGroup_ker_eq_two_of_narrowToClassGroup_ker d hker
-      hdisj)
-    hcount
-
-/-- If the narrow-to-wide kernel is at most `2` and the square-quotient
-correction is nontrivial, the ordinary class-group square quotient has
-cardinality `2 ^ (t - 2)`, where `t = ramifiedPrimeCount d`. -/
-theorem card_classGroupSquareQuotient_eq_two_pow_sub_two_of_narrowToClassGroup_ker_dvd_two
-    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
-    (hker : Nat.card (Qsqrtd.narrowToClassGroup d).ker ∣ 2)
-    (hne : Nat.card (narrowSquareQuotientToClassGroup d).ker ≠ 1)
-    (hcount : 2 ≤ ramifiedPrimeCount d) :
-    Nat.card (Cl(d) ⧸ Subgroup.square (Cl(d))) =
-      2 ^ (ramifiedPrimeCount d - 2) :=
-  card_classGroupSquareQuotient_eq_two_pow_sub_two_of_correction_eq_two d
-    (card_narrowSquareQuotientToClassGroup_ker_eq_two_of_narrowToClassGroup_ker_dvd_two
-      d hker hne)
-    hcount
 
 /-- The genus formula is equivalent to the principal-genus kernel statement for the
 genus-character map. -/
