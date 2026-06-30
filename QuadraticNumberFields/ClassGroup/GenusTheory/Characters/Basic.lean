@@ -146,7 +146,7 @@ theorem mem_signedFactorsCoprimeIdealSubmonoid_iff
 
 /-- Forget from ideals coprime to all signed factors to ideals coprime to one
 chosen signed factor. -/
-def signedFactorsCoprimeIdealToSignedFactor
+private def signedFactorsCoprimeIdealToSignedFactor
       (q : {q // q ∈ signedPrimeDiscriminantFactors d}) :
       signedFactorsCoprimeIdealSubmonoid d →*
         signedFactorCoprimeIdealSubmonoid d q where
@@ -418,20 +418,6 @@ theorem exists_forall_ideal_coprime_representative_of_signedFactors_of_narrowToC
       sup_le_sup_left hspan_le (I : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))
     rw [hsup_M] at htop_le
     exact top_le_iff.mp htop_le
-
-/-- In the imaginary quadratic case, narrow and ordinary class groups coincide, so
-ordinary coprime representatives give signed-factor-coprime narrow
-representatives. -/
-theorem exists_forall_ideal_coprime_representative_of_signedFactors_of_imaginary
-      (hd : d < 0) (C : Cl⁺(d)) :
-      ∃ I : (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰,
-        NarrowClassGroup.mk0 I = C ∧
-          ∀ q : {q // q ∈ signedPrimeDiscriminantFactors d},
-            (I : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) ⊔ Ideal.span
-              ({(q.1.natAbs : NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))} :
-                Set (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) = ⊤ :=
-  exists_forall_ideal_coprime_representative_of_signedFactors_of_narrowToClassGroup_injective
-    d (Qsqrtd.Imaginary.narrowToClassGroup_bijective d hd).1 C
 
 private theorem exists_nat_forall_pos_add_nat_mul {ι : Type*} [Finite ι]
     (x : ι → ℝ) {c : ℝ} (hc : 0 < c) :

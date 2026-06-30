@@ -211,7 +211,7 @@ theorem fullRamifiedParityIdealProduct_eq_ramifiedParityIdealProduct_of_apply_p0
 /-- If the distinguished coordinate is zero, the full ramified parity narrow
 class product is the erased product obtained by restricting away from that
 coordinate. -/
-theorem fullRamifiedParityNarrowClassProduct_eq_erased_of_apply_p0_eq_zero
+private theorem fullRamifiedParityNarrowClassProduct_eq_erased_of_apply_p0_eq_zero
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
     {p0 : ℕ} (hp0 : p0 ∈ ramifiedPrimes d)
     (v : ({p // p ∈ ramifiedPrimes d} → Fin 2))
@@ -326,7 +326,7 @@ theorem fullRamifiedParityNarrowClassProduct_eq_one_iff_mk0_add_relation
 
 /-- The positive-principal witness for a full parity vector is equivalent to the
 translation relation used to erase one ramified coordinate. -/
-theorem fullRamifiedParityProduct_positivePrincipal_iff_mk0_add_relation
+private theorem fullRamifiedParityProduct_positivePrincipal_iff_mk0_add_relation
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
     (r : {p // p ∈ ramifiedPrimes d} → Fin 2) :
     let R := NumberField.RingOfIntegers (Qsqrtd (d : ℚ))
@@ -708,7 +708,7 @@ theorem conjAutFractionRingAlgEquiv_mul_algebraMap_eq_self_of_hilbert90_cobounda
 
 /-- A generator of a full ramified parity product yields a nonzero integral
 factor `ε` such that `γ * ε` is fixed by fraction-field conjugation. -/
-theorem exists_fixed_mul_algebraMap_of_tp_generator
+private theorem exists_fixed_mul_algebraMap_of_tp_generator
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
     (r : {p // p ∈ ramifiedPrimes d} → Fin 2)
     {γ : (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))ˣ}

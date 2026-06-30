@@ -1353,36 +1353,6 @@ theorem mk0_sq_eq_one_of_isAmbiguousIdeal
     eq_inv_iff_mul_eq_one.mp hconjClass
   simpa [pow_two] using hmul
 
-theorem classGroup_mk0_eq_one_of_isPrincipal
-    {R : Type*} [CommRing R] [IsDomain R] [IsDedekindDomain R]
-    {J : Ideal R} (hJ0 : J ≠ ⊥) (hJ : J.IsPrincipal) :
-    ClassGroup.mk0 ⟨J, mem_nonZeroDivisors_iff_ne_zero.mpr (by
-      simpa [Ideal.zero_eq_bot] using hJ0)⟩ = (1 : ClassGroup R) :=
-  (ClassGroup.mk0_eq_one_iff
-    (mem_nonZeroDivisors_iff_ne_zero.mpr (by
-      simpa [Ideal.zero_eq_bot] using hJ0))).mpr hJ
-
-theorem classGroup_mk0_mul_eq_one_of_mul_isPrincipal
-    {R : Type*} [CommRing R] [IsDomain R] [IsDedekindDomain R]
-    {P Q : Ideal R} (hP0 : P ≠ ⊥) (hQ0 : Q ≠ ⊥) (hPQ : (P * Q).IsPrincipal) :
-    ClassGroup.mk0 ⟨P, mem_nonZeroDivisors_iff_ne_zero.mpr (by
-      simpa [Ideal.zero_eq_bot] using hP0)⟩ *
-        ClassGroup.mk0 ⟨Q, mem_nonZeroDivisors_iff_ne_zero.mpr (by
-          simpa [Ideal.zero_eq_bot] using hQ0)⟩ = (1 : ClassGroup R) := by
-  let P0 : (Ideal R)⁰ :=
-    ⟨P, mem_nonZeroDivisors_iff_ne_zero.mpr (by
-      simpa [Ideal.zero_eq_bot] using hP0)⟩
-  let Q0 : (Ideal R)⁰ :=
-    ⟨Q, mem_nonZeroDivisors_iff_ne_zero.mpr (by
-      simpa [Ideal.zero_eq_bot] using hQ0)⟩
-  have hPQ0 : P * Q ∈ nonZeroDivisors (Ideal R) :=
-    mul_mem_nonZeroDivisors_of_mem_nonZeroDivisors P0.2 Q0.2
-  calc
-    ClassGroup.mk0 P0 * ClassGroup.mk0 Q0 = ClassGroup.mk0 (P0 * Q0) := by
-      rw [map_mul]
-    _ = ClassGroup.mk0 ⟨P * Q, hPQ0⟩ := rfl
-    _ = (1 : ClassGroup R) := (ClassGroup.mk0_eq_one_iff hPQ0).mpr hPQ
-
 theorem classGroup_mk0_sq_eq_one_of_sq_isPrincipal
     {R : Type*} [CommRing R] [IsDomain R] [IsDedekindDomain R]
     {P : Ideal R} (hP0 : P ≠ ⊥) (hP2 : (P ^ 2).IsPrincipal) :

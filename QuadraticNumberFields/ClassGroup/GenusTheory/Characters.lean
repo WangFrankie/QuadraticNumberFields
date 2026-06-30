@@ -32,7 +32,7 @@ variable (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
 /-- Multiplication by a square principal fractional ideal preserves the restricted
 narrow class, when the result is again represented by an ideal whose norm is
 coprime to the signed factor. -/
-theorem narrowMk0OnSignedFactorCoprimeIdeals_eq_of_mul_toPrincipalIdeal_sq
+private theorem narrowMk0OnSignedFactorCoprimeIdeals_eq_of_mul_toPrincipalIdeal_sq
       (q : {q // q ∈ signedPrimeDiscriminantFactors d})
       (I J : signedFactorCoprimeIdealSubmonoid d q)
       {x : FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))} (hx : x ≠ 0)
@@ -55,7 +55,7 @@ theorem narrowMk0OnSignedFactorCoprimeIdeals_eq_of_mul_toPrincipalIdeal_sq
 
 /-- Clear denominators in a principal fractional multiplier relating two
 signed-factor-coprime ideal representatives. -/
-theorem exists_integral_multipliers_of_mul_toPrincipalIdeal_eq
+private theorem exists_integral_multipliers_of_mul_toPrincipalIdeal_eq
       (q : {q // q ∈ signedPrimeDiscriminantFactors d})
       (I J : signedFactorCoprimeIdealSubmonoid d q)
       {x : (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))ˣ}
@@ -99,7 +99,7 @@ theorem exists_integral_multipliers_of_mul_toPrincipalIdeal_eq
 
 /-- Clear denominators in a principal fractional multiplier while retaining the
 fraction-field element represented by the numerator and denominator. -/
-theorem exists_integral_multipliers_with_mk'_of_mul_toPrincipalIdeal_eq
+private theorem exists_integral_multipliers_with_mk'_of_mul_toPrincipalIdeal_eq
       (q : {q // q ∈ signedPrimeDiscriminantFactors d})
       (I J : signedFactorCoprimeIdealSubmonoid d q)
       {x : (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))ˣ}
@@ -201,7 +201,7 @@ theorem span_mul_eq_span_mul_of_mk'_eq_of_mul_toPrincipalIdeal_eq
 
 /-- Clear denominators in a square principal fractional multiplier relating two
 signed-factor-coprime ideal representatives. -/
-theorem exists_integral_square_multipliers_of_mul_toPrincipalIdeal_sq_eq
+private theorem exists_integral_square_multipliers_of_mul_toPrincipalIdeal_sq_eq
       (q : {q // q ∈ signedPrimeDiscriminantFactors d})
       (I J : signedFactorCoprimeIdealSubmonoid d q)
       {x : FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))} (hx : x ≠ 0)
@@ -967,7 +967,7 @@ theorem genusCharacterOfSignedFactorRaw_eq_of_span_mul_eq_span_mul_of_isTotallyP
 fraction-field multiplier is enough to compare the raw signed-factor
 characters. The remaining input in the narrow-fiber argument is precisely the
 choice of such a representative. -/
-theorem genusCharacterOfSignedFactorRaw_eq_of_exists_coprime_mk'
+private theorem genusCharacterOfSignedFactorRaw_eq_of_exists_coprime_mk'
     {D : ℤ} [Fact (Squarefree D)] [Fact (D ≠ 1)]
     (q : {q // q ∈ signedPrimeDiscriminantFactors D})
     (I J : signedFactorCoprimeIdealSubmonoid D q)

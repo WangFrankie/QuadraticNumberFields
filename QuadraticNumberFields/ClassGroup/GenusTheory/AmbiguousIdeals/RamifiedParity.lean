@@ -82,7 +82,7 @@ noncomputable def fullRamifiedParityIdealProduct
 
 /-- The full ramified parity ideal product of the zero parity vector is the unit
 ideal. -/
-theorem fullRamifiedParityIdealProduct_eq_one_of_forall_eq_zero
+private theorem fullRamifiedParityIdealProduct_eq_one_of_forall_eq_zero
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
     {v : ({p // p ∈ ramifiedPrimes d} → Fin 2)} (hv : ∀ p, v p = 0) :
     fullRamifiedParityIdealProduct d v =
@@ -440,7 +440,7 @@ theorem normalizedFactor_eq_ramifiedPrimeIdeal_ramifiedPrimeOfNormalizedFactor
   Classical.choose_spec
     ((normalizedFactorIsRamified_iff_exists_eq_ramifiedPrimeIdeal d P).mp hP)
 
-theorem normalizedFactorNonzeroIdeal_conjAutNormalizedFactor
+private theorem normalizedFactorNonzeroIdeal_conjAutNormalizedFactor
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
     {I : (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰}
     (hI : IsAmbiguousIdeal (conjAutRingOfIntegers (Qsqrtd (d : ℚ)))
