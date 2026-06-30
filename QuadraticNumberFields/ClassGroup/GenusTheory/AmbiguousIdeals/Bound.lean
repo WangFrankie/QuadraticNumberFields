@@ -122,27 +122,6 @@ theorem ambiguousIdeal_mk0_eq_fullRamifiedParityIdealProduct_of_factorization
           (fullRamifiedParityIdealProduct d (fullRamifiedParityVector d J)) :=
       htarget_count.symm
 
-/-- Per-factor assembly boundary in principal-multiplier form. A genuinely
-ambiguous integral ideal differs from the product of its ramified-prime parity
-factors by a totally positive principal fractional ideal. -/
-theorem exists_tp_multiplier_ambiguousIdeal_to_fullRamifiedParityIdealProduct
-    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
-    (J : (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰)
-    (hJ : IsAmbiguousIdeal (conjAutRingOfIntegers (Qsqrtd (d : ℚ)))
-      (J : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))) :
-    ∃ x : (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))ˣ,
-      NarrowClassGroup.IsTotallyPositive
-        (x : FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) ∧
-        FractionalIdeal.mk0
-            (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) J *
-          toPrincipalIdeal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))
-            (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) x =
-        FractionalIdeal.mk0
-          (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))
-          (fullRamifiedParityIdealProduct d (fullRamifiedParityVector d J)) := by
-  exact (NarrowClassGroup.mk0_eq_mk0_iff_exists_fraction_ring).mp
-    (ambiguousIdeal_mk0_eq_fullRamifiedParityIdealProduct_of_factorization d J hJ)
-
 /-- Per-factor assembly boundary in class form. A genuinely ambiguous integral
 ideal class is the class of the full ramified-prime parity product. -/
 theorem ambiguousIdeal_mk0_eq_fullRamifiedParityIdealProduct
@@ -278,31 +257,6 @@ theorem fullRamifiedParityNarrowClassHom_mem_ker_iff_exists_positivePrincipal
   rw [fullRamifiedParityNarrowClassHom_mem_ker_iff]
   rw [← mk0_fullRamifiedParityIdealProduct d r]
   exact NarrowClassGroup.mk0_eq_one_iff_exists_fraction_ring
-
-/-- The weak ramified narrow relation is equivalently a nonzero ramified parity
-vector whose integral ideal product is killed by a totally positive principal
-fractional ideal. -/
-theorem exists_nonzero_fullRamifiedParityProduct_eq_one_iff_positivePrincipal
-    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
-    (∃ r : ({p // p ∈ ramifiedPrimes d} → Fin 2),
-      (∃ p, r p ≠ 0) ∧ fullRamifiedParityNarrowClassProduct d r = 1) ↔
-    let R := NumberField.RingOfIntegers (Qsqrtd (d : ℚ))
-    ∃ r : ({p // p ∈ ramifiedPrimes d} → Fin 2),
-      (∃ p, r p ≠ 0) ∧
-        ∃ x : (FractionRing R)ˣ,
-          NarrowClassGroup.IsTotallyPositive (x : FractionRing R) ∧
-            FractionalIdeal.mk0 (FractionRing R) (fullRamifiedParityIdealProduct d r) *
-              toPrincipalIdeal R (FractionRing R) x = 1 := by
-  let R := NumberField.RingOfIntegers (Qsqrtd (d : ℚ))
-  constructor
-  · rintro ⟨r, hrnonzero, hr⟩
-    refine ⟨r, hrnonzero, ?_⟩
-    exact (fullRamifiedParityNarrowClassHom_mem_ker_iff_exists_positivePrincipal d r).mp
-      ((fullRamifiedParityNarrowClassHom_mem_ker_iff d r).mpr hr)
-  · rintro ⟨r, hrnonzero, hx⟩
-    refine ⟨r, hrnonzero, ?_⟩
-    exact (fullRamifiedParityNarrowClassHom_mem_ker_iff d r).mp
-      ((fullRamifiedParityNarrowClassHom_mem_ker_iff_exists_positivePrincipal d r).mpr hx)
 
 /-- A full ramified parity class is trivial exactly when adding that vector to
 every full parity vector leaves the associated narrow class unchanged. -/
@@ -705,30 +659,6 @@ theorem conjAutFractionRingAlgEquiv_mul_algebraMap_eq_self_of_hilbert90_cobounda
       ring
     _ = (γ : F) * E := by
       rw [hkey]
-
-/-- A generator of a full ramified parity product yields a nonzero integral
-factor `ε` such that `γ * ε` is fixed by fraction-field conjugation. -/
-private theorem exists_fixed_mul_algebraMap_of_tp_generator
-    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
-    (r : {p // p ∈ ramifiedPrimes d} → Fin 2)
-    {γ : (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))ˣ}
-    (hγ :
-      toPrincipalIdeal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))
-          (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) γ =
-        FractionalIdeal.mk0
-          (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))
-          (fullRamifiedParityIdealProduct d r)) :
-    ∃ ε : NumberField.RingOfIntegers (Qsqrtd (d : ℚ)), ε ≠ 0 ∧
-      conjAutFractionRingAlgEquiv (Qsqrtd (d : ℚ))
-          ((γ : FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) *
-            algebraMap (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))
-              (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) ε) =
-        (γ : FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) *
-          algebraMap (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))
-            (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) ε := by
-  obtain ⟨u, hu, ε, hε0, hε⟩ := exists_hilbert90_coboundary_unit_of_tp_generator d r hγ
-  exact ⟨ε, hε0,
-    conjAutFractionRingAlgEquiv_mul_algebraMap_eq_self_of_hilbert90_coboundary d hu hε⟩
 
 /-- Chevalley's narrow genus relation, in the only form needed for the upper
 bound.

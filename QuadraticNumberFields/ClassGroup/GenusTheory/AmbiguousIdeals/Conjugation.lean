@@ -373,18 +373,6 @@ theorem map_conjAut_mem_nonZeroDivisors (K : Type*) [Field K] [Algebra ℚ K]
       nonZeroDivisors (Ideal (NumberField.RingOfIntegers K)) :=
   map_ringEquiv_mem_nonZeroDivisors (conjAutRingOfIntegers K) hI
 
-/-- Conjugation preserves membership in the Dedekind ideal factorization
-multiset of a nonzero ideal. -/
-theorem map_conjAut_mem_normalizedFactors_iff (K : Type*) [Field K] [Algebra ℚ K]
-    [QuadraticField K] [QuadraticField.Conj K] [IsDedekindDomain (NumberField.RingOfIntegers K)]
-    {P I : Ideal (NumberField.RingOfIntegers K)} (hI : I ≠ ⊥) :
-    Ideal.map (conjAutRingOfIntegers K : NumberField.RingOfIntegers K →+*
-      NumberField.RingOfIntegers K) P ∈ UniqueFactorizationMonoid.normalizedFactors
-        (Ideal.map (conjAutRingOfIntegers K : NumberField.RingOfIntegers K →+*
-          NumberField.RingOfIntegers K) I) ↔
-      P ∈ UniqueFactorizationMonoid.normalizedFactors I :=
-  map_ringEquiv_mem_normalizedFactors_iff (conjAutRingOfIntegers K) hI
-
 /-- For an ambiguous nonzero ideal, conjugation preserves normalized-factor
 multiplicity. -/
 theorem map_conjAut_count_normalizedFactors_eq_of_isAmbiguousIdeal (K : Type*)
@@ -647,22 +635,6 @@ theorem map_conjAut_eq_of_mem_primesOver_of_mem_ramifiedPrimes
     exact hsingletonBase
   exact map_conjAut_eq_of_primesOver_comap_eq_singleton
     (K := Qsqrtd (d : ℚ)) P hsingletonComap
-
-/-- If a prime ideal lies over a rational prime in the genus-theory ramified-prime
-set, then conjugation fixes it. This comap form is the interface used after
-choosing the rational prime below a prime ideal factor. -/
-theorem map_conjAut_eq_of_comap_eq_of_mem_ramifiedPrimes
-    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
-    {p : ℕ} (hp : p ∈ ramifiedPrimes d)
-    {P : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))} [P.IsPrime]
-    (hcomap : P.comap (algebraMap ℤ (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) =
-      𝔭(p)) :
-    Ideal.map (conjAutRingOfIntegers (Qsqrtd (d : ℚ)) :
-      NumberField.RingOfIntegers (Qsqrtd (d : ℚ)) →+*
-        NumberField.RingOfIntegers (Qsqrtd (d : ℚ))) P = P := by
-  letI : P.LiesOver (𝔭(p)) := ⟨hcomap.symm⟩
-  exact map_conjAut_eq_of_mem_primesOver_of_mem_ramifiedPrimes (d := d) hp
-    (P := P) ⟨inferInstance, inferInstance⟩
 
 /-- If `P` is a prime factor of an ambiguous ideal `I`, then its conjugate is
 again a prime factor of `I` and lies over the same rational prime ideal as `P`. -/

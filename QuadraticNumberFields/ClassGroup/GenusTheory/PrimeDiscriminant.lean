@@ -180,13 +180,6 @@ theorem primeDiscriminantFactor_of_ne_two {d : ℤ} {p : ℕ} (hp2 : p ≠ 2) :
     primeDiscriminantFactor d p = oddPrimeDiscriminantFactor p := by
   simp [primeDiscriminantFactor, hp2]
 
-/-- Away from `2`, a prime-discriminant factor evaluates as the Legendre symbol. -/
-theorem kroneckerSymNat_primeDiscriminantFactor_eq_legendreSym_of_ne_two
-    {d : ℤ} {p a : ℕ} [Fact p.Prime] (hp2 : p ≠ 2) :
-    kroneckerSymNat (primeDiscriminantFactor d p) a = legendreSym p (a : ℤ) := by
-  rw [primeDiscriminantFactor_of_ne_two hp2,
-    kroneckerSymNat_oddPrimeDiscriminantFactor_eq_legendreSym hp2]
-
 /-- A ramified rational prime divides the absolute value of its signed
 prime-discriminant factor. -/
 theorem dvd_natAbs_primeDiscriminantFactor_of_mem_ramifiedPrimes

@@ -80,16 +80,6 @@ noncomputable def fullRamifiedParityIdealProduct
         mem_nonZeroDivisors_iff_ne_zero.mpr (by
           simpa [Ideal.zero_eq_bot] using ramifiedPrimeIdeal_ne_bot d p.2)⟩
 
-/-- The full ramified parity ideal product of the zero parity vector is the unit
-ideal. -/
-private theorem fullRamifiedParityIdealProduct_eq_one_of_forall_eq_zero
-    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
-    {v : ({p // p ∈ ramifiedPrimes d} → Fin 2)} (hv : ∀ p, v p = 0) :
-    fullRamifiedParityIdealProduct d v =
-      (1 : (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰) := by
-  classical
-  simp [fullRamifiedParityIdealProduct, hv]
-
 /-- A ramified prime ideal is fixed by quadratic conjugation. -/
 theorem isAmbiguousIdeal_ramifiedPrimeIdeal
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
@@ -439,19 +429,6 @@ theorem normalizedFactor_eq_ramifiedPrimeIdeal_ramifiedPrimeOfNormalizedFactor
     P.1 = ramifiedPrimeIdeal d (ramifiedPrimeOfNormalizedFactor d P hP).2 :=
   Classical.choose_spec
     ((normalizedFactorIsRamified_iff_exists_eq_ramifiedPrimeIdeal d P).mp hP)
-
-private theorem normalizedFactorNonzeroIdeal_conjAutNormalizedFactor
-    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
-    {I : (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰}
-    (hI : IsAmbiguousIdeal (conjAutRingOfIntegers (Qsqrtd (d : ℚ)))
-      (I : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))))
-    (P : {P // P ∈ UniqueFactorizationMonoid.normalizedFactors
-      (I : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))}) :
-    normalizedFactorNonzeroIdeal I (conjAutNormalizedFactor d hI P) =
-      conjAutNonzeroIdealMulEquiv (Qsqrtd (d : ℚ))
-        (normalizedFactorNonzeroIdeal I P) := by
-  apply Subtype.ext
-  rfl
 
 /-- The narrow class of a nonzero integral ideal is the product of the narrow
 classes of its Dedekind prime factors, counted with multiplicity. -/
@@ -1212,25 +1189,6 @@ theorem exists_apply_ne_zero_of_multiplicative_ne_one
   by_contra hi
   exact h ⟨i, hi⟩
 
-/-- The weak positive-principal relation is equivalent to a nontrivial kernel
-element for the full ramified parity homomorphism. -/
-theorem exists_nonzero_fullRamifiedParityNarrowClassProduct_eq_one_iff
-    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
-    (∃ r : ({p // p ∈ ramifiedPrimes d} → Fin 2),
-      (∃ p, r p ≠ 0) ∧ fullRamifiedParityNarrowClassProduct d r = 1) ↔
-    ∃ r : Multiplicative ({p // p ∈ ramifiedPrimes d} → Fin 2),
-      r ≠ 1 ∧ r ∈ (fullRamifiedParityNarrowClassHom d).ker := by
-  constructor
-  · rintro ⟨r, hrnonzero, hr⟩
-    refine ⟨Multiplicative.ofAdd r, ?_, ?_⟩
-    · exact multiplicative_ofAdd_ne_one_of_exists_apply_ne_zero r hrnonzero
-    · exact (fullRamifiedParityNarrowClassHom_mem_ker_iff d r).mpr hr
-  · rintro ⟨r, hrne, hrker⟩
-    let v : {p // p ∈ ramifiedPrimes d} → Fin 2 := Multiplicative.toAdd r
-    refine ⟨v, ?_, ?_⟩
-    · exact exists_apply_ne_zero_of_multiplicative_ne_one r hrne
-    · exact (fullRamifiedParityNarrowClassHom_mem_ker_iff d v).mp hrker
-
 /-- After erasing one ramified rational prime, the remaining `Fin 2` parity
 vectors have cardinality `2 ^ (t - 1)`. -/
 theorem card_erasedRamifiedParityVectorDomain
@@ -1291,15 +1249,6 @@ theorem fullRamifiedParityNarrowClassProduct_eq_ramifiedPrime_count_prod
   refine Finset.prod_congr rfl ?_
   intro p _hp
   exact (ramifiedPrimeNarrowClass_pow_normalizedFactors_count_eq_parity d J p).symm
-
-theorem narrowClassGroup_mk0_sq_eq_one_ramifiedParityIdealProduct
-    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
-    {p0 : ℕ} (hp0 : p0 ∈ ramifiedPrimes d)
-    (v : ({p // p ∈ (ramifiedPrimes d).erase p0} → Fin 2)) :
-    (NarrowClassGroup.mk0 (ramifiedParityIdealProduct d hp0 v) :
-        NarrowClassGroup (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) ^ 2 = 1 := by
-  rw [mk0_ramifiedParityIdealProduct d hp0 v]
-  exact ramifiedParityNarrowClassProduct_sq_eq_one d hp0 v
 
 /-- Narrow ideal classes fixed by inversion. For quadratic fields, this is the
 group-theoretic target that will be identified with conjugation-fixed classes. -/
