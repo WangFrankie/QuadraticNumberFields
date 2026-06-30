@@ -62,6 +62,13 @@ theorem card_narrowToClassGroup_ker_dvd_card_signVectorRange :
       Nat.card (NarrowClassGroup.signVectorHom (FractionRing OK)).range :=
   NarrowClassGroup.card_toClassGroup_ker_dvd_card_signVectorRange OK
 
+/-- The kernel of `Cl⁺(d) → Cl(d)` is bounded by the field-unit sign quotient
+after quotienting by the diagonal sign represented by `-1`. -/
+theorem card_narrowToClassGroup_ker_dvd_card_signQuotientModuloNegOne :
+    Nat.card (narrowToClassGroup d).ker ∣
+      Nat.card (NarrowClassGroup.signQuotientModuloNegOne OK) :=
+  NarrowClassGroup.card_toClassGroup_ker_dvd_card_signQuotientModuloNegOne OK
+
 /-- The class of `-1` in the fraction-field sign quotient is killed by
 `Kˣ/K⁺ → P/P⁺`. -/
 theorem negOne_mem_unitsQuotientTotallyPositiveToPrincipalIdealQuotient_ker :
