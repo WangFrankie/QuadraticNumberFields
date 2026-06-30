@@ -12,7 +12,6 @@ import QuadraticNumberFields.ClassGroup.GenusTheory.NumberOfGenera
 import QuadraticNumberFields.ClassGroup.GenusTheory.QuotientMap
 import QuadraticNumberFields.ClassGroup.GenusTheory.Surjectivity
 import QuadraticNumberFields.ClassGroup.GenusTheory.ExactSequence
-import QuadraticNumberFields.ClassGroup.GenusTheory.AmbiguousIdeals
 import QuadraticNumberFields.ClassGroup.GenusTheory.QuotientEquiv
 import QuadraticNumberFields.ClassGroup.GenusTheory.Formula
 import QuadraticNumberFields.ClassGroup.GenusTheory.Principal

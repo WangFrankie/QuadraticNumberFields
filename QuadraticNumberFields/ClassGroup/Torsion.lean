@@ -8,7 +8,7 @@ import Mathlib.Algebra.Group.Subgroup.Even
 import Mathlib.GroupTheory.Index
 import Mathlib.GroupTheory.Torsion
 import Mathlib.RingTheory.ClassGroup
-import QuadraticNumberFields.ClassGroup.Narrow
+import QNFMathlib.RingTheory.ClassGroup.Narrow
 /-!
 # Torsion in Class Groups
 

@@ -5,14 +5,11 @@ Authors: Frankie Wang
 -/
 
 import QuadraticNumberFields.ClassGroup.GenusTheory.AmbiguousIdeals.Bound
-import QuadraticNumberFields.ClassGroup.GenusTheory.AmbiguousIdeals.Conjugation
-import QuadraticNumberFields.ClassGroup.GenusTheory.AmbiguousIdeals.PositivePrincipal.Generators
-import QuadraticNumberFields.ClassGroup.GenusTheory.AmbiguousIdeals.RamifiedParity
-import QuadraticNumberFields.ClassGroup.GenusTheory.AmbiguousIdeals.Representatives
 
 /-!
-# Ambiguous Ideals
+# Internal Ambiguous-Ideal Implementation for Genus Theory
 
-This module re-exports the ambiguous-ideal upper-bound route for quadratic genus
-theory.
+This module re-exports the internal ambiguous-ideal pipeline used to prove the
+genus-theory cardinality bound. Public genus-theory users should import
+`QuadraticNumberFields.ClassGroup.GenusTheory`.
 -/

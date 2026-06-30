@@ -5,6 +5,7 @@ Authors: Frankie Wang
 -/
 
 import QuadraticNumberFields.ClassGroup.GenusTheory.Index
+import QuadraticNumberFields.ClassGroup.Narrow
 import QuadraticNumberFields.ClassGroup.Torsion
 
 /-!

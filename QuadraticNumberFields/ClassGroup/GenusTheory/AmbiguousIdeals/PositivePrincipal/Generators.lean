@@ -27,6 +27,8 @@ open scoped QuadraticNumberFields.Splitting
 attribute [-instance] DivisionRing.toRatAlgebra
 attribute [local instance] FractionRing.liftAlgebra
 
+namespace Internal
+
 private theorem exists_toPrincipalIdeal_eq_mk0_of_isPrincipal
     {R : Type*} [CommRing R] [IsDomain R] [IsDedekindDomain R]
     {I : (Ideal R)⁰} (hI : (I : Ideal R).IsPrincipal) :
@@ -2855,6 +2857,7 @@ theorem exists_nonzero_ramifiedParity_tp_generator
     exact exists_nonzero_ramifiedParity_tp_generator_of_real d hdpos
       (exists_nonzero_ramifiedParity_principal_generator d)
 
+end Internal
 end GenusTheory
 end ClassGroup
 end QuadraticNumberFields

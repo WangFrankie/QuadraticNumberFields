@@ -19,13 +19,12 @@ import QNFMathlib.NumberTheory.DirichletCharacter.Kronecker
 import QNFMathlib.NumberTheory.LegendreSymbol.JacobiSymbol
 import QNFMathlib.NumberTheory.LegendreSymbol.KroneckerSymbol
 import QNFMathlib.NumberTheory.LegendreSymbol.KroneckerSymbolPeriodicity
-import QNFMathlib.NumberTheory.NumberField.ClassField.Basic
 import QNFMathlib.NumberTheory.NumberField.ClassNumber
 import QNFMathlib.NumberTheory.NumberField.Galois
-import QNFMathlib.NumberTheory.NumberField.Idele
 import QNFMathlib.NumberTheory.RamificationInertia.Galois
 import QNFMathlib.NumberTheory.Zsqrtd.Basic
 import QNFMathlib.RingTheory.ClassGroup
+import QNFMathlib.RingTheory.ClassGroup.Narrow
 import QNFMathlib.RingTheory.Coprime
 import QNFMathlib.RingTheory.PrincipalIdealDomain
 import QNFMathlib.RingTheory.FractionalIdeal.RingEquiv

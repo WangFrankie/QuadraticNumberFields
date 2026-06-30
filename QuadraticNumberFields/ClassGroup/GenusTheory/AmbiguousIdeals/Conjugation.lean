@@ -33,6 +33,8 @@ open scoped QuadraticNumberFields.Splitting
 attribute [-instance] DivisionRing.toRatAlgebra
 attribute [local instance] FractionRing.liftAlgebra
 
+namespace Internal
+
 /-! ## Ambiguous ideals and quadratic conjugation -/
 
 section FixedIdeals
@@ -1394,6 +1396,7 @@ theorem classGroup_mk0_sq_eq_one_of_sq_isPrincipal
       rw [map_pow]
     _ = (1 : ClassGroup R) := (ClassGroup.mk0_eq_one_iff (P0 ^ 2).2).mpr hP2
 
+end Internal
 end GenusTheory
 end ClassGroup
 end QuadraticNumberFields

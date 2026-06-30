@@ -23,6 +23,8 @@ open scoped QuadraticNumberFields.Splitting
 attribute [-instance] DivisionRing.toRatAlgebra
 attribute [local instance] FractionRing.liftAlgebra
 
+namespace Internal
+
 /-- Count-powered finite-product assembly for a genuinely ambiguous integral
 ideal. In the product over distinct normalized prime factors, split conjugate
 pairs cancel, inert factors are narrowly principal, and the ramified fixed
@@ -1292,6 +1294,26 @@ theorem card_narrowClassGroupTwoTorsion_le_two_pow_sub_one
       2 ^ (ramifiedPrimeCount d - 1) := by
   rw [card_narrowClassGroupTwoTorsion_eq_card_narrowInversionFixedClass]
   exact card_narrowInversionFixedClass_le_two_pow_sub_one d
+
+/-- Equivalent upper bound for the narrow square-class quotient. -/
+theorem card_narrowClassGroupSquareQuotient_le_two_pow_sub_one
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
+    Nat.card (Cl⁺(d) ⧸ Subgroup.square (Cl⁺(d))) ≤
+      2 ^ (ramifiedPrimeCount d - 1) := by
+  rw [card_narrowClassGroupSquareQuotient_eq_card_narrowClassGroupTwoTorsion]
+  exact card_narrowClassGroupTwoTorsion_le_two_pow_sub_one d
+
+end Internal
+
+/-- Ambiguous-ideal upper bound: the two-torsion in the narrow class group has
+size at most `2 ^ (t - 1)`, where `t` is the number of ramified rational primes. -/
+theorem card_narrowClassGroupTwoTorsion_le_two_pow_sub_one
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
+    Nat.card (NarrowClassGroup.twoTorsion
+      (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) ≤
+      2 ^ (ramifiedPrimeCount d - 1) := by
+  rw [Internal.card_narrowClassGroupTwoTorsion_eq_card_narrowInversionFixedClass]
+  exact Internal.card_narrowInversionFixedClass_le_two_pow_sub_one d
 
 /-- Equivalent upper bound for the narrow square-class quotient. -/
 theorem card_narrowClassGroupSquareQuotient_le_two_pow_sub_one

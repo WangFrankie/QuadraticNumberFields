@@ -48,15 +48,6 @@ theorem card_narrowClassGroupTwoTorsion_eq_numberOfGenera
       (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) = numberOfGenera d :=
   (card_narrowClassGroupSquareQuotient_eq_card_narrowClassGroupTwoTorsion d).symm
 
-/-- Inversion-fixed narrow classes have cardinality equal to the number of genera. -/
-theorem card_narrowInversionFixedClass_eq_numberOfGenera
-    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
-    Nat.card (NarrowInversionFixedClass
-      (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) = numberOfGenera d := by
-  rw [← card_narrowClassGroupTwoTorsion_eq_numberOfGenera d]
-  exact (card_narrowClassGroupTwoTorsion_eq_card_narrowInversionFixedClass
-    (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))).symm
-
 end GenusTheory
 end ClassGroup
 end QuadraticNumberFields

@@ -24,6 +24,8 @@ open scoped QuadraticNumberFields.Splitting
 attribute [-instance] DivisionRing.toRatAlgebra
 attribute [local instance] FractionRing.liftAlgebra
 
+namespace Internal
+
 noncomputable def idealRamifiedParityVector
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
     {p0 : ℕ} (_hp0 : p0 ∈ ramifiedPrimes d)
@@ -1338,6 +1340,7 @@ theorem card_narrowClassGroupTwoTorsion_eq_card_narrowInversionFixedClass
       Nat.card (NarrowInversionFixedClass R) :=
   Nat.card_congr (narrowTwoTorsionEquivInversionFixedClass R)
 
+end Internal
 end GenusTheory
 end ClassGroup
 end QuadraticNumberFields

@@ -23,6 +23,8 @@ open scoped QuadraticNumberFields.Splitting
 attribute [-instance] DivisionRing.toRatAlgebra
 attribute [local instance] FractionRing.liftAlgebra
 
+namespace Internal
+
 /-- If a nonzero integral ideal represents an inversion-fixed narrow class, then
 its square represents the trivial narrow class. -/
 theorem narrowClassGroup_mk0_mul_self_eq_one_of_inversionFixed
@@ -1024,6 +1026,7 @@ theorem exists_integralIdeal_isAmbiguousIdeal_mk0_eq_of_tp_multiplier_to_conjAut
   exact exists_integralIdeal_isAmbiguousIdeal_mk0_eq_of_conjAut_coboundary
     (Qsqrtd (d : ℚ)) I hypos hy hconj
 
+end Internal
 end GenusTheory
 end ClassGroup
 end QuadraticNumberFields
