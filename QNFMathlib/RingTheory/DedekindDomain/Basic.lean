@@ -49,11 +49,7 @@ theorem isDedekindDomain (e : R ≃+* S) [IsDedekindDomain R] :
 -- no direct non-patch reference is expected yet.
 theorem isDedekindDomain_iff (e : R ≃+* S) :
     IsDedekindDomain R ↔ IsDedekindDomain S := by
-  constructor
-  · intro _
-    exact isDedekindDomain e
-  · intro _
-    exact isDedekindDomain e.symm
+  exact ⟨fun _ => isDedekindDomain e, fun _ => isDedekindDomain e.symm⟩
 
 end CommRing
 

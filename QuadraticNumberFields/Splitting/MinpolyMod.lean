@@ -139,12 +139,12 @@ theorem normalizedFactors_X_sq_sub_C_sq_card_eq_two
     {r : ZMod p} (hr : r ≠ 0) (hp2 : (2 : ZMod p) ≠ 0) :
     ((normalizedFactors ((X ^ 2 - C (r * r)) : (ZMod p)[X])).toFinset.card = 2) := by
   have hfac : (X ^ 2 - C (r * r) : (ZMod p)[X]) = (X - C r) * (X + C r) := by
-    rw [show r * r = r ^ 2 by rw [pow_two], map_pow]
+    rw [← pow_two, map_pow]
     ring
   rw [hfac, normalizedFactors_mul]
   · rw [normalizedFactors_irreducible (Polynomial.irreducible_X_sub_C r)]
-    rw [show (X + C r : (ZMod p)[X]) = X - C (-r) by simp]
-    rw [normalizedFactors_irreducible (Polynomial.irreducible_X_sub_C (-r : ZMod p))]
+    rw [show (X + C r : (ZMod p)[X]) = X - C (-r) by simp,
+      normalizedFactors_irreducible (Polynomial.irreducible_X_sub_C (-r : ZMod p))]
     simp only [(Polynomial.monic_X_sub_C r).normalize_eq_self,
       (Polynomial.monic_X_sub_C (-r : ZMod p)).normalize_eq_self,
       Multiset.singleton_add, Multiset.toFinset_cons, Multiset.toFinset_singleton]
@@ -161,8 +161,7 @@ theorem normalizedFactors_X_sq_sub_C_sq_card_eq_two
         simpa [two_mul] using this
       exact hr ((mul_eq_zero.mp hzero).resolve_left hp2)
   · exact (Polynomial.monic_X_sub_C r).ne_zero
-  · rw [show (X + C r : (ZMod p)[X]) = X - C (-r) by simp]
-    exact (Polynomial.monic_X_sub_C (-r : ZMod p)).ne_zero
+  · simpa using (Polynomial.monic_X_sub_C (-r : ZMod p)).ne_zero
 
 /-- If `legendreSym p d = 1`, then `X² - d` has two normalized factors mod `p`
 away from `p ∣ d` and `p = 2`. -/

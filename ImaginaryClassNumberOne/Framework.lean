@@ -66,7 +66,7 @@ theorem baker_heegner_stark_inert_prime_core
     d ∈ heegnerSet := by
   subst d
   by_cases hp_ne_three : p ≠ 3
-  · change classNumberQsqrtd (-(p : ℤ)) = 1 at h
+  · change NumberField.classNumber (Qsqrtd (((-(p : ℤ)) : ℤ) : ℚ)) = 1 at h
     rcases exists_weber_data_of_classNumber_one_inert_prime
       hprovider p hp hp8 hp_ne_three h with ⟨hdata⟩
     exact inert_prime_core_of_weber_data (-(p : ℤ)) p hp hp8 rfl

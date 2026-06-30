@@ -70,7 +70,7 @@ theorem inertiaDegIn_eq_natDegree_of_monicFactorsMod_eq_singleton
   have hg1 : g(p) = 1 := by
     rw [primesOver_ncard_eq_monicFactorsMod_card d p, hM]; simp
   obtain ⟨P, hPset⟩ := Set.ncard_eq_one.mp hg1
-  have hPmem : P ∈ primesOver (𝔭(p)) 𝓞(d) := by rw [hPset]; exact Set.mem_singleton P
+  have hPmem : P ∈ primesOver (𝔭(p)) 𝓞(d) := hPset.symm ▸ Set.mem_singleton P
   set eqv := NumberField.Ideal.primesOverSpanEquivMonicFactorsMod
     (K := Qsqrtd (d : ℚ)) (θ := ringOfIntegersGenerator d)
     (not_dvd_exponent_generator d p) with heqv
@@ -86,7 +86,7 @@ theorem inertiaDegIn_eq_natDegree_of_monicFactorsMod_eq_singleton
     rw [hQQ, Equiv.symm_apply_apply]
   rw [hcoe] at hkey
   have hfac_deg : (QQ : (ZMod p)[X]).natDegree = poly.natDegree := by
-    have hmempoly : (QQ : (ZMod p)[X]) ∈ ({poly} : Finset _) := by rw [← hM]; exact QQ.2
+    have hmempoly : (QQ : (ZMod p)[X]) ∈ ({poly} : Finset _) := hM ▸ QQ.2
     rw [Finset.mem_singleton.mp hmempoly]
   rw [Ideal.inertiaDegIn_eq_inertiaDeg_of_primesOver_eq_singleton (𝔭(p)) 𝓞(d) hPset,
     hkey, hfac_deg]

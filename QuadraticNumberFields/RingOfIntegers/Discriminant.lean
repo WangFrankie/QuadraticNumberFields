@@ -147,11 +147,8 @@ identified with `Qsqrtd d`. -/
 theorem discr_formula_of_algEquiv_qsqrtd
     {K : Type*} [Field K] [Algebra ℚ K] [NumberField K]
     (e : K ≃ₐ[ℚ] Qsqrtd (d : ℚ)) :
-    NumberField.discr K = discrFormula d := by
-  calc
-    NumberField.discr K = NumberField.discr (Qsqrtd (d : ℚ)) :=
-      NumberField.discr_eq_of_algEquiv e
-    _ = discrFormula d := discr_formula d
+    NumberField.discr K = discrFormula d :=
+  (NumberField.discr_eq_of_algEquiv e).trans (discr_formula d)
 
 /-- Every abstract quadratic field admits a standard squarefree parameter whose
 standard discriminant formula computes the field discriminant.
@@ -166,11 +163,8 @@ theorem exists_discr_formula_of_quadraticField
   obtain ⟨d, hd_sf, hd_ne, ⟨e⟩⟩ := exists_ringEquiv_qsqrtd K
   letI : Fact (Squarefree d) := ⟨hd_sf⟩
   letI : Fact (d ≠ 1) := ⟨hd_ne⟩
-  refine ⟨d, hd_sf, hd_ne, ?_⟩
-  calc
-    NumberField.discr K = NumberField.discr (Qsqrtd (d : ℚ)) :=
-      NumberField.discr_eq_discr_of_ringEquiv K e
-    _ = discrFormula d := discr_formula d
+  exact ⟨d, hd_sf, hd_ne,
+    (NumberField.discr_eq_discr_of_ringEquiv K e).trans (discr_formula d)⟩
 
 /-! ## Named Examples
 

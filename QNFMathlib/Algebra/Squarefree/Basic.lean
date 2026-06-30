@@ -18,8 +18,7 @@ Material destined for mathlib.
 lemma Squarefree.not_mul_self_dvd_of_not_isUnit {R : Type*} [Monoid R]
     {r p : R} (hr : Squarefree r) (hp : ¬ IsUnit p) : ¬ p * p ∣ r := by
   intro h
-  have hp2 : p ^ 2 ∣ r := by simpa [pow_two] using h
-  have hsq : Squarefree (p ^ 2) := Squarefree.squarefree_of_dvd hp2 hr
+  have hsq : Squarefree (p ^ 2) := Squarefree.squarefree_of_dvd (by simpa [pow_two] using h) hr
   have hbad : (2 : ℕ) = 0 ∨ (2 : ℕ) = 1 :=
     Squarefree.eq_zero_or_one_of_pow_of_not_isUnit hsq hp
   omega
@@ -47,10 +46,9 @@ lemma squarefree_int_emod_four (d : ℤ) (hd : Squarefree d) :
 lemma eq_one_of_squarefree_isSquare {d : ℤ} (hd : Squarefree d) (hsq : IsSquare d) :
     d = 1 ∨ d = -1 := by
   obtain ⟨z, rfl⟩ := hsq
-  have hsqz2 : Squarefree (z ^ 2) := by simpa [pow_two] using hd
   have huz : IsUnit z := by
     by_contra hne
-    have h01 : (2 : ℕ) = 0 ∨ (2 : ℕ) = 1 :=
-      Squarefree.eq_zero_or_one_of_pow_of_not_isUnit (x := z) (n := 2) hsqz2 hne
-    norm_num at h01
+    exact (by norm_num : ¬ ((2 : ℕ) = 0 ∨ (2 : ℕ) = 1))
+      (Squarefree.eq_zero_or_one_of_pow_of_not_isUnit (x := z) (n := 2)
+        (by simpa [pow_two] using hd) hne)
   rcases Int.isUnit_iff.mp huz with rfl | rfl <;> simp

@@ -241,20 +241,28 @@ Key declarations include `factorization_of_two`,
 
 ### Class-Number Interface
 
-File: `QuadraticNumberFields/ClassNumber.lean`
+Files under `QuadraticNumberFields/ClassGroup/`
 
-The stable library specializes mathlib's Minkowski ideal-class representative
-bound to `Qsqrtd d` and owns the unified class-number interface:
+This is the non-forms class-group layer. The stable library specializes
+mathlib's Minkowski ideal-class representative bound to `Qsqrtd d` and uses
+mathlib's `NumberField.classNumber` directly for class-number statements:
 
-- `classNumberQsqrtd`
-- `Qsqrtd.minkowskiBound`
-- `Qsqrtd.exists_ideal_in_class_of_norm_le`
-- `Qsqrtd.exists_ideal_in_class_of_norm_le_imaginary`
-- `Qsqrtd.exists_ideal_in_class_of_norm_le_real`
+- `ClassGroup/Basic.lean`: notation for `Cl(𝓞(ℚ(√d)))` and the bridge from
+  trivial ideal class group to class number one.
+- `ClassGroup/SmallNorm.lean`: small-norm class-group closure criteria such as
+  `classGroup_eq_one_or_of_exists_ideal_norm_lt_three`.
+- `ClassGroup/Minkowski.lean`: `Qsqrtd.minkowskiBound`,
+  `Qsqrtd.exists_ideal_in_class_of_norm_le`,
+  `Qsqrtd.exists_ideal_in_class_of_norm_le_imaginary`,
+  `Qsqrtd.exists_ideal_in_class_of_norm_le_real`,
+  `Qsqrtd.classNumber_eq_one_of_forall_le_minkowskiBound_isPrincipal`,
+  `Qsqrtd.classNumber_eq_one_of_forall_le_minkowskiBound_primesOver_isPrincipal`,
+  `Qsqrtd.classNumber_eq_one_of_forall_le_minkowskiBound_split_principal`, and
+  `Qsqrtd.classNumber_eq_one_of_forall_le_minkowskiBound_ramified_principal`.
 
-The Heegner wrappers for this interface live in
-`ImaginaryClassNumberOne/ClassNumberBridge.lean`, while the reduced-form
-cardinality bridge lives under `FormClassGroup/ClassGroup/`.
+Reduced-form cardinality and transported form-class-group structure live under
+`FormClassGroup/ClassGroup/` and should be treated as a backend over this
+ideal/class-number layer.
 
 ## Core Lean Objects
 
@@ -348,8 +356,7 @@ results, examples, and remaining research-oriented scaffolding.
 │   ├── ZOnePlusSqrtOverTwo/
 │   │   └── Basic.lean
 │   ├── Splitting/                    # prime splitting
-│   ├── ClassNumber/                  # core class-number interface
-│   ├── ClassGroup/                   # class-group scaffolding
+│   ├── ClassGroup/                   # non-forms class-number, small-norm, genus theory
 │   ├── ContinuedFraction/            # continued-fraction scaffolding
 │   ├── Units/                        # unit and Pell scaffolding
 │   ├── Families/                     # real-quadratic family scaffolding
@@ -362,6 +369,9 @@ results, examples, and remaining research-oriented scaffolding.
 │   └── Computable/
 ├── ImaginaryClassNumberOne.lean      # Heegner and Baker--Heegner--Stark layer
 ├── ImaginaryClassNumberOne/
+│   ├── ClassNumberOne.lean
+│   ├── IdealReductions.lean
+│   ├── StarkHeegner.lean
 │   └── WeberData/
 ├── Examples.lean                     # concrete examples entry point
 ├── Examples/

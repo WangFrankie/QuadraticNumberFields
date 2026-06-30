@@ -6,6 +6,7 @@ Authors: Frankie Wang
 import QuadraticNumberFields.Qsqrtd.Basic
 import QuadraticNumberFields.QuadraticField.Classification
 import QuadraticNumberFields.QuadraticField.Transport
+import Mathlib.Data.Real.Sqrt
 import Mathlib.NumberTheory.NumberField.InfinitePlace.TotallyRealComplex
 import Mathlib.NumberTheory.NumberField.CMField
 
@@ -43,6 +44,71 @@ Writing `φ(ω) = a + bi` gives `a² - b² = d` and `2ab = 0`.
 attribute [-instance] DivisionRing.toRatAlgebra
 
 namespace Qsqrtd
+
+section RealEmbeddings
+
+/-- The `ℚ`-algebra homomorphism `ℚ(√d) → ℝ` sending `√d` to a chosen real
+root `r` of `X² - d`. -/
+noncomputable def realEmbedding (d : ℤ) (r : ℝ) (hr : r * r = (d : ℝ)) :
+    Qsqrtd (d : ℚ) →ₐ[ℚ] ℝ :=
+  QuadraticAlgebra.lift (R := ℚ) (a := (d : ℚ)) (b := (0 : ℚ))
+    ⟨r, hr.trans (by simp [Algebra.smul_def])⟩
+
+/-- The explicit value of `realEmbedding`: it evaluates `x + y√d` as
+`x + y r`. -/
+theorem realEmbedding_apply (d : ℤ) (r : ℝ) (hr : r * r = (d : ℝ))
+    (z : Qsqrtd (d : ℚ)) :
+    realEmbedding d r hr z = (z.re : ℝ) + (z.im : ℝ) * r := by
+  change (QuadraticAlgebra.lift (R := ℚ) (a := (d : ℚ)) (b := (0 : ℚ))
+      ⟨r, hr.trans (by simp [Algebra.smul_def])⟩ : Qsqrtd (d : ℚ) →ₐ[ℚ] ℝ) z =
+    (z.re : ℝ) + (z.im : ℝ) * r
+  simp [QuadraticAlgebra.lift, Algebra.smul_def]
+
+/-- The real embedding `ℚ(√d) → ℝ` sending `√d` to `sqrt d`. -/
+noncomputable def realEmbeddingPos (d : ℤ) (hd : 0 ≤ (d : ℝ)) :
+    Qsqrtd (d : ℚ) →ₐ[ℚ] ℝ :=
+  realEmbedding d (Real.sqrt (d : ℝ)) (by simpa [sq] using Real.sq_sqrt hd)
+
+/-- The real embedding `ℚ(√d) → ℝ` sending `√d` to `-sqrt d`. -/
+noncomputable def realEmbeddingNeg (d : ℤ) (hd : 0 ≤ (d : ℝ)) :
+    Qsqrtd (d : ℚ) →ₐ[ℚ] ℝ :=
+  realEmbedding d (-Real.sqrt (d : ℝ)) (by
+    rw [neg_mul_neg]
+    simpa [sq] using Real.sq_sqrt hd)
+
+theorem realEmbeddingPos_apply (d : ℤ) (hd : 0 ≤ (d : ℝ))
+    (z : Qsqrtd (d : ℚ)) :
+    realEmbeddingPos d hd z = (z.re : ℝ) + (z.im : ℝ) * Real.sqrt (d : ℝ) :=
+  realEmbedding_apply d (Real.sqrt (d : ℝ)) (by simpa [sq] using Real.sq_sqrt hd) z
+
+theorem realEmbeddingNeg_apply (d : ℤ) (hd : 0 ≤ (d : ℝ))
+    (z : Qsqrtd (d : ℚ)) :
+    realEmbeddingNeg d hd z = (z.re : ℝ) - (z.im : ℝ) * Real.sqrt (d : ℝ) := by
+  rw [realEmbeddingNeg, realEmbedding_apply]
+  ring
+
+/-- For nonnegative `d`, the quadratic norm is the product of the two real
+embeddings. -/
+theorem norm_eq_realEmbeddingPos_mul_realEmbeddingNeg (d : ℤ) (hd : 0 ≤ (d : ℝ))
+    (z : Qsqrtd (d : ℚ)) :
+    (Qsqrtd.norm z : ℝ) = realEmbeddingPos d hd z * realEmbeddingNeg d hd z := by
+  rw [realEmbeddingPos_apply, realEmbeddingNeg_apply]
+  simp [Qsqrtd.norm, QuadraticAlgebra.norm_def]
+  ring_nf
+  rw [Real.sq_sqrt hd]
+  ring
+
+/-- If an element is positive under both real embeddings, then its quadratic norm
+is positive. -/
+theorem norm_pos_of_realEmbedding_pos (d : ℤ) (hd : 0 ≤ (d : ℝ))
+    {z : Qsqrtd (d : ℚ)}
+    (hpos : 0 < realEmbeddingPos d hd z)
+    (hneg : 0 < realEmbeddingNeg d hd z) :
+    0 < (Qsqrtd.norm z : ℝ) := by
+  rw [norm_eq_realEmbeddingPos_mul_realEmbeddingNeg d hd z]
+  exact mul_pos hpos hneg
+
+end RealEmbeddings
 
 section InternalLemmas
 
@@ -126,7 +192,7 @@ theorem isTotallyReal (hd : 0 < d) :
 
 /-- An imaginary quadratic field `Q(√d)` with `d < 0` is totally complex:
 no embedding into `ℂ` has image contained in `ℝ`. -/
-theorem isTotallyComplex (hd : d < 0) :
+instance isTotallyComplex (hd : d < 0) :
     NumberField.IsTotallyComplex (Qsqrtd (d : ℚ)) := by
   exact {
     isComplex := fun v => by
@@ -143,10 +209,26 @@ theorem isTotallyComplex (hd : d < 0) :
   }
 
 /-- An imaginary quadratic field `Q(√d)` with `d < 0` is a CM field. -/
-theorem isCMField (hd : d < 0) :
+instance isCMField (hd : d < 0) :
     NumberField.IsCMField (Qsqrtd (d : ℚ)) := by
   letI := isTotallyComplex d hd
   exact NumberField.IsCMField.ofCMExtension ℚ (Qsqrtd (d : ℚ))
+
+/-- An imaginary quadratic field `ℚ(√d)` has one complex place. -/
+theorem nrComplexPlaces_eq_one_of_neg (hd : d < 0) :
+    NumberField.InfinitePlace.nrComplexPlaces (Qsqrtd (d : ℚ)) = 1 := by
+  haveI := isTotallyComplex d hd
+  have hfin := finrank_ratAlgebra_eq_two (d : ℚ)
+  have hc := NumberField.IsTotallyComplex.finrank (Qsqrtd (d : ℚ))
+  have h : 2 = 2 * NumberField.InfinitePlace.nrComplexPlaces (Qsqrtd (d : ℚ)) :=
+    hfin.symm.trans hc
+  omega
+
+/-- A real quadratic field `ℚ(√d)` has no complex places. -/
+theorem nrComplexPlaces_eq_zero_of_pos (hd : 0 < d) :
+    NumberField.InfinitePlace.nrComplexPlaces (Qsqrtd (d : ℚ)) = 0 := by
+  haveI := isTotallyReal d hd
+  exact NumberField.IsTotallyReal.nrComplexPlaces_eq_zero (Qsqrtd (d : ℚ))
 
 end InfinitePlaceClassification
 

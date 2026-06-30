@@ -7,7 +7,7 @@ import QuadraticNumberFields.RingOfIntegers.Classification
 import QuadraticNumberFields.RingOfIntegers.Discriminant
 import QuadraticNumberFields.Qsqrtd.TotallyRealComplex
 import QuadraticNumberFields.Qsqrtd.Galois
-import QuadraticNumberFields.ClassNumber
+import QuadraticNumberFields.ClassGroup.Minkowski
 import QuadraticNumberFields.Zsqrtd.Dedekind
 import QuadraticNumberFields.RingOfIntegers.CommonInstances
 
@@ -69,12 +69,10 @@ theorem minkowskiBound_lt_three : Qsqrtd.minkowskiBound (17 : ℤ) < 3 := by
     RingOfIntegers.discr_of_mod_four_eq_one 17 (by decide)]
   have hsqrt : Real.sqrt |((17 : ℤ) : ℝ)| < 6 := by
     rw [abs_of_nonneg (by norm_num)]
-    calc Real.sqrt ((17 : ℤ) : ℝ) < Real.sqrt 36 := Real.sqrt_lt_sqrt (by norm_num) (by norm_num)
-      _ = 6 := by rw [show (36 : ℝ) = 6 ^ 2 by norm_num, Real.sqrt_sq (by norm_num)]
-  calc (4 / Real.pi) ^ 0 * (1 / 2) * Real.sqrt |((17 : ℤ) : ℝ)|
-      = (1 / 2) * Real.sqrt |((17 : ℤ) : ℝ)| := by rw [pow_zero]; ring
-    _ < (1 / 2) * 6 := by gcongr
-    _ = 3 := by norm_num
+    rw [Real.sqrt_lt' (by norm_num : (0 : ℝ) < 6)]
+    norm_num
+  rw [pow_zero]
+  nlinarith [mul_lt_mul_of_pos_left hsqrt (by norm_num : (0 : ℝ) < 1 / 2)]
 
 /-- **Minkowski bound for `ℚ(√17)`, integer form.** Every ideal class has a
 representative whose absolute norm is `< 3` (equivalently `≤ 2`), obtained from

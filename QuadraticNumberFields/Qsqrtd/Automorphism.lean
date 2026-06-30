@@ -58,8 +58,7 @@ theorem algEquiv_self_eq_refl_or_star
   have hφ_d : σ.toRingEquiv (⟨(d : ℚ), 0⟩ : Qsqrtd (d : ℚ)) = ⟨(d : ℚ), 0⟩ := by
     have hleft : (⟨(d : ℚ), 0⟩ : Qsqrtd (d : ℚ)) =
         algebraMap ℚ (Qsqrtd (d : ℚ)) (d : ℚ) := by ext <;> simp
-    rw [show (σ.toRingEquiv ⟨(d : ℚ), 0⟩ : Qsqrtd (d : ℚ)) = σ ⟨(d : ℚ), 0⟩ from rfl, hleft]
-    exact σ.commutes (d : ℚ)
+    simp [hleft]
   obtain ⟨ha, -, hr⟩ :=
     ringEquiv_param_rel (not_isSquare_ratCast_of_squarefree_ne_one Fact.out Fact.out)
       σ.toRingEquiv hφ_d
@@ -68,7 +67,7 @@ theorem algEquiv_self_eq_refl_or_star
   set b := (σ (⟨0, 1⟩ : Qsqrtd (d : ℚ))).im
   have hφ_eta : σ (⟨0, 1⟩ : Qsqrtd (d : ℚ)) = ⟨a, b⟩ := by ext <;> rfl
   have hdQ : (d : ℚ) ≠ 0 := by exact_mod_cast (Squarefree.ne_zero (Fact.out : Squarefree d))
-  have hbsq : b ^ 2 = 1 := mul_left_cancel₀ hdQ (by rw [mul_one]; exact hr.symm)
+  have hbsq : b ^ 2 = 1 := mul_left_cancel₀ hdQ (by simpa using hr.symm)
   -- The rational algebra map sends `q ↦ ⟨q, 0⟩`.
   have hAM : ∀ q : ℚ, algebraMap ℚ (Qsqrtd (d : ℚ)) q = (⟨q, 0⟩ : Qsqrtd (d : ℚ)) := by
     intro q

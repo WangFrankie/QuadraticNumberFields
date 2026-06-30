@@ -26,11 +26,7 @@ theorem isPrincipalIdealRing (e : R ≃+* S) [IsPrincipalIdealRing R] :
 /-- `IsPrincipalIdealRing` is invariant under ring equivalence. -/
 theorem isPrincipalIdealRing_iff (e : R ≃+* S) :
     IsPrincipalIdealRing R ↔ IsPrincipalIdealRing S := by
-  constructor
-  · intro _
-    exact isPrincipalIdealRing e
-  · intro _
-    exact isPrincipalIdealRing e.symm
+  exact ⟨fun _ => isPrincipalIdealRing e, fun _ => isPrincipalIdealRing e.symm⟩
 
 end Semiring
 

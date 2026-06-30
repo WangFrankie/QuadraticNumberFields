@@ -26,12 +26,8 @@ theorem Algebra.IsQuadraticExtension.fractionRing
     Algebra.IsQuadraticExtension K L := by
   letI : Algebra.IsAlgebraic R S := Algebra.IsAlgebraic.of_finite R S
   refine ⟨?_⟩
-  calc
-    Module.finrank K L = Module.finrank R S := by
-      simpa using
-        (Algebra.IsAlgebraic.finrank_of_isFractionRing (R := R) (R' := K) (S := S)
-          (S' := L))
-    _ = 2 := Algebra.IsQuadraticExtension.finrank_eq_two R S
+  exact (Algebra.IsAlgebraic.finrank_of_isFractionRing (R := R) (R' := K) (S := S)
+    (S' := L)).trans (Algebra.IsQuadraticExtension.finrank_eq_two R S)
 
 /-- If `K` is a quadratic extension of a field `F` of characteristic not equal to
 `2`, then `K/F` is separable. -/
@@ -57,9 +53,7 @@ theorem Algebra.IsQuadraticExtension.isSeparable_of_field_of_char_ne_two
     cases n with
     | zero => simp at h2
     | succ n =>
-        have hq_dvd : ringExpChar F ∣ 2 := by
-          rw [pow_succ] at h2
-          exact ⟨(ringExpChar F) ^ n, by simpa [Nat.mul_comm] using h2.symm⟩
-        rcases (Nat.dvd_prime Nat.prime_two).1 hq_dvd with hq1 | hq2
+        rcases (Nat.dvd_prime Nat.prime_two).1 ⟨(ringExpChar F) ^ n,
+          by simpa [pow_succ, Nat.mul_comm] using h2.symm⟩ with hq1 | hq2
         · simp [hq1] at h2
         · exact (hexp hq2).elim
