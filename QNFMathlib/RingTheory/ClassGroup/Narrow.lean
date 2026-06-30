@@ -186,6 +186,17 @@ theorem toClassGroup_mk' (R : Type*) [CommRing R] [IsDomain R]
       QuotientGroup.mk' (toPrincipalIdeal R (FractionRing R)).range J :=
   QuotientGroup.map_mk' _ _ _ _ J
 
+/-- The natural map from the narrow class group to the ordinary wide class group is
+surjective. -/
+theorem toClassGroup_surjective (R : Type*) [CommRing R] [IsDomain R] :
+    Function.Surjective (toClassGroup R) := by
+  intro C
+  obtain ⟨J, hJ⟩ :=
+    QuotientGroup.mk'_surjective (toPrincipalIdeal R (FractionRing R)).range C
+  refine ⟨QuotientGroup.mk' (narrowPrincipalIdeals R (FractionRing R)) J, ?_⟩
+  rw [toClassGroup_mk']
+  exact hJ
+
 /-- Over the fraction field the canonical equivalence is the identity, so the
 ideal-class map is the bare quotient map. -/
 theorem mk_eq_mk' (I : (FractionalIdeal R⁰ (FractionRing R))ˣ) :
