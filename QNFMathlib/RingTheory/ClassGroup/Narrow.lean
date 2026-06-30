@@ -197,6 +197,94 @@ theorem toClassGroup_surjective (R : Type*) [CommRing R] [IsDomain R] :
   rw [toClassGroup_mk']
   exact hJ
 
+/-- The kernel of `Cl⁺ → Cl` is the image of ordinary principal fractional ideals
+in the narrow class group. -/
+theorem toClassGroup_ker (R : Type*) [CommRing R] [IsDomain R] :
+    (toClassGroup R).ker =
+      Subgroup.map (QuotientGroup.mk' (narrowPrincipalIdeals R (FractionRing R)))
+        (toPrincipalIdeal R (FractionRing R)).range := by
+  change (QuotientGroup.map (narrowPrincipalIdeals R (FractionRing R))
+      (toPrincipalIdeal R (FractionRing R)).range
+      (MonoidHom.id (FractionalIdeal R⁰ (FractionRing R))ˣ) _).ker = _
+  rw [QuotientGroup.ker_map]
+  simp
+
+/-- Ordinary principal fractional ideals map to the kernel of `Cl⁺ → Cl`. -/
+noncomputable def principalIdealToClassGroupKer (R : Type*) [CommRing R] [IsDomain R] :
+    (toPrincipalIdeal R (FractionRing R)).range →* (toClassGroup R).ker where
+  toFun J := ⟨QuotientGroup.mk' (narrowPrincipalIdeals R (FractionRing R))
+      (J : (FractionalIdeal R⁰ (FractionRing R))ˣ), by
+    rw [toClassGroup_ker]
+    exact ⟨J, J.property, rfl⟩⟩
+  map_one' := by
+    ext
+    rfl
+  map_mul' J K := by
+    ext
+    rfl
+
+/-- The principal-ideal map to `ker(Cl⁺ → Cl)` kills exactly the totally positive
+principal fractional ideals. -/
+theorem principalIdealToClassGroupKer_ker (R : Type*) [CommRing R] [IsDomain R] :
+    (principalIdealToClassGroupKer R).ker =
+      (narrowPrincipalIdeals R (FractionRing R)).subgroupOf
+        (toPrincipalIdeal R (FractionRing R)).range := by
+  ext J
+  constructor
+  · intro hJ
+    rw [MonoidHom.mem_ker] at hJ
+    have hJ' := congrArg Subtype.val hJ
+    change QuotientGroup.mk' (narrowPrincipalIdeals R (FractionRing R))
+        (J : (FractionalIdeal R⁰ (FractionRing R))ˣ) = 1 at hJ'
+    exact (QuotientGroup.eq_one_iff
+      (N := narrowPrincipalIdeals R (FractionRing R))
+      (J : (FractionalIdeal R⁰ (FractionRing R))ˣ)).mp hJ'
+  · intro hJ
+    rw [MonoidHom.mem_ker]
+    apply Subtype.ext
+    change QuotientGroup.mk' (narrowPrincipalIdeals R (FractionRing R))
+        (J : (FractionalIdeal R⁰ (FractionRing R))ˣ) = 1
+    exact (QuotientGroup.eq_one_iff
+      (N := narrowPrincipalIdeals R (FractionRing R))
+      (J : (FractionalIdeal R⁰ (FractionRing R))ˣ)).mpr hJ
+
+/-- Ordinary principal fractional ideals cover the kernel of `Cl⁺ → Cl`. -/
+theorem principalIdealToClassGroupKer_surjective
+    (R : Type*) [CommRing R] [IsDomain R] :
+    Function.Surjective (principalIdealToClassGroupKer R) := by
+  intro C
+  rcases C with ⟨C, hC⟩
+  rw [toClassGroup_ker] at hC
+  rcases hC with ⟨J, hJ, hC⟩
+  refine ⟨⟨J, hJ⟩, ?_⟩
+  ext
+  exact hC
+
+/-- The exact quotient form of the kernel of `Cl⁺ → Cl`:
+ordinary principal fractional ideals modulo totally positive principal fractional
+ideals are the kernel of the natural map from the narrow class group to the wide
+class group. -/
+noncomputable def principalIdealQuotientEquivToClassGroupKer
+    (R : Type*) [CommRing R] [IsDomain R] :
+    (toPrincipalIdeal R (FractionRing R)).range ⧸
+        (narrowPrincipalIdeals R (FractionRing R)).subgroupOf
+          (toPrincipalIdeal R (FractionRing R)).range ≃*
+      (toClassGroup R).ker :=
+  (QuotientGroup.quotientMulEquivOfEq
+      (principalIdealToClassGroupKer_ker R).symm).trans
+    (QuotientGroup.quotientKerEquivOfSurjective
+      (principalIdealToClassGroupKer R)
+      (principalIdealToClassGroupKer_surjective R))
+
+/-- Cardinality form of `principalIdealQuotientEquivToClassGroupKer`. -/
+theorem card_toClassGroup_ker_eq_card_principalIdealQuotient
+    (R : Type*) [CommRing R] [IsDomain R] :
+    Nat.card (toClassGroup R).ker =
+      Nat.card ((toPrincipalIdeal R (FractionRing R)).range ⧸
+        (narrowPrincipalIdeals R (FractionRing R)).subgroupOf
+          (toPrincipalIdeal R (FractionRing R)).range) :=
+  (Nat.card_congr (principalIdealQuotientEquivToClassGroupKer R).toEquiv).symm
+
 /-- Over the fraction field the canonical equivalence is the identity, so the
 ideal-class map is the bare quotient map. -/
 theorem mk_eq_mk' (I : (FractionalIdeal R⁰ (FractionRing R))ˣ) :

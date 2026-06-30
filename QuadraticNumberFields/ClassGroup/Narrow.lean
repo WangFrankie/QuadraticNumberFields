@@ -47,6 +47,12 @@ noncomputable abbrev narrowToClassGroup :
     Cl⁺(d) →* Cl(d) :=
   NarrowClassGroup.toClassGroup OK
 
+/-- The natural map from the narrow class group to the ordinary wide ideal class
+group is surjective. -/
+theorem narrowToClassGroup_surjective :
+    Function.Surjective (narrowToClassGroup d) :=
+  NarrowClassGroup.toClassGroup_surjective OK
+
 /-- If every unit of the fraction field of `𝓞(ℚ(√d))` is totally positive, then
 the narrow class group and ordinary wide class group are isomorphic. -/
 theorem nonempty_narrowMulEquivClassGroup_of_forall_isTotallyPositive

@@ -96,8 +96,7 @@ theorem narrowSquareQuotientToClassGroup_surjective
   apply QuotientGroup.map_surjective_of_surjective
   intro C
   obtain ⟨D, hD⟩ := QuotientGroup.mk'_surjective (Subgroup.square (Cl(d))) C
-  rcases NarrowClassGroup.toClassGroup_surjective
-      (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))) D with ⟨Dplus, hDplus⟩
+  rcases Qsqrtd.narrowToClassGroup_surjective d D with ⟨Dplus, hDplus⟩
   exact ⟨Dplus, by
     rw [Function.comp_apply, hDplus]
     exact hD⟩
