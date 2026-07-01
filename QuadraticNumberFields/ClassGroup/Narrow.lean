@@ -110,6 +110,34 @@ theorem nonempty_fractionRing_realEmbeddings (hd : 0 < d) :
   have hd_nonneg_real : 0 ≤ (d : ℝ) := by exact_mod_cast le_of_lt hd
   exact ⟨(Qsqrtd.realEmbeddingPos d hd_nonneg_real).toRingHom.comp e.toRingHom⟩
 
+/-- The fraction field of `𝓞(ℚ(√d))` has at most two real embeddings. -/
+theorem card_fractionRing_realEmbeddings_le_two :
+    Nat.card (FractionRing OK →+* ℝ) ≤ 2 := by
+  classical
+  letI : Algebra ℚ (Qsqrtd (d : ℚ)) := DivisionRing.toRatAlgebra
+  haveI : Algebra.IsQuadraticExtension ℚ (Qsqrtd (d : ℚ)) :=
+    { finrank_eq_two' := finrank_ratAlgebra_eq_two ((d : ℤ) : ℚ) }
+  haveI : QuadraticField (Qsqrtd (d : ℚ)) :=
+    { isQuadratic := inferInstance }
+  haveI : NumberField (Qsqrtd (d : ℚ)) :=
+    QuadraticField.instNumberField (Qsqrtd (d : ℚ))
+  haveI : IsFractionRing OK (Qsqrtd (d : ℚ)) := inferInstance
+  let e := IsLocalization.algEquiv OK⁰ (FractionRing OK) (Qsqrtd (d : ℚ))
+  let toComplex : (FractionRing OK →+* ℝ) → (Qsqrtd (d : ℚ) →+* ℂ) :=
+    fun σ => Complex.ofRealHom.comp (σ.comp e.symm.toRingHom)
+  have hinj : Function.Injective toComplex := by
+    intro σ τ hστ
+    ext x
+    obtain ⟨y, rfl⟩ := e.symm.surjective x
+    have hy := RingHom.congr_fun hστ y
+    exact Complex.ofReal_injective hy
+  have hle : Nat.card (FractionRing OK →+* ℝ) ≤ Nat.card (Qsqrtd (d : ℚ) →+* ℂ) :=
+    Nat.card_le_card_of_injective toComplex hinj
+  have hcomplex : Nat.card (Qsqrtd (d : ℚ) →+* ℂ) = 2 := by
+    rw [Nat.card_eq_fintype_card, NumberField.Embeddings.card]
+    exact finrank_ratAlgebra_eq_two ((d : ℤ) : ℚ)
+  exact hle.trans_eq hcomplex
+
 /-- For `d > 0`, the class of `-1` in `Kˣ/K⁺` is nontrivial. -/
 theorem quotient_mk'_negOne_ne_one (hd : 0 < d) :
     QuotientGroup.mk' (NarrowClassGroup.totallyPositiveUnits (FractionRing OK))
@@ -130,6 +158,25 @@ theorem unitsQuotientTotallyPositiveToPrincipalIdealQuotient_ker_ne_bot (hd : 0 
     simpa [hker] using hmem
   rw [Subgroup.mem_bot] at hbot
   exact quotient_mk'_negOne_ne_one d hd hbot
+
+/-- For `d > 0`, if the fraction field has at most two real embeddings, then
+the sign quotient modulo the diagonal sign represented by `-1` has cardinality
+dividing `2`. The remaining input is the real-quadratic embedding count. -/
+theorem card_signQuotientModuloNegOne_dvd_two_of_card_realEmbeddings_le_two
+    (hd : 0 < d)
+    (hemb : Nat.card (FractionRing OK →+* ℝ) ≤ 2) :
+    Nat.card (NarrowClassGroup.signQuotientModuloNegOne OK) ∣ 2 := by
+  haveI : Nonempty (FractionRing OK →+* ℝ) :=
+    nonempty_fractionRing_realEmbeddings d hd
+  exact NarrowClassGroup.card_signQuotientModuloNegOne_dvd_two_of_card_realEmbeddings_le_two
+    OK hemb
+
+/-- For `d > 0`, quotienting the sign quotient by the diagonal sign represented
+by `-1` leaves a group whose cardinality divides `2`. -/
+theorem card_signQuotientModuloNegOne_dvd_two (hd : 0 < d) :
+    Nat.card (NarrowClassGroup.signQuotientModuloNegOne OK) ∣ 2 :=
+  card_signQuotientModuloNegOne_dvd_two_of_card_realEmbeddings_le_two d hd
+    (card_fractionRing_realEmbeddings_le_two d)
 
 end Real
 

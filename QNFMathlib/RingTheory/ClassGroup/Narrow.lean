@@ -822,6 +822,59 @@ instance instFiniteUnitsQuotientTotallyPositiveUnits (K : Type*) [Field K]
   rw [totallyPositiveUnits_eq_ker]
   exact Finite.of_injective _ (QuotientGroup.kerLift_injective (signVectorHom K))
 
+/-- If the fraction field has at most two real embeddings and at least one real
+embedding, then quotienting the sign quotient by the diagonal sign represented
+by `-1` leaves a group whose cardinality divides `2`. -/
+theorem card_signQuotientModuloNegOne_dvd_two_of_card_realEmbeddings_le_two
+    (R : Type*) [CommRing R] [IsDomain R]
+    [Finite (FractionRing R →+* ℝ)] [Nonempty (FractionRing R →+* ℝ)]
+    (hemb : Nat.card (FractionRing R →+* ℝ) ≤ 2) :
+    Nat.card (signQuotientModuloNegOne R) ∣ 2 := by
+  classical
+  let A := (FractionRing R)ˣ ⧸ totallyPositiveUnits (FractionRing R)
+  let H : Subgroup A := negOneSignSubgroup R
+  have hA_dvd_target : Nat.card A ∣ Nat.card ((FractionRing R →+* ℝ) → ℤˣ) := by
+    have hA_eq : Nat.card A = Nat.card (signVectorHom (FractionRing R)).range := by
+      simpa [A] using card_unitsQuotientTotallyPositive_eq_card_signVectorRange (FractionRing R)
+    rw [hA_eq]
+    exact Subgroup.card_subgroup_dvd_card (signVectorHom (FractionRing R)).range
+  have htarget_le : Nat.card ((FractionRing R →+* ℝ) → ℤˣ) ≤ 4 := by
+    letI : Fintype (FractionRing R →+* ℝ) := Fintype.ofFinite _
+    have hemb' : Fintype.card (FractionRing R →+* ℝ) ≤ 2 := by
+      simpa [Nat.card_eq_fintype_card] using hemb
+    rw [Nat.card_eq_fintype_card]
+    rw [Fintype.card_fun, Fintype.card_units_int]
+    exact pow_le_pow_right' (by norm_num : 1 ≤ 2) hemb'
+  have hA_le : Nat.card A ≤ 4 := by
+    exact (Nat.le_of_dvd (Nat.card_pos (α := ((FractionRing R →+* ℝ) → ℤˣ)))
+      hA_dvd_target).trans htarget_le
+  have hH_card : Nat.card H = 2 := by
+    change Nat.card (Subgroup.zpowers
+      (QuotientGroup.mk' (totallyPositiveUnits (FractionRing R)) (-1 : (FractionRing R)ˣ))) =
+        2
+    have hg_ne :
+        QuotientGroup.mk' (totallyPositiveUnits (FractionRing R))
+          (-1 : (FractionRing R)ˣ) ≠ 1 :=
+      quotient_mk'_negOne_ne_one_of_nonempty_realEmbeddings
+    have hg_sq :
+        (QuotientGroup.mk' (totallyPositiveUnits (FractionRing R))
+          (-1 : (FractionRing R)ˣ)) ^ 2 = 1 := by
+      change QuotientGroup.mk' (totallyPositiveUnits (FractionRing R))
+        ((-1 : (FractionRing R)ˣ) ^ 2) = 1
+      norm_num
+    rw [Nat.card_zpowers]
+    exact orderOf_eq_prime (p := 2) hg_sq hg_ne
+  have hcard := H.card_mul_index
+  have hmul : 2 * Nat.card (signQuotientModuloNegOne R) = Nat.card A := by
+    simpa [H, A, signQuotientModuloNegOne, Subgroup.index, hH_card] using hcard
+  have hq_le : Nat.card (signQuotientModuloNegOne R) ≤ 2 := by
+    have : 2 * Nat.card (signQuotientModuloNegOne R) ≤ 4 := by
+      rw [hmul]
+      exact hA_le
+    omega
+  have hq_pos : 0 < Nat.card (signQuotientModuloNegOne R) := Nat.card_pos
+  interval_cases hq : Nat.card (signQuotientModuloNegOne R) <;> simp
+
 /-- If a domain has a number field as a fraction field, then its chosen `FractionRing`
 has only finitely many real embeddings. -/
 theorem finite_fractionRing_realEmbeddings_of_isFractionRing

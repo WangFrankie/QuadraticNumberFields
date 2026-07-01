@@ -199,37 +199,61 @@ theorem card_narrowSquareQuotientToClassGroup_ker_dvd_card_signQuotientModuloNeg
   (card_narrowSquareQuotientToClassGroup_ker_dvd_card_narrowToClassGroup_ker d).trans
     (Qsqrtd.card_narrowToClassGroup_ker_dvd_card_signQuotientModuloNegOne d)
 
-/-- If the narrow-to-wide kernel has cardinality dividing `2`, then so does the
-square-quotient correction kernel. -/
-theorem card_narrowSquareQuotientToClassGroup_ker_dvd_two_of_narrowToClassGroup_ker_dvd_two
+/-- If the sign quotient modulo the class of `-1` has cardinality dividing `2`,
+then so does the square-quotient correction kernel. -/
+theorem card_narrowSquareQuotientToClassGroup_ker_dvd_two_of_signQuotient_dvd_two
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
-    (hker : Nat.card (Qsqrtd.narrowToClassGroup d).ker ∣ 2) :
+    (hsign : Nat.card (NarrowClassGroup.signQuotientModuloNegOne
+      (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) ∣ 2) :
     Nat.card (narrowSquareQuotientToClassGroup d).ker ∣ 2 :=
-  (card_narrowSquareQuotientToClassGroup_ker_dvd_card_narrowToClassGroup_ker d).trans hker
+  (card_narrowSquareQuotientToClassGroup_ker_dvd_card_signQuotientModuloNegOne d).trans
+    hsign
 
-/-- If the narrow-to-wide kernel has cardinality dividing `2`, the correction
-factor on square quotients is either trivial or of order `2`. -/
-theorem card_narrowSquareQuotientToClassGroup_ker_eq_one_or_eq_two_of_narrowToClassGroup_ker_dvd_two
+/-- If the sign quotient modulo the class of `-1` has cardinality dividing `2`,
+the correction factor on square quotients is either trivial or of order `2`. -/
+theorem card_narrowSquareQuotientToClassGroup_ker_eq_one_or_eq_two_of_signQuotient_dvd_two
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
-    (hker : Nat.card (Qsqrtd.narrowToClassGroup d).ker ∣ 2) :
+    (hsign : Nat.card (NarrowClassGroup.signQuotientModuloNegOne
+      (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) ∣ 2) :
     Nat.card (narrowSquareQuotientToClassGroup d).ker = 1 ∨
       Nat.card (narrowSquareQuotientToClassGroup d).ker = 2 :=
   (Nat.dvd_prime Nat.prime_two).mp
-    (card_narrowSquareQuotientToClassGroup_ker_dvd_two_of_narrowToClassGroup_ker_dvd_two
-      d hker)
+    (card_narrowSquareQuotientToClassGroup_ker_dvd_two_of_signQuotient_dvd_two
+      d hsign)
 
-/-- If the narrow-to-wide kernel has cardinality dividing `2`, nontriviality of
-the square-quotient correction kernel identifies the correction factor as `2`. -/
-theorem card_narrowSquareQuotientToClassGroup_ker_eq_two_of_narrowToClassGroup_ker_dvd_two
+/-- If the sign quotient modulo the class of `-1` has cardinality dividing `2`,
+nontriviality of the square-quotient correction kernel identifies the correction
+factor as `2`. -/
+theorem card_narrowSquareQuotientToClassGroup_ker_eq_two_of_signQuotient_dvd_two
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
-    (hker : Nat.card (Qsqrtd.narrowToClassGroup d).ker ∣ 2)
+    (hsign : Nat.card (NarrowClassGroup.signQuotientModuloNegOne
+      (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) ∣ 2)
     (hne : Nat.card (narrowSquareQuotientToClassGroup d).ker ≠ 1) :
     Nat.card (narrowSquareQuotientToClassGroup d).ker = 2 := by
   rcases
-    card_narrowSquareQuotientToClassGroup_ker_eq_one_or_eq_two_of_narrowToClassGroup_ker_dvd_two
-      d hker with h | h
+    card_narrowSquareQuotientToClassGroup_ker_eq_one_or_eq_two_of_signQuotient_dvd_two
+      d hsign with h | h
   · exact absurd h hne
   · exact h
+
+/-- For positive discriminant, the square-quotient correction kernel has
+cardinality dividing `2`. -/
+theorem card_narrowSquareQuotientToClassGroup_ker_dvd_two_of_pos
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (hd : 0 < d) :
+    Nat.card (narrowSquareQuotientToClassGroup d).ker ∣ 2 :=
+  card_narrowSquareQuotientToClassGroup_ker_dvd_two_of_signQuotient_dvd_two d
+    (Qsqrtd.Real.card_signQuotientModuloNegOne_dvd_two d hd)
+
+/-- For positive discriminant, the square-quotient correction factor is either
+trivial or of order `2`. -/
+theorem card_narrowSquareQuotientToClassGroup_ker_eq_one_or_eq_two_of_pos
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (hd : 0 < d) :
+    Nat.card (narrowSquareQuotientToClassGroup d).ker = 1 ∨
+      Nat.card (narrowSquareQuotientToClassGroup d).ker = 2 :=
+  (Nat.dvd_prime Nat.prime_two).mp
+    (card_narrowSquareQuotientToClassGroup_ker_dvd_two_of_pos d hd)
 
 /-- If no nontrivial element of `ker(Cl⁺(d) → Cl(d))` is a square in `Cl⁺(d)`,
 then the square-quotient correction has the same cardinality as the
