@@ -11,8 +11,7 @@ import QuadraticNumberFields.Qsqrtd.Basic
 This module provides a QA-owned model of `ℤ[√d]` based on `QuadraticAlgebra ℤ d 0`,
 along with its embedding into `Q(√d)`.
 
-This file is deliberately independent of mathlib's `_root_.Zsqrtd` (`ℤ√d`); the
-bridge between the two models lives in `QuadraticNumberFields.Zsqrtd.MathlibBridge`.
+This file is deliberately independent of mathlib's `_root_.Zsqrtd` (`ℤ√d`).
 
 ## Main Definitions
 

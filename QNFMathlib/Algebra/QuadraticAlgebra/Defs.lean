@@ -59,8 +59,8 @@ variable {R : Type*} [CommRing R] {a : R}
 
 /-- The fundamental identity for `re + im` of a product in
 `QuadraticAlgebra R a 0`. -/
--- Repository use: this is the generic version behind the mathlib-`Zsqrtd`
--- coordinate identity used in `Zsqrtd/Ideals.lean`.
+-- Repository use: this is a generic coordinate identity for
+-- `QuadraticAlgebra R a 0` calculations.
 lemma mul_re_add_im_eq (x y : QuadraticAlgebra R a 0) :
     (x * y).re + (x * y).im =
       (x.re + x.im) * (y.re + y.im) + (a - 1) * x.im * y.im := by
@@ -69,8 +69,8 @@ lemma mul_re_add_im_eq (x y : QuadraticAlgebra R a 0) :
 
 /-- The fundamental identity for `re - im` of a product in
 `QuadraticAlgebra R a 0`. -/
--- Repository use: this is the generic version behind the mathlib-`Zsqrtd`
--- coordinate identity used in `Zsqrtd/Ideals.lean`.
+-- Repository use: this is a generic coordinate identity for
+-- `QuadraticAlgebra R a 0` calculations.
 lemma mul_re_sub_im_eq (x y : QuadraticAlgebra R a 0) :
     (x * y).re - (x * y).im =
       (x.re - x.im) * (y.re - y.im) + (a - 1) * x.im * y.im := by

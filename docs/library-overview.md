@@ -64,7 +64,7 @@ surface for Chapter 6 is the treatment of the prime `2`:
 ## Class Groups and Genus Theory
 
 Files under `QuadraticNumberFields/ClassGroup/` keep the ideal-class interface,
-Minkowski and small-norm tools, narrow class groups, and the genus-theory stack.
+small-norm tools, narrow class groups, and the genus-theory stack.
 The genus-theory branch is organized around:
 
 - prime-discriminant factors;

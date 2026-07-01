@@ -9,12 +9,8 @@ import QNFMathlib.Algebra.QuadraticAlgebra.Basic
 import QNFMathlib.Algebra.QuadraticAlgebra.Defs
 import QNFMathlib.Data.Nat.Squarefree
 import QNFMathlib.Data.Int.ModFour
-import QNFMathlib.Data.Int.Parity
-import QNFMathlib.Data.Int.Square
 import QNFMathlib.Data.Int.Squarefree
 import QNFMathlib.FieldTheory.Galois.Basic
-import QNFMathlib.GroupTheory.Index
-import QNFMathlib.NumberTheory.DirichletCharacter.Kronecker
 import QNFMathlib.NumberTheory.LegendreSymbol.JacobiSymbol
 import QNFMathlib.NumberTheory.LegendreSymbol.KroneckerSymbol
 import QNFMathlib.NumberTheory.LegendreSymbol.KroneckerSymbolPeriodicity
