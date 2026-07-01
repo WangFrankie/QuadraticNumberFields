@@ -511,6 +511,21 @@ theorem card_toClassGroup_ker_dvd_card_signQuotientModuloNegOne
   rw [card_toClassGroup_ker_eq_card_principalIdealQuotient]
   exact card_principalIdealQuotient_dvd_card_signQuotientModuloNegOne R
 
+/-- Exact cardinality form of the sign correction map:
+the kernel of `(Kˣ/K⁺)/⟨-1⟩ → P/P⁺`, times the kernel of `Cl⁺ → Cl`, has the
+cardinality of `(Kˣ/K⁺)/⟨-1⟩`. -/
+theorem card_signCorrection_ker_mul_card_toClassGroup_ker
+    (R : Type*) [CommRing R] [IsDomain R] :
+    Nat.card (signQuotientModuloNegOneToPrincipalIdealQuotient R).ker *
+        Nat.card (toClassGroup R).ker =
+      Nat.card (signQuotientModuloNegOne R) := by
+  have hcard := (signQuotientModuloNegOneToPrincipalIdealQuotient R).ker.card_mul_index
+  rw [Subgroup.index_ker,
+    MonoidHom.range_eq_top.mpr (signQuotientModuloNegOneToPrincipalIdealQuotient_surjective R),
+    Subgroup.card_top] at hcard
+  rw [card_toClassGroup_ker_eq_card_principalIdealQuotient]
+  exact hcard
+
 /-- Over the fraction field the canonical equivalence is the identity, so the
 ideal-class map is the bare quotient map. -/
 theorem mk_eq_mk' (I : (FractionalIdeal R⁰ (FractionRing R))ˣ) :

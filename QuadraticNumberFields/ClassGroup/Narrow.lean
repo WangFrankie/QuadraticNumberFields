@@ -223,6 +223,24 @@ theorem card_signQuotientModuloNegOne_eq_two (hd : 0 < d) :
     OK (card_fractionRing_realEmbeddings_le_two d)
     (NarrowClassGroup.signRatioHom_ne_one_of_pos_neg σ τ x hσpos hτneg)
 
+/-- For `d > 0`, the sign-correction exact sequence has cardinality
+`|ker((Kˣ/K⁺)/⟨-1⟩ → P/P⁺)| * |ker(Cl⁺ → Cl)| = 2`. -/
+theorem card_signCorrection_ker_mul_card_narrowToClassGroup_ker_eq_two
+    (hd : 0 < d) :
+    Nat.card (NarrowClassGroup.signQuotientModuloNegOneToPrincipalIdealQuotient OK).ker *
+        Nat.card (narrowToClassGroup d).ker = 2 := by
+  rw [NarrowClassGroup.card_signCorrection_ker_mul_card_toClassGroup_ker,
+    card_signQuotientModuloNegOne_eq_two d hd]
+
+/-- For `d > 0`, the kernel of `Cl⁺(d) → Cl(d)` is either trivial or has order
+`2`. -/
+theorem card_narrowToClassGroup_ker_eq_one_or_eq_two_of_pos (hd : 0 < d) :
+    Nat.card (narrowToClassGroup d).ker = 1 ∨
+      Nat.card (narrowToClassGroup d).ker = 2 :=
+  (Nat.dvd_prime Nat.prime_two).mp
+    ((card_narrowToClassGroup_ker_dvd_card_signQuotientModuloNegOne d).trans
+      (by rw [card_signQuotientModuloNegOne_eq_two d hd]))
+
 end Real
 
 namespace Imaginary
