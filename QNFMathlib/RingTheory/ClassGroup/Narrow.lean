@@ -55,6 +55,23 @@ theorem mem_totallyPositiveUnits_iff (x : Kˣ) :
     x ∈ totallyPositiveUnits K ↔ IsTotallyPositive (x : K) :=
   Iff.rfl
 
+/-- In a field with a real embedding, `-1` is not totally positive. -/
+theorem negOne_not_mem_totallyPositiveUnits_of_nonempty_realEmbeddings
+    [Nonempty (K →+* ℝ)] :
+    (-1 : Kˣ) ∉ totallyPositiveUnits K := by
+  rintro hneg
+  obtain ⟨σ⟩ := ‹Nonempty (K →+* ℝ)›
+  have hσ := (mem_totallyPositiveUnits_iff (x := (-1 : Kˣ))).mp hneg σ
+  norm_num at hσ
+
+/-- In a field with a real embedding, the class of `-1` in `Kˣ/K⁺` is nontrivial. -/
+theorem quotient_mk'_negOne_ne_one_of_nonempty_realEmbeddings
+    [Nonempty (K →+* ℝ)] :
+    QuotientGroup.mk' (totallyPositiveUnits K) (-1 : Kˣ) ≠ 1 := by
+  intro hneg
+  exact negOne_not_mem_totallyPositiveUnits_of_nonempty_realEmbeddings
+    ((QuotientGroup.eq_one_iff (-1 : Kˣ)).mp hneg)
+
 /-- In a field with no real embeddings, every element is vacuously totally
 positive. -/
 theorem isTotallyPositive_of_isEmpty [IsEmpty (K →+* ℝ)] (x : K) :
@@ -89,6 +106,25 @@ theorem narrowPrincipalIdeals_le_principalIdeals :
   intro I hI
   rcases hI with ⟨x, rfl⟩
   exact ⟨x.1, rfl⟩
+
+/-- A unit of the base ring generates the trivial principal fractional ideal. -/
+theorem toPrincipalIdeal_algebraMap_unit_eq_one (u : Rˣ) :
+    toPrincipalIdeal R K (Units.map (algebraMap R K).toMonoidHom u) = 1 := by
+  rw [← Units.val_inj]
+  rw [coe_toPrincipalIdeal]
+  change FractionalIdeal.spanSingleton R⁰ (algebraMap R K (u : R)) =
+    (1 : FractionalIdeal R⁰ K)
+  rw [← FractionalIdeal.coeIdeal_span_singleton (P := K) (u : R)]
+  rw [Ideal.span_singleton_eq_top.mpr u.isUnit]
+  rfl
+
+/-- Multiplying a principal fractional ideal generator by a unit of the base ring
+does not change the principal fractional ideal. -/
+theorem toPrincipalIdeal_mul_algebraMap_unit (γ : Kˣ) (u : Rˣ) :
+    toPrincipalIdeal R K (γ * Units.map (algebraMap R K).toMonoidHom u) =
+      toPrincipalIdeal R K γ := by
+  rw [map_mul, toPrincipalIdeal_algebraMap_unit_eq_one]
+  simp
 
 /-- If every field unit is totally positive, then the narrow principal ideals
 are exactly the ordinary principal fractional ideals. -/
@@ -185,6 +221,310 @@ theorem toClassGroup_mk' (R : Type*) [CommRing R] [IsDomain R]
     toClassGroup R (QuotientGroup.mk' (narrowPrincipalIdeals R (FractionRing R)) J) =
       QuotientGroup.mk' (toPrincipalIdeal R (FractionRing R)).range J :=
   QuotientGroup.map_mk' _ _ _ _ J
+
+/-- The natural map from the narrow class group to the ordinary wide class group is
+surjective. -/
+theorem toClassGroup_surjective (R : Type*) [CommRing R] [IsDomain R] :
+    Function.Surjective (toClassGroup R) := by
+  intro C
+  obtain ⟨J, hJ⟩ :=
+    QuotientGroup.mk'_surjective (toPrincipalIdeal R (FractionRing R)).range C
+  refine ⟨QuotientGroup.mk' (narrowPrincipalIdeals R (FractionRing R)) J, ?_⟩
+  rw [toClassGroup_mk']
+  exact hJ
+
+/-- The kernel of `Cl⁺ → Cl` is the image of ordinary principal fractional ideals
+in the narrow class group. -/
+theorem toClassGroup_ker (R : Type*) [CommRing R] [IsDomain R] :
+    (toClassGroup R).ker =
+      Subgroup.map (QuotientGroup.mk' (narrowPrincipalIdeals R (FractionRing R)))
+        (toPrincipalIdeal R (FractionRing R)).range := by
+  change (QuotientGroup.map (narrowPrincipalIdeals R (FractionRing R))
+      (toPrincipalIdeal R (FractionRing R)).range
+      (MonoidHom.id (FractionalIdeal R⁰ (FractionRing R))ˣ) _).ker = _
+  rw [QuotientGroup.ker_map]
+  simp
+
+/-- Ordinary principal fractional ideals map to the kernel of `Cl⁺ → Cl`. -/
+noncomputable def principalIdealToClassGroupKer (R : Type*) [CommRing R] [IsDomain R] :
+    (toPrincipalIdeal R (FractionRing R)).range →* (toClassGroup R).ker where
+  toFun J := ⟨QuotientGroup.mk' (narrowPrincipalIdeals R (FractionRing R))
+      (J : (FractionalIdeal R⁰ (FractionRing R))ˣ), by
+    rw [toClassGroup_ker]
+    exact ⟨J, J.property, rfl⟩⟩
+  map_one' := by
+    ext
+    rfl
+  map_mul' J K := by
+    ext
+    rfl
+
+/-- The principal-ideal map to `ker(Cl⁺ → Cl)` kills exactly the totally positive
+principal fractional ideals. -/
+theorem principalIdealToClassGroupKer_ker (R : Type*) [CommRing R] [IsDomain R] :
+    (principalIdealToClassGroupKer R).ker =
+      (narrowPrincipalIdeals R (FractionRing R)).subgroupOf
+        (toPrincipalIdeal R (FractionRing R)).range := by
+  ext J
+  constructor
+  · intro hJ
+    rw [MonoidHom.mem_ker] at hJ
+    have hJ' := congrArg Subtype.val hJ
+    change QuotientGroup.mk' (narrowPrincipalIdeals R (FractionRing R))
+        (J : (FractionalIdeal R⁰ (FractionRing R))ˣ) = 1 at hJ'
+    exact (QuotientGroup.eq_one_iff
+      (N := narrowPrincipalIdeals R (FractionRing R))
+      (J : (FractionalIdeal R⁰ (FractionRing R))ˣ)).mp hJ'
+  · intro hJ
+    rw [MonoidHom.mem_ker]
+    apply Subtype.ext
+    change QuotientGroup.mk' (narrowPrincipalIdeals R (FractionRing R))
+        (J : (FractionalIdeal R⁰ (FractionRing R))ˣ) = 1
+    exact (QuotientGroup.eq_one_iff
+      (N := narrowPrincipalIdeals R (FractionRing R))
+      (J : (FractionalIdeal R⁰ (FractionRing R))ˣ)).mpr hJ
+
+/-- Ordinary principal fractional ideals cover the kernel of `Cl⁺ → Cl`. -/
+theorem principalIdealToClassGroupKer_surjective
+    (R : Type*) [CommRing R] [IsDomain R] :
+    Function.Surjective (principalIdealToClassGroupKer R) := by
+  intro C
+  rcases C with ⟨C, hC⟩
+  rw [toClassGroup_ker] at hC
+  rcases hC with ⟨J, hJ, hC⟩
+  refine ⟨⟨J, hJ⟩, ?_⟩
+  ext
+  exact hC
+
+/-- The exact quotient form of the kernel of `Cl⁺ → Cl`:
+ordinary principal fractional ideals modulo totally positive principal fractional
+ideals are the kernel of the natural map from the narrow class group to the wide
+class group. -/
+noncomputable def principalIdealQuotientEquivToClassGroupKer
+    (R : Type*) [CommRing R] [IsDomain R] :
+    (toPrincipalIdeal R (FractionRing R)).range ⧸
+        (narrowPrincipalIdeals R (FractionRing R)).subgroupOf
+          (toPrincipalIdeal R (FractionRing R)).range ≃*
+      (toClassGroup R).ker :=
+  (QuotientGroup.quotientMulEquivOfEq
+      (principalIdealToClassGroupKer_ker R).symm).trans
+    (QuotientGroup.quotientKerEquivOfSurjective
+      (principalIdealToClassGroupKer R)
+      (principalIdealToClassGroupKer_surjective R))
+
+/-- Cardinality form of `principalIdealQuotientEquivToClassGroupKer`. -/
+theorem card_toClassGroup_ker_eq_card_principalIdealQuotient
+    (R : Type*) [CommRing R] [IsDomain R] :
+    Nat.card (toClassGroup R).ker =
+      Nat.card ((toPrincipalIdeal R (FractionRing R)).range ⧸
+        (narrowPrincipalIdeals R (FractionRing R)).subgroupOf
+          (toPrincipalIdeal R (FractionRing R)).range) :=
+  (Nat.card_congr (principalIdealQuotientEquivToClassGroupKer R).toEquiv).symm
+
+/-- Field units modulo totally positive units map to ordinary principal fractional
+ideals modulo totally positive principal fractional ideals. -/
+noncomputable def unitsQuotientTotallyPositiveToPrincipalIdealQuotient
+    (R : Type*) [CommRing R] [IsDomain R] :
+    (FractionRing R)ˣ ⧸ totallyPositiveUnits (FractionRing R) →*
+      (toPrincipalIdeal R (FractionRing R)).range ⧸
+        (narrowPrincipalIdeals R (FractionRing R)).subgroupOf
+          (toPrincipalIdeal R (FractionRing R)).range :=
+  QuotientGroup.lift (totallyPositiveUnits (FractionRing R))
+    ((QuotientGroup.mk'
+      ((narrowPrincipalIdeals R (FractionRing R)).subgroupOf
+        (toPrincipalIdeal R (FractionRing R)).range)).comp
+      (toPrincipalIdeal R (FractionRing R)).rangeRestrict)
+    (by
+      intro x hx
+      rw [MonoidHom.mem_ker]
+      change QuotientGroup.mk'
+          ((narrowPrincipalIdeals R (FractionRing R)).subgroupOf
+            (toPrincipalIdeal R (FractionRing R)).range)
+          ((toPrincipalIdeal R (FractionRing R)).rangeRestrict x) = 1
+      refine (QuotientGroup.eq_one_iff _).mpr ?_
+      rw [Subgroup.mem_subgroupOf]
+      exact ⟨⟨x, hx⟩, rfl⟩)
+
+theorem unitsQuotientTotallyPositiveToPrincipalIdealQuotient_mk'
+    (R : Type*) [CommRing R] [IsDomain R] (x : (FractionRing R)ˣ) :
+    unitsQuotientTotallyPositiveToPrincipalIdealQuotient R
+        (QuotientGroup.mk' (totallyPositiveUnits (FractionRing R)) x) =
+      QuotientGroup.mk'
+        ((narrowPrincipalIdeals R (FractionRing R)).subgroupOf
+          (toPrincipalIdeal R (FractionRing R)).range)
+        ((toPrincipalIdeal R (FractionRing R)).rangeRestrict x) :=
+  QuotientGroup.lift_mk' _ _ x
+
+/-- Units of the base ring are killed by the map `Kˣ/K⁺ → P/P⁺`. -/
+theorem algebraMap_unit_mem_unitsQuotientTotallyPositiveToPrincipalIdealQuotient_ker
+    (R : Type*) [CommRing R] [IsDomain R] (u : Rˣ) :
+    QuotientGroup.mk' (totallyPositiveUnits (FractionRing R))
+        (Units.map (algebraMap R (FractionRing R)).toMonoidHom u) ∈
+      (unitsQuotientTotallyPositiveToPrincipalIdealQuotient R).ker := by
+  rw [MonoidHom.mem_ker]
+  rw [unitsQuotientTotallyPositiveToPrincipalIdealQuotient_mk']
+  change QuotientGroup.mk'
+      ((narrowPrincipalIdeals R (FractionRing R)).subgroupOf
+        (toPrincipalIdeal R (FractionRing R)).range)
+      ((toPrincipalIdeal R (FractionRing R)).rangeRestrict
+        (Units.map (algebraMap R (FractionRing R)).toMonoidHom u)) = 1
+  refine (QuotientGroup.eq_one_iff _).mpr ?_
+  rw [Subgroup.mem_subgroupOf]
+  change toPrincipalIdeal R (FractionRing R)
+      (Units.map (algebraMap R (FractionRing R)).toMonoidHom u) ∈
+    narrowPrincipalIdeals R (FractionRing R)
+  rw [toPrincipalIdeal_algebraMap_unit_eq_one]
+  exact one_mem _
+
+/-- The class of `-1`, viewed as an element of `Kˣ/K⁺`, is killed by the map
+`Kˣ/K⁺ → P/P⁺`. -/
+theorem negOne_mem_unitsQuotientTotallyPositiveToPrincipalIdealQuotient_ker
+    (R : Type*) [CommRing R] [IsDomain R] :
+    QuotientGroup.mk' (totallyPositiveUnits (FractionRing R))
+        (-1 : (FractionRing R)ˣ) ∈
+      (unitsQuotientTotallyPositiveToPrincipalIdealQuotient R).ker := by
+  simpa using
+    algebraMap_unit_mem_unitsQuotientTotallyPositiveToPrincipalIdealQuotient_ker
+      (R := R) (-1 : Rˣ)
+
+/-- The subgroup generated by the class of `-1` in `Kˣ/K⁺`. -/
+def negOneSignSubgroup (R : Type*) [CommRing R] [IsDomain R] :
+    Subgroup ((FractionRing R)ˣ ⧸ totallyPositiveUnits (FractionRing R)) :=
+  Subgroup.zpowers
+    (QuotientGroup.mk' (totallyPositiveUnits (FractionRing R)) (-1 : (FractionRing R)ˣ))
+
+/-- The subgroup generated by the class of `-1` is normal. -/
+instance negOneSignSubgroup_normal (R : Type*) [CommRing R] [IsDomain R] :
+    (negOneSignSubgroup R).Normal :=
+  ⟨by
+    intro n hn g
+    convert hn using 1
+    rw [mul_comm g n, mul_assoc, mul_inv_cancel, mul_one]⟩
+
+/-- The field-unit sign quotient modulo the diagonal sign represented by `-1`. -/
+abbrev signQuotientModuloNegOne (R : Type*) [CommRing R] [IsDomain R] :=
+  ((FractionRing R)ˣ ⧸ totallyPositiveUnits (FractionRing R)) ⧸ negOneSignSubgroup R
+
+/-- The subgroup generated by the class of `-1` lies in the kernel of
+`Kˣ/K⁺ → P/P⁺`. -/
+theorem negOneSignSubgroup_le_unitsQuotientTotallyPositiveToPrincipalIdealQuotient_ker
+    (R : Type*) [CommRing R] [IsDomain R] :
+    negOneSignSubgroup R ≤
+      (unitsQuotientTotallyPositiveToPrincipalIdealQuotient R).ker := by
+  change Subgroup.zpowers
+      (QuotientGroup.mk' (totallyPositiveUnits (FractionRing R))
+        (-1 : (FractionRing R)ˣ)) ≤
+    (unitsQuotientTotallyPositiveToPrincipalIdealQuotient R).ker
+  rw [Subgroup.zpowers_le]
+  exact negOne_mem_unitsQuotientTotallyPositiveToPrincipalIdealQuotient_ker R
+
+/-- The map `Kˣ/K⁺ → P/P⁺` descends after quotienting by the class of `-1`. -/
+noncomputable def signQuotientModuloNegOneToPrincipalIdealQuotient
+    (R : Type*) [CommRing R] [IsDomain R] :
+    signQuotientModuloNegOne R →*
+      (toPrincipalIdeal R (FractionRing R)).range ⧸
+        (narrowPrincipalIdeals R (FractionRing R)).subgroupOf
+          (toPrincipalIdeal R (FractionRing R)).range :=
+  QuotientGroup.lift (negOneSignSubgroup R)
+    (unitsQuotientTotallyPositiveToPrincipalIdealQuotient R)
+    (negOneSignSubgroup_le_unitsQuotientTotallyPositiveToPrincipalIdealQuotient_ker R)
+
+/-- Evaluation of the descended map on a representative of `Kˣ/K⁺`. -/
+theorem signQuotientModuloNegOneToPrincipalIdealQuotient_mk'
+    (R : Type*) [CommRing R] [IsDomain R]
+    (x : (FractionRing R)ˣ ⧸ totallyPositiveUnits (FractionRing R)) :
+    signQuotientModuloNegOneToPrincipalIdealQuotient R
+        (QuotientGroup.mk' (negOneSignSubgroup R) x) =
+      unitsQuotientTotallyPositiveToPrincipalIdealQuotient R x :=
+  QuotientGroup.lift_mk'
+    (N := negOneSignSubgroup R)
+    (negOneSignSubgroup_le_unitsQuotientTotallyPositiveToPrincipalIdealQuotient_ker R) x
+
+/-- If the fraction field has a real embedding, then the map
+`Kˣ/K⁺ → P/P⁺` has nontrivial kernel: the class of `-1` is killed but is not
+itself totally positive. -/
+theorem signUnitKernel_ne_bot_of_nonempty_realEmbeddings
+    (R : Type*) [CommRing R] [IsDomain R] [Nonempty (FractionRing R →+* ℝ)] :
+    (unitsQuotientTotallyPositiveToPrincipalIdealQuotient R).ker ≠ ⊥ := by
+  intro hker
+  have hmem := negOne_mem_unitsQuotientTotallyPositiveToPrincipalIdealQuotient_ker R
+  have hbot : QuotientGroup.mk' (totallyPositiveUnits (FractionRing R))
+      (-1 : (FractionRing R)ˣ) ∈
+        (⊥ : Subgroup ((FractionRing R)ˣ ⧸ totallyPositiveUnits (FractionRing R))) := by
+    simpa [hker] using hmem
+  rw [Subgroup.mem_bot] at hbot
+  exact quotient_mk'_negOne_ne_one_of_nonempty_realEmbeddings hbot
+
+/-- The map `Kˣ/K⁺ → P/P⁺` is surjective: every ordinary principal fractional
+ideal is generated by a field unit. -/
+theorem unitsQuotientTotallyPositiveToPrincipalIdealQuotient_surjective
+    (R : Type*) [CommRing R] [IsDomain R] :
+    Function.Surjective (unitsQuotientTotallyPositiveToPrincipalIdealQuotient R) := by
+  intro C
+  obtain ⟨J, hJ⟩ :=
+    QuotientGroup.mk'_surjective
+      ((narrowPrincipalIdeals R (FractionRing R)).subgroupOf
+        (toPrincipalIdeal R (FractionRing R)).range) C
+  obtain ⟨x, hx⟩ := J.property
+  refine ⟨QuotientGroup.mk' (totallyPositiveUnits (FractionRing R)) x, ?_⟩
+  rw [unitsQuotientTotallyPositiveToPrincipalIdealQuotient_mk']
+  rw [← hJ]
+  congr 1
+  exact Subtype.ext hx
+
+/-- Cardinality consequence of the exact map `Kˣ/K⁺ → P/P⁺`. -/
+theorem card_principalIdealQuotient_dvd_card_unitsQuotientTotallyPositive
+    (R : Type*) [CommRing R] [IsDomain R] :
+    Nat.card ((toPrincipalIdeal R (FractionRing R)).range ⧸
+        (narrowPrincipalIdeals R (FractionRing R)).subgroupOf
+          (toPrincipalIdeal R (FractionRing R)).range) ∣
+      Nat.card ((FractionRing R)ˣ ⧸ totallyPositiveUnits (FractionRing R)) :=
+  Subgroup.card_dvd_of_surjective
+    (unitsQuotientTotallyPositiveToPrincipalIdealQuotient R)
+    (unitsQuotientTotallyPositiveToPrincipalIdealQuotient_surjective R)
+
+/-- The descended map from `(Kˣ/K⁺)/⟨-1⟩` to `P/P⁺` is still surjective. -/
+theorem signQuotientModuloNegOneToPrincipalIdealQuotient_surjective
+    (R : Type*) [CommRing R] [IsDomain R] :
+    Function.Surjective (signQuotientModuloNegOneToPrincipalIdealQuotient R) :=
+  QuotientGroup.lift_surjective_of_surjective (negOneSignSubgroup R)
+    (unitsQuotientTotallyPositiveToPrincipalIdealQuotient R)
+    (unitsQuotientTotallyPositiveToPrincipalIdealQuotient_surjective R)
+    (negOneSignSubgroup_le_unitsQuotientTotallyPositiveToPrincipalIdealQuotient_ker R)
+
+/-- Cardinality consequence of the sign correction by `-1`. -/
+theorem card_principalIdealQuotient_dvd_card_signQuotientModuloNegOne
+    (R : Type*) [CommRing R] [IsDomain R] :
+    Nat.card ((toPrincipalIdeal R (FractionRing R)).range ⧸
+        (narrowPrincipalIdeals R (FractionRing R)).subgroupOf
+          (toPrincipalIdeal R (FractionRing R)).range) ∣
+      Nat.card (signQuotientModuloNegOne R) :=
+  Subgroup.card_dvd_of_surjective
+    (signQuotientModuloNegOneToPrincipalIdealQuotient R)
+    (signQuotientModuloNegOneToPrincipalIdealQuotient_surjective R)
+
+/-- The kernel of `Cl⁺ → Cl` is bounded by the sign quotient modulo the class of
+`-1`. This is the cardinality form of the first visible sign correction. -/
+theorem card_toClassGroup_ker_dvd_card_signQuotientModuloNegOne
+    (R : Type*) [CommRing R] [IsDomain R] :
+    Nat.card (toClassGroup R).ker ∣ Nat.card (signQuotientModuloNegOne R) := by
+  rw [card_toClassGroup_ker_eq_card_principalIdealQuotient]
+  exact card_principalIdealQuotient_dvd_card_signQuotientModuloNegOne R
+
+/-- Exact cardinality form of the sign correction map:
+the kernel of `(Kˣ/K⁺)/⟨-1⟩ → P/P⁺`, times the kernel of `Cl⁺ → Cl`, has the
+cardinality of `(Kˣ/K⁺)/⟨-1⟩`. -/
+theorem card_signCorrection_ker_mul_card_toClassGroup_ker
+    (R : Type*) [CommRing R] [IsDomain R] :
+    Nat.card (signQuotientModuloNegOneToPrincipalIdealQuotient R).ker *
+        Nat.card (toClassGroup R).ker =
+      Nat.card (signQuotientModuloNegOne R) := by
+  have hcard := (signQuotientModuloNegOneToPrincipalIdealQuotient R).ker.card_mul_index
+  rw [Subgroup.index_ker,
+    MonoidHom.range_eq_top.mpr (signQuotientModuloNegOneToPrincipalIdealQuotient_surjective R),
+    Subgroup.card_top] at hcard
+  rw [card_toClassGroup_ker_eq_card_principalIdealQuotient]
+  exact hcard
 
 /-- Over the fraction field the canonical equivalence is the identity, so the
 ideal-class map is the bare quotient map. -/
@@ -445,6 +785,59 @@ theorem signVectorHom_apply (K : Type*) [Field K] (x : Kˣ) (σ : K →+* ℝ) :
     signVectorHom K x σ = realSignUnitHom (Units.map (σ : K →+* ℝ).toMonoidHom x) :=
   rfl
 
+/-- The product of the signs at two real embeddings. This is invariant under
+totally positive units, and also under multiplication by `-1`. -/
+noncomputable def signRatioHom {K : Type*} [Field K] (σ τ : K →+* ℝ) : Kˣ →* ℤˣ where
+  toFun x := realSignUnitHom (Units.map σ.toMonoidHom x) *
+    realSignUnitHom (Units.map τ.toMonoidHom x)
+  map_one' := by simp
+  map_mul' x y := by simp [mul_left_comm, mul_comm]
+
+/-- Evaluation of `signRatioHom`. -/
+theorem signRatioHom_apply {K : Type*} [Field K] (σ τ : K →+* ℝ) (x : Kˣ) :
+    signRatioHom σ τ x = realSignUnitHom (Units.map σ.toMonoidHom x) *
+      realSignUnitHom (Units.map τ.toMonoidHom x) :=
+  rfl
+
+/-- Totally positive units lie in the kernel of any two-embedding sign-ratio map. -/
+theorem totallyPositiveUnits_le_signRatioHom_ker {K : Type*} [Field K]
+    (σ τ : K →+* ℝ) :
+    totallyPositiveUnits K ≤ (signRatioHom σ τ).ker := by
+  intro x hx
+  rw [MonoidHom.mem_ker]
+  rw [signRatioHom_apply, realSignUnitHom_apply, realSignUnitHom_apply]
+  have hσ : 0 < ((Units.map σ.toMonoidHom x : ℝˣ) : ℝ) := by
+    simpa using (mem_totallyPositiveUnits_iff (K := K) x).mp hx σ
+  have hτ : 0 < ((Units.map τ.toMonoidHom x : ℝˣ) : ℝ) := by
+    simpa using (mem_totallyPositiveUnits_iff (K := K) x).mp hx τ
+  rw [if_pos hσ, if_pos hτ]
+  simp
+
+/-- The sign-ratio map kills `-1`, since it changes both signs. -/
+theorem signRatioHom_negOne {K : Type*} [Field K] (σ τ : K →+* ℝ) :
+    signRatioHom σ τ (-1 : Kˣ) = 1 := by
+  rw [signRatioHom_apply, realSignUnitHom_apply, realSignUnitHom_apply]
+  have hσ : ¬ 0 < ((Units.map σ.toMonoidHom (-1 : Kˣ) : ℝˣ) : ℝ) := by
+    norm_num
+  have hτ : ¬ 0 < ((Units.map τ.toMonoidHom (-1 : Kˣ) : ℝˣ) : ℝ) := by
+    norm_num
+  rw [if_neg hσ, if_neg hτ]
+  norm_num
+
+/-- If an element has opposite signs under two real embeddings, then its
+sign-ratio is nontrivial. -/
+theorem signRatioHom_ne_one_of_pos_neg {K : Type*} [Field K]
+    (σ τ : K →+* ℝ) (x : Kˣ)
+    (hσ : 0 < σ (x : K)) (hτ : τ (x : K) < 0) :
+    signRatioHom σ τ x ≠ 1 := by
+  rw [signRatioHom_apply, realSignUnitHom_apply, realSignUnitHom_apply]
+  have hσ' : 0 < ((Units.map σ.toMonoidHom x : ℝˣ) : ℝ) := by
+    simpa using hσ
+  have hτ' : ¬ 0 < ((Units.map τ.toMonoidHom x : ℝˣ) : ℝ) := by
+    simpa using not_lt.mpr hτ.le
+  rw [if_pos hσ', if_neg hτ']
+  norm_num
+
 /-- The subgroup of totally positive units is exactly the kernel of the sign-vector
 homomorphism. -/
 theorem totallyPositiveUnits_eq_ker (K : Type*) [Field K] :
@@ -466,6 +859,95 @@ theorem totallyPositiveUnits_eq_ker (K : Type*) [Field K] :
     rw [if_neg (by rw [hcoe]; exact hpos)] at hxσ
     exact absurd hxσ (by decide)
 
+/-- The quotient of field units by totally positive units is the group of sign
+vectors that occur from field units. -/
+noncomputable def unitsQuotientTotallyPositiveEquivSignVectorRange
+    (K : Type*) [Field K] :
+    Kˣ ⧸ totallyPositiveUnits K ≃* (signVectorHom K).range :=
+  (QuotientGroup.quotientMulEquivOfEq (totallyPositiveUnits_eq_ker K)).trans
+    (QuotientGroup.quotientKerEquivRange (signVectorHom K))
+
+/-- Cardinality form of `unitsQuotientTotallyPositiveEquivSignVectorRange`. -/
+theorem card_unitsQuotientTotallyPositive_eq_card_signVectorRange
+    (K : Type*) [Field K] :
+    Nat.card (Kˣ ⧸ totallyPositiveUnits K) = Nat.card (signVectorHom K).range :=
+  Nat.card_congr (unitsQuotientTotallyPositiveEquivSignVectorRange K).toEquiv
+
+/-- The two-embedding sign ratio descends to `Kˣ/K⁺`. -/
+noncomputable def unitsQuotientSignRatioHom
+    (R : Type*) [CommRing R] [IsDomain R] (σ τ : FractionRing R →+* ℝ) :
+    (FractionRing R)ˣ ⧸ totallyPositiveUnits (FractionRing R) →* ℤˣ :=
+  QuotientGroup.lift (totallyPositiveUnits (FractionRing R))
+    (signRatioHom σ τ) (totallyPositiveUnits_le_signRatioHom_ker σ τ)
+
+/-- Evaluation of the sign-ratio map on `Kˣ/K⁺`. -/
+theorem unitsQuotientSignRatioHom_mk'
+    (R : Type*) [CommRing R] [IsDomain R]
+    (σ τ : FractionRing R →+* ℝ) (x : (FractionRing R)ˣ) :
+    unitsQuotientSignRatioHom R σ τ
+        (QuotientGroup.mk' (totallyPositiveUnits (FractionRing R)) x) =
+      signRatioHom σ τ x :=
+  QuotientGroup.lift_mk' _ _ x
+
+/-- The subgroup generated by `-1` lies in the kernel of the descended
+sign-ratio map. -/
+theorem negOneSignSubgroup_le_unitsQuotientSignRatioHom_ker
+    (R : Type*) [CommRing R] [IsDomain R] (σ τ : FractionRing R →+* ℝ) :
+    negOneSignSubgroup R ≤ (unitsQuotientSignRatioHom R σ τ).ker := by
+  change Subgroup.zpowers
+      (QuotientGroup.mk' (totallyPositiveUnits (FractionRing R))
+        (-1 : (FractionRing R)ˣ)) ≤
+    (unitsQuotientSignRatioHom R σ τ).ker
+  rw [Subgroup.zpowers_le]
+  rw [MonoidHom.mem_ker, unitsQuotientSignRatioHom_mk']
+  exact signRatioHom_negOne σ τ
+
+/-- The two-embedding sign ratio descends further to the quotient by the diagonal
+sign represented by `-1`. -/
+noncomputable def signQuotientModuloNegOneSignRatioHom
+    (R : Type*) [CommRing R] [IsDomain R] (σ τ : FractionRing R →+* ℝ) :
+    signQuotientModuloNegOne R →* ℤˣ :=
+  QuotientGroup.lift (negOneSignSubgroup R) (unitsQuotientSignRatioHom R σ τ)
+    (negOneSignSubgroup_le_unitsQuotientSignRatioHom_ker R σ τ)
+
+/-- Evaluation of the sign-ratio map on the quotient by the diagonal sign. -/
+theorem signQuotientModuloNegOneSignRatioHom_mk'
+    (R : Type*) [CommRing R] [IsDomain R]
+    (σ τ : FractionRing R →+* ℝ) (x : (FractionRing R)ˣ) :
+    signQuotientModuloNegOneSignRatioHom R σ τ
+        (QuotientGroup.mk' (negOneSignSubgroup R)
+          (QuotientGroup.mk' (totallyPositiveUnits (FractionRing R)) x)) =
+      signRatioHom σ τ x := by
+  have h := QuotientGroup.lift_mk'
+    (N := negOneSignSubgroup R)
+    (φ := unitsQuotientSignRatioHom R σ τ)
+    (negOneSignSubgroup_le_unitsQuotientSignRatioHom_ker R σ τ)
+    (QuotientGroup.mk' (totallyPositiveUnits (FractionRing R)) x)
+  rw [unitsQuotientSignRatioHom_mk'] at h
+  simpa [signQuotientModuloNegOneSignRatioHom, QuotientGroup.mk'] using h
+
+/-- An element with nontrivial sign ratio gives a nontrivial class in the sign
+quotient modulo the diagonal sign. -/
+theorem signQuotientModuloNegOne_nontrivial_of_signRatio_ne_one
+    (R : Type*) [CommRing R] [IsDomain R]
+    (σ τ : FractionRing R →+* ℝ) (x : (FractionRing R)ˣ)
+    (hx : signRatioHom σ τ x ≠ 1) :
+    QuotientGroup.mk' (negOneSignSubgroup R)
+        (QuotientGroup.mk' (totallyPositiveUnits (FractionRing R)) x) ≠ 1 := by
+  intro hq
+  have hmap := congrArg (signQuotientModuloNegOneSignRatioHom R σ τ) hq
+  rw [signQuotientModuloNegOneSignRatioHom_mk', map_one] at hmap
+  exact hx hmap
+
+/-- The correction kernel `ker(Cl⁺ → Cl)` is bounded by the realized sign-vector
+group: its cardinal divides the number of sign vectors attained by field units. -/
+theorem card_toClassGroup_ker_dvd_card_signVectorRange
+    (R : Type*) [CommRing R] [IsDomain R] :
+    Nat.card (toClassGroup R).ker ∣ Nat.card (signVectorHom (FractionRing R)).range := by
+  rw [card_toClassGroup_ker_eq_card_principalIdealQuotient]
+  simpa [card_unitsQuotientTotallyPositive_eq_card_signVectorRange] using
+    card_principalIdealQuotient_dvd_card_unitsQuotientTotallyPositive R
+
 /-- The quotient of the unit group by the totally positive units is finite when there
 are finitely many real embeddings, since it embeds into the finite group of sign
 vectors. -/
@@ -473,6 +955,78 @@ instance instFiniteUnitsQuotientTotallyPositiveUnits (K : Type*) [Field K]
     [Finite (K →+* ℝ)] : Finite (Kˣ ⧸ totallyPositiveUnits K) := by
   rw [totallyPositiveUnits_eq_ker]
   exact Finite.of_injective _ (QuotientGroup.kerLift_injective (signVectorHom K))
+
+/-- If the fraction field has at most two real embeddings and at least one real
+embedding, then quotienting the sign quotient by the diagonal sign represented
+by `-1` leaves a group whose cardinality divides `2`. -/
+theorem card_signQuotientModuloNegOne_dvd_two_of_card_realEmbeddings_le_two
+    (R : Type*) [CommRing R] [IsDomain R]
+    [Finite (FractionRing R →+* ℝ)] [Nonempty (FractionRing R →+* ℝ)]
+    (hemb : Nat.card (FractionRing R →+* ℝ) ≤ 2) :
+    Nat.card (signQuotientModuloNegOne R) ∣ 2 := by
+  classical
+  let A := (FractionRing R)ˣ ⧸ totallyPositiveUnits (FractionRing R)
+  let H : Subgroup A := negOneSignSubgroup R
+  have hA_dvd_target : Nat.card A ∣ Nat.card ((FractionRing R →+* ℝ) → ℤˣ) := by
+    have hA_eq : Nat.card A = Nat.card (signVectorHom (FractionRing R)).range := by
+      simpa [A] using card_unitsQuotientTotallyPositive_eq_card_signVectorRange (FractionRing R)
+    rw [hA_eq]
+    exact Subgroup.card_subgroup_dvd_card (signVectorHom (FractionRing R)).range
+  have htarget_le : Nat.card ((FractionRing R →+* ℝ) → ℤˣ) ≤ 4 := by
+    letI : Fintype (FractionRing R →+* ℝ) := Fintype.ofFinite _
+    have hemb' : Fintype.card (FractionRing R →+* ℝ) ≤ 2 := by
+      simpa [Nat.card_eq_fintype_card] using hemb
+    rw [Nat.card_eq_fintype_card]
+    rw [Fintype.card_fun, Fintype.card_units_int]
+    exact pow_le_pow_right' (by norm_num : 1 ≤ 2) hemb'
+  have hA_le : Nat.card A ≤ 4 := by
+    exact (Nat.le_of_dvd (Nat.card_pos (α := ((FractionRing R →+* ℝ) → ℤˣ)))
+      hA_dvd_target).trans htarget_le
+  have hH_card : Nat.card H = 2 := by
+    change Nat.card (Subgroup.zpowers
+      (QuotientGroup.mk' (totallyPositiveUnits (FractionRing R)) (-1 : (FractionRing R)ˣ))) =
+        2
+    have hg_ne :
+        QuotientGroup.mk' (totallyPositiveUnits (FractionRing R))
+          (-1 : (FractionRing R)ˣ) ≠ 1 :=
+      quotient_mk'_negOne_ne_one_of_nonempty_realEmbeddings
+    have hg_sq :
+        (QuotientGroup.mk' (totallyPositiveUnits (FractionRing R))
+          (-1 : (FractionRing R)ˣ)) ^ 2 = 1 := by
+      change QuotientGroup.mk' (totallyPositiveUnits (FractionRing R))
+        ((-1 : (FractionRing R)ˣ) ^ 2) = 1
+      norm_num
+    rw [Nat.card_zpowers]
+    exact orderOf_eq_prime (p := 2) hg_sq hg_ne
+  have hcard := H.card_mul_index
+  have hmul : 2 * Nat.card (signQuotientModuloNegOne R) = Nat.card A := by
+    simpa [H, A, signQuotientModuloNegOne, Subgroup.index, hH_card] using hcard
+  have hq_le : Nat.card (signQuotientModuloNegOne R) ≤ 2 := by
+    have : 2 * Nat.card (signQuotientModuloNegOne R) ≤ 4 := by
+      rw [hmul]
+      exact hA_le
+    omega
+  have hq_pos : 0 < Nat.card (signQuotientModuloNegOne R) := Nat.card_pos
+  interval_cases hq : Nat.card (signQuotientModuloNegOne R) <;> simp
+
+/-- If the two-embedding sign quotient modulo `-1` is nontrivial and has at most
+two elements, then it has exactly two elements. -/
+theorem card_signQuotientModuloNegOne_eq_two_of_signRatio_ne_one
+    (R : Type*) [CommRing R] [IsDomain R]
+    [Finite (FractionRing R →+* ℝ)] [Nonempty (FractionRing R →+* ℝ)]
+    (hemb : Nat.card (FractionRing R →+* ℝ) ≤ 2)
+    {σ τ : FractionRing R →+* ℝ} {x : (FractionRing R)ˣ}
+    (hx : signRatioHom σ τ x ≠ 1) :
+    Nat.card (signQuotientModuloNegOne R) = 2 := by
+  rcases (Nat.dvd_prime Nat.prime_two).mp
+      (card_signQuotientModuloNegOne_dvd_two_of_card_realEmbeddings_le_two R hemb) with
+    hcard | hcard
+  · have hnontrivial :=
+      signQuotientModuloNegOne_nontrivial_of_signRatio_ne_one R σ τ x hx
+    have hsubsingleton : Subsingleton (signQuotientModuloNegOne R) :=
+      (Nat.card_eq_one_iff_unique.mp hcard).1
+    exact False.elim (hnontrivial (Subsingleton.elim _ 1))
+  · exact hcard
 
 /-- If a domain has a number field as a fraction field, then its chosen `FractionRing`
 has only finitely many real embeddings. -/
@@ -503,45 +1057,13 @@ instance instFiniteNarrowClassGroup (R : Type*) [CommRing R] [IsDomain R]
     Finite (NarrowClassGroup R) := by
   rw [(toClassGroup R).finite_iff_finite_ker_range]
   refine ⟨?_, ?_⟩
-  · -- The kernel of `toClassGroup` is contained in the range of the principal-ideal
-    -- map from `(FractionRing R)ˣ`, which factors through the finite quotient by the
-    -- totally positive units.
-    let φ : (FractionRing R)ˣ →* NarrowClassGroup R :=
-      mk.comp (toPrincipalIdeal R (FractionRing R))
-    have hker : totallyPositiveUnits (FractionRing R) ≤ φ.ker := by
-      intro x hx
-      rw [MonoidHom.mem_ker]
-      change mk (toPrincipalIdeal R (FractionRing R) x) = 1
-      rw [mk_eq_mk']
-      exact (QuotientGroup.eq_one_iff _).mpr ⟨⟨x, hx⟩, rfl⟩
-    have hrange_fin : Finite ↥φ.range := by
-      let L := QuotientGroup.lift (totallyPositiveUnits (FractionRing R)) φ hker
-      have hLrange : φ.range = L.range := by
-        ext y
-        simp only [MonoidHom.mem_range]
-        constructor
-        · rintro ⟨x, rfl⟩
-          exact ⟨QuotientGroup.mk' _ x, QuotientGroup.lift_mk' _ _ x⟩
-        · rintro ⟨z, rfl⟩
-          obtain ⟨x, rfl⟩ :=
-            QuotientGroup.mk'_surjective (totallyPositiveUnits (FractionRing R)) z
-          exact ⟨x, (QuotientGroup.lift_mk' _ _ x).symm⟩
-      rw [hLrange]
-      exact Finite.of_surjective L.rangeRestrict (MonoidHom.rangeRestrict_surjective L)
-    have hle : (toClassGroup R).ker ≤ φ.range := by
-      intro C hC
-      obtain ⟨I, rfl⟩ :=
-        QuotientGroup.mk'_surjective (narrowPrincipalIdeals R (FractionRing R)) C
-      rw [← mk_eq_mk'] at hC ⊢
-      rw [MonoidHom.mem_ker, toClassGroup_mk, ← map_one (ClassGroup.mk (K := FractionRing R)),
-        ClassGroup.mk_eq_mk] at hC
-      obtain ⟨x, hx⟩ := hC
-      refine ⟨x⁻¹, ?_⟩
-      have hI : toPrincipalIdeal R (FractionRing R) x⁻¹ = I := by
-        rw [map_inv]; exact inv_eq_of_mul_eq_one_left hx
-      change mk (toPrincipalIdeal R (FractionRing R) x⁻¹) = mk I
-      rw [hI]
-    exact Finite.of_injective (Subgroup.inclusion hle) (Subgroup.inclusion_injective hle)
+  · letI : Finite ((toPrincipalIdeal R (FractionRing R)).range ⧸
+        (narrowPrincipalIdeals R (FractionRing R)).subgroupOf
+          (toPrincipalIdeal R (FractionRing R)).range) :=
+      Finite.of_surjective
+        (unitsQuotientTotallyPositiveToPrincipalIdealQuotient R)
+        (unitsQuotientTotallyPositiveToPrincipalIdealQuotient_surjective R)
+    exact Finite.of_equiv _ (principalIdealQuotientEquivToClassGroupKer R).toEquiv
   · -- The range of `toClassGroup` is a subgroup of the finite wide class group.
     infer_instance
 
