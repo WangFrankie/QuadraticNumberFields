@@ -3,11 +3,8 @@ version = "0.2.0"
 keywords = ["math", "number-theory", "quadratic-fields"]
 defaultTargets = [
   "QNFMathlib",
-  "BinaryQuadraticForms",
   "QuadraticNumberFields",
-  "FormClassGroup",
-  "ImaginaryClassNumberOne",
-  "Examples"
+  "ImaginaryClassNumberOne"
 ]
 lintDriver = "runLinter"
 
@@ -23,10 +20,6 @@ scope = "leanprover-community"
 rev = "v4.30.0-rc2"
 
 [[require]]
-name = "FiniteAbelianSmith"
-git = "https://github.com/WangFrankie/FiniteAbelianSmith"
-
-[[require]]
 name = "repl"
 git = "https://github.com/leanprover-community/repl"
 rev = "v4.30.0-rc2"
@@ -39,19 +32,10 @@ git = "https://github.com/PatrickMassot/checkdecls.git"
 name = "QNFMathlib"
 
 [[lean_lib]]
-name = "BinaryQuadraticForms"
-
-[[lean_lib]]
 name = "QuadraticNumberFields"
 
 [[lean_lib]]
-name = "FormClassGroup"
-
-[[lean_lib]]
 name = "ImaginaryClassNumberOne"
-
-[[lean_lib]]
-name = "Examples"
 
 [[lean_exe]]
 name = "runLinter"

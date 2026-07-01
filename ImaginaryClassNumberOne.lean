@@ -4,18 +4,17 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 
-import ImaginaryClassNumberOne.ClassNumberOne
-import ImaginaryClassNumberOne.ClassNumberOneByForms
-import ImaginaryClassNumberOne.Diophantine
-import ImaginaryClassNumberOne.Framework
+import QuadraticNumberFields.ClassGroup.GenusTheory.Sieve
 import ImaginaryClassNumberOne.IdealReductions
-import ImaginaryClassNumberOne.StarkHeegner
-import ImaginaryClassNumberOne.WeberData.Core
-import ImaginaryClassNumberOne.WeberData.FormsProvider
 
 /-!
-# Imaginary Class Number One
+# Two Filters for Imaginary Class Number One
 
-This library contains the class-number-one theorems for the nine Heegner
-numbers and the Baker--Heegner--Stark statement framework.
+This branch keeps the two class-number-one filters used in the MSc thesis:
+
+* the prime `2` filter from ideal-theoretic norm reductions;
+* the genus-theory filter from the prime-discriminant sieve.
+
+The full Baker--Heegner--Stark provider layer and form-class-group backend are
+outside this branch.
 -/

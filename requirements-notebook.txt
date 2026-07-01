@@ -1,2 +1,0 @@
-jupyterlab>=4,<5
-lean4_jupyter==0.0.2

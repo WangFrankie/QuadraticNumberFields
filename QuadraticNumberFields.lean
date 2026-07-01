@@ -46,11 +46,8 @@ import QuadraticNumberFields.ClassGroup.Torsion
 import QuadraticNumberFields.ClassGroup.Narrow
 import QuadraticNumberFields.ClassGroup.Minkowski
 import QuadraticNumberFields.ClassGroup.SmallNorm
+import QuadraticNumberFields.ClassGroup.GenusTheory
 import QuadraticNumberFields.Qsqrtd.TotallyRealComplex
-import QuadraticNumberFields.Units.Pell
-import QuadraticNumberFields.Units.Imaginary
-import QuadraticNumberFields.Units.Fundamental
-import QuadraticNumberFields.Units.Families
 
 /-!
 # Quadratic Number Fields
@@ -63,12 +60,13 @@ including:
 * Ring of integers classification (`ℤ[√d]` vs `ℤ[(1+√d)/2]`)
 * Discriminant formulas
 * Totally real/complex classification
-* Unit groups: Pell-type units, torsion classification in the imaginary case,
-  fundamental units, and explicit Richaud-Degert unit candidates
+* Prime splitting and ideal-class tools
+* Narrow class groups and genus-theory filters
 
 ## Main Import
 
-This file is the main entry point for the core quadratic-number-field library.
-App layers such as form class groups, imaginary class-number-one results, and
-examples live in separate Lake libraries.
+This file is the main entry point for the `qnf-genus-core` branch. It keeps the
+formalisation surface aligned with the MSc thesis route: quadratic-field
+arithmetic, rings of integers, prime splitting, ideal classes, narrow class
+groups, and genus theory.
 -/
