@@ -326,6 +326,30 @@ theorem card_classGroupSquareQuotient_eq_two_pow_sub_two_of_correction_eq_two
   rw [two_pow_sub_one_eq_two_mul_two_pow_sub_two hcount] at hmain
   exact Nat.mul_left_cancel (by norm_num : 0 < 2) hmain
 
+/-- In the positive-discriminant branch where the sign correction kernel has
+order `2`, the induced ordinary square-quotient correction is trivial, so the
+ordinary class-group square quotient keeps the narrow genus-formula size. -/
+theorem card_classGroupSquareQuotient_eq_two_pow_sub_one_of_signCorrection_ker_eq_two
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (hd : 0 < d)
+    (hsign : Nat.card
+      (NarrowClassGroup.signQuotientModuloNegOneToPrincipalIdealQuotient
+        (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))).ker = 2) :
+    Nat.card (Cl(d) ⧸ Subgroup.square (Cl(d))) =
+      2 ^ (ramifiedPrimeCount d - 1) := by
+  have hprod := Qsqrtd.Real.card_signCorrection_ker_mul_card_narrowToClassGroup_ker_eq_two
+    d hd
+  have hnarrow : Nat.card (Qsqrtd.narrowToClassGroup d).ker = 1 := by
+    rw [hsign] at hprod
+    omega
+  have hdvd := card_narrowSquareQuotientToClassGroup_ker_dvd_card_narrowToClassGroup_ker d
+  have hcor : Nat.card (narrowSquareQuotientToClassGroup d).ker = 1 := by
+    rw [hnarrow] at hdvd
+    exact Nat.eq_one_of_dvd_one hdvd
+  have hmain := card_classGroupSquareQuotient_mul_correction_eq_two_pow_sub_one d
+  rw [hcor, one_mul] at hmain
+  exact hmain
+
 /-- The genus formula is equivalent to the principal-genus kernel statement for the
 genus-character map. -/
 theorem genusFormula_iff_genusCharacterMap_ker_eq_square
@@ -339,6 +363,79 @@ theorem genusFormula_iff_genusCharacterMap_ker_eq_square
       (genusQuotientEquiv d).injective
   · intro _
     exact genusFormula d
+
+/-- The square-disjoint condition for `ker(Cl⁺(d) → Cl(d))` is equivalent to
+genus characters detecting that kernel. This is the group-theoretic form of the
+remaining positive-discriminant correction input. -/
+theorem narrowToClassGroup_ker_inf_square_eq_bot_iff_genusCharacterMap_subgroupMap_injective
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
+    (Qsqrtd.narrowToClassGroup d).ker ⊓ Subgroup.square (Cl⁺(d)) = ⊥ ↔
+      Function.Injective
+        ((genusCharacterMap d).subgroupMap (Qsqrtd.narrowToClassGroup d).ker) := by
+  let K := (Qsqrtd.narrowToClassGroup d).ker
+  change K ⊓ Subgroup.square (Cl⁺(d)) = ⊥ ↔
+    Function.Injective ((genusCharacterMap d).subgroupMap K)
+  have hsq : (genusCharacterMap d).ker = Subgroup.square (Cl⁺(d)) :=
+    (genusFormula_iff_genusCharacterMap_ker_eq_square d).mp (genusFormula d)
+  rw [← hsq, ← MonoidHom.ker_eq_bot_iff]
+  constructor
+  · intro hdisj
+    ext x
+    constructor
+    · intro hx
+      rw [MonoidHom.mem_ker] at hx
+      have hxφ : genusCharacterMap d (x : Cl⁺(d)) = 1 := congrArg Subtype.val hx
+      have hxinf : (x : Cl⁺(d)) ∈ K ⊓ (genusCharacterMap d).ker := by
+        exact ⟨x.2, hxφ⟩
+      have hxbot : (x : Cl⁺(d)) ∈ (⊥ : Subgroup (Cl⁺(d))) := by
+        simpa [hdisj] using hxinf
+      rw [Subgroup.mem_bot] at hxbot
+      exact Subtype.ext hxbot
+    · intro hx
+      rw [Subgroup.mem_bot] at hx
+      simp [hx]
+  · intro hker
+    ext x
+    constructor
+    · intro hx
+      rw [Subgroup.mem_bot]
+      have hxker : (⟨x, hx.1⟩ : K) ∈ ((genusCharacterMap d).subgroupMap K).ker := by
+        rw [MonoidHom.mem_ker]
+        exact Subtype.ext (MonoidHom.mem_ker.mp hx.2)
+      have hxbot : (⟨x, hx.1⟩ : K) ∈ (⊥ : Subgroup K) := by
+        simpa [hker] using hxker
+      rw [Subgroup.mem_bot] at hxbot
+      exact congrArg Subtype.val hxbot
+    · intro hx
+      rw [Subgroup.mem_bot] at hx
+      simp [hx]
+
+/-- In the positive-discriminant branch where the sign correction kernel is
+trivial, genus characters detecting the narrow-to-wide kernel give the
+nontrivial ordinary square-quotient correction factor. -/
+theorem card_classGroupSquareQuotient_eq_two_pow_sub_two_of_signCorrection_ker_eq_one_of_detects_ker
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (hd : 0 < d)
+    (hsign : Nat.card
+      (NarrowClassGroup.signQuotientModuloNegOneToPrincipalIdealQuotient
+        (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))).ker = 1)
+    (hdetect :
+      Function.Injective
+        ((genusCharacterMap d).subgroupMap (Qsqrtd.narrowToClassGroup d).ker))
+    (hcount : 2 ≤ ramifiedPrimeCount d) :
+    Nat.card (Cl(d) ⧸ Subgroup.square (Cl(d))) =
+      2 ^ (ramifiedPrimeCount d - 2) := by
+  have hdisj :=
+    (narrowToClassGroup_ker_inf_square_eq_bot_iff_genusCharacterMap_subgroupMap_injective d).mpr
+      hdetect
+  have hprod := Qsqrtd.Real.card_signCorrection_ker_mul_card_narrowToClassGroup_ker_eq_two
+    d hd
+  have hnarrow : Nat.card (Qsqrtd.narrowToClassGroup d).ker = 2 := by
+    rw [hsign, one_mul] at hprod
+    exact hprod
+  exact card_classGroupSquareQuotient_eq_two_pow_sub_two_of_correction_eq_two d
+    (card_narrowSquareQuotientToClassGroup_ker_eq_two_of_narrowToClassGroup_ker d
+      hnarrow hdisj) hcount
 
 /-- The narrow two-torsion has cardinality equal to the number of genera. -/
 theorem card_narrowClassGroupTwoTorsion_eq_numberOfGenera
