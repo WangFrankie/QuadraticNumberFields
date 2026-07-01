@@ -178,6 +178,51 @@ theorem card_signQuotientModuloNegOne_dvd_two (hd : 0 < d) :
   card_signQuotientModuloNegOne_dvd_two_of_card_realEmbeddings_le_two d hd
     (card_fractionRing_realEmbeddings_le_two d)
 
+/-- For `d > 0`, the field-unit sign quotient modulo the diagonal sign
+represented by `-1` has exactly two elements. -/
+theorem card_signQuotientModuloNegOne_eq_two (hd : 0 < d) :
+    Nat.card (NarrowClassGroup.signQuotientModuloNegOne OK) = 2 := by
+  haveI : Nonempty (FractionRing OK →+* ℝ) :=
+    nonempty_fractionRing_realEmbeddings d hd
+  haveI : Algebra.IsQuadraticExtension ℚ (Qsqrtd (d : ℚ)) :=
+    { finrank_eq_two' := QuadraticAlgebra.finrank_eq_two ((d : ℤ) : ℚ) 0 }
+  haveI : QuadraticField (Qsqrtd (d : ℚ)) :=
+    { isQuadratic := inferInstance }
+  haveI : NumberField (Qsqrtd (d : ℚ)) :=
+    QuadraticField.instNumberField (Qsqrtd (d : ℚ))
+  haveI : IsFractionRing OK (Qsqrtd (d : ℚ)) := inferInstance
+  let e := IsLocalization.algEquiv OK⁰ (FractionRing OK) (Qsqrtd (d : ℚ))
+  have hd_nonneg_real : 0 ≤ (d : ℝ) := by exact_mod_cast le_of_lt hd
+  let σ : FractionRing OK →+* ℝ :=
+    (realEmbeddingPos d hd_nonneg_real).toRingHom.comp e.toRingHom
+  let τ : FractionRing OK →+* ℝ :=
+    (realEmbeddingNeg d hd_nonneg_real).toRingHom.comp e.toRingHom
+  have homega_ne_zero : (QuadraticAlgebra.omega : Qsqrtd (d : ℚ)) ≠ 0 := by
+    intro h
+    have him := congrArg QuadraticAlgebra.im h
+    norm_num at him
+  have hx0 : e.symm QuadraticAlgebra.omega ≠ 0 := by
+    intro h
+    apply homega_ne_zero
+    have hmap := congrArg e h
+    simpa using hmap
+  let x : (FractionRing OK)ˣ := Units.mk0 (e.symm QuadraticAlgebra.omega) hx0
+  have hd_real_pos : 0 < (d : ℝ) := by exact_mod_cast hd
+  have hsqrt_pos : 0 < Real.sqrt (d : ℝ) := Real.sqrt_pos.mpr hd_real_pos
+  have hσpos : 0 < σ (x : FractionRing OK) := by
+    dsimp [σ, x]
+    rw [AlgEquiv.apply_symm_apply]
+    rw [realEmbeddingPos_apply]
+    simpa using hsqrt_pos
+  have hτneg : τ (x : FractionRing OK) < 0 := by
+    dsimp [τ, x]
+    rw [AlgEquiv.apply_symm_apply]
+    rw [realEmbeddingNeg_apply]
+    simpa using neg_lt_zero.mpr hsqrt_pos
+  exact NarrowClassGroup.card_signQuotientModuloNegOne_eq_two_of_signRatio_ne_one
+    OK (card_fractionRing_realEmbeddings_le_two d)
+    (NarrowClassGroup.signRatioHom_ne_one_of_pos_neg σ τ x hσpos hτneg)
+
 end Real
 
 namespace Imaginary

@@ -243,7 +243,7 @@ theorem card_narrowSquareQuotientToClassGroup_ker_dvd_two_of_pos
     (hd : 0 < d) :
     Nat.card (narrowSquareQuotientToClassGroup d).ker ∣ 2 :=
   card_narrowSquareQuotientToClassGroup_ker_dvd_two_of_signQuotient_dvd_two d
-    (Qsqrtd.Real.card_signQuotientModuloNegOne_dvd_two d hd)
+    (by simp [Qsqrtd.Real.card_signQuotientModuloNegOne_eq_two d hd])
 
 /-- For positive discriminant, the square-quotient correction factor is either
 trivial or of order `2`. -/
