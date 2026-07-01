@@ -33,8 +33,8 @@ provider layer.
   discriminant formulas.
 - `QuadraticNumberFields/Splitting/`: splitting, inertia, ramification, and the
   prime `2` cases.
-- `QuadraticNumberFields/ClassGroup/`: ideal-class, small-norm, narrow-class,
-  and genus-theory material.
+- `QuadraticNumberFields/ClassGroup/`: ideal-class, Minkowski, narrow-class, and
+  genus-theory material.
 - `ImaginaryClassNumberOne/IdealReductions.lean`: ideal-theoretic class-number-one
   reductions used by the prime `2` filter.
 

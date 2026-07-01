@@ -26,8 +26,9 @@ variable {R S : Type*} [CommRing R] [CommRing S]
 A Dedekind domain is characterized by: (1) Noetherian, (2) domain,
 (3) integrally closed, (4) dimension ≤ 1. Each of these is individually
 invariant under ring isomorphism, so the conjunction is as well. -/
--- Repository use: `QuadraticField/Transport.lean` uses this to transport
--- Dedekind-domain structures across ring equivalences.
+-- Repository use: `QuadraticField/Transport.lean`, `Zsqrtd/Dedekind.lean`, and
+-- `Zsqrtd/MathlibInstances.lean` use this to transport Dedekind-domain
+-- structures across ring equivalences.
 theorem isDedekindDomain (e : R ≃+* S) [IsDedekindDomain R] :
     IsDedekindDomain S := by
   letI : IsNoetherianRing R :=

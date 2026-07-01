@@ -11,6 +11,7 @@ import QNFMathlib.Data.Nat.Squarefree
 import QNFMathlib.Data.Int.ModFour
 import QNFMathlib.Data.Int.Squarefree
 import QNFMathlib.FieldTheory.Galois.Basic
+import QNFMathlib.NumberTheory.DirichletCharacter.Kronecker
 import QNFMathlib.NumberTheory.LegendreSymbol.JacobiSymbol
 import QNFMathlib.NumberTheory.LegendreSymbol.KroneckerSymbol
 import QNFMathlib.NumberTheory.LegendreSymbol.KroneckerSymbolPeriodicity
