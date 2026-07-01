@@ -5,6 +5,7 @@ Authors: Frankie Wang
 -/
 
 import QuadraticNumberFields.ClassGroup.GenusTheory.QuotientEquiv
+import QuadraticNumberFields.ClassGroup.Narrow
 
 /-!
 # Genus Formula
@@ -299,6 +300,46 @@ theorem card_classGroupSquareQuotient_mul_correction_eq_two_pow_sub_one
     Subgroup.card_top] at hcard
   rw [hcard, card_narrowClassGroupSquareQuotient_eq_two_pow_sub_one]
 
+/-- Division form of the ordinary class-group square-quotient genus formula.
+
+The denominator is the narrow-to-wide correction kernel on square quotients. In
+the imaginary case this correction is trivial; in the real case it records the
+unit/sign distinction between ordinary and narrow principal ideals. -/
+theorem card_classGroupSquareQuotient_eq_two_pow_sub_one_div_correction
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
+    Nat.card (Cl(d) ⧸ Subgroup.square (Cl(d))) =
+      2 ^ (ramifiedPrimeCount d - 1) /
+        Nat.card (narrowSquareQuotientToClassGroup d).ker := by
+  have hmain := card_classGroupSquareQuotient_mul_correction_eq_two_pow_sub_one d
+  rw [← hmain]
+  rw [Nat.mul_div_right _ (Nat.card_pos :
+    0 < Nat.card (narrowSquareQuotientToClassGroup d).ker)]
+
+/-- Division form of the ordinary class-group square-quotient genus formula,
+written with the signed prime-discriminant factors.
+
+The factors include the `2`-primary factor `-4`, `8`, or `-8` according to the
+usual congruence cases. The only extra term in the ordinary class group is the
+narrow-to-wide correction kernel. -/
+theorem card_classGroupSquareQuotient_eq_two_pow_signedFactors_card_sub_one_div_correction
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
+    Nat.card (Cl(d) ⧸ Subgroup.square (Cl(d))) =
+      2 ^ ((signedPrimeDiscriminantFactors d).card - 1) /
+        Nat.card (narrowSquareQuotientToClassGroup d).ker := by
+  rw [card_classGroupSquareQuotient_eq_two_pow_sub_one_div_correction,
+    card_signedPrimeDiscriminantFactors_eq_ramifiedPrimeCount]
+
+/-- If the narrow-to-wide map on square quotients has trivial kernel, the ordinary
+class-group square quotient has the same genus-formula size as the narrow one. -/
+theorem card_classGroupSquareQuotient_eq_two_pow_sub_one_of_correction_eq_one
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (hcor : Nat.card (narrowSquareQuotientToClassGroup d).ker = 1) :
+    Nat.card (Cl(d) ⧸ Subgroup.square (Cl(d))) =
+      2 ^ (ramifiedPrimeCount d - 1) := by
+  have hmain := card_classGroupSquareQuotient_mul_correction_eq_two_pow_sub_one d
+  rw [hcor, one_mul] at hmain
+  exact hmain
+
 /-- If the narrow-to-wide map on square quotients has correction factor `2`, the
 ordinary square quotient has the expected corrected genus-formula factor. -/
 theorem two_mul_card_classGroupSquareQuotient_eq_two_pow_sub_one_of_correction_eq_two
@@ -313,14 +354,29 @@ theorem two_mul_card_classGroupSquareQuotient_eq_two_pow_sub_one_of_correction_e
     _ = 2 ^ (ramifiedPrimeCount d - 1) :=
         card_classGroupSquareQuotient_mul_correction_eq_two_pow_sub_one d
 
+/-- A nontrivial ordinary square-quotient correction can occur only when there
+are at least two ramified prime-discriminant factors. -/
+theorem two_le_ramifiedPrimeCount_of_correction_eq_two
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (hcor : Nat.card (narrowSquareQuotientToClassGroup d).ker = 2) :
+    2 ≤ ramifiedPrimeCount d := by
+  have hmain :=
+    two_mul_card_classGroupSquareQuotient_eq_two_pow_sub_one_of_correction_eq_two d hcor
+  by_contra hlt
+  have hcount : ramifiedPrimeCount d = 1 := by
+    have hone := one_le_ramifiedPrimeCount d
+    omega
+  rw [hcount] at hmain
+  norm_num at hmain
+
 /-- In the nontrivial correction branch, the ordinary class-group square quotient
 has cardinality `2 ^ (t - 2)`, where `t = ramifiedPrimeCount d`. -/
 theorem card_classGroupSquareQuotient_eq_two_pow_sub_two_of_correction_eq_two
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
-    (hcor : Nat.card (narrowSquareQuotientToClassGroup d).ker = 2)
-    (hcount : 2 ≤ ramifiedPrimeCount d) :
+    (hcor : Nat.card (narrowSquareQuotientToClassGroup d).ker = 2) :
     Nat.card (Cl(d) ⧸ Subgroup.square (Cl(d))) =
       2 ^ (ramifiedPrimeCount d - 2) := by
+  have hcount := two_le_ramifiedPrimeCount_of_correction_eq_two d hcor
   have hmain :=
     two_mul_card_classGroupSquareQuotient_eq_two_pow_sub_one_of_correction_eq_two d hcor
   rw [two_pow_sub_one_eq_two_mul_two_pow_sub_two hcount] at hmain
@@ -349,6 +405,74 @@ theorem card_classGroupSquareQuotient_eq_two_pow_sub_one_of_signCorrection_ker_e
   have hmain := card_classGroupSquareQuotient_mul_correction_eq_two_pow_sub_one d
   rw [hcor, one_mul] at hmain
   exact hmain
+
+/-- In the real quadratic branch, a negative-norm integral unit removes the
+narrow-to-wide correction, so the ordinary square quotient keeps the narrow
+genus-formula size. -/
+theorem card_classGroupSquareQuotient_eq_two_pow_sub_one_of_pos_of_negative_norm_unit
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (hd : 0 < d)
+    (hnegUnit :
+      let R := NumberField.RingOfIntegers (Qsqrtd (d : ℚ))
+      ∃ ε : Rˣ,
+        let εK : (FractionRing R)ˣ :=
+          Units.map (algebraMap R (FractionRing R)).toMonoidHom ε
+        (Qsqrtd.norm
+          (FractionRing.algEquiv R (Qsqrtd (d : ℚ)) (εK : FractionRing R)) : ℝ) < 0) :
+    Nat.card (Cl(d) ⧸ Subgroup.square (Cl(d))) =
+      2 ^ (ramifiedPrimeCount d - 1) :=
+  card_classGroupSquareQuotient_eq_two_pow_sub_one_of_signCorrection_ker_eq_two d hd
+    (Qsqrtd.Real.card_signCorrection_ker_eq_two_of_negative_norm_unit d hd hnegUnit)
+
+/-- In the positive-discriminant branch, the ordinary square quotient has one of
+the two sign-corrected genus-theory sizes. The finite prime-discriminant part is
+`ramifiedPrimeCount d`; the remaining distinction is the narrow-to-wide sign
+correction, not another `2`-adic ramification case. -/
+theorem card_classGroupSquareQuotient_eq_two_pow_sub_one_or_eq_two_pow_sub_two_of_pos
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (hd : 0 < d) :
+    Nat.card (Cl(d) ⧸ Subgroup.square (Cl(d))) =
+        2 ^ (ramifiedPrimeCount d - 1) ∨
+      Nat.card (Cl(d) ⧸ Subgroup.square (Cl(d))) =
+        2 ^ (ramifiedPrimeCount d - 2) := by
+  rcases card_narrowSquareQuotientToClassGroup_ker_eq_one_or_eq_two_of_pos d hd with
+    hcor | hcor
+  · exact Or.inl (card_classGroupSquareQuotient_eq_two_pow_sub_one_of_correction_eq_one d hcor)
+  · exact Or.inr (card_classGroupSquareQuotient_eq_two_pow_sub_two_of_correction_eq_two
+      d hcor)
+
+/-- For every quadratic field in this family, the ordinary class-group square
+quotient has one of the two sign-corrected genus-theory sizes.
+
+The finite prime-discriminant count is uniform; only the narrow-to-wide
+correction can reduce the ordinary quotient by one factor of `2`. -/
+theorem card_classGroupSquareQuotient_eq_two_pow_sub_one_or_eq_two_pow_sub_two
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
+    Nat.card (Cl(d) ⧸ Subgroup.square (Cl(d))) =
+        2 ^ (ramifiedPrimeCount d - 1) ∨
+      Nat.card (Cl(d) ⧸ Subgroup.square (Cl(d))) =
+        2 ^ (ramifiedPrimeCount d - 2) := by
+  by_cases hdneg : d < 0
+  · exact Or.inl (card_classGroupSquareQuotient_eq_two_pow_sub_one_of_neg d hdneg)
+  · have hd0 : d ≠ 0 := (Fact.out : Squarefree d).ne_zero
+    have hdpos : 0 < d := by omega
+    exact card_classGroupSquareQuotient_eq_two_pow_sub_one_or_eq_two_pow_sub_two_of_pos
+      d hdpos
+
+/-- The ordinary class-group square quotient has one of the two sign-corrected
+genus-theory sizes, written in terms of signed prime-discriminant factors.
+
+These factors encode the finite congruence split, including the `2`-primary
+cases `-4`, `8`, and `-8`; the remaining alternative is only the narrow-to-wide
+sign correction. -/
+theorem card_classGroupSquareQuotient_eq_two_pow_signedFactors_card_sub_one_or_sub_two
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
+    Nat.card (Cl(d) ⧸ Subgroup.square (Cl(d))) =
+        2 ^ ((signedPrimeDiscriminantFactors d).card - 1) ∨
+      Nat.card (Cl(d) ⧸ Subgroup.square (Cl(d))) =
+        2 ^ ((signedPrimeDiscriminantFactors d).card - 2) := by
+  rw [card_signedPrimeDiscriminantFactors_eq_ramifiedPrimeCount]
+  exact card_classGroupSquareQuotient_eq_two_pow_sub_one_or_eq_two_pow_sub_two d
 
 /-- The genus formula is equivalent to the principal-genus kernel statement for the
 genus-character map. -/
@@ -410,24 +534,94 @@ theorem narrowToClassGroup_ker_inf_square_eq_bot_iff_genusCharacterMap_subgroupM
       rw [Subgroup.mem_bot] at hx
       simp [hx]
 
-/-- In the positive-discriminant branch where the sign correction kernel is
-trivial, genus characters detecting the narrow-to-wide kernel give the
-nontrivial ordinary square-quotient correction factor. -/
-theorem card_classGroupSquareQuotient_eq_two_pow_sub_two_of_signCorrection_ker_eq_one_of_detects_ker
+/-- In the real no-negative-unit branch, the explicit ordinary-principal narrow
+kernel class generated by `√d` is not a square in the narrow class group.
+
+This is the direct square-quotient form of the ordinary/narrow sign correction:
+the canonical real narrow/wide correction class survives in `Cl⁺(d) / Cl⁺(d)^2`. -/
+theorem sqrtdPrincipalNarrowClassKer_not_mem_square_of_no_negative_norm_unit
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (hd : 0 < d)
+    (hnoNegUnit :
+      let R := NumberField.RingOfIntegers (Qsqrtd (d : ℚ))
+      ¬ ∃ ε : Rˣ,
+        let εK : (FractionRing R)ˣ :=
+          Units.map (algebraMap R (FractionRing R)).toMonoidHom ε
+        (Qsqrtd.norm
+          (FractionRing.algEquiv R (Qsqrtd (d : ℚ)) (εK : FractionRing R)) : ℝ) < 0) :
+    (Qsqrtd.Real.sqrtdPrincipalNarrowClassKer d : Cl⁺(d)) ∉
+      Subgroup.square (Cl⁺(d)) := by
+  sorry
+
+/-- In the real no-negative-unit branch, the narrow-to-wide kernel is disjoint
+from the square subgroup of the narrow class group. -/
+theorem narrowToClassGroup_ker_inf_square_eq_bot_of_no_negative_norm_unit
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (hd : 0 < d)
+    (hnoNegUnit :
+      let R := NumberField.RingOfIntegers (Qsqrtd (d : ℚ))
+      ¬ ∃ ε : Rˣ,
+        let εK : (FractionRing R)ˣ :=
+          Units.map (algebraMap R (FractionRing R)).toMonoidHom ε
+        (Qsqrtd.norm
+          (FractionRing.algEquiv R (Qsqrtd (d : ℚ)) (εK : FractionRing R)) : ℝ) < 0) :
+    (Qsqrtd.narrowToClassGroup d).ker ⊓ Subgroup.square (Cl⁺(d)) = ⊥ := by
+  let K := (Qsqrtd.narrowToClassGroup d).ker
+  let S : Subgroup (Cl⁺(d)) := K ⊓ Subgroup.square (Cl⁺(d))
+  have hsqrtd_not_square :=
+    sqrtdPrincipalNarrowClassKer_not_mem_square_of_no_negative_norm_unit d hd hnoNegUnit
+  have hKcard : Nat.card K = 2 :=
+    Qsqrtd.Real.card_narrowToClassGroup_ker_eq_two_of_no_negative_norm_unit
+      d hd hnoNegUnit
+  have hS_le_K : S ≤ K := fun x hx => hx.1
+  have hS_card_equiv : Nat.card (S.subgroupOf K) = Nat.card S :=
+    Nat.card_congr (Subgroup.subgroupOfEquivOfLe hS_le_K).toEquiv
+  by_contra hS_ne_bot
+  have hS_card_ne_one : Nat.card S ≠ 1 := by
+    intro hS_card
+    have hsub : Subsingleton S := (Nat.card_eq_one_iff_unique.mp hS_card).1
+    have hS_eq_bot : S = ⊥ := by
+      ext x
+      constructor
+      · intro hx
+        have hx_eq_one : (⟨x, hx⟩ : S) = 1 := Subsingleton.elim _ _
+        simpa [Subgroup.mem_bot] using congrArg Subtype.val hx_eq_one
+      · intro hx
+        rw [Subgroup.mem_bot] at hx
+        simp [hx]
+    exact hS_ne_bot hS_eq_bot
+  have hS_dvd_two : Nat.card S ∣ 2 := by
+    rw [← hKcard]
+    rw [← hS_card_equiv]
+    exact Subgroup.card_subgroup_dvd_card (S.subgroupOf K)
+  have hS_card : Nat.card S = 2 := by
+    rcases (Nat.dvd_prime Nat.prime_two).mp hS_dvd_two with hS_card | hS_card
+    · exact False.elim (hS_card_ne_one hS_card)
+    · exact hS_card
+  have hS_top : S.subgroupOf K = ⊤ := by
+    apply Subgroup.eq_top_of_card_eq
+    rw [hS_card_equiv, hS_card, hKcard]
+  have hsqrtd_mem_S : (Qsqrtd.Real.sqrtdPrincipalNarrowClassKer d : Cl⁺(d)) ∈ S := by
+    have hsqrtd_mem_subgroupOf :
+        (Qsqrtd.Real.sqrtdPrincipalNarrowClassKer d : K) ∈ S.subgroupOf K := by
+      rw [hS_top]
+      exact Subgroup.mem_top _
+    simpa [Subgroup.mem_subgroupOf] using hsqrtd_mem_subgroupOf
+  exact hsqrtd_not_square hsqrtd_mem_S.2
+
+/- In the positive-discriminant branch where the sign correction kernel is
+trivial, disjointness from narrow squares gives the nontrivial ordinary
+square-quotient correction factor. -/
+private theorem
+    card_classGroupSquareQuotient_eq_two_pow_sub_two_of_signCorrection_ker_eq_one_of_disjoint_square
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
     (hd : 0 < d)
     (hsign : Nat.card
       (NarrowClassGroup.signQuotientModuloNegOneToPrincipalIdealQuotient
         (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))).ker = 1)
-    (hdetect :
-      Function.Injective
-        ((genusCharacterMap d).subgroupMap (Qsqrtd.narrowToClassGroup d).ker))
-    (hcount : 2 ≤ ramifiedPrimeCount d) :
+    (hdisj : (Qsqrtd.narrowToClassGroup d).ker ⊓ Subgroup.square (Cl⁺(d)) = ⊥) :
     Nat.card (Cl(d) ⧸ Subgroup.square (Cl(d))) =
       2 ^ (ramifiedPrimeCount d - 2) := by
-  have hdisj :=
-    (narrowToClassGroup_ker_inf_square_eq_bot_iff_genusCharacterMap_subgroupMap_injective d).mpr
-      hdetect
   have hprod := Qsqrtd.Real.card_signCorrection_ker_mul_card_narrowToClassGroup_ker_eq_two
     d hd
   have hnarrow : Nat.card (Qsqrtd.narrowToClassGroup d).ker = 2 := by
@@ -435,7 +629,62 @@ theorem card_classGroupSquareQuotient_eq_two_pow_sub_two_of_signCorrection_ker_e
     exact hprod
   exact card_classGroupSquareQuotient_eq_two_pow_sub_two_of_correction_eq_two d
     (card_narrowSquareQuotientToClassGroup_ker_eq_two_of_narrowToClassGroup_ker d
-      hnarrow hdisj) hcount
+      hnarrow hdisj)
+
+/- In the real quadratic branch with no negative-norm integral unit, the
+sign-correction kernel is trivial and the remaining kernel of `Cl⁺(d) → Cl(d)`
+is disjoint from narrow squares, so the ordinary square quotient has the
+corrected size `2 ^ (t - 2)`. -/
+private theorem card_classGroupSquareQuotient_eq_two_pow_sub_two_of_noNegUnit
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (hd : 0 < d)
+    (hnoNegUnit :
+      let R := NumberField.RingOfIntegers (Qsqrtd (d : ℚ))
+      ¬ ∃ ε : Rˣ,
+        let εK : (FractionRing R)ˣ :=
+          Units.map (algebraMap R (FractionRing R)).toMonoidHom ε
+        (Qsqrtd.norm
+          (FractionRing.algEquiv R (Qsqrtd (d : ℚ)) (εK : FractionRing R)) : ℝ) < 0) :
+    Nat.card (Cl(d) ⧸ Subgroup.square (Cl(d))) =
+      2 ^ (ramifiedPrimeCount d - 2) :=
+  card_classGroupSquareQuotient_eq_two_pow_sub_two_of_signCorrection_ker_eq_one_of_disjoint_square
+    d hd (Qsqrtd.Real.card_signCorrection_ker_eq_one_of_no_negative_norm_unit d hd hnoNegUnit)
+    (narrowToClassGroup_ker_inf_square_eq_bot_of_no_negative_norm_unit d hd hnoNegUnit)
+
+/-- In the real quadratic branch with no negative-norm integral unit, the
+ordinary square quotient has the corrected genus-theory size `2 ^ (t - 2)`. -/
+theorem card_classGroupSquareQuotient_eq_two_pow_sub_two_of_pos_of_no_negative_norm_unit
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (hd : 0 < d)
+    (hnoNegUnit :
+      let R := NumberField.RingOfIntegers (Qsqrtd (d : ℚ))
+      ¬ ∃ ε : Rˣ,
+        let εK : (FractionRing R)ˣ :=
+          Units.map (algebraMap R (FractionRing R)).toMonoidHom ε
+        (Qsqrtd.norm
+          (FractionRing.algEquiv R (Qsqrtd (d : ℚ)) (εK : FractionRing R)) : ℝ) < 0) :
+    Nat.card (Cl(d) ⧸ Subgroup.square (Cl(d))) =
+      2 ^ (ramifiedPrimeCount d - 2) :=
+  card_classGroupSquareQuotient_eq_two_pow_sub_two_of_noNegUnit d hd hnoNegUnit
+
+/-- No-negative-unit branch of the ordinary square-quotient genus formula,
+written with signed prime-discriminant factors. -/
+theorem
+    card_classGroupSquareQuotient_eq_two_pow_signedFactors_sub_two_of_pos_of_no_negative_norm_unit
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (hd : 0 < d)
+    (hnoNegUnit :
+      let R := NumberField.RingOfIntegers (Qsqrtd (d : ℚ))
+      ¬ ∃ ε : Rˣ,
+        let εK : (FractionRing R)ˣ :=
+          Units.map (algebraMap R (FractionRing R)).toMonoidHom ε
+        (Qsqrtd.norm
+          (FractionRing.algEquiv R (Qsqrtd (d : ℚ)) (εK : FractionRing R)) : ℝ) < 0) :
+    Nat.card (Cl(d) ⧸ Subgroup.square (Cl(d))) =
+      2 ^ ((signedPrimeDiscriminantFactors d).card - 2) := by
+  rw [card_signedPrimeDiscriminantFactors_eq_ramifiedPrimeCount]
+  exact card_classGroupSquareQuotient_eq_two_pow_sub_two_of_pos_of_no_negative_norm_unit
+    d hd hnoNegUnit
 
 /-- The narrow two-torsion has cardinality equal to the number of genera. -/
 theorem card_narrowClassGroupTwoTorsion_eq_numberOfGenera
