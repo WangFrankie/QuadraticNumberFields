@@ -1,6 +1,9 @@
-？
 
 # QuadraticNumberFields
+
+[![DOI](https://zenodo.org/badge/1172123669.svg)](https://doi.org/10.5281/zenodo.21091163)
+[![License](https://img.shields.io/github/license/WangFrankie/QuadraticNumberFields)](LICENSE)
+[![Release](https://img.shields.io/github/v/release/WangFrankie/QuadraticNumberFields)](https://github.com/WangFrankie/QuadraticNumberFields/releases)
 
 A Lean 4 formalization of quadratic number fields `ℚ(√d)`, their rings of
 integers, discriminants, splitting behavior, and related class-number
@@ -105,49 +108,49 @@ Counts exclude blank lines.
 
 | Library | Code Lines | Comment Lines | Total Lines |
 |--------|------------|---------------|-------------|
-| `QuadraticNumberFields` | 16874 | 3448 | 20322 |
-| `FormClassGroup` | 4946 | 1044 | 5990 |
+| `QuadraticNumberFields` | 16135 | 3349 | 19484 |
+| `FormClassGroup` | 4944 | 1044 | 5988 |
 | `BinaryQuadraticForms` | 3126 | 664 | 3790 |
-| `QNFMathlib` | 2743 | 801 | 3544 |
-| `Examples` | 1179 | 579 | 1758 |
+| `QNFMathlib` | 3000 | 919 | 3919 |
+| `Examples` | 1170 | 579 | 1749 |
 | `ImaginaryClassNumberOne` | 1117 | 395 | 1512 |
-| **Total** | **29985** | **6931** | **36916** |
+| **Total** | **29492** | **6950** | **36442** |
 
 ### Library Tree
 
 <details>
-<summary><code>QuadraticNumberFields</code> (16874 code, 3448 comments, 20322 total)</summary>
+<summary><code>QuadraticNumberFields</code> (16135 code, 3349 comments, 19484 total)</summary>
 
 | Subtree | Code Lines | Comment Lines | Total Lines |
 |--------|------------|---------------|-------------|
-| `├── QuadraticNumberFields.lean` | 48 | 21 | 69 |
-| `├── ClassGroup/` | 11763 | 1287 | 13050 |
+| `├── QuadraticNumberFields.lean` | 47 | 21 | 68 |
+| `├── ClassGroup/` | 11072 | 1189 | 12261 |
 | `├── ContinuedFraction/` | 21 | 36 | 57 |
 | `├── Euclidean/` | 52 | 25 | 77 |
 | `├── Families/` | 38 | 49 | 87 |
-| `├── Qsqrtd/` | 605 | 301 | 906 |
-| `├── QuadraticField/` | 586 | 397 | 983 |
-| `├── RingOfIntegers/` | 773 | 362 | 1135 |
-| `├── Splitting/` | 1722 | 529 | 2251 |
+| `├── Qsqrtd/` | 584 | 301 | 885 |
+| `├── QuadraticField/` | 570 | 396 | 966 |
+| `├── RingOfIntegers/` | 767 | 362 | 1129 |
+| `├── Splitting/` | 1718 | 529 | 2247 |
 | `├── Units/` | 409 | 156 | 565 |
 | `├── ZOnePlusSqrtdOverTwo/` | 127 | 50 | 177 |
 | `└── Zsqrtd/` | 730 | 235 | 965 |
-| **QuadraticNumberFields total** | **16874** | **3448** | **20322** |
+| **QuadraticNumberFields total** | **16135** | **3349** | **19484** |
 
 </details>
 
 <details>
-<summary><code>FormClassGroup</code> (4946 code, 1044 comments, 5990 total)</summary>
+<summary><code>FormClassGroup</code> (4944 code, 1044 comments, 5988 total)</summary>
 
 | Subtree | Code Lines | Comment Lines | Total Lines |
 |--------|------------|---------------|-------------|
 | `├── FormClassGroup.lean` | 13 | 10 | 23 |
-| `├── ClassGroup/` | 852 | 208 | 1060 |
+| `├── ClassGroup/` | 850 | 208 | 1058 |
 | `├── Computable/` | 927 | 205 | 1132 |
 | `├── Computed.lean` | 127 | 56 | 183 |
 | `├── Cox/` | 2927 | 527 | 3454 |
 | `└── Gauss/` | 100 | 38 | 138 |
-| **FormClassGroup total** | **4946** | **1044** | **5990** |
+| **FormClassGroup total** | **4944** | **1044** | **5988** |
 
 </details>
 
@@ -166,35 +169,35 @@ Counts exclude blank lines.
 </details>
 
 <details>
-<summary><code>QNFMathlib</code> (2743 code, 801 comments, 3544 total)</summary>
+<summary><code>QNFMathlib</code> (3000 code, 919 comments, 3919 total)</summary>
 
 | Subtree | Code Lines | Comment Lines | Total Lines |
 |--------|------------|---------------|-------------|
-| `├── QNFMathlib.lean` | 30 | 12 | 42 |
-| `├── Algebra/` | 151 | 88 | 239 |
-| `├── Data/` | 578 | 144 | 722 |
-| `├── FieldTheory/` | 41 | 19 | 60 |
-| `├── GroupTheory/` | 18 | 13 | 31 |
-| `├── NumberTheory/` | 1352 | 348 | 1700 |
-| `└── RingTheory/` | 573 | 177 | 750 |
-| **QNFMathlib total** | **2743** | **801** | **3544** |
+| `├── QNFMathlib.lean` | 29 | 12 | 41 |
+| `├── Algebra/` | 149 | 88 | 237 |
+| `├── Data/` | 531 | 144 | 675 |
+| `├── FieldTheory/` | 35 | 19 | 54 |
+| `├── GroupTheory/` | 13 | 13 | 26 |
+| `├── NumberTheory/` | 1344 | 348 | 1692 |
+| `└── RingTheory/` | 899 | 295 | 1194 |
+| **QNFMathlib total** | **3000** | **919** | **3919** |
 
 </details>
 
 <details>
-<summary><code>Examples</code> (1179 code, 579 comments, 1758 total)</summary>
+<summary><code>Examples</code> (1170 code, 579 comments, 1749 total)</summary>
 
 | Subtree | Code Lines | Comment Lines | Total Lines |
 |--------|------------|---------------|-------------|
 | `├── Examples.lean` | 16 | 10 | 26 |
 | `├── ClassGroupStructure.lean` | 3 | 11 | 14 |
-| `├── ClassGroupStructure/` | 137 | 70 | 207 |
+| `├── ClassGroupStructure/` | 134 | 70 | 204 |
 | `├── Counterexamples/` | 82 | 24 | 106 |
 | `├── Smoke/` | 163 | 43 | 206 |
-| `├── Sqrt17/` | 219 | 140 | 359 |
+| `├── Sqrt17/` | 217 | 140 | 357 |
 | `├── SqrtNeg21/` | 15 | 29 | 44 |
-| `└── SqrtNeg5/` | 544 | 252 | 796 |
-| **Examples total** | **1179** | **579** | **1758** |
+| `└── SqrtNeg5/` | 540 | 252 | 792 |
+| **Examples total** | **1170** | **579** | **1749** |
 
 </details>
 
@@ -225,3 +228,22 @@ It has since been restructured and expanded in this repository.
 
 - [Z[(1+sqrt(1+4k))/2] discussion](https://leanprover.zulipchat.com/#narrow/channel/217875-Is-there-code-for-X.3F/topic/Z.5B.281.2Bsqrt.281.2B4k.29.29.2F2.5D/near/520523635)
 - [Quadratic number fields discussion](https://leanprover.zulipchat.com/#narrow/channel/287929-mathlib4/topic/quadratic.20number.20fields/)
+
+## Citation
+
+If you use this Lean formalization, please cite the Zenodo record or the
+repository metadata in [CITATION.cff](CITATION.cff).
+
+```bibtex
+@software{wang_quadratic_number_fields_2026,
+  author = {Wang, Frankie F.-C.},
+  title = {{QuadraticNumberFields}: Lean 4 formalization of quadratic number fields},
+  version = {v0.2.0},
+  date = {2026-07-01},
+  doi = {10.5281/zenodo.21091163},
+  orcid = {0009-0003-3705-1549},
+  url = {https://github.com/WangFrankie/QuadraticNumberFields},
+}
+```
+
+Author ORCID: [0009-0003-3705-1549](https://orcid.org/0009-0003-3705-1549).
