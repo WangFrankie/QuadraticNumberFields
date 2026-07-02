@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 
-import Mathlib.Algebra.Exact
+import QNFMathlib.GroupTheory.Index
 import QuadraticNumberFields.ClassGroup.GenusTheory.Surjectivity
 
 /-!
@@ -47,6 +47,21 @@ theorem genusCharacterMapOnSquareQuotient_shortExact
         Function.Surjective (genusCharacterMapOnSquareQuotient d) :=
   ⟨Subtype.coe_injective, genusCharacterMapOnSquareQuotient_mulExact d,
     genusCharacterMapOnSquareQuotient_surjective d⟩
+
+/-- Cardinality form of the short exact sequence attached to the
+genus-character map. This isolates the group-theoretic bookkeeping from the
+mathematical kernel-identification input. -/
+theorem genusCharacterMapOnSquareQuotient_card_eq_ker_mul_target
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
+    Nat.card (Cl⁺(d) ⧸ Subgroup.square (Cl⁺(d))) =
+      Nat.card (genusCharacterMapOnSquareQuotient d).ker *
+        Nat.card (genusCharacterTargetRelation d) :=
+  MonoidHom.nat_card_eq_mul_of_mulExact_of_surjective
+    (genusCharacterMapOnSquareQuotient d).ker.subtype
+    (genusCharacterMapOnSquareQuotient d)
+    Subtype.coe_injective
+    (genusCharacterMapOnSquareQuotient_mulExact d)
+    (genusCharacterMapOnSquareQuotient_surjective d)
 
 end GenusTheory
 end ClassGroup

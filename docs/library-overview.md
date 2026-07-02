@@ -302,6 +302,11 @@ The completed public library currently includes:
 - totally real, totally complex, and CM behavior
 - concrete verified examples for `ℤ[√(-5)]`
 - a basic class-number interface
+- the narrow-class-group genus-theory layer, including
+  `genusCharacterMapOnSquareQuotient_shortExact`,
+  `genusCharacterMapOnSquareQuotient_card_eq_ker_mul_target`,
+  `genusCharacterMapOnSquareQuotient_ker_eq_bot`, `genusQuotientEquiv`, and
+  `genusFormula`
 
 App-layer libraries contain form-class-group computations, class-number-one
 results, examples, and remaining research-oriented scaffolding.

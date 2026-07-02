@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 
-import Mathlib.Algebra.Exact
+import QNFMathlib.GroupTheory.Index
 import QuadraticNumberFields.ClassGroup.GenusTheory.AmbiguousIdeals.Conjugation
 import QuadraticNumberFields.Splitting.Qsqrtd.SqrtD
 
@@ -1205,6 +1205,20 @@ theorem fullRamifiedParityNarrowClassHom_shortExact
         Function.Surjective (fullRamifiedParityNarrowClassHom d).rangeRestrict :=
   ⟨Subtype.coe_injective, fullRamifiedParityNarrowClassHom_rangeRestrict_mulExact d,
     fullRamifiedParityNarrowClassHom_rangeRestrict_surjective d⟩
+
+/-- Cardinality form of the short exact sequence attached to the full
+ramified-parity map. -/
+theorem fullRamifiedParityNarrowClassHom_card_eq_ker_mul_range
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
+    Nat.card (Multiplicative ({p // p ∈ ramifiedPrimes d} → Fin 2)) =
+      Nat.card (fullRamifiedParityNarrowClassHom d).ker *
+        Nat.card (fullRamifiedParityNarrowClassHom d).range :=
+  MonoidHom.nat_card_eq_mul_of_mulExact_of_surjective
+    (fullRamifiedParityNarrowClassHom d).ker.subtype
+    (fullRamifiedParityNarrowClassHom d).rangeRestrict
+    Subtype.coe_injective
+    (fullRamifiedParityNarrowClassHom_rangeRestrict_mulExact d)
+    (fullRamifiedParityNarrowClassHom_rangeRestrict_surjective d)
 
 theorem multiplicative_ofAdd_ne_one_of_exists_apply_ne_zero
     {ι : Type*} (v : ι → Fin 2) (hv : ∃ i, v i ≠ 0) :

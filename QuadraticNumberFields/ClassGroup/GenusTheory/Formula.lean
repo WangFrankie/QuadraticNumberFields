@@ -35,9 +35,8 @@ theorem genusFormula_iff_genusCharacterMap_ker_eq_square
       (genusCharacterMap d).ker = Subgroup.square (Cl⁺(d)) := by
   constructor
   · intro _
-    apply (genusCharacterMapOnSquareQuotient_ker_eq_bot_iff d).mp
-    exact (MonoidHom.ker_eq_bot_iff (genusCharacterMapOnSquareQuotient d)).mpr
-      (genusQuotientEquiv d).injective
+    exact (genusCharacterMapOnSquareQuotient_ker_eq_bot_iff d).mp
+      (genusCharacterMapOnSquareQuotient_ker_eq_bot d)
   · intro _
     exact genusFormula d
 
