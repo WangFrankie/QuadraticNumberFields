@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 
-import QNFMathlib.GroupTheory.Index
 import QuadraticNumberFields.ClassGroup.GenusTheory.AmbiguousIdeals.Conjugation
 import QuadraticNumberFields.Splitting.Qsqrtd.SqrtD
 
@@ -1170,55 +1169,6 @@ theorem fullRamifiedParityNarrowClassHom_mem_ker_iff
     Multiplicative.ofAdd v ∈ (fullRamifiedParityNarrowClassHom d).ker ↔
       fullRamifiedParityNarrowClassProduct d v = 1 := by
   simp [MonoidHom.mem_ker, fullRamifiedParityNarrowClassHom_apply]
-
-/-- Exactness of the full ramified-parity map at its source: the included
-kernel has range exactly the parity vectors whose narrow class product is
-trivial. -/
-theorem fullRamifiedParityNarrowClassHom_mulExact
-    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
-    Function.MulExact (fullRamifiedParityNarrowClassHom d).ker.subtype
-      (fullRamifiedParityNarrowClassHom d) := by
-  rw [MonoidHom.mulExact_iff, Subgroup.range_subtype]
-
-/-- Exactness after restricting the full ramified-parity map to its range. This
-is the group-level short exact sequence
-`1 → ker ψ → parity(d) → range ψ → 1`. -/
-theorem fullRamifiedParityNarrowClassHom_rangeRestrict_mulExact
-    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
-    Function.MulExact (fullRamifiedParityNarrowClassHom d).ker.subtype
-      (fullRamifiedParityNarrowClassHom d).rangeRestrict := by
-  rw [MonoidHom.mulExact_iff, MonoidHom.ker_rangeRestrict, Subgroup.range_subtype]
-
-/-- The range-restricted full ramified-parity map is surjective by definition. -/
-theorem fullRamifiedParityNarrowClassHom_rangeRestrict_surjective
-    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
-    Function.Surjective (fullRamifiedParityNarrowClassHom d).rangeRestrict :=
-  MonoidHom.rangeRestrict_surjective _
-
-/-- The short exact sequence attached to the full ramified-parity map:
-`1 → ker ψ → parity(d) → range ψ → 1`. -/
-theorem fullRamifiedParityNarrowClassHom_shortExact
-    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
-    Function.Injective (fullRamifiedParityNarrowClassHom d).ker.subtype ∧
-      Function.MulExact (fullRamifiedParityNarrowClassHom d).ker.subtype
-        (fullRamifiedParityNarrowClassHom d).rangeRestrict ∧
-        Function.Surjective (fullRamifiedParityNarrowClassHom d).rangeRestrict :=
-  ⟨Subtype.coe_injective, fullRamifiedParityNarrowClassHom_rangeRestrict_mulExact d,
-    fullRamifiedParityNarrowClassHom_rangeRestrict_surjective d⟩
-
-/-- Cardinality form of the short exact sequence attached to the full
-ramified-parity map. -/
-theorem fullRamifiedParityNarrowClassHom_card_eq_ker_mul_range
-    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
-    Nat.card (Multiplicative ({p // p ∈ ramifiedPrimes d} → Fin 2)) =
-      Nat.card (fullRamifiedParityNarrowClassHom d).ker *
-        Nat.card (fullRamifiedParityNarrowClassHom d).range :=
-  MonoidHom.nat_card_eq_mul_of_mulExact_of_surjective
-    (fullRamifiedParityNarrowClassHom d).ker.subtype
-    (fullRamifiedParityNarrowClassHom d).rangeRestrict
-    Subtype.coe_injective
-    (fullRamifiedParityNarrowClassHom_rangeRestrict_mulExact d)
-    (fullRamifiedParityNarrowClassHom_rangeRestrict_surjective d)
 
 theorem multiplicative_ofAdd_ne_one_of_exists_apply_ne_zero
     {ι : Type*} (v : ι → Fin 2) (hv : ∃ i, v i ≠ 0) :

@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 
-import QNFMathlib.GroupTheory.Index
 import QuadraticNumberFields.ClassGroup.GenusTheory.Surjectivity
 
 /-!
@@ -29,39 +28,15 @@ theorem genusCharacterMapOnSquareQuotient_surjective
     Function.Surjective (genusCharacterMapOnSquareQuotient d) :=
   genusCharacterMapOnSquareQuotient_surjective_of_genusCharacterMap_surjective d
 
-/-- Exactness at the square quotient: the kernel inclusion has range exactly the
-kernel of the descended genus-character map. -/
-theorem genusCharacterMapOnSquareQuotient_mulExact
-    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
-    Function.MulExact (genusCharacterMapOnSquareQuotient d).ker.subtype
-      (genusCharacterMapOnSquareQuotient d) := by
-  rw [MonoidHom.mulExact_iff, Subgroup.range_subtype]
-
-/-- The short exact sequence attached to the genus-character map:
-`1 → ker Φ → Cl⁺/Cl⁺² → genusCharacterTargetRelation → 1`. -/
+/-- The short exact sequence attached to the genus-character map, expressed in the
+group-theoretic form needed for the genus formula. -/
 theorem genusCharacterMapOnSquareQuotient_shortExact
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
-    Function.Injective (genusCharacterMapOnSquareQuotient d).ker.subtype ∧
-      Function.MulExact (genusCharacterMapOnSquareQuotient d).ker.subtype
-        (genusCharacterMapOnSquareQuotient d) ∧
-        Function.Surjective (genusCharacterMapOnSquareQuotient d) :=
-  ⟨Subtype.coe_injective, genusCharacterMapOnSquareQuotient_mulExact d,
-    genusCharacterMapOnSquareQuotient_surjective d⟩
-
-/-- Cardinality form of the short exact sequence attached to the
-genus-character map. This isolates the group-theoretic bookkeeping from the
-mathematical kernel-identification input. -/
-theorem genusCharacterMapOnSquareQuotient_card_eq_ker_mul_target
-    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
-    Nat.card (Cl⁺(d) ⧸ Subgroup.square (Cl⁺(d))) =
-      Nat.card (genusCharacterMapOnSquareQuotient d).ker *
-        Nat.card (genusCharacterTargetRelation d) :=
-  MonoidHom.nat_card_eq_mul_of_mulExact_of_surjective
-    (genusCharacterMapOnSquareQuotient d).ker.subtype
-    (genusCharacterMapOnSquareQuotient d)
-    Subtype.coe_injective
-    (genusCharacterMapOnSquareQuotient_mulExact d)
-    (genusCharacterMapOnSquareQuotient_surjective d)
+    Function.Surjective (genusCharacterMapOnSquareQuotient d) ∧
+      ((genusCharacterMapOnSquareQuotient d).ker = ⊥ ↔
+        (genusCharacterMap d).ker = Subgroup.square (Cl⁺(d))) :=
+  ⟨genusCharacterMapOnSquareQuotient_surjective d,
+    genusCharacterMapOnSquareQuotient_ker_eq_bot_iff d⟩
 
 end GenusTheory
 end ClassGroup

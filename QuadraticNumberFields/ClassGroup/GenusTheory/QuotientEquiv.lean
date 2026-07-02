@@ -7,6 +7,7 @@ Authors: Frankie Wang
 import QuadraticNumberFields.ClassGroup.GenusTheory.AmbiguousIdeals.Bound
 import QuadraticNumberFields.ClassGroup.GenusTheory.ExactSequence
 import QuadraticNumberFields.ClassGroup.GenusTheory.NumberOfGenera
+import QNFMathlib.GroupTheory.Index
 
 /-!
 # The Genus Quotient Equivalence
@@ -38,30 +39,13 @@ instance instFiniteNarrowClassGroupSquareQuotient
     rw [card_narrowClassGroupSquareQuotient_eq_two_pow_sub_one]
     exact pow_ne_zero _ (by norm_num : (2 : ℕ) ≠ 0)
 
-/-- The descended genus-character map has kernel of cardinality one. -/
-theorem genusCharacterMapOnSquareQuotient_ker_card_eq_one
-    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
-    Nat.card (genusCharacterMapOnSquareQuotient d).ker = 1 := by
-  have hcard := genusCharacterMapOnSquareQuotient_card_eq_ker_mul_target d
-  rw [card_narrowClassGroupSquareQuotient_eq_two_pow_sub_one,
-    card_genusCharacterTargetRelation] at hcard
-  have hpos : 0 < 2 ^ (ramifiedPrimeCount d - 1) :=
-    pow_pos (by norm_num : 0 < (2 : ℕ)) _
-  exact Nat.eq_of_mul_eq_mul_right hpos (by simpa using hcard.symm)
-
-/-- The descended genus-character map has trivial kernel. -/
-theorem genusCharacterMapOnSquareQuotient_ker_eq_bot
-    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
-    (genusCharacterMapOnSquareQuotient d).ker = ⊥ :=
-  Subgroup.card_eq_one.mp (genusCharacterMapOnSquareQuotient_ker_card_eq_one d)
-
 /-- Cardinality equality between the square-class quotient and the genus-character target. -/
 theorem card_narrowClassGroupSquareQuotient_eq_genusCharacterTargetRelation
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
     Nat.card (Cl⁺(d) ⧸ Subgroup.square (Cl⁺(d))) =
       Nat.card (genusCharacterTargetRelation d) := by
-  rw [genusCharacterMapOnSquareQuotient_card_eq_ker_mul_target,
-    genusCharacterMapOnSquareQuotient_ker_card_eq_one, one_mul]
+  rw [card_narrowClassGroupSquareQuotient_eq_two_pow_sub_one,
+    card_genusCharacterTargetRelation]
 
 /-- The final genus quotient isomorphism:
 `Cl⁺(d) / Cl⁺(d)^2` is the product-one group of signed prime-discriminant
@@ -70,9 +54,25 @@ noncomputable def genusQuotientEquiv
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
     Cl⁺(d) ⧸ Subgroup.square (Cl⁺(d)) ≃* genusCharacterTargetRelation d := by
   refine MulEquiv.ofBijective (genusCharacterMapOnSquareQuotient d) ?_
+  have hcardExact :
+      Nat.card (Cl⁺(d) ⧸ Subgroup.square (Cl⁺(d))) =
+        Nat.card (genusCharacterMapOnSquareQuotient d).ker *
+          Nat.card (genusCharacterTargetRelation d) :=
+    MonoidHom.nat_card_eq_mul_of_mulExact_of_surjective
+      (genusCharacterMapOnSquareQuotient d).ker.subtype
+      (genusCharacterMapOnSquareQuotient d)
+      Subtype.coe_injective
+      (by rw [MonoidHom.mulExact_iff, Subgroup.range_subtype])
+      (genusCharacterMapOnSquareQuotient_surjective d)
+  have hkerCard : Nat.card (genusCharacterMapOnSquareQuotient d).ker = 1 := by
+    rw [card_narrowClassGroupSquareQuotient_eq_two_pow_sub_one,
+      card_genusCharacterTargetRelation] at hcardExact
+    have hpos : 0 < 2 ^ (ramifiedPrimeCount d - 1) :=
+      pow_pos (by norm_num : 0 < (2 : ℕ)) _
+    exact Nat.eq_of_mul_eq_mul_right hpos (by simpa using hcardExact.symm)
   exact ⟨(MonoidHom.ker_eq_bot_iff (genusCharacterMapOnSquareQuotient d)).mp
-      (genusCharacterMapOnSquareQuotient_ker_eq_bot d),
-    (genusCharacterMapOnSquareQuotient_shortExact d).2.2⟩
+      (Subgroup.card_eq_one.mp hkerCard),
+    genusCharacterMapOnSquareQuotient_surjective d⟩
 
 /-- The genus quotient equivalence agrees with the genus-character map on
 representatives. -/

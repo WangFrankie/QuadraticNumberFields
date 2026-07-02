@@ -22,9 +22,4 @@ import QuadraticNumberFields.ClassGroup.GenusTheory.Sieve
 
 This module is the public entry point for the rebuilt narrow-class-group genus
 theory layer.
-
-It exposes the genus-character map, its short exact sequence, the exact
-cardinality bookkeeping
-`genusCharacterMapOnSquareQuotient_card_eq_ker_mul_target`, and the final genus
-formula.
 -/

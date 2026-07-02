@@ -258,34 +258,6 @@ theorem fullRamifiedParityNarrowClassHom_mem_ker_iff_exists_positivePrincipal
   rw [← mk0_fullRamifiedParityIdealProduct d r]
   exact NarrowClassGroup.mk0_eq_one_iff_exists_fraction_ring
 
-/-- Exact-sequence form of the positive-principal kernel criterion: a full
-ramified parity vector lies in the range of the kernel inclusion exactly when
-its ramified ideal product is killed by a totally positive principal fractional
-ideal. -/
-theorem fullRamifiedParityNarrowClassHom_ker_range_iff_exists_positivePrincipal
-    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
-    (r : {p // p ∈ ramifiedPrimes d} → Fin 2) :
-    let R := NumberField.RingOfIntegers (Qsqrtd (d : ℚ))
-    Multiplicative.ofAdd r ∈
-        Set.range (fullRamifiedParityNarrowClassHom d).ker.subtype ↔
-      ∃ x : (FractionRing R)ˣ,
-        NarrowClassGroup.IsTotallyPositive (x : FractionRing R) ∧
-          FractionalIdeal.mk0 (FractionRing R) (fullRamifiedParityIdealProduct d r) *
-            toPrincipalIdeal R (FractionRing R) x = 1 := by
-  let R := NumberField.RingOfIntegers (Qsqrtd (d : ℚ))
-  constructor
-  · intro hrange
-    have hmap : fullRamifiedParityNarrowClassHom d (Multiplicative.ofAdd r) = 1 :=
-      (fullRamifiedParityNarrowClassHom_mulExact d (Multiplicative.ofAdd r)).mpr hrange
-    exact (fullRamifiedParityNarrowClassHom_mem_ker_iff_exists_positivePrincipal d r).mp
-      (by simpa [MonoidHom.mem_ker] using hmap)
-  · intro hprincipal
-    have hker : Multiplicative.ofAdd r ∈ (fullRamifiedParityNarrowClassHom d).ker :=
-      (fullRamifiedParityNarrowClassHom_mem_ker_iff_exists_positivePrincipal d r).mpr
-        hprincipal
-    exact (fullRamifiedParityNarrowClassHom_mulExact d (Multiplicative.ofAdd r)).mp
-      (by simpa [MonoidHom.mem_ker] using hker)
-
 /-- A full ramified parity class is trivial exactly when adding that vector to
 every full parity vector leaves the associated narrow class unchanged. -/
 theorem fullRamifiedParityNarrowClassProduct_eq_one_iff_mk0_add_relation
