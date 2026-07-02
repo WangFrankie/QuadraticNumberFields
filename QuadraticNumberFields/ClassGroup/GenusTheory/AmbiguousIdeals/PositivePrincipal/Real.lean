@@ -1456,10 +1456,9 @@ private theorem exists_nonzero_fullRamifiedParityVector_span_one_add_unitOfFunda
 
 /-- Unit construction in the real quadratic no-negative-unit branch.
 
-This is the remaining genuine genus-theory input: one must construct a
-totally positive norm-one unit `u` such that the ambiguous principal ideal
-`(1 + u)` has nonzero ramified parity. This is the signed unit/ramified-prime
-calculation, not an exact-count genus formula. -/
+This constructs a totally positive norm-one unit `u` such that the ambiguous
+principal ideal `(1 + u)` has nonzero ramified parity. This is the signed
+unit/ramified-prime calculation, not an exact-count genus formula. -/
 theorem exists_ambiguous_span_one_add_totallyPositive_normOne_unit_with_nonzero_ramifiedParity
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : 0 < d)
     (_hnoNegUnit :
@@ -1536,7 +1535,7 @@ theorem exists_nonzero_ramifiedParity_positive_norm_generator_of_real_of_no_nega
 /-- Real quadratic positive-norm ramified parity relation.
 
 The negative-norm unit case is an elementary sign correction. The no-negative-unit
-case is the remaining signed-prime-discriminant ramified-product input. -/
+case is supplied by the signed-prime-discriminant ramified-product construction. -/
 theorem exists_nonzero_ramifiedParity_positive_norm_generator_of_real
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : 0 < d)
     (hprincipal :
