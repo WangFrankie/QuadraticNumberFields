@@ -402,12 +402,9 @@ theorem exists_integralIdeal_erasedRamifiedParityRepresentative_of_isAmbiguousId
   · exact hw.trans (hI₀full.symm.trans hI₀mk0)
   · simp [I, idealRamifiedParityVector_ramifiedParityIdealProduct d hp0 w]
 
-/-- Hard representative selection for the ambiguous bound. It chooses a
-representative of an inversion-fixed narrow class whose ramified-prime parity
-vector actually represents the same narrow class. Proving this is the remaining
-mathematical boundary: use the fixed-class Hilbert-90 adjustment, cancel
-split/inert/non-ramified prime-ideal orbits, and apply a nonzero
-positive-principal relation among ramified parity vectors. -/
+/-- Representative selection for the ambiguous bound. It chooses a representative
+of an inversion-fixed narrow class whose ramified-prime parity vector represents
+the same narrow class after erasing one coordinate in a nonzero kernel vector. -/
 theorem exists_integralIdeal_ramifiedParityRepresentative_of_narrowInversionFixedClass
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
     {p0 : ℕ} (hp0 : p0 ∈ ramifiedPrimes d)
@@ -432,6 +429,9 @@ theorem exists_integralIdeal_ramifiedParityRepresentative_of_narrowInversionFixe
   refine ⟨J', ?_, hJ'parity⟩
   exact hJ'mk0.trans (hJmk0.trans hI)
 
+/-- A chosen integral ideal representative of an inversion-fixed narrow class,
+normalized so that its erased ramified-parity vector recovers the same narrow
+class. -/
 noncomputable def narrowInversionFixedRepresentativeIdeal
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
     {p0 : ℕ} (hp0 : p0 ∈ ramifiedPrimes d)
@@ -444,6 +444,8 @@ noncomputable def narrowInversionFixedRepresentativeIdeal
     (exists_integralIdeal_ramifiedParityRepresentative_of_narrowInversionFixedClass
       d hp0 r hrp0 hrker C)
 
+/-- The chosen representative of an inversion-fixed narrow class represents that
+class in the narrow class group. -/
 theorem narrowInversionFixedRepresentativeIdeal_mk0
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
     {p0 : ℕ} (hp0 : p0 ∈ ramifiedPrimes d)
@@ -457,6 +459,8 @@ theorem narrowInversionFixedRepresentativeIdeal_mk0
     (exists_integralIdeal_ramifiedParityRepresentative_of_narrowInversionFixedClass
       d hp0 r hrp0 hrker C)).1
 
+/-- The chosen representative has the same narrow class as the ramified parity
+ideal product attached to its erased parity vector. -/
 theorem narrowInversionFixedRepresentativeIdeal_mk0_eq_ramifiedParityIdealProduct
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
     {p0 : ℕ} (hp0 : p0 ∈ ramifiedPrimes d)
@@ -473,6 +477,8 @@ theorem narrowInversionFixedRepresentativeIdeal_mk0_eq_ramifiedParityIdealProduc
     (exists_integralIdeal_ramifiedParityRepresentative_of_narrowInversionFixedClass
       d hp0 r hrp0 hrker C)).2
 
+/-- The erased ramified-prime parity vector attached to the chosen representative
+of an inversion-fixed narrow class. -/
 noncomputable def narrowInversionFixedClassRamifiedParityVector
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
     {p0 : ℕ} (hp0 : p0 ∈ ramifiedPrimes d)
@@ -486,12 +492,9 @@ noncomputable def narrowInversionFixedClassRamifiedParityVector
   exact idealRamifiedParityVector d hp0
     (narrowInversionFixedRepresentativeIdeal d hp0 r hrp0 hrker C)
 
-/-- Exact remaining fixed-representative recovery input for the ambiguous-ideal
-bound. It says that the chosen representative of an inversion-fixed narrow
-class differs from the ramified parity ideal product by a totally positive
-principal fractional ideal. This is the point where the proof still needs the
-fixed-ideal representative/factorization theorem and the nonzero
-positive-principal relation for ramified parity vectors. -/
+/-- Fixed-representative recovery input for the ambiguous-ideal bound. The chosen
+representative of an inversion-fixed narrow class differs from its recovered
+ramified parity ideal product by a totally positive principal fractional ideal. -/
 theorem exists_tp_multiplier_representative_to_ramifiedParityIdealProduct
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
     {p0 : ℕ} (hp0 : p0 ∈ ramifiedPrimes d)
