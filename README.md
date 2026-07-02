@@ -4,6 +4,11 @@
 [![License](https://img.shields.io/github/license/WangFrankie/QuadraticNumberFields)](LICENSE)
 [![Release](https://img.shields.io/github/v/release/WangFrankie/QuadraticNumberFields)](https://github.com/WangFrankie/QuadraticNumberFields/releases)
 
+> [!NOTE]
+> The current genus-theory development is preserved on the
+> `genus-theory-dev` branch. I am reviewing that material file-by-file and
+> plan to rebuild and optimize the related content in smaller follow-up PRs.
+
 A Lean 4 formalization of quadratic number fields `ℚ(√d)`, their rings of
 integers, discriminants, splitting behavior, and related class-number
 infrastructure. The project is built on mathlib's `QuadraticAlgebra`.
