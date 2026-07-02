@@ -30,6 +30,7 @@ attribute [-instance] DivisionRing.toRatAlgebra
 def oddPrimeDiscriminantFactor (p : ℕ) : ℤ :=
   if p % 4 = 1 then (p : ℤ) else -(p : ℤ)
 
+/-- The absolute value of the signed odd prime discriminant `p*` is `p`. -/
 @[simp]
 theorem natAbs_oddPrimeDiscriminantFactor (p : ℕ) :
     (oddPrimeDiscriminantFactor p).natAbs = p := by
@@ -171,11 +172,14 @@ theorem kroneckerSymNat_twoPrimeDiscriminantFactor_eq_one_of_mod_conditions
 def primeDiscriminantFactor (d : ℤ) (p : ℕ) : ℤ :=
   if p = 2 then twoPrimeDiscriminantFactor d else oddPrimeDiscriminantFactor p
 
+/-- At the rational prime `2`, the signed prime-discriminant factor is the
+`2`-primary factor. -/
 @[simp]
 theorem primeDiscriminantFactor_two (d : ℤ) :
     primeDiscriminantFactor d 2 = twoPrimeDiscriminantFactor d := by
   simp [primeDiscriminantFactor]
 
+/-- Away from `2`, the signed prime-discriminant factor is the odd factor `p*`. -/
 theorem primeDiscriminantFactor_of_ne_two {d : ℤ} {p : ℕ} (hp2 : p ≠ 2) :
     primeDiscriminantFactor d p = oddPrimeDiscriminantFactor p := by
   simp [primeDiscriminantFactor, hp2]
@@ -242,6 +246,8 @@ one of `-4`, `8`, or `-8`. -/
 noncomputable def signedPrimeDiscriminantFactors : Finset ℤ :=
   (ramifiedPrimes d).image (primeDiscriminantFactor d)
 
+/-- A ramified rational prime contributes its signed prime-discriminant factor to
+`signedPrimeDiscriminantFactors d`. -/
 @[simp]
 theorem mem_signedPrimeDiscriminantFactors_of_mem_ramifiedPrimes
     {p : ℕ} (hp : p ∈ ramifiedPrimes d) :

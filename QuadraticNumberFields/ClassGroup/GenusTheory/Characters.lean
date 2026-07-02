@@ -1182,7 +1182,8 @@ theorem kroneckerSymNat_discr_absNorm_eq_one_of_mem_signedFactorsCoprimeIdealSub
   have hp_ram : p ∈ ramifiedPrimes d :=
     (mem_ramifiedPrimes_iff_isRamifiedIn d p).mpr ⟨hp_prime, hram⟩
   let q : {q // q ∈ signedPrimeDiscriminantFactors d} :=
-    ⟨primeDiscriminantFactor d p, mem_signedPrimeDiscriminantFactors_of_mem_ramifiedPrimes d hp_ram⟩
+    ⟨primeDiscriminantFactor d p,
+      mem_signedPrimeDiscriminantFactors_of_mem_ramifiedPrimes d hp_ram⟩
   have hcop := hI q
   change Nat.Coprime
     (Ideal.absNorm (I : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))))
@@ -1306,6 +1307,8 @@ noncomputable def genusCharacterMap :
         ext q
         simp }
 
+/-- The coordinate of `genusCharacterMap d C` at a signed prime-discriminant
+factor is the corresponding signed-factor genus character. -/
 @[simp]
 theorem genusCharacterMap_apply
     (C : Cl⁺(d))

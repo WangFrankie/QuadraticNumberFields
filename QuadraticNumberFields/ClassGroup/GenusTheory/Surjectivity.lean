@@ -249,7 +249,7 @@ theorem exists_narrowClass_absNorm_eq_of_kroneckerSymNat_discr_eq_one
   exact ⟨NarrowClassGroup.mk0 I, I, rfl, hI⟩
 
 /-- A common coprime ideal representative realizing every signed-factor coordinate
-proves surjectivity of the genus-character map. This isolates the remaining
+proves surjectivity of the genus-character map. This separates the
 CRT/Dirichlet/splitting construction from the formal descent step. -/
 theorem genusCharacterMap_surjective_of_exists_signedFactorsCoprime_representative
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
@@ -358,8 +358,8 @@ theorem genusCharacterMap_surjective_of_exists_prime_with_prescribed_signedFacto
 /-- Signed local-symbol realization: every product-one signed genus character is
 realized by a rational prime.
 
-This is the remaining CRT plus Dirichlet arithmetic-progression construction. It
-must prescribe the Kronecker symbols for all signed prime discriminant factors,
+This is the CRT plus Dirichlet arithmetic-progression construction. It
+prescribes the Kronecker symbols for all signed prime discriminant factors,
 including the `2`-primary signed factor. -/
 theorem exists_prime_with_prescribed_signedFactor_symbols
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]

@@ -41,6 +41,8 @@ noncomputable def genusCharacterMapOnSquareQuotient
   QuotientGroup.lift (Subgroup.square (Cl⁺(d))) (genusCharacterMap d)
     (square_le_genusCharacterMap_ker d)
 
+/-- Evaluating the descended genus-character map on a quotient representative
+recovers the original genus-character map. -/
 @[simp]
 theorem genusCharacterMapOnSquareQuotient_mk'
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (C : Cl⁺(d)) :

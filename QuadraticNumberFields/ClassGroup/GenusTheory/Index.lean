@@ -52,16 +52,21 @@ ramified in `ℚ(√d)`. -/
 noncomputable def ramifiedPrimeCount : ℕ :=
   (ramifiedPrimes d).card
 
+/-- Membership in `ramifiedPrimes d` is membership in the prime-factor set of the
+absolute field discriminant. -/
 @[simp]
 theorem mem_ramifiedPrimes_iff (p : ℕ) :
     p ∈ ramifiedPrimes d ↔
       p ∈ (NumberField.discr (Qsqrtd (d : ℚ))).natAbs.primeFactors :=
   Iff.rfl
 
+/-- The ramified-prime set may be computed from the explicit discriminant
+formula for `ℚ(√d)`. -/
 theorem ramifiedPrimes_eq_discrFormula_primeFactors :
     ramifiedPrimes d = (RingOfIntegers.discrFormula d).natAbs.primeFactors := by
   rw [ramifiedPrimes, RingOfIntegers.discr_formula d]
 
+/-- The ramified-prime count is the cardinality of `ramifiedPrimes d`. -/
 theorem ramifiedPrimeCount_eq_card :
     ramifiedPrimeCount d = (ramifiedPrimes d).card :=
   rfl
