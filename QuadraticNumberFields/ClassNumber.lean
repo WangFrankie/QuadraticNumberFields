@@ -1,0 +1,388 @@
+/-
+Copyright (c) 2026 Frankie Wang. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Frankie Wang
+-/
+
+import Mathlib.NumberTheory.NumberField.ClassNumber
+import QNFMathlib.RingTheory.DedekindDomain.Ideal
+import QNFMathlib.RingTheory.Ideal.Norm.AbsNorm
+import QuadraticNumberFields.Qsqrtd.TotallyRealComplex
+import QuadraticNumberFields.QuadraticField.RingOfIntegers
+import QuadraticNumberFields.RingOfIntegers.Discriminant
+import QuadraticNumberFields.Splitting.Factorization
+import QuadraticNumberFields.Splitting.Qsqrtd.Monogenic
+
+/-!
+# Class Numbers of Quadratic Number Fields
+
+This file specializes mathlib's Minkowski ideal-class representative bound to
+the standard quadratic fields `Qsqrtd d`, and provides the core
+`classNumberQsqrtd d` interface used by examples and form-class bridges.
+General class-number facts such as `NumberField.classNumber_eq_one_iff` should
+be used directly from mathlib.
+
+Source alignment: the Minkowski constants follow Boxer Notes, Lectures 23.1
+and 23.2.
+-/
+
+open scoped NumberField Real
+
+open Module NumberField InfinitePlace Ideal Nat
+
+namespace QuadraticNumberFields
+
+-- Use the canonical `QuadraticAlgebra` algebra structure for standard `Qsqrtd`
+-- calculations. Explicit bridges below still use `DivisionRing.toRatAlgebra`
+-- when matching mathlib's generic number-field API.
+attribute [-instance] DivisionRing.toRatAlgebra
+
+/-- The class number of the quadratic field `ℚ(√d)`, as a function of the
+squarefree integer parameter `d`. Thin alias of `NumberField.classNumber`. -/
+noncomputable def classNumberQsqrtd (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] : ℕ :=
+  NumberField.classNumber (Qsqrtd (d : ℚ))
+
+/-! ## Small-norm class-group closure lemmas -/
+
+/-- The natural number `2` is irreducible, as a convenience for absolute-norm
+arguments. -/
+theorem irreducible_two_nat : Irreducible (2 : ℕ) :=
+  (Nat.irreducible_iff_prime.mp Nat.prime_two).irreducible
+
+/-- An ideal of absolute norm `2` is prime. -/
+theorem Ideal.isPrime_of_absNorm_eq_two {R : Type*} [CommRing R] [Nontrivial R]
+    [IsDedekindDomain R] [Module.Free ℤ R] {I : Ideal R} (hI : Ideal.absNorm I = 2) :
+    I.IsPrime :=
+  Ideal.isPrime_of_irreducible_absNorm
+    (by rw [hI]; exact irreducible_two_nat)
+
+/-- If every ideal class has a representative of absolute norm `< 3`, and all
+norm-`2` ideals are principal, then every ideal class is trivial. -/
+theorem classGroup_eq_one_of_exists_ideal_norm_lt_three
+    {K : Type*} [Field K] [NumberField K]
+    (hexists : ∀ C : ClassGroup (𝓞 K),
+      ∃ I : nonZeroDivisors (Ideal (𝓞 K)),
+        ClassGroup.mk0 I = C ∧ Ideal.absNorm (I : Ideal (𝓞 K)) < 3)
+    (hprincipal_two : ∀ {I : Ideal (𝓞 K)}, Ideal.absNorm I = 2 → I.IsPrincipal)
+    (C : ClassGroup (𝓞 K)) :
+    C = 1 := by
+  obtain ⟨I, hmk, hnorm⟩ := hexists C
+  rw [← hmk, ClassGroup.mk0_eq_one_iff]
+  have hIne : (I : Ideal (𝓞 K)) ≠ 0 :=
+    mem_nonZeroDivisors_iff_ne_zero.mp I.2
+  have h0 : Ideal.absNorm (I : Ideal (𝓞 K)) ≠ 0 := by
+    rw [Ne, Ideal.absNorm_eq_zero_iff]
+    simpa using hIne
+  have hcase : Ideal.absNorm (I : Ideal (𝓞 K)) = 1 ∨
+      Ideal.absNorm (I : Ideal (𝓞 K)) = 2 := by omega
+  rcases hcase with h1 | h2
+  · rw [Ideal.absNorm_eq_one_iff] at h1
+    rw [h1]
+    exact ⟨1, Ideal.span_singleton_one.symm⟩
+  · exact hprincipal_two h2
+
+/-- If every ideal class has a representative of absolute norm `< 3`, and all
+norm-`2` representatives have class `P`, then every ideal class is trivial or
+equal to `P`. -/
+theorem classGroup_eq_one_or_of_exists_ideal_norm_lt_three
+    {K : Type*} [Field K] [NumberField K] (P : ClassGroup (𝓞 K))
+    (hexists : ∀ C : ClassGroup (𝓞 K),
+      ∃ I : nonZeroDivisors (Ideal (𝓞 K)),
+        ClassGroup.mk0 I = C ∧ Ideal.absNorm (I : Ideal (𝓞 K)) < 3)
+    (hclass_two : ∀ I : nonZeroDivisors (Ideal (𝓞 K)),
+      Ideal.absNorm (I : Ideal (𝓞 K)) = 2 → ClassGroup.mk0 I = P)
+    (C : ClassGroup (𝓞 K)) :
+    C = 1 ∨ C = P := by
+  obtain ⟨I, hmk, hnorm⟩ := hexists C
+  rw [← hmk]
+  have hIne : (I : Ideal (𝓞 K)) ≠ 0 :=
+    mem_nonZeroDivisors_iff_ne_zero.mp I.2
+  have h0 : Ideal.absNorm (I : Ideal (𝓞 K)) ≠ 0 := by
+    rw [Ne, Ideal.absNorm_eq_zero_iff]
+    simpa using hIne
+  have hcase : Ideal.absNorm (I : Ideal (𝓞 K)) = 1 ∨
+      Ideal.absNorm (I : Ideal (𝓞 K)) = 2 := by omega
+  rcases hcase with h1 | h2
+  · left
+    rw [ClassGroup.mk0_eq_one_iff]
+    rw [Ideal.absNorm_eq_one_iff] at h1
+    rw [h1]
+    exact ⟨1, Ideal.span_singleton_one.symm⟩
+  · right
+    exact hclass_two I h2
+
+/-- If every ideal class of a number field is trivial, then the class number is
+one. -/
+theorem NumberField.classNumber_eq_one_of_forall_classGroup_eq_one
+    {K : Type*} [Field K] [NumberField K]
+    (h : ∀ C : ClassGroup (𝓞 K), C = 1) :
+    NumberField.classNumber K = 1 := by
+  haveI : Unique (ClassGroup (𝓞 K)) := ⟨⟨1⟩, h⟩
+  simpa only [NumberField.classNumber] using
+    Fintype.card_unique (α := ClassGroup (𝓞 K))
+
+local notation "N " K:70 => @finrank ℚ K _ _ (@Algebra.toModule ℚ K _ _ DivisionRing.toRatAlgebra)
+local notation "M " K:70 => (4 / π) ^ nrComplexPlaces K *
+  (((N K)! : ℝ) / (N K) ^ (N K) * √|discr K|)
+
+namespace Qsqrtd
+
+private theorem finrank_defaultRatAlgebra_eq_two
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
+    N (Qsqrtd (d : ℚ)) = 2 := by
+  haveI : Fact (¬ IsSquare ((d : ℤ) : ℚ)) :=
+    ⟨not_isSquare_ratCast_of_squarefree_ne_one (Fact.out : Squarefree d) (Fact.out : d ≠ 1)⟩
+  have hcompare :
+      N (Qsqrtd (d : ℚ)) =
+        @Module.finrank ℚ (Qsqrtd (d : ℚ)) _ _
+          (@Algebra.toModule ℚ (Qsqrtd (d : ℚ)) _ _ QuadraticAlgebra.instAlgebra) := by
+    symm
+    refine @Algebra.finrank_eq_of_equiv_equiv ℚ (Qsqrtd (d : ℚ)) _ _
+      QuadraticAlgebra.instAlgebra ℚ (Qsqrtd (d : ℚ)) _ _ DivisionRing.toRatAlgebra
+      (RingEquiv.refl ℚ) (RingEquiv.refl (Qsqrtd (d : ℚ))) ?_
+    exact RingHom.ext_rat _ _
+  rw [hcompare]
+  exact QuadraticAlgebra.finrank_eq_two (d : ℚ) 0
+
+/-- An imaginary quadratic field `ℚ(√d)` has one complex place. -/
+theorem nrComplexPlaces_eq_one_of_neg
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : d < 0) :
+    nrComplexPlaces (Qsqrtd (d : ℚ)) = 1 := by
+  haveI : Fact (¬ IsSquare ((d : ℤ) : ℚ)) :=
+    ⟨not_isSquare_ratCast_of_squarefree_ne_one (Fact.out : Squarefree d) (Fact.out : d ≠ 1)⟩
+  letI : NumberField.IsTotallyComplex (Qsqrtd (d : ℚ)) := Qsqrtd.isTotallyComplex d hd
+  have hfin := finrank_defaultRatAlgebra_eq_two d
+  have hc := NumberField.IsTotallyComplex.finrank (Qsqrtd (d : ℚ))
+  have h : 2 = 2 * nrComplexPlaces (Qsqrtd (d : ℚ)) :=
+    hfin.symm.trans hc
+  omega
+
+/-- A real quadratic field `ℚ(√d)` has no complex places. -/
+theorem nrComplexPlaces_eq_zero_of_pos
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : 0 < d) :
+    nrComplexPlaces (Qsqrtd (d : ℚ)) = 0 := by
+  haveI : Fact (¬ IsSquare ((d : ℤ) : ℚ)) :=
+    ⟨not_isSquare_ratCast_of_squarefree_ne_one (Fact.out : Squarefree d) (Fact.out : d ≠ 1)⟩
+  letI : NumberField.IsTotallyReal (Qsqrtd (d : ℚ)) := Qsqrtd.isTotallyReal d hd
+  exact NumberField.IsTotallyReal.nrComplexPlaces_eq_zero (Qsqrtd (d : ℚ))
+
+private theorem minkowskiConstant_eq_imaginary
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : d < 0) :
+    M (Qsqrtd (d : ℚ)) = (2 / π) * √ |(discr (Qsqrtd (d : ℚ)) : ℝ)| := by
+  rw [nrComplexPlaces_eq_one_of_neg d hd]
+  have hfin := finrank_defaultRatAlgebra_eq_two d
+  rw [hfin]
+  norm_num
+  ring
+
+private theorem minkowskiConstant_eq_real
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : 0 < d) :
+    M (Qsqrtd (d : ℚ)) = (1 / 2) * √ |(discr (Qsqrtd (d : ℚ)) : ℝ)| := by
+  rw [nrComplexPlaces_eq_zero_of_pos d hd]
+  have hfin := finrank_defaultRatAlgebra_eq_two d
+  rw [hfin]
+  norm_num
+
+/-- In an imaginary quadratic field `ℚ(√d)`, every ideal class has a representative
+whose norm is at most `(2 / π) * √|D_K|`. -/
+theorem exists_ideal_in_class_of_norm_le_imaginary
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : d < 0)
+    (C : ClassGroup (𝓞 (Qsqrtd (d : ℚ)))) :
+    ∃ I : nonZeroDivisors (Ideal (𝓞 (Qsqrtd (d : ℚ)))),
+      ClassGroup.mk0 I = C ∧
+        (absNorm (I : Ideal (𝓞 (Qsqrtd (d : ℚ)))) : ℝ) ≤
+          (2 / π) * √ |(discr (Qsqrtd (d : ℚ)) : ℝ)| := by
+  obtain ⟨I, hC, hI⟩ := NumberField.exists_ideal_in_class_of_norm_le C
+  refine ⟨I, hC, ?_⟩
+  convert hI using 1
+  exact (minkowskiConstant_eq_imaginary d hd).symm
+
+/-- In a real quadratic field `ℚ(√d)`, every ideal class has a representative whose
+norm is at most `(1 / 2) * √|D_K|`. -/
+theorem exists_ideal_in_class_of_norm_le_real
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : 0 < d)
+    (C : ClassGroup (𝓞 (Qsqrtd (d : ℚ)))) :
+    ∃ I : nonZeroDivisors (Ideal (𝓞 (Qsqrtd (d : ℚ)))),
+      ClassGroup.mk0 I = C ∧
+        (absNorm (I : Ideal (𝓞 (Qsqrtd (d : ℚ)))) : ℝ) ≤
+          (1 / 2) * √ |(discr (Qsqrtd (d : ℚ)) : ℝ)| := by
+  obtain ⟨I, hC, hI⟩ := NumberField.exists_ideal_in_class_of_norm_le C
+  refine ⟨I, hC, ?_⟩
+  convert hI using 1
+  exact (minkowskiConstant_eq_real d hd).symm
+
+/-- The **Minkowski class-representative bound** of the quadratic field `ℚ(√d)`,
+a first-class real invariant alongside `discr`. It specializes the general
+number-field bound `(4/π)^{r₂} · (n!/nⁿ) · √|D|` to degree `2`
+(`n!/nⁿ = 2/4 = 1/2`):
+
+* imaginary `d < 0`: `(2/π)·√|D|`;
+* real `d > 0`: `(1/2)·√|D|`. -/
+noncomputable def minkowskiBound (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] : ℝ :=
+  (4 / π) ^ nrComplexPlaces (Qsqrtd (d : ℚ)) * (1 / 2) *
+    √ |(discr (Qsqrtd (d : ℚ)) : ℝ)|
+
+/-- Minkowski's bound for `ℚ(√d)` (unified form): every ideal class has a
+representative whose absolute norm is at most `minkowskiBound d`. -/
+theorem exists_ideal_in_class_of_norm_le
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (C : ClassGroup (𝓞 (Qsqrtd (d : ℚ)))) :
+    ∃ I : nonZeroDivisors (Ideal (𝓞 (Qsqrtd (d : ℚ)))),
+      ClassGroup.mk0 I = C ∧
+        (absNorm (I : Ideal (𝓞 (Qsqrtd (d : ℚ)))) : ℝ) ≤ minkowskiBound d := by
+  rcases lt_trichotomy d 0 with hneg | h0 | hpos
+  · obtain ⟨I, hC, hI⟩ := exists_ideal_in_class_of_norm_le_imaginary d hneg C
+    refine ⟨I, hC, ?_⟩
+    rw [minkowskiBound, nrComplexPlaces_eq_one_of_neg d hneg]
+    ring_nf at hI ⊢
+    exact hI
+  · exact absurd h0 (Fact.out : Squarefree d).ne_zero
+  · obtain ⟨I, hC, hI⟩ := exists_ideal_in_class_of_norm_le_real d hpos C
+    refine ⟨I, hC, ?_⟩
+    rw [minkowskiBound, nrComplexPlaces_eq_zero_of_pos d hpos]
+    ring_nf at hI ⊢
+    exact hI
+
+/-! ## Class number one via inert primes below the Minkowski bound -/
+
+section ClassNumberOne
+
+open scoped QuadraticNumberFields.Splitting
+
+/-- Numeric estimate for the Minkowski bound of an imaginary quadratic field:
+if `4 · |D| < 9 · n²` then `(2/π) · √|D| < n`. The factor `9` lets the proof
+run on the crude estimate `π > 3`, which is sharp enough for all nine Heegner
+numbers. -/
+theorem minkowskiBound_lt_of_neg (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (hd : d < 0) {n : ℕ}
+    (hn : 4 * |NumberField.discr (Qsqrtd (d : ℚ))| < 9 * (n : ℤ) ^ 2) :
+    minkowskiBound d < n := by
+  set D : ℤ := NumberField.discr (Qsqrtd (d : ℚ)) with hD
+  have hn0 : (0 : ℝ) < n := by
+    have habs : 0 ≤ |D| := abs_nonneg D
+    have : 0 < n := by by_contra h0; interval_cases n; simp at hn; omega
+    exact_mod_cast this
+  rw [minkowskiBound, nrComplexPlaces_eq_one_of_neg d hd, pow_one, ← hD]
+  have hpi : (3 : ℝ) < π := Real.pi_gt_three
+  have h9 : 4 * |(D : ℝ)| < 9 * (n : ℝ) ^ 2 := by
+    rw [← Int.cast_abs]
+    exact_mod_cast hn
+  have hsq : √|(D : ℝ)| < 3 * n / 2 := by
+    refine (Real.sqrt_lt' (by linarith)).mpr ?_
+    nlinarith
+  rw [div_mul_eq_mul_div, div_mul_eq_mul_div, div_lt_iff₀ (by positivity)]
+  nlinarith [Real.sqrt_nonneg |(D : ℝ)|]
+
+private lemma exists_nat_prime_comap_eq_p_and_dvd_absNorm
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    {P : Ideal (𝓞 (Qsqrtd (d : ℚ)))}
+    (hP : P.IsPrime) (hP0 : P ≠ ⊥) :
+    ∃ p : ℕ, p.Prime ∧
+      Ideal.comap (algebraMap ℤ (𝓞 (Qsqrtd (d : ℚ)))) P = 𝔭(p) ∧
+        p ∣ Ideal.absNorm P := by
+  exact Ideal.exists_nat_prime_comap_eq_span_and_dvd_absNorm_of_isPrime hP hP0
+
+private lemma isPrincipal_of_isInertIn_of_comap_eq_p
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    {P : Ideal (𝓞 (Qsqrtd (d : ℚ)))}
+    (hP : P.IsPrime) {p : ℕ} (hp : p.Prime)
+    (hcomap : Ideal.comap (algebraMap ℤ (𝓞 (Qsqrtd (d : ℚ)))) P = 𝔭(p))
+    (hinert : Ideal.IsInertIn (𝔭(p)) 𝓞(d)) :
+    P.IsPrincipal := by
+  have hchar : ringChar ℤ ≠ 2 := by simp [ringChar.eq_zero]
+  have hpbot : (𝔭(p)) ≠ (⊥ : Ideal ℤ) := by
+    rw [Ne, Ideal.span_singleton_eq_bot, Nat.cast_eq_zero]
+    exact hp.ne_zero
+  haveI : (𝔭(p)).IsMaximal :=
+    PrincipalIdealRing.isMaximal_of_irreducible
+      ((Nat.prime_iff_prime_int.mp hp).irreducible)
+  have hQprime : (Ideal.map (algebraMap ℤ (𝓞 (Qsqrtd (d : ℚ)))) (𝔭(p))).IsPrime :=
+    Ideal.map_isPrime_of_isInertIn (𝔭(p)) (𝓞 (Qsqrtd (d : ℚ))) hchar hpbot hinert
+  have hQle : Ideal.map (algebraMap ℤ (𝓞 (Qsqrtd (d : ℚ)))) (𝔭(p)) ≤ P := by
+    rw [← hcomap]
+    exact Ideal.map_comap_le
+  have hQbot : Ideal.map (algebraMap ℤ (𝓞 (Qsqrtd (d : ℚ)))) (𝔭(p)) ≠ ⊥ := by
+    rw [Ideal.map_span, Set.image_singleton, Ne, Ideal.span_singleton_eq_bot]
+    simp only [map_natCast, Nat.cast_eq_zero]
+    exact hp.ne_zero
+  have hPQ : Ideal.map (algebraMap ℤ (𝓞 (Qsqrtd (d : ℚ)))) (𝔭(p)) = P :=
+    (hQprime.isMaximal hQbot).eq_of_le hP.ne_top hQle
+  rw [← hPQ, Ideal.map_span, Set.image_singleton]
+  exact ⟨_, rfl⟩
+
+private lemma isPrincipal_of_isPrime_dvd_of_forall_le_minkowskiBound_isInertIn
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (h : ∀ p : ℕ, p.Prime → (p : ℝ) ≤ minkowskiBound d →
+      Ideal.IsInertIn (𝔭(p)) 𝓞(d))
+    {I : nonZeroDivisors (Ideal (𝓞 (Qsqrtd (d : ℚ))))}
+    {P : Ideal (𝓞 (Qsqrtd (d : ℚ)))}
+    (hP : P.IsPrime) (hPI : P ∣ (I : Ideal (𝓞 (Qsqrtd (d : ℚ)))))
+    (hnorm : (Ideal.absNorm (I : Ideal (𝓞 (Qsqrtd (d : ℚ)))) : ℝ) ≤
+      minkowskiBound d) :
+    P.IsPrincipal := by
+  have hI0 : (I : Ideal (𝓞 (Qsqrtd (d : ℚ)))) ≠ 0 := nonZeroDivisors.coe_ne_zero I
+  have hP0 : P ≠ ⊥ := by
+    rintro rfl
+    rw [← Ideal.zero_eq_bot, zero_dvd_iff] at hPI
+    exact hI0 hPI
+  obtain ⟨p, hp, hcomap, hpdiv⟩ :=
+    exists_nat_prime_comap_eq_p_and_dvd_absNorm d hP hP0
+  have habs0 : Ideal.absNorm P ≠ 0 := by
+    rwa [Ne, Ideal.absNorm_eq_zero_iff]
+  have hIabs0 : Ideal.absNorm (I : Ideal (𝓞 (Qsqrtd (d : ℚ)))) ≠ 0 := by
+    rwa [Ne, Ideal.absNorm_eq_zero_iff]
+  have hPle : Ideal.absNorm P ≤ Ideal.absNorm (I : Ideal (𝓞 (Qsqrtd (d : ℚ)))) :=
+    Nat.le_of_dvd (Nat.pos_of_ne_zero hIabs0)
+      (Ideal.absNorm_dvd_absNorm_of_le (Ideal.le_of_dvd hPI))
+  have hpabs : p ≤ Ideal.absNorm P :=
+    Nat.le_of_dvd (Nat.pos_of_ne_zero habs0) hpdiv
+  have hple : (p : ℝ) ≤ minkowskiBound d :=
+    le_trans (by exact_mod_cast le_trans hpabs hPle) hnorm
+  exact isPrincipal_of_isInertIn_of_comap_eq_p d hP hp hcomap (h p hp hple)
+
+private lemma isPrincipal_of_absNorm_le_minkowskiBound_of_forall_isInertIn
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (h : ∀ p : ℕ, p.Prime → (p : ℝ) ≤ minkowskiBound d →
+      Ideal.IsInertIn (𝔭(p)) 𝓞(d))
+    (I : nonZeroDivisors (Ideal (𝓞 (Qsqrtd (d : ℚ)))))
+    (hnorm : (Ideal.absNorm (I : Ideal (𝓞 (Qsqrtd (d : ℚ)))) : ℝ) ≤
+      minkowskiBound d) :
+    (I : Ideal (𝓞 (Qsqrtd (d : ℚ)))).IsPrincipal := by
+  refine Ideal.isPrincipal_of_forall_isPrime_dvd_isPrincipal fun P hP hPI => ?_
+  exact isPrincipal_of_isPrime_dvd_of_forall_le_minkowskiBound_isInertIn
+    d h hP hPI hnorm
+
+/-- Class-group form of the inert-prime criterion: under the Minkowski-bound
+inertness hypothesis, every ideal class of `𝓞(ℚ(√d))` is trivial. -/
+theorem classGroup_eq_one_of_forall_le_minkowskiBound_isInertIn
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (h : ∀ p : ℕ, p.Prime → (p : ℝ) ≤ minkowskiBound d →
+      Ideal.IsInertIn (𝔭(p)) 𝓞(d))
+    (C : ClassGroup (𝓞 (Qsqrtd (d : ℚ)))) :
+    C = 1 := by
+  obtain ⟨I, hmk, hnorm⟩ := exists_ideal_in_class_of_norm_le d C
+  rw [← hmk, ClassGroup.mk0_eq_one_iff]
+  exact isPrincipal_of_absNorm_le_minkowskiBound_of_forall_isInertIn d h I hnorm
+
+/-- **Class number one via inert primes.** If every rational prime `p` below
+the Minkowski bound of `ℚ(√d)` is inert in `𝓞(ℚ(√d))`, then `ℚ(√d)` has class
+number one.
+
+Every ideal class contains an ideal `I` with `absNorm I ≤ minkowskiBound d`.
+Each prime ideal `P ∣ I` lies over a rational prime `p ≤ absNorm P ≤ absNorm I`,
+which is inert by hypothesis, so `P = (p)` is principal; hence `I` is principal
+and the class group is trivial. -/
+theorem classNumber_eq_one_of_forall_le_minkowskiBound_isInertIn
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (h : ∀ p : ℕ, p.Prime → (p : ℝ) ≤ minkowskiBound d →
+      Ideal.IsInertIn (𝔭(p)) 𝓞(d)) :
+    NumberField.classNumber (Qsqrtd (d : ℚ)) = 1 := by
+  have htriv := classGroup_eq_one_of_forall_le_minkowskiBound_isInertIn d h
+  haveI : Unique (ClassGroup (𝓞 (Qsqrtd (d : ℚ)))) := ⟨⟨1⟩, htriv⟩
+  simpa only [NumberField.classNumber] using
+    Fintype.card_unique (α := ClassGroup (𝓞 (Qsqrtd (d : ℚ))))
+
+end ClassNumberOne
+
+end Qsqrtd
+end QuadraticNumberFields

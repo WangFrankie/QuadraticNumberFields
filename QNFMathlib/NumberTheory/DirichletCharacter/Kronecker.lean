@@ -46,12 +46,12 @@ private lemma kroneckerCharacterFun_one (D : ℤ) [Fact (D % 4 = 0 ∨ D % 4 = 1
   unfold kroneckerCharacterFun
   rcases eq_or_ne D.natAbs 0 with hD0 | hD0
   · -- D.natAbs = 0 (D = 0): (1 : ZMod 0).val = 1, kroneckerSymNat 0 1 = 1
-    simp only [ZMod.val_one_eq_one_mod, hD0, Nat.mod_zero]
+    rw [show (1 : ZMod D.natAbs).val = 1 from by rw [ZMod.val_one_eq_one_mod, hD0]]
     rw [kroneckerSymNat]
     simp [kroneckerTwo, jacobiSym.one_right]
   · rcases eq_or_ne D.natAbs 1 with hD1 | hD1
     · -- D.natAbs = 1: ZMod 1 has only one element; (1 : ZMod 1).val = 0.
-      simp only [ZMod.val_one_eq_one_mod, hD1, Nat.mod_one]
+      rw [show (1 : ZMod D.natAbs).val = 0 from by rw [ZMod.val_one_eq_one_mod, hD1]]
       rw [kroneckerSymNat]
       simp [hD1]
     · -- D.natAbs ≥ 2: (1 : ZMod D.natAbs).val = 1

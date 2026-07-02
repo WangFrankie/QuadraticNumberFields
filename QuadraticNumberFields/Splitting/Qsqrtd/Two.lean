@@ -173,9 +173,11 @@ private lemma monicFactorsMod_two_card_eq_two (hd8 : d % 8 = 1) :
       intro h
       have hcoeff := congrArg (fun q : (ZMod 2)[X] => q.coeff 0) h
       norm_num at hcoeff
-  · exact Polynomial.monic_X.ne_zero
-  · simpa [sub_eq_add_neg, ZModModule.neg_eq_self] using
-      (Polynomial.monic_X_sub_C (1 : ZMod 2)).ne_zero
+  · rw [show (X : (ZMod 2)[X]) = X - C (0 : ZMod 2) by simp]
+    exact (Polynomial.monic_X_sub_C (0 : ZMod 2)).ne_zero
+  · rw [show (X + 1 : (ZMod 2)[X]) = X - C (1 : ZMod 2) by
+      simp [sub_eq_add_neg, ZModModule.neg_eq_self]]
+    exact (Polynomial.monic_X_sub_C (1 : ZMod 2)).ne_zero
 
 /-- `(2)` ramifies in `𝓞(ℚ(√d))` when `d ≢ 1 (mod 4)`. -/
 theorem isRamified_two_of_mod_four_ne_one (hd4 : d % 4 ≠ 1) :

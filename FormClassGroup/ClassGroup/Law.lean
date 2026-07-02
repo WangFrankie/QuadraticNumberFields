@@ -53,8 +53,10 @@ theorem ReducedFormRep.isPrimitive (Q : ReducedFormRep D) : Q.1.IsPrimitive :=
 /-- The finite representative type has the same cardinality as the reduced-form
 enumeration backing it. -/
 theorem reducedFormRep_card (D : ℤ) :
-    Fintype.card (ReducedFormRep D) = (enumPrimitiveReducedForms D).card :=
-  Fintype.card_coe (enumPrimitiveReducedForms D)
+    Fintype.card (ReducedFormRep D) = (enumPrimitiveReducedForms D).card := by
+  classical
+  change Fintype.card {Q : BinaryQuadraticForm // Q ∈ enumPrimitiveReducedForms D} = _
+  exact Fintype.card_coe (enumPrimitiveReducedForms D)
 
 /-- Interpret an enumerated reduced form as its proper-equivalence class. -/
 def ReducedFormRep.formClass (Q : ReducedFormRep D) : FormClass D :=

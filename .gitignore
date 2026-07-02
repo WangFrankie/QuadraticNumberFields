@@ -40,7 +40,6 @@ __pycache__/
 #AI
 .omc
 .omx
-.omo
 .claude
 .codex
 .agents
@@ -56,5 +55,4 @@ openspec/
 
 #Local Files
 docs/local/
-*.*.local
-*.local.*
+.*.local

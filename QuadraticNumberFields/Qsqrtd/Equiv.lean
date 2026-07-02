@@ -46,7 +46,8 @@ def IsSquareRatioByDivision (d d' : ℚ) : Prop :=
 rational square factor. -/
 theorem nonempty_algEquiv_of_isSquareRatio {d d' : ℚ} :
     IsSquareRatio d d' → Nonempty (Qsqrtd d ≃ₐ[ℚ] Qsqrtd d') := by
-  exact fun ⟨a, h⟩ => h ▸ ⟨Qsqrtd.rescale d a⟩
+  rintro ⟨a, rfl⟩
+  exact ⟨Qsqrtd.rescale d a⟩
 
 /-- Multiplicative and division forms of square-ratio equivalence agree away
 from `d = 0`. -/
@@ -54,9 +55,13 @@ theorem isSquareRatio_iff_isSquareRatioByDivision {d d' : ℚ} (hd : d ≠ 0) :
     IsSquareRatio d d' ↔ IsSquareRatioByDivision d d' := by
   constructor
   · rintro ⟨a, rfl⟩
-    exact ⟨a, by field_simp [hd]⟩
+    refine ⟨a, ?_⟩
+    field_simp [hd]
   · rintro ⟨a, ha⟩
-    exact ⟨a, by rw [← ha]; field_simp [hd]⟩
+    refine ⟨a, ?_⟩
+    calc
+      d' = d' / d * d := by field_simp [hd]
+      _ = (a : ℚ) ^ 2 * d := by rw [ha]
 
 /-- WIP classification interface: non-square standard models are equivalent
 exactly when their parameters differ by a rational square factor.
@@ -85,7 +90,7 @@ theorem algEquiv_iff_isSquareRatioByDivision
     Nonempty (Qsqrtd d ≃ₐ[ℚ] Qsqrtd d') ↔ IsSquareRatioByDivision d d' := by
   have hd : d ≠ 0 := by
     intro hd
-    exact (Fact.out : ¬ IsSquare d) (by simp [hd])
+    exact (Fact.out : ¬ IsSquare d) (by rw [hd]; exact ⟨0, by ring⟩)
   exact (algEquiv_iff_isSquareRatio d d').trans (isSquareRatio_iff_isSquareRatioByDivision hd)
 
 end Qsqrtd

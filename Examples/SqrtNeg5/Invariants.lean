@@ -7,7 +7,7 @@ import QuadraticNumberFields.RingOfIntegers.Classification
 import QuadraticNumberFields.RingOfIntegers.Discriminant
 import QuadraticNumberFields.Qsqrtd.TotallyRealComplex
 import QuadraticNumberFields.Qsqrtd.Galois
-import QuadraticNumberFields.ClassGroup.Minkowski
+import QuadraticNumberFields.ClassNumber
 import QuadraticNumberFields.Zsqrtd.Dedekind
 import QuadraticNumberFields.RingOfIntegers.CommonInstances
 
@@ -74,8 +74,9 @@ theorem minkowskiBound_lt_three : Qsqrtd.minkowskiBound (-5 : ℤ) < 3 := by
     RingOfIntegers.discr_of_mod_four_ne_one (-5) (by decide)]
   have hpi : (3 : ℝ) < Real.pi := Real.pi_gt_three
   have hsqrt : Real.sqrt |((4 * (-5) : ℤ) : ℝ)| ≤ 4.48 := by
-    rw [show |((4 * (-5) : ℤ) : ℝ)| = 20 by norm_num, Real.sqrt_le_iff]
-    norm_num
+    rw [show |((4 * (-5) : ℤ) : ℝ)| = 20 by norm_num]
+    calc Real.sqrt 20 ≤ Real.sqrt (4.48 ^ 2) := Real.sqrt_le_sqrt (by norm_num)
+      _ = 4.48 := Real.sqrt_sq (by norm_num)
   rw [pow_one, div_mul_eq_mul_div, div_mul_eq_mul_div, div_lt_iff₀ (by positivity)]
   nlinarith [hsqrt, hpi, Real.sqrt_nonneg |((4 * (-5) : ℤ) : ℝ)|]
 

@@ -24,7 +24,9 @@ variable {R : Type*} [CommSemiring R] {a b : R}
 -- `X ^ 3 + 1` as twice a square.
 theorem four_mul_right_of_two_mul_right (h : IsCoprime a ((2 : R) * b)) :
     IsCoprime a ((4 : R) * b) := by
-  convert ((IsCoprime.mul_right_iff.mp h).1).mul_right h using 1
+  have hparts := IsCoprime.mul_right_iff.mp h
+  have hcop2 : IsCoprime a (2 : R) := hparts.1
+  convert hcop2.mul_right h using 1
   ring
 
 variable {S : Type*} [CommSemiring S] [GCDMonoid S] {x y z : S}
@@ -36,8 +38,9 @@ associated to a `k`-th power. -/
 theorem exists_associated_pow_left_of_mul_eq_pow (hcop : IsCoprime x y)
     {k : ℕ} (h : x * y = z ^ k) :
     ∃ w, Associated (w ^ k) x := by
-  exact exists_associated_pow_of_mul_eq_pow
-    (hcop.isUnit_of_dvd' (gcd_dvd_left x y) (gcd_dvd_right x y)) h
+  have hgcd : IsUnit (gcd x y) :=
+    hcop.isUnit_of_dvd' (GCDMonoid.gcd_dvd_left x y) (GCDMonoid.gcd_dvd_right x y)
+  exact exists_associated_pow_of_mul_eq_pow hgcd h
 
 end IsCoprime
 
@@ -49,8 +52,10 @@ namespace Int
 theorem isUnit_of_dvd_odd_cube_and_dvd_four {n m : ℤ} (hn : Odd n)
     (hmn : m ∣ n ^ 3) (hm4 : m ∣ (4 : ℤ)) :
     IsUnit m := by
+  have hn3odd : Odd (n ^ 3) := by
+    exact (Int.odd_pow' (m := n) (n := 3) (by norm_num)).mpr hn
   have hcop2 : IsCoprime (n ^ 3) (2 : ℤ) := by
-    exact Int.isCoprime_two_right.mpr ((Int.odd_pow' (m := n) (n := 3) (by norm_num)).mpr hn)
+    exact Int.isCoprime_two_right.mpr hn3odd
   have hcop4 : IsCoprime (n ^ 3) (4 : ℤ) := by
     simpa [show (4 : ℤ) = 2 ^ 2 by norm_num] using (hcop2.pow_right (n := 2))
   have hcop_nm : IsCoprime (n ^ 3) m := by

@@ -69,6 +69,7 @@ instance : Fact ((-231 : ℤ) ≠ 1) := ⟨by decide⟩
 /-- `ℚ(√-23)` has class number three, computed by reduced forms. -/
 theorem classNumber_qsqrtd_neg23 :
     NumberField.classNumber (Qsqrtd ((-23 : ℤ) : ℚ)) = 3 := by
+  change classNumberQsqrtd (-23) = 3
   compute_class_number_qsqrtd
 
 /-! ## Direct cyclic outputs -/
@@ -90,8 +91,11 @@ noncomputable def classGroup_qsqrtd_neg23_mulEquiv :
     (G := ClassGroup (NumberField.RingOfIntegers (Qsqrtd ((-23 : ℤ) : ℚ))))
     (G' := Multiplicative (ZMod 3))
     (by
-      simpa [NumberField.classNumber, Fintype.card_eq_nat_card] using classNumber_qsqrtd_neg23)
-    (by simp)
+      rw [Nat.card_eq_fintype_card]
+      simpa [NumberField.classNumber] using classNumber_qsqrtd_neg23)
+    (by
+      rw [Nat.card_eq_fintype_card]
+      simp)
 
 /-! ## Non-cyclic standard-output checks
 

@@ -9,6 +9,7 @@ import Examples.SqrtNeg5.ClassNumber
 import FormClassGroup.ClassGroup.ClassNumber
 import FormClassGroup.ClassGroup.Structure
 import BinaryQuadraticForms.Core.Enumeration
+import Mathlib.GroupTheory.SpecificGroups.Cyclic
 
 /-!
 # √-5: Form class group — full theory tour
@@ -21,10 +22,10 @@ different layer of the project.
 
 1. **Invariants** — field discriminant, Minkowski bound
 2. **Reduced forms** — enumerate the two reduced BQFs of discriminant -20
-3. **Class number** — `NumberField.classNumber (Qsqrtd (-5)) = 2` via both ideal
-   and form methods.
+3. **Class number** — `classNumberQsqrtd (-5) = 2` via both ideal and form methods
 4. **Form class group structure** — transported `CommGroup` + Cox multiplicative property
 5. **Cox equivalence** — bijection cardinality, non-identity classP
+6. **Group law** — `classP² = 1`, the group is `ℤ/2ℤ`, transported to form classes
 
 All lemmas are sorry-free.
 -/
@@ -109,21 +110,20 @@ end ReducedForms
 section ClassNumber
 
 /-- `ℚ(√-5)` has class number two — the classic non-UFD example. -/
-example : NumberField.classNumber (Qsqrtd ((-5 : ℤ) : ℚ)) = 2 :=
-  classNumber_eq_two
+example : classNumberQsqrtd (-5 : ℤ) = 2 :=
+  classNumberQsqrtd_neg5
 
 /-- Computation-path regression for `ℚ(√-5)`: the class number is obtained from
 the reduced-form enumeration. -/
-theorem classNumber_qsqrtd_neg5_by_reducedForms :
-    NumberField.classNumber (Qsqrtd ((-5 : ℤ) : ℚ)) = 2 := by
+theorem classNumberQsqrtd_neg5_by_reducedForms : classNumberQsqrtd (-5) = 2 := by
   compute_class_number_qsqrtd
 
 /-- The class number equals the count of primitive reduced positive definite
 forms of the field discriminant.  This is the bridge between ideal-class and
 form-class viewpoints. -/
-example : NumberField.classNumber (Qsqrtd ((-5 : ℤ) : ℚ)) =
+example : classNumberQsqrtd (-5 : ℤ) =
     (enumPrimitiveReducedForms (fieldDiscriminant (-5 : ℤ))).card :=
-  classNumber_qsqrtd_eq_reducedForms_card (-5 : ℤ) (by decide : (-5 : ℤ) < 0)
+  classNumberQsqrtd_eq_reducedForms_card (-5 : ℤ) (by decide : (-5 : ℤ) < 0)
 
 end ClassNumber
 
@@ -176,6 +176,46 @@ example : classP ≠ (1 : ClassGroup (𝓞 (Qsqrtd ((-5 : ℤ) : ℚ)))) :=
   classP_ne_one
 
 end CoxEquivalence
+
+/-! ## 6. Group law: `classP² = 1` (the group is `ℤ/2ℤ`) -/
+
+section GroupLaw
+
+/-- Every element of the ideal class group of `ℚ(√-5)` is either `1` or
+`classP`. -/
+example (C : ClassGroup (𝓞 (Qsqrtd ((-5 : ℤ) : ℚ)))) : C = 1 ∨ C = classP :=
+  classGroup_eq_one_or_classP C
+
+/-- The non-identity element `classP` is self-inverse: `classP² = 1`.
+Combined with `classGroup_eq_one_or_classP`, this proves the class group
+of `ℚ(√-5)` is cyclic of order 2. -/
+theorem classP_mul_self_eq_one :
+    classP * classP = (1 : ClassGroup (𝓞 (Qsqrtd ((-5 : ℤ) : ℚ)))) := by
+  have h := classGroup_eq_one_or_classP (classP * classP)
+  rcases h with (h1 | hP)
+  · exact h1
+  · -- classP * classP = classP → cancel classP → classP = 1, contradiction
+    have hclassP_eq_one : classP = 1 := by
+      calc
+        classP = (classP * classP) * classP⁻¹ := by simp
+        _ = classP * classP⁻¹ := by rw [hP]
+        _ = 1 := by simp
+    exact absurd hclassP_eq_one classP_ne_one
+
+/-- The ideal class group of `ℚ(√-5)` is cyclic of order two. -/
+noncomputable def classGroupMulEquivZMod2 :
+    ClassGroup (𝓞 (Qsqrtd ((-5 : ℤ) : ℚ))) ≃* Multiplicative (ZMod 2) :=
+  mulEquivOfPrimeCardEq (p := 2)
+    (G := ClassGroup (𝓞 (Qsqrtd ((-5 : ℤ) : ℚ))))
+    (G' := Multiplicative (ZMod 2))
+    (by
+      rw [Nat.card_eq_fintype_card]
+      simpa [O, NumberField.classNumber] using classNumber_eq_two)
+    (by
+      rw [Nat.card_eq_fintype_card]
+      simp)
+
+end GroupLaw
 
 end SqrtNeg5
 end Examples

@@ -142,7 +142,10 @@ noncomputable instance instConjQsqrtd (d : ℤ) [Fact (Squarefree d)] [Fact (d �
         rw [← hstar', hsqrtd]
       rw [QuadraticAlgebra.ext_iff] at h₁
       simpa using h₁
-    exact absurd hcontra (by norm_num)
+    -- `omega` doesn't see the `1 = -1` directly; extract the imaginary parts.
+    have h₂ : (1 : ℚ) = -1 := by
+      linarith
+    exact absurd h₂ (by norm_num)
 
 /-! ## Trace and Norm via the Distinguished Conjugation
 
@@ -163,8 +166,8 @@ theorem univ_aut_eq_pair [DecidableEq (K ≃ₐ[ℚ] K)] :
   haveI : IsGalois ℚ K := Algebra.IsQuadraticExtension.isGalois ℚ K
   have hne : (AlgEquiv.refl : K ≃ₐ[ℚ] K) ≠ conjAut K := (Conj.conj_ne_refl).symm
   have hcard : Fintype.card (K ≃ₐ[ℚ] K) = 2 := by
-    simpa using (IsGalois.card_aut_eq_finrank ℚ K).trans
-      (Algebra.IsQuadraticExtension.finrank_eq_two ℚ K)
+    rw [← Nat.card_eq_fintype_card, IsGalois.card_aut_eq_finrank,
+      Algebra.IsQuadraticExtension.finrank_eq_two]
   refine (Finset.eq_univ_of_card _ ?_).symm
   rw [Finset.card_pair hne, hcard]
 

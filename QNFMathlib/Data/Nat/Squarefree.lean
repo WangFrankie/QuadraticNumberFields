@@ -29,8 +29,9 @@ theorem exists_prime_dvd_and_four_mul_lt_succ_of_squarefree_of_odd_of_not_prime
     intro hq2
     have h2dvd : 2 ∣ n := by simpa [q, hq2] using hqdvd
     exact hodd.not_two_dvd_nat h2dvd
-  have hq_ge_three : 3 ≤ q :=
-    (Nat.two_lt_of_ne hqprime.ne_zero hqprime.ne_one hq_ne_two).succ_le
+  have hq_ge_three : 3 ≤ q := by
+    have hq2le : 2 ≤ q := hqprime.two_le
+    omega
   let r := n / q
   have hn_eq : n = q * r := by
     dsimp [r]
@@ -47,8 +48,10 @@ theorem exists_prime_dvd_and_four_mul_lt_succ_of_squarefree_of_odd_of_not_prime
     have hq2dvd_n : q * q ∣ n := by
       rw [hn_eq]
       exact Nat.mul_dvd_mul_left q hqr
-    exact Squarefree.not_mul_self_dvd_of_not_isUnit hsq
-      (fun hu => hqprime.ne_one (isUnit_iff_eq_one.mp hu)) hq2dvd_n
+    have hq_not_unit : ¬ IsUnit q := by
+      intro hu
+      exact hqprime.ne_one (isUnit_iff_eq_one.mp hu)
+    exact Squarefree.not_mul_self_dvd_of_not_isUnit hsq hq_not_unit hq2dvd_n
   refine ⟨q, hqprime, hqdvd, ?_⟩
   by_cases hq3 : q = 3
   · have hrodd : Odd r := by
@@ -56,7 +59,8 @@ theorem exists_prime_dvd_and_four_mul_lt_succ_of_squarefree_of_odd_of_not_prime
       exact Nat.Odd.of_mul_right hodd
     have hr_ne_three : r ≠ 3 := by
       intro hr3
-      exact hq_not_dvd_r (by simp [hq3, hr3])
+      have hq_dvd_r : q ∣ r := by rw [hq3, hr3]
+      exact hq_not_dvd_r hq_dvd_r
     have hr5 : 5 ≤ r := by
       rcases hrodd with ⟨t, ht⟩
       omega
@@ -73,7 +77,9 @@ theorem exists_prime_dvd_and_four_mul_lt_succ_of_squarefree_of_odd_of_not_prime
       have hq_le_s : q ≤ s := Nat.minFac_le_of_dvd hs.two_le hsn
       omega
     have hq_ne_four : q ≠ 4 := by
-      exact fun hq4 => (by decide : ¬ Nat.Prime 4) (by simpa [hq4] using hqprime)
+      intro hq4
+      have hnot : ¬ Nat.Prime 4 := by decide
+      exact hnot (by simpa [hq4] using hqprime)
     have hq5 : 5 ≤ q := by omega
     rw [hn_eq]
     nlinarith

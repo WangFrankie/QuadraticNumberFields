@@ -60,31 +60,31 @@ end ReducedRepresentatives
 
 end BinaryQuadraticForm
 
-example : NumberField.classNumber (Qsqrtd ((-1 : ℤ) : ℚ)) = 1 := by
+example : classNumberQsqrtd (-1) = 1 := by
   compute_class_number_qsqrtd
 
-example : NumberField.classNumber (Qsqrtd ((-2 : ℤ) : ℚ)) = 1 := by
+example : classNumberQsqrtd (-2) = 1 := by
   compute_class_number_qsqrtd
 
-example : NumberField.classNumber (Qsqrtd ((-3 : ℤ) : ℚ)) = 1 := by
+example : classNumberQsqrtd (-3) = 1 := by
   compute_class_number_qsqrtd
 
-example : NumberField.classNumber (Qsqrtd ((-7 : ℤ) : ℚ)) = 1 := by
+example : classNumberQsqrtd (-7) = 1 := by
   compute_class_number_qsqrtd
 
-example : NumberField.classNumber (Qsqrtd ((-11 : ℤ) : ℚ)) = 1 := by
+example : classNumberQsqrtd (-11) = 1 := by
   compute_class_number_qsqrtd
 
-example : NumberField.classNumber (Qsqrtd ((-19 : ℤ) : ℚ)) = 1 := by
+example : classNumberQsqrtd (-19) = 1 := by
   compute_class_number_qsqrtd
 
-example : NumberField.classNumber (Qsqrtd ((-43 : ℤ) : ℚ)) = 1 := by
+example : classNumberQsqrtd (-43) = 1 := by
   compute_class_number_qsqrtd
 
-example : NumberField.classNumber (Qsqrtd ((-67 : ℤ) : ℚ)) = 1 := by
+example : classNumberQsqrtd (-67) = 1 := by
   compute_class_number_qsqrtd
 
-example : NumberField.classNumber (Qsqrtd ((-163 : ℤ) : ℚ)) = 1 := by
+example : classNumberQsqrtd (-163) = 1 := by
   compute_class_number_qsqrtd
 
 end QuadraticNumberFields

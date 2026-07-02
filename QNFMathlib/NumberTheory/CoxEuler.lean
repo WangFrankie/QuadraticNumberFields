@@ -293,7 +293,9 @@ theorem sq_emod_three_eq_zero_of_emod_eq_zero {x : ℤ} (hx : x % 3 = 0) :
     x ^ 2 % 3 = 0 := by
   let q : ℤ := x / 3
   have hxdecomp : x = 3 * q := by
-    omega
+    calc
+      x = x % 3 + 3 * (x / 3) := (Int.emod_add_mul_ediv x 3).symm
+      _ = 3 * q := by rw [hx]; simp [q]
   rw [hxdecomp]
   ring_nf
   omega
@@ -303,7 +305,9 @@ theorem sq_emod_three_eq_one_of_emod_eq_one {x : ℤ} (hx : x % 3 = 1) :
     x ^ 2 % 3 = 1 := by
   let q : ℤ := x / 3
   have hxdecomp : x = 3 * q + 1 := by
-    omega
+    calc
+      x = x % 3 + 3 * (x / 3) := (Int.emod_add_mul_ediv x 3).symm
+      _ = 3 * q + 1 := by rw [hx]; simp [q]; ring
   rw [hxdecomp]
   ring_nf
   omega
@@ -313,7 +317,9 @@ theorem sq_emod_three_eq_one_of_emod_eq_two {x : ℤ} (hx : x % 3 = 2) :
     x ^ 2 % 3 = 1 := by
   let q : ℤ := x / 3
   have hxdecomp : x = 3 * q + 2 := by
-    omega
+    calc
+      x = x % 3 + 3 * (x / 3) := (Int.emod_add_mul_ediv x 3).symm
+      _ = 3 * q + 2 := by rw [hx]; simp [q]; ring
   rw [hxdecomp]
   ring_nf
   omega
