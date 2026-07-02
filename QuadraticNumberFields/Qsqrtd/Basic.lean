@@ -70,6 +70,7 @@ abbrev norm {d : ℚ} (x : Qsqrtd d) : ℚ := QuadraticAlgebra.norm x
 abbrev normHom (d : ℚ) : Qsqrtd d →* ℚ :=
   QuadraticAlgebra.norm
 
+/-- Applying `normHom` is the same as the scalar-valued quadratic norm. -/
 theorem normHom_apply (d : ℚ) (x : Qsqrtd d) :
     normHom d x = Qsqrtd.norm x :=
   rfl
@@ -78,6 +79,8 @@ theorem normHom_apply (d : ℚ) (x : Qsqrtd d) :
 abbrev normUnitsHom (d : ℚ) : (Qsqrtd d)ˣ →* ℚˣ :=
   Units.map (normHom d)
 
+/-- The unit-valued norm, coerced back to `ℚ`, is the quadratic norm of the
+underlying element. -/
 theorem normUnitsHom_coe (d : ℚ) (u : (Qsqrtd d)ˣ) :
     ((normUnitsHom d u : ℚˣ) : ℚ) = Qsqrtd.norm (u : Qsqrtd d) := by
   simp [normUnitsHom, normHom]

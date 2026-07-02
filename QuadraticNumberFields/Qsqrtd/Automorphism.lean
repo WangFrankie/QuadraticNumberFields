@@ -69,7 +69,8 @@ theorem algEquiv_self_eq_refl_or_star
   have hdQ : (d : ℚ) ≠ 0 := by exact_mod_cast (Squarefree.ne_zero (Fact.out : Squarefree d))
   have hbsq : b ^ 2 = 1 := mul_left_cancel₀ hdQ (by simpa using hr.symm)
   -- The rational algebra map sends `q ↦ ⟨q, 0⟩`.
-  have hAM : ∀ q : ℚ, algebraMap ℚ (Qsqrtd (d : ℚ)) q = (⟨q, 0⟩ : Qsqrtd (d : ℚ)) := by
+  have hAM :
+      ∀ q : ℚ, algebraMap ℚ (Qsqrtd (d : ℚ)) q = (⟨q, 0⟩ : Qsqrtd (d : ℚ)) := by
     intro q
     rw [← QuadraticAlgebra.algebraMap_eq (R := ℚ) (a := (d : ℚ)) (b := 0) q]
   -- Every element decomposes as `x = algebraMap x.re + algebraMap x.im * ⟨0, 1⟩`.
@@ -87,7 +88,8 @@ theorem algEquiv_self_eq_refl_or_star
     conv_lhs => rw [hdecomp x]
     rw [map_add, map_mul, σ.commutes, σ.commutes, hσε, ← hdecomp x]
     rfl
-  · -- Case `b = -1` and `a = 0`: `σ ⟨0, 1⟩ = ⟨0, -1⟩ = star ⟨0, 1⟩`, so `σ = starAlgEquiv`.
+  · -- Case `b = -1` and `a = 0`: `σ ⟨0, 1⟩ = ⟨0, -1⟩ = star ⟨0, 1⟩`,
+    -- so `σ = starAlgEquiv`.
     refine Or.inr (AlgEquiv.ext fun x => ?_)
     have hσε : σ (⟨0, 1⟩ : Qsqrtd (d : ℚ)) = ⟨0, -1⟩ := by rw [hφ_eta, ha, hbneg1]
     rw [Qsqrtd.starAlgEquiv_apply]

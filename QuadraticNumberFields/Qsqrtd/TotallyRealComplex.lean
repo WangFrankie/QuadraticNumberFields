@@ -76,11 +76,13 @@ noncomputable def realEmbeddingNeg (d : ℤ) (hd : 0 ≤ (d : ℝ)) :
     rw [neg_mul_neg]
     simpa [sq] using Real.sq_sqrt hd)
 
+/-- The positive real embedding evaluates `x + y√d` as `x + y * sqrt d`. -/
 theorem realEmbeddingPos_apply (d : ℤ) (hd : 0 ≤ (d : ℝ))
     (z : Qsqrtd (d : ℚ)) :
     realEmbeddingPos d hd z = (z.re : ℝ) + (z.im : ℝ) * Real.sqrt (d : ℝ) :=
   realEmbedding_apply d (Real.sqrt (d : ℝ)) (by simpa [sq] using Real.sq_sqrt hd) z
 
+/-- The negative real embedding evaluates `x + y√d` as `x - y * sqrt d`. -/
 theorem realEmbeddingNeg_apply (d : ℤ) (hd : 0 ≤ (d : ℝ))
     (z : Qsqrtd (d : ℚ)) :
     realEmbeddingNeg d hd z = (z.re : ℝ) - (z.im : ℝ) * Real.sqrt (d : ℝ) := by
