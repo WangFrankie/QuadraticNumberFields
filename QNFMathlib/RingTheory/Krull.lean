@@ -30,10 +30,11 @@ theorem dimensionLEOne (e : R ≃+* S) [Ring.DimensionLEOne R] :
     Ring.DimensionLEOne S := by
   refine ⟨?_⟩
   intro p hp0 _
-  have hcomapNeBot : Ideal.comap e p ≠ ⊥ :=
-    mt (fun hbot => by
-      simpa [Ideal.map_comap_eq_self_of_equiv] using
-        (Ideal.map_eq_bot_iff_of_injective e.injective).mpr hbot) hp0
+  have hcomapNeBot : Ideal.comap e p ≠ ⊥ := by
+    intro hbot
+    have hmap := Ideal.map_comap_eq_self_of_equiv e p
+    rw [hbot, Ideal.map_bot] at hmap
+    exact hp0 hmap.symm
   have hcomapMax : (Ideal.comap e p).IsMaximal :=
     Ring.DimensionLEOne.maximalOfPrime hcomapNeBot (Ideal.comap_isPrime e p)
   have hmapMax : (Ideal.map e (Ideal.comap e p)).IsMaximal :=

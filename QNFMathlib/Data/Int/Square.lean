@@ -30,8 +30,9 @@ theorem eq_zero_of_sq_add_one_eq_sq {W U : ℤ} (h : W ^ 2 + 1 = U ^ 2) :
     W = 0 := by
   have hmul : (U - W) * (U + W) = 1 := by
     nlinarith
-  rcases Int.mul_eq_one_iff_eq_one_or_neg_one.mp hmul with ⟨h1, h2⟩ | ⟨h1, h2⟩ <;>
-    nlinarith
+  rcases Int.mul_eq_one_iff_eq_one_or_neg_one.mp hmul with ⟨h1, h2⟩ | ⟨h1, h2⟩
+  · nlinarith
+  · nlinarith
 
 /-- If `n ≥ 0` and `n ^ 2 - n + 1` is a square, then `n` is `0` or `1`. -/
 -- Repository use: Cox's Heegner Diophantine reduction applies this to
@@ -68,19 +69,25 @@ theorem isCoprime_sq_add_one_three (W : ℤ) : IsCoprime (W ^ 2 + 1) (3 : ℤ) :
   rcases hcases with hW | hW | hW
   · let q : ℤ := W / 3
     have hWdecomp : W = 3 * q := by
-      omega
+      calc
+        W = W % 3 + 3 * (W / 3) := (Int.emod_add_mul_ediv W 3).symm
+        _ = 3 * q := by rw [hW]; simp [q]
     refine ⟨1, -3 * q ^ 2, ?_⟩
     rw [hWdecomp]
     ring
   · let q : ℤ := W / 3
     have hWdecomp : W = 3 * q + 1 := by
-      omega
+      calc
+        W = W % 3 + 3 * (W / 3) := (Int.emod_add_mul_ediv W 3).symm
+        _ = 3 * q + 1 := by rw [hW]; simp [q]; ring
     refine ⟨-1, 3 * q ^ 2 + 2 * q + 1, ?_⟩
     rw [hWdecomp]
     ring
   · let q : ℤ := W / 3
     have hWdecomp : W = 3 * q + 2 := by
-      omega
+      calc
+        W = W % 3 + 3 * (W / 3) := (Int.emod_add_mul_ediv W 3).symm
+        _ = 3 * q + 2 := by rw [hW]; simp [q]; ring
     refine ⟨-1, 3 * q ^ 2 + 4 * q + 2, ?_⟩
     rw [hWdecomp]
     ring
@@ -104,9 +111,11 @@ theorem not_exists_sq_add_one_eq_sq_of_sixth_add_one_eq_two_mul_sq
   rintro ⟨U, hU⟩
   have hW0 : W = 0 := Int.eq_zero_of_sq_add_one_eq_sq hU
   subst W
-  exact Int.not_even_one <| by
-    rw [show (1 : ℤ) = 2 * Z ^ 2 by simpa using h]
+  have hone : (1 : ℤ) = 2 * Z ^ 2 := by simpa using h
+  have hone_even : Even (1 : ℤ) := by
+    rw [hone]
     exact even_two_mul (Z ^ 2)
+  exact Int.not_even_one hone_even
 
 /-- If `W ^ 4 - W ^ 2 + 1` is a square, then `W` is `0`, `1`, or `-1`. -/
 -- Repository use: Cox's Heegner Diophantine reduction applies this to the
@@ -124,7 +133,9 @@ theorem eq_zero_or_eq_one_or_neg_one_of_quartic_sub_sq_add_one_eq_sq
   · right
     have hmul : W * W = 1 := by
       simpa [pow_two] using hWsq
-    exact (Int.mul_eq_one_iff_eq_one_or_neg_one.mp hmul).imp And.left And.left
+    rcases Int.mul_eq_one_iff_eq_one_or_neg_one.mp hmul with ⟨h1, _⟩ | ⟨h1, _⟩
+    · exact Or.inl h1
+    · exact Or.inr h1
 
 /-- If `9 * A` is a square, then `A` is a square. -/
 -- Repository use: Cox's Exercise 12.29 divides a square identity by `3 ^ 2`
@@ -209,7 +220,11 @@ theorem exists_sq_factors_of_pos_pairwise_isCoprime_mul_mul_eq_sq
 /-- A natural prime is not a unit after coercion to `ℤ`. -/
 theorem not_isUnit_natCast_of_prime {p : ℕ} (hp : Nat.Prime p) : ¬ IsUnit (p : ℤ) := by
   intro hunit
-  exact hp.ne_one (by simpa using (Int.ofNat_isUnit.mp hunit : IsUnit p))
+  have hp_unit_nat : IsUnit p := Int.ofNat_isUnit.mp hunit
+  have hp_eq_one : p = 1 := by
+    simpa using hp_unit_nat
+  have hp_two : 2 ≤ p := hp.two_le
+  omega
 
 /-- If two positive coprime integers multiply to twice a square, then one is a
 square and the other is twice a square. -/
@@ -307,9 +322,11 @@ theorem eq_one_or_neg_one_of_sixth_add_one_eq_two_mul_sq
     rcases Int.eq_zero_or_eq_one_or_neg_one_of_quartic_sub_sq_add_one_eq_sq hK with
       hW | hW | hW
     · subst W
-      exact False.elim <| Int.not_even_one <| by
-        rw [show (1 : ℤ) = 2 * Z ^ 2 by simpa using h]
+      have hone : (1 : ℤ) = 2 * Z ^ 2 := by simpa using h
+      have hone_even : Even (1 : ℤ) := by
+        rw [hone]
         exact even_two_mul (Z ^ 2)
+      exact False.elim (Int.not_even_one hone_even)
     · exact Or.inl hW
     · exact Or.inr hW
 

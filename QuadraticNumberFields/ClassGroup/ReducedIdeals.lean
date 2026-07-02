@@ -7,17 +7,17 @@ Authors: Frankie Wang
 import QuadraticNumberFields.ClassGroup.Infrastructure
 
 /-!
-# Torsion in Class Groups
+# Reduced Ideals
 
-This file will organize statements about torsion and divisibility in quadratic
-class groups.
+This file will define and study reduced ideals in quadratic orders/rings of
+integers.
 -/
 
 namespace QuadraticNumberFields
 namespace ClassGroup
 
-/-- Placeholder predicate for class group torsion data. -/
-def HasClassGroupTorsionData (d : ℤ) : Prop :=
+/-- Placeholder predicate for reduced ideal data attached to `d`. -/
+def HasReducedIdealData (d : ℤ) : Prop :=
   HasExplicitClassGroupData d
 
 end ClassGroup

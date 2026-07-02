@@ -144,11 +144,25 @@ lemma squarefree_eq_of_rat_sq_mul {d₁ d₂ : ℤ}
   have hd₂Q : (d₂ : ℚ) ≠ 0 := by exact_mod_cast hd₂0
   have hratio : IsSquare ((d₁ : ℚ) / (d₂ : ℚ)) := by
     refine ⟨r, ?_⟩
-    rw [hr]
-    field_simp [hd₂Q]
+    calc
+      (d₁ : ℚ) / (d₂ : ℚ) = ((d₂ : ℚ) * r ^ 2) / (d₂ : ℚ) := by simp [hr]
+      _ = r ^ 2 := by field_simp [hd₂Q]
+      _ = r * r := by ring
   have hratio' : IsSquare ((d₂ : ℚ) / (d₁ : ℚ)) := by
-    convert hratio.inv using 1
-    field_simp [hd₁Q, hd₂Q]
+    rcases hratio with ⟨s, hs⟩
+    refine ⟨s⁻¹, ?_⟩
+    calc
+      (d₂ : ℚ) / (d₁ : ℚ) = ((d₁ : ℚ) / (d₂ : ℚ))⁻¹ := by field_simp [hd₁Q, hd₂Q]
+      _ = (s * s)⁻¹ := by simp [hs]
+      _ = s⁻¹ * s⁻¹ := by
+        have hs0 : s ≠ 0 := by
+          intro hs0
+          have : ((d₁ : ℚ) / (d₂ : ℚ)) = 0 := by simpa [hs0] using hs
+          have hd10 : (d₁ : ℚ) = 0 := by
+            field_simp [hd₂Q] at this
+            simpa [mul_zero] using this
+          exact hd₁Q hd10
+        field_simp [hs0]
   have hd21 : d₂ ∣ d₁ := int_dvd_of_ratio_square d₁ d₂ hd₂0 hd₂ hratio
   have hd12 : d₁ ∣ d₂ := int_dvd_of_ratio_square d₂ d₁ hd₁0 hd₁ hratio'
   -- Mutual divisibility makes `d₁` and `d₂` associated, so over `ℤ`

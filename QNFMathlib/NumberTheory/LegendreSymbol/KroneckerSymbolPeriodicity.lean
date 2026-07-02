@@ -54,63 +54,6 @@ private lemma kroneckerSymNat_of_odd (D : ℤ) {n : ℕ} (hn : Odd n) :
     Nat.factorization_eq_zero_of_not_dvd hn.not_two_dvd_nat
   rw [kroneckerSymNat, if_neg hn0, hfact, pow_zero, one_mul, pow_zero, Nat.div_one]
 
-private lemma kroneckerTwo_sq_one_of_natAbs_not_even (D : ℤ) (hD : ¬ 2 ∣ D.natAbs) :
-    kroneckerTwo D ^ 2 = 1 := by
-  have hDmod : D % 2 ≠ 0 := by
-    intro hmod
-    have h2D : (2 : ℤ) ∣ D := Int.dvd_of_emod_eq_zero hmod
-    exact hD ((Int.natCast_dvd (m := 2) (n := D)).mp h2D)
-  unfold kroneckerTwo
-  by_cases hmod8 : D % 8 = 1 ∨ D % 8 = 7
-  · simp [hDmod, hmod8]
-  · simp [hDmod, hmod8]
-
-/-- If the natural denominator is coprime to `D.natAbs`, then the Kronecker symbol
-has square `1`. -/
-theorem kroneckerSymNat_sq_one_of_coprime (D : ℤ) {n : ℕ}
-    (h : Nat.Coprime n D.natAbs) :
-    kroneckerSymNat D n ^ 2 = 1 := by
-  rcases Nat.eq_zero_or_pos n with rfl | hn
-  · have hD : D.natAbs = 1 := by
-      simpa [Nat.Coprime] using h
-    simp [kroneckerSymNat, hD]
-  · obtain ⟨k, m, hm, rfl⟩ := Nat.exists_eq_two_pow_mul_odd hn.ne'
-    rw [kroneckerSymNat_two_pow_mul_odd D k hm]
-    have hm_coprime : Nat.Coprime m D.natAbs :=
-      Nat.Coprime.coprime_dvd_left (dvd_mul_left m (2 ^ k)) h
-    have hm_int_coprime : Int.gcd D m = 1 := by
-      have hnat : Nat.gcd D.natAbs m = 1 := by
-        simpa [Nat.Coprime, Nat.gcd_comm] using hm_coprime
-      simpa [Int.gcd, Int.natAbs_natCast] using hnat
-    have hjac_sq : jacobiSym D m ^ 2 = 1 := jacobiSym.sq_one hm_int_coprime
-    have htwo_pow_sq : (kroneckerTwo D ^ k) ^ 2 = 1 := by
-      by_cases hk : k = 0
-      · simp [hk]
-      · have h2n : 2 ∣ 2 ^ k * m :=
-          dvd_mul_of_dvd_left (dvd_pow_self 2 hk) m
-        have h2D : ¬ 2 ∣ D.natAbs := by
-          intro h2D
-          have h2gcd : 2 ∣ Nat.gcd (2 ^ k * m) D.natAbs := Nat.dvd_gcd h2n h2D
-          have hgcd : Nat.gcd (2 ^ k * m) D.natAbs = 1 := by
-            simpa [Nat.Coprime] using h
-          rw [hgcd] at h2gcd
-          norm_num at h2gcd
-        have htwo_sq : kroneckerTwo D ^ 2 = 1 :=
-          kroneckerTwo_sq_one_of_natAbs_not_even D h2D
-        calc
-          (kroneckerTwo D ^ k) ^ 2 = (kroneckerTwo D ^ 2) ^ k := by
-            rw [← pow_mul, Nat.mul_comm, pow_mul]
-          _ = 1 := by
-            rw [htwo_sq]
-            simp
-    calc
-      (kroneckerTwo D ^ k * jacobiSym D m) ^ 2 =
-          (kroneckerTwo D ^ k) ^ 2 * (jacobiSym D m) ^ 2 := by
-        rw [mul_pow]
-      _ = 1 := by
-        rw [htwo_pow_sq, hjac_sq]
-        simp
-
 private lemma odd_natAbs_of_emod_four_eq_one (D : ℤ) (hD : D % 4 = 1) :
     Odd D.natAbs := by
   rcases Int.natAbs_eq D with hpos | hneg
@@ -300,7 +243,8 @@ private lemma jacobiSym_nat_four_mul_sub_one (A : ℕ) (hA : A ≠ 0) :
     rcases k with rfl | k
     · simp
     · have hmul : 4 * (2 ^ (k + 1) * m) = 8 * (2 ^ k * m) := by
-        ring_nf
+        rw [pow_succ]
+        ring
       have hmod8 : (4 * (2 ^ (k + 1) * m) - 1) % 8 = 7 := by
         rw [hmul]
         have hmpos : 0 < m := hm.pos
@@ -429,44 +373,6 @@ theorem kroneckerSymNat_natAbs_sub_one_eq_sign (D : ℤ)
     · have hN4 : D.natAbs % 4 = 3 := by omega
       have hlt : D < 0 := by omega
       rw [ZMod.χ₄_nat_three_mod_four hN4, if_pos hlt]
-
-private lemma kroneckerTwo_eq_chi8 (D : ℤ) : kroneckerTwo D = ZMod.χ₈ D := by
-  rw [ZMod.χ₈_int_eq_if_mod_eight]
-  rfl
-
-/-- The supplementary Kronecker value is multiplicative in its numerator. -/
-theorem kroneckerTwo_mul (D E : ℤ) :
-    kroneckerTwo (D * E) = kroneckerTwo D * kroneckerTwo E := by
-  rw [kroneckerTwo_eq_chi8, kroneckerTwo_eq_chi8, kroneckerTwo_eq_chi8]
-  simpa [Int.cast_mul] using map_mul ZMod.χ₈ (D : ZMod 8) (E : ZMod 8)
-
-/-- The Kronecker symbol is multiplicative in the upper argument, for nonzero
-natural denominators. -/
-theorem kroneckerSymNat_mul_left (D E : ℤ) {n : ℕ} (hn : n ≠ 0) :
-    kroneckerSymNat (D * E) n = kroneckerSymNat D n * kroneckerSymNat E n := by
-  rw [kroneckerSymNat, if_neg hn, kroneckerSymNat, if_neg hn, kroneckerSymNat, if_neg hn,
-    kroneckerTwo_mul, jacobiSym.mul_left]
-  ring
-
-/-- The Kronecker symbol with upper argument `1` is trivial. -/
-@[simp]
-theorem kroneckerSymNat_one_left (n : ℕ) : kroneckerSymNat 1 n = 1 := by
-  by_cases hn : n = 0
-  · simp [kroneckerSymNat, hn]
-  · rw [kroneckerSymNat, if_neg hn]
-    simp [kroneckerTwo]
-
-/-- Pull a finite product out of the upper argument of `kroneckerSymNat`, for a
-nonzero natural denominator. -/
-theorem kroneckerSymNat_prod_left {ι : Type*} (s : Finset ι) (f : ι → ℤ)
-    {n : ℕ} (hn : n ≠ 0) :
-    kroneckerSymNat (s.prod f) n = s.prod (fun i => kroneckerSymNat (f i) n) := by
-  classical
-  refine Finset.induction_on s ?_ ?_
-  · simp
-  · intro a s ha ih
-    rw [Finset.prod_insert ha, Finset.prod_insert ha]
-    rw [kroneckerSymNat_mul_left _ _ hn, ih]
 
 /-- Full multiplicativity of the Kronecker symbol in the lower (natural) argument,
 for nonzero inputs. -/

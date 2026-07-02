@@ -4,22 +4,26 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 
-import QuadraticNumberFields.ClassGroup.GenusTheory.Surjectivity
+import QuadraticNumberFields.ClassGroup.GenusTheory.Formula
 
 /-!
 # Class-Number-One Genus Sieve
 
-This file contains the elementary arithmetic endpoint of the rebuilt
-narrow-class-group genus-theory layer.
+This file contains the elementary arithmetic endpoint of the genus-theory sieve
+and the class-number-one consequences built from `genusFormula`.
 -/
 
 namespace QuadraticNumberFields
 namespace ClassGroup
-namespace GenusTheory
 
-open scoped NumberField QuadraticNumberFields.ClassGroup
+open scoped NumberField nonZeroDivisors
 
 attribute [-instance] DivisionRing.toRatAlgebra
+
+open RingOfIntegers
+open Splitting
+
+local notation "𝓞" => _root_.NumberField.RingOfIntegers
 
 private theorem nat_eq_one_or_prime_of_squarefree_of_primeFactors_card_le_one {n : ℕ}
     (hsq : Squarefree n) (hcard : n.primeFactors.card ≤ 1) :
@@ -52,7 +56,8 @@ private theorem nat_eq_one_or_eq_two_of_squarefree_of_forall_primeFactors_eq_two
     obtain ⟨p, hpmem⟩ := hnonempty
     have huniq : n.primeFactors = {2} := by
       exact Finset.eq_singleton_iff_unique_mem.mpr
-        ⟨by simpa [hfactor p hpmem] using hpmem, fun q hqmem => hfactor q hqmem⟩
+        ⟨by simpa [hfactor p hpmem] using hpmem,
+          fun q hqmem => hfactor q hqmem⟩
     rw [huniq] at hprod
     simpa using hprod.symm
   · left
@@ -80,14 +85,12 @@ private theorem mem_primeFactors_natAbs_four_mul_of_mem_primeFactors_natAbs {d :
   exact ⟨hp.1, dvd_mul_of_dvd_right hp.2.1 4, mul_ne_zero (by decide) hp.2.2⟩
 
 private theorem prime_shape_of_mod_four_eq_one
-    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
-    (hsq : Squarefree d) (hdneg : d < 0) (hd4 : d % 4 = 1)
-    (hcount : ramifiedPrimeCount d ≤ 1) :
+    (d : ℤ) (hsq : Squarefree d) (hdneg : d < 0) (hd4 : d % 4 = 1)
+    (hcount : primeDiscriminantFactorCount d ≤ 1) :
     d = -1 ∨ d = -2 ∨ ∃ p : ℕ, Nat.Prime p ∧ p % 4 = 3 ∧ d = -(p : ℤ) := by
   have hcard : d.natAbs.primeFactors.card ≤ 1 := by
-    simpa [ramifiedPrimeCount, ramifiedPrimes,
-      RingOfIntegers.discr_formula d,
-      RingOfIntegers.discrFormula_of_mod_four_eq_one hd4] using hcount
+    simpa [primeDiscriminantFactorCount, RingOfIntegers.discrFormula_of_mod_four_eq_one hd4]
+      using hcount
   have hsq_nat : Squarefree d.natAbs := Int.squarefree_natAbs.mpr hsq
   rcases nat_eq_one_or_prime_of_squarefree_of_primeFactors_card_le_one hsq_nat hcard with
     h1 | hp
@@ -100,14 +103,12 @@ private theorem prime_shape_of_mod_four_eq_one
     · omega
 
 private theorem prime_shape_of_mod_four_ne_one
-    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
-    (hsq : Squarefree d) (hdneg : d < 0) (hd4 : d % 4 ≠ 1)
-    (hcount : ramifiedPrimeCount d ≤ 1) :
+    (d : ℤ) (hsq : Squarefree d) (hdneg : d < 0) (hd4 : d % 4 ≠ 1)
+    (hcount : primeDiscriminantFactorCount d ≤ 1) :
     d = -1 ∨ d = -2 ∨ ∃ p : ℕ, Nat.Prime p ∧ p % 4 = 3 ∧ d = -(p : ℤ) := by
   have hcardD : (4 * d).natAbs.primeFactors.card ≤ 1 := by
-    simpa [ramifiedPrimeCount, ramifiedPrimes,
-      RingOfIntegers.discr_formula d,
-      RingOfIntegers.discrFormula_of_mod_four_ne_one hd4] using hcount
+    simpa [primeDiscriminantFactorCount, RingOfIntegers.discrFormula_of_mod_four_ne_one hd4]
+      using hcount
   have htwoD : 2 ∈ (4 * d).natAbs.primeFactors :=
     two_mem_primeFactors_natAbs_four_mul_of_neg hdneg
   have hfactor : ∀ p ∈ d.natAbs.primeFactors, p = 2 := by
@@ -123,55 +124,149 @@ private theorem prime_shape_of_mod_four_ne_one
     left
     omega
 
-/-- If a squarefree negative parameter has at most one ramified rational prime, then
-it has the class-number-one prime shape. -/
-theorem discriminant_prime_shape_of_ramifiedPrimeCount_le_one
+/-- The elementary arithmetic endpoint of the genus-theory sieve. For squarefree
+negative `d`, if the field-discriminant prime-factor count is at most one, then
+`d` has the class-number-one prime shape. -/
+theorem discriminant_prime_shape_of_primeDiscriminantFactorCount_le_one
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : d < 0)
-    (hcount : ramifiedPrimeCount d ≤ 1) :
+    (hcount : primeDiscriminantFactorCount d ≤ 1) :
     d = -1 ∨ d = -2 ∨ ∃ p : ℕ, Nat.Prime p ∧ p % 4 = 3 ∧ d = -(p : ℤ) := by
   by_cases hd4 : d % 4 = 1
   · exact prime_shape_of_mod_four_eq_one d (Fact.out : Squarefree d) hd hd4 hcount
   · exact prime_shape_of_mod_four_ne_one d (Fact.out : Squarefree d) hd hd4 hcount
 
-private theorem le_one_of_two_pow_sub_one_dvd_one {t : ℕ} (h : 2 ^ (t - 1) ∣ 1) :
-    t ≤ 1 := by
-  by_contra hle
-  exact (not_lt_of_ge (by rw [Nat.dvd_one.mp h]))
-    (one_lt_pow₀ (by norm_num : 1 < (2 : ℕ)) (by omega : t - 1 ≠ 0))
-
-/-- Genus divisibility plus class number one forces at most one ramified rational
-prime. -/
-theorem ramifiedPrimeCount_le_one_of_genus_divisibility
-    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
-    (hdiv : 2 ^ (ramifiedPrimeCount d - 1) ∣
+/-- Genus divisibility plus class number one implies the prime-shape conclusion.
+This is the reusable interface for the future genus-theory calculation
+`2 ^ (t - 1) ∣ h(d)`. -/
+theorem discriminant_prime_shape_of_genus_divisibility
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : d < 0)
+    (hdiv : 2 ^ (primeDiscriminantFactorCount d - 1) ∣
       NumberField.classNumber (Qsqrtd (d : ℚ)))
     (hclass : NumberField.classNumber (Qsqrtd (d : ℚ)) = 1) :
-    ramifiedPrimeCount d ≤ 1 :=
-  le_one_of_two_pow_sub_one_dvd_one (by simpa [hclass] using hdiv)
+    d = -1 ∨ d = -2 ∨ ∃ p : ℕ, Nat.Prime p ∧ p % 4 = 3 ∧ d = -(p : ℤ) :=
+  discriminant_prime_shape_of_primeDiscriminantFactorCount_le_one d hd
+    (primeDiscriminantFactorCount_le_one_of_genus_divisibility d hdiv hclass)
 
-/-- In the imaginary case, the genus formula gives the standard divisibility
-`2 ^ (t - 1) ∣ h(d)`. -/
-theorem genus_divisibility_of_neg
-    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : d < 0) :
-    2 ^ (ramifiedPrimeCount d - 1) ∣
-      NumberField.classNumber (Qsqrtd (d : ℚ)) := by
-  have hdiv := genus_divisibility_narrowClassNumber d
-  have hcard :
-      Qsqrtd.narrowClassNumber d = NumberField.classNumber (Qsqrtd (d : ℚ)) := by
-    simpa [Qsqrtd.narrowClassNumber, NumberField.classNumber] using
-      Nat.card_congr (Qsqrtd.Imaginary.narrowMulEquivClassGroup d hd).toEquiv
-  simpa [hcard] using hdiv
+/-- In the odd field-discriminant branch, genus divisibility plus class number one
+leaves only the prime-discriminant family. -/
+theorem classNumber_eq_one_imp_exists_prime_of_odd_discr_of_genus_divisibility
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : d < 0)
+    (hodd : RingOfIntegers.discrFormula d % 2 ≠ 0)
+    (hdiv : 2 ^ (primeDiscriminantFactorCount d - 1) ∣
+      NumberField.classNumber (Qsqrtd (d : ℚ)))
+    (h : NumberField.classNumber (Qsqrtd (d : ℚ)) = 1) :
+    ∃ p : ℕ, Nat.Prime p ∧ p % 4 = 3 ∧ d = -(p : ℤ) := by
+  rcases discriminant_prime_shape_of_genus_divisibility d hd hdiv h with
+    hneg1 | hneg2 | hprime
+  · exfalso
+    subst hneg1
+    have hd4 := (RingOfIntegers.discrFormula_odd_iff_mod_four_eq_one (-1)).mp hodd
+    norm_num at hd4
+  · exfalso
+    subst hneg2
+    have hd4 := (RingOfIntegers.discrFormula_odd_iff_mod_four_eq_one (-2)).mp hodd
+    norm_num at hd4
+  · exact hprime
 
-/-- **Genus-theory sieve for class number one.** An imaginary quadratic field with
-class number one has squarefree parameter
-`d = -1`, `d = -2`, or `d = -p` for a rational prime `p ≡ 3 (mod 4)`. -/
+/-- **Genus-theory sieve for class number one.** Assuming the standard genus
+cardinality formula `genusFormula d`, if an imaginary quadratic field
+`ℚ(√d)` has class number one, then its squarefree parameter has prime shape:
+`d = -1`, `d = -2`, or `d = -p` for a rational prime `p ≡ 3 (mod 4)`.
+
+The remaining genus-theory construction is the proof of `genusFormula d`,
+namely the cardinality formula for the principal-genus quotient `Cl / Cl²`. -/
 theorem classNumber_eq_one_imp_discriminant_prime_shape
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : d < 0)
+    (hgenus : genusFormula d)
     (h : NumberField.classNumber (Qsqrtd (d : ℚ)) = 1) :
     d = -1 ∨ d = -2 ∨ ∃ p : ℕ, Nat.Prime p ∧ p % 4 = 3 ∧ d = -(p : ℤ) := by
-  exact discriminant_prime_shape_of_ramifiedPrimeCount_le_one d hd
-    (ramifiedPrimeCount_le_one_of_genus_divisibility d (genus_divisibility_of_neg d hd) h)
+  have hdiv : 2 ^ (primeDiscriminantFactorCount d - 1) ∣
+      NumberField.classNumber (Qsqrtd (d : ℚ)) :=
+    genus_divisibility_of_squareClassSubgroup_quotient_card d hgenus
+  exact discriminant_prime_shape_of_genus_divisibility d hd hdiv h
 
-end GenusTheory
+/-- In the odd field-discriminant branch, the genus-theory sieve leaves only
+the prime-discriminant family: `d = -p` for a rational prime `p ≡ 3 (mod 4)`.
+
+This is the part of Cox Theorem 12.34 where genus theory is used.  The even
+field-discriminant branch is handled separately by Landau's reduced-form
+classification of the discriminants `-4n` with class number one. -/
+theorem classNumber_eq_one_imp_exists_prime_of_odd_discr
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : d < 0)
+    (hodd : RingOfIntegers.discrFormula d % 2 ≠ 0)
+    (hgenus : genusFormula d)
+    (h : NumberField.classNumber (Qsqrtd (d : ℚ)) = 1) :
+    ∃ p : ℕ, Nat.Prime p ∧ p % 4 = 3 ∧ d = -(p : ℤ) := by
+  exact classNumber_eq_one_imp_exists_prime_of_odd_discr_of_genus_divisibility d hd hodd
+    (genus_divisibility_of_squareClassSubgroup_quotient_card d hgenus) h
+
+/-- In the odd field-discriminant branch, surjectivity of the odd-prime genus-character
+product already reduces class number one to the prime-discriminant family. -/
+theorem classNumber_eq_one_imp_exists_prime_of_oddGenusCharacterProduct_surjective
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : d < 0)
+    (hodd : RingOfIntegers.discrFormula d % 2 ≠ 0)
+    (hdata : OddGenusCharacterData d)
+    (hrel : oddGenusProductRelation d hd hdata)
+    (hsurj : Function.Surjective (oddGenusCharacterProductToRelationSubgroup d hd hdata hrel))
+    (h : NumberField.classNumber (Qsqrtd (d : ℚ)) = 1) :
+    ∃ p : ℕ, Nat.Prime p ∧ p % 4 = 3 ∧ d = -(p : ℤ) :=
+  classNumber_eq_one_imp_exists_prime_of_odd_discr_of_genus_divisibility d hd hodd
+    (genus_divisibility_of_oddGenusCharacterProduct_surjective_of_discr_odd
+      d hd hodd hdata hrel hsurj) h
+
+/-- In the odd field-discriminant branch, the odd-prime genus-character interface
+is enough to reduce class number one to the prime-discriminant family. -/
+theorem classNumber_eq_one_imp_exists_prime_of_oddGenusCharacterData
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : d < 0)
+    (hodd : RingOfIntegers.discrFormula d % 2 ≠ 0)
+    (hdata : OddGenusCharacterData d)
+    (hrel : oddGenusProductRelation d hd hdata)
+    (hbij : Function.Bijective (oddGenusCharacterProductToRelationSubgroup d hd hdata hrel))
+    (h : NumberField.classNumber (Qsqrtd (d : ℚ)) = 1) :
+    ∃ p : ℕ, Nat.Prime p ∧ p % 4 = 3 ∧ d = -(p : ℤ) :=
+  classNumber_eq_one_imp_exists_prime_of_odd_discr d hd hodd
+    (genusFormula_of_oddGenusCharacterData d hd hodd hdata hrel hbij) h
+
+/-- For odd fundamental discriminants (`d % 4 = 1`), the odd-prime genus-character
+interface is enough to reduce class number one to the prime-discriminant family. -/
+theorem classNumber_eq_one_imp_exists_prime_of_oddGenusCharacterData_of_mod_four_eq_one
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : d < 0)
+    (hd4 : d % 4 = 1)
+    (hdata : OddGenusCharacterData d)
+    (hrel : oddGenusProductRelation d hd hdata)
+    (hbij : Function.Bijective (oddGenusCharacterProductToRelationSubgroup d hd hdata hrel))
+    (h : NumberField.classNumber (Qsqrtd (d : ℚ)) = 1) :
+    ∃ p : ℕ, Nat.Prime p ∧ p % 4 = 3 ∧ d = -(p : ℤ) := by
+  have hodd : RingOfIntegers.discrFormula d % 2 ≠ 0 := by
+    rw [RingOfIntegers.discrFormula_of_mod_four_eq_one hd4]
+    omega
+  exact classNumber_eq_one_imp_exists_prime_of_oddGenusCharacterData
+    d hd hodd hdata hrel hbij h
+
+/-- In the odd field-discriminant branch, complete odd genus-formula data is enough
+to reduce class number one to the prime-discriminant family. -/
+theorem classNumber_eq_one_imp_exists_prime_of_oddGenusFormulaData
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : d < 0)
+    (hodd : RingOfIntegers.discrFormula d % 2 ≠ 0)
+    (hdata : OddGenusFormulaData d hd)
+    (h : NumberField.classNumber (Qsqrtd (d : ℚ)) = 1) :
+    ∃ p : ℕ, Nat.Prime p ∧ p % 4 = 3 ∧ d = -(p : ℤ) :=
+  classNumber_eq_one_imp_exists_prime_of_odd_discr d hd hodd
+    (genusFormula_of_oddGenusFormulaData d hd hodd hdata) h
+
+/-- For odd fundamental discriminants (`d % 4 = 1`), complete odd genus-formula
+data reduces class number one to the prime-discriminant family. -/
+theorem classNumber_eq_one_imp_exists_prime_of_oddGenusFormulaData_of_mod_four_eq_one
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : d < 0)
+    (hd4 : d % 4 = 1)
+    (hdata : OddGenusFormulaData d hd)
+    (h : NumberField.classNumber (Qsqrtd (d : ℚ)) = 1) :
+    ∃ p : ℕ, Nat.Prime p ∧ p % 4 = 3 ∧ d = -(p : ℤ) := by
+  have hodd : RingOfIntegers.discrFormula d % 2 ≠ 0 := by
+    rw [RingOfIntegers.discrFormula_of_mod_four_eq_one hd4]
+    omega
+  exact classNumber_eq_one_imp_exists_prime_of_oddGenusFormulaData d hd hodd hdata h
+
+
 end ClassGroup
 end QuadraticNumberFields

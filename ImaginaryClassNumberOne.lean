@@ -6,6 +6,7 @@ Authors: Frankie Wang
 
 import ImaginaryClassNumberOne.ClassNumberOne
 import ImaginaryClassNumberOne.ClassNumberOneByForms
+import ImaginaryClassNumberOne.ClassNumberBridge
 import ImaginaryClassNumberOne.Diophantine
 import ImaginaryClassNumberOne.Framework
 import ImaginaryClassNumberOne.IdealReductions

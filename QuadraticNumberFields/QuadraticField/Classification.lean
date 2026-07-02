@@ -136,7 +136,7 @@ private lemma not_isSquare_of_top_generator_sq
   rcases mul_eq_zero.mp hfac with h | h
   · exact top_generator_ne_algebraMap hβtop r (sub_eq_zero.mp h)
   · exact top_generator_ne_algebraMap hβtop (-r)
-      (by simpa using eq_neg_of_add_eq_zero_left h)
+      (by rw [map_neg]; exact eq_neg_of_add_eq_zero_left h)
 
 /-- A quadratic field over `ℚ` containing an element `β` whose square is a
 nonsquare rational scalar `q` is isomorphic to the standard model `Qsqrtd q`. -/

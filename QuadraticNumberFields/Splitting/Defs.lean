@@ -72,7 +72,7 @@ in the definition is forced to be that unique prime. -/
 lemma inertiaDegIn_eq_inertiaDeg_of_primesOver_eq_singleton {P : Ideal S}
     (hP : primesOver p S = {P}) :
     inertiaDegIn p S = inertiaDeg p P := by
-  have hmem : P ∈ primesOver p S := hP.symm ▸ Set.mem_singleton P
+  have hmem : P ∈ primesOver p S := by rw [hP]; exact Set.mem_singleton P
   have hex : ∃ Q : Ideal S, Q.IsPrime ∧ Q.LiesOver p := ⟨P, hmem.1, hmem.2⟩
   rw [inertiaDegIn, dif_pos hex]
   have hchoose : hex.choose ∈ primesOver p S := hex.choose_spec
@@ -84,7 +84,7 @@ per-prime ramification index — no Galois hypothesis required. -/
 lemma ramificationIdxIn_eq_ramificationIdx_of_primesOver_eq_singleton {P : Ideal S}
     (hP : primesOver p S = {P}) :
     ramificationIdxIn p S = ramificationIdx p P := by
-  have hmem : P ∈ primesOver p S := hP.symm ▸ Set.mem_singleton P
+  have hmem : P ∈ primesOver p S := by rw [hP]; exact Set.mem_singleton P
   have hex : ∃ Q : Ideal S, Q.IsPrime ∧ Q.LiesOver p := ⟨P, hmem.1, hmem.2⟩
   rw [ramificationIdxIn, dif_pos hex]
   have hchoose : hex.choose ∈ primesOver p S := hex.choose_spec
@@ -212,8 +212,8 @@ theorem ncard_primesOver_mul_ramificationIdxIn_mul_inertiaDegIn_eq_two
   have := IsGaloisGroup.of_isFractionRing Gal(L/K) R S K L
   have h_mul := Ideal.ncard_primesOver_mul_ramificationIdxIn_mul_inertiaDegIn hp S Gal(L/K)
   have : Nat.card Gal(L/K) = 2 := by
-    simpa [Algebra.IsQuadraticExtension.finrank_eq_two K L] using
-      IsGaloisGroup.card_eq_finrank Gal(L/K) K L
+    rw [← Algebra.IsQuadraticExtension.finrank_eq_two K L]
+    exact IsGaloisGroup.card_eq_finrank Gal(L/K) K L
   rw [this] at h_mul
   rw [mul_assoc]
   exact h_mul

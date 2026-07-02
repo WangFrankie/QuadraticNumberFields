@@ -103,7 +103,7 @@ structure InertPrimeWeberDataProvider where
       Nat.Prime p →
       p % 8 = 3 →
       p ≠ 3 →
-      NumberField.classNumber (Qsqrtd (((-(p : ℤ)) : ℤ) : ℚ)) = 1 →
+      classNumberQsqrtd (-(p : ℤ)) = 1 →
       Nonempty (StarkHeegnerAlgebraicData p)
 
 /-- Refined conductor-`2`, ring-class-number-three Weber/CM data.
@@ -135,7 +135,7 @@ theorem exists_weber_data_of_classNumber_one_inert_prime
     (hprovider : InertPrimeWeberDataProvider)
     (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
     (hp : Nat.Prime p) (hp8 : p % 8 = 3) (hp_ne_three : p ≠ 3)
-    (hclass : NumberField.classNumber (Qsqrtd (((-(p : ℤ)) : ℤ) : ℚ)) = 1) :
+    (hclass : classNumberQsqrtd (-(p : ℤ)) = 1) :
     Nonempty (StarkHeegnerAlgebraicData p) := by
   exact hprovider.exists_weber_data p hp hp8 hp_ne_three hclass
 

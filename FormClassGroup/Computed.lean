@@ -5,7 +5,7 @@ Authors: Frankie Wang
 -/
 
 import Mathlib.Data.ZMod.Basic
-import QuadraticNumberFields.ClassGroup.Basic
+import QuadraticNumberFields.ClassNumber
 import FormClassGroup.ClassGroup.Law
 import FormClassGroup.ClassGroup.ClassNumber
 
@@ -156,11 +156,10 @@ theorem reducedFormsComputedClassGroup_card
   simp [ClassGroup.ComputedClassGroup.card, reducedFormsComputedClassGroup]
 
 /-- The reduced-form computed backend recovers the class number of `ℚ(√d)`. -/
-theorem reducedFormsComputedClassGroup_card_eq_classNumber_qsqrtd
+theorem reducedFormsComputedClassGroup_card_eq_classNumberQsqrtd
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hdneg : d < 0) :
-    (reducedFormsComputedClassGroup d hdneg).card =
-      NumberField.classNumber (Qsqrtd (d : ℚ)) := by
-  rw [reducedFormsComputedClassGroup_card, ← classNumber_qsqrtd_eq_reducedForms_card d hdneg]
+    (reducedFormsComputedClassGroup d hdneg).card = classNumberQsqrtd d := by
+  rw [reducedFormsComputedClassGroup_card, ← classNumberQsqrtd_eq_reducedForms_card d hdneg]
 
 /-- The reduced-form computed backend uses the reduced-representative
 multiplication table. -/

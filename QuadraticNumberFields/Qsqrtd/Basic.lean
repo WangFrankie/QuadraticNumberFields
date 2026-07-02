@@ -124,31 +124,6 @@ instance instFact_of_not_isSquare (d : ℚ) [Fact (¬ IsSquare d)] :
   -- reduces to saying that `X^2 - d` has no rational root.
   ⟨by intro r hr; exact (Fact.out : ¬ IsSquare d) ⟨r, by nlinarith [hr]⟩⟩
 
-/-- The two `ℚ`-algebra structures on `Qsqrtd d` give the same `ℚ`-dimension.
-
-This is the reusable `Qsqrtd` algebra-diamond bridge: explicit coordinate
-calculations use `QuadraticAlgebra.instAlgebra`, while generic number-field APIs
-often elaborate against `DivisionRing.toRatAlgebra`. -/
-theorem finrank_ratAlgebra_eq_finrank_quadraticAlgebra (d : ℚ)
-    [Fact (¬ IsSquare d)] :
-    @Module.finrank ℚ (Qsqrtd d) _ _
-      (@Algebra.toModule ℚ (Qsqrtd d) _ _ DivisionRing.toRatAlgebra) =
-    @Module.finrank ℚ (Qsqrtd d) _ _
-      (@Algebra.toModule ℚ (Qsqrtd d) _ _ QuadraticAlgebra.instAlgebra) := by
-  symm
-  refine @Algebra.finrank_eq_of_equiv_equiv ℚ (Qsqrtd d) _ _
-    QuadraticAlgebra.instAlgebra ℚ (Qsqrtd d) _ _ DivisionRing.toRatAlgebra
-    (RingEquiv.refl ℚ) (RingEquiv.refl (Qsqrtd d)) ?_
-  exact RingHom.ext_rat _ _
-
-/-- The standard quadratic field `Qsqrtd d`, with mathlib's default
-`ℚ`-algebra structure, has degree two over `ℚ`. -/
-theorem finrank_ratAlgebra_eq_two (d : ℚ) [Fact (¬ IsSquare d)] :
-    @Module.finrank ℚ (Qsqrtd d) _ _
-      (@Algebra.toModule ℚ (Qsqrtd d) _ _ DivisionRing.toRatAlgebra) = 2 := by
-  rw [finrank_ratAlgebra_eq_finrank_quadraticAlgebra]
-  exact QuadraticAlgebra.finrank_eq_two d 0
-
 /-- Ring-level core of the generator relation, independent of any `Algebra ℚ`
 instance. If `d` is not a square, `φ : Qsqrtd d ≃+* Qsqrtd d'` is a ring
 isomorphism fixing the scalar `⟨d, 0⟩`, then writing `φ ⟨0, 1⟩ = ⟨a, b⟩` we have
@@ -205,7 +180,8 @@ theorem algEquiv_param_rel {d d' : ℚ} (hd : ¬ IsSquare d)
       (QuadraticAlgebra.algebraMap_eq (R := ℚ) (a := d) (b := 0) d).symm
     have hright : (⟨d, 0⟩ : Qsqrtd d') = algebraMap ℚ (Qsqrtd d') d :=
       (QuadraticAlgebra.algebraMap_eq (R := ℚ) (a := d') (b := 0) d).symm
-    simp [hleft, hright]
+    rw [show (φ.toRingEquiv ⟨d, 0⟩ : Qsqrtd d') = φ ⟨d, 0⟩ from rfl, hleft, hright]
+    exact φ.commutes d
 
 end Qsqrtd
 
