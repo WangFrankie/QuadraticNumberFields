@@ -17,10 +17,12 @@ import QuadraticNumberFields.Splitting.Factorization
 /-!
 # Ambiguous Ideals
 
-This file records the ambiguous-ideal upper bound for quadratic genus theory.
-The proof will identify conjugation-fixed classes with two-torsion classes,
-adjust fixed classes to fixed ideals, and then show that only ramified prime
-ideals contribute non-principal generators.
+This file contains the conjugation and prime-splitting infrastructure used by
+the ambiguous-ideal argument in quadratic genus theory. It defines ambiguous
+ideals, ring-of-integers and fraction-field conjugation, the distinguished
+ramified prime ideal above a rational ramified prime, splitting contributions
+for prime factors of ambiguous ideals, and the ordinary class-group inversion
+consequence of quadratic conjugation.
 -/
 
 namespace QuadraticNumberFields
@@ -72,6 +74,7 @@ noncomputable def conjAutRingOfIntegers (K : Type*) [Field K] [Algebra ℚ K]
     NumberField.RingOfIntegers K ≃+* NumberField.RingOfIntegers K :=
   NumberField.RingOfIntegers.mapRingEquiv (QuadraticField.conjAut K).toRingEquiv
 
+/-- Coercing ring-of-integers conjugation to `K` agrees with field conjugation. -/
 @[simp]
 theorem coe_conjAutRingOfIntegers_apply (K : Type*) [Field K] [Algebra ℚ K]
     [QuadraticField K] [QuadraticField.Conj K] (x : NumberField.RingOfIntegers K) :
@@ -92,6 +95,8 @@ noncomputable def conjAutRingOfIntegersAlgEquiv (K : Type*) [Field K] [Algebra �
     rw [coe_conjAutRingOfIntegers_apply]
     simp)
 
+/-- Coercing the `ℤ`-algebra version of ring-of-integers conjugation to `K`
+agrees with field conjugation. -/
 @[simp]
 theorem coe_conjAutRingOfIntegersAlgEquiv_apply (K : Type*) [Field K] [Algebra ℚ K]
     [QuadraticField K] [QuadraticField.Conj K] (x : NumberField.RingOfIntegers K) :
@@ -131,6 +136,8 @@ noncomputable def conjAutFractionRingAlgEquiv
       FractionRing (NumberField.RingOfIntegers K) :=
   IsFractionRing.algEquivOfAlgEquiv (conjAutRingOfIntegersAlgEquiv K)
 
+/-- Fraction-field conjugation sends an embedded algebraic integer to the
+embedded conjugate algebraic integer. -/
 @[simp]
 theorem conjAutFractionRingAlgEquiv_algebraMap
     (K : Type*) [Field K] [NumberField K] [Algebra ℚ K]
@@ -144,6 +151,8 @@ theorem conjAutFractionRingAlgEquiv_algebraMap
         ((conjAutRingOfIntegers K) x) := by
   simp [conjAutFractionRingAlgEquiv, conjAutRingOfIntegersAlgEquiv]
 
+/-- Transporting fraction-field conjugation to `K` agrees with quadratic field
+conjugation on `K`. -/
 @[simp]
 theorem fractionRing_algEquiv_conjAutFractionRingAlgEquiv
     (K : Type*) [Field K] [NumberField K] [Algebra ℚ K]
@@ -236,6 +245,7 @@ theorem relNorm_eq_comap_pow_inertiaDeg_of_isPrime (K : Type*) [Field K] [Number
   exact Ideal.relNorm_eq_pow_of_isPrime_isGalois P
     (P.comap (algebraMap ℤ (NumberField.RingOfIntegers K)))
 
+/-- Ring-of-integers conjugation is involutive. -/
 @[simp]
 theorem conjAutRingOfIntegers_apply_apply (K : Type*) [Field K] [Algebra ℚ K]
     [QuadraticField K] [QuadraticField.Conj K] (x : NumberField.RingOfIntegers K) :
@@ -244,6 +254,8 @@ theorem conjAutRingOfIntegers_apply_apply (K : Type*) [Field K] [Algebra ℚ K]
   simpa [coe_conjAutRingOfIntegers_apply] using
     (QuadraticField.Conj.conj_conj (K := K) (x : K))
 
+/-- The `ℤ`-algebra equivalence form of ring-of-integers conjugation is
+involutive. -/
 @[simp]
 theorem conjAutRingOfIntegersAlgEquiv_apply_apply (K : Type*) [Field K] [Algebra ℚ K]
     [QuadraticField K] [QuadraticField.Conj K] (x : NumberField.RingOfIntegers K) :
@@ -252,6 +264,7 @@ theorem conjAutRingOfIntegersAlgEquiv_apply_apply (K : Type*) [Field K] [Algebra
   simpa [coe_conjAutRingOfIntegersAlgEquiv_apply] using
     (QuadraticField.Conj.conj_conj (K := K) (x : K))
 
+/-- A ring equivalence induces a multiplicative equivalence on ideals. -/
 def idealMapMulEquiv {R : Type*} [CommRing R] (σ : R ≃+* R) :
     Ideal R ≃* Ideal R where
   toFun I := Ideal.map (σ : R →+* R) I
@@ -553,12 +566,15 @@ theorem primesOver_eq_singleton_of_mem_ramifiedPrimes
     exact hP
   simpa [hPQ] using hQ
 
+/-- The distinguished prime ideal above a rational prime in `ramifiedPrimes d`. -/
 noncomputable def ramifiedPrimeIdeal
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
     {p : ℕ} (hp : p ∈ ramifiedPrimes d) :
     Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))) :=
   (exists_primesOver_eq_singleton_of_mem_ramifiedPrimes (d := d) hp).choose
 
+/-- The prime ideals above a ramified rational prime are exactly the
+distinguished ramified prime ideal. -/
 theorem primesOver_eq_singleton_ramifiedPrimeIdeal
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
     {p : ℕ} (hp : p ∈ ramifiedPrimes d) :
@@ -566,6 +582,7 @@ theorem primesOver_eq_singleton_ramifiedPrimeIdeal
       {ramifiedPrimeIdeal d hp} :=
   (exists_primesOver_eq_singleton_of_mem_ramifiedPrimes (d := d) hp).choose_spec
 
+/-- The distinguished ramified prime ideal lies above its rational prime. -/
 theorem ramifiedPrimeIdeal_mem_primesOver
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
     {p : ℕ} (hp : p ∈ ramifiedPrimes d) :
@@ -574,6 +591,7 @@ theorem ramifiedPrimeIdeal_mem_primesOver
   rw [primesOver_eq_singleton_ramifiedPrimeIdeal]
   exact Set.mem_singleton _
 
+/-- The distinguished ramified prime ideal is nonzero. -/
 theorem ramifiedPrimeIdeal_ne_bot
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
     {p : ℕ} (hp : p ∈ ramifiedPrimes d) :
@@ -657,6 +675,8 @@ theorem map_conjAut_mem_normalizedFactors_and_primesOver_comap_of_isAmbiguousIde
     haveI : P.IsPrime := hPprime
     exact map_conjAut_mem_primesOver_comap K P
 
+/-- A nonzero prime ideal in `𝓞(ℚ(√d))` lies over a rational prime that divides
+its absolute norm. -/
 theorem exists_nat_prime_comap_eq_p_and_dvd_absNorm
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
     {P : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))}
@@ -666,6 +686,8 @@ theorem exists_nat_prime_comap_eq_p_and_dvd_absNorm
         p ∣ Ideal.absNorm P := by
   exact Ideal.exists_nat_prime_comap_eq_span_and_dvd_absNorm_of_isPrime hP hP0
 
+/-- If a prime below `P` is inert, then extending it back to `𝓞(ℚ(√d))`
+recovers `P`. -/
 theorem map_span_eq_of_isInertIn_of_comap_eq_p
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
     {P : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))}
@@ -701,6 +723,8 @@ theorem map_span_eq_of_isInertIn_of_comap_eq_p
     exact hp.ne_zero
   exact (hQprime.isMaximal hQbot).eq_of_le hP.ne_top hQle
 
+/-- A prime ideal over an inert rational prime is principal, because it is the
+extension of that rational prime. -/
 theorem isPrincipal_of_isInertIn_of_comap_eq_p
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
     {P : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))}
@@ -714,6 +738,8 @@ theorem isPrincipal_of_isInertIn_of_comap_eq_p
   rw [← hPQ, Ideal.map_span, Set.image_singleton]
   exact ⟨_, rfl⟩
 
+/-- For a ramified rational prime, extending the rational prime ideal gives the
+square of the unique prime ideal above it. -/
 theorem map_span_eq_sq_of_isRamifiedIn_of_mem_primesOver
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] {p : ℕ} (hp : p.Prime)
     {P : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))}
@@ -744,6 +770,8 @@ theorem map_span_eq_sq_of_isRamifiedIn_of_mem_primesOver
     simpa using hQmem
   simpa [hQP] using hmap
 
+/-- A split prime in a quadratic Dedekind extension has exactly two prime ideals
+above it. -/
 theorem primesOver_ncard_eq_two_of_isSplitIn
     {R S : Type*} [CommRing R] [CommRing S] [Algebra R S]
     [Nontrivial R] [IsDedekindDomain R] [IsDedekindDomain S]
@@ -841,6 +869,8 @@ theorem map_conjAut_ne_of_mem_primesOver_of_isSplitIn
     exact Subtype.ext_iff.mp hsubeq
   exact hτne hτeq
 
+/-- A finite set with cardinality two and two distinct known elements is exactly
+the pair of those elements. -/
 theorem set_eq_pair_of_ncard_eq_two_of_mem_of_mem_of_ne
     {α : Type*} {s : Set α} {a b : α}
     (hs : s.ncard = 2) (ha : a ∈ s) (hb : b ∈ s) (hne : a ≠ b) :
@@ -858,6 +888,8 @@ theorem set_eq_pair_of_ncard_eq_two_of_mem_of_mem_of_ne
     · exact hb
   · simp [hs, hpair]
 
+/-- If `P` and `Q` are the two distinct primes above a split prime, then
+extending the base prime gives `P * Q`. -/
 theorem map_eq_mul_of_isSplitIn_of_mem_primesOver_of_ne
     {R S : Type*} [CommRing R] [CommRing S] [Algebra R S]
     [Nontrivial R] [IsDedekindDomain R] [IsDedekindDomain S]
@@ -1270,6 +1302,8 @@ noncomputable def conjAutNonzeroIdealMulEquiv (K : Type*) [Field K] [Algebra ℚ
     exact Ideal.map_mul (conjAutRingOfIntegers K : NumberField.RingOfIntegers K →+*
       NumberField.RingOfIntegers K) I.1 J.1
 
+/-- The nonzero-ideal conjugation equivalence is implemented by mapping the
+underlying ideal by ring-of-integers conjugation. -/
 @[simp]
 theorem coe_conjAutNonzeroIdealMulEquiv_apply (K : Type*) [Field K] [Algebra ℚ K]
     [QuadraticField K] [QuadraticField.Conj K] (I : (Ideal (NumberField.RingOfIntegers K))⁰) :
@@ -1279,6 +1313,7 @@ theorem coe_conjAutNonzeroIdealMulEquiv_apply (K : Type*) [Field K] [Algebra ℚ
         NumberField.RingOfIntegers K) I.1 :=
   rfl
 
+/-- Nonzero-ideal conjugation is involutive. -/
 @[simp]
 theorem conjAutNonzeroIdealMulEquiv_apply_apply (K : Type*) [Field K] [Algebra ℚ K]
     [QuadraticField K] [QuadraticField.Conj K] (I : (Ideal (NumberField.RingOfIntegers K))⁰) :
@@ -1325,6 +1360,8 @@ theorem mk0_sq_eq_one_of_isAmbiguousIdeal
     eq_inv_iff_mul_eq_one.mp hconjClass
   simpa [pow_two] using hmul
 
+/-- If the square of a nonzero ideal is principal, then its ordinary ideal class
+has order dividing two. -/
 theorem classGroup_mk0_sq_eq_one_of_sq_isPrincipal
     {R : Type*} [CommRing R] [IsDomain R] [IsDedekindDomain R]
     {P : Ideal R} (hP0 : P ≠ ⊥) (hP2 : (P ^ 2).IsPrincipal) :
