@@ -285,7 +285,9 @@ theorem exists_conjAut_coboundary_of_tp_multiplier_to_conjAut
           (conjAutNonzeroIdealMulEquiv (Qsqrtd (d : ℚ)) I)) :
     ∃ y : (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))ˣ,
       x =
-        y * (Units.mapEquiv (conjAutFractionRingAlgEquiv (Qsqrtd (d : ℚ))).toRingEquiv y)⁻¹ := by
+        y *
+          (Units.mapEquiv (conjAutFractionRingAlgEquiv (Qsqrtd (d : ℚ))).toRingEquiv
+            y)⁻¹ := by
   exact exists_conjAut_coboundary_of_norm_eq_one (Qsqrtd (d : ℚ))
     (norm_eq_one_of_tp_multiplier_to_conjAut d I hxpos hconj)
 
@@ -327,6 +329,8 @@ theorem qsqrt_algHom_eq_realEmbeddingPos_or_neg
     rw [hω, Qsqrtd.realEmbeddingNeg_apply]
     simp
 
+/-- Positive real embedding after quadratic conjugation agrees with the negative
+real embedding. -/
 theorem qsqrt_realEmbeddingPos_conjAut
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
     (hd : 0 ≤ (d : ℝ)) (z : Qsqrtd (d : ℚ)) :
@@ -337,6 +341,8 @@ theorem qsqrt_realEmbeddingPos_conjAut
   simp [QuadraticAlgebra.re_star, QuadraticAlgebra.im_star]
   ring
 
+/-- Evaluating a fraction-field element by a ring hom to `ℝ` agrees with first
+transporting it to `Q(√d)` and then evaluating by the induced `ℚ`-algebra hom. -/
 theorem qsqrt_ringHom_eval_eq_algHom_eval
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
     (σ : FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))) →+* ℝ)
@@ -660,6 +666,8 @@ noncomputable def conjInvariantIntegralRep
   let b : NumberField.RingOfIntegers K := conjAutRingOfIntegers K a
   Ideal.span ({a * b ^ 2} : Set (NumberField.RingOfIntegers K)) * F.num
 
+/-- The conjugation-invariant integral representative is nonzero when the
+fractional ideal is nonzero. -/
 theorem conjInvariantIntegralRep_mem_nonZeroDivisors
     (K : Type*) [Field K] [NumberField K] [Algebra ℚ K]
     [QuadraticField K] [QuadraticField.Conj K]
@@ -682,6 +690,8 @@ theorem conjInvariantIntegralRep_mem_nonZeroDivisors
     exact mul_ne_zero ha0 (pow_ne_zero 2 hb0)
   · rwa [ne_eq, FractionalIdeal.num_eq_zero_iff]
 
+/-- As a fractional ideal, the conjugation-invariant integral representative is
+the original fractional ideal multiplied by a square denominator. -/
 theorem coe_conjInvariantIntegralRep
     (K : Type*) [Field K] [NumberField K] [Algebra ℚ K]
     [QuadraticField K] [QuadraticField.Conj K]
@@ -726,6 +736,8 @@ theorem coe_conjInvariantIntegralRep
       congr 1
       simp [pow_two, mul_left_comm, mul_comm]
 
+/-- The product of an algebraic integer and its conjugate is fixed by
+ring-of-integers conjugation. -/
 theorem conjAutRingOfIntegers_mul_conj_fixed
     (K : Type*) [Field K] [Algebra ℚ K]
     [QuadraticField K] [QuadraticField.Conj K]
@@ -734,6 +746,8 @@ theorem conjAutRingOfIntegers_mul_conj_fixed
       a * conjAutRingOfIntegers K a := by
   rw [map_mul, conjAutRingOfIntegers_apply_apply, mul_comm]
 
+/-- The conjugation-invariant integral representative is an ambiguous ideal when
+the original fractional ideal is fixed by fractional-ideal conjugation. -/
 theorem conjInvariantIntegralRep_isAmbiguous
     (K : Type*) [Field K] [NumberField K] [Algebra ℚ K]
     [QuadraticField K] [QuadraticField.Conj K]
@@ -775,6 +789,8 @@ theorem conjInvariantIntegralRep_isAmbiguous
     simpa [σ, FractionalIdeal.ringEquivMap_coeIdeal] using hmap
   exact (FractionalIdeal.coeIdeal_inj (K := FractionRing R)).mp hmapIdeal
 
+/-- The conjugation-invariant integral representative differs from the original
+fractional ideal by a totally positive principal multiplier. -/
 theorem exists_tp_multiplier_conjInvariantIntegralRep
     (K : Type*) [Field K] [NumberField K] [Algebra ℚ K]
     [QuadraticField K] [QuadraticField.Conj K]
