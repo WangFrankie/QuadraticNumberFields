@@ -166,10 +166,11 @@ lemma squarefree_eq_of_rat_sq_mul {d₁ d₂ : ℤ}
     exact not_isSquare_neg_one_rat (by rwa [this] at hratio)
 
 /-- The squarefree integer parameter of a quadratic field is unique:
-    `ℚ(√d₁) ≃ₐ[ℚ] ℚ(√d₂)` with both squarefree and `≠ 1` implies `d₁ = d₂`. -/
+`ℚ(√d₁) ≃ₐ[ℚ] ℚ(√d₂)` with both squarefree and `≠ 1` implies `d₁ = d₂`. -/
 theorem Qsqrtd.param_unique (φ : Qsqrtd (d₁ : ℚ) ≃ₐ[ℚ] Qsqrtd (d₂ : ℚ))
     (hsf₁ : Squarefree d₁) (h1₁ : d₁ ≠ 1) (hsf₂ : Squarefree d₂) : d₁ = d₂ :=
-  -- `φ ⟨0, 1⟩ = ⟨0, b⟩` with `(d₁ : ℚ) = d₂ * b²`, so squarefreeness pins `d₁ = d₂`.
+  -- `φ ⟨0, 1⟩ = ⟨0, b⟩` with `(d₁ : ℚ) = d₂ * b²`, so squarefreeness
+  -- pins `d₁ = d₂`.
   squarefree_eq_of_rat_sq_mul hsf₁ hsf₂
     (Qsqrtd.algEquiv_param_rel (not_isSquare_ratCast_of_squarefree_ne_one hsf₁ h1₁) φ).2.2
 

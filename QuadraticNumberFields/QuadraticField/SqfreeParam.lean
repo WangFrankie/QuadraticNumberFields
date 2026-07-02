@@ -55,8 +55,12 @@ structure SqfreeParam where
 
 namespace SqfreeParam
 
+/-- A squarefree parameter supplies the `Fact (Squarefree d)` instance expected
+by standard-model APIs. -/
 instance (p : SqfreeParam) : Fact (Squarefree p.d) := ⟨p.squarefree⟩
 
+/-- A squarefree parameter supplies the `Fact (d ≠ 1)` instance expected by
+standard-model APIs. -/
 instance (p : SqfreeParam) : Fact (p.d ≠ 1) := ⟨p.ne_one⟩
 
 /-- The standard model `ℚ(√d)` associated to a squarefree parameter. -/
@@ -67,6 +71,7 @@ def qsqrtd (p : SqfreeParam) : Type :=
 def toQuadraticFieldCat (p : SqfreeParam) : QuadraticFieldCat :=
   QuadraticFieldCat.ofQsqrtd p.d
 
+/-- The carrier of the bundled standard model for `p` is `Qsqrtd (p.d : ℚ)`. -/
 @[simp]
 theorem toQuadraticFieldCat_carrier (p : SqfreeParam) :
     (p.toQuadraticFieldCat).carrier = Qsqrtd (p.d : ℚ) :=
@@ -87,6 +92,8 @@ categorical equivalence (see the module docstring). -/
 def SqfreeParam.stdModel : SqfreeParamCat ⥤ QuadraticFieldCat :=
   Discrete.functor SqfreeParam.toQuadraticFieldCat
 
+/-- On objects, the standard-model functor sends `p` to the bundled field
+`p.toQuadraticFieldCat`. -/
 @[simp]
 theorem SqfreeParam.stdModel_obj (p : SqfreeParam) :
     SqfreeParam.stdModel.obj ⟨p⟩ = p.toQuadraticFieldCat :=

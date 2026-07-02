@@ -37,6 +37,8 @@ class QuadraticField (K : Type*) [Field K] [Algebra ℚ K] : Prop where
   /-- The underlying degree-two extension predicate. -/
   isQuadratic : Algebra.IsQuadraticExtension ℚ K
 
+/-- A project-level `QuadraticField` instance exposes mathlib's
+`Algebra.IsQuadraticExtension` predicate. -/
 instance (K : Type*) [Field K] [Algebra ℚ K] [QuadraticField K] :
     Algebra.IsQuadraticExtension ℚ K :=
   QuadraticField.isQuadratic

@@ -108,10 +108,12 @@ noncomputable def starAlgEquiv (d : ℚ) [Fact (¬ IsSquare d)] :
     -- map sends `r ↦ ⟨r, 0⟩` and `star ⟨r, 0⟩ = ⟨r, 0⟩`.
     simp
 
+/-- Applying `Qsqrtd.starAlgEquiv` is the same as applying `star`. -/
 theorem starAlgEquiv_apply {d : ℚ} [Fact (¬ IsSquare d)] (x : Qsqrtd d) :
     starAlgEquiv d x = star x := by
   rfl
 
+/-- Applying the inverse of `Qsqrtd.starAlgEquiv` is also applying `star`. -/
 theorem starAlgEquiv_symm_apply {d : ℚ} [Fact (¬ IsSquare d)] (x : Qsqrtd d) :
     (starAlgEquiv d).symm x = star x := by
   rfl
@@ -127,9 +129,11 @@ noncomputable instance instConjQsqrtd (d : ℤ) [Fact (Squarefree d)] [Fact (d �
   conj := Qsqrtd.starAlgEquiv (d : ℚ)
   conj_conj x := star_involutive x
   conj_ne_refl := by
-    -- For squarefree `d ≠ 1`, `Qsqrtd d` is a field, so `star ⟨0, 1⟩ = ⟨0, -1⟩ ≠ ⟨0, 1⟩`.
+    -- For squarefree `d ≠ 1`, `Qsqrtd d` is a field, so
+    -- `star ⟨0, 1⟩ = ⟨0, -1⟩ ≠ ⟨0, 1⟩`.
     intro h
-    -- If `starAlgEquiv = AlgEquiv.refl`, applying to `⟨0, 1⟩` gives `star ⟨0, 1⟩ = ⟨0, 1⟩`.
+    -- If `starAlgEquiv = AlgEquiv.refl`, applying to `⟨0, 1⟩` gives
+    -- `star ⟨0, 1⟩ = ⟨0, 1⟩`.
     have hsqrtd : star (⟨0, 1⟩ : Qsqrtd (d : ℚ)) = (⟨0, 1⟩ : Qsqrtd (d : ℚ)) := by
       have h' := DFunLike.congr_fun h (⟨0, 1⟩ : Qsqrtd (d : ℚ))
       simpa [Qsqrtd.starAlgEquiv_apply] using h'
