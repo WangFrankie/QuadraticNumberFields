@@ -81,7 +81,8 @@ namespace QuadraticNumberFields
 attribute [-instance] DivisionRing.toRatAlgebra
 
 -- Same definition in 'Mathlib.NumberTheory.NumberField.ClassNumber'
-local notation "N " K:70 => @finrank ℚ K _ _ (@Algebra.toModule ℚ K _ _ DivisionRing.toRatAlgebra)
+local notation "N " K:70 =>
+  @finrank ℚ K _ _ (@Algebra.toModule ℚ K _ _ DivisionRing.toRatAlgebra)
 local notation "M " K:70 => (4 / π) ^ nrComplexPlaces K *
   (((N K)! : ℝ) / (N K) ^ (N K) * √|discr K|)
 
