@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 
-import QuadraticNumberFields.ClassGroup.GenusTheory.AmbiguousIdeals.PositivePrincipal.Generators
+import QuadraticNumberFields.ClassGroup.GenusTheory.AmbiguousIdeals.Exact
 
 /-!
 # Ambiguous-Ideal Upper Bound
@@ -133,208 +133,6 @@ theorem ambiguousIdeal_mk0_eq_fullRamifiedParityIdealProduct
       NarrowClassGroup.mk0
         (fullRamifiedParityIdealProduct d (fullRamifiedParityVector d J)) := by
   exact ambiguousIdeal_mk0_eq_fullRamifiedParityIdealProduct_of_factorization d J hJ
-
-/-- If the distinguished coordinate is zero, the full ramified parity ideal
-product is literally the erased ramified parity ideal product obtained by
-restricting the vector away from that coordinate. -/
-theorem fullRamifiedParityIdealProduct_eq_ramifiedParityIdealProduct_of_apply_p0_eq_zero
-    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
-    {p0 : ℕ} (hp0 : p0 ∈ ramifiedPrimes d)
-    (v : ({p // p ∈ ramifiedPrimes d} → Fin 2))
-    (hv0 : v ⟨p0, hp0⟩ = 0) :
-    fullRamifiedParityIdealProduct d v =
-      ramifiedParityIdealProduct d hp0
-        (fun p : {p // p ∈ (ramifiedPrimes d).erase p0} =>
-          v ⟨p.1, (Finset.mem_erase.mp p.2).2⟩) := by
-  classical
-  let R := NumberField.RingOfIntegers (Qsqrtd (d : ℚ))
-  let F : {p // p ∈ ramifiedPrimes d} → (Ideal R)⁰ :=
-    fun p =>
-      if v p = 0 then 1 else
-        ⟨ramifiedPrimeIdeal d p.2,
-          mem_nonZeroDivisors_iff_ne_zero.mpr (by
-            simpa [Ideal.zero_eq_bot] using ramifiedPrimeIdeal_ne_bot d p.2)⟩
-  let G : {p // p ∈ (ramifiedPrimes d).erase p0} → (Ideal R)⁰ :=
-    fun p =>
-      if v ⟨p.1, (Finset.mem_erase.mp p.2).2⟩ = 0 then 1 else
-        ⟨ramifiedPrimeIdeal d ((Finset.mem_erase.mp p.2).2),
-          mem_nonZeroDivisors_iff_ne_zero.mpr (by
-            simpa [Ideal.zero_eq_bot] using
-              ramifiedPrimeIdeal_ne_bot d ((Finset.mem_erase.mp p.2).2))⟩
-  change Finset.univ.prod F = Finset.univ.prod G
-  have hterm : F ⟨p0, hp0⟩ = 1 := by
-    simp [F, hv0]
-  rw [← Finset.prod_erase (s := Finset.univ) (a := ⟨p0, hp0⟩) (f := F) hterm]
-  symm
-  refine Finset.prod_bij
-    (fun p _hp => (⟨p.1, (Finset.mem_erase.mp p.2).2⟩ :
-      {p // p ∈ ramifiedPrimes d})) ?_ ?_ ?_ ?_
-  · intro p _hp
-    rw [Finset.mem_erase]
-    refine ⟨?_, Finset.mem_univ _⟩
-    intro hp
-    exact (Finset.mem_erase.mp p.2).1 (Subtype.ext_iff.mp hp)
-  · intro p _hp q _hq hpq
-    apply Subtype.ext
-    exact congrArg (fun x : {p // p ∈ ramifiedPrimes d} => (x : ℕ)) hpq
-  · intro q hq
-    rw [Finset.mem_erase] at hq
-    refine ⟨⟨q.1, Finset.mem_erase.mpr ⟨?_, q.2⟩⟩, Finset.mem_univ _, ?_⟩
-    · intro hq0
-      exact hq.1 (Subtype.ext hq0)
-    · apply Subtype.ext
-      rfl
-  · intro p _hp
-    simp [F]
-
-/-- If the distinguished coordinate is zero, the full ramified parity narrow
-class product is the erased product obtained by restricting away from that
-coordinate. -/
-private theorem fullRamifiedParityNarrowClassProduct_eq_erased_of_apply_p0_eq_zero
-    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
-    {p0 : ℕ} (hp0 : p0 ∈ ramifiedPrimes d)
-    (v : ({p // p ∈ ramifiedPrimes d} → Fin 2))
-    (hv0 : v ⟨p0, hp0⟩ = 0) :
-    fullRamifiedParityNarrowClassProduct d v =
-      ramifiedParityNarrowClassProduct d hp0
-        (fun p : {p // p ∈ (ramifiedPrimes d).erase p0} =>
-          v ⟨p.1, (Finset.mem_erase.mp p.2).2⟩) := by
-  classical
-  let F : {p // p ∈ ramifiedPrimes d} →
-      NarrowClassGroup (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))) :=
-    fun p => if v p = 0 then 1 else ramifiedPrimeNarrowClass d p.2
-  let G : {p // p ∈ (ramifiedPrimes d).erase p0} →
-      NarrowClassGroup (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))) :=
-    fun p =>
-      if v ⟨p.1, (Finset.mem_erase.mp p.2).2⟩ = 0 then 1 else
-        ramifiedPrimeNarrowClass d ((Finset.mem_erase.mp p.2).2)
-  change Finset.univ.prod F = Finset.univ.prod G
-  have hterm : F ⟨p0, hp0⟩ = 1 := by
-    simp [F, hv0]
-  rw [← Finset.prod_erase (s := Finset.univ) (a := ⟨p0, hp0⟩) (f := F) hterm]
-  symm
-  refine Finset.prod_bij
-    (fun p _hp => (⟨p.1, (Finset.mem_erase.mp p.2).2⟩ :
-      {p // p ∈ ramifiedPrimes d})) ?_ ?_ ?_ ?_
-  · intro p _hp
-    rw [Finset.mem_erase]
-    refine ⟨?_, Finset.mem_univ _⟩
-    intro hp
-    exact (Finset.mem_erase.mp p.2).1 (Subtype.ext_iff.mp hp)
-  · intro p _hp q _hq hpq
-    apply Subtype.ext
-    exact congrArg (fun x : {p // p ∈ ramifiedPrimes d} => (x : ℕ)) hpq
-  · intro q hq
-    rw [Finset.mem_erase] at hq
-    refine ⟨⟨q.1, Finset.mem_erase.mpr ⟨?_, q.2⟩⟩, Finset.mem_univ _, ?_⟩
-    · intro hq0
-      exact hq.1 (Subtype.ext hq0)
-    · apply Subtype.ext
-      rfl
-  · intro p _hp
-    simp [F]
-
-/-- In `Fin 2`, two nonzero elements add to zero. -/
-theorem fin_two_add_eq_zero_of_ne_zero_of_ne_zero {a b : Fin 2}
-    (ha : a ≠ 0) (hb : b ≠ 0) : a + b = 0 := by
-  have ha1 : a = 1 := Fin.eq_one_of_ne_zero a ha
-  have hb1 : b = 1 := Fin.eq_one_of_ne_zero b hb
-  simp [ha1, hb1]
-
-/-- A full ramified parity vector lies in the kernel of the narrow-class map
-exactly when the corresponding integral ideal product is killed by a totally
-positive principal fractional ideal. -/
-theorem fullRamifiedParityNarrowClassHom_mem_ker_iff_exists_positivePrincipal
-    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
-    (r : {p // p ∈ ramifiedPrimes d} → Fin 2) :
-    let R := NumberField.RingOfIntegers (Qsqrtd (d : ℚ))
-    Multiplicative.ofAdd r ∈ (fullRamifiedParityNarrowClassHom d).ker ↔
-      ∃ x : (FractionRing R)ˣ,
-        NarrowClassGroup.IsTotallyPositive (x : FractionRing R) ∧
-          FractionalIdeal.mk0 (FractionRing R) (fullRamifiedParityIdealProduct d r) *
-            toPrincipalIdeal R (FractionRing R) x = 1 := by
-  let R := NumberField.RingOfIntegers (Qsqrtd (d : ℚ))
-  rw [fullRamifiedParityNarrowClassHom_mem_ker_iff]
-  rw [← mk0_fullRamifiedParityIdealProduct d r]
-  exact NarrowClassGroup.mk0_eq_one_iff_exists_fraction_ring
-
-/-- A full ramified parity class is trivial exactly when adding that vector to
-every full parity vector leaves the associated narrow class unchanged. -/
-theorem fullRamifiedParityNarrowClassProduct_eq_one_iff_mk0_add_relation
-    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
-    (r : {p // p ∈ ramifiedPrimes d} → Fin 2) :
-    fullRamifiedParityNarrowClassProduct d r = 1 ↔
-      ∀ v : ({p // p ∈ ramifiedPrimes d} → Fin 2),
-        NarrowClassGroup.mk0 (fullRamifiedParityIdealProduct d (fun p => v p + r p)) =
-          NarrowClassGroup.mk0 (fullRamifiedParityIdealProduct d v) := by
-  constructor
-  · intro hr v
-    rw [mk0_fullRamifiedParityIdealProduct, mk0_fullRamifiedParityIdealProduct]
-    rw [fullRamifiedParityNarrowClassProduct_add, hr, mul_one]
-  · intro hrel
-    have hzero := hrel 0
-    rw [mk0_fullRamifiedParityIdealProduct, mk0_fullRamifiedParityIdealProduct] at hzero
-    rw [fullRamifiedParityNarrowClassProduct_add,
-      fullRamifiedParityNarrowClassProduct_zero, one_mul] at hzero
-    simpa [fullRamifiedParityNarrowClassProduct_zero] using hzero
-
-/-- The positive-principal witness for a full parity vector is equivalent to the
-translation relation used to erase one ramified coordinate. -/
-private theorem fullRamifiedParityProduct_positivePrincipal_iff_mk0_add_relation
-    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
-    (r : {p // p ∈ ramifiedPrimes d} → Fin 2) :
-    let R := NumberField.RingOfIntegers (Qsqrtd (d : ℚ))
-    (∃ x : (FractionRing R)ˣ,
-      NarrowClassGroup.IsTotallyPositive (x : FractionRing R) ∧
-        FractionalIdeal.mk0 (FractionRing R) (fullRamifiedParityIdealProduct d r) *
-          toPrincipalIdeal R (FractionRing R) x = 1) ↔
-      ∀ v : ({p // p ∈ ramifiedPrimes d} → Fin 2),
-        NarrowClassGroup.mk0 (fullRamifiedParityIdealProduct d (fun p => v p + r p)) =
-          NarrowClassGroup.mk0 (fullRamifiedParityIdealProduct d v) := by
-  let R := NumberField.RingOfIntegers (Qsqrtd (d : ℚ))
-  constructor
-  · intro hx
-    exact (fullRamifiedParityNarrowClassProduct_eq_one_iff_mk0_add_relation d r).mp
-      ((fullRamifiedParityNarrowClassHom_mem_ker_iff d r).mp
-        ((fullRamifiedParityNarrowClassHom_mem_ker_iff_exists_positivePrincipal d r).mpr hx))
-  · intro hrel
-    exact (fullRamifiedParityNarrowClassHom_mem_ker_iff_exists_positivePrincipal d r).mp
-      ((fullRamifiedParityNarrowClassHom_mem_ker_iff d r).mpr
-        ((fullRamifiedParityNarrowClassProduct_eq_one_iff_mk0_add_relation d r).mpr hrel))
-
-/-- Kernel vectors are exactly full ramified parity products generated by a
-totally positive element of the fraction field.
-
-This is the principal-generator form of
-`fullRamifiedParityNarrowClassHom_mem_ker_iff_exists_positivePrincipal`: the
-positive principal multiplier killing the integral product is inverted so that
-the generator itself cuts out the ramified parity product. This is the entry
-point for the later Hilbert-90/sign analysis of `σ(γ) / γ`. -/
-theorem fullRamifiedParityNarrowClassProduct_eq_one_iff_exists_tp_generator
-    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
-    (r : {p // p ∈ ramifiedPrimes d} → Fin 2) :
-    let R := NumberField.RingOfIntegers (Qsqrtd (d : ℚ))
-    fullRamifiedParityNarrowClassProduct d r = 1 ↔
-      ∃ γ : (FractionRing R)ˣ,
-        NarrowClassGroup.IsTotallyPositive (γ : FractionRing R) ∧
-          toPrincipalIdeal R (FractionRing R) γ =
-            FractionalIdeal.mk0 (FractionRing R) (fullRamifiedParityIdealProduct d r) := by
-  let R := NumberField.RingOfIntegers (Qsqrtd (d : ℚ))
-  constructor
-  · intro hr
-    obtain ⟨x, hxpos, hx⟩ :=
-      (fullRamifiedParityNarrowClassHom_mem_ker_iff_exists_positivePrincipal d r).mp
-        ((fullRamifiedParityNarrowClassHom_mem_ker_iff d r).mpr hr)
-    refine ⟨x⁻¹, ?_, ?_⟩
-    · exact (NarrowClassGroup.totallyPositiveUnits (FractionRing R)).inv_mem hxpos
-    · rw [map_inv]
-      exact (eq_inv_of_mul_eq_one_left hx).symm
-  · rintro ⟨γ, hγpos, hγ⟩
-    apply (fullRamifiedParityNarrowClassHom_mem_ker_iff d r).mp
-    apply (fullRamifiedParityNarrowClassHom_mem_ker_iff_exists_positivePrincipal d r).mpr
-    refine ⟨γ⁻¹, ?_, ?_⟩
-    · exact (NarrowClassGroup.totallyPositiveUnits (FractionRing R)).inv_mem hγpos
-    · rw [map_inv, hγ, mul_inv_cancel]
 
 private theorem exists_unit_map_algebraMap_eq_of_toPrincipalIdeal_eq_one
     {R : Type*} [CommRing R] [IsDomain R] {x : (FractionRing R)ˣ}
@@ -660,86 +458,6 @@ theorem conjAutFractionRingAlgEquiv_mul_algebraMap_eq_self_of_hilbert90_cobounda
     _ = (γ : F) * E := by
       rw [hkey]
 
-/-- Chevalley's narrow genus relation, in the only form needed for the upper
-bound.
-
-This is the genuine global mathematical boundary: the full ramified parity map
-has a nonzero kernel vector. Equivalently, the narrow-principal ambiguous ideals
-form a codimension-one subspace of the ramified parity space, the `-1` in
-`|Am⁺| = 2 ^ (t - 1)`. This statement is uniform in `d`; the witness vector is
-not. In particular, the constant-one vector is not a valid uniform shortcut:
-the relation depends on the prime-discriminant/sign contribution for `d`. -/
-theorem exists_nonzero_fullRamifiedParityNarrowClassProduct_eq_one_of_chevalley
-    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
-    ∃ r : ({p // p ∈ ramifiedPrimes d} → Fin 2),
-      (∃ p, r p ≠ 0) ∧ fullRamifiedParityNarrowClassProduct d r = 1 := by
-  classical
-  obtain ⟨r, hrnonzero, γ, hγpos, hγ⟩ := exists_nonzero_ramifiedParity_tp_generator d
-  refine ⟨r, hrnonzero, ?_⟩
-  exact (fullRamifiedParityNarrowClassProduct_eq_one_iff_exists_tp_generator d r).mpr
-    ⟨γ, hγpos, hγ⟩
-
-/-- Weak positive-principal ramified relation needed for the upper bound. It
-asserts that some nonzero product of ramified prime ideal classes is trivial in
-the narrow class group.
-
-This is weaker than computing the full kernel of the ramified parity map. It is
-the only global unit/sign input needed to erase one ramified coordinate in the
-upper-bound proof, and is exactly the Chevalley kernel-nontriviality boundary
-recorded in
-`exists_nonzero_fullRamifiedParityNarrowClassProduct_eq_one_of_chevalley`. -/
-theorem exists_nonzero_fullRamifiedParityNarrowClassProduct_eq_one
-    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
-    ∃ r : ({p // p ∈ ramifiedPrimes d} → Fin 2),
-      (∃ p, r p ≠ 0) ∧ fullRamifiedParityNarrowClassProduct d r = 1 := by
-  exact exists_nonzero_fullRamifiedParityNarrowClassProduct_eq_one_of_chevalley d
-
-/-- A nonzero kernel vector for the finite ramified parity map acts trivially on
-all full ramified parity products. -/
-theorem exists_nonzero_positivePrincipalRamifiedParityRelation
-    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
-    ∃ r : ({p // p ∈ ramifiedPrimes d} → Fin 2),
-      (∃ p, r p ≠ 0) ∧
-        ∀ v : ({p // p ∈ ramifiedPrimes d} → Fin 2),
-          NarrowClassGroup.mk0
-              (fullRamifiedParityIdealProduct d (fun p => v p + r p)) =
-            NarrowClassGroup.mk0 (fullRamifiedParityIdealProduct d v) := by
-  obtain ⟨r, hrnonzero, hr⟩ :=
-    exists_nonzero_fullRamifiedParityNarrowClassProduct_eq_one d
-  exact ⟨r, hrnonzero,
-    (fullRamifiedParityNarrowClassProduct_eq_one_iff_mk0_add_relation d r).mp hr⟩
-
-/-- A nonzero positive-principal ramified parity relation lets us erase any
-coordinate in its support. This is the correct replacement for the false
-all-one finite ramified relation in the narrow real quadratic case. -/
-theorem exists_erasedRamifiedParityProduct_mk0_eq_full_of_relation
-    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
-    {p0 : ℕ} (hp0 : p0 ∈ ramifiedPrimes d)
-    (r : ({p // p ∈ ramifiedPrimes d} → Fin 2))
-    (hrp0 : r ⟨p0, hp0⟩ ≠ 0)
-    (hrel : ∀ v : ({p // p ∈ ramifiedPrimes d} → Fin 2),
-      NarrowClassGroup.mk0
-          (fullRamifiedParityIdealProduct d (fun p => v p + r p)) =
-        NarrowClassGroup.mk0 (fullRamifiedParityIdealProduct d v))
-    (J : (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰) :
-    ∃ w : ({p // p ∈ (ramifiedPrimes d).erase p0} → Fin 2),
-      NarrowClassGroup.mk0
-          (ramifiedParityIdealProduct d hp0 w) =
-        NarrowClassGroup.mk0
-          (fullRamifiedParityIdealProduct d (fullRamifiedParityVector d J)) := by
-  let v := fullRamifiedParityVector d J
-  by_cases hv0 : v ⟨p0, hp0⟩ = 0
-  · refine ⟨fun p => v ⟨p.1, (Finset.mem_erase.mp p.2).2⟩, ?_⟩
-    rw [fullRamifiedParityIdealProduct_eq_ramifiedParityIdealProduct_of_apply_p0_eq_zero
-      d hp0 v hv0]
-  · let v' : {p // p ∈ ramifiedPrimes d} → Fin 2 := fun p => v p + r p
-    have hv'p0 : v' ⟨p0, hp0⟩ = 0 := by
-      simpa [v'] using fin_two_add_eq_zero_of_ne_zero_of_ne_zero hv0 hrp0
-    refine ⟨fun p => v' ⟨p.1, (Finset.mem_erase.mp p.2).2⟩, ?_⟩
-    rw [← fullRamifiedParityIdealProduct_eq_ramifiedParityIdealProduct_of_apply_p0_eq_zero
-      d hp0 v' hv'p0]
-    simpa [v'] using hrel v
-
 /-- The full ramified parity ideal product is the multiset product of exactly the
 ramified prime ideals whose parity coordinate is nonzero. -/
 theorem coe_fullRamifiedParityIdealProduct_eq_filtered_multiset_prod
@@ -989,10 +707,7 @@ theorem exists_integralIdeal_erasedRamifiedParityRepresentative_of_isAmbiguousId
     {p0 : ℕ} (hp0 : p0 ∈ ramifiedPrimes d)
     (r : ({p // p ∈ ramifiedPrimes d} → Fin 2))
     (hrp0 : r ⟨p0, hp0⟩ ≠ 0)
-    (hrel : ∀ v : ({p // p ∈ ramifiedPrimes d} → Fin 2),
-      NarrowClassGroup.mk0
-          (fullRamifiedParityIdealProduct d (fun p => v p + r p)) =
-        NarrowClassGroup.mk0 (fullRamifiedParityIdealProduct d v))
+    (hrker : Multiplicative.ofAdd r ∈ (fullRamifiedParityNarrowClassHom d).ker)
     (J : (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰)
     (hJ : IsAmbiguousIdeal (conjAutRingOfIntegers (Qsqrtd (d : ℚ)))
       (J : Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))) :
@@ -1004,8 +719,8 @@ theorem exists_integralIdeal_erasedRamifiedParityRepresentative_of_isAmbiguousId
   obtain ⟨I₀, hI₀mk0, hI₀amb, hI₀full⟩ :=
     exists_integralIdeal_fullRamifiedParityRepresentative_of_isAmbiguousIdeal d J hJ
   obtain ⟨w, hw⟩ :=
-    exists_erasedRamifiedParityProduct_mk0_eq_full_of_relation
-      d hp0 r hrp0 hrel I₀
+    exists_erasedRamifiedParityProduct_mk0_eq_full_of_mem_ker
+      d hp0 r hrp0 hrker I₀
   let I := ramifiedParityIdealProduct d hp0 w
   refine ⟨I, ?_, ?_⟩
   · exact hw.trans (hI₀full.symm.trans hI₀mk0)
@@ -1022,10 +737,7 @@ theorem exists_integralIdeal_ramifiedParityRepresentative_of_narrowInversionFixe
     {p0 : ℕ} (hp0 : p0 ∈ ramifiedPrimes d)
     (r : ({p // p ∈ ramifiedPrimes d} → Fin 2))
     (hrp0 : r ⟨p0, hp0⟩ ≠ 0)
-    (hrel : ∀ v : ({p // p ∈ ramifiedPrimes d} → Fin 2),
-      NarrowClassGroup.mk0
-          (fullRamifiedParityIdealProduct d (fun p => v p + r p)) =
-        NarrowClassGroup.mk0 (fullRamifiedParityIdealProduct d v))
+    (hrker : Multiplicative.ofAdd r ∈ (fullRamifiedParityNarrowClassHom d).ker)
     (C : NarrowInversionFixedClass (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) :
     ∃ I : (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰,
       NarrowClassGroup.mk0 I = C.1 ∧
@@ -1040,7 +752,7 @@ theorem exists_integralIdeal_ramifiedParityRepresentative_of_narrowInversionFixe
       d I hxpos hconj
   obtain ⟨J', hJ'mk0, hJ'parity⟩ :=
     exists_integralIdeal_erasedRamifiedParityRepresentative_of_isAmbiguousIdeal
-      d hp0 r hrp0 hrel J hJamb
+      d hp0 r hrp0 hrker J hJamb
   refine ⟨J', ?_, hJ'parity⟩
   exact hJ'mk0.trans (hJmk0.trans hI)
 
@@ -1049,66 +761,54 @@ noncomputable def narrowInversionFixedRepresentativeIdeal
     {p0 : ℕ} (hp0 : p0 ∈ ramifiedPrimes d)
     (r : ({p // p ∈ ramifiedPrimes d} → Fin 2))
     (hrp0 : r ⟨p0, hp0⟩ ≠ 0)
-    (hrel : ∀ v : ({p // p ∈ ramifiedPrimes d} → Fin 2),
-      NarrowClassGroup.mk0
-          (fullRamifiedParityIdealProduct d (fun p => v p + r p)) =
-        NarrowClassGroup.mk0 (fullRamifiedParityIdealProduct d v))
+    (hrker : Multiplicative.ofAdd r ∈ (fullRamifiedParityNarrowClassHom d).ker)
     (C : NarrowInversionFixedClass (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) :
     (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))⁰ :=
   Classical.choose
     (exists_integralIdeal_ramifiedParityRepresentative_of_narrowInversionFixedClass
-      d hp0 r hrp0 hrel C)
+      d hp0 r hrp0 hrker C)
 
 theorem narrowInversionFixedRepresentativeIdeal_mk0
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
     {p0 : ℕ} (hp0 : p0 ∈ ramifiedPrimes d)
     (r : ({p // p ∈ ramifiedPrimes d} → Fin 2))
     (hrp0 : r ⟨p0, hp0⟩ ≠ 0)
-    (hrel : ∀ v : ({p // p ∈ ramifiedPrimes d} → Fin 2),
-      NarrowClassGroup.mk0
-          (fullRamifiedParityIdealProduct d (fun p => v p + r p)) =
-        NarrowClassGroup.mk0 (fullRamifiedParityIdealProduct d v))
+    (hrker : Multiplicative.ofAdd r ∈ (fullRamifiedParityNarrowClassHom d).ker)
     (C : NarrowInversionFixedClass (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) :
-    NarrowClassGroup.mk0 (narrowInversionFixedRepresentativeIdeal d hp0 r hrp0 hrel C) =
+    NarrowClassGroup.mk0 (narrowInversionFixedRepresentativeIdeal d hp0 r hrp0 hrker C) =
       C.1 :=
   (Classical.choose_spec
     (exists_integralIdeal_ramifiedParityRepresentative_of_narrowInversionFixedClass
-      d hp0 r hrp0 hrel C)).1
+      d hp0 r hrp0 hrker C)).1
 
 theorem narrowInversionFixedRepresentativeIdeal_mk0_eq_ramifiedParityIdealProduct
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
     {p0 : ℕ} (hp0 : p0 ∈ ramifiedPrimes d)
     (r : ({p // p ∈ ramifiedPrimes d} → Fin 2))
     (hrp0 : r ⟨p0, hp0⟩ ≠ 0)
-    (hrel : ∀ v : ({p // p ∈ ramifiedPrimes d} → Fin 2),
-      NarrowClassGroup.mk0
-          (fullRamifiedParityIdealProduct d (fun p => v p + r p)) =
-        NarrowClassGroup.mk0 (fullRamifiedParityIdealProduct d v))
+    (hrker : Multiplicative.ofAdd r ∈ (fullRamifiedParityNarrowClassHom d).ker)
     (C : NarrowInversionFixedClass (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) :
-    NarrowClassGroup.mk0 (narrowInversionFixedRepresentativeIdeal d hp0 r hrp0 hrel C) =
+    NarrowClassGroup.mk0 (narrowInversionFixedRepresentativeIdeal d hp0 r hrp0 hrker C) =
       NarrowClassGroup.mk0
         (ramifiedParityIdealProduct d hp0
           (idealRamifiedParityVector d hp0
-            (narrowInversionFixedRepresentativeIdeal d hp0 r hrp0 hrel C))) :=
+            (narrowInversionFixedRepresentativeIdeal d hp0 r hrp0 hrker C))) :=
   (Classical.choose_spec
     (exists_integralIdeal_ramifiedParityRepresentative_of_narrowInversionFixedClass
-      d hp0 r hrp0 hrel C)).2
+      d hp0 r hrp0 hrker C)).2
 
 noncomputable def narrowInversionFixedClassRamifiedParityVector
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
     {p0 : ℕ} (hp0 : p0 ∈ ramifiedPrimes d)
     (r : ({p // p ∈ ramifiedPrimes d} → Fin 2))
     (hrp0 : r ⟨p0, hp0⟩ ≠ 0)
-    (hrel : ∀ v : ({p // p ∈ ramifiedPrimes d} → Fin 2),
-      NarrowClassGroup.mk0
-          (fullRamifiedParityIdealProduct d (fun p => v p + r p)) =
-        NarrowClassGroup.mk0 (fullRamifiedParityIdealProduct d v)) :
+    (hrker : Multiplicative.ofAdd r ∈ (fullRamifiedParityNarrowClassHom d).ker) :
     NarrowInversionFixedClass (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))) →
       ({p // p ∈ (ramifiedPrimes d).erase p0} → Fin 2) := by
   classical
   intro C
   exact idealRamifiedParityVector d hp0
-    (narrowInversionFixedRepresentativeIdeal d hp0 r hrp0 hrel C)
+    (narrowInversionFixedRepresentativeIdeal d hp0 r hrp0 hrker C)
 
 /-- Exact remaining fixed-representative recovery input for the ambiguous-ideal
 bound. It says that the chosen representative of an inversion-fixed narrow
@@ -1121,60 +821,53 @@ theorem exists_tp_multiplier_representative_to_ramifiedParityIdealProduct
     {p0 : ℕ} (hp0 : p0 ∈ ramifiedPrimes d)
     (r : ({p // p ∈ ramifiedPrimes d} → Fin 2))
     (hrp0 : r ⟨p0, hp0⟩ ≠ 0)
-    (hrel : ∀ v : ({p // p ∈ ramifiedPrimes d} → Fin 2),
-      NarrowClassGroup.mk0
-          (fullRamifiedParityIdealProduct d (fun p => v p + r p)) =
-        NarrowClassGroup.mk0 (fullRamifiedParityIdealProduct d v))
+    (hrker : Multiplicative.ofAdd r ∈ (fullRamifiedParityNarrowClassHom d).ker)
     (C : NarrowInversionFixedClass (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) :
     ∃ x : (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))ˣ,
       NarrowClassGroup.IsTotallyPositive
         (x : FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) ∧
         FractionalIdeal.mk0
             (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))
-            (narrowInversionFixedRepresentativeIdeal d hp0 r hrp0 hrel C) *
+            (narrowInversionFixedRepresentativeIdeal d hp0 r hrp0 hrker C) *
           toPrincipalIdeal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))
             (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) x =
         FractionalIdeal.mk0
           (FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))))
           (ramifiedParityIdealProduct d hp0
-            (narrowInversionFixedClassRamifiedParityVector d hp0 r hrp0 hrel C)) := by
+            (narrowInversionFixedClassRamifiedParityVector d hp0 r hrp0 hrker C)) := by
   have hclass :
-      NarrowClassGroup.mk0 (narrowInversionFixedRepresentativeIdeal d hp0 r hrp0 hrel C) =
+      NarrowClassGroup.mk0 (narrowInversionFixedRepresentativeIdeal d hp0 r hrp0 hrker C) =
         NarrowClassGroup.mk0
           (ramifiedParityIdealProduct d hp0
-            (narrowInversionFixedClassRamifiedParityVector d hp0 r hrp0 hrel C)) := by
+            (narrowInversionFixedClassRamifiedParityVector d hp0 r hrp0 hrker C)) := by
     simpa [narrowInversionFixedClassRamifiedParityVector] using
       narrowInversionFixedRepresentativeIdeal_mk0_eq_ramifiedParityIdealProduct
-        d hp0 r hrp0 hrel C
+        d hp0 r hrp0 hrker C
   exact (NarrowClassGroup.mk0_eq_mk0_iff_exists_fraction_ring).mp hclass
 
-/-- A nonzero strict positive-principal relation among full ramified parity
-vectors lets one coordinate be erased in the count of inversion-fixed narrow
-classes. -/
-theorem card_narrowInversionFixedClass_le_two_pow_sub_one_of_positivePrincipal_relation
+/-- A nonzero kernel vector in the full ramified-parity map lets one coordinate be
+erased in the count of inversion-fixed narrow classes. -/
+theorem card_narrowInversionFixedClass_le_two_pow_sub_one_of_mem_ker
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
     {p0 : ℕ} (hp0 : p0 ∈ ramifiedPrimes d)
     (r : ({p // p ∈ ramifiedPrimes d} → Fin 2))
     (hrp0 : r ⟨p0, hp0⟩ ≠ 0)
-    (hrel : ∀ v : ({p // p ∈ ramifiedPrimes d} → Fin 2),
-      NarrowClassGroup.mk0
-          (fullRamifiedParityIdealProduct d (fun p => v p + r p)) =
-        NarrowClassGroup.mk0 (fullRamifiedParityIdealProduct d v)) :
+    (hrker : Multiplicative.ofAdd r ∈ (fullRamifiedParityNarrowClassHom d).ker) :
     Nat.card (NarrowInversionFixedClass
       (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) ≤
       2 ^ (ramifiedPrimeCount d - 1) := by
   classical
   let R := NumberField.RingOfIntegers (Qsqrtd (d : ℚ))
   let ramifiedParityVector :=
-    narrowInversionFixedClassRamifiedParityVector d hp0 r hrp0 hrel
+    narrowInversionFixedClassRamifiedParityVector d hp0 r hrp0 hrker
   have hrecoverByRamifiedParity :
       ∀ C : NarrowInversionFixedClass R,
         C.1 = ramifiedParityNarrowClassProduct d hp0 (ramifiedParityVector C) := by
     intro C
-    let I := narrowInversionFixedRepresentativeIdeal d hp0 r hrp0 hrel C
+    let I := narrowInversionFixedRepresentativeIdeal d hp0 r hrp0 hrker C
     let J := ramifiedParityIdealProduct d hp0 (ramifiedParityVector C)
     have hI_mk0 : NarrowClassGroup.mk0 I = C.1 :=
-      narrowInversionFixedRepresentativeIdeal_mk0 d hp0 r hrp0 hrel C
+      narrowInversionFixedRepresentativeIdeal_mk0 d hp0 r hrp0 hrker C
     have hJ_mk0 :
         NarrowClassGroup.mk0 J =
           ramifiedParityNarrowClassProduct d hp0 (ramifiedParityVector C) := by
@@ -1183,7 +876,7 @@ theorem card_narrowInversionFixedClass_le_two_pow_sub_one_of_positivePrincipal_r
     rw [← hJ_mk0]
     rw [NarrowClassGroup.mk0_eq_mk0_iff_exists_fraction_ring]
     simpa only [I, J, ramifiedParityVector] using
-      exists_tp_multiplier_representative_to_ramifiedParityIdealProduct d hp0 r hrp0 hrel C
+      exists_tp_multiplier_representative_to_ramifiedParityIdealProduct d hp0 r hrp0 hrker C
   let encode : NarrowInversionFixedClass R →
       ({p // p ∈ (ramifiedPrimes d).erase p0} → Fin 2) :=
     ramifiedParityVector
@@ -1209,11 +902,11 @@ theorem card_narrowInversionFixedClass_le_two_pow_sub_one
       (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) ≤
       2 ^ (ramifiedPrimeCount d - 1) := by
   classical
-  obtain ⟨r, hnonzero, hrel⟩ :=
-    exists_nonzero_positivePrincipalRamifiedParityRelation d
+  obtain ⟨r, hnonzero, hrker⟩ :=
+    exists_nonzero_fullRamifiedParityNarrowClassHom_ker d
   obtain ⟨p0, hrp0⟩ := hnonzero
-  exact card_narrowInversionFixedClass_le_two_pow_sub_one_of_positivePrincipal_relation
-    d p0.2 r hrp0 hrel
+  exact card_narrowInversionFixedClass_le_two_pow_sub_one_of_mem_ker
+    d p0.2 r hrp0 hrker
 
 /-- Ambiguous-ideal upper bound: the two-torsion in the narrow class group has
 size at most `2 ^ (t - 1)`, where `t` is the number of ramified rational primes. -/
