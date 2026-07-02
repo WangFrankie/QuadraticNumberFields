@@ -18,8 +18,8 @@ import QuadraticNumberFields.Splitting.Qsqrtd.Kronecker
 
 This file contains the character target, signed-factor-coprime ideal
 submonoids, raw signed-factor characters, and the restricted narrow-class-group
-map used by the new genus-theory layer. The final well-defined characters and
-genus-character map are packaged in `Genus.Characters`.
+map used by the genus-theory layer. The final well-defined characters and
+genus-character map are packaged in `GenusTheory.Characters`.
 -/
 
 namespace QuadraticNumberFields
@@ -109,6 +109,8 @@ theorem card_genusCharacterTargetRelation :
     ← ramifiedPrimeCount_eq_card]
   exact one_le_ramifiedPrimeCount d
 
+/-- The submonoid of ideals whose absolute norm is coprime to a fixed signed
+prime-discriminant factor. -/
 def signedFactorCoprimeIdealSubmonoid
         (q : {q // q ∈ signedPrimeDiscriminantFactors d}) :
         Submonoid (Ideal (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) :=
@@ -176,6 +178,8 @@ theorem absNorm_ne_zero_of_mem_signedFactorCoprimeIdealSubmonoid
     simpa [Nat.Coprime, hzero] using hcop
   exact (natAbs_ne_one_of_mem_signedPrimeDiscriminantFactors d q.property) hq1
 
+/-- The raw signed-factor genus character, defined by applying the Kronecker
+symbol of the signed factor to the absolute norm of a coprime ideal. -/
 noncomputable def genusCharacterOfSignedFactorRaw
       (q : {q // q ∈ signedPrimeDiscriminantFactors d})
       (I : signedFactorCoprimeIdealSubmonoid d q) : ℤˣ := by
