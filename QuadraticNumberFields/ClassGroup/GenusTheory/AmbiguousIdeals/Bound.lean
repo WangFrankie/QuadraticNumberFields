@@ -38,33 +38,11 @@ theorem card_narrowInversionFixedClass_le_two_pow_sub_one_of_mem_ker
       2 ^ (ramifiedPrimeCount d - 1) := by
   classical
   let R := NumberField.RingOfIntegers (Qsqrtd (d : ℚ))
-  let ramifiedParityVector :=
-    narrowInversionFixedClassRamifiedParityVector d hp0 r hrp0 hrker
-  have hrecoverByRamifiedParity :
-      ∀ C : NarrowInversionFixedClass R,
-        C.1 = ramifiedParityNarrowClassProduct d hp0 (ramifiedParityVector C) := by
-    intro C
-    let I := narrowInversionFixedRepresentativeIdeal d hp0 r hrp0 hrker C
-    let J := ramifiedParityIdealProduct d hp0 (ramifiedParityVector C)
-    have hI_mk0 : NarrowClassGroup.mk0 I = C.1 :=
-      narrowInversionFixedRepresentativeIdeal_mk0 d hp0 r hrp0 hrker C
-    have hJ_mk0 :
-        NarrowClassGroup.mk0 J =
-          ramifiedParityNarrowClassProduct d hp0 (ramifiedParityVector C) := by
-      simpa [J] using mk0_ramifiedParityIdealProduct d hp0 (ramifiedParityVector C)
-    rw [← hI_mk0]
-    rw [← hJ_mk0]
-    rw [NarrowClassGroup.mk0_eq_mk0_iff_exists_fraction_ring]
-    simpa only [I, J, ramifiedParityVector] using
-      exists_tp_multiplier_representative_to_ramifiedParityIdealProduct d hp0 r hrp0 hrker C
   let encode : NarrowInversionFixedClass R →
       ({p // p ∈ (ramifiedPrimes d).erase p0} → Fin 2) :=
-    ramifiedParityVector
-  have hencode_injective : Function.Injective encode := by
-    intro C D hCD
-    apply Subtype.ext
-    rw [hrecoverByRamifiedParity C, hrecoverByRamifiedParity D]
-    exact congrArg (ramifiedParityNarrowClassProduct d hp0) hCD
+    narrowInversionFixedClassRamifiedParityVector d hp0 r hrp0 hrker
+  have hencode_injective : Function.Injective encode :=
+    narrowInversionFixedClassRamifiedParityVector_injective d hp0 r hrp0 hrker
   haveI : Finite (NarrowInversionFixedClass R) :=
     Finite.of_injective encode hencode_injective
   calc

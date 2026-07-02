@@ -521,6 +521,50 @@ theorem exists_tp_multiplier_representative_to_ramifiedParityIdealProduct
         d hp0 r hrp0 hrker C
   exact (NarrowClassGroup.mk0_eq_mk0_iff_exists_fraction_ring).mp hclass
 
+/-- The erased ramified-parity vector chosen for an inversion-fixed narrow class
+recovers that class. -/
+theorem narrowInversionFixedClass_eq_ramifiedParityNarrowClassProduct
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    {p0 : ℕ} (hp0 : p0 ∈ ramifiedPrimes d)
+    (r : ({p // p ∈ ramifiedPrimes d} → Fin 2))
+    (hrp0 : r ⟨p0, hp0⟩ ≠ 0)
+    (hrker : Multiplicative.ofAdd r ∈ (fullRamifiedParityNarrowClassHom d).ker)
+    (C : NarrowInversionFixedClass (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) :
+    C.1 =
+      ramifiedParityNarrowClassProduct d hp0
+        (narrowInversionFixedClassRamifiedParityVector d hp0 r hrp0 hrker C) := by
+  let I := narrowInversionFixedRepresentativeIdeal d hp0 r hrp0 hrker C
+  let J := ramifiedParityIdealProduct d hp0
+    (narrowInversionFixedClassRamifiedParityVector d hp0 r hrp0 hrker C)
+  have hI_mk0 : NarrowClassGroup.mk0 I = C.1 :=
+    narrowInversionFixedRepresentativeIdeal_mk0 d hp0 r hrp0 hrker C
+  have hJ_mk0 :
+      NarrowClassGroup.mk0 J =
+        ramifiedParityNarrowClassProduct d hp0
+          (narrowInversionFixedClassRamifiedParityVector d hp0 r hrp0 hrker C) := by
+    simpa [J] using mk0_ramifiedParityIdealProduct d hp0
+      (narrowInversionFixedClassRamifiedParityVector d hp0 r hrp0 hrker C)
+  rw [← hI_mk0, ← hJ_mk0]
+  rw [NarrowClassGroup.mk0_eq_mk0_iff_exists_fraction_ring]
+  simpa only [I, J] using
+    exists_tp_multiplier_representative_to_ramifiedParityIdealProduct d hp0 r hrp0 hrker C
+
+/-- The erased ramified-parity vector attached to inversion-fixed narrow classes
+is an injective encoding. -/
+theorem narrowInversionFixedClassRamifiedParityVector_injective
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    {p0 : ℕ} (hp0 : p0 ∈ ramifiedPrimes d)
+    (r : ({p // p ∈ ramifiedPrimes d} → Fin 2))
+    (hrp0 : r ⟨p0, hp0⟩ ≠ 0)
+    (hrker : Multiplicative.ofAdd r ∈ (fullRamifiedParityNarrowClassHom d).ker) :
+    Function.Injective
+      (narrowInversionFixedClassRamifiedParityVector d hp0 r hrp0 hrker) := by
+  intro C D hCD
+  apply Subtype.ext
+  rw [narrowInversionFixedClass_eq_ramifiedParityNarrowClassProduct d hp0 r hrp0 hrker C,
+    narrowInversionFixedClass_eq_ramifiedParityNarrowClassProduct d hp0 r hrp0 hrker D]
+  exact congrArg (ramifiedParityNarrowClassProduct d hp0) hCD
+
 end Internal
 
 end GenusTheory
