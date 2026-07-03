@@ -7,6 +7,7 @@ Authors: Frankie Wang
 import Mathlib.Algebra.Exact
 import Mathlib.Data.Fintype.Units
 import Mathlib.Data.Real.Basic
+import Mathlib.Data.Sign.Basic
 import Mathlib.RingTheory.ClassGroup
 
 /-!
@@ -545,31 +546,17 @@ number fields, both hypotheses hold. The kernel of `toClassGroup` is controlled
 by signs of units at the real embeddings, so it embeds into a finite group of
 sign vectors. -/
 
-/-- The sign homomorphism on the units of `ℝ`, valued in `ℤˣ`. -/
-def realSignUnitHom : ℝˣ →* ℤˣ where
-  toFun u := if 0 < (u : ℝ) then 1 else -1
-  map_one' := by norm_num
-  map_mul' a b := by
-    rcases lt_trichotomy (a : ℝ) 0 with ha | ha | ha
-    · rcases lt_trichotomy (b : ℝ) 0 with hb | hb | hb
-      · simp only [Units.val_mul, if_neg (not_lt.2 ha.le), if_neg (not_lt.2 hb.le),
-          if_pos (mul_pos_of_neg_of_neg ha hb)]; decide
-      · exact absurd hb b.ne_zero
-      · simp only [Units.val_mul, if_neg (not_lt.2 ha.le), if_pos hb,
-          if_neg (not_lt.2 (mul_neg_of_neg_of_pos ha hb).le)]; decide
-    · exact absurd ha a.ne_zero
-    · rcases lt_trichotomy (b : ℝ) 0 with hb | hb | hb
-      · simp only [Units.val_mul, if_pos ha, if_neg (not_lt.2 hb.le),
-          if_neg (not_lt.2 (mul_neg_of_pos_of_neg ha hb).le)]; decide
-      · exact absurd hb b.ne_zero
-      · simp only [Units.val_mul, if_pos ha, if_pos hb, if_pos (mul_pos ha hb)]; decide
+/-- The sign homomorphism on the units of `ℝ`, valued in the unit group of `SignType`. -/
+def realSignUnitHom : ℝˣ →* SignTypeˣ :=
+  Units.map (signHom : ℝ →*₀ SignType).toMonoidHom
 
 theorem realSignUnitHom_apply (u : ℝˣ) :
-    realSignUnitHom u = if 0 < (u : ℝ) then 1 else -1 := rfl
+    ((realSignUnitHom u : SignTypeˣ) : SignType) = SignType.sign (u : ℝ) :=
+  rfl
 
 /-- Send a unit of `K` to its signs at all real embeddings. The kernel is the
 subgroup of totally positive units. -/
-def signVectorHom (K : Type*) [Field K] : Kˣ →* ((K →+* ℝ) → ℤˣ) where
+def signVectorHom (K : Type*) [Field K] : Kˣ →* ((K →+* ℝ) → SignTypeˣ) where
   toFun x σ := realSignUnitHom (Units.map (σ : K →+* ℝ).toMonoidHom x)
   map_one' := by funext σ; simp
   map_mul' a b := by funext σ; simp [map_mul]
@@ -584,20 +571,18 @@ theorem totallyPositiveUnits_eq_ker (K : Type*) [Field K] :
     totallyPositiveUnits K = (signVectorHom K).ker := by
   ext x
   simp only [mem_totallyPositiveUnits_iff, IsTotallyPositive, MonoidHom.mem_ker]
-  have hcoe : ∀ σ : K →+* ℝ,
-      ((Units.map (σ : K →+* ℝ).toMonoidHom x : ℝˣ) : ℝ) = σ (x : K) := by
-    intro σ; simp
   constructor
   · intro hx
     funext σ
-    rw [signVectorHom_apply, realSignUnitHom_apply, if_pos (by rw [hcoe]; exact hx σ)]
-    rfl
+    ext
+    change SignType.sign (σ (x : K)) = 1
+    exact sign_eq_one_iff.mpr (hx σ)
   · intro hx σ
     have hxσ : signVectorHom K x σ = 1 := congrFun hx σ
-    rw [signVectorHom_apply, realSignUnitHom_apply] at hxσ
-    by_contra hpos
-    rw [if_neg (by rw [hcoe]; exact hpos)] at hxσ
-    exact absurd hxσ (by decide)
+    have hxσ_val : ((signVectorHom K x σ : SignTypeˣ) : SignType) = 1 := by
+      simpa using congrArg Units.val hxσ
+    change SignType.sign (σ (x : K)) = 1 at hxσ_val
+    exact sign_eq_one_iff.mp hxσ_val
 
 /-- If there are finitely many real embeddings, then units modulo totally
 positive units form a finite group. -/
