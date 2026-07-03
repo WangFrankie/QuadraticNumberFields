@@ -200,7 +200,7 @@ theorem isTotallyComplex (hd : d < 0) :
   }
 
 /-- A quadratic field `Q(√d)` with `d < 0` is a CM field. -/
-instance isCMField (hd : d < 0) :
+theorem isCMField (hd : d < 0) :
     NumberField.IsCMField (Qsqrtd (d : ℚ)) := by
   letI := isTotallyComplex d hd
   exact NumberField.IsCMField.ofCMExtension ℚ (Qsqrtd (d : ℚ))
