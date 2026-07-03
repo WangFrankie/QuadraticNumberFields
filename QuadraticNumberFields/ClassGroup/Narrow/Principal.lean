@@ -77,16 +77,37 @@ theorem totallyPositiveRingUnitsToField_mulExact_toPositivePrincipalIdeals
   ext q
   rw [MonoidHom.mem_ker]
   constructor<;> intro hq
-  · sorry
+  · have hqval :
+        ((toPositivePrincipalIdeals R K q : narrowPrincipalIdeals R K) :
+          (FractionalIdeal R⁰ K)ˣ) = 1 :=
+      congrArg Subtype.val hq
+    change toNarrowPrincipalIdeal R K q = 1 at hqval
+    have hq' : FractionalIdeal.spanSingleton R⁰ ((q : Kˣ) : K) = 1 := by
+      simpa [toNarrowPrincipalIdeal, coe_toPrincipalIdeal] using hqval
+    have hspan :
+        FractionalIdeal.spanSingleton R⁰ (1 : K) =
+          FractionalIdeal.spanSingleton R⁰ ((q : Kˣ) : K) := by
+      rw [FractionalIdeal.spanSingleton_one]
+      exact hq'.symm
+    rcases (FractionalIdeal.spanSingleton_eq_spanSingleton (S := R⁰) (P := K)).mp hspan
+      with ⟨u, hu⟩
+    have huK : ((ringUnitToFractionRing R K u : Kˣ) : K) = ((q : Kˣ) : K) := by
+      simpa [ringUnitToFractionRing, Units.smul_def, Algebra.smul_def] using hu
+    refine ⟨⟨u, ?_⟩, ?_⟩
+    · change IsTotallyPositive ((ringUnitToFractionRing R K u : Kˣ) : K)
+      simpa [huK] using (mem_totallyPositiveUnits_iff (q : Kˣ)).mp q.2
+    · apply Subtype.ext
+      exact Units.ext huK
   · rcases hq with ⟨u, rfl⟩
     apply Subtype.ext
-    sorry
-
-
-
-
-
-
+    change toNarrowPrincipalIdeal R K (totallyPositiveRingUnitsToField R K u) = 1
+    have hspan :
+        FractionalIdeal.spanSingleton R⁰ (1 : K) =
+          FractionalIdeal.spanSingleton R⁰ (algebraMap R K ((u : Rˣ) : R)) := by
+      rw [FractionalIdeal.spanSingleton_eq_spanSingleton]
+      exact ⟨u, by simp [Units.smul_def, Algebra.smul_def]⟩
+    simpa [toNarrowPrincipalIdeal, totallyPositiveRingUnitsToField, ringUnitToFractionRing,
+      coe_toPrincipalIdeal, FractionalIdeal.spanSingleton_one] using hspan.symm
 
 end PositivePrincipal
 
