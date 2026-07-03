@@ -17,8 +17,8 @@ structure `SqfreeParam`.  These are the parameters that index the standard
 models `ℚ(√d)`: every quadratic field over `ℚ` is isomorphic to `ℚ(√d)` for a
 unique such `d`.
 
-Bundling the parameter data lets downstream constructions (functors into
-`QuadraticFieldCat`, the isomorphism-class classification) take a single
+Bundling the parameter data lets downstream constructions, such as functors into
+`QuadraticFieldCat` and the classification by isomorphism classes, take a single
 structure argument instead of a bare integer plus two `Fact` hypotheses.
 
 ## Main definitions
@@ -33,8 +33,8 @@ structure argument instead of a bare integer plus two `Fact` hypotheses.
 
 ## Implementation notes
 
-`SqfreeParam.stdModel` only expresses the family of standard-model *objects*
-indexed by parameters; it is **not** a categorical equivalence with
+`SqfreeParam.stdModel` only expresses the family of standard model objects
+indexed by parameters; it is not a categorical equivalence with
 `QuadraticFieldCat`.  The discrete category `SqfreeParamCat` has only identity
 morphisms, whereas each object of `QuadraticFieldCat` has a non-trivial
 `ℚ`-automorphism (the conjugation), so the two categories are not equivalent.
@@ -55,8 +55,12 @@ structure SqfreeParam where
 
 namespace SqfreeParam
 
+/-- A squarefree parameter gives the `Fact (Squarefree d)` instance expected by
+standard model APIs. -/
 instance (p : SqfreeParam) : Fact (Squarefree p.d) := ⟨p.squarefree⟩
 
+/-- A squarefree parameter gives the `Fact (d ≠ 1)` instance expected by
+standard model APIs. -/
 instance (p : SqfreeParam) : Fact (p.d ≠ 1) := ⟨p.ne_one⟩
 
 /-- The standard model `ℚ(√d)` associated to a squarefree parameter. -/
@@ -67,6 +71,7 @@ def qsqrtd (p : SqfreeParam) : Type :=
 def toQuadraticFieldCat (p : SqfreeParam) : QuadraticFieldCat :=
   QuadraticFieldCat.ofQsqrtd p.d
 
+/-- The carrier of the bundled standard model for `p` is `Qsqrtd (p.d : ℚ)`. -/
 @[simp]
 theorem toQuadraticFieldCat_carrier (p : SqfreeParam) :
     (p.toQuadraticFieldCat).carrier = Qsqrtd (p.d : ℚ) :=
@@ -79,14 +84,16 @@ open CategoryTheory
 /-- The discrete category on normalized squarefree parameters. -/
 abbrev SqfreeParamCat := Discrete SqfreeParam
 
-/-- The standard-model functor: each parameter `d` is sent to the bundled
+/-- The standard model functor: each parameter `d` is sent to the bundled
 standard model `ℚ(√d)`.
 
-This functor only records the family of standard-model objects; it is not a
+This functor only records the family of standard model objects; it is not a
 categorical equivalence (see the module docstring). -/
 def SqfreeParam.stdModel : SqfreeParamCat ⥤ QuadraticFieldCat :=
   Discrete.functor SqfreeParam.toQuadraticFieldCat
 
+/-- On objects, the standard model functor sends `p` to the bundled field
+`p.toQuadraticFieldCat`. -/
 @[simp]
 theorem SqfreeParam.stdModel_obj (p : SqfreeParam) :
     SqfreeParam.stdModel.obj ⟨p⟩ = p.toQuadraticFieldCat :=
@@ -102,16 +109,16 @@ isomorphism class of its standard model.  We record this as two statements:
 * `eq_of_algEquiv`: the parameter is recovered uniquely from the isomorphism
   class.
 
-Together these say that `p ↦ ℚ(√(p.d))` induces a **bijection** between
+Together these say that `p ↦ ℚ(√(p.d))` induces a bijection between
 `SqfreeParam` and the `ℚ`-algebra-isomorphism classes of quadratic fields.
 
-This is the correct classification statement.  It is **not** a categorical
-equivalence `Discrete SqfreeParam ≌ QuadraticFieldCat`: the discrete category
+This is the classification by isomorphism classes, not a categorical
+equivalence `Discrete SqfreeParam ≌ QuadraticFieldCat`. The discrete category
 has only identities, while each quadratic field has a non-trivial conjugation
 automorphism.
 
 Both statements use `≃ₐ[ℚ]` with the canonical `QuadraticAlgebra` instances on
-`Qsqrtd` (made explicit with `@AlgEquiv … instAlgebra …`).  They are phrased at
+`Qsqrtd` (made explicit with `@AlgEquiv … instAlgebra …`). They are phrased at
 the level of `ℚ`-algebra equivalences rather than `QuadraticFieldCat`
 isomorphisms: bridging to the category layer would require identifying the
 `Algebra ℚ` instance bundled in a `QuadraticFieldCat` object with the canonical
@@ -125,7 +132,7 @@ instance resolution deterministic across import contexts. -/
 theorem SqfreeParam.eq_of_d_eq {p q : SqfreeParam} (h : p.d = q.d) : p = q := by
   cases p; cases q; subst h; rfl
 
-/-- **Essential surjectivity.** Every quadratic field is `ℚ`-algebra isomorphic
+/-- Essential surjectivity: every quadratic field is `ℚ`-algebra isomorphic
 to the standard model `ℚ(√d)` of some squarefree parameter. -/
 theorem SqfreeParam.stdModel_essentiallySurjective
     (K : Type*) [Field K] [Algebra ℚ K] [QuadraticField K] :
@@ -134,7 +141,7 @@ theorem SqfreeParam.stdModel_essentiallySurjective
   obtain ⟨d, hsf, hne, ⟨e⟩⟩ := exists_algEquiv_qsqrtd K
   exact ⟨⟨d, hsf, hne⟩, ⟨e⟩⟩
 
-/-- **Uniqueness of the parameter.** If the standard models of two squarefree
+/-- Parameter uniqueness: if the standard models of two squarefree
 parameters are `ℚ`-algebra isomorphic, the parameters are equal. -/
 theorem SqfreeParam.eq_of_algEquiv {p q : SqfreeParam}
     (e : @AlgEquiv ℚ (Qsqrtd (p.d : ℚ)) (Qsqrtd (q.d : ℚ)) Rat.commSemiring

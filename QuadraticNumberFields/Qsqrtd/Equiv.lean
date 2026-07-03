@@ -8,29 +8,26 @@ import QuadraticNumberFields.QuadraticField.Parameters
 /-!
 # Equivalences Between `Qsqrtd` Models
 
-This work-in-progress file records the intended parameter-equivalence API for
-the standard models `Qsqrtd d`.
+This file proves the rational-parameter equivalence criterion for the standard
+models `Qsqrtd d`.
 
-The completed parameter uniqueness theorem for squarefree integer parameters
-already lives in `QuadraticNumberFields.QuadraticField.Parameters`.  The goal
-here is the more flexible rational-parameter statement: two standard models are
-`ℚ`-algebra equivalent exactly when their parameters differ by a rational
-square factor.
-
-This module is currently imported only by `QuadraticNumberFields.Sketch`.
+The squarefree integer parameter uniqueness theorem lives in
+`QuadraticNumberFields.QuadraticField.Parameters`. Here the parameter may change
+by a rational square: two standard models are `ℚ`-algebra equivalent exactly
+when their parameters differ by a rational square factor.
 
 ## Main definitions
 
 * `Qsqrtd.IsSquareRatio`: `d' = a² d` for some `a : ℚˣ`.
 * `Qsqrtd.IsSquareRatioByDivision`: `d' / d = a²` for some `a : ℚˣ`.
-* `Qsqrtd.algEquiv_iff_isSquareRatio`: WIP classification interface for
-  equivalences between standard models.
+* `Qsqrtd.algEquiv_iff_isSquareRatio`: classification of equivalences between
+  non-square standard models by rational square ratios.
 -/
 
 namespace Qsqrtd
 
 -- Resolve the diamond between `DivisionRing.toRatAlgebra` and `QuadraticAlgebra.instAlgebra`.
--- NOTE: This is a file-local workaround for standard-model algebra equivalences.
+-- NOTE: This is a file-local workaround for standard model algebra equivalences.
 attribute [-instance] DivisionRing.toRatAlgebra
 
 /-- The parameters `d` and `d'` differ by a rational square factor. -/
@@ -63,12 +60,8 @@ theorem isSquareRatio_iff_isSquareRatioByDivision {d d' : ℚ} (hd : d ≠ 0) :
       d' = d' / d * d := by field_simp [hd]
       _ = (a : ℚ) ^ 2 * d := by rw [ha]
 
-/-- WIP classification interface: non-square standard models are equivalent
-exactly when their parameters differ by a rational square factor.
-
-The forward direction will extract the image of `√d` under an algebra
-equivalence and show that its imaginary coefficient supplies the square ratio.
--/
+/-- Non-square standard models are equivalent exactly when their parameters
+differ by a rational square factor. -/
 theorem algEquiv_iff_isSquareRatio
     (d d' : ℚ) [Fact (¬ IsSquare d)] [Fact (¬ IsSquare d')] :
     Nonempty (Qsqrtd d ≃ₐ[ℚ] Qsqrtd d') ↔ IsSquareRatio d d' := by
@@ -83,8 +76,8 @@ theorem algEquiv_iff_isSquareRatio
     field_simp [hb]
   · exact nonempty_algEquiv_of_isSquareRatio
 
-/-- Division-form WIP classification interface matching the usual informal
-statement `d' / d ∈ ℚ×²`. -/
+/-- Division form of the classification, matching the usual informal statement
+`d' / d ∈ ℚ×²`. -/
 theorem algEquiv_iff_isSquareRatioByDivision
     (d d' : ℚ) [Fact (¬ IsSquare d)] [Fact (¬ IsSquare d')] :
     Nonempty (Qsqrtd d ≃ₐ[ℚ] Qsqrtd d') ↔ IsSquareRatioByDivision d d' := by

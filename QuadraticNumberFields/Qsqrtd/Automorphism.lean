@@ -51,10 +51,10 @@ variable (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
 theorem algEquiv_self_eq_refl_or_star
     (σ : Qsqrtd (d : ℚ) ≃ₐ[ℚ] Qsqrtd (d : ℚ)) :
     σ = AlgEquiv.refl ∨ σ = Qsqrtd.starAlgEquiv (d : ℚ) := by
-  -- `σ ⟨0, 1⟩ = ⟨a, b⟩`. Feed the ring-level core `ringEquiv_param_rel`, which is
-  -- instance-agnostic — so the `Field`-vs-canonical `Algebra ℚ` diamond on
-  -- `Qsqrtd (d : ℚ)` is irrelevant. It gives `a = 0` and `(d : ℚ) = d * b²`,
-  -- and `d ≠ 0` then forces `b² = 1`.
+  -- `σ ⟨0, 1⟩ = ⟨a, b⟩`. Feed the ring-level core `ringEquiv_param_rel`, which
+  -- does not depend on this instance choice, so the `Field`-vs-canonical
+  -- `Algebra ℚ` diamond on `Qsqrtd (d : ℚ)` is irrelevant. It gives `a = 0`
+  -- and `(d : ℚ) = d * b²`, and `d ≠ 0` then forces `b² = 1`.
   have hφ_d : σ.toRingEquiv (⟨(d : ℚ), 0⟩ : Qsqrtd (d : ℚ)) = ⟨(d : ℚ), 0⟩ := by
     have hleft : (⟨(d : ℚ), 0⟩ : Qsqrtd (d : ℚ)) =
         algebraMap ℚ (Qsqrtd (d : ℚ)) (d : ℚ) := by ext <;> simp
@@ -70,7 +70,8 @@ theorem algEquiv_self_eq_refl_or_star
   have hdQ : (d : ℚ) ≠ 0 := by exact_mod_cast (Squarefree.ne_zero (Fact.out : Squarefree d))
   have hbsq : b ^ 2 = 1 := mul_left_cancel₀ hdQ (by rw [mul_one]; exact hr.symm)
   -- The rational algebra map sends `q ↦ ⟨q, 0⟩`.
-  have hAM : ∀ q : ℚ, algebraMap ℚ (Qsqrtd (d : ℚ)) q = (⟨q, 0⟩ : Qsqrtd (d : ℚ)) := by
+  have hAM :
+      ∀ q : ℚ, algebraMap ℚ (Qsqrtd (d : ℚ)) q = (⟨q, 0⟩ : Qsqrtd (d : ℚ)) := by
     intro q
     rw [← QuadraticAlgebra.algebraMap_eq (R := ℚ) (a := (d : ℚ)) (b := 0) q]
   -- Every element decomposes as `x = algebraMap x.re + algebraMap x.im * ⟨0, 1⟩`.
@@ -88,7 +89,8 @@ theorem algEquiv_self_eq_refl_or_star
     conv_lhs => rw [hdecomp x]
     rw [map_add, map_mul, σ.commutes, σ.commutes, hσε, ← hdecomp x]
     rfl
-  · -- Case `b = -1` and `a = 0`: `σ ⟨0, 1⟩ = ⟨0, -1⟩ = star ⟨0, 1⟩`, so `σ = starAlgEquiv`.
+  · -- Case `b = -1` and `a = 0`: `σ ⟨0, 1⟩ = ⟨0, -1⟩ = star ⟨0, 1⟩`,
+    -- so `σ = starAlgEquiv`.
     refine Or.inr (AlgEquiv.ext fun x => ?_)
     have hσε : σ (⟨0, 1⟩ : Qsqrtd (d : ℚ)) = ⟨0, -1⟩ := by rw [hφ_eta, ha, hbneg1]
     rw [Qsqrtd.starAlgEquiv_apply]

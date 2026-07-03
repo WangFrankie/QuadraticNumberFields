@@ -70,6 +70,7 @@ abbrev norm {d : ℚ} (x : Qsqrtd d) : ℚ := QuadraticAlgebra.norm x
 abbrev normHom (d : ℚ) : Qsqrtd d →* ℚ :=
   QuadraticAlgebra.norm
 
+/-- `normHom` evaluates to the quadratic norm. -/
 theorem normHom_apply (d : ℚ) (x : Qsqrtd d) :
     normHom d x = Qsqrtd.norm x :=
   rfl
@@ -78,6 +79,8 @@ theorem normHom_apply (d : ℚ) (x : Qsqrtd d) :
 abbrev normUnitsHom (d : ℚ) : (Qsqrtd d)ˣ →* ℚˣ :=
   Units.map (normHom d)
 
+/-- Coercing `normUnitsHom` back to `ℚ` gives the quadratic norm of the
+underlying unit. -/
 theorem normUnitsHom_coe (d : ℚ) (u : (Qsqrtd d)ˣ) :
     ((normUnitsHom d u : ℚˣ) : ℚ) = Qsqrtd.norm (u : Qsqrtd d) := by
   simp [normUnitsHom, normHom]
@@ -203,8 +206,8 @@ models. If `d` is not a square and `φ : Qsqrtd d ≃ₐ[ℚ] Qsqrtd d'`, then w
 `φ ⟨0, 1⟩ = ⟨a, b⟩` we have `a = 0`, `b ≠ 0`, and `d = d' * b²`; i.e. the two
 parameters differ by the rational square `b²`.
 
-A thin `Algebra` wrapper over `ringEquiv_param_rel`: `φ.commutes` supplies the
-`⟨d, 0⟩ = algebraMap d` fix. Used by `param_unique` and
+This is the `Algebra` version of `ringEquiv_param_rel`: `φ.commutes` proves
+`⟨d, 0⟩ = algebraMap d`. Used by `param_unique` and
 `algEquiv_iff_isSquareRatio`. -/
 theorem algEquiv_param_rel {d d' : ℚ} (hd : ¬ IsSquare d)
     (φ : Qsqrtd d ≃ₐ[ℚ] Qsqrtd d') :

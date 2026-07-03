@@ -53,6 +53,7 @@ attribute [instance] QuadraticFieldCat.quadraticField
 
 namespace QuadraticFieldCat
 
+/-- A bundled quadratic field coerces to its underlying carrier type. -/
 instance : CoeSort QuadraticFieldCat (Type u) :=
   ⟨fun K => K.carrier⟩
 
@@ -67,6 +68,8 @@ abbrev of (K : Type u) [Field K] [Algebra ℚ K]
 abbrev Hom (K L : QuadraticFieldCat.{u}) : Type u :=
   K →ₐ[ℚ] L
 
+/-- Bundled quadratic fields form a category with `ℚ`-algebra homomorphisms as
+morphisms. -/
 instance : Category QuadraticFieldCat where
   Hom := Hom
   id K := AlgHom.id ℚ K
@@ -82,11 +85,15 @@ def forgetToAlgCat : QuadraticFieldCat.{u} ⥤ AlgCat.{u} ℚ where
   obj K := AlgCat.of ℚ K
   map f := AlgCat.ofHom f
 
+/-- The forgetful functor sends an object to the corresponding bundled
+`ℚ`-algebra. -/
 @[simp]
 theorem forgetToAlgCat_obj (K : QuadraticFieldCat.{u}) :
     forgetToAlgCat.obj K = AlgCat.of ℚ K :=
   rfl
 
+/-- The forgetful functor sends a morphism to the same `ℚ`-algebra homomorphism
+in `AlgCat`. -/
 @[simp]
 theorem forgetToAlgCat_map {K L : QuadraticFieldCat.{u}} (f : K ⟶ L) :
     forgetToAlgCat.map f = AlgCat.ofHom f :=
@@ -106,11 +113,15 @@ def isoOfAlgEquiv {K L : QuadraticFieldCat.{u}} (e : K ≃ₐ[ℚ] L) : K ≅ L 
 def algEquivOfIso {K L : QuadraticFieldCat.{u}} (i : K ≅ L) : K ≃ₐ[ℚ] L :=
   AlgEquiv.ofAlgHom i.hom i.inv i.inv_hom_id i.hom_inv_id
 
+/-- The algebra equivalence associated to an isomorphism has the same forward
+map. -/
 @[simp]
 theorem algEquivOfIso_apply {K L : QuadraticFieldCat.{u}} (i : K ≅ L) (x : K) :
     algEquivOfIso i x = (show K →ₐ[ℚ] L from i.hom) x :=
   rfl
 
+/-- The inverse of the algebra equivalence associated to an isomorphism has the
+same inverse map. -/
 @[simp]
 theorem algEquivOfIso_symm_apply {K L : QuadraticFieldCat.{u}} (i : K ≅ L) (x : L) :
     (algEquivOfIso i).symm x = (show L →ₐ[ℚ] K from i.inv) x :=

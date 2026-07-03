@@ -131,9 +131,9 @@ variable (d₁ d₂ : ℤ)
 /-- If two squarefree integers are related by `d₁ = d₂ · r²` for rational `r`,
 then `d₁ = d₂`.
 
-This is a **key rigidity result for squarefree integers**: two squarefree integers
-that differ by a rational square factor must be equal. The proof reduces to mutual
-divisibility via `int_dvd_of_ratio_square`, yielding `d₁ ∣ d₂` and `d₂ ∣ d₁`.
+This is the squarefree rigidity step: two squarefree integers that differ by a
+rational square factor must be equal. The proof reduces to mutual divisibility
+via `int_dvd_of_ratio_square`, yielding `d₁ ∣ d₂` and `d₂ ∣ d₁`.
 The sign ambiguity is resolved by the fact that `-1` is not a rational square. -/
 lemma squarefree_eq_of_rat_sq_mul {d₁ d₂ : ℤ}
     (hd₁ : Squarefree d₁) (hd₂ : Squarefree d₂)
@@ -180,10 +180,11 @@ lemma squarefree_eq_of_rat_sq_mul {d₁ d₂ : ℤ}
     exact not_isSquare_neg_one_rat (by rwa [this] at hratio)
 
 /-- The squarefree integer parameter of a quadratic field is unique:
-    `ℚ(√d₁) ≃ₐ[ℚ] ℚ(√d₂)` with both squarefree and `≠ 1` implies `d₁ = d₂`. -/
+`ℚ(√d₁) ≃ₐ[ℚ] ℚ(√d₂)` with both squarefree and `≠ 1` implies `d₁ = d₂`. -/
 theorem Qsqrtd.param_unique (φ : Qsqrtd (d₁ : ℚ) ≃ₐ[ℚ] Qsqrtd (d₂ : ℚ))
     (hsf₁ : Squarefree d₁) (h1₁ : d₁ ≠ 1) (hsf₂ : Squarefree d₂) : d₁ = d₂ :=
-  -- `φ ⟨0, 1⟩ = ⟨0, b⟩` with `(d₁ : ℚ) = d₂ * b²`, so squarefreeness pins `d₁ = d₂`.
+  -- `φ ⟨0, 1⟩ = ⟨0, b⟩` with `(d₁ : ℚ) = d₂ * b²`, so squarefreeness
+  -- pins `d₁ = d₂`.
   squarefree_eq_of_rat_sq_mul hsf₁ hsf₂
     (Qsqrtd.algEquiv_param_rel (not_isSquare_ratCast_of_squarefree_ne_one hsf₁ h1₁) φ).2.2
 

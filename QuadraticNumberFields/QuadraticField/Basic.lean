@@ -30,13 +30,15 @@ attribute [-instance] DivisionRing.toRatAlgebra
 
 This wraps `Algebra.IsQuadraticExtension ℚ K` as a class so that theorems can
 state their abstract-field input directly as `[QuadraticField K]`, while the
-instance below exposes the underlying mathlib predicate whenever existing APIs
-need it.
+instance below provides the underlying mathlib predicate whenever existing APIs
+ask for it.
 -/
 class QuadraticField (K : Type*) [Field K] [Algebra ℚ K] : Prop where
   /-- The underlying degree-two extension predicate. -/
   isQuadratic : Algebra.IsQuadraticExtension ℚ K
 
+/-- A `QuadraticField` instance gives the corresponding mathlib
+`Algebra.IsQuadraticExtension` instance. -/
 instance (K : Type*) [Field K] [Algebra ℚ K] [QuadraticField K] :
     Algebra.IsQuadraticExtension ℚ K :=
   QuadraticField.isQuadratic

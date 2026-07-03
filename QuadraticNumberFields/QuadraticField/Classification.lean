@@ -31,7 +31,7 @@ isomorphic to one of the explicit models `Qsqrtd (z : ℚ) = ℚ(√z)` with
 
 ## Implementation note
 
-The standard-model declarations use the canonical `QuadraticAlgebra` algebra
+The standard model declarations use the canonical `QuadraticAlgebra` algebra
 structure on `Qsqrtd`, avoiding the `ℚ`-algebra diamond with
 `DivisionRing.toRatAlgebra`.
 -/
@@ -60,7 +60,8 @@ private theorem exists_top_generator_sq_rat
     have h := (Field.primitive_element_iff_minpoly_natDegree_eq ℚ α).mp hαtop
     have hfin : Module.finrank ℚ K = 2 := Algebra.IsQuadraticExtension.finrank_eq_two ℚ K
     simpa [hfin] using h
-  have hmonic : (minpoly ℚ α).Monic := minpoly.monic (IsIntegral.of_finite (R := ℚ) (B := K) α)
+  have hmonic : (minpoly ℚ α).Monic :=
+    minpoly.monic (IsIntegral.of_finite (R := ℚ) (B := K) α)
   have hpoly : minpoly ℚ α = X ^ 2 + C b * X + C c := by
     rcases (Polynomial.isMonicOfDegree_two_iff.mp ⟨hdeg, hmonic⟩) with ⟨b', c', hp⟩
     have hb : b' = b := by simp [b, hp]
@@ -129,7 +130,8 @@ private lemma not_isSquare_of_top_generator_sq
     have hmapsq : (algebraMap ℚ K r) ^ 2 = algebraMap ℚ K (r ^ 2) := by
       simp [pow_two, map_mul]
     calc
-      (β - algebraMap ℚ K r) * (β + algebraMap ℚ K r) = β ^ 2 - (algebraMap ℚ K r) ^ 2 := by
+      (β - algebraMap ℚ K r) * (β + algebraMap ℚ K r) =
+          β ^ 2 - (algebraMap ℚ K r) ^ 2 := by
         ring
       _ = β * β - algebraMap ℚ K (r ^ 2) := by rw [pow_two, hmapsq]
       _ = 0 := by simp [hr, hβsq, pow_two]

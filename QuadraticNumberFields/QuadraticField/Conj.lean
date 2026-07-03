@@ -17,7 +17,7 @@ import QuadraticNumberFields.QuadraticField.Basic
 This file introduces a lightweight conjugation interface for quadratic
 number fields.  The goal is to provide a stable minimal layer: a class
 `QuadraticField.Conj` that records a distinguished non-trivial `ℚ`-algebra
-automorphism of a quadratic field, plus the standard-model construction
+automorphism of a quadratic field, plus the standard model construction
 `Qsqrtd.starAlgEquiv` and its `Conj` instance for `Qsqrtd d` with
 squarefree `d ≠ 1`.
 
@@ -108,10 +108,12 @@ noncomputable def starAlgEquiv (d : ℚ) [Fact (¬ IsSquare d)] :
     -- map sends `r ↦ ⟨r, 0⟩` and `star ⟨r, 0⟩ = ⟨r, 0⟩`.
     simp
 
+/-- `Qsqrtd.starAlgEquiv` acts as `star`. -/
 theorem starAlgEquiv_apply {d : ℚ} [Fact (¬ IsSquare d)] (x : Qsqrtd d) :
     starAlgEquiv d x = star x := by
   rfl
 
+/-- The inverse of `Qsqrtd.starAlgEquiv` also acts as `star`. -/
 theorem starAlgEquiv_symm_apply {d : ℚ} [Fact (¬ IsSquare d)] (x : Qsqrtd d) :
     (starAlgEquiv d).symm x = star x := by
   rfl
@@ -127,9 +129,11 @@ noncomputable instance instConjQsqrtd (d : ℤ) [Fact (Squarefree d)] [Fact (d �
   conj := Qsqrtd.starAlgEquiv (d : ℚ)
   conj_conj x := star_involutive x
   conj_ne_refl := by
-    -- For squarefree `d ≠ 1`, `Qsqrtd d` is a field, so `star ⟨0, 1⟩ = ⟨0, -1⟩ ≠ ⟨0, 1⟩`.
+    -- For squarefree `d ≠ 1`, `Qsqrtd d` is a field, so
+    -- `star ⟨0, 1⟩ = ⟨0, -1⟩ ≠ ⟨0, 1⟩`.
     intro h
-    -- If `starAlgEquiv = AlgEquiv.refl`, applying to `⟨0, 1⟩` gives `star ⟨0, 1⟩ = ⟨0, 1⟩`.
+    -- If `starAlgEquiv = AlgEquiv.refl`, applying to `⟨0, 1⟩` gives
+    -- `star ⟨0, 1⟩ = ⟨0, 1⟩`.
     have hsqrtd : star (⟨0, 1⟩ : Qsqrtd (d : ℚ)) = (⟨0, 1⟩ : Qsqrtd (d : ℚ)) := by
       have h' := DFunLike.congr_fun h (⟨0, 1⟩ : Qsqrtd (d : ℚ))
       simpa [Qsqrtd.starAlgEquiv_apply] using h'

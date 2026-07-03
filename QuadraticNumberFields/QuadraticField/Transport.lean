@@ -87,11 +87,15 @@ noncomputable def ringOfIntegers (e : K ≃ₐ[ℚ] L) :
     𝓞 K ≃+* 𝓞 L :=
   (e.restrictScalars ℤ).mapIntegralClosure.toRingEquiv
 
+/-- The induced equivalence on rings of integers agrees with the underlying
+`ℚ`-algebra equivalence. -/
 @[simp]
 theorem ringOfIntegers_apply (e : K ≃ₐ[ℚ] L) (x : 𝓞 K) :
     (e.ringOfIntegers x : L) = e (x : K) := by
   rfl
 
+/-- The inverse equivalence on rings of integers agrees with the inverse
+`ℚ`-algebra equivalence. -/
 @[simp]
 theorem ringOfIntegers_symm_apply (e : K ≃ₐ[ℚ] L) (y : 𝓞 L) :
     ((e.ringOfIntegers : 𝓞 K ≃+* 𝓞 L).symm y : K) = e.symm (y : L) := by
