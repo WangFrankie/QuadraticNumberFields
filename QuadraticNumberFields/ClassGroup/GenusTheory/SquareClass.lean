@@ -5,6 +5,7 @@ Authors: Frankie Wang
 -/
 
 import Mathlib.GroupTheory.Index
+import Mathlib.NumberTheory.NumberField.ClassNumber
 import QuadraticNumberFields.ClassGroup.GenusTheory.Characters
 
 /-!
@@ -24,8 +25,6 @@ attribute [-instance] DivisionRing.toRatAlgebra
 open RingOfIntegers
 open Splitting
 
-local notation "𝓞" => _root_.NumberField.RingOfIntegers
-
 /-! ## Class-number-one sieve (continued) -/
 
 private theorem le_one_of_two_pow_sub_one_dvd_one {t : ℕ} (h : 2 ^ (t - 1) ∣ 1) :
@@ -37,7 +36,7 @@ private theorem le_one_of_two_pow_sub_one_dvd_one {t : ℕ} (h : 2 ^ (t - 1) ∣
     one_lt_pow₀ (by norm_num : 1 < (2 : ℕ)) hsub_ne
   omega
 
-/-- Once genus theory supplies the standard divisibility
+/-- Once genus theory gives the standard divisibility
 `2 ^ (t - 1) ∣ h(d)`, class number one forces `t ≤ 1`. This isolates the
 elementary arithmetic endpoint of the genus-theory sieve from the missing
 genus-theory divisibility proof. -/

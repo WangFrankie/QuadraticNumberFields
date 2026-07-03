@@ -23,8 +23,6 @@ attribute [-instance] DivisionRing.toRatAlgebra
 open RingOfIntegers
 open Splitting
 
-local notation "𝓞" => _root_.NumberField.RingOfIntegers
-
 /-- Ideal-avoidance data needed to construct all odd-prime genus characters.
 
 The two fields are the remaining local inputs not supplied by the raw Legendre-symbol

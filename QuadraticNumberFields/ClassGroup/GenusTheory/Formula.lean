@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 
+import Mathlib.NumberTheory.NumberField.ClassNumber
 import QNFMathlib.GroupTheory.Index
 import QuadraticNumberFields.ClassGroup.GenusTheory.OddProduct
 
@@ -23,8 +24,6 @@ attribute [-instance] DivisionRing.toRatAlgebra
 
 open RingOfIntegers
 open Splitting
-
-local notation "𝓞" => _root_.NumberField.RingOfIntegers
 
 /-- Complete odd-discriminant genus-theory data for the current class-group interface.
 

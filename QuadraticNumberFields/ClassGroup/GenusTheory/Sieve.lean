@@ -23,8 +23,6 @@ attribute [-instance] DivisionRing.toRatAlgebra
 open RingOfIntegers
 open Splitting
 
-local notation "𝓞" => _root_.NumberField.RingOfIntegers
-
 private theorem nat_eq_one_or_prime_of_squarefree_of_primeFactors_card_le_one {n : ℕ}
     (hsq : Squarefree n) (hcard : n.primeFactors.card ≤ 1) :
     n = 1 ∨ n.Prime := by
@@ -168,7 +166,7 @@ theorem classNumber_eq_one_imp_exists_prime_of_odd_discr_of_genus_divisibility
     norm_num at hd4
   · exact hprime
 
-/-- **Genus-theory sieve for class number one.** Assuming the standard genus
+/-- Genus-theory sieve for class number one. Assuming the standard genus
 cardinality formula `genusFormula d`, if an imaginary quadratic field
 `ℚ(√d)` has class number one, then its squarefree parameter has prime shape:
 `d = -1`, `d = -2`, or `d = -p` for a rational prime `p ≡ 3 (mod 4)`.

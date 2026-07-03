@@ -23,6 +23,7 @@ import QNFMathlib.NumberTheory.NumberField.ClassNumber
 import QNFMathlib.NumberTheory.NumberField.NarrowClassGroup
 import QNFMathlib.NumberTheory.RamificationInertia.Galois
 import QNFMathlib.NumberTheory.Zsqrtd.Basic
+import QNFMathlib.RingTheory.ClassGroup
 import QNFMathlib.RingTheory.ClassGroup.Narrow
 import QNFMathlib.RingTheory.Coprime
 import QNFMathlib.RingTheory.PrincipalIdealDomain

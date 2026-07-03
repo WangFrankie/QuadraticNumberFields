@@ -8,7 +8,6 @@ import Mathlib.NumberTheory.LegendreSymbol.Basic
 import QNFMathlib.RingTheory.Ideal.Norm.AbsNorm
 import QuadraticNumberFields.ClassGroup.GenusTheory.Discriminant
 import QuadraticNumberFields.ClassGroup.Torsion
-import QuadraticNumberFields.ClassNumber
 import QuadraticNumberFields.RingOfIntegers.Norm
 import QuadraticNumberFields.Splitting.Qsqrtd.Kronecker
 
@@ -29,8 +28,6 @@ attribute [-instance] DivisionRing.toRatAlgebra
 
 open RingOfIntegers
 open Splitting
-
-local notation "𝓞" => _root_.NumberField.RingOfIntegers
 
 /-! ## Genus characters at odd primes
 
