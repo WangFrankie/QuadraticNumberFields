@@ -20,6 +20,7 @@ import QNFMathlib.NumberTheory.LegendreSymbol.JacobiSymbol
 import QNFMathlib.NumberTheory.LegendreSymbol.KroneckerSymbol
 import QNFMathlib.NumberTheory.LegendreSymbol.KroneckerSymbolPeriodicity
 import QNFMathlib.NumberTheory.NumberField.ClassNumber
+import QNFMathlib.NumberTheory.NumberField.NarrowClassGroup
 import QNFMathlib.NumberTheory.RamificationInertia.Galois
 import QNFMathlib.NumberTheory.Zsqrtd.Basic
 import QNFMathlib.RingTheory.ClassGroup.Narrow
