@@ -328,6 +328,13 @@ theorem mulExact_principalToNarrow_toClassGroup (R : Type*) [CommRing R] [IsDoma
       ← map_one (ClassGroup.mk (K := FractionRing R)), ClassGroup.mk_eq_mk]
     exact ⟨x⁻¹, by rw [map_inv, mul_inv_cancel]⟩
 
+/-- The kernel of `Cl⁺(K) → Cl(K)` is the image of principal ideals in the
+narrow class group. -/
+theorem toClassGroup_ker_eq_principalToNarrow_range
+    (R : Type*) [CommRing R] [IsDomain R] :
+    (toClassGroup R).ker = (principalToNarrow R).range :=
+  Function.MulExact.monoidHom_ker_eq (mulExact_principalToNarrow_toClassGroup R)
+
 /-! ### Equality and principal multipliers -/
 
 set_option backward.isDefEq.respectTransparency false in
@@ -591,43 +598,40 @@ instance instFiniteUnitsQuotientTotallyPositiveUnits (K : Type*) [Field K]
   rw [totallyPositiveUnits_eq_ker]
   exact Finite.of_injective _ (QuotientGroup.kerLift_injective (signVectorHom K))
 
+/-- The image of field units in the narrow class group is finite when the fraction field
+has finitely many real embeddings. -/
+theorem finite_range_principalToNarrow (R : Type*) [CommRing R] [IsDomain R]
+    [Finite (FractionRing R →+* ℝ)] : Finite (principalToNarrow R).range := by
+  let φ : (FractionRing R)ˣ →* NarrowClassGroup R := principalToNarrow R
+  have hker : totallyPositiveUnits (FractionRing R) ≤ φ.ker := by
+    intro x hx
+    rw [MonoidHom.mem_ker]
+    change mk (toPrincipalIdeal R (FractionRing R) x) = 1
+    rw [mk_eq_mk']
+    exact (QuotientGroup.eq_one_iff _).mpr ⟨⟨x, hx⟩, rfl⟩
+  let L := QuotientGroup.lift (totallyPositiveUnits (FractionRing R)) φ hker
+  let ψ : (FractionRing R)ˣ ⧸ totallyPositiveUnits (FractionRing R) → φ.range :=
+    fun q => ⟨L q, by
+      induction q using QuotientGroup.induction_on with
+      | _ x => exact ⟨x, (QuotientGroup.lift_mk' _ _ x).symm⟩⟩
+  haveI : Finite φ.range := Finite.of_surjective ψ (by
+    rintro ⟨_, x, rfl⟩
+    exact ⟨QuotientGroup.mk' _ x, Subtype.ext (QuotientGroup.lift_mk' _ _ x)⟩)
+  simpa [φ]
+
+/-- The kernel of `Cl⁺(K) → Cl(K)` is finite when the fraction field has finitely
+many real embeddings. -/
+theorem finite_ker_toClassGroup (R : Type*) [CommRing R] [IsDomain R]
+    [Finite (FractionRing R →+* ℝ)] : Finite (toClassGroup R).ker := by
+  rw [toClassGroup_ker_eq_principalToNarrow_range]
+  exact finite_range_principalToNarrow R
+
 /-- The narrow class group is finite if the wide class group is finite and the
 fraction field has finitely many real embeddings. -/
 instance instFiniteNarrowClassGroup (R : Type*) [CommRing R] [IsDomain R]
     [IsDedekindDomain R] [Finite (ClassGroup R)] [Finite (FractionRing R →+* ℝ)] :
     Finite (NarrowClassGroup R) := by
   rw [(toClassGroup R).finite_iff_finite_ker_range]
-  refine ⟨?_, ?_⟩
-  · -- The kernel of `toClassGroup` is contained in the range of the principal-ideal
-    -- map from `(FractionRing R)ˣ`, which factors through the finite quotient by the
-    -- totally positive units.
-    let φ : (FractionRing R)ˣ →* NarrowClassGroup R := principalToNarrow R
-    have hker : totallyPositiveUnits (FractionRing R) ≤ φ.ker := by
-      intro x hx
-      rw [MonoidHom.mem_ker]
-      change mk (toPrincipalIdeal R (FractionRing R) x) = 1
-      rw [mk_eq_mk']
-      exact (QuotientGroup.eq_one_iff _).mpr ⟨⟨x, hx⟩, rfl⟩
-    have hrange_fin : Finite ↥φ.range := by
-      let L := QuotientGroup.lift (totallyPositiveUnits (FractionRing R)) φ hker
-      have hLrange : φ.range = L.range := by
-        ext y
-        simp only [MonoidHom.mem_range]
-        constructor
-        · rintro ⟨x, rfl⟩
-          exact ⟨QuotientGroup.mk' _ x, QuotientGroup.lift_mk' _ _ x⟩
-        · rintro ⟨z, rfl⟩
-          obtain ⟨x, rfl⟩ :=
-            QuotientGroup.mk'_surjective (totallyPositiveUnits (FractionRing R)) z
-          exact ⟨x, (QuotientGroup.lift_mk' _ _ x).symm⟩
-      rw [hLrange]
-      exact Finite.of_surjective L.rangeRestrict (MonoidHom.rangeRestrict_surjective L)
-    have hle : (toClassGroup R).ker ≤ φ.range := by
-      simpa [φ] using
-        le_of_eq (Function.MulExact.monoidHom_ker_eq
-          (mulExact_principalToNarrow_toClassGroup R))
-    exact Finite.of_injective (Subgroup.inclusion hle) (Subgroup.inclusion_injective hle)
-  · -- The range of `toClassGroup` is a subgroup of the finite wide class group.
-    infer_instance
+  exact ⟨finite_ker_toClassGroup R, inferInstance⟩
 
 end NarrowClassGroup
