@@ -13,6 +13,14 @@ import QuadraticNumberFields.Qsqrtd.TotallyRealComplex
 
 This file specializes `NarrowClassGroup` to the standard quadratic fields
 `Qsqrtd d`.
+
+## TODO
+
+For Keune Ch6 Ex. 11, add the real quadratic narrow-class-number dichotomy.
+
+* Choose a fundamental unit `ε` for `𝓞(ℚ(√d))`.
+* Prove the two cases for `narrowToClassGroup`, depending on whether `ε` is
+  totally positive.（or just determine cardinality）
 -/
 
 open scoped NumberField nonZeroDivisors

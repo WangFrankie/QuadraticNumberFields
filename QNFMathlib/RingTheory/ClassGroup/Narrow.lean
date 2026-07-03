@@ -30,6 +30,14 @@ class group and its map to the ordinary class group. Emerton's genus theory
 notes and Trifković, Sections 5.1 and 7.7, give the surrounding genus-theory and
 quadratic-form viewpoints.
 
+## TODO
+
+For Keune Ch6 Ex. 11, finish the generic kernel statement for
+`Cl⁺(K) → Cl(K)`.
+
+* Identify the kernel with `P_K / P_K⁺`, then with the unit-sign quotient.
+* Prove it has exponent two, using that squares are totally positive.
+
 -/
 
 open scoped nonZeroDivisors

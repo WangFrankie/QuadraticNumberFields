@@ -31,6 +31,14 @@ its existence (not yet formalized here).
   Gaussian integers.
 * `isFundamentalUnit_eisensteinUnit`: `ω = (1+√-3)/2` is a fundamental unit of
   the Eisenstein integers.
+
+## TODO
+
+For Keune Ch6 Ex. 11, the real quadratic case still needs a named fundamental
+unit.
+
+* Get one unit from mathlib's `NumberField.Units.dirichletUnitTheorem.fundSystem`.
+* Prove `IsFundamentalUnit ε` and record the sign behavior of `ε`.
 -/
 
 namespace QuadraticNumberFields
