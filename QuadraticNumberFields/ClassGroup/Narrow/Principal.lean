@@ -64,6 +64,27 @@ theorem positiveUnitsToFractionRing_mulExact_toPositivePrincipalIdeals :
   NarrowClassGroup.totallyPositiveRingUnitsToField_mulExact_toPositivePrincipalIdeals
     OK (FractionRing OK)
 
+/-- Principal-layer positive Hilbert 90 for `𝓞(ℚ(√d))`.
+
+If a totally positive fraction-field unit is norm-one for an involution `τ`, then its
+positive principal ideal is a positive principal coboundary. This is the concrete
+`H¹(G, P_K⁺) = 1` interface used by the strict principal layer. -/
+theorem toPositivePrincipalIdeals_coboundary_of_mul_apply_eq_one
+    [Nonempty (FractionRing OK →+* ℝ)] (τ : FractionRing OK ≃+* FractionRing OK)
+    (hτpos : ∀ x : FractionRing OK,
+      NarrowClassGroup.IsTotallyPositive x → NarrowClassGroup.IsTotallyPositive (τ x))
+    {a : NarrowClassGroup.totallyPositiveUnits (FractionRing OK)}
+    (ha_norm : (a : (FractionRing OK)ˣ) *
+      Units.map τ.toMonoidHom (a : (FractionRing OK)ˣ) = 1) :
+    ∃ b : NarrowClassGroup.totallyPositiveUnits (FractionRing OK),
+      toPositivePrincipalIdeals d a =
+        toPositivePrincipalIdeals d b /
+          toPositivePrincipalIdeals d
+            ⟨Units.map τ.toMonoidHom (b : (FractionRing OK)ˣ),
+              hτpos (((b : (FractionRing OK)ˣ) : FractionRing OK)) b.2⟩ :=
+  NarrowClassGroup.toPositivePrincipalIdeals_coboundary_of_mul_apply_eq_one
+    OK (FractionRing OK) τ hτpos ha_norm
+
 end PositivePrincipal
 
 namespace Real
