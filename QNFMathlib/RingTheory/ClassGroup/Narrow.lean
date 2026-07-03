@@ -31,6 +31,48 @@ open scoped nonZeroDivisors
 
 open FractionalIdeal
 
+namespace QuotientGroup
+
+variable {G : Type*} [CommGroup G]
+
+/-- The natural map `M / N → G / N` induced by the inclusion `M ≤ G`. -/
+def subgroupQuotientToQuotient (N M : Subgroup G) :
+    M ⧸ N.subgroupOf M →* G ⧸ N :=
+  QuotientGroup.map (N.subgroupOf M) N M.subtype (by
+    intro x hx
+    exact Subgroup.mem_subgroupOf.mp hx)
+
+@[simp]
+theorem subgroupQuotientToQuotient_mk (N M : Subgroup G) (x : M) :
+    subgroupQuotientToQuotient N M (QuotientGroup.mk' (N.subgroupOf M) x) =
+      QuotientGroup.mk' N (x : G) :=
+  QuotientGroup.map_mk' _ _ _ _ x
+
+/-- For `N ≤ M ≤ G`, the sequence `M / N → G / N → G / M` is exact at `G / N`. -/
+theorem mulExact_subgroupQuotientToQuotient_mapOfLE (N M : Subgroup G) (hNM : N ≤ M) :
+    Function.MulExact (subgroupQuotientToQuotient N M)
+      (QuotientGroup.map N M (MonoidHom.id G) hNM) := by
+  rw [MonoidHom.mulExact_iff]
+  ext q
+  constructor
+  · intro hq
+    obtain ⟨g, rfl⟩ := QuotientGroup.mk'_surjective N q
+    rw [MonoidHom.mem_ker, QuotientGroup.map_mk'] at hq
+    have hgM : g ∈ M := (QuotientGroup.eq_one_iff (N := M) g).mp hq
+    exact ⟨QuotientGroup.mk' (N.subgroupOf M) ⟨g, hgM⟩, by
+      simpa using subgroupQuotientToQuotient_mk N M ⟨g, hgM⟩⟩
+  · rintro ⟨qM, rfl⟩
+    rw [MonoidHom.mem_ker]
+    induction qM using QuotientGroup.induction_on with
+    | _ x =>
+        change QuotientGroup.map N M (MonoidHom.id G) hNM
+            (subgroupQuotientToQuotient N M (QuotientGroup.mk' (N.subgroupOf M) x)) = 1
+        rw [subgroupQuotientToQuotient_mk]
+        rw [QuotientGroup.map_mk']
+        exact (QuotientGroup.eq_one_iff (N := M) (x : G)).mpr x.2
+
+end QuotientGroup
+
 noncomputable section
 
 namespace NarrowClassGroup
@@ -42,7 +84,7 @@ embedding. For fields with no real embeddings, this condition is vacuous. -/
 def IsTotallyPositive {K : Type*} [Field K] (x : K) : Prop :=
   ∀ σ : K →+* ℝ, 0 < σ x
 
-/-- The subgroup of totally positive units of a field. -/
+/-- The subgroup of totally positive units of a field. That is K₊ˣ -/
 def totallyPositiveUnits (K : Type*) [Field K] : Subgroup Kˣ where
   carrier := {x | IsTotallyPositive (x : K)}
   one_mem' := by
@@ -75,7 +117,7 @@ theorem isTotallyPositive_sq_of_ne_zero {K : Type*} [Field K] (x : K) (hx : x �
   simpa using sq_pos_of_ne_zero hσx
 
 /-- Map a totally positive unit to its principal fractional ideal. The range is
-the subgroup used in the narrow quotient. -/
+the subgroup used in the narrow quotient. That is K₊ˣ→ I_K by K₊ˣ→ Kˣ→ I_K -/
 noncomputable def toNarrowPrincipalIdeal (R K : Type*) [CommRing R] [Field K]
     [Algebra R K] [IsFractionRing R K] :
     totallyPositiveUnits K →* (FractionalIdeal R⁰ K)ˣ :=
@@ -196,6 +238,27 @@ theorem toClassGroup_mk' (R : Type*) [CommRing R] [IsDomain R]
     toClassGroup R (QuotientGroup.mk' (narrowPrincipalIdeals R (FractionRing R)) J) =
       QuotientGroup.mk' (toPrincipalIdeal R (FractionRing R)).range J :=
   QuotientGroup.map_mk' _ _ _ _ J
+
+/-- The map `P_K / P_K⁺ → Cl⁺(K)` coming from the inclusion of principal
+fractional ideals into all fractional ideals. -/
+noncomputable def principalIdealsQuotientToNarrow (R : Type*) [CommRing R] [IsDomain R] :
+    (toPrincipalIdeal R (FractionRing R)).range ⧸
+      (narrowPrincipalIdeals R (FractionRing R)).subgroupOf
+        (toPrincipalIdeal R (FractionRing R)).range →* NarrowClassGroup R :=
+  QuotientGroup.subgroupQuotientToQuotient
+    (narrowPrincipalIdeals R (FractionRing R))
+    (toPrincipalIdeal R (FractionRing R)).range
+
+/-- The comparison sequence `P_K / P_K⁺ → Cl⁺(K) → Cl(K)` is exact at
+`Cl⁺(K)`. -/
+theorem mulExact_principalIdealsQuotientToNarrow_toClassGroup
+    (R : Type*) [CommRing R] [IsDomain R] :
+    Function.MulExact (principalIdealsQuotientToNarrow R) (toClassGroup R) := by
+  simpa [principalIdealsQuotientToNarrow, toClassGroup] using
+    QuotientGroup.mulExact_subgroupQuotientToQuotient_mapOfLE
+      (N := narrowPrincipalIdeals R (FractionRing R))
+      (M := (toPrincipalIdeal R (FractionRing R)).range)
+      (narrowPrincipalIdeals_le_principalIdeals (R := R) (K := FractionRing R))
 
 /-- Over the chosen fraction field, `mk` is just the quotient map. -/
 theorem mk_eq_mk' (I : (FractionalIdeal R⁰ (FractionRing R))ˣ) :
