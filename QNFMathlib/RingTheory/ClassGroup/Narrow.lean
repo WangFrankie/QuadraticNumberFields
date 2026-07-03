@@ -139,6 +139,55 @@ theorem isTotallyPositive_sq_of_ne_zero (x : K) (hx : x ≠ 0) :
   have hσx : σ x ≠ 0 := (_root_.map_ne_zero σ).mpr hx
   simpa using sq_pos_of_ne_zero hσx
 
+/-- A totally positive element plus `1` is totally positive. -/
+theorem isTotallyPositive_one_add {x : K} (hx : IsTotallyPositive x) :
+    IsTotallyPositive (1 + x) := by
+  intro σ
+  simpa using add_pos (zero_lt_one : (0 : ℝ) < 1) (hx σ)
+
+/-- If the field has a real embedding, `1 + x` is nonzero for a totally
+positive `x`. This is the small positivity input in the concrete positive
+Hilbert 90 proof. -/
+theorem one_add_ne_zero_of_isTotallyPositive [Nonempty (K →+* ℝ)]
+    {x : K} (hx : IsTotallyPositive x) :
+    1 + x ≠ 0 := by
+  rcases (inferInstance : Nonempty (K →+* ℝ)) with ⟨σ⟩
+  intro hzero
+  have hσzero : σ (1 + x) = 0 := by
+    simpa using congrArg σ hzero
+  have hpos : (0 : ℝ) < σ (1 + x) := isTotallyPositive_one_add hx σ
+  linarith
+
+/-- Concrete positive Hilbert 90 for an involution.
+
+For the order-two Galois action in Emerton's strict class group item 10, this is
+the statement that every totally positive norm-one cocycle `a` is the positive
+coboundary of `b = 1 + a`. The real-embedding hypothesis is exactly what rules
+out the degenerate imaginary/vacuous case `a = -1`. -/
+theorem exists_positive_coboundary_of_mul_apply_eq_one
+    [Nonempty (K →+* ℝ)] (τ : K ≃+* K) {a : Kˣ}
+    (ha_pos : IsTotallyPositive (a : K))
+    (ha_norm : (a : K) * τ (a : K) = 1) :
+    ∃ b : Kˣ, IsTotallyPositive (b : K) ∧ (a : K) = (b : K) / τ (b : K) := by
+  have hb_pos : IsTotallyPositive (1 + (a : K)) :=
+    isTotallyPositive_one_add ha_pos
+  have hb_ne : (1 + (a : K)) ≠ 0 :=
+    one_add_ne_zero_of_isTotallyPositive ha_pos
+  let b : Kˣ := Units.mk0 (1 + (a : K)) hb_ne
+  refine ⟨b, hb_pos, ?_⟩
+  have hτa : τ (a : K) = ((a : K)⁻¹) :=
+    eq_inv_of_mul_eq_one_right ha_norm
+  have hτb_ne : τ (1 + (a : K)) ≠ 0 :=
+    (RingEquiv.map_ne_zero_iff τ).mpr hb_ne
+  have hden : 1 + ((a : K)⁻¹) ≠ 0 := by
+    simpa [hτa] using hτb_ne
+  change (a : K) = (1 + (a : K)) / τ (1 + (a : K))
+  rw [show τ (1 + (a : K)) = 1 + τ (a : K) by simp]
+  rw [hτa]
+  rw [eq_div_iff_mul_eq hden]
+  field_simp [Units.ne_zero a]
+  ring
+
 end TotallyPositive
 
 /-! ### Narrow principal ideals -/
@@ -280,6 +329,43 @@ theorem totallyPositiveRingUnitsToField_mulExact_toPositivePrincipalIdeals
       exact ⟨u, by simp [Units.smul_def, Algebra.smul_def]⟩
     simpa [toNarrowPrincipalIdeal, totallyPositiveRingUnitsToField, ringUnitToFractionRing,
       coe_toPrincipalIdeal, FractionalIdeal.spanSingleton_one] using hspan.symm
+
+/-- Concrete principal-layer consequence of positive Hilbert 90.
+
+If a totally positive unit `a` is norm-one for an involution `τ`, then the
+positive principal ideal `(a)` is the coboundary `(b) / (τ b)` for a totally
+positive unit `b`. This is the multiplicative, concrete replacement for the
+`H¹(G, P_K⁺) = 1` conclusion in Emerton's item 10. -/
+theorem toPositivePrincipalIdeals_coboundary_of_mul_apply_eq_one
+    [Nonempty (K →+* ℝ)] (τ : K ≃+* K)
+    (hτpos : ∀ x : K, IsTotallyPositive x → IsTotallyPositive (τ x))
+    {a : totallyPositiveUnits K}
+    (ha_norm : (a : Kˣ) * Units.map τ.toMonoidHom (a : Kˣ) = 1) :
+    ∃ b : totallyPositiveUnits K,
+      toPositivePrincipalIdeals R K a =
+        toPositivePrincipalIdeals R K b /
+          toPositivePrincipalIdeals R K ⟨Units.map τ.toMonoidHom (b : Kˣ),
+            hτpos (((b : Kˣ) : K)) b.2⟩ := by
+  have ha_norm_field : ((a : Kˣ) : K) * τ (((a : Kˣ) : K)) = 1 := by
+    simpa using congrArg Units.val ha_norm
+  obtain ⟨b, hb_pos, hb⟩ := exists_positive_coboundary_of_mul_apply_eq_one
+    (τ := τ) (a := (a : Kˣ)) a.2 ha_norm_field
+  let bpos : totallyPositiveUnits K := ⟨b, hb_pos⟩
+  refine ⟨bpos, ?_⟩
+  let τbpos : totallyPositiveUnits K :=
+    ⟨Units.map τ.toMonoidHom b, hτpos (b : K) hb_pos⟩
+  have ha_eq_units : (a : Kˣ) = (bpos : Kˣ) / (τbpos : Kˣ) := by
+    apply Units.ext
+    simpa [bpos, τbpos] using hb
+  have ha_eq : a = bpos / τbpos := by
+    apply Subtype.ext
+    exact ha_eq_units
+  have hτbpos :
+      (⟨Units.map τ.toMonoidHom (bpos : Kˣ),
+        hτpos (((bpos : Kˣ) : K)) bpos.2⟩ : totallyPositiveUnits K) = τbpos := by
+    rfl
+  rw [hτbpos, ha_eq]
+  simp [map_div]
 
 end PositivePrincipal
 
