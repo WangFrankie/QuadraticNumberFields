@@ -124,6 +124,40 @@ instance instFact_of_not_isSquare (d : ℚ) [Fact (¬ IsSquare d)] :
   -- reduces to saying that `X^2 - d` has no rational root.
   ⟨by intro r hr; exact (Fact.out : ¬ IsSquare d) ⟨r, by nlinarith [hr]⟩⟩
 
+/-- The two `ℚ`-algebra structures on `Qsqrtd d` give the same `ℚ`-dimension.
+
+Coordinate proofs use `QuadraticAlgebra.instAlgebra`. Some number-field APIs use
+`DivisionRing.toRatAlgebra`, so this lemma transfers finrank statements between them. -/
+theorem finrank_ratAlgebra_eq_finrank_quadraticAlgebra (d : ℚ)
+    [Fact (¬ IsSquare d)] :
+    @Module.finrank ℚ (Qsqrtd d) _ _
+      (@Algebra.toModule ℚ (Qsqrtd d) _ _ DivisionRing.toRatAlgebra) =
+    @Module.finrank ℚ (Qsqrtd d) _ _
+      (@Algebra.toModule ℚ (Qsqrtd d) _ _ QuadraticAlgebra.instAlgebra) := by
+  symm
+  refine @Algebra.finrank_eq_of_equiv_equiv ℚ (Qsqrtd d) _ _
+    QuadraticAlgebra.instAlgebra ℚ (Qsqrtd d) _ _ DivisionRing.toRatAlgebra
+    (RingEquiv.refl ℚ) (RingEquiv.refl (Qsqrtd d)) ?_
+  exact RingHom.ext_rat _ _
+
+section RatAlgebra
+
+attribute [local instance] DivisionRing.toRatAlgebra
+
+/-- The `DivisionRing.toRatAlgebra` version of the finrank computation for `Qsqrtd d`. -/
+theorem finrank_ratAlgebra_eq_two (d : ℚ) [Fact (¬ IsSquare d)] :
+    @Module.finrank ℚ (Qsqrtd d) _ _
+      (@Algebra.toModule ℚ (Qsqrtd d) _ _ DivisionRing.toRatAlgebra) = 2 := by
+  rw [finrank_ratAlgebra_eq_finrank_quadraticAlgebra]
+  exact QuadraticAlgebra.finrank_eq_two d 0
+
+/-- `Qsqrtd d` is quadratic over `ℚ` for the `DivisionRing.toRatAlgebra` structure. -/
+instance instRatAlgebraIsQuadraticExtension (d : ℚ) [Fact (¬ IsSquare d)] :
+    Algebra.IsQuadraticExtension ℚ (Qsqrtd d) where
+  finrank_eq_two' := finrank_ratAlgebra_eq_two d
+
+end RatAlgebra
+
 /-- Ring-level core of the generator relation, independent of any `Algebra ℚ`
 instance. If `d` is not a square, `φ : Qsqrtd d ≃+* Qsqrtd d'` is a ring
 isomorphism fixing the scalar `⟨d, 0⟩`, then writing `φ ⟨0, 1⟩ = ⟨a, b⟩` we have
@@ -180,8 +214,7 @@ theorem algEquiv_param_rel {d d' : ℚ} (hd : ¬ IsSquare d)
       (QuadraticAlgebra.algebraMap_eq (R := ℚ) (a := d) (b := 0) d).symm
     have hright : (⟨d, 0⟩ : Qsqrtd d') = algebraMap ℚ (Qsqrtd d') d :=
       (QuadraticAlgebra.algebraMap_eq (R := ℚ) (a := d') (b := 0) d).symm
-    rw [show (φ.toRingEquiv ⟨d, 0⟩ : Qsqrtd d') = φ ⟨d, 0⟩ from rfl, hleft, hright]
-    exact φ.commutes d
+    simp [hleft, hright]
 
 end Qsqrtd
 

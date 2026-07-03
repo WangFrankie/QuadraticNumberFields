@@ -7,6 +7,7 @@ Authors: Frankie Wang
 import Mathlib.NumberTheory.NumberField.ClassNumber
 import QNFMathlib.RingTheory.DedekindDomain.Ideal
 import QNFMathlib.RingTheory.Ideal.Norm.AbsNorm
+import QuadraticNumberFields.ClassGroup.Basic
 import QuadraticNumberFields.Qsqrtd.TotallyRealComplex
 import QuadraticNumberFields.QuadraticField.RingOfIntegers
 import QuadraticNumberFields.RingOfIntegers.Discriminant
@@ -110,16 +111,6 @@ theorem classGroup_eq_one_or_of_exists_ideal_norm_lt_three
     exact ⟨1, Ideal.span_singleton_one.symm⟩
   · right
     exact hclass_two I h2
-
-/-- If every ideal class of a number field is trivial, then the class number is
-one. -/
-theorem NumberField.classNumber_eq_one_of_forall_classGroup_eq_one
-    {K : Type*} [Field K] [NumberField K]
-    (h : ∀ C : ClassGroup (𝓞 K), C = 1) :
-    NumberField.classNumber K = 1 := by
-  haveI : Unique (ClassGroup (𝓞 K)) := ⟨⟨1⟩, h⟩
-  simpa only [NumberField.classNumber] using
-    Fintype.card_unique (α := ClassGroup (𝓞 K))
 
 local notation "N " K:70 => @finrank ℚ K _ _ (@Algebra.toModule ℚ K _ _ DivisionRing.toRatAlgebra)
 local notation "M " K:70 => (4 / π) ^ nrComplexPlaces K *
@@ -378,9 +369,7 @@ theorem classNumber_eq_one_of_forall_le_minkowskiBound_isInertIn
       Ideal.IsInertIn (𝔭(p)) 𝓞(d)) :
     NumberField.classNumber (Qsqrtd (d : ℚ)) = 1 := by
   have htriv := classGroup_eq_one_of_forall_le_minkowskiBound_isInertIn d h
-  haveI : Unique (ClassGroup (𝓞 (Qsqrtd (d : ℚ)))) := ⟨⟨1⟩, htriv⟩
-  simpa only [NumberField.classNumber] using
-    Fintype.card_unique (α := ClassGroup (𝓞 (Qsqrtd (d : ℚ))))
+  exact NumberField.classNumber_eq_one_of_forall_classGroup_eq_one htriv
 
 end ClassNumberOne
 

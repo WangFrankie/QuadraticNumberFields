@@ -41,6 +41,8 @@ import QuadraticNumberFields.Splitting.Qsqrtd.Monogenic
 import QuadraticNumberFields.Splitting.Qsqrtd.OddPrime
 import QuadraticNumberFields.Splitting.Qsqrtd.Two
 import QuadraticNumberFields.Splitting.QuadraticField.Basic
+import QuadraticNumberFields.ClassGroup.Basic
+import QuadraticNumberFields.ClassGroup.Narrow
 import QuadraticNumberFields.ClassNumber
 import QuadraticNumberFields.Qsqrtd.TotallyRealComplex
 import QuadraticNumberFields.Units.Pell

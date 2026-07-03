@@ -70,4 +70,15 @@ instance instQuadraticField (d : ℚ) [Fact (¬ IsSquare d)] :
     QuadraticField (Qsqrtd d) where
   isQuadratic := inferInstance
 
+section RatAlgebra
+
+attribute [local instance] DivisionRing.toRatAlgebra
+
+/-- `Qsqrtd d` is a `QuadraticField` for the `DivisionRing.toRatAlgebra` structure. -/
+instance instRatAlgebraQuadraticField (d : ℚ) [Fact (¬ IsSquare d)] :
+    QuadraticField (Qsqrtd d) where
+  isQuadratic := @Qsqrtd.instRatAlgebraIsQuadraticExtension d _
+
+end RatAlgebra
+
 end Qsqrtd
