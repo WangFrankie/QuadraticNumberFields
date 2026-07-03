@@ -25,7 +25,7 @@ variable (R K : Type*) [CommRing R] [Field K] [Algebra R K]
 /-- The map from ring units to fraction-field units. -/
 noncomputable abbrev ringUnitToFractionRing :
     Rˣ →* Kˣ :=
-  _root_.Units.map (algebraMap R K).toMonoidHom
+  Units.map (algebraMap R K).toMonoidHom
 
 /-- The subgroup `O_Kˣ⁺` of ring units whose image in the fraction field is
 totally positive. -/
@@ -75,9 +75,18 @@ theorem totallyPositiveRingUnitsToField_mulExact_toPositivePrincipalIdeals
     Function.MulExact (totallyPositiveRingUnitsToField R K) (toPositivePrincipalIdeals R K) := by
   rw [MonoidHom.mulExact_iff]
   ext q
+  rw [MonoidHom.mem_ker]
   constructor<;> intro hq
   · sorry
-  · sorry
+  · rcases hq with ⟨u, rfl⟩
+    apply Subtype.ext
+    sorry
+
+
+
+
+
+
 
 end PositivePrincipal
 
