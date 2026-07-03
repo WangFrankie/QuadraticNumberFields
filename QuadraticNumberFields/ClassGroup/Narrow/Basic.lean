@@ -12,8 +12,8 @@ import QuadraticNumberFields.Units.Fundamental
 /-!
 # Narrow Class Groups of Quadratic Fields
 
-This file specializes `NarrowClassGroup` to the standard quadratic fields
-`Qsqrtd d`.
+This file specializes the basic `NarrowClassGroup` API to the standard
+quadratic fields `Qsqrtd d`.
 
 ## TODO
 
