@@ -37,16 +37,6 @@ variable (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
 
 local notation "OK" => 𝓞 (Qsqrtd (d : ℚ))
 
--- Number-field APIs elaborate `Qsqrtd` through `DivisionRing.toRatAlgebra`,
--- so this section supplies the matching quadratic-field structure.
---? NEED DECIDE
-local instance instQsqrtdRatAlgebraIsQuadraticExtension :
-    Algebra.IsQuadraticExtension ℚ (Qsqrtd (d : ℚ)) :=
-  { finrank_eq_two' := finrank_ratAlgebra_eq_two ((d : ℤ) : ℚ) }
-
-local instance instQsqrtdRatAlgebraQuadraticField : QuadraticField (Qsqrtd (d : ℚ)) :=
-  { isQuadratic := inferInstance }
-
 /-- The narrow class number of `ℚ(√d)`. -/
 noncomputable def narrowClassNumber : ℕ :=
   NumberField.narrowClassNumber (Qsqrtd (d : ℚ))

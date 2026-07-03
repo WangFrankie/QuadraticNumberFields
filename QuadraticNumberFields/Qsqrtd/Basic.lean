@@ -126,9 +126,8 @@ instance instFact_of_not_isSquare (d : ℚ) [Fact (¬ IsSquare d)] :
 
 /-- The two `ℚ`-algebra structures on `Qsqrtd d` give the same `ℚ`-dimension.
 
-This is the reusable `Qsqrtd` algebra-diamond bridge: explicit coordinate
-calculations use `QuadraticAlgebra.instAlgebra`, while generic number-field APIs
-often elaborate against `DivisionRing.toRatAlgebra`. -/
+Coordinate proofs use `QuadraticAlgebra.instAlgebra`. Some number-field APIs use
+`DivisionRing.toRatAlgebra`, so this lemma transfers finrank statements between them. -/
 theorem finrank_ratAlgebra_eq_finrank_quadraticAlgebra (d : ℚ)
     [Fact (¬ IsSquare d)] :
     @Module.finrank ℚ (Qsqrtd d) _ _
@@ -141,13 +140,23 @@ theorem finrank_ratAlgebra_eq_finrank_quadraticAlgebra (d : ℚ)
     (RingEquiv.refl ℚ) (RingEquiv.refl (Qsqrtd d)) ?_
   exact RingHom.ext_rat _ _
 
-/-- The standard quadratic field `Qsqrtd d`, with mathlib's default
-`ℚ`-algebra structure, has degree two over `ℚ`. -/
+section RatAlgebra
+
+attribute [local instance] DivisionRing.toRatAlgebra
+
+/-- The `DivisionRing.toRatAlgebra` version of the finrank computation for `Qsqrtd d`. -/
 theorem finrank_ratAlgebra_eq_two (d : ℚ) [Fact (¬ IsSquare d)] :
     @Module.finrank ℚ (Qsqrtd d) _ _
       (@Algebra.toModule ℚ (Qsqrtd d) _ _ DivisionRing.toRatAlgebra) = 2 := by
   rw [finrank_ratAlgebra_eq_finrank_quadraticAlgebra]
   exact QuadraticAlgebra.finrank_eq_two d 0
+
+/-- `Qsqrtd d` is quadratic over `ℚ` for the `DivisionRing.toRatAlgebra` structure. -/
+instance instRatAlgebraIsQuadraticExtension (d : ℚ) [Fact (¬ IsSquare d)] :
+    Algebra.IsQuadraticExtension ℚ (Qsqrtd d) where
+  finrank_eq_two' := finrank_ratAlgebra_eq_two d
+
+end RatAlgebra
 
 /-- Ring-level core of the generator relation, independent of any `Algebra ℚ`
 instance. If `d` is not a square, `φ : Qsqrtd d ≃+* Qsqrtd d'` is a ring
