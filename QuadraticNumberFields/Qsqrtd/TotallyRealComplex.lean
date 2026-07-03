@@ -183,7 +183,7 @@ theorem isTotallyReal (hd : 0 < d) :
   }
 
 /-- A quadratic field `Q(√d)` with `d < 0` is totally complex. -/
-instance isTotallyComplex (hd : d < 0) :
+theorem  isTotallyComplex (hd : d < 0) :
     NumberField.IsTotallyComplex (Qsqrtd (d : ℚ)) := by
   exact {
     isComplex := fun v => by
