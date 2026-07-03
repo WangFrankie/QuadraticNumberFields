@@ -69,12 +69,11 @@ instance : Fact ((-231 : ℤ) ≠ 1) := ⟨by decide⟩
 /-- `ℚ(√-23)` has class number three, computed by reduced forms. -/
 theorem classNumber_qsqrtd_neg23 :
     NumberField.classNumber (Qsqrtd ((-23 : ℤ) : ℚ)) = 3 := by
-  change classNumberQsqrtd (-23) = 3
   compute_class_number_qsqrtd
 
 /-! ## Direct cyclic outputs -/
 
-/-- **ℚ(√-5)**: the class group is cyclic of order 2, i.e. `ℤ/2ℤ`.
+/-- `ℚ(√-5)`: the class group is cyclic of order 2, i.e. `ℤ/2ℤ`.
 This follows from class number 2 (already proved in `Computed.lean`) and the
 fact that any non-principal ideal generates the group. -/
 noncomputable def classGroup_qsqrtd_neg5_mulEquiv :
@@ -82,7 +81,7 @@ noncomputable def classGroup_qsqrtd_neg5_mulEquiv :
       Multiplicative (ZMod 2) :=
   Examples.SqrtNeg5.classGroupMulEquivZMod2
 
-/-- **ℚ(√-23)**: the class group is cyclic of order 3, i.e. `ℤ/3ℤ`.
+/-- `ℚ(√-23)`: the class group is cyclic of order 3, i.e. `ℤ/3ℤ`.
 Class number 3 is already proved; any non-principal ideal has order 3. -/
 noncomputable def classGroup_qsqrtd_neg23_mulEquiv :
     ClassGroup (NumberField.RingOfIntegers (Qsqrtd ((-23 : ℤ) : ℚ))) ≃*
@@ -91,11 +90,8 @@ noncomputable def classGroup_qsqrtd_neg23_mulEquiv :
     (G := ClassGroup (NumberField.RingOfIntegers (Qsqrtd ((-23 : ℤ) : ℚ))))
     (G' := Multiplicative (ZMod 3))
     (by
-      rw [Nat.card_eq_fintype_card]
-      simpa [NumberField.classNumber] using classNumber_qsqrtd_neg23)
-    (by
-      rw [Nat.card_eq_fintype_card]
-      simp)
+      simpa [NumberField.classNumber, Fintype.card_eq_nat_card] using classNumber_qsqrtd_neg23)
+    (by simp)
 
 /-! ## Non-cyclic standard-output checks
 

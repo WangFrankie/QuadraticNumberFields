@@ -3,9 +3,11 @@ Copyright (c) 2026 Frankie Wang. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
-import QuadraticNumberFields.ClassNumber
+import QuadraticNumberFields.ClassGroup.Torsion
+import QuadraticNumberFields.ClassGroup.SmallNorm
 import Examples.SqrtNeg5.Ideals
 import Examples.SqrtNeg5.Invariants
+import Mathlib.GroupTheory.SpecificGroups.Cyclic
 import QNFMathlib.NumberTheory.NumberField.ClassNumber
 import QuadraticNumberFields.RingOfIntegers.Norm
 
@@ -177,13 +179,40 @@ theorem classGroup_eq_one_or_classP (C : ClassGroup O) : C = 1 ∨ C = classP :=
   classGroup_eq_one_or_of_exists_ideal_norm_lt_three classP
     exists_ideal_in_class_of_norm_le class_eq_classP_of_absNorm_eq_two C
 
-/-- **`ℚ(√-5)` has class number two** — the classic non-UFD example. -/
+/-- `ℚ(√-5)` has class number two, the classic non-UFD example. -/
 theorem classNumber_eq_two :
     NumberField.classNumber (Qsqrtd ((-5 : ℤ) : ℚ)) = 2 :=
   NumberField.classNumber_eq_two_of_forall_eq_one_or classP_ne_one classGroup_eq_one_or_classP
 
-/-- `classNumberQsqrtd (-5) = 2`, the unified-interface form. -/
-theorem classNumberQsqrtd_neg5 : classNumberQsqrtd (-5) = 2 :=
-  classNumber_eq_two
+/-! ## Class-group structure -/
+
+/-- The square of the bundled ramified ideal is principal. -/
+theorem isPrincipal_P0_sq : ((P0 : Ideal O) ^ 2).IsPrincipal := by
+  change (P ^ 2).IsPrincipal
+  rw [← span_two_eq_P_sq]
+  exact ⟨2, rfl⟩
+
+/-- The non-identity ideal class `[P]` is self-inverse.  This is the ideal-theoretic
+group-law computation coming from the ramified factorization `(2) = P²`. -/
+theorem classP_mul_self_eq_one :
+    classP * classP = (1 : ClassGroup O) := by
+  simpa [classP, pow_two] using
+    (ClassGroup.mk0_pow_eq_one_iff_pow_isPrincipal P0 2).mpr isPrincipal_P0_sq
+
+/-- The ramified ideal class `[P]` is a torsion element of the ideal class group. -/
+theorem classP_mem_torsion :
+    classP ∈ CommGroup.torsion (ClassGroup O) := by
+  rw [CommGroup.mem_torsion, isOfFinOrder_iff_pow_eq_one]
+  exact ⟨2, by norm_num, by simpa only [pow_two] using classP_mul_self_eq_one⟩
+
+/-- The ideal class group of `ℚ(√-5)` is cyclic of order two. -/
+noncomputable def classGroupMulEquivZMod2 :
+    ClassGroup O ≃* Multiplicative (ZMod 2) :=
+  mulEquivOfPrimeCardEq (p := 2)
+    (G := ClassGroup O)
+    (G' := Multiplicative (ZMod 2))
+    (by
+      simpa [O, NumberField.classNumber, Fintype.card_eq_nat_card] using classNumber_eq_two)
+    (by simp)
 
 end QuadraticNumberFields.Examples.SqrtNeg5

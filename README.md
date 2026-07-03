@@ -114,7 +114,7 @@ Counts exclude blank lines.
 | `QNFMathlib` | 2316 | 654 | 2970 |
 | `Examples` | 1159 | 584 | 1743 |
 | `ImaginaryClassNumberOne` | 1157 | 418 | 1575 |
-| **Total** | **19529** | **5963** | **25492** |
+| Total | 19529 | 5963 | 25492 |
 
 ### Library Tree
 
@@ -136,7 +136,7 @@ Counts exclude blank lines.
 | `├── Units/` | 409 | 156 | 565 |
 | `├── ZOnePlusSqrtdOverTwo/` | 127 | 50 | 177 |
 | `└── Zsqrtd/` | 730 | 235 | 965 |
-| **QuadraticNumberFields total** | **6826** | **2599** | **9425** |
+| QuadraticNumberFields total | 6826 | 2599 | 9425 |
 
 </details>
 
@@ -151,7 +151,7 @@ Counts exclude blank lines.
 | `├── Computed.lean` | 126 | 56 | 182 |
 | `├── Cox/` | 2927 | 527 | 3454 |
 | `└── Gauss/` | 100 | 38 | 138 |
-| **FormClassGroup total** | **4945** | **1044** | **5989** |
+| FormClassGroup total | 4945 | 1044 | 5989 |
 
 </details>
 
@@ -165,7 +165,7 @@ Counts exclude blank lines.
 | `├── Core/` | 1395 | 247 | 1642 |
 | `├── Cox/` | 289 | 64 | 353 |
 | `└── Gauss/` | 616 | 142 | 758 |
-| **BinaryQuadraticForms total** | **3126** | **664** | **3790** |
+| BinaryQuadraticForms total | 3126 | 664 | 3790 |
 
 </details>
 
@@ -181,7 +181,7 @@ Counts exclude blank lines.
 | `├── GroupTheory/` | 18 | 13 | 31 |
 | `├── NumberTheory/` | 1187 | 247 | 1434 |
 | `└── RingTheory/` | 316 | 131 | 447 |
-| **QNFMathlib total** | **2316** | **654** | **2970** |
+| QNFMathlib total | 2316 | 654 | 2970 |
 
 </details>
 
@@ -198,7 +198,7 @@ Counts exclude blank lines.
 | `├── Sqrt17/` | 194 | 143 | 337 |
 | `├── SqrtNeg21/` | 15 | 29 | 44 |
 | `└── SqrtNeg5/` | 548 | 254 | 802 |
-| **Examples total** | **1159** | **584** | **1743** |
+| Examples total | 1159 | 584 | 1743 |
 
 </details>
 
@@ -216,7 +216,7 @@ Counts exclude blank lines.
 | `├── IdealReductions.lean` | 305 | 41 | 346 |
 | `├── StarkHeegner.lean` | 102 | 71 | 173 |
 | `└── WeberData/` | 128 | 123 | 251 |
-| **ImaginaryClassNumberOne total** | **1157** | **418** | **1575** |
+| ImaginaryClassNumberOne total | 1157 | 418 | 1575 |
 
 </details>
 

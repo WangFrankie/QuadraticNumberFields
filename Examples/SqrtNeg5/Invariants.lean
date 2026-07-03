@@ -7,7 +7,7 @@ import QuadraticNumberFields.RingOfIntegers.Classification
 import QuadraticNumberFields.RingOfIntegers.Discriminant
 import QuadraticNumberFields.Qsqrtd.TotallyRealComplex
 import QuadraticNumberFields.Qsqrtd.Galois
-import QuadraticNumberFields.ClassNumber
+import QuadraticNumberFields.ClassGroup.Minkowski
 import QuadraticNumberFields.Zsqrtd.Dedekind
 import QuadraticNumberFields.RingOfIntegers.CommonInstances
 
@@ -24,7 +24,7 @@ branch on the real field `ℚ(√17)`).
 * ring of integers `𝓞(ℚ(√-5)) ≅ ℤ[√-5]`;
 * discriminant `D = -20`;
 * totally complex, hence a CM field; automorphism group of order 2;
-* the order `ℤ[√-5]` **is** Dedekind (it is the maximal order).
+* the order `ℤ[√-5]` is Dedekind (it is the maximal order).
 -/
 
 open scoped NumberField
@@ -61,7 +61,7 @@ theorem card_aut_eq_two :
     Nat.card (Qsqrtd ((-5 : ℤ) : ℚ) ≃ₐ[ℚ] Qsqrtd ((-5 : ℤ) : ℚ)) = 2 :=
   Qsqrtd.card_aut_eq_two (-5)
 
-/-- The order `ℤ[√-5]` **is** a Dedekind domain: since `-5 ≡ 3 (mod 4)` it is the
+/-- The order `ℤ[√-5]` is a Dedekind domain: since `-5 ≡ 3 (mod 4)` it is the
 maximal order, equal to the ring of integers. -/
 theorem zsqrtd_isDedekindDomain :
     IsDedekindDomain (Zsqrtd (-5 : ℤ)) :=
@@ -74,13 +74,12 @@ theorem minkowskiBound_lt_three : Qsqrtd.minkowskiBound (-5 : ℤ) < 3 := by
     RingOfIntegers.discr_of_mod_four_ne_one (-5) (by decide)]
   have hpi : (3 : ℝ) < Real.pi := Real.pi_gt_three
   have hsqrt : Real.sqrt |((4 * (-5) : ℤ) : ℝ)| ≤ 4.48 := by
-    rw [show |((4 * (-5) : ℤ) : ℝ)| = 20 by norm_num]
-    calc Real.sqrt 20 ≤ Real.sqrt (4.48 ^ 2) := Real.sqrt_le_sqrt (by norm_num)
-      _ = 4.48 := Real.sqrt_sq (by norm_num)
+    rw [show |((4 * (-5) : ℤ) : ℝ)| = 20 by norm_num, Real.sqrt_le_iff]
+    norm_num
   rw [pow_one, div_mul_eq_mul_div, div_mul_eq_mul_div, div_lt_iff₀ (by positivity)]
   nlinarith [hsqrt, hpi, Real.sqrt_nonneg |((4 * (-5) : ℤ) : ℝ)|]
 
-/-- **Minkowski bound for `ℚ(√-5)`, integer form.** Every ideal class has a
+/-- Minkowski bound for `ℚ(√-5)`, integer form. Every ideal class has a
 representative whose absolute norm is `< 3` (equivalently `≤ 2`), obtained from
 the unified `Qsqrtd.exists_ideal_in_class_of_norm_le` and `minkowskiBound_lt_three`. -/
 theorem exists_ideal_in_class_of_norm_le
@@ -91,7 +90,7 @@ theorem exists_ideal_in_class_of_norm_le
   obtain ⟨I, hC, hI⟩ := Qsqrtd.exists_ideal_in_class_of_norm_le (-5) C
   exact ⟨I, hC, by exact_mod_cast lt_of_le_of_lt hI minkowskiBound_lt_three⟩
 
-/-! `ℚ(√-5)` has class number two — the classic non-UFD example.  A full
+/-! `ℚ(√-5)` has class number two, the classic non-UFD example.  A full
 `classNumber = 2` proof awaits the class-number development; a first milestone
 is `¬ IsPrincipalIdealRing (ℤ[√-5])` (hence `classNumber ≠ 1`), witnessed by
 the non-principal ideal `(2, 1+√-5)` already constructed in

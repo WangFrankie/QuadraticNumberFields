@@ -7,7 +7,7 @@ import QuadraticNumberFields.RingOfIntegers.Classification
 import QuadraticNumberFields.RingOfIntegers.Discriminant
 import QuadraticNumberFields.Qsqrtd.TotallyRealComplex
 import QuadraticNumberFields.Qsqrtd.Galois
-import QuadraticNumberFields.ClassNumber
+import QuadraticNumberFields.ClassGroup.Minkowski
 import QuadraticNumberFields.Zsqrtd.Dedekind
 import QuadraticNumberFields.RingOfIntegers.CommonInstances
 
@@ -24,7 +24,7 @@ branch on the imaginary field `ℚ(√-5)`).
 * ring of integers `𝓞(ℚ(√17)) ≅ ℤ[(1+√17)/2]`;
 * discriminant `D = 17`;
 * totally real, automorphism group of order 2;
-* the suborder `ℤ[√17]` is **not** Dedekind (it is not the maximal order).
+* the suborder `ℤ[√17]` is not Dedekind (it is not the maximal order).
 -/
 
 open scoped NumberField
@@ -57,7 +57,7 @@ theorem card_aut_eq_two :
     Nat.card (Qsqrtd ((17 : ℤ) : ℚ) ≃ₐ[ℚ] Qsqrtd ((17 : ℤ) : ℚ)) = 2 :=
   Qsqrtd.card_aut_eq_two 17
 
-/-- The suborder `ℤ[√17]` is **not** a Dedekind domain: because `17 ≡ 1 (mod 4)`
+/-- The suborder `ℤ[√17]` is not a Dedekind domain: because `17 ≡ 1 (mod 4)`
 the maximal order is `ℤ[(1+√17)/2]`, strictly larger than `ℤ[√17]`. -/
 theorem zsqrtd_not_isDedekindDomain :
     ¬ IsDedekindDomain (Zsqrtd (17 : ℤ)) :=
@@ -69,14 +69,12 @@ theorem minkowskiBound_lt_three : Qsqrtd.minkowskiBound (17 : ℤ) < 3 := by
     RingOfIntegers.discr_of_mod_four_eq_one 17 (by decide)]
   have hsqrt : Real.sqrt |((17 : ℤ) : ℝ)| < 6 := by
     rw [abs_of_nonneg (by norm_num)]
-    calc Real.sqrt ((17 : ℤ) : ℝ) < Real.sqrt 36 := Real.sqrt_lt_sqrt (by norm_num) (by norm_num)
-      _ = 6 := by rw [show (36 : ℝ) = 6 ^ 2 by norm_num, Real.sqrt_sq (by norm_num)]
-  calc (4 / Real.pi) ^ 0 * (1 / 2) * Real.sqrt |((17 : ℤ) : ℝ)|
-      = (1 / 2) * Real.sqrt |((17 : ℤ) : ℝ)| := by rw [pow_zero]; ring
-    _ < (1 / 2) * 6 := by gcongr
-    _ = 3 := by norm_num
+    rw [Real.sqrt_lt' (by norm_num : (0 : ℝ) < 6)]
+    norm_num
+  rw [pow_zero]
+  nlinarith [mul_lt_mul_of_pos_left hsqrt (by norm_num : (0 : ℝ) < 1 / 2)]
 
-/-- **Minkowski bound for `ℚ(√17)`, integer form.** Every ideal class has a
+/-- Minkowski bound for `ℚ(√17)`, integer form. Every ideal class has a
 representative whose absolute norm is `< 3` (equivalently `≤ 2`), obtained from
 the unified `Qsqrtd.exists_ideal_in_class_of_norm_le` and `minkowskiBound_lt_three`. -/
 theorem exists_ideal_in_class_of_norm_le
