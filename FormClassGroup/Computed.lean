@@ -5,14 +5,14 @@ Authors: Frankie Wang
 -/
 
 import Mathlib.Data.ZMod.Basic
-import QuadraticNumberFields.ClassNumber
+import QuadraticNumberFields.ClassGroup.Basic
 import FormClassGroup.ClassGroup.Law
 import FormClassGroup.ClassGroup.ClassNumber
 
 /-!
 # Computed Class Groups
 
-This WIP module sketches the intended user-facing API for finite computed
+This module sketches the intended user-facing API for finite computed
 models of ideal class groups of imaginary quadratic fields.
 
 The backend is intentionally abstract here.  A future implementation can fill
@@ -156,10 +156,11 @@ theorem reducedFormsComputedClassGroup_card
   simp [ClassGroup.ComputedClassGroup.card, reducedFormsComputedClassGroup]
 
 /-- The reduced-form computed backend recovers the class number of `ℚ(√d)`. -/
-theorem reducedFormsComputedClassGroup_card_eq_classNumberQsqrtd
+theorem reducedFormsComputedClassGroup_card_eq_classNumber_qsqrtd
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hdneg : d < 0) :
-    (reducedFormsComputedClassGroup d hdneg).card = classNumberQsqrtd d := by
-  rw [reducedFormsComputedClassGroup_card, ← classNumberQsqrtd_eq_reducedForms_card d hdneg]
+    (reducedFormsComputedClassGroup d hdneg).card =
+      NumberField.classNumber (Qsqrtd (d : ℚ)) := by
+  rw [reducedFormsComputedClassGroup_card, ← classNumber_qsqrtd_eq_reducedForms_card d hdneg]
 
 /-- The reduced-form computed backend uses the reduced-representative
 multiplication table. -/
@@ -175,7 +176,7 @@ theorem reducedFormsComputedClassGroup_mul
 namespace Examples
 namespace SqrtNeg14
 
-/-- WIP backend certificate: the computed model for `ℚ(√-14)` identifies the
+/-- Backend certificate target: the computed model for `ℚ(√-14)` identifies the
 ideal class group with a cyclic group of order four. -/
 theorem classGroup_cyclic_order_four_backend
     [Fact (Squarefree (-14 : ℤ))] [Fact ((-14 : ℤ) ≠ 1)] :
@@ -196,7 +197,7 @@ end SqrtNeg14
 
 namespace SqrtNeg21
 
-/-- WIP backend certificate: the computed model for `ℚ(√-21)` identifies the
+/-- Backend certificate target: the computed model for `ℚ(√-21)` identifies the
 ideal class group with the Klein four group. -/
 theorem classGroup_klein_four_backend
     [Fact (Squarefree (-21 : ℤ))] [Fact ((-21 : ℤ) ≠ 1)] :

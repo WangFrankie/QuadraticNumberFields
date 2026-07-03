@@ -4,14 +4,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 
-import QuadraticNumberFields.ClassNumber
+import QuadraticNumberFields.ClassGroup.Basic
 import FormClassGroup.Cox.Equivalence
 import BinaryQuadraticForms.Core.Enumeration
 
 /-!
 # Class Numbers via Reduced Binary Quadratic Forms
 
-This file connects the core class-number API `classNumberQsqrtd d` to reduced
+This file connects `NumberField.classNumber (Qsqrtd (d : ℚ))` to reduced
 primitive positive definite binary quadratic forms via Cox's equivalence.
 
 ## Main definitions
@@ -23,7 +23,7 @@ primitive positive definite binary quadratic forms via Cox's equivalence.
 
 * `classGroupRepresentativesQsqrtd_eq_univ`: the reduced-form representatives
   cover the full class group for imaginary squarefree `d`.
-* `classNumberQsqrtd_eq_reducedForms_card`: the class number of an imaginary
+* `classNumber_qsqrtd_eq_reducedForms_card`: the class number of an imaginary
   quadratic field is the cardinality of the reduced-form enumeration.
 -/
 
@@ -64,16 +64,16 @@ theorem classGroupRepresentativesQsqrtd_eq_univ
 
 /-- For imaginary squarefree `d`, the class number of `ℚ(√d)` is the number of
 primitive reduced positive definite forms of the field discriminant. -/
-theorem classNumberQsqrtd_eq_reducedForms_card
+theorem classNumber_qsqrtd_eq_reducedForms_card
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hdneg : d < 0) :
-    classNumberQsqrtd d =
+    NumberField.classNumber (Qsqrtd (d : ℚ)) =
       (BinaryQuadraticForm.enumPrimitiveReducedForms
         (BinaryQuadraticForm.fieldDiscriminant d)).card := by
   classical
   calc
-    classNumberQsqrtd d =
+    NumberField.classNumber (Qsqrtd (d : ℚ)) =
         (Finset.univ : Finset (ClassGroup (𝓞 (Qsqrtd (d : ℚ))))).card := by
-      simp [classNumberQsqrtd, NumberField.classNumber]
+      simp [NumberField.classNumber]
     _ = (classGroupRepresentativesQsqrtd d hdneg).card := by
       rw [classGroupRepresentativesQsqrtd_eq_univ]
     _ = (BinaryQuadraticForm.reducedFormClasses
@@ -88,8 +88,8 @@ theorem classNumberQsqrtd_eq_reducedForms_card
 macro_rules
   | `(tactic| compute_class_number_qsqrtd) =>
       `(tactic|
-        (try (change classNumberQsqrtd _ = _);
-         rw [classNumberQsqrtd_eq_reducedForms_card _ (by norm_num)];
+        (try (change NumberField.classNumber (Qsqrtd (_ : ℚ)) = _);
+         rw [classNumber_qsqrtd_eq_reducedForms_card _ (by norm_num)];
          rw [BinaryQuadraticForm.enumPrimitiveReducedForms_card_eq_length];
          norm_num [BinaryQuadraticForm.fieldDiscriminant];
          reduce_forms_count))
