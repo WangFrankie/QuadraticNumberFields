@@ -25,6 +25,11 @@ and
 Since `Prin_L⁺ ≤ Prin_L`, the comparison sequence has kernel
 `Prin_L / Prin_L⁺`.
 
+References: Keune, Number Fields, Chapter 6, Exercises 10-11, for the narrow
+class group and its map to the ordinary class group. Emerton's genus theory
+notes and Trifković, Sections 5.1 and 7.7, give the surrounding genus-theory and
+quadratic-form viewpoints.
+
 -/
 
 open scoped nonZeroDivisors
