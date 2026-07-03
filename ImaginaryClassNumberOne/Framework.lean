@@ -22,7 +22,7 @@ open scoped NumberField
 namespace QuadraticNumberFields
 namespace Heegner
 
-/-- **Gamma-to-prime lookup input.** If the Weber/CM gamma value associated to
+/-- Gamma-to-prime lookup input. If the Weber/CM gamma value associated to
 an inert prime lies in the Heegner gamma list, then the prime is one of the six
 positive odd Heegner primes. -/
 theorem prime_mem_heegnerPrimeSet_of_associatedGamma
@@ -51,7 +51,7 @@ theorem inert_prime_core_of_weber_data
     (prime_mem_heegnerPrimeSet_of_associatedGamma p hp hp8 hdata.associatedGamma
       (gamma_mem_heegnerGammaSet_of_xy_solution hdata.xyEquation hdata.gamma_eq))
 
-/-- **Baker-Heegner-Stark inert prime core.** This is the deep remaining input
+/-- Baker-Heegner-Stark inert prime core. This is the deep remaining input
 after the elementary ideal-theoretic reductions and the odd prime-shape sieve: for
 the inert-at-`2` prime family `d = -p`, `p ≡ 3 (mod 8)`, class number one
 forces `d` to be a Heegner number.
@@ -66,7 +66,7 @@ theorem baker_heegner_stark_inert_prime_core
     d ∈ heegnerSet := by
   subst d
   by_cases hp_ne_three : p ≠ 3
-  · change classNumberQsqrtd (-(p : ℤ)) = 1 at h
+  · change NumberField.classNumber (Qsqrtd (((-(p : ℤ)) : ℤ) : ℚ)) = 1 at h
     rcases exists_weber_data_of_classNumber_one_inert_prime
       hprovider p hp hp8 hp_ne_three h with ⟨hdata⟩
     exact inert_prime_core_of_weber_data (-(p : ℤ)) p hp hp8 rfl

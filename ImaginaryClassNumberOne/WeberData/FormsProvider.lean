@@ -57,7 +57,7 @@ discriminant `-4p`. -/
 def HasConductorTwoFormClassNumberThreeData (p : ℕ) : Prop :=
   Nonempty (ConductorTwoFormClassNumberThreeData p)
 
-/-- A concrete reduced-form cardinality computation supplies the Forms-side
+/-- A concrete reduced-form cardinality computation gives the Forms-side
 conductor-`2` class-number-three data. -/
 theorem hasConductorTwoFormClassNumberThreeData_of_reducedForms_card
     (p : ℕ)
@@ -72,7 +72,7 @@ theorem hasConductorTwoFormClassNumberThreeData_of_reducedForms_card
     reducedFormClassNumber_eq_card := rfl
     reducedFormClassNumber_eq_three := hcard }⟩
 
-/-- Forms-side class-number-three data supplies the conductor-`2`
+/-- Forms-side class-number-three data gives the conductor-`2`
 ring-class-number input used by the Weber/CM layer. -/
 theorem hasRingClassNumberThreeAtConductorTwo_of_forms
     {p : ℕ} (hforms : HasConductorTwoFormClassNumberThreeData p) :
@@ -86,14 +86,14 @@ theorem hasRingClassNumberThreeAtConductorTwo_of_forms
     orderClassNumber := hforms.reducedFormClassNumber
     orderClassNumber_eq_three := hforms.reducedFormClassNumber_eq_three }⟩
 
-/-- **Cox forms class-number input.** In the inert prime family `d = -p`, class
+/-- Cox forms class-number input. In the inert prime family `d = -p`, class
 number one for `ℚ(√-p)` gives Forms-side class-number-three data for primitive
 positive definite forms of conductor-`2` discriminant `-4p`, away from the
 unit-exception case `p = 3`. -/
 theorem conductor_two_form_class_number_three
     (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
     (hp : Nat.Prime p) (hp8 : p % 8 = 3) (hp_ne_three : p ≠ 3)
-    (hclass : classNumberQsqrtd (-(p : ℤ)) = 1) :
+    (hclass : NumberField.classNumber (Qsqrtd (((-(p : ℤ)) : ℤ) : ℚ)) = 1) :
     HasConductorTwoFormClassNumberThreeData p := by
   -- Alternative routes for this bridge:
   -- * prove Cox's order class-number formula via Picard groups of quadratic orders;
@@ -101,18 +101,18 @@ theorem conductor_two_form_class_number_three
   -- * follow Stark's no-Weber variant, replacing this downstream input entirely.
   sorry
 
-/-- The reduced-forms provider supplies the core conductor-`2` ring-class-number
+/-- The reduced-forms provider gives the core conductor-`2` ring-class-number
 input in the non-exceptional inert branch. -/
 theorem conductor_two_class_number_three_of_forms
     (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
     (hp : Nat.Prime p) (hp8 : p % 8 = 3) (hp_ne_three : p ≠ 3)
-    (hclass : classNumberQsqrtd (-(p : ℤ)) = 1) :
+    (hclass : NumberField.classNumber (Qsqrtd (((-(p : ℤ)) : ℤ) : ℚ)) = 1) :
     HasRingClassNumberThreeAtConductorTwo p := by
   exact hasRingClassNumberThreeAtConductorTwo_of_forms
     (conductor_two_form_class_number_three p hp hp8 hp_ne_three hclass)
 
-/-- **Deep Weber/CM input from ring-class-number three, via the Forms provider.**
-The conductor-`2` ring-class-number-three datum supplies the refined Weber data:
+/-- Deep Weber/CM input from ring-class-number three, via the Forms provider.
+The conductor-`2` ring-class-number-three datum gives the refined Weber data:
 a concrete Heegner equation solution, the associated gamma value, and its
 finite-table association with `p`, in the non-exceptional inert branch `p ≠ 3`. -/
 theorem conductor_two_weber_data_of_ring_class_number_three_of_forms
@@ -131,12 +131,12 @@ theorem exists_weber_data_of_conductor_two_class_number_three_of_forms
   exact exists_weber_data_of_conductor_two_weber_data
     (conductor_two_weber_data_of_ring_class_number_three_of_forms p hp hp8 hp_ne_three horder)
 
-/-- The reduced-forms route supplies Weber/CM algebraic data from class number
+/-- The reduced-forms route gives Weber/CM algebraic data from class number
 one in the non-exceptional inert branch. -/
 theorem exists_weber_data_of_classNumber_one_inert_prime_of_forms
     (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
     (hp : Nat.Prime p) (hp8 : p % 8 = 3) (hp_ne_three : p ≠ 3)
-    (hclass : classNumberQsqrtd (-(p : ℤ)) = 1) :
+    (hclass : NumberField.classNumber (Qsqrtd (((-(p : ℤ)) : ℤ) : ℚ)) = 1) :
     Nonempty (StarkHeegnerAlgebraicData p) := by
   exact exists_weber_data_of_conductor_two_class_number_three_of_forms p hp hp8 hp_ne_three
     (conductor_two_class_number_three_of_forms p hp hp8 hp_ne_three hclass)

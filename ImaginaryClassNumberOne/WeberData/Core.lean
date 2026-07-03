@@ -96,14 +96,14 @@ The core file records only the shape of the input.  A reduced-forms route,
 quadratic-order/Picard proof, Stark no-Weber argument, or Baker logarithmic
 argument may provide this structure in a separate file. -/
 structure InertPrimeWeberDataProvider where
-  /-- In the non-exceptional inert family `d = -p`, class number one supplies the
+  /-- In the non-exceptional inert family `d = -p`, class number one gives the
   Stark-Heegner algebraic data needed by the elementary framework layer. -/
   exists_weber_data :
     ∀ (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)],
       Nat.Prime p →
       p % 8 = 3 →
       p ≠ 3 →
-      classNumberQsqrtd (-(p : ℤ)) = 1 →
+      NumberField.classNumber (Qsqrtd (((-(p : ℤ)) : ℤ) : ℚ)) = 1 →
       Nonempty (StarkHeegnerAlgebraicData p)
 
 /-- Refined conductor-`2`, ring-class-number-three Weber/CM data.
@@ -128,14 +128,14 @@ theorem exists_weber_data_of_conductor_two_weber_data
     Nonempty (StarkHeegnerAlgebraicData p) := by
   exact Nonempty.map ConductorTwoClassNumberThreeWeberData.starkHeegnerData hweber
 
-/-- **Weber/CM existence input from class number one.** In the non-exceptional
-inert prime family `d = -p`, class number one supplies the Stark-Heegner
+/-- Weber/CM existence input from class number one. In the non-exceptional
+inert prime family `d = -p`, class number one gives the Stark-Heegner
 algebraic data. -/
 theorem exists_weber_data_of_classNumber_one_inert_prime
     (hprovider : InertPrimeWeberDataProvider)
     (p : ℕ) [Fact (Squarefree (-(p : ℤ)))] [Fact ((-(p : ℤ)) ≠ 1)]
     (hp : Nat.Prime p) (hp8 : p % 8 = 3) (hp_ne_three : p ≠ 3)
-    (hclass : classNumberQsqrtd (-(p : ℤ)) = 1) :
+    (hclass : NumberField.classNumber (Qsqrtd (((-(p : ℤ)) : ℤ) : ℚ)) = 1) :
     Nonempty (StarkHeegnerAlgebraicData p) := by
   exact hprovider.exists_weber_data p hp hp8 hp_ne_three hclass
 
