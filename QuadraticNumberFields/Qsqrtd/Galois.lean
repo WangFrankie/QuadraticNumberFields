@@ -4,24 +4,20 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 
-import Mathlib.GroupTheory.SpecificGroups.Cyclic
-import QuadraticNumberFields.QuadraticField.Conj
+import QuadraticNumberFields.QuadraticField.Galois
 
 /-!
-# The Galois Group of a Quadratic Field
+# The Galois Group of the Standard Model `Q(√d)`
 
-A quadratic field `K` over `ℚ` is a Galois extension whose Galois group has
-order two.  Being a group of prime order, it is cyclic, hence isomorphic to
-`ZMod 2` (written multiplicatively as `Multiplicative (ZMod 2)`).
+This file records the standard-model specializations of the abstract quadratic
+field Galois-group statements from `QuadraticNumberFields.QuadraticField.Galois`.
 
-This file proves the statement abstractly for any `QuadraticField K`
-(`QuadraticField.galEquivZMod2`) and records the standard-model specialization
-(`Qsqrtd.galEquivZMod2`).
+For a squarefree integer parameter `d ≠ 1`, the `ℚ`-automorphism group of
+`Qsqrtd (d : ℚ)` has order two and is isomorphic to `Multiplicative (ZMod 2)`.
 
 ## Main definitions
 
-* `QuadraticField.galEquivZMod2`: the multiplicative isomorphism between the
-  `ℚ`-automorphism group of a quadratic field and `Multiplicative (ZMod 2)`.
+* `Qsqrtd.card_aut_eq_two`: the standard-model automorphism group has order two.
 * `Qsqrtd.galEquivZMod2`: the standard-model specialization.
 
 ## Implementation notes
@@ -35,28 +31,6 @@ model's group is `{refl, starAlgEquiv}` of order two.
 
 -- Use the canonical `QuadraticAlgebra` algebra structure for standard `Qsqrtd` models.
 attribute [-instance] DivisionRing.toRatAlgebra
-
-namespace QuadraticField
-
-section Galois
-
-variable (K : Type*) [Field K] [Algebra ℚ K] [QuadraticField K]
-
-/-- The order of the `ℚ`-automorphism group of a quadratic field is two. -/
-theorem card_aut_eq_two : Nat.card (K ≃ₐ[ℚ] K) = 2 := by
-  haveI : Algebra.IsSeparable ℚ K := Algebra.IsAlgebraic.isSeparable_of_perfectField
-  haveI : IsGalois ℚ K := Algebra.IsQuadraticExtension.isGalois ℚ K
-  rw [IsGalois.card_aut_eq_finrank, Algebra.IsQuadraticExtension.finrank_eq_two]
-
-/-- The `ℚ`-automorphism group of a quadratic field is isomorphic, as a group,
-to `Multiplicative (ZMod 2)`. -/
-noncomputable def galEquivZMod2 : (K ≃ₐ[ℚ] K) ≃* Multiplicative (ZMod 2) := by
-  haveI : IsCyclic (K ≃ₐ[ℚ] K) := isCyclic_of_prime_card (card_aut_eq_two K)
-  exact (card_aut_eq_two K) ▸ (zmodCyclicMulEquiv inferInstance).symm
-
-end Galois
-
-end QuadraticField
 
 namespace Qsqrtd
 

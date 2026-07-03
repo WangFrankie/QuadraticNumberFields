@@ -11,6 +11,7 @@ import QuadraticNumberFields.QuadraticField.Parameters
 import QuadraticNumberFields.QuadraticField.Category
 import QuadraticNumberFields.QuadraticField.SqfreeParam
 import QuadraticNumberFields.QuadraticField.Classification
+import QuadraticNumberFields.QuadraticField.Galois
 import QuadraticNumberFields.QuadraticField.Conj
 import QuadraticNumberFields.Qsqrtd.Automorphism
 import QuadraticNumberFields.Qsqrtd.Galois
