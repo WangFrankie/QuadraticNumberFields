@@ -181,14 +181,15 @@ theorem mk_def (I : (FractionalIdeal R⁰ K)ˣ) :
       (QuotientGroup.mk' (narrowPrincipalIdeals R (FractionRing R)))
         (Units.map (FractionalIdeal.canonicalEquiv R⁰ K (FractionRing R)).toMonoidHom I) := rfl
 
-/-- Send a field unit to the narrow class of its principal fractional ideal. -/
+/-- Send a nonzero field element to the narrow class of its principal fractional
+ideal. This is the composite `Kˣ → I_K → Cl⁺(K)`. -/
 noncomputable def principalToNarrow (R : Type*) [CommRing R] [IsDomain R] :
     (FractionRing R)ˣ →* NarrowClassGroup R :=
   mk.comp (toPrincipalIdeal R (FractionRing R))
 
 /-- The natural map from the narrow ideal class group to the ordinary wide ideal
 class group, induced by the inclusion of totally positive principal ideals into
-all principal ideals. -/
+all principal ideals. `Cl⁺(K) → Cl(K)` induced by the inclusion `P_K⁺ ≤ P_K` -/
 noncomputable def toClassGroup (R : Type*) [CommRing R] [IsDomain R] :
     NarrowClassGroup R →* ClassGroup R :=
   QuotientGroup.map (narrowPrincipalIdeals R (FractionRing R))
