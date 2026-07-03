@@ -37,24 +37,28 @@ variable (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
 
 local notation "OK" => 𝓞 (Qsqrtd (d : ℚ))
 
+-- Number-field APIs elaborate `Qsqrtd` through `DivisionRing.toRatAlgebra`,
+-- so this section supplies the matching quadratic-field structure.
+--? NEED DECIDE
+local instance instQsqrtdRatAlgebraIsQuadraticExtension :
+    Algebra.IsQuadraticExtension ℚ (Qsqrtd (d : ℚ)) :=
+  { finrank_eq_two' := finrank_ratAlgebra_eq_two ((d : ℤ) : ℚ) }
+
+local instance instQsqrtdRatAlgebraQuadraticField : QuadraticField (Qsqrtd (d : ℚ)) :=
+  { isQuadratic := inferInstance }
+
 /-- The narrow class number of `ℚ(√d)`. -/
 noncomputable def narrowClassNumber : ℕ :=
-  letI : Algebra.IsQuadraticExtension ℚ (Qsqrtd (d : ℚ)) :=
-    { finrank_eq_two' := finrank_ratAlgebra_eq_two ((d : ℤ) : ℚ) }
-  letI : QuadraticField (Qsqrtd (d : ℚ)) :=
-    { isQuadratic := inferInstance }
-  letI : NumberField (Qsqrtd (d : ℚ)) :=
-    QuadraticField.instNumberField (Qsqrtd (d : ℚ))
   NumberField.narrowClassNumber (Qsqrtd (d : ℚ))
 
-/-- Forget the positivity condition and map the narrow class group to the usual
+/-- Forget the positivity condition and map the narrow class group to the ordinary
 ideal class group. -/
 noncomputable abbrev narrowToClassGroup :
     Cl⁺(d) →* Cl(d) :=
   NarrowClassGroup.toClassGroup OK
 
 /-- If every unit of the fraction field is totally positive, the narrow and
-usual class groups are isomorphic. -/
+ordinary class groups are isomorphic. -/
 theorem nonempty_narrowMulEquivClassGroup_of_forall_isTotallyPositive
     (hpos : ∀ x : (FractionRing OK)ˣ,
       NarrowClassGroup.IsTotallyPositive (x : FractionRing OK)) :
@@ -74,37 +78,25 @@ namespace Imaginary
 /-- If `d < 0`, the fraction field of `𝓞(ℚ(√d))` has no real embeddings. -/
 theorem isEmpty_fractionRing_realEmbeddings (hd : d < 0) :
     IsEmpty (FractionRing OK →+* ℝ) := by
-  refine ⟨fun σ => ?_⟩
-  letI : Algebra ℚ (Qsqrtd (d : ℚ)) := DivisionRing.toRatAlgebra
-  haveI : Algebra.IsQuadraticExtension ℚ (Qsqrtd (d : ℚ)) :=
-    { finrank_eq_two' := finrank_ratAlgebra_eq_two ((d : ℤ) : ℚ) }
-  haveI : QuadraticField (Qsqrtd (d : ℚ)) :=
-    { isQuadratic := inferInstance }
-  haveI : NumberField (Qsqrtd (d : ℚ)) :=
-    QuadraticField.instNumberField (Qsqrtd (d : ℚ))
-  haveI : IsFractionRing OK (Qsqrtd (d : ℚ)) := inferInstance
-  let e := IsLocalization.algEquiv OK⁰ (FractionRing OK) (Qsqrtd (d : ℚ))
-  let φ : Qsqrtd (d : ℚ) →+* ℂ := Complex.ofRealHom.comp (σ.comp e.symm.toRingHom)
   haveI := isTotallyComplex d hd
-  exact (NumberField.IsTotallyComplex.complexEmbedding_not_isReal φ) (by
-    rw [NumberField.ComplexEmbedding.isReal_iff]
-    ext x
-    simp [φ, NumberField.ComplexEmbedding.conjugate_coe_eq])
+  exact NumberField.isEmpty_fractionRing_realEmbeddings_of_isTotallyComplex (Qsqrtd (d : ℚ))
 
-/-- For imaginary quadratic fields, the narrow and usual principal fractional
+/-- For imaginary quadratic fields, the narrow and ordinary principal fractional
 ideal subgroups coincide. -/
 theorem narrowPrincipalIdeals_eq_principalIdeals (hd : d < 0) :
     NarrowClassGroup.narrowPrincipalIdeals OK (FractionRing OK) =
       (toPrincipalIdeal OK (FractionRing OK)).range := by
-  letI := isEmpty_fractionRing_realEmbeddings d hd
-  exact NarrowClassGroup.narrowPrincipalIdeals_eq_principalIdeals_of_isEmpty
+  haveI := isTotallyComplex d hd
+  exact
+    NumberField.narrowPrincipalIdeals_eq_principalIdeals_of_isTotallyComplex
+      (Qsqrtd (d : ℚ))
 
 /-- For imaginary quadratic fields, the narrow class group is isomorphic to the
-usual ideal class group. -/
+ordinary ideal class group. -/
 noncomputable def narrowMulEquivClassGroup (hd : d < 0) :
     Cl⁺(d) ≃* Cl(d) := by
-  letI := isEmpty_fractionRing_realEmbeddings d hd
-  exact NarrowClassGroup.mulEquivClassGroupOfIsEmpty OK
+  haveI := isTotallyComplex d hd
+  exact NumberField.narrowMulEquivClassGroupOfIsTotallyComplex (Qsqrtd (d : ℚ))
 
 /-- Nonempty form of `narrowMulEquivClassGroup`. -/
 theorem nonempty_narrowMulEquivClassGroup (hd : d < 0) :
@@ -114,12 +106,12 @@ theorem nonempty_narrowMulEquivClassGroup (hd : d < 0) :
 /-- For imaginary quadratic fields, `narrowToClassGroup` is bijective. -/
 theorem narrowToClassGroup_bijective (hd : d < 0) :
     Function.Bijective (narrowToClassGroup d) := by
-  letI := isEmpty_fractionRing_realEmbeddings d hd
-  exact NarrowClassGroup.toClassGroup_bijective_of_isEmpty OK
+  haveI := isTotallyComplex d hd
+  exact NumberField.narrowToClassGroup_bijective_of_isTotallyComplex (Qsqrtd (d : ℚ))
 
 end Imaginary
 
-/-- If the fraction field has no real embeddings, the narrow and usual class
+/-- If the fraction field has no real embeddings, the narrow and ordinary class
 groups are isomorphic. -/
 theorem nonempty_narrowMulEquivClassGroup_of_isEmpty
     [IsEmpty (FractionRing OK →+* ℝ)] :
