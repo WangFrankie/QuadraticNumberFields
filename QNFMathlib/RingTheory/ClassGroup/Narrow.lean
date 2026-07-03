@@ -170,7 +170,6 @@ namespace NarrowClassGroup
 
 variable {R K : Type*} [CommRing R] [IsDomain R] [Field K] [Algebra R K] [IsFractionRing R K]
 
-
 /-- Send an invertible fractional ideal to its narrow ideal class. -/
 noncomputable def mk : (FractionalIdeal R⁰ K)ˣ →* NarrowClassGroup R :=
   (QuotientGroup.mk' (narrowPrincipalIdeals R (FractionRing R))).comp
