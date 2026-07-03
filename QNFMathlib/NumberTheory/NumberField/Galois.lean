@@ -19,15 +19,13 @@ open scoped NumberField
 
 namespace NumberField
 
-attribute [local instance] FractionRing.liftAlgebra
-
-/-- If `K/ℚ` is Galois, then the fraction-field extension
-`FractionRing (𝓞 K) / FractionRing ℤ` is Galois. This is usually installed with
-`haveI` before using relative-ideal-norm lemmas such as
-`Ideal.relNorm_eq_pow_of_isPrime_isGalois`. -/
+/-- Transfers `[IsGalois ℚ K]` to the fraction-field extension
+`FractionRing (𝓞 K) / FractionRing ℤ`. -/
 theorem isGalois_fractionRing_ringOfIntegers
     (K : Type*) [Field K] [NumberField K] [Algebra ℚ K] [IsGalois ℚ K] :
+    haveI := FractionRing.liftAlgebra ℤ (FractionRing (𝓞 K))
     IsGalois (FractionRing ℤ) (FractionRing (𝓞 K)) := by
+  letI := FractionRing.liftAlgebra ℤ (FractionRing (𝓞 K))
   refine IsGalois.of_equiv_equiv (f := (FractionRing.algEquiv ℤ ℚ).toRingEquiv.symm)
     (g := (FractionRing.algEquiv (𝓞 K) K).toRingEquiv.symm) <|
       RingHom.ext fun _ ↦ IsFractionRing.algEquiv_commutes
