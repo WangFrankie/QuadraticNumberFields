@@ -602,7 +602,7 @@ instance instFiniteUnitsQuotientTotallyPositiveUnits (K : Type*) [Field K]
 has finitely many real embeddings. -/
 theorem finite_range_principalToNarrow (R : Type*) [CommRing R] [IsDomain R]
     [Finite (FractionRing R →+* ℝ)] : Finite (principalToNarrow R).range := by
-  let φ : (FractionRing R)ˣ →* NarrowClassGroup R := principalToNarrow R
+  let φ := principalToNarrow R
   have hker : totallyPositiveUnits (FractionRing R) ≤ φ.ker := by
     intro x hx
     rw [MonoidHom.mem_ker]
