@@ -193,6 +193,13 @@ deriving CommGroup, Inhabited
 
 namespace NarrowClassGroup
 
+/-! ### Class number -/
+
+/-- The number of narrow ideal classes of `R`. -/
+noncomputable def narrowClassNumber (R : Type*) [CommRing R] [IsDomain R]
+    [Fintype (NarrowClassGroup R)] : ℕ :=
+  Fintype.card (NarrowClassGroup R)
+
 /-! ### Quotient maps -/
 
 section QuotientMaps
