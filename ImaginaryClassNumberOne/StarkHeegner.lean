@@ -81,7 +81,7 @@ reduced the class-number-one problem to `d = -1`, `d = -2`, or `d = -p` with
 `p ≡ 3 (mod 4)` prime, the only deep input needed is the inert prime core
 `p ≡ 3 (mod 8)`.  The complementary case `p ≡ 7 (mod 8)` is the elementary
 split-at-`2` branch, which has already been handled ideal-theoretically. -/
-theorem classNumber_eq_one_imp_mem_heegnerSet_of_discriminant_prime_shape
+theorem classNumber_eq_one_imp_mem_heegnerSet_of_discr_prime_shape
     (hprovider : InertPrimeWeberDataProvider)
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : d < 0)
     (hshape :

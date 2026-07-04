@@ -5,8 +5,7 @@ Authors: Frankie Wang
 -/
 
 import QNFMathlib.RingTheory.ClassGroup.Narrow
-import QuadraticNumberFields.ClassGroup.GenusTheory.Discriminant
-import QuadraticNumberFields.ClassGroup.Narrow.Ambiguous
+import QuadraticNumberFields.ClassGroup.Ambiguous.Basic
 import QuadraticNumberFields.Splitting.Qsqrtd.Discriminant
 import QuadraticNumberFields.Splitting.Qsqrtd.Factorization
 
@@ -31,13 +30,18 @@ open Ideal FractionalIdeal
 
 namespace QuadraticNumberFields
 namespace ClassGroup
-namespace Narrow
+namespace Ambiguous
 
 section Qsqrtd
 
 variable (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
 
 local notation "OK" => 𝓞 (Qsqrtd (d : ℚ))
+
+/-- The number of distinct rational prime factors of the closed discriminant of `ℚ(√d)`.
+This is the item-11 parameter `t`. -/
+def primeDiscrFactorCount (d : ℤ) : ℕ :=
+  (RingOfIntegers.discrFormula d).natAbs.primeFactors.card
 
 /-- A chosen prime ideal over a ramified rational prime. -/
 noncomputable def ramifiedPrimeIdealOfIsRamified
@@ -67,7 +71,7 @@ theorem ramifiedPrimeIdealOfIsRamified_ne_bot
   exact Ideal.ne_bot_of_mem_primesOver hpbot
     (ramifiedPrimeIdealOfIsRamified_mem_primesOver d p hr)
 
-/-- The strict/narrow class of a chosen ramified prime ideal. -/
+/-- The narrow class of a chosen ramified prime ideal. -/
 noncomputable def ramifiedPrimeNarrowClassOfIsRamified
     (p : ℕ) [Fact p.Prime] (hr : Ideal.IsRamifiedIn (𝔭(p)) OK) :
     NarrowClassGroup OK :=
@@ -75,7 +79,7 @@ noncomputable def ramifiedPrimeNarrowClassOfIsRamified
     ⟨ramifiedPrimeIdealOfIsRamified d p hr,
       mem_nonZeroDivisors_iff_ne_zero.mpr (ramifiedPrimeIdealOfIsRamified_ne_bot d p hr)⟩
 
-/-- The strict/narrow class of a ramified prime ideal is two-torsion. -/
+/-- The narrow class of a ramified prime ideal is two-torsion. -/
 theorem ramifiedPrimeNarrowClassOfIsRamified_mem_twoTorsion
     (p : ℕ) [Fact p.Prime] (hr : Ideal.IsRamifiedIn (𝔭(p)) OK) :
     ramifiedPrimeNarrowClassOfIsRamified d p hr ∈
@@ -108,65 +112,65 @@ theorem ramifiedPrimeNarrowClassOfIsRamified_mem_twoTorsion
 /-- The index type for all rational primes dividing the field discriminant.
 
 This is the ramified-prime index relevant to the item-11 cardinality
-`primeDiscriminantFactorCount d`; it includes the prime `2` when it ramifies. -/
-abbrev PrimeDiscriminantIndex :=
+`primeDiscrFactorCount d`; it includes the prime `2` when it ramifies. -/
+abbrev PrimeDiscrIndex :=
   {p : ℕ // p ∈ (RingOfIntegers.discrFormula d).natAbs.primeFactors}
 
 omit [Fact (Squarefree d)] [Fact (d ≠ 1)] in
-/-- Members of `PrimeDiscriminantIndex` are rational primes. -/
-theorem prime_of_mem_PrimeDiscriminantIndex (p : PrimeDiscriminantIndex d) :
+/-- Members of `PrimeDiscrIndex` are rational primes. -/
+theorem prime_of_mem_PrimeDiscrIndex (p : PrimeDiscrIndex d) :
     p.1.Prime :=
   Nat.prime_of_mem_primeFactors p.2
 
 omit [Fact (Squarefree d)] [Fact (d ≠ 1)] in
-/-- Members of `PrimeDiscriminantIndex` divide the closed field discriminant. -/
-theorem dvd_discr_of_mem_PrimeDiscriminantIndex (p : PrimeDiscriminantIndex d) :
+/-- Members of `PrimeDiscrIndex` divide the closed field discriminant. -/
+theorem dvd_discr_of_mem_PrimeDiscrIndex (p : PrimeDiscrIndex d) :
     (p.1 : ℤ) ∣ RingOfIntegers.discrFormula d := by
   have hmem := Nat.mem_primeFactors.mp p.2
   rw [← Int.dvd_natAbs]
   exact_mod_cast hmem.2.1
 
-/-- Members of `PrimeDiscriminantIndex` are ramified in `𝓞(ℚ(√d))`. -/
-theorem isRamified_of_mem_PrimeDiscriminantIndex (p : PrimeDiscriminantIndex d) :
+/-- Members of `PrimeDiscrIndex` are ramified in `𝓞(ℚ(√d))`. -/
+theorem isRamified_of_mem_PrimeDiscrIndex (p : PrimeDiscrIndex d) :
     Ideal.IsRamifiedIn (𝔭(p.1)) OK := by
-  letI : Fact p.1.Prime := ⟨prime_of_mem_PrimeDiscriminantIndex d p⟩
+  letI : Fact p.1.Prime := ⟨prime_of_mem_PrimeDiscrIndex d p⟩
   refine (QuadraticNumberFields.Splitting.isRamified_iff_dvd_disc d p.1).mpr ?_
   rw [QuadraticNumberFields.RingOfIntegers.discr_formula d]
-  exact dvd_discr_of_mem_PrimeDiscriminantIndex d p
+  exact dvd_discr_of_mem_PrimeDiscrIndex d p
 
 omit [Fact (Squarefree d)] [Fact (d ≠ 1)] in
-/-- The number of `PrimeDiscriminantIndex` terms is the genus-theory parameter `t`. -/
-theorem fintype_card_PrimeDiscriminantIndex :
-    Fintype.card (PrimeDiscriminantIndex d) = primeDiscriminantFactorCount d := by
-  simp [PrimeDiscriminantIndex, primeDiscriminantFactorCount]
+/-- The number of `PrimeDiscrIndex` terms is the genus-theory parameter `t`. -/
+theorem fintype_card_PrimeDiscrIndex :
+    Fintype.card (PrimeDiscrIndex d) = primeDiscrFactorCount d := by
+  simp [PrimeDiscrIndex, primeDiscrFactorCount]
 
 /-- The current discriminant-prime index is the prime-factor index of the field
 discriminant. -/
-theorem mem_PrimeDiscriminantIndex_iff_fieldDiscriminantPrimeFactor (p : ℕ) :
+theorem mem_PrimeDiscrIndex_iff_fieldDiscrPrimeFactor (p : ℕ) :
     p ∈ (RingOfIntegers.discrFormula d).natAbs.primeFactors ↔
       p ∈ (NumberField.discr (Qsqrtd (d : ℚ))).natAbs.primeFactors := by
   rw [QuadraticNumberFields.RingOfIntegers.discr_formula d]
 
-/-- The concrete strict/narrow class of the ramified prime indexed by a
+/-- The concrete narrow class of the ramified prime indexed by a
 discriminant prime divisor. -/
-noncomputable def primeDiscriminantStrictClass (p : PrimeDiscriminantIndex d) :
+noncomputable def primeDiscrNarrowClass (p : PrimeDiscrIndex d) :
     NarrowClassGroup OK := by
   classical
-  letI : Fact p.1.Prime := ⟨prime_of_mem_PrimeDiscriminantIndex d p⟩
+  letI : Fact p.1.Prime := ⟨prime_of_mem_PrimeDiscrIndex d p⟩
   exact ramifiedPrimeNarrowClassOfIsRamified d p.1
-    (isRamified_of_mem_PrimeDiscriminantIndex d p)
+    (isRamified_of_mem_PrimeDiscrIndex d p)
 
-/-- Each discriminant-prime strict class is two-torsion. -/
-theorem primeDiscriminantStrictClass_mem_twoTorsion (p : PrimeDiscriminantIndex d) :
-    primeDiscriminantStrictClass d p ∈ NarrowClassGroup.twoTorsion OK := by
+/-- Each discriminant-prime narrow class is two-torsion. -/
+theorem primeDiscrNarrowClass_mem_twoTorsion (p : PrimeDiscrIndex d) :
+    primeDiscrNarrowClass d p ∈ NarrowClassGroup.twoTorsion OK := by
   classical
-  letI : Fact p.1.Prime := ⟨prime_of_mem_PrimeDiscriminantIndex d p⟩
-  simpa [primeDiscriminantStrictClass] using
+  letI : Fact p.1.Prime := ⟨prime_of_mem_PrimeDiscrIndex d p⟩
+  simpa [primeDiscrNarrowClass] using
     ramifiedPrimeNarrowClassOfIsRamified_mem_twoTorsion d p.1
-      (isRamified_of_mem_PrimeDiscriminantIndex d p)
+      (isRamified_of_mem_PrimeDiscrIndex d p)
 
 end Qsqrtd
 
-end Narrow
+end Ambiguous
 end ClassGroup
 end QuadraticNumberFields

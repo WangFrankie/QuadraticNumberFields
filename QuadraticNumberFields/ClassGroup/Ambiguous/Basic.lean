@@ -18,7 +18,7 @@ strict-class-group interface independent.
 
 namespace QuadraticNumberFields
 namespace ClassGroup
-namespace Narrow
+namespace Ambiguous
 
 /-- Narrow ideal classes fixed by inversion. In the quadratic ambiguous-class
 argument, this is the result-side object after proving that conjugation acts as
@@ -53,13 +53,13 @@ def twoTorsionEquivInversionFixedClass (R : Type*) [CommRing R] [IsDomain R] :
 
 /-- The two-torsion subgroup and the inversion-fixed narrow classes have the
 same cardinality. This is the narrow group-theoretic form of
-`ambiguous strict classes = Cl⁺[2]` once conjugation has been identified with
+`ambiguous narrow classes = Cl⁺[2]` once conjugation has been identified with
 inversion. -/
 theorem card_twoTorsion_eq_card_inversionFixedClass
     (R : Type*) [CommRing R] [IsDomain R] :
     Nat.card (_root_.NarrowClassGroup.twoTorsion R) = Nat.card (InversionFixedClass R) :=
   Nat.card_congr (twoTorsionEquivInversionFixedClass R)
 
-end Narrow
+end Ambiguous
 end ClassGroup
 end QuadraticNumberFields
