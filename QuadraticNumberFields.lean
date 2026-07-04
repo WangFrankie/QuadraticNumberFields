@@ -28,10 +28,12 @@ import QuadraticNumberFields.Qsqrtd.TraceNorm
 import QuadraticNumberFields.RingOfIntegers.Integrality
 import QuadraticNumberFields.RingOfIntegers.Basis
 import QuadraticNumberFields.RingOfIntegers.Classification
+import QuadraticNumberFields.RingOfIntegers.Conj
 import QuadraticNumberFields.RingOfIntegers.Norm
 import QuadraticNumberFields.RingOfIntegers.Discriminant
 import QuadraticNumberFields.Splitting.Defs
 import QuadraticNumberFields.Splitting.Factorization
+import QuadraticNumberFields.Splitting.Galois
 import QuadraticNumberFields.Splitting.MinpolyMod
 import QuadraticNumberFields.Splitting.Qsqrtd.Classification
 import QuadraticNumberFields.Splitting.Qsqrtd.Discriminant
