@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 
+import Mathlib.Algebra.Algebra.Hom.Rat
 import Mathlib.Algebra.Exact
 import Mathlib.Data.Fintype.Units
 import Mathlib.Data.Real.Basic
@@ -106,6 +107,16 @@ variable {K : Type*} [Field K]
 embedding. For fields with no real embeddings, this condition is vacuous. -/
 def IsTotallyPositive (x : K) : Prop :=
   ∀ σ : K →+* ℝ, 0 < σ x
+
+/-- Over a field with a `ℚ`-algebra structure, total positivity can be tested on
+`ℚ`-algebra homomorphisms to `ℝ`. -/
+theorem isTotallyPositive_iff_forall_ratAlgHom [Algebra ℚ K] (x : K) :
+    IsTotallyPositive x ↔ ∀ σ : K →ₐ[ℚ] ℝ, 0 < σ x := by
+  constructor
+  · intro hx σ
+    exact hx σ.toRingHom
+  · intro hx σ
+    simpa [RingHom.toRatAlgHom_apply] using hx σ.toRatAlgHom
 
 /-- The subgroup of totally positive units of a field. That is K₊ˣ -/
 def totallyPositiveUnits (K : Type*) [Field K] : Subgroup Kˣ where

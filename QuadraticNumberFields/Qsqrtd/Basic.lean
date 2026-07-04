@@ -282,6 +282,12 @@ theorem eq_re_smul_one_of_star_self {x : Qsqrtd (d : ℚ)} (hx : star x = x) :
   · simp [QuadraticAlgebra.re_one]
   · simp [him, QuadraticAlgebra.im_one]
 
+/-- A conjugation-fixed element of `ℚ(√d)` is the scalar `x.re`, embedded by
+`algebraMap`. -/
+theorem eq_algebraMap_re_of_star_self {x : Qsqrtd (d : ℚ)} (hx : star x = x) :
+    x = algebraMap ℚ (Qsqrtd (d : ℚ)) x.re :=
+  (eq_re_smul_one_of_star_self hx).trans (Algebra.algebraMap_eq_smul_one x.re).symm
+
 /-! ### Wedge and `ℤ`-smul coordinate lemmas
 
 The alternating wedge `imPartRatio (u v̄ − v ū)` and the `re`/`im` coordinates of an

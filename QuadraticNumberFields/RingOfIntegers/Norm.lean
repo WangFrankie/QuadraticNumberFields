@@ -11,6 +11,7 @@ import QuadraticNumberFields.Qsqrtd.TraceNorm
 import QuadraticNumberFields.Zsqrtd.Basic
 import QuadraticNumberFields.ZOnePlusSqrtdOverTwo.Basic
 import Mathlib.NumberTheory.NumberField.Basic
+import Mathlib.NumberTheory.NumberField.Units.Basic
 import Mathlib.RingTheory.Ideal.Norm.AbsNorm
 
 /-!
@@ -91,6 +92,70 @@ theorem finrank_defaultRatAlgebra_eq_two
     exact RingHom.ext_rat _ _
   rw [hcompare]
   exact QuadraticAlgebra.finrank_eq_two (d : ℚ) 0
+
+section FixedRingOfIntegersUnits
+
+variable {d : ℤ} [Fact (Squarefree d)] [Fact (d ≠ 1)]
+
+local notation "K" => Qsqrtd (d : ℚ)
+local notation "OK" => 𝓞 K
+
+/-- If a unit of `𝓞(ℚ(√d))` is fixed by conjugation, then its rational coordinate
+has square `1`. -/
+theorem ringOfIntegers_unit_re_sq_eq_one_of_star_self
+    {u : OKˣ}
+    (hfix : star (((u : OKˣ) : OK) : K) = (((u : OKˣ) : OK) : K)) :
+    ((((u : OKˣ) : OK) : K).re) ^ 2 = 1 := by
+  let x : K := (((u : OKˣ) : OK) : K)
+  have hx_rat : x = algebraMap ℚ K x.re :=
+    _root_.eq_algebraMap_re_of_star_self (by simpa [x] using hfix)
+  have hnorm_int : Algebra.norm ℤ (u : OK) = 1 ∨ Algebra.norm ℤ (u : OK) = -1 := by
+    have hunit : IsUnit (Algebra.norm ℤ (u : OK)) := by
+      exact (Units.map (Algebra.norm ℤ : OK →* ℤ) u).isUnit
+    simpa using (Int.isUnit_iff.mp hunit)
+  have hnorm : x.re ^ 2 = (Algebra.norm ℤ (u : OK) : ℚ) := by
+    calc
+      x.re ^ 2 = Qsqrtd.norm x := by
+        rw [hx_rat]
+        exact (QuadraticAlgebra.norm_algebraMap
+          (R := ℚ) (a := (d : ℚ)) (b := 0) x.re).symm
+      _ = (Algebra.norm ℤ (u : OK) : ℚ) := by
+        change Qsqrtd.norm (((u : OKˣ) : OK) : K) =
+          (Algebra.norm ℤ (u : OK) : ℚ)
+        rw [← algebraNorm_ratAlgebra_eq_qsqrtdNorm]
+        exact (Algebra.coe_norm_int (u : OK)).symm
+  change x.re ^ 2 = 1
+  rcases hnorm_int with h | h
+  · simpa [h] using hnorm
+  · have hnorm_neg : x.re ^ 2 = -1 := by
+      simpa [h] using hnorm
+    nlinarith [hnorm_neg, sq_nonneg x.re]
+
+/-- A conjugation-fixed unit of `𝓞(ℚ(√d))` with positive rational coordinate is
+`1`. -/
+theorem ringOfIntegers_unit_eq_one_of_star_self_of_re_pos
+    {u : OKˣ}
+    (hfix : star (((u : OKˣ) : OK) : K) = (((u : OKˣ) : OK) : K))
+    (hpos : 0 < ((((u : OKˣ) : OK) : K).re)) :
+    u = 1 := by
+  let x : K := (((u : OKˣ) : OK) : K)
+  have hx_rat : x = algebraMap ℚ K x.re :=
+    _root_.eq_algebraMap_re_of_star_self (by simpa [x] using hfix)
+  have hx_sq : x.re ^ 2 = 1 := by
+    simpa [x] using ringOfIntegers_unit_re_sq_eq_one_of_star_self (d := d) hfix
+  have hx_pos : 0 < x.re := by
+    simpa [x] using hpos
+  have hx_re : x.re = 1 := by
+    rcases sq_eq_one_iff.mp hx_sq with h | h
+    · exact h
+    · linarith
+  have hx_one : x = 1 := by
+    rw [hx_rat, hx_re]
+    simp
+  apply NumberField.Units.coe_injective K
+  simpa [x] using hx_one
+
+end FixedRingOfIntegersUnits
 
 end Qsqrtd
 

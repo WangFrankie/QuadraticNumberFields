@@ -7,7 +7,6 @@ Authors: Frankie Wang
 import QuadraticNumberFields.ClassGroup.Narrow.Basic
 import QuadraticNumberFields.QuadraticField.Conj
 import QuadraticNumberFields.RingOfIntegers.Norm
-import Mathlib.NumberTheory.NumberField.Units.Basic
 
 /-!
 # Principal Narrow Class Group Results for Quadratic Fields
@@ -106,49 +105,14 @@ theorem fixed_totallyPositiveRingUnit_eq_one (hd : 0 < d)
     (hu_pos : NarrowClassGroup.IsTotallyPositive (((u : OKˣ) : OK) : K))
     (hfix : star (((u : OKˣ) : OK) : K) = (((u : OKˣ) : OK) : K)) :
     u = 1 := by
-  let x : K := (((u : OKˣ) : OK) : K)
-  have hx_rat : x = algebraMap ℚ K x.re :=
-    (eq_re_smul_one_of_star_self (by simpa [x] using hfix)).trans
-      (Algebra.algebraMap_eq_smul_one x.re).symm
-  have hnorm_int : Algebra.norm ℤ (u : OK) = 1 ∨ Algebra.norm ℤ (u : OK) = -1 := by
-    have hunit : IsUnit (Algebra.norm ℤ (u : OK)) := by
-      exact (Units.map (Algebra.norm ℤ : OK →* ℤ) u).isUnit
-    simpa using (Int.isUnit_iff.mp hunit)
-  have hq_sq : x.re ^ 2 = 1 := by
-    have hnorm : x.re ^ 2 = (Algebra.norm ℤ (u : OK) : ℚ) := by
-      calc
-        x.re ^ 2 = Qsqrtd.norm x := by
-          rw [hx_rat]
-          exact (QuadraticAlgebra.norm_algebraMap
-            (R := ℚ) (a := (d : ℚ)) (b := 0) x.re).symm
-        _ = (Algebra.norm ℤ (u : OK) : ℚ) := by
-          change Qsqrtd.norm (((u : OKˣ) : OK) : K) =
-            (Algebra.norm ℤ (u : OK) : ℚ)
-          rw [← QuadraticNumberFields.Qsqrtd.algebraNorm_ratAlgebra_eq_qsqrtdNorm]
-          exact (Algebra.coe_norm_int (u : OK)).symm
-    rcases hnorm_int with h | h
-    · simpa [h] using hnorm
-    · have hnorm_neg : x.re ^ 2 = -1 := by
-        simpa [h] using hnorm
-      nlinarith [hnorm_neg, sq_nonneg x.re]
   have hdR : 0 ≤ (d : ℝ) := by
     exact_mod_cast le_of_lt hd
-  have hq_pos : 0 < x.re := by
-    have hpos := hu_pos (Qsqrtd.realEmbeddingPos d hdR).toRingHom
-    rw [show (((u : OKˣ) : OK) : K) = x from rfl] at hpos
-    rw [hx_rat] at hpos
-    have hposR : (0 : ℝ) < x.re := by
-      simpa using hpos
-    exact_mod_cast hposR
-  have hq : x.re = 1 := by
-    rcases sq_eq_one_iff.mp hq_sq with h | h
-    · exact h
-    · linarith
-  have hx_one : x = 1 := by
-    rw [hx_rat, hq]
-    simp
-  apply NumberField.Units.coe_injective K
-  simpa [x] using hx_one
+  have hq_pos : 0 < ((((u : OKˣ) : OK) : K).re) :=
+    re_pos_of_forall_algHom_pos_of_star_self d hdR
+      ((NarrowClassGroup.isTotallyPositive_iff_forall_ratAlgHom
+        (((u : OKˣ) : OK) : K)).mp hu_pos)
+      hfix
+  exact ringOfIntegers_unit_eq_one_of_star_self_of_re_pos (d := d) hfix hq_pos
 
 /-- Subgroup version of `fixed_totallyPositiveRingUnit_eq_one`.
 

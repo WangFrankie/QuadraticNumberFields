@@ -81,6 +81,73 @@ theorem realEmbeddingNeg_apply (d : ℤ) (hd : 0 ≤ (d : ℝ))
   rw [realEmbeddingNeg, realEmbedding_apply]
   ring
 
+/-- A real embedding of `ℚ(√d)` sends the standard square root to one of the two
+real roots. -/
+theorem algHom_omega_eq_sqrt_or_neg (d : ℤ) (φ : Qsqrtd (d : ℚ) →ₐ[ℚ] ℝ) :
+    φ QuadraticAlgebra.omega = Real.sqrt (d : ℝ) ∨
+      φ QuadraticAlgebra.omega = -Real.sqrt (d : ℝ) := by
+  have hsq :
+      φ QuadraticAlgebra.omega * φ QuadraticAlgebra.omega = (d : ℝ) := by
+    have h :=
+      congrArg φ
+        (QuadraticAlgebra.omega_mul_omega_eq_add (R := ℚ) (a := (d : ℚ)) (b := 0))
+    simpa [Algebra.smul_def] using h
+  have hsq' : φ QuadraticAlgebra.omega ^ 2 = (d : ℝ) := by
+    simpa [sq] using hsq
+  have habs : |φ QuadraticAlgebra.omega| = Real.sqrt (d : ℝ) := by
+    rw [← Real.sqrt_sq_eq_abs (φ QuadraticAlgebra.omega), hsq']
+  rcases abs_cases (φ QuadraticAlgebra.omega) with h | h
+  · left
+    linarith
+  · right
+    linarith
+
+/-- The two explicit real embeddings exhaust the real embeddings of `ℚ(√d)`. -/
+theorem algHom_eq_realEmbeddingPos_or_neg
+    (d : ℤ) (hd : 0 ≤ (d : ℝ)) (φ : Qsqrtd (d : ℚ) →ₐ[ℚ] ℝ) :
+    φ = realEmbeddingPos d hd ∨ φ = realEmbeddingNeg d hd := by
+  rcases algHom_omega_eq_sqrt_or_neg d φ with hω | hω
+  · left
+    apply QuadraticAlgebra.algHom_ext
+    change φ QuadraticAlgebra.omega = realEmbeddingPos d hd QuadraticAlgebra.omega
+    rw [hω, realEmbeddingPos_apply]
+    simp
+  · right
+    apply QuadraticAlgebra.algHom_ext
+    change φ QuadraticAlgebra.omega = realEmbeddingNeg d hd QuadraticAlgebra.omega
+    rw [hω, realEmbeddingNeg_apply]
+    simp
+
+/-- To check positivity under every real embedding of `ℚ(√d)`, it suffices to
+check the two explicit embeddings. -/
+theorem forall_algHom_pos_iff_realEmbeddingPos_and_realEmbeddingNeg_pos
+    (d : ℤ) (hd : 0 ≤ (d : ℝ)) (z : Qsqrtd (d : ℚ)) :
+    (∀ σ : Qsqrtd (d : ℚ) →ₐ[ℚ] ℝ, 0 < σ z) ↔
+      0 < realEmbeddingPos d hd z ∧ 0 < realEmbeddingNeg d hd z := by
+  constructor
+  · intro hz
+    exact ⟨hz (realEmbeddingPos d hd), hz (realEmbeddingNeg d hd)⟩
+  · intro hz σ
+    rcases algHom_eq_realEmbeddingPos_or_neg d hd σ with hσ | hσ
+    · rw [hσ]
+      exact hz.1
+    · rw [hσ]
+      exact hz.2
+
+/-- A conjugation-fixed element that is positive under every real embedding has
+positive rational coordinate. -/
+theorem re_pos_of_forall_algHom_pos_of_star_self
+    (d : ℤ) (hd : 0 ≤ (d : ℝ)) {z : Qsqrtd (d : ℚ)}
+    (hzpos : ∀ σ : Qsqrtd (d : ℚ) →ₐ[ℚ] ℝ, 0 < σ z)
+    (hfix : star z = z) :
+    0 < z.re := by
+  have hsign := (forall_algHom_pos_iff_realEmbeddingPos_and_realEmbeddingNeg_pos d hd z).mp hzpos
+  have hpos : 0 < realEmbeddingPos d hd z := hsign.1
+  rw [_root_.eq_algebraMap_re_of_star_self hfix] at hpos
+  have hposR : (0 : ℝ) < z.re := by
+    simpa using hpos
+  exact_mod_cast hposR
+
 /-- For nonnegative `d`, the quadratic norm is the product of the two real
 embeddings. -/
 theorem norm_eq_realEmbeddingPos_mul_realEmbeddingNeg (d : ℤ) (hd : 0 ≤ (d : ℝ))
