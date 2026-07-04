@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 
+import Mathlib.Dynamics.FixedPoints.Basic
 import QuadraticNumberFields.ClassGroup.Torsion
 
 /-!
@@ -19,6 +20,34 @@ strict-class-group interface independent.
 namespace QuadraticNumberFields
 namespace ClassGroup
 namespace Ambiguous
+
+section FixedIdeals
+
+variable {B : Type*} [CommRing B]
+
+/-- An ideal `I` is ambiguous with respect to a ring automorphism `σ` if `σ`
+fixes `I`. -/
+def IsAmbiguousIdeal (σ : B ≃+* B) (I : Ideal B) : Prop :=
+  Ideal.map (σ : B →+* B) I = I
+
+/-- Ambiguous ideals are exactly fixed points of the induced ideal map. -/
+theorem isAmbiguousIdeal_iff_isFixedPt (σ : B ≃+* B) (I : Ideal B) :
+    IsAmbiguousIdeal σ I ↔ Function.IsFixedPt (Ideal.map (σ : B →+* B)) I :=
+  Iff.rfl
+
+/-- The top ideal is ambiguous. -/
+@[simp]
+theorem isAmbiguousIdeal_top (σ : B ≃+* B) : IsAmbiguousIdeal σ (⊤ : Ideal B) := by
+  rw [IsAmbiguousIdeal, Ideal.map_top]
+
+/-- The product of ambiguous ideals is ambiguous. -/
+theorem IsAmbiguousIdeal.mul {σ : B ≃+* B} {I J : Ideal B}
+    (hI : IsAmbiguousIdeal σ I) (hJ : IsAmbiguousIdeal σ J) :
+    IsAmbiguousIdeal σ (I * J) := by
+  unfold IsAmbiguousIdeal at hI hJ ⊢
+  rw [Ideal.map_mul, hI, hJ]
+
+end FixedIdeals
 
 /-- Narrow ideal classes fixed by inversion. In the quadratic ambiguous-class
 argument, this is the result-side object after proving that conjugation acts as
