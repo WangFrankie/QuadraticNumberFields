@@ -8,6 +8,7 @@ import QNFMathlib.RingTheory.ClassGroup.Narrow
 import QuadraticNumberFields.ClassGroup.Ambiguous.Basic
 import QuadraticNumberFields.ClassGroup.RamifiedPrimes
 import QuadraticNumberFields.Splitting.Qsqrtd.Factorization
+import QuadraticNumberFields.Splitting.Qsqrtd.SqrtD
 
 /-!
 # Ramified-Prime Boundary for Strict Two-Torsion
@@ -61,8 +62,7 @@ theorem ramifiedPrimeIdealOfIsRamified_ne_bot
     (p : ℕ) [Fact p.Prime] (hr : Ideal.IsRamifiedIn (𝔭(p)) OK) :
     ramifiedPrimeIdealOfIsRamified d p hr ≠ ⊥ := by
   have hpbot : 𝔭(p) ≠ (⊥ : Ideal ℤ) := by
-    rw [Ne, Ideal.span_singleton_eq_bot, Nat.cast_eq_zero]
-    exact (Fact.out : Nat.Prime p).ne_zero
+    exact Splitting.pIdeal_ne_bot (Fact.out : Nat.Prime p)
   exact Ideal.ne_bot_of_mem_primesOver hpbot
     (ramifiedPrimeIdealOfIsRamified_mem_primesOver d p hr)
 
@@ -83,24 +83,18 @@ theorem ramifiedPrimeNarrowClassOfIsRamified_mem_twoTorsion
   let P0 : (Ideal OK)⁰ :=
     ⟨ramifiedPrimeIdealOfIsRamified d p hr,
       mem_nonZeroDivisors_iff_ne_zero.mpr (ramifiedPrimeIdealOfIsRamified_ne_bot d p hr)⟩
-  have hpR_ne : (p : OK) ≠ 0 := by
-    change algebraMap ℤ OK (p : ℤ) ≠ 0
-    exact (FaithfulSMul.algebraMap_injective ℤ OK).ne (by
-      exact_mod_cast (Fact.out : Nat.Prime p).ne_zero)
   have hspan : Ideal.map (algebraMap ℤ OK) (𝔭(p)) =
       Ideal.span ({(p : OK)} : Set OK) := by
     rw [Ideal.map_span, Set.image_singleton]
     rfl
   have hP0_sq : (P0 ^ 2 : (Ideal OK)⁰) =
-      ⟨Ideal.span ({(p : OK)} : Set OK), by
-        rw [mem_nonZeroDivisors_iff_ne_zero, Ideal.zero_eq_bot, ne_eq,
-          Ideal.span_singleton_eq_bot]
-        exact hpR_ne⟩ := by
+      Splitting.natCastSpanNonzeroIdeal d p (Fact.out : Nat.Prime p) := by
     apply Subtype.ext
     exact (map_eq_sq_ramifiedPrimeIdealOfIsRamified d p hr).symm.trans hspan
   change (NarrowClassGroup.mk0 P0) ^ 2 = 1
   rw [← map_pow, hP0_sq]
-  exact NarrowClassGroup.mk0_span_singleton_eq_one_of_isTotallyPositive hpR_ne
+  exact NarrowClassGroup.mk0_span_singleton_eq_one_of_isTotallyPositive
+    (Splitting.natCast_ne_zero_ringOfIntegers d (Fact.out : Nat.Prime p))
     (NarrowClassGroup.isTotallyPositive_natCast_fractionRing p
       (Fact.out : Nat.Prime p).pos)
 

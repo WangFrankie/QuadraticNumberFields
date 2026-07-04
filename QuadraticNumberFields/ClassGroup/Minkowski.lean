@@ -236,41 +236,6 @@ theorem minkowskiBound_lt_of_neg (hd : d < 0) {n : ℕ}
   rw [div_mul_eq_mul_div, div_mul_eq_mul_div, div_lt_iff₀ (by positivity)]
   nlinarith [Real.sqrt_nonneg |(D : ℝ)|]
 
-private lemma exists_nat_prime_comap_eq_p_and_dvd_absNorm
-    {P : Ideal (𝓞 (Qsqrtd (d : ℚ)))}
-    (hP : P.IsPrime) (hP0 : P ≠ ⊥) :
-    ∃ p : ℕ, p.Prime ∧
-      Ideal.comap (algebraMap ℤ (𝓞 (Qsqrtd (d : ℚ)))) P = 𝔭(p) ∧
-        p ∣ Ideal.absNorm P := by
-  exact Ideal.exists_nat_prime_comap_eq_span_and_dvd_absNorm_of_isPrime hP hP0
-
-private lemma isPrincipal_of_isInertIn_of_comap_eq_p
-    {P : Ideal (𝓞 (Qsqrtd (d : ℚ)))}
-    (hP : P.IsPrime) {p : ℕ} (hp : p.Prime)
-    (hcomap : Ideal.comap (algebraMap ℤ (𝓞 (Qsqrtd (d : ℚ)))) P = 𝔭(p))
-    (hinert : Ideal.IsInertIn (𝔭(p)) 𝓞(d)) :
-    P.IsPrincipal := by
-  have hchar : ringChar ℤ ≠ 2 := by simp [ringChar.eq_zero]
-  have hpbot : (𝔭(p)) ≠ (⊥ : Ideal ℤ) := by
-    rw [Ne, Ideal.span_singleton_eq_bot, Nat.cast_eq_zero]
-    exact hp.ne_zero
-  haveI : (𝔭(p)).IsMaximal :=
-    PrincipalIdealRing.isMaximal_of_irreducible
-      ((Nat.prime_iff_prime_int.mp hp).irreducible)
-  have hQprime : (Ideal.map (algebraMap ℤ (𝓞 (Qsqrtd (d : ℚ)))) (𝔭(p))).IsPrime :=
-    Ideal.map_isPrime_of_isInertIn (𝔭(p)) (𝓞 (Qsqrtd (d : ℚ))) hchar hpbot hinert
-  have hQle : Ideal.map (algebraMap ℤ (𝓞 (Qsqrtd (d : ℚ)))) (𝔭(p)) ≤ P := by
-    rw [← hcomap]
-    exact Ideal.map_comap_le
-  have hQbot : Ideal.map (algebraMap ℤ (𝓞 (Qsqrtd (d : ℚ)))) (𝔭(p)) ≠ ⊥ := by
-    rw [Ideal.map_span, Set.image_singleton, Ne, Ideal.span_singleton_eq_bot]
-    simp only [map_natCast, Nat.cast_eq_zero]
-    exact hp.ne_zero
-  have hPQ : Ideal.map (algebraMap ℤ (𝓞 (Qsqrtd (d : ℚ)))) (𝔭(p)) = P :=
-    (hQprime.isMaximal hQbot).eq_of_le hP.ne_top hQle
-  rw [← hPQ, Ideal.map_span, Set.image_singleton]
-  exact ⟨_, rfl⟩
-
 /-- Class-group form of the Minkowski-bound prime-ideal principality criterion:
 if every nonzero prime ideal with absolute norm at most `minkowskiBound d` is
 principal, then every ideal class of `𝓞(ℚ(√d))` is trivial. -/
@@ -317,7 +282,7 @@ theorem classGroup_eq_one_of_forall_le_minkowskiBound_primesOver_isPrincipal
   refine classGroup_eq_one_of_forall_le_minkowskiBound_isPrincipal d ?_ C
   intro P hP hP0 hPbound
   obtain ⟨p, hp, hcomap, hpdiv⟩ :=
-    exists_nat_prime_comap_eq_p_and_dvd_absNorm d hP hP0
+    Ideal.exists_nat_prime_comap_eq_span_and_dvd_absNorm_of_isPrime hP hP0
   have habs0 : Ideal.absNorm P ≠ 0 := by
     rwa [Ne, Ideal.absNorm_eq_zero_iff]
   have hpabs : p ≤ Ideal.absNorm P :=
@@ -350,9 +315,15 @@ theorem classNumber_eq_one_of_forall_le_minkowskiBound_split_principal
   refine classNumber_eq_one_of_forall_le_minkowskiBound_primesOver_isPrincipal d ?_
   intro p hp hple P hPmem
   rcases hinert_or_split p hp hple with hinert | hsplitp
-  · letI : P.LiesOver (𝔭(p)) := hPmem.2
-    exact isPrincipal_of_isInertIn_of_comap_eq_p d hPmem.1 hp
-      (Ideal.LiesOver.over (p := 𝔭(p)) (P := P)).symm hinert
+  · have hchar : ringChar ℤ ≠ 2 := by simp [ringChar.eq_zero]
+    have hpbot : 𝔭(p) ≠ (⊥ : Ideal ℤ) := by
+      rw [Ne, Ideal.span_singleton_eq_bot, Nat.cast_eq_zero]
+      exact hp.ne_zero
+    haveI : (𝔭(p)).IsMaximal :=
+      PrincipalIdealRing.isMaximal_of_irreducible
+        ((Nat.prime_iff_prime_int.mp hp).irreducible)
+    exact Ideal.isPrincipal_of_isInertIn_of_mem_primesOver_of_isPrincipal
+      (𝔭(p)) 𝓞(d) hchar hpbot ⟨_, rfl⟩ hPmem hinert
   · exact hsplit p hp hple hsplitp P hPmem
 
 /-- Class number one via inert or ramified small primes. Inert primes
@@ -368,9 +339,15 @@ theorem classNumber_eq_one_of_forall_le_minkowskiBound_ramified_principal
   refine classNumber_eq_one_of_forall_le_minkowskiBound_primesOver_isPrincipal d ?_
   intro p hp hple P hPmem
   rcases hinert_or_ramified p hp hple with hinert | hramifiedp
-  · letI : P.LiesOver (𝔭(p)) := hPmem.2
-    exact isPrincipal_of_isInertIn_of_comap_eq_p d hPmem.1 hp
-      (Ideal.LiesOver.over (p := 𝔭(p)) (P := P)).symm hinert
+  · have hchar : ringChar ℤ ≠ 2 := by simp [ringChar.eq_zero]
+    have hpbot : 𝔭(p) ≠ (⊥ : Ideal ℤ) := by
+      rw [Ne, Ideal.span_singleton_eq_bot, Nat.cast_eq_zero]
+      exact hp.ne_zero
+    haveI : (𝔭(p)).IsMaximal :=
+      PrincipalIdealRing.isMaximal_of_irreducible
+        ((Nat.prime_iff_prime_int.mp hp).irreducible)
+    exact Ideal.isPrincipal_of_isInertIn_of_mem_primesOver_of_isPrincipal
+      (𝔭(p)) 𝓞(d) hchar hpbot ⟨_, rfl⟩ hPmem hinert
   · exact hramified p hp hple hramifiedp P hPmem
 
 /-- Class-group form of the inert-prime criterion: under the Minkowski-bound
@@ -382,9 +359,15 @@ theorem classGroup_eq_one_of_forall_le_minkowskiBound_isInertIn
     C = 1 := by
   refine classGroup_eq_one_of_forall_le_minkowskiBound_primesOver_isPrincipal d ?_ C
   intro p hp hple P hPmem
-  letI : P.LiesOver (𝔭(p)) := hPmem.2
-  exact isPrincipal_of_isInertIn_of_comap_eq_p d hPmem.1 hp
-    (Ideal.LiesOver.over (p := 𝔭(p)) (P := P)).symm (h p hp hple)
+  have hchar : ringChar ℤ ≠ 2 := by simp [ringChar.eq_zero]
+  have hpbot : 𝔭(p) ≠ (⊥ : Ideal ℤ) := by
+    rw [Ne, Ideal.span_singleton_eq_bot, Nat.cast_eq_zero]
+    exact hp.ne_zero
+  haveI : (𝔭(p)).IsMaximal :=
+    PrincipalIdealRing.isMaximal_of_irreducible
+      ((Nat.prime_iff_prime_int.mp hp).irreducible)
+  exact Ideal.isPrincipal_of_isInertIn_of_mem_primesOver_of_isPrincipal
+    (𝔭(p)) 𝓞(d) hchar hpbot ⟨_, rfl⟩ hPmem (h p hp hple)
 
 /-- Class number one via inert primes. If every rational prime `p` below
 the Minkowski bound of `ℚ(√d)` is inert in `𝓞(ℚ(√d))`, then `ℚ(√d)` has class
