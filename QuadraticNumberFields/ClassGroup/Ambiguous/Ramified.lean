@@ -6,7 +6,7 @@ Authors: Frankie Wang
 
 import QNFMathlib.RingTheory.ClassGroup.Narrow
 import QuadraticNumberFields.ClassGroup.Ambiguous.Basic
-import QuadraticNumberFields.Splitting.Qsqrtd.Discriminant
+import QuadraticNumberFields.ClassGroup.RamifiedPrimes
 import QuadraticNumberFields.Splitting.Qsqrtd.Factorization
 
 /-!
@@ -37,11 +37,6 @@ section Qsqrtd
 variable (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
 
 local notation "OK" => 𝓞 (Qsqrtd (d : ℚ))
-
-/-- The number of distinct rational prime factors of the closed discriminant of `ℚ(√d)`.
-This is the item-11 parameter `t`. -/
-def primeDiscrFactorCount (d : ℤ) : ℕ :=
-  (RingOfIntegers.discrFormula d).natAbs.primeFactors.card
 
 /-- A chosen prime ideal over a ramified rational prime. -/
 noncomputable def ramifiedPrimeIdealOfIsRamified
@@ -109,65 +104,22 @@ theorem ramifiedPrimeNarrowClassOfIsRamified_mem_twoTorsion
     (NarrowClassGroup.isTotallyPositive_natCast_fractionRing p
       (Fact.out : Nat.Prime p).pos)
 
-/-- The index type for all rational primes dividing the field discriminant.
-
-This is the ramified-prime index relevant to the item-11 cardinality
-`primeDiscrFactorCount d`; it includes the prime `2` when it ramifies. -/
-abbrev PrimeDiscrIndex :=
-  {p : ℕ // p ∈ (RingOfIntegers.discrFormula d).natAbs.primeFactors}
-
-omit [Fact (Squarefree d)] [Fact (d ≠ 1)] in
-/-- Members of `PrimeDiscrIndex` are rational primes. -/
-theorem prime_of_mem_PrimeDiscrIndex (p : PrimeDiscrIndex d) :
-    p.1.Prime :=
-  Nat.prime_of_mem_primeFactors p.2
-
-omit [Fact (Squarefree d)] [Fact (d ≠ 1)] in
-/-- Members of `PrimeDiscrIndex` divide the closed field discriminant. -/
-theorem dvd_discr_of_mem_PrimeDiscrIndex (p : PrimeDiscrIndex d) :
-    (p.1 : ℤ) ∣ RingOfIntegers.discrFormula d := by
-  have hmem := Nat.mem_primeFactors.mp p.2
-  rw [← Int.dvd_natAbs]
-  exact_mod_cast hmem.2.1
-
-/-- Members of `PrimeDiscrIndex` are ramified in `𝓞(ℚ(√d))`. -/
-theorem isRamified_of_mem_PrimeDiscrIndex (p : PrimeDiscrIndex d) :
-    Ideal.IsRamifiedIn (𝔭(p.1)) OK := by
-  letI : Fact p.1.Prime := ⟨prime_of_mem_PrimeDiscrIndex d p⟩
-  refine (QuadraticNumberFields.Splitting.isRamified_iff_dvd_disc d p.1).mpr ?_
-  rw [QuadraticNumberFields.RingOfIntegers.discr_formula d]
-  exact dvd_discr_of_mem_PrimeDiscrIndex d p
-
-omit [Fact (Squarefree d)] [Fact (d ≠ 1)] in
-/-- The number of `PrimeDiscrIndex` terms is the genus-theory parameter `t`. -/
-theorem fintype_card_PrimeDiscrIndex :
-    Fintype.card (PrimeDiscrIndex d) = primeDiscrFactorCount d := by
-  simp [PrimeDiscrIndex, primeDiscrFactorCount]
-
-/-- The current discriminant-prime index is the prime-factor index of the field
-discriminant. -/
-theorem mem_PrimeDiscrIndex_iff_fieldDiscrPrimeFactor (p : ℕ) :
-    p ∈ (RingOfIntegers.discrFormula d).natAbs.primeFactors ↔
-      p ∈ (NumberField.discr (Qsqrtd (d : ℚ))).natAbs.primeFactors := by
-  rw [QuadraticNumberFields.RingOfIntegers.discr_formula d]
-
-/-- The concrete narrow class of the ramified prime indexed by a
-discriminant prime divisor. -/
-noncomputable def primeDiscrNarrowClass (p : PrimeDiscrIndex d) :
+/-- The concrete narrow class of an indexed ramified rational prime. -/
+noncomputable def ramifiedPrimeNarrowClass (p : RamifiedPrimeIndex d) :
     NarrowClassGroup OK := by
   classical
-  letI : Fact p.1.Prime := ⟨prime_of_mem_PrimeDiscrIndex d p⟩
+  letI : Fact p.1.Prime := ⟨prime_of_mem_ramifiedPrimeIndex d p⟩
   exact ramifiedPrimeNarrowClassOfIsRamified d p.1
-    (isRamified_of_mem_PrimeDiscrIndex d p)
+    (isRamified_of_mem_ramifiedPrimeIndex d p)
 
-/-- Each discriminant-prime narrow class is two-torsion. -/
-theorem primeDiscrNarrowClass_mem_twoTorsion (p : PrimeDiscrIndex d) :
-    primeDiscrNarrowClass d p ∈ NarrowClassGroup.twoTorsion OK := by
+/-- Each indexed ramified-prime narrow class is two-torsion. -/
+theorem ramifiedPrimeNarrowClass_mem_twoTorsion (p : RamifiedPrimeIndex d) :
+    ramifiedPrimeNarrowClass d p ∈ NarrowClassGroup.twoTorsion OK := by
   classical
-  letI : Fact p.1.Prime := ⟨prime_of_mem_PrimeDiscrIndex d p⟩
-  simpa [primeDiscrNarrowClass] using
+  letI : Fact p.1.Prime := ⟨prime_of_mem_ramifiedPrimeIndex d p⟩
+  simpa [ramifiedPrimeNarrowClass] using
     ramifiedPrimeNarrowClassOfIsRamified_mem_twoTorsion d p.1
-      (isRamified_of_mem_PrimeDiscrIndex d p)
+      (isRamified_of_mem_ramifiedPrimeIndex d p)
 
 end Qsqrtd
 
