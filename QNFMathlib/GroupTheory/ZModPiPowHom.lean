@@ -8,12 +8,44 @@ import Mathlib.Data.ZMod.Basic
 import Mathlib.GroupTheory.SpecificGroups.Cyclic
 
 /-!
-# Product Homomorphisms from `ZMod`-Valued Vectors
+# Product Homomorphisms from `ZMod` Vectors
 
-Material destined for mathlib.
+Small lemmas for `Multiplicative.ofAdd`, and a product homomorphism whose
+exponents are `ZMod`-valued functions.
 -/
 
 open scoped BigOperators
+
+namespace Multiplicative
+
+section OfAdd
+
+variable {α ι : Type*} [Zero α]
+
+/-- A nonzero additive element remains nontrivial when viewed multiplicatively. -/
+theorem ofAdd_ne_one_of_ne_zero {a : α} (ha : a ≠ 0) :
+    ofAdd a ≠ 1 := by
+  intro h
+  exact ha (by simpa using congrArg toAdd h)
+
+/-- A function with a nonzero coordinate remains nontrivial when viewed
+multiplicatively. -/
+theorem ofAdd_ne_one_of_apply_ne_zero (v : ι → α) {i : ι} (hi : v i ≠ 0) :
+    ofAdd v ≠ 1 :=
+  ofAdd_ne_one_of_ne_zero (by
+    intro hv
+    exact hi (by simp [hv]))
+
+/-- A function with some nonzero coordinate remains nontrivial when viewed
+multiplicatively. -/
+theorem ofAdd_ne_one_of_exists_apply_ne_zero (v : ι → α) (hv : ∃ i, v i ≠ 0) :
+    ofAdd v ≠ 1 := by
+  rcases hv with ⟨i, hi⟩
+  exact ofAdd_ne_one_of_apply_ne_zero v hi
+
+end OfAdd
+
+end Multiplicative
 
 namespace MonoidHom
 

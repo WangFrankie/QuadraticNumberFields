@@ -10,12 +10,13 @@ import Mathlib.Data.Fintype.Units
 import Mathlib.Data.Real.Basic
 import Mathlib.Data.Sign.Basic
 import Mathlib.RingTheory.ClassGroup
+import Mathlib.RingTheory.DedekindDomain.Ideal.Lemmas
 
 /-!
 # Narrow Ideal Class Groups
 
-This file defines the narrow ideal class group and its natural map to the usual
-class group. The two quotient definitions fit into
+Defines the narrow ideal class group and its natural map to the usual class
+group. The two quotient definitions fit into
 
 `1 → Prin_L⁺ → I_L → Cl_L⁺ → 1`
 
@@ -41,9 +42,32 @@ For Keune Ch6 Ex. 11, finish the generic kernel statement for
 
 -/
 
-open scoped nonZeroDivisors
+open scoped BigOperators nonZeroDivisors
 
 open FractionalIdeal
+
+namespace Ideal
+
+section NormalizedFactors
+
+variable {R : Type*} [CommRing R] [IsDomain R] [IsDedekindDomain R]
+
+/-- A Dedekind prime factor of a nonzero integral ideal, regarded as a nonzero
+ideal. It is nonzero because the original ideal is contained in the factor. -/
+def normalizedFactorNonzeroIdeal
+    (I : (Ideal R)⁰)
+    (P : {P // P ∈ UniqueFactorizationMonoid.normalizedFactors (I : Ideal R)}) :
+    (Ideal R)⁰ :=
+  ⟨P.1, mem_nonZeroDivisors_iff_ne_zero.mpr (by
+    have hI0 : (I : Ideal R) ≠ ⊥ := by
+      simpa [Ideal.zero_eq_bot] using mem_nonZeroDivisors_iff_ne_zero.mp I.2
+    have hPdata := (Ideal.mem_normalizedFactors_iff hI0).mp P.2
+    intro hPbot
+    exact hI0 (le_bot_iff.mp (by simpa [hPbot] using hPdata.2)))⟩
+
+end NormalizedFactors
+
+end Ideal
 
 /-! ### Quotient-group exactness helpers -/
 
@@ -479,6 +503,63 @@ theorem toClassGroup_mk' (R : Type*) [CommRing R] [IsDomain R]
   QuotientGroup.map_mk' _ _ _ _ J
 
 end QuotientMaps
+
+section NormalizedFactors
+
+variable {R : Type*} [CommRing R] [IsDomain R] [IsDedekindDomain R]
+
+/-- The narrow class of a nonzero integral ideal is the product of the narrow
+classes of its Dedekind prime factors. -/
+theorem mk0_eq_normalizedFactors_prod (I : (Ideal R)⁰) :
+    NarrowClassGroup.mk0 I =
+      ((UniqueFactorizationMonoid.normalizedFactors (I : Ideal R)).attach.map fun P =>
+        NarrowClassGroup.mk0 (Ideal.normalizedFactorNonzeroIdeal I P)).prod := by
+  classical
+  let s := UniqueFactorizationMonoid.normalizedFactors (I : Ideal R)
+  have hI0 : (I : Ideal R) ≠ ⊥ := by
+    simpa [Ideal.zero_eq_bot] using mem_nonZeroDivisors_iff_ne_zero.mp I.2
+  have hprod : s.prod = (I : Ideal R) :=
+    Ideal.prod_normalizedFactors_eq_self hI0
+  let F : {P // P ∈ s} → (Ideal R)⁰ := fun P =>
+    Ideal.normalizedFactorNonzeroIdeal I P
+  have hFprod : ((s.attach.map F).prod : Ideal R) = (I : Ideal R) := by
+    rw [SubmonoidClass.coe_multiset_prod]
+    rw [Multiset.map_map]
+    simpa [F, Ideal.normalizedFactorNonzeroIdeal] using hprod
+  calc
+    NarrowClassGroup.mk0 I =
+        NarrowClassGroup.mk0 ((s.attach.map F).prod) :=
+      congrArg NarrowClassGroup.mk0 (Subtype.ext hFprod.symm)
+    _ = ((s.attach.map fun P => NarrowClassGroup.mk0 (F P)).prod) := by
+      rw [map_multiset_prod]
+      rw [Multiset.map_map]
+      simp only [Function.comp_apply]
+    _ = ((UniqueFactorizationMonoid.normalizedFactors (I : Ideal R)).attach.map fun P =>
+        NarrowClassGroup.mk0 (Ideal.normalizedFactorNonzeroIdeal I P)).prod := rfl
+
+/-- Finset form of `NarrowClassGroup.mk0_eq_normalizedFactors_prod`, grouping
+equal normalized factors by multiplicity. -/
+theorem mk0_eq_normalizedFactors_attach_toFinset_prod
+    [DecidableEq (Ideal R)] (I : (Ideal R)⁰) :
+    NarrowClassGroup.mk0 I =
+      ∏ P ∈
+          (UniqueFactorizationMonoid.normalizedFactors (I : Ideal R)).attach.toFinset,
+        (NarrowClassGroup.mk0 (Ideal.normalizedFactorNonzeroIdeal I P)) ^
+          (UniqueFactorizationMonoid.normalizedFactors (I : Ideal R)).count P.1 := by
+  let s := UniqueFactorizationMonoid.normalizedFactors (I : Ideal R)
+  let F : {P // P ∈ s} → NarrowClassGroup R := fun P =>
+    NarrowClassGroup.mk0 (Ideal.normalizedFactorNonzeroIdeal I P)
+  calc
+    NarrowClassGroup.mk0 I = (s.attach.map F).prod :=
+      mk0_eq_normalizedFactors_prod I
+    _ = ∏ P ∈ s.attach.toFinset, F P ^ s.attach.count P :=
+      Finset.prod_multiset_map_count s.attach F
+    _ = ∏ P ∈ s.attach.toFinset, F P ^ s.count P.1 := by
+      refine Finset.prod_congr rfl ?_
+      intro P _hP
+      rw [Multiset.count_attach]
+
+end NormalizedFactors
 
 section FractionRing
 

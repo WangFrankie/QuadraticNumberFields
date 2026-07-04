@@ -13,8 +13,8 @@ import QuadraticNumberFields.Splitting.Galois
 /-!
 # Conjugation on ideal classes
 
-Let `K` be a quadratic field, and let `σ` be its nontrivial conjugation. This file records
-how `σ` acts on ideals, ideal factorizations, and ideal classes.
+Let `K` be a quadratic field, and let `σ` be its nontrivial conjugation. We use
+conjugation on ideals, ideal factorizations, and ideal classes.
 
 For a nonzero integral ideal `I`,
 
@@ -25,10 +25,10 @@ gives
 
 `[σ(I)] = [I]⁻¹`,        `[σ(I)]⁺ = [I]⁺⁻¹`.
 
-For a rational prime `p` and a prime ideal `P ∣ p`, conjugation keeps `P` above `p`.
-It fixes `P` in the ramified and inert cases, and swaps the two primes above `p` in
-the split case. These are the facts used later to count the ramified-prime contribution
-to ambiguous narrow classes.
+For a rational prime `p` and a prime ideal `P ∣ p`, conjugation keeps `P` above
+`p`. It fixes `P` in the ramified and inert cases, and swaps the two primes
+above `p` in the split case. This gives the ramified-prime contribution to
+ambiguous narrow classes.
 
 In particular, a narrow class fixed by conjugation satisfies
 
@@ -202,6 +202,18 @@ theorem map_conjAut_eq_of_mem_primesOver_of_isRamifiedIn
   exact map_conjAut_eq_of_primesOver_comap_eq_singleton
     (K := Qsqrtd (d : ℚ)) P hsingletonComap
 
+/-- An indexed ramified-prime ideal is fixed by quadratic conjugation. -/
+theorem isAmbiguousIdeal_ramifiedPrimeIdeal
+    (p : RamifiedPrimeIndex d) :
+    IsAmbiguousIdeal
+      (conjAutRingOfIntegers (Qsqrtd (d : ℚ)))
+      (ramifiedPrimeIdeal d p) := by
+  classical
+  letI : Fact p.1.Prime := ⟨prime_of_mem_ramifiedPrimeIndex d p⟩
+  exact map_conjAut_eq_of_mem_primesOver_of_isRamifiedIn (d := d)
+    (ramifiedPrimeIdeal_mem_primesOver d p)
+    (isRamified_of_mem_ramifiedPrimeIndex d p)
+
 end QsqrtdRamifiedConjugation
 
 section PrimeFactorConjugation
@@ -259,6 +271,111 @@ theorem map_conjAut_ne_of_mem_primesOver_of_isSplitIn [NumberField K]
       (⟨conjAutFractionRingGal K, hτstab⟩ : MulAction.stabilizer G P) 1))
 
 end PrimeFactorConjugation
+
+section NormalizedFactorConjugation
+
+variable (K : Type*) [Field K] [Algebra ℚ K] [QuadraticField K] [QuadraticField.Conj K]
+
+local notation "OK" => NumberField.RingOfIntegers K
+
+/-- Conjugation acts on the normalized prime factors of an ambiguous ideal. -/
+noncomputable def conjAutNormalizedFactor [IsDedekindDomain OK]
+    {I : (Ideal OK)⁰}
+    (hI : IsAmbiguousIdeal (conjAutRingOfIntegers K) (I : Ideal OK))
+    (P : {P // P ∈ UniqueFactorizationMonoid.normalizedFactors (I : Ideal OK)}) :
+    {P // P ∈ UniqueFactorizationMonoid.normalizedFactors (I : Ideal OK)} := by
+  have hI0 : (I : Ideal OK) ≠ ⊥ := nonzeroIdeal_ne_bot I
+  exact
+    ⟨Ideal.map (conjAutRingOfIntegers K : OK →+* OK) P.1,
+      (map_conjAut_mem_normalizedFactors_iff_of_isAmbiguousIdeal
+        (K := K) (P := P.1) (I := (I : Ideal OK)) hI0 hI).mpr P.2⟩
+
+/-- Conjugation is an involution on normalized prime factors of an ambiguous
+ideal. -/
+theorem conjAutNormalizedFactor_involutive [IsDedekindDomain OK]
+    {I : (Ideal OK)⁰}
+    (hI : IsAmbiguousIdeal (conjAutRingOfIntegers K) (I : Ideal OK))
+    (P : {P // P ∈ UniqueFactorizationMonoid.normalizedFactors (I : Ideal OK)}) :
+    conjAutNormalizedFactor K hI (conjAutNormalizedFactor K hI P) = P :=
+  Subtype.ext (map_conjAut_map_conjAut K P.1)
+
+/-- A normalized factor and its conjugate lie over the same rational prime. -/
+theorem conjAutNormalizedFactor_comap_eq [IsDedekindDomain OK]
+    {I : (Ideal OK)⁰}
+    (hI : IsAmbiguousIdeal (conjAutRingOfIntegers K) (I : Ideal OK))
+    (P : {P // P ∈ UniqueFactorizationMonoid.normalizedFactors (I : Ideal OK)}) :
+    (conjAutNormalizedFactor K hI P).1.comap (algebraMap ℤ OK) =
+      P.1.comap (algebraMap ℤ OK) := by
+  have hlies := map_conjAut_liesOver_comap (K := K) P.1
+  change
+    (Ideal.map (conjAutRingOfIntegers K : OK →+* OK) P.1).comap
+        (algebraMap ℤ OK) =
+      P.1.comap (algebraMap ℤ OK)
+  rw [← Ideal.under_def]
+  exact hlies.over.symm
+
+/-- For an ambiguous nonzero ideal, conjugation preserves normalized-factor
+multiplicity. -/
+theorem normalizedFactors_count_conjAutNormalizedFactor_eq [IsDedekindDomain OK]
+    {I : (Ideal OK)⁰}
+    (hI : IsAmbiguousIdeal (conjAutRingOfIntegers K) (I : Ideal OK))
+    (P : {P // P ∈ UniqueFactorizationMonoid.normalizedFactors (I : Ideal OK)}) :
+    (UniqueFactorizationMonoid.normalizedFactors (I : Ideal OK)).count
+      (conjAutNormalizedFactor K hI P).1 =
+    (UniqueFactorizationMonoid.normalizedFactors (I : Ideal OK)).count P.1 := by
+  have hI0 : (I : Ideal OK) ≠ ⊥ := nonzeroIdeal_ne_bot I
+  exact
+    map_conjAut_count_normalizedFactors_eq_of_isAmbiguousIdeal
+      (K := K) (P := P.1) (I := (I : Ideal OK)) hI0 hI
+
+/-- Above a split rational prime, conjugation moves a normalized factor to the
+other prime above the same rational prime. -/
+theorem conjAutNormalizedFactor_ne_of_isSplitIn
+    [NumberField K] [IsDedekindDomain OK]
+    {I : (Ideal OK)⁰}
+    (hI : IsAmbiguousIdeal (conjAutRingOfIntegers K) (I : Ideal OK))
+    (P : {P // P ∈ UniqueFactorizationMonoid.normalizedFactors (I : Ideal OK)})
+    {p : ℕ} (hp : p.Prime)
+    (hcomap : P.1.comap (algebraMap ℤ OK) = 𝔭(p))
+    (hsplit : Ideal.IsSplitIn (𝔭(p)) OK) :
+    conjAutNormalizedFactor K hI P ≠ P := by
+  have hI0 : (I : Ideal OK) ≠ ⊥ := nonzeroIdeal_ne_bot I
+  have hPprime : P.1.IsPrime := (Ideal.mem_normalizedFactors_iff hI0).mp P.2 |>.1
+  have hPover : P.1 ∈ Ideal.primesOver (𝔭(p)) OK := ⟨hPprime, ⟨hcomap.symm⟩⟩
+  have hpbot : (𝔭(p)) ≠ (⊥ : Ideal ℤ) := Splitting.pIdeal_ne_bot hp
+  haveI : (𝔭(p)).IsMaximal := Splitting.pIdeal_isMaximal hp
+  have hne :=
+    map_conjAut_ne_of_mem_primesOver_of_isSplitIn
+      (K := K) (p := 𝔭(p)) hpbot hPover hsplit
+  intro hfix
+  exact hne (congrArg Subtype.val hfix)
+
+end NormalizedFactorConjugation
+
+section QsqrtdNormalizedFactorConjugation
+
+variable (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+
+local notation "OK" => NumberField.RingOfIntegers (Qsqrtd (d : ℚ))
+
+/-- Ramification of a normalized factor is invariant under conjugation. -/
+theorem normalizedFactorIsRamified_conjAutNormalizedFactor_iff
+    {I : (Ideal OK)⁰}
+    (hI : IsAmbiguousIdeal (conjAutRingOfIntegers (Qsqrtd (d : ℚ))) (I : Ideal OK))
+    (P : {P // P ∈ UniqueFactorizationMonoid.normalizedFactors (I : Ideal OK)}) :
+    normalizedFactorIsRamified d (conjAutNormalizedFactor (Qsqrtd (d : ℚ)) hI P) ↔
+      normalizedFactorIsRamified d P := by
+  constructor
+  · rintro ⟨p, hp, hcomap, hram⟩
+    refine ⟨p, hp, ?_, hram⟩
+    rw [← conjAutNormalizedFactor_comap_eq (Qsqrtd (d : ℚ)) hI P]
+    exact hcomap
+  · rintro ⟨p, hp, hcomap, hram⟩
+    refine ⟨p, hp, ?_, hram⟩
+    rw [conjAutNormalizedFactor_comap_eq (Qsqrtd (d : ℚ)) hI P]
+    exact hcomap
+
+end QsqrtdNormalizedFactorConjugation
 
 section QsqrtdFactorContribution
 
@@ -579,8 +696,7 @@ variable (K : Type*) [Field K] [Algebra ℚ K] [QuadraticField K] [QuadraticFiel
 local notation "OK" => NumberField.RingOfIntegers K
 
 /-- Conjugation acts multiplicatively on nonzero integral ideals of a quadratic
-field. This is the nonzero-ideal action used to formulate ambiguous ideal
-representatives. -/
+field. This nonzero-ideal action is used for ambiguous ideal representatives. -/
 noncomputable def conjAutNonzeroIdealMulEquiv :
     (Ideal OK)⁰ ≃* (Ideal OK)⁰ :=
   Ideal.mapRingEquivNonZeroDivisorsMulEquiv (conjAutRingOfIntegers K)
@@ -618,7 +734,7 @@ theorem mk0_map_conjAut_eq_inv [NumberField K] (I : (Ideal OK)⁰) :
   exact ⟨x, hx0, by rw [mul_comm]; exact hx⟩
 
 /-- Quadratic conjugation acts on the narrow ideal class group by inversion. The
-point not present in the ordinary class-group statement is positivity: the
+extra input compared with the ordinary class-group statement is positivity: the
 principal generator of `I * σ(I)` is the positive integer `absNorm I`. -/
 theorem narrowClassGroup_mk0_map_conjAut_eq_inv [NumberField K] (I : (Ideal OK)⁰) :
     NarrowClassGroup.mk0 (conjAutNonzeroIdealMulEquiv K I) =
