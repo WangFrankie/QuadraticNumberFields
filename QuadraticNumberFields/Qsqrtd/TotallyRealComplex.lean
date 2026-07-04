@@ -5,18 +5,20 @@ Authors: Frankie Wang
 -/
 import QuadraticNumberFields.Qsqrtd.Basic
 import QuadraticNumberFields.QuadraticField.Classification
+import QuadraticNumberFields.QuadraticField.Conj
 import QuadraticNumberFields.QuadraticField.Transport
 import Mathlib.Data.Real.Sqrt
 import Mathlib.NumberTheory.NumberField.InfinitePlace.TotallyRealComplex
 import Mathlib.NumberTheory.NumberField.CMField
+import Mathlib.RingTheory.Localization.FractionRing
 
 /-!
-# Totally Real, Totally Complex, and CM Field Classification
+# Totally real and totally complex quadratic fields
 
-This file classifies the quadratic field `Q(√d)` by the sign of `d`.
+This file proves the sign test for the quadratic field `Q(√d)`.
 
-If `d > 0`, every complex embedding has real image. If `d < 0`, no complex
-embedding has real image, and `Q(√d)` is a CM field over `ℚ`.
+If `d > 0`, every embedding into `ℂ` has real image. If `d < 0`, none of the
+embeddings into `ℂ` has real image, and `Q(√d)` is a CM field over `ℚ`.
 
 The main declarations are:
 
@@ -24,24 +26,23 @@ The main declarations are:
 * `Qsqrtd.isTotallyComplex`: `Q(√d)` is totally complex when `d < 0`.
 * `Qsqrtd.isCMField`: `Q(√d)` is a CM field when `d < 0`.
 * `QuadraticField.exists_totallyReal_or_totallyComplex`: every abstract
-  quadratic field is classified as real or imaginary after choosing a standard
-  squarefree parameter.
+  quadratic field is either real or imaginary after choosing a squarefree
+  `Qsqrtd` parameter.
 
-The proof uses the equation `φ(ω)^2 = d`. If `φ(ω) = a + bi`, then
+The proof computes with `φ(ω)^2 = d`. If `φ(ω) = a + bi`, then
 `a^2 - b^2 = d` and `2ab = 0`. For `d > 0`, the second equation forces
 `b = 0`. For `d < 0`, the assumption `b = 0` would give `a^2 = d < 0`.
 -/
 
--- Resolve the diamond between `DivisionRing.toRatAlgebra` and `QuadraticAlgebra.instAlgebra`.
--- NOTE: This is a file-local workaround.
+-- Disable the rational algebra instance that conflicts with `QuadraticAlgebra.instAlgebra`.
 attribute [-instance] DivisionRing.toRatAlgebra
 
 namespace Qsqrtd
 
 section RealEmbeddings
 
-/-- The `ℚ`-algebra homomorphism `ℚ(√d) → ℝ` that sends `√d` to a chosen real
-root `r` of `X^2 - d`. -/
+/-- The `ℚ`-algebra homomorphism `ℚ(√d) → ℝ` sending `ω` to a real root `r` of
+`X^2 - d`. -/
 noncomputable def realEmbedding (d : ℤ) (r : ℝ) (hr : r * r = (d : ℝ)) :
     Qsqrtd (d : ℚ) →ₐ[ℚ] ℝ :=
   QuadraticAlgebra.lift (R := ℚ) (a := (d : ℚ)) (b := (0 : ℚ))
@@ -81,8 +82,7 @@ theorem realEmbeddingNeg_apply (d : ℤ) (hd : 0 ≤ (d : ℝ))
   rw [realEmbeddingNeg, realEmbedding_apply]
   ring
 
-/-- A real embedding of `ℚ(√d)` sends the standard square root to one of the two
-real roots. -/
+/-- A real embedding of `ℚ(√d)` sends `ω` to `sqrt d` or to its negative. -/
 theorem algHom_omega_eq_sqrt_or_neg (d : ℤ) (φ : Qsqrtd (d : ℚ) →ₐ[ℚ] ℝ) :
     φ QuadraticAlgebra.omega = Real.sqrt (d : ℝ) ∨
       φ QuadraticAlgebra.omega = -Real.sqrt (d : ℝ) := by
@@ -102,7 +102,7 @@ theorem algHom_omega_eq_sqrt_or_neg (d : ℤ) (φ : Qsqrtd (d : ℚ) →ₐ[ℚ]
   · right
     linarith
 
-/-- The two explicit real embeddings exhaust the real embeddings of `ℚ(√d)`. -/
+/-- The real embeddings of `ℚ(√d)` are `realEmbeddingPos` and `realEmbeddingNeg`. -/
 theorem algHom_eq_realEmbeddingPos_or_neg
     (d : ℤ) (hd : 0 ≤ (d : ℝ)) (φ : Qsqrtd (d : ℚ) →ₐ[ℚ] ℝ) :
     φ = realEmbeddingPos d hd ∨ φ = realEmbeddingNeg d hd := by
@@ -118,8 +118,24 @@ theorem algHom_eq_realEmbeddingPos_or_neg
     rw [hω, realEmbeddingNeg_apply]
     simp
 
-/-- To check positivity under every real embedding of `ℚ(√d)`, it suffices to
-check the two explicit embeddings. -/
+/-- Applying `star` turns the positive real embedding into the negative one. -/
+theorem realEmbeddingPos_star (d : ℤ) (hd : 0 ≤ (d : ℝ)) (z : Qsqrtd (d : ℚ)) :
+    realEmbeddingPos d hd (star z) = realEmbeddingNeg d hd z := by
+  rw [realEmbeddingPos_apply, realEmbeddingNeg_apply]
+  simp [QuadraticAlgebra.re_star, QuadraticAlgebra.im_star]
+  ring
+
+/-- Quadratic conjugation turns the positive real embedding into the negative one. -/
+theorem realEmbeddingPos_conjAut
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : 0 ≤ (d : ℝ))
+    (z : Qsqrtd (d : ℚ)) :
+    realEmbeddingPos d hd (QuadraticField.conjAut (Qsqrtd (d : ℚ)) z) =
+      realEmbeddingNeg d hd z := by
+  change realEmbeddingPos d hd (star z) = realEmbeddingNeg d hd z
+  exact realEmbeddingPos_star d hd z
+
+/-- Positivity under all real embeddings is equivalent to positivity under
+`realEmbeddingPos` and `realEmbeddingNeg`. -/
 theorem forall_algHom_pos_iff_realEmbeddingPos_and_realEmbeddingNeg_pos
     (d : ℤ) (hd : 0 ≤ (d : ℝ)) (z : Qsqrtd (d : ℚ)) :
     (∀ σ : Qsqrtd (d : ℚ) →ₐ[ℚ] ℝ, 0 < σ z) ↔
@@ -148,7 +164,7 @@ theorem re_pos_of_forall_algHom_pos_of_star_self
     simpa using hpos
   exact_mod_cast hposR
 
-/-- For nonnegative `d`, the quadratic norm is the product of the two real
+/-- For `d ≥ 0`, the quadratic norm is the product of the two real
 embeddings. -/
 theorem norm_eq_realEmbeddingPos_mul_realEmbeddingNeg (d : ℤ) (hd : 0 ≤ (d : ℝ))
     (z : Qsqrtd (d : ℚ)) :
@@ -159,8 +175,7 @@ theorem norm_eq_realEmbeddingPos_mul_realEmbeddingNeg (d : ℤ) (hd : 0 ≤ (d :
   rw [Real.sq_sqrt hd]
   ring
 
-/-- If an element is positive under both real embeddings, then its quadratic norm
-is positive. -/
+/-- An element positive under both real embeddings has positive quadratic norm. -/
 theorem norm_pos_of_realEmbedding_pos (d : ℤ) (hd : 0 ≤ (d : ℝ))
     {z : Qsqrtd (d : ℚ)}
     (hpos : 0 < realEmbeddingPos d hd z)
@@ -171,13 +186,32 @@ theorem norm_pos_of_realEmbedding_pos (d : ℤ) (hd : 0 ≤ (d : ℝ))
 
 end RealEmbeddings
 
+section FractionRingEvaluation
+
+/-- Evaluating `w` by `σ` is the same as evaluating its image in `Q(√d)` by the
+`ℚ`-algebra hom obtained from `σ.comp e.symm.toRingHom`. -/
+theorem ringHom_eval_eq_algHom_eval
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (σ : FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))) →+* ℝ)
+    (w : FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ)))) :
+    let R := NumberField.RingOfIntegers (Qsqrtd (d : ℚ))
+    let e : FractionRing R ≃ₐ[R] Qsqrtd (d : ℚ) :=
+      FractionRing.algEquiv R (Qsqrtd (d : ℚ))
+    let φ : Qsqrtd (d : ℚ) →ₐ[ℚ] ℝ := (σ.comp e.symm.toRingHom).toRatAlgHom
+    σ w = φ (e w) := by
+  intro R e φ
+  dsimp [φ]
+  have hw : e.toRingEquiv.symm (e w) = w := by
+    exact e.toRingEquiv.symm_apply_apply w
+  rw [hw]
+
+end FractionRingEvaluation
+
 section InternalLemmas
 
 variable {d : ℤ} [Fact (¬ IsSquare ((d : ℤ) : ℚ))]
 
-/-- With the `ℚ`-algebra diamond resolved, `IsQuadraticExtension` follows from
-`QuadraticAlgebra.finrank_eq_two`. This is the instance needed after disabling
-`DivisionRing.toRatAlgebra`. -/
+/-- The quadratic-extension instance coming from `QuadraticAlgebra.finrank_eq_two`. -/
 instance : Algebra.IsQuadraticExtension ℚ (Qsqrtd (d : ℚ)) where
   finrank_eq_two' := QuadraticAlgebra.finrank_eq_two (d : ℚ) 0
 
@@ -197,7 +231,7 @@ private theorem embedding_omega_sq_re
   have := congr_arg Complex.re (embedding_omega_sq v)
   simp [sq, Complex.mul_re] at this; linarith
 
-/-- The imaginary part of `φ(ω)^2` gives `2 * re * im = 0`. -/
+/-- The imaginary part of `φ(ω)^2` is `2 * re * im = 0`. -/
 private theorem embedding_omega_sq_im
     (v : NumberField.InfinitePlace (Qsqrtd (d : ℚ))) :
     2 * (v.embedding QuadraticAlgebra.omega).re *
@@ -299,22 +333,20 @@ namespace QuadraticField
 variable {K : Type*} [Field K] [Algebra ℚ K]
 variable (d : ℤ) [Fact (¬ IsSquare ((d : ℤ) : ℚ))]
 
-/-- Transport total reality from `Qsqrtd d` to an abstract field isomorphic to
-it. -/
+/-- Transport total reality along an algebra equivalence with `Qsqrtd d`. -/
 theorem isTotallyReal_of_algEquiv_qsqrtd
     (e : K ≃ₐ[ℚ] Qsqrtd (d : ℚ)) (hd : 0 < d) :
     NumberField.IsTotallyReal K := by
   exact (NumberField.isTotallyReal_iff_ofAlgEquiv e).mpr (Qsqrtd.isTotallyReal d hd)
 
-/-- Transport total complexity from `Qsqrtd d` to an abstract field isomorphic
-to it. -/
+/-- Transport total complexity along an algebra equivalence with `Qsqrtd d`. -/
 theorem isTotallyComplex_of_algEquiv_qsqrtd
     (e : K ≃ₐ[ℚ] Qsqrtd (d : ℚ)) (hd : d < 0) :
     NumberField.IsTotallyComplex K := by
   exact (NumberField.isTotallyComplex_iff_ofAlgEquiv e).mpr (Qsqrtd.isTotallyComplex d hd)
 
-/-- Every abstract quadratic field is real or imaginary after choosing a
-standard squarefree integer parameter.
+/-- Every abstract quadratic field is real or imaginary after choosing a squarefree
+integer parameter.
 
 The proof chooses `d` with `exists_algEquiv_qsqrtd`, proves the statement for
 `Qsqrtd d`, then transports it back to `K`. -/
