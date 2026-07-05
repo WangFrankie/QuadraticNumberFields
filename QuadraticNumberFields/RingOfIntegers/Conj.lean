@@ -123,6 +123,15 @@ theorem fractionRing_algEquiv_conjAutFractionRingAlgEquiv [NumberField K]
     simp [R, RingHom.comp_apply, coe_conjAutRingOfIntegers_apply]
   exact RingHom.congr_fun hhom z
 
+/-- Fraction-field conjugation is involutive. -/
+@[simp]
+theorem conjAutFractionRingAlgEquiv_apply_apply [NumberField K] (z : FractionRing OK) :
+    (conjAutFractionRingAlgEquiv K) ((conjAutFractionRingAlgEquiv K) z) = z := by
+  apply (FractionRing.algEquiv OK K).injective
+  rw [fractionRing_algEquiv_conjAutFractionRingAlgEquiv,
+    fractionRing_algEquiv_conjAutFractionRingAlgEquiv]
+  exact QuadraticField.Conj.conj_conj (K := K) (FractionRing.algEquiv OK K z)
+
 /-- Hilbert 90 in the form used for quadratic integer rings: a norm-one
 integer-ring element is a conjugation coboundary. -/
 theorem exists_mul_conjAutRingOfIntegers_eq_self_of_norm_eq_one
