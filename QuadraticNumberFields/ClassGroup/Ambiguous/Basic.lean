@@ -53,7 +53,19 @@ end FixedIdeals
 argument, this is the result-side object after proving that conjugation acts as
 inversion on strict ideal classes. -/
 def InversionFixedClass (R : Type*) [CommRing R] [IsDomain R] :=
-  {C : _root_.NarrowClassGroup R // C = C⁻¹}
+  {C : NarrowClassGroup R // C = C⁻¹}
+
+namespace InversionFixedClass
+
+variable {R : Type*} [CommRing R] [IsDomain R]
+
+/-- An inversion-fixed narrow class has square one. -/
+theorem mul_self_eq_one (C : InversionFixedClass R) :
+    (C.1 : NarrowClassGroup R) * C.1 = 1 := by
+  nth_rewrite 1 [C.2]
+  rw [inv_mul_cancel]
+
+end InversionFixedClass
 
 /-- The two-torsion subgroup of the narrow class group is equivalent to the
 subtype of inversion-fixed narrow classes. -/
@@ -69,9 +81,7 @@ def twoTorsionEquivInversionFixedClass (R : Type*) [CommRing R] [IsDomain R] :
   invFun C := by
     refine ⟨C.1, ?_⟩
     rw [_root_.NarrowClassGroup.mem_twoTorsion_iff]
-    have hmul : C.1 * C.1 = 1 := by
-      nth_rewrite 1 [C.2]
-      rw [inv_mul_cancel]
+    have hmul : C.1 * C.1 = 1 := InversionFixedClass.mul_self_eq_one C
     simpa [pow_two] using hmul
   left_inv C := by
     ext
