@@ -4,10 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 
-import QNFMathlib.RingTheory.FractionalIdeal.RingEquiv
-import QuadraticNumberFields.ClassGroup.Ambiguous.RamifiedParity
+import QuadraticNumberFields.ClassGroup.Ambiguous.Conjugation
 import QuadraticNumberFields.ClassGroup.Narrow.Basic
-import QuadraticNumberFields.Qsqrtd.TotallyRealComplex
 
 /-!
 # Inversion-Fixed Class Representatives
@@ -21,7 +19,7 @@ namespace QuadraticNumberFields
 namespace ClassGroup
 namespace Ambiguous
 
-open scoped nonZeroDivisors NumberField Pointwise
+open scoped nonZeroDivisors NumberField
 
 section ClassLevel
 
@@ -35,8 +33,7 @@ theorem narrowClassGroup_mk0_mul_self_eq_one_of_inversionFixed
   have hmul : (C.1 : NarrowClassGroup R) * C.1 = 1 := by
     nth_rewrite 1 [C.2]
     rw [inv_mul_cancel]
-  rw [map_mul, hI]
-  exact hmul
+  simpa [map_mul, hI] using hmul
 
 /-- An inversion-fixed narrow class has a nonzero integral ideal representative
 whose square is cancelled by a totally positive principal fractional ideal. -/
@@ -50,14 +47,11 @@ theorem exists_integralIdeal_square_principal_relation_of_inversionFixedClass
               NarrowClassGroup.toNarrowPrincipalIdeal R (FractionRing R) x =
             1 := by
   obtain ⟨I, hI⟩ := NarrowClassGroup.mk0_surjective C.1
-  refine ⟨I, hI, ?_⟩
-  have hsq :
-      NarrowClassGroup.mk0 (I * I) = (1 : NarrowClassGroup R) :=
-    narrowClassGroup_mk0_mul_self_eq_one_of_inversionFixed hI
   obtain ⟨x, hxpos, hx⟩ :=
-    (NarrowClassGroup.mk0_eq_one_iff_exists_fraction_ring (I := I * I)).mp hsq
-  refine ⟨⟨x, hxpos⟩, ?_⟩
-  simpa [pow_two, NarrowClassGroup.toNarrowPrincipalIdeal] using hx
+    (NarrowClassGroup.mk0_eq_one_iff_exists_fraction_ring (I := I * I)).mp
+      (narrowClassGroup_mk0_mul_self_eq_one_of_inversionFixed hI)
+  exact ⟨I, hI, ⟨⟨x, hxpos⟩, by
+    simpa [pow_two, NarrowClassGroup.toNarrowPrincipalIdeal] using hx⟩⟩
 
 /-- An inversion-fixed narrow class has an integral ideal representative whose
 conjugate differs from it by a totally positive principal fractional ideal. -/
@@ -79,12 +73,8 @@ theorem exists_integralIdeal_tp_multiplier_to_conjAut_of_inversionFixedClass
   refine ⟨I, hI, ?_⟩
   have hconj :
       NarrowClassGroup.mk0 (conjAutNonzeroIdealMulEquiv K I) = C.1 := by
-    calc
-      NarrowClassGroup.mk0 (conjAutNonzeroIdealMulEquiv K I) =
-          (NarrowClassGroup.mk0 I)⁻¹ :=
-        narrowClassGroup_mk0_map_conjAut_eq_inv K I
-      _ = C.1⁻¹ := by rw [hI]
-      _ = C.1 := C.2.symm
+    rw [narrowClassGroup_mk0_map_conjAut_eq_inv K I, hI]
+    exact C.2.symm
   exact (NarrowClassGroup.mk0_eq_mk0_iff_exists_fraction_ring).mp
     (hI.trans hconj.symm)
 
