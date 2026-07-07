@@ -47,8 +47,7 @@ noncomputable def ramifiedParityNarrowClassHom :
       NarrowClassGroup OK :=
   MonoidHom.zmodPiPowHom 2 (ramifiedPrimeNarrowClass d) (by
     intro p
-    exact ((NarrowClassGroup.mem_twoTorsion_iff OK
-      (ramifiedPrimeNarrowClass d p)).mp
+    exact ((Subgroup.mem_twoTorsion_iff (x := ramifiedPrimeNarrowClass d p)).mp
       (ramifiedPrimeNarrowClass_mem_twoTorsion d p)))
 
 @[simp]
@@ -468,8 +467,7 @@ theorem ramifiedPrimeNarrowClass_pow_normalizedFactors_count_eq_parity
   let a := ramifiedPrimeNarrowClass d p
   have ha2 : a ^ 2 = 1 := by
     simpa [a] using
-      ((NarrowClassGroup.mem_twoTorsion_iff OK
-        (ramifiedPrimeNarrowClass d p)).mp
+      ((Subgroup.mem_twoTorsion_iff (x := ramifiedPrimeNarrowClass d p)).mp
         (ramifiedPrimeNarrowClass_mem_twoTorsion d p))
   have hval : (fullRamifiedParityVector d J p).val = n % 2 := by
     simp [fullRamifiedParityVector, n, ZMod.val_natCast]

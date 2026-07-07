@@ -91,7 +91,7 @@ theorem ramifiedPrimeNarrowClassOfIsRamified_mem_twoTorsion
     (p : ℕ) [Fact p.Prime] (hr : Ideal.IsRamifiedIn (𝔭(p)) OK) :
     ramifiedPrimeNarrowClassOfIsRamified d p hr ∈
       NarrowClassGroup.twoTorsion OK := by
-  rw [NarrowClassGroup.mem_twoTorsion_iff]
+  rw [Subgroup.mem_twoTorsion_iff]
   let P0 : (Ideal OK)⁰ :=
     ⟨ramifiedPrimeIdealOfIsRamified d p hr,
       mem_nonZeroDivisors_iff_ne_zero.mpr (ramifiedPrimeIdealOfIsRamified_ne_bot d p hr)⟩
