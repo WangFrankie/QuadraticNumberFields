@@ -6,6 +6,7 @@ Authors: Frankie Wang
 
 import QNFMathlib.RingTheory.ClassGroup.Narrow
 import QuadraticNumberFields.ClassGroup.Ambiguous.Basic
+import QuadraticNumberFields.ClassGroup.Torsion
 import QuadraticNumberFields.ClassGroup.RamifiedPrimes
 import QuadraticNumberFields.Splitting.Qsqrtd.Factorization
 import QuadraticNumberFields.Splitting.Qsqrtd.SqrtD

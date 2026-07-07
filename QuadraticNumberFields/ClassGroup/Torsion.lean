@@ -12,8 +12,10 @@ import QNFMathlib.RingTheory.ClassGroup.Narrow
 /-!
 # Torsion in Class Groups
 
-This file organizes ideal-theoretic torsion criteria for mathlib's ideal class
-group.
+This file collects multiplicative torsion and square-subgroup helpers for
+commutative groups, then specializes them to ordinary and narrow ideal class
+groups. The ideal-theoretic lemmas at the end characterize torsion of
+`ClassGroup.mk0` by principality of ideal powers.
 -/
 
 namespace Subgroup
@@ -28,69 +30,119 @@ theorem mem_powTorsion_iff (G : Type*) [CommGroup G] (n : ℕ) (x : G) :
     x ∈ powTorsion G n ↔ x ^ n = 1 :=
   Iff.rfl
 
+/-- The two-torsion subgroup of a multiplicative commutative group. -/
+noncomputable abbrev twoTorsion (G : Type*) [CommGroup G] : Subgroup G :=
+  powTorsion G 2
+
+/-- The quotient of a multiplicative commutative group by its square subgroup. -/
+abbrev squareQuotient (G : Type*) [CommGroup G] :=
+  G ⧸ square G
+
+/-- Membership in the two-torsion subgroup. -/
+theorem mem_twoTorsion_iff (G : Type*) [CommGroup G] (x : G) :
+    x ∈ twoTorsion G ↔ x ^ 2 = 1 :=
+  mem_powTorsion_iff G 2 x
+
+/-- Membership in the square subgroup. -/
+theorem mem_square_iff (G : Type*) [CommGroup G] (x : G) :
+    x ∈ square G ↔ ∃ y : G, y ^ 2 = x := by
+  simp [Subgroup.square, IsSquare, pow_two, eq_comm]
+
+/-- The square subgroup agrees with the range of the square map. -/
+theorem square_eq_powMonoidHom_range (G : Type*) [CommGroup G] :
+    square G = (powMonoidHom (α := G) 2).range := by
+  ext x
+  simp [Subgroup.square, IsSquare, pow_two, eq_comm]
+
+/-- For a finite commutative group, the square quotient has the same cardinality
+as the two-torsion subgroup. -/
+theorem card_squareQuotient_eq_card_twoTorsion (G : Type*) [CommGroup G] [Finite G] :
+    Nat.card (squareQuotient G) = Nat.card (twoTorsion G) := by
+  haveI : (powMonoidHom (α := G) 2).ker.FiniteIndex :=
+    Subgroup.finiteIndex_of_finite
+  simpa [squareQuotient, square_eq_powMonoidHom_range, twoTorsion, powTorsion,
+    Subgroup.index_eq_card] using
+    (Subgroup.index_range (f := powMonoidHom (α := G) 2))
+
+/-- A two-torsion element has square one. -/
+theorem twoTorsion_mul_self_eq_one {G : Type*} [CommGroup G] (x : twoTorsion G) :
+    (x.1 : G) * x.1 = 1 := by
+  have hpow : (x.1 : G) ^ 2 = 1 :=
+    (mem_twoTorsion_iff G x.1).mp x.2
+  simpa [pow_two] using hpow
+
+/-- A two-torsion element is fixed by inversion. -/
+theorem twoTorsion_eq_inv {G : Type*} [CommGroup G] (x : twoTorsion G) :
+    (x.1 : G) = x.1⁻¹ :=
+  (eq_inv_iff_mul_eq_one).2 (twoTorsion_mul_self_eq_one x)
+
 end Subgroup
 
 namespace ClassGroup
 
-variable {R : Type*} [CommRing R] [IsDomain R]
+variable (R)
+variable [CommRing R] [IsDomain R]
 
 /-- The subgroup of ideal classes killed by the `n`th-power map. This is the
 multiplicative class-group version of `AddSubgroup.torsionBy`. -/
-noncomputable abbrev torsionBy (R : Type*) [CommRing R] [IsDomain R] (n : ℕ) :
-    Subgroup (ClassGroup R) :=
+noncomputable abbrev torsionBy (n : ℕ) : Subgroup (ClassGroup R) :=
   Subgroup.powTorsion (ClassGroup R) n
 
 /-- The two-torsion subgroup `Cl[2]` of the ideal class group. -/
-noncomputable abbrev twoTorsion (R : Type*) [CommRing R] [IsDomain R] :
-    Subgroup (ClassGroup R) :=
-  torsionBy R 2
+noncomputable abbrev twoTorsion : Subgroup (ClassGroup R) :=
+  Subgroup.twoTorsion (ClassGroup R)
 
 /-- The subgroup `Cl²` of square ideal classes. -/
-noncomputable abbrev square (R : Type*) [CommRing R] [IsDomain R] :
-    Subgroup (ClassGroup R) :=
+noncomputable abbrev square : Subgroup (ClassGroup R) :=
   Subgroup.square (ClassGroup R)
 
 /-- The square-class quotient `Cl / Cl²`. -/
-abbrev squareQuotient (R : Type*) [CommRing R] [IsDomain R] :=
-  ClassGroup R ⧸ square R
+abbrev squareQuotient :=
+  Subgroup.squareQuotient (ClassGroup R)
 
 /-- Membership in the subgroup killed by the `n`th-power map. -/
 theorem mem_torsionBy_iff (R : Type*) [CommRing R] [IsDomain R]
     (n : ℕ) (C : ClassGroup R) :
-    C ∈ torsionBy R n ↔ C ^ n = 1 := by
-  exact Subgroup.mem_powTorsion_iff (ClassGroup R) n C
+    C ∈ torsionBy R n ↔ C ^ n = 1 :=
+  Subgroup.mem_powTorsion_iff (ClassGroup R) n C
 
 /-- Membership in `Cl[2]`. -/
 theorem mem_twoTorsion_iff (R : Type*) [CommRing R] [IsDomain R]
     (C : ClassGroup R) :
-    C ∈ twoTorsion R ↔ C ^ 2 = 1 := by
-  exact mem_torsionBy_iff R 2 C
+    C ∈ twoTorsion R ↔ C ^ 2 = 1 :=
+  Subgroup.mem_twoTorsion_iff (ClassGroup R) C
 
 /-- Membership in `Cl²`. -/
 theorem mem_square_iff (R : Type*) [CommRing R] [IsDomain R]
     (C : ClassGroup R) :
-    C ∈ square R ↔ ∃ D : ClassGroup R, D ^ 2 = C := by
-  simp [square, Subgroup.mem_square, IsSquare, pow_two, eq_comm]
+    C ∈ square R ↔ ∃ D : ClassGroup R, D ^ 2 = C :=
+  Subgroup.mem_square_iff (ClassGroup R) C
 
 /-- The mathlib square-subgroup definition agrees with the range of the square map. -/
 theorem square_eq_powMonoidHom_range (R : Type*) [CommRing R] [IsDomain R] :
-    square R = (powMonoidHom (α := ClassGroup R) 2).range := by
-  ext C
-  simp [square, Subgroup.mem_square, IsSquare, pow_two, eq_comm]
+    square R = (powMonoidHom (α := ClassGroup R) 2).range :=
+  Subgroup.square_eq_powMonoidHom_range (ClassGroup R)
 
 /-- For a finite class group, the square-class quotient has the same cardinality as
 the two-torsion subgroup. -/
 theorem card_squareQuotient_eq_card_twoTorsion
-    (R : Type*) [CommRing R] [IsDomain R] [Finite (ClassGroup R)] :
+    (R : Type*) [CommRing R] [IsDomain R]
+    [Finite (ClassGroup R)] :
     Nat.card (squareQuotient R) = Nat.card (twoTorsion R) := by
-  haveI : (powMonoidHom (α := ClassGroup R) 2).ker.FiniteIndex :=
-    Subgroup.finiteIndex_of_finite
-  simpa [squareQuotient, square_eq_powMonoidHom_range, twoTorsion, torsionBy,
-    Subgroup.powTorsion, Subgroup.index_eq_card] using
-    (Subgroup.index_range (f := powMonoidHom (α := ClassGroup R) 2))
+  simpa [squareQuotient, twoTorsion] using
+    (Subgroup.card_squareQuotient_eq_card_twoTorsion (ClassGroup R))
 
-local notation "Cl[" R "][" n "]" =>
-  Subgroup.powTorsion (ClassGroup R) n
+variable {R}
+
+/-- A two-torsion ideal class has square one. -/
+theorem twoTorsion_mul_self_eq_one (C : twoTorsion R) :
+    (C.1 : ClassGroup R) * C.1 = 1 :=
+  Subgroup.twoTorsion_mul_self_eq_one C
+
+/-- A two-torsion ideal class is fixed by inversion. -/
+theorem twoTorsion_eq_inv (C : twoTorsion R) :
+    (C.1 : ClassGroup R) = C.1⁻¹ :=
+  Subgroup.twoTorsion_eq_inv C
 
 variable [IsDedekindDomain R]
 
@@ -108,7 +160,7 @@ when `I ^ n` is principal. -/
 theorem mk0_mem_torsionBy_iff
     (I : nonZeroDivisors (Ideal R)) (n : ℕ) :
     mk0 I ∈ torsionBy R n ↔ ((I : Ideal R) ^ n).IsPrincipal := by
-  rw [mem_torsionBy_iff, mk0_pow_eq_one_iff_pow_isPrincipal]
+  rw [mem_torsionBy_iff R n, mk0_pow_eq_one_iff_pow_isPrincipal]
 
 /-- The ideal class `mk0 I` lies in the two-torsion subgroup `Cl[2]` exactly when
 `I ^ 2` is principal. -/
@@ -116,33 +168,31 @@ theorem mk0_mem_torsionBy_iff
 theorem mk0_mem_twoTorsion_iff
     (I : nonZeroDivisors (Ideal R)) :
     mk0 I ∈ twoTorsion R ↔ ((I : Ideal R) ^ 2).IsPrincipal := by
-  rw [mem_twoTorsion_iff, mk0_pow_eq_one_iff_pow_isPrincipal]
+  rw [mem_twoTorsion_iff R, mk0_pow_eq_one_iff_pow_isPrincipal]
 
 end ClassGroup
 
 namespace NarrowClassGroup
 
-variable {R : Type*} [CommRing R] [IsDomain R]
+variable (R)
+variable [CommRing R] [IsDomain R]
 
 /-- The subgroup of narrow ideal classes killed by the `n`th-power map. This is
 the narrow-class-group analogue of `ClassGroup.torsionBy`. -/
-noncomputable abbrev torsionBy (R : Type*) [CommRing R] [IsDomain R] (n : ℕ) :
-    Subgroup (NarrowClassGroup R) :=
+noncomputable abbrev torsionBy (n : ℕ) : Subgroup (NarrowClassGroup R) :=
   Subgroup.powTorsion (NarrowClassGroup R) n
 
 /-- The two-torsion subgroup `Cl⁺[2]` of the narrow ideal class group. -/
-noncomputable abbrev twoTorsion (R : Type*) [CommRing R] [IsDomain R] :
-    Subgroup (NarrowClassGroup R) :=
-  torsionBy R 2
+noncomputable abbrev twoTorsion : Subgroup (NarrowClassGroup R) :=
+  Subgroup.twoTorsion (NarrowClassGroup R)
 
 /-- The subgroup `Cl⁺²` of square narrow ideal classes. -/
-noncomputable abbrev square (R : Type*) [CommRing R] [IsDomain R] :
-    Subgroup (NarrowClassGroup R) :=
+noncomputable abbrev square : Subgroup (NarrowClassGroup R) :=
   Subgroup.square (NarrowClassGroup R)
 
 /-- The narrow square-class quotient `Cl⁺ / Cl⁺²`. -/
-abbrev squareQuotient (R : Type*) [CommRing R] [IsDomain R] :=
-  NarrowClassGroup R ⧸ square R
+abbrev squareQuotient :=
+  Subgroup.squareQuotient (NarrowClassGroup R)
 
 /-- Membership in the subgroup killed by the `n`th-power map. -/
 theorem mem_torsionBy_iff (R : Type*) [CommRing R] [IsDomain R]
@@ -154,24 +204,39 @@ theorem mem_torsionBy_iff (R : Type*) [CommRing R] [IsDomain R]
 theorem mem_twoTorsion_iff (R : Type*) [CommRing R] [IsDomain R]
     (C : NarrowClassGroup R) :
     C ∈ twoTorsion R ↔ C ^ 2 = 1 :=
-  mem_torsionBy_iff R 2 C
+  Subgroup.mem_twoTorsion_iff (NarrowClassGroup R) C
+
+/-- Membership in `Cl⁺²`. -/
+theorem mem_square_iff (R : Type*) [CommRing R] [IsDomain R]
+    (C : NarrowClassGroup R) :
+    C ∈ square R ↔ ∃ D : NarrowClassGroup R, D ^ 2 = C :=
+  Subgroup.mem_square_iff (NarrowClassGroup R) C
 
 /-- The narrow square subgroup agrees with the range of the square map. -/
 theorem square_eq_powMonoidHom_range (R : Type*) [CommRing R] [IsDomain R] :
-    square R = (powMonoidHom (α := NarrowClassGroup R) 2).range := by
-  ext C
-  simp [square, Subgroup.mem_square, IsSquare, pow_two, eq_comm]
+    square R = (powMonoidHom (α := NarrowClassGroup R) 2).range :=
+  Subgroup.square_eq_powMonoidHom_range (NarrowClassGroup R)
 
 /-- For a finite narrow class group, the square-class quotient has the same
 cardinality as the two-torsion subgroup. -/
 theorem card_squareQuotient_eq_card_twoTorsion
-    (R : Type*) [CommRing R] [IsDomain R] [Finite (NarrowClassGroup R)] :
+    (R : Type*) [CommRing R] [IsDomain R]
+    [Finite (NarrowClassGroup R)] :
     Nat.card (squareQuotient R) = Nat.card (twoTorsion R) := by
-  haveI : (powMonoidHom (α := NarrowClassGroup R) 2).ker.FiniteIndex :=
-    Subgroup.finiteIndex_of_finite
-  simpa [squareQuotient, square_eq_powMonoidHom_range, twoTorsion, torsionBy,
-    Subgroup.powTorsion, Subgroup.index_eq_card] using
-    (Subgroup.index_range (f := powMonoidHom (α := NarrowClassGroup R) 2))
+  simpa [squareQuotient, twoTorsion] using
+    (Subgroup.card_squareQuotient_eq_card_twoTorsion (NarrowClassGroup R))
+
+variable {R}
+
+/-- A narrow two-torsion class has square one. -/
+theorem twoTorsion_mul_self_eq_one (C : twoTorsion R) :
+    (C.1 : NarrowClassGroup R) * C.1 = 1 :=
+  Subgroup.twoTorsion_mul_self_eq_one C
+
+/-- A narrow two-torsion class is fixed by inversion. -/
+theorem twoTorsion_eq_inv (C : twoTorsion R) :
+    (C.1 : NarrowClassGroup R) = C.1⁻¹ :=
+  Subgroup.twoTorsion_eq_inv C
 
 end NarrowClassGroup
 

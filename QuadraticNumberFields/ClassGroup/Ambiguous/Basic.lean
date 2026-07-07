@@ -5,18 +5,15 @@ Authors: Frankie Wang
 -/
 
 import Mathlib.Dynamics.FixedPoints.Basic
-import QuadraticNumberFields.ClassGroup.Torsion
+import Mathlib.RingTheory.Ideal.Maps
 
 /-!
-# Ambiguous Narrow Classes
+# Ambiguous Ideals
 
-This file contains the narrow-class-group part of the elementary bridge
-`fixed by inversion = two-torsion`. For a quadratic extension, conjugation acts
-as inversion on ideal classes; the conjugation-specific ideal arithmetic belongs
-in the ramified/ambiguous layer, while this file keeps the group-theoretic
-strict-class-group interface independent.
+This file contains the ideal-level fixedness predicate used in the ambiguous
+class-group layer. For a ring automorphism `σ`, an ideal is ambiguous when
+mapping it along `σ` fixes it.
 -/
-
 namespace QuadraticNumberFields
 namespace ClassGroup
 namespace Ambiguous
@@ -48,56 +45,6 @@ theorem IsAmbiguousIdeal.mul {σ : B ≃+* B} {I J : Ideal B}
   rw [Ideal.map_mul, hI, hJ]
 
 end FixedIdeals
-
-/-- Narrow ideal classes fixed by inversion. In the quadratic ambiguous-class
-argument, this is the result-side object after proving that conjugation acts as
-inversion on strict ideal classes. -/
-def InversionFixedClass (R : Type*) [CommRing R] [IsDomain R] :=
-  {C : NarrowClassGroup R // C = C⁻¹}
-
-namespace InversionFixedClass
-
-variable {R : Type*} [CommRing R] [IsDomain R]
-
-/-- An inversion-fixed narrow class has square one. -/
-theorem mul_self_eq_one (C : InversionFixedClass R) :
-    (C.1 : NarrowClassGroup R) * C.1 = 1 := by
-  nth_rewrite 1 [C.2]
-  rw [inv_mul_cancel]
-
-end InversionFixedClass
-
-/-- The two-torsion subgroup of the narrow class group is equivalent to the
-subtype of inversion-fixed narrow classes. -/
-def twoTorsionEquivInversionFixedClass (R : Type*) [CommRing R] [IsDomain R] :
-    _root_.NarrowClassGroup.twoTorsion R ≃ InversionFixedClass R where
-  toFun C := by
-    refine ⟨(C : _root_.NarrowClassGroup R), ?_⟩
-    have hpow : (C : _root_.NarrowClassGroup R) ^ 2 = 1 := by
-      simpa using (_root_.NarrowClassGroup.mem_twoTorsion_iff R C).mp C.2
-    have hmul : (C : _root_.NarrowClassGroup R) * C = 1 := by
-      simpa [pow_two] using hpow
-    exact (eq_inv_iff_mul_eq_one).2 hmul
-  invFun C := by
-    refine ⟨C.1, ?_⟩
-    rw [_root_.NarrowClassGroup.mem_twoTorsion_iff]
-    have hmul : C.1 * C.1 = 1 := InversionFixedClass.mul_self_eq_one C
-    simpa [pow_two] using hmul
-  left_inv C := by
-    ext
-    rfl
-  right_inv C := by
-    apply Subtype.ext
-    rfl
-
-/-- The two-torsion subgroup and the inversion-fixed narrow classes have the
-same cardinality. This is the narrow group-theoretic form of
-`ambiguous narrow classes = Cl⁺[2]` once conjugation has been identified with
-inversion. -/
-theorem card_twoTorsion_eq_card_inversionFixedClass
-    (R : Type*) [CommRing R] [IsDomain R] :
-    Nat.card (_root_.NarrowClassGroup.twoTorsion R) = Nat.card (InversionFixedClass R) :=
-  Nat.card_congr (twoTorsionEquivInversionFixedClass R)
 
 end Ambiguous
 end ClassGroup
