@@ -19,60 +19,60 @@ groups. The ideal-theoretic lemmas at the end characterize torsion of
 -/
 
 namespace Subgroup
+variable (G) (n : ℕ)
+variable [CommGroup G]
 
 /-- The subgroup of elements killed by the `n`th-power map in a multiplicative
 group. This is the multiplicative-group analogue of `AddSubgroup.torsionBy`. -/
-noncomputable abbrev powTorsion (G : Type*) [CommGroup G] (n : ℕ) : Subgroup G :=
+noncomputable abbrev powTorsion : Subgroup G :=
   MonoidHom.ker (powMonoidHom (α := G) n)
 
 /-- Membership in the subgroup killed by the `n`th-power map. -/
-theorem mem_powTorsion_iff (G : Type*) [CommGroup G] (n : ℕ) (x : G) :
+theorem mem_powTorsion_iff (x : G) :
     x ∈ powTorsion G n ↔ x ^ n = 1 :=
   Iff.rfl
 
 /-- The two-torsion subgroup of a multiplicative commutative group. -/
-noncomputable abbrev twoTorsion (G : Type*) [CommGroup G] : Subgroup G :=
+noncomputable abbrev twoTorsion : Subgroup G :=
   powTorsion G 2
 
 /-- The quotient of a multiplicative commutative group by its square subgroup. -/
-abbrev squareQuotient (G : Type*) [CommGroup G] :=
+abbrev squareQuotient :=
   G ⧸ square G
 
 /-- Membership in the two-torsion subgroup. -/
-theorem mem_twoTorsion_iff (G : Type*) [CommGroup G] (x : G) :
+theorem mem_twoTorsion_iff (x : G) :
     x ∈ twoTorsion G ↔ x ^ 2 = 1 :=
   mem_powTorsion_iff G 2 x
 
 /-- Membership in the square subgroup. -/
-theorem mem_square_iff (G : Type*) [CommGroup G] (x : G) :
+theorem mem_square_iff (x : G) :
     x ∈ square G ↔ ∃ y : G, y ^ 2 = x := by
   simp [Subgroup.square, IsSquare, pow_two, eq_comm]
 
 /-- The square subgroup agrees with the range of the square map. -/
-theorem square_eq_powMonoidHom_range (G : Type*) [CommGroup G] :
+theorem square_eq_powMonoidHom_range :
     square G = (powMonoidHom (α := G) 2).range := by
   ext x
   simp [Subgroup.square, IsSquare, pow_two, eq_comm]
 
+variable {G}
 /-- For a finite commutative group, the square quotient has the same cardinality
 as the two-torsion subgroup. -/
-theorem card_squareQuotient_eq_card_twoTorsion (G : Type*) [CommGroup G] [Finite G] :
+theorem card_squareQuotient_eq_card_twoTorsion [Finite G] :
     Nat.card (squareQuotient G) = Nat.card (twoTorsion G) := by
-  haveI : (powMonoidHom (α := G) 2).ker.FiniteIndex :=
-    Subgroup.finiteIndex_of_finite
-  simpa [squareQuotient, square_eq_powMonoidHom_range, twoTorsion, powTorsion,
-    Subgroup.index_eq_card] using
+  simpa [squareQuotient, square_eq_powMonoidHom_range] using
     (Subgroup.index_range (f := powMonoidHom (α := G) 2))
 
 /-- A two-torsion element has square one. -/
-theorem twoTorsion_mul_self_eq_one {G : Type*} [CommGroup G] (x : twoTorsion G) :
+theorem twoTorsion_mul_self_eq_one (x : twoTorsion G) :
     (x.1 : G) * x.1 = 1 := by
   have hpow : (x.1 : G) ^ 2 = 1 :=
     (mem_twoTorsion_iff G x.1).mp x.2
   simpa [pow_two] using hpow
 
 /-- A two-torsion element is fixed by inversion. -/
-theorem twoTorsion_eq_inv {G : Type*} [CommGroup G] (x : twoTorsion G) :
+theorem twoTorsion_eq_inv (x : twoTorsion G) :
     (x.1 : G) = x.1⁻¹ :=
   (eq_inv_iff_mul_eq_one).2 (twoTorsion_mul_self_eq_one x)
 
@@ -130,7 +130,7 @@ theorem card_squareQuotient_eq_card_twoTorsion
     [Finite (ClassGroup R)] :
     Nat.card (squareQuotient R) = Nat.card (twoTorsion R) := by
   simpa [squareQuotient, twoTorsion] using
-    (Subgroup.card_squareQuotient_eq_card_twoTorsion (ClassGroup R))
+    (Subgroup.card_squareQuotient_eq_card_twoTorsion)
 
 variable {R}
 
@@ -224,7 +224,7 @@ theorem card_squareQuotient_eq_card_twoTorsion
     [Finite (NarrowClassGroup R)] :
     Nat.card (squareQuotient R) = Nat.card (twoTorsion R) := by
   simpa [squareQuotient, twoTorsion] using
-    (Subgroup.card_squareQuotient_eq_card_twoTorsion (NarrowClassGroup R))
+    (Subgroup.card_squareQuotient_eq_card_twoTorsion)
 
 variable {R}
 
