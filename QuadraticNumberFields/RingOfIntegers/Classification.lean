@@ -167,15 +167,15 @@ noncomputable def ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one
 theorem ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one_re
     (hd4 : d % 4 = 1) (α : 𝓞 (Qsqrtd (d : ℚ))) :
     let e := ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one d hd4
-    ((e α).re : ℚ) + ((e α).im : ℚ) / 2 = (α : Qsqrtd (d : ℚ)).re := by
-  exact ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_eq_re d (d / 4) (by omega) α
+    ((e α).re : ℚ) + ((e α).im : ℚ) / 2 = (α : Qsqrtd (d : ℚ)).re :=
+  ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_eq_re d (d / 4) (by omega) α
 
 /-- The `im` coordinate of the `d % 4 = 1` ring-of-integers equivalence. -/
 theorem ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one_im
     (hd4 : d % 4 = 1) (α : 𝓞 (Qsqrtd (d : ℚ))) :
     let e := ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one d hd4
-    ((e α).im : ℚ) / 2 = (α : Qsqrtd (d : ℚ)).im := by
-  exact ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_eq_im d (d / 4) (by omega) α
+    ((e α).im : ℚ) / 2 = (α : Qsqrtd (d : ℚ)).im :=
+  ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_eq_im d (d / 4) (by omega) α
 
 /-! ## Combined Classification -/
 

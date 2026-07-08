@@ -126,11 +126,11 @@ theorem fractionRing_algEquiv_conjAutFractionRingAlgEquiv [NumberField K]
 /-- Fraction-field conjugation is involutive. -/
 @[simp]
 theorem conjAutFractionRingAlgEquiv_apply_apply [NumberField K] (z : FractionRing OK) :
-    (conjAutFractionRingAlgEquiv K) ((conjAutFractionRingAlgEquiv K) z) = z := by
-  apply (FractionRing.algEquiv OK K).injective
-  rw [fractionRing_algEquiv_conjAutFractionRingAlgEquiv,
-    fractionRing_algEquiv_conjAutFractionRingAlgEquiv]
-  exact QuadraticField.Conj.conj_conj (K := K) (FractionRing.algEquiv OK K z)
+    (conjAutFractionRingAlgEquiv K) ((conjAutFractionRingAlgEquiv K) z) = z :=
+  (FractionRing.algEquiv OK K).injective (by
+    rw [fractionRing_algEquiv_conjAutFractionRingAlgEquiv,
+      fractionRing_algEquiv_conjAutFractionRingAlgEquiv]
+    exact QuadraticField.Conj.conj_conj (K := K) (FractionRing.algEquiv OK K z))
 
 /-- Hilbert 90 in the form used for quadratic integer rings: a norm-one
 integer-ring element is a conjugation coboundary. -/
@@ -159,8 +159,8 @@ theorem exists_mul_conjAutRingOfIntegers_eq_self_of_norm_eq_one
 /-- The fraction-field Galois element induced by quadratic conjugation on the
 ring of integers. -/
 noncomputable def conjAutFractionRingGal [NumberField K] :
-    Gal(FractionRing OK / FractionRing ℤ) := by
-  exact (galRestrict ℤ (FractionRing ℤ) (FractionRing OK) OK).symm
+    Gal(FractionRing OK / FractionRing ℤ) :=
+  (galRestrict ℤ (FractionRing ℤ) (FractionRing OK) OK).symm
     (conjAutRingOfIntegersAlgEquiv K)
 
 /-- Restricting `conjAutFractionRingGal` back to the ring of integers recovers

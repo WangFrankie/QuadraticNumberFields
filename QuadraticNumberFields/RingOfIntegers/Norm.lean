@@ -110,8 +110,8 @@ theorem ringOfIntegers_unit_re_sq_eq_one_of_star_self
   have hx_rat : x = algebraMap ℚ K x.re :=
     _root_.eq_algebraMap_re_of_star_self (by simpa [x] using hfix)
   have hnorm_int : Algebra.norm ℤ (u : OK) = 1 ∨ Algebra.norm ℤ (u : OK) = -1 := by
-    have hunit : IsUnit (Algebra.norm ℤ (u : OK)) := by
-      exact (Units.map (Algebra.norm ℤ : OK →* ℤ) u).isUnit
+    have hunit : IsUnit (Algebra.norm ℤ (u : OK)) :=
+      (Units.map (Algebra.norm ℤ : OK →* ℤ) u).isUnit
     simpa using (Int.isUnit_iff.mp hunit)
   have hnorm : x.re ^ 2 = (Algebra.norm ℤ (u : OK) : ℚ) := by
     calc
@@ -185,8 +185,8 @@ theorem norm_zsqrtd_toQsqrtd (d : ℤ) (z : Zsqrtd d) :
 
 /-- For `d % 4 ≠ 1`, elements of `ℤ[√d]` have integer norm after embedding. -/
 theorem norm_mem_zsqrtd (d : ℤ) (z : Zsqrtd d) :
-    ∃ n : ℤ, Qsqrtd.norm (Zsqrtd.toQsqrtd z) = n := by
-  exact ⟨Zsqrtd.norm z, norm_zsqrtd_toQsqrtd d z⟩
+    ∃ n : ℤ, Qsqrtd.norm (Zsqrtd.toQsqrtd z) = n :=
+  ⟨Zsqrtd.norm z, norm_zsqrtd_toQsqrtd d z⟩
 
 /-- The norm on `ZOnePlusSqrtdOverTwo k` is multiplicative. -/
 theorem norm_mul_zOnePlusSqrtOverTwo (k : ℤ) (x y : ZOnePlusSqrtdOverTwo k) :
@@ -215,8 +215,8 @@ theorem norm_zOnePlusSqrtOverTwo_toQsqrtd (k : ℤ) (z : ZOnePlusSqrtdOverTwo k)
 
 /-- For `d % 4 = 1`, elements of `ℤ[(1+√d)/2]` have integer norm after embedding. -/
 theorem norm_mem_zOnePlusSqrtOverTwo (k : ℤ) (z : ZOnePlusSqrtdOverTwo k) :
-    ∃ n : ℤ, Qsqrtd.norm (ZOnePlusSqrtdOverTwo.toQsqrtdHom k z) = n := by
-  exact ⟨QuadraticAlgebra.norm z, norm_zOnePlusSqrtOverTwo_toQsqrtd k z⟩
+    ∃ n : ℤ, Qsqrtd.norm (ZOnePlusSqrtdOverTwo.toQsqrtdHom k z) = n :=
+  ⟨QuadraticAlgebra.norm z, norm_zOnePlusSqrtOverTwo_toQsqrtd k z⟩
 
 section SquarefreeIntegerParameter
 
@@ -252,12 +252,12 @@ with the explicit `Zsqrtd` norm after transporting to `ℤ[√d]`. -/
 theorem algebraNorm_eq_zsqrtd_norm_of_mod_four_ne_one
     [NumberField (Qsqrtd (d : ℚ))] (hd4 : d % 4 ≠ 1) (α : 𝓞 (Qsqrtd (d : ℚ))) :
     Algebra.norm ℤ α =
-      Zsqrtd.norm ((ringOfIntegers_equiv_zsqrtd_of_mod_four_ne_one d hd4) α) := by
-  apply Int.cast_injective (α := ℚ)
-  rw [Algebra.coe_norm_int (K := Qsqrtd (d : ℚ)),
-    Qsqrtd.algebraNorm_ratAlgebra_eq_qsqrtdNorm]
-  rw [← ringOfIntegers_equiv_zsqrtd_of_mod_four_ne_one_apply d hd4 α]
-  exact norm_zsqrtd_toQsqrtd d _
+      Zsqrtd.norm ((ringOfIntegers_equiv_zsqrtd_of_mod_four_ne_one d hd4) α) :=
+  Int.cast_injective (α := ℚ) (by
+    rw [Algebra.coe_norm_int (K := Qsqrtd (d : ℚ)),
+      Qsqrtd.algebraNorm_ratAlgebra_eq_qsqrtdNorm]
+    rw [← ringOfIntegers_equiv_zsqrtd_of_mod_four_ne_one_apply d hd4 α]
+    exact norm_zsqrtd_toQsqrtd d _)
 
 /-- On the `d = 1 + 4 * k` branch, the integer norm of an algebraic integer agrees
 with the explicit `ZOnePlusSqrtdOverTwo` norm after transporting to
@@ -268,11 +268,11 @@ theorem algebraNorm_eq_zOnePlusSqrtOverTwo_norm_of_eq
     Algebra.norm ℤ α =
       QuadraticAlgebra.norm ((ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_eq d k hk) α) := by
   subst hk
-  apply Int.cast_injective (α := ℚ)
-  rw [Algebra.coe_norm_int (K := Qsqrtd (((1 + 4 * k : ℤ) : ℚ))),
-    Qsqrtd.algebraNorm_ratAlgebra_eq_qsqrtdNorm]
-  rw [← ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_eq_apply k α]
-  exact norm_zOnePlusSqrtOverTwo_toQsqrtd k _
+  exact Int.cast_injective (α := ℚ) (by
+    rw [Algebra.coe_norm_int (K := Qsqrtd (((1 + 4 * k : ℤ) : ℚ))),
+      Qsqrtd.algebraNorm_ratAlgebra_eq_qsqrtdNorm]
+    rw [← ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_eq_apply k α]
+    exact norm_zOnePlusSqrtOverTwo_toQsqrtd k _)
 
 /-- If `d < 0`, the algebra norm of an algebraic integer in `𝓞(Q(√d))` is
 nonnegative. -/
