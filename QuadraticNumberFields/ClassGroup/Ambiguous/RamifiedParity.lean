@@ -122,31 +122,12 @@ theorem factor_contribution_cases_narrowClass
   rcases normalizedFactor_span_cases_of_isAmbiguousIdeal d hI P.2 hp hcomap with
     hsplit | hinert | hram
   · refine Or.inl ⟨hsplit.1, ?_⟩
-    calc
-      NarrowClassGroup.mk0 (Ideal.normalizedFactorNonzeroIdeal I P) *
-          NarrowClassGroup.mk0
-            (Ideal.normalizedFactorNonzeroIdeal I
-              (conjAutNormalizedFactor (Qsqrtd (d : ℚ)) hI P)) =
-      NarrowClassGroup.mk0 (P0 * σP0) := by
-        simp [P0, σP0, σP, map_mul]
-      _ = NarrowClassGroup.mk0 spanP0 :=
-        congrArg NarrowClassGroup.mk0 (Subtype.ext hsplit.2)
-      _ = 1 := hspanP0_one
+    have hPσP : P0 * σP0 = spanP0 := Subtype.ext hsplit.2
+    rw [← map_mul, hPσP, hspanP0_one]
   · refine Or.inr <| Or.inl ⟨hinert.1, ?_⟩
-    calc
-      NarrowClassGroup.mk0 (Ideal.normalizedFactorNonzeroIdeal I P) =
-          NarrowClassGroup.mk0 spanP0 :=
-        congrArg NarrowClassGroup.mk0 (Subtype.ext hinert.2)
-      _ = 1 := hspanP0_one
+    exact (congrArg NarrowClassGroup.mk0 (Subtype.ext hinert.2)).trans hspanP0_one
   · refine Or.inr <| Or.inr ⟨hram.1, ?_⟩
-    calc
-      (NarrowClassGroup.mk0 (Ideal.normalizedFactorNonzeroIdeal I P) :
-          NarrowClassGroup OK) ^ 2 =
-          NarrowClassGroup.mk0 (P0 ^ 2) := by
-        simp [P0, map_pow]
-      _ = NarrowClassGroup.mk0 spanP0 := by
-        rw [show P0 ^ 2 = spanP0 from Subtype.ext hram.2]
-      _ = 1 := hspanP0_one
+    rw [← map_pow, show P0 ^ 2 = spanP0 from Subtype.ext hram.2, hspanP0_one]
 
 /-- Split conjugate normalized factors cancel in the narrow class group, with
 matching multiplicities. -/
@@ -199,12 +180,7 @@ theorem split_conj_normalizedFactor_powers_eq_one
   have hpair_one :
       NarrowClassGroup.mk0 P0 * NarrowClassGroup.mk0 σP0 =
         (1 : NarrowClassGroup OK) := by
-    calc
-      NarrowClassGroup.mk0 P0 * NarrowClassGroup.mk0 σP0 =
-          NarrowClassGroup.mk0 (P0 * σP0) := by
-        rw [map_mul]
-      _ = NarrowClassGroup.mk0 spanP0 := by rw [hPσP]
-      _ = 1 := hspanP0_one
+    rw [← map_mul, hPσP, hspanP0_one]
   have hcount :
       (UniqueFactorizationMonoid.normalizedFactors (I : Ideal OK)).count σP.1 =
         (UniqueFactorizationMonoid.normalizedFactors (I : Ideal OK)).count P.1 :=
@@ -345,85 +321,33 @@ theorem normalizedFactors_ramified_count_prod_eq_ramifiedPrime_count_prod
     ramifiedPrimeIdeal d p ∈ s
   have hleft :
       (∏ P ∈ S with normalizedFactorIsRamified d P, f P) = ∏ p ∈ T, term p := by
-    refine Finset.prod_bij
-      (fun P hP => ramifiedPrimeIndexOfNormalizedFactor d P (Finset.mem_filter.mp hP).2)
-      ?_ ?_ ?_ ?_
-    · intro P hP
-      rw [Finset.mem_filter]
-      refine ⟨Finset.mem_univ _, ?_⟩
-      have hPram : normalizedFactorIsRamified d P := (Finset.mem_filter.mp hP).2
-      have hP_eq :=
-        normalizedFactor_eq_ramifiedPrimeIdeal_ramifiedPrimeIndexOfNormalizedFactor
-          d P hPram
-      rw [← hP_eq]
-      exact P.2
-    · intro P hP Q hQ hpq
-      apply Subtype.ext
-      have hP_eq :=
-        normalizedFactor_eq_ramifiedPrimeIdeal_ramifiedPrimeIndexOfNormalizedFactor
-          d P (Finset.mem_filter.mp hP).2
-      have hQ_eq :=
-        normalizedFactor_eq_ramifiedPrimeIdeal_ramifiedPrimeIndexOfNormalizedFactor
-          d Q (Finset.mem_filter.mp hQ).2
-      calc
-        P.1 =
-            ramifiedPrimeIdeal d
-              (ramifiedPrimeIndexOfNormalizedFactor d P (Finset.mem_filter.mp hP).2) :=
-          hP_eq
-        _ =
-            ramifiedPrimeIdeal d
-              (ramifiedPrimeIndexOfNormalizedFactor d Q (Finset.mem_filter.mp hQ).2) :=
-          congrArg (fun p : RamifiedPrimeIndex d => ramifiedPrimeIdeal d p) hpq
-        _ = Q.1 := hQ_eq.symm
-    · intro p hpT
-      have hpMem : ramifiedPrimeIdeal d p ∈ s := (Finset.mem_filter.mp hpT).2
-      let P : {P // P ∈ s} := ⟨ramifiedPrimeIdeal d p, hpMem⟩
-      have hPram : normalizedFactorIsRamified d P :=
-        (normalizedFactorIsRamified_iff_exists_eq_ramifiedPrimeIdeal d P).mpr
-          ⟨p, rfl⟩
-      have hPmem : P ∈ S.filter fun P => normalizedFactorIsRamified d P := by
-        rw [Finset.mem_filter]
-        exact ⟨by simp [S, P], hPram⟩
-      refine ⟨P, hPmem, ?_⟩
-      have hP_eq :=
-        normalizedFactor_eq_ramifiedPrimeIdeal_ramifiedPrimeIndexOfNormalizedFactor
-          d P hPram
-      have hIdeal :
-          ramifiedPrimeIdeal d
-              (ramifiedPrimeIndexOfNormalizedFactor d P hPram) =
-            ramifiedPrimeIdeal d p := by
-        simpa [P] using hP_eq.symm
-      exact Subtype.ext (congrArg Subtype.val (ramifiedPrimeIdeal_injective d hIdeal))
-    · intro P hP
-      have hPram : normalizedFactorIsRamified d P := (Finset.mem_filter.mp hP).2
-      let p := ramifiedPrimeIndexOfNormalizedFactor d P hPram
-      have hP_eq :
-          P.1 = ramifiedPrimeIdeal d p :=
-        normalizedFactor_eq_ramifiedPrimeIdeal_ramifiedPrimeIndexOfNormalizedFactor
-          d P hPram
-      have hmk :
-          NarrowClassGroup.mk0 (Ideal.normalizedFactorNonzeroIdeal J P) =
-            ramifiedPrimeNarrowClass d p := by
-        rw [← mk0_ramifiedPrimeNonzeroIdeal d p]
-        exact congrArg NarrowClassGroup.mk0 (Subtype.ext hP_eq)
-      dsimp [f, term, p]
-      rw [hmk, hP_eq]
+    simpa [T] using
+      normalizedFactors_ramified_prod_eq_ramifiedPrimeIndex_filter_prod d J f term (by
+        intro P hPram
+        let p := ramifiedPrimeIndexOfNormalizedFactor d P hPram
+        have hP_eq :
+            P.1 = ramifiedPrimeIdeal d p :=
+          normalizedFactor_eq_ramifiedPrimeIdeal_ramifiedPrimeIndexOfNormalizedFactor
+            d P hPram
+        have hmk :
+            NarrowClassGroup.mk0 (Ideal.normalizedFactorNonzeroIdeal J P) =
+              ramifiedPrimeNarrowClass d p := by
+          rw [← mk0_ramifiedPrimeNonzeroIdeal d p]
+          exact congrArg NarrowClassGroup.mk0 (Subtype.ext hP_eq)
+        dsimp [f, term, p]
+        rw [hmk, hP_eq])
   have hright :
       (∏ p ∈ T, term p) =
         Finset.univ.prod fun p : RamifiedPrimeIndex d =>
           (ramifiedPrimeNarrowClass d p) ^
             (UniqueFactorizationMonoid.normalizedFactors (J : Ideal OK)).count
               (ramifiedPrimeIdeal d p) := by
-    have hfilter :
-        (∏ p ∈ Finset.univ with ramifiedPrimeIdeal d p ∈ s, term p) =
-          ∏ p : RamifiedPrimeIndex d, term p := by
-      refine Finset.prod_filter_of_ne ?_
-      intro p _hp hp_ne
-      by_contra hmem
-      have hcount0 : s.count (ramifiedPrimeIdeal d p) = 0 :=
-        Multiset.count_eq_zero_of_notMem hmem
-      exact hp_ne (by simp [term, hcount0])
-    simpa [T, term, s] using hfilter
+    simpa [T, term, s] using
+      ramifiedPrimeIndex_filter_prod_eq_univ_prod_of_not_mem_eq_one d J term (by
+        intro p hmem
+        have hcount0 : s.count (ramifiedPrimeIdeal d p) = 0 :=
+          Multiset.count_eq_zero_of_notMem hmem
+        simp [term, hcount0])
   exact hleft.trans hright
 
 /-- The full ramified-prime parity vector of a nonzero integral ideal. -/
@@ -471,12 +395,7 @@ theorem ramifiedPrimeNarrowClass_pow_normalizedFactors_count_eq_parity
         (ramifiedPrimeNarrowClass_mem_twoTorsion d p))
   have hval : (fullRamifiedParityVector d J p).val = n % 2 := by
     simp [fullRamifiedParityVector, n, ZMod.val_natCast]
-  calc
-    (ramifiedPrimeNarrowClass d p) ^
-        (UniqueFactorizationMonoid.normalizedFactors (J : Ideal OK)).count
-          (ramifiedPrimeIdeal d p) = a ^ n := rfl
-    _ = a ^ (n % 2) := pow_eq_pow_mod n ha2
-    _ = a ^ (fullRamifiedParityVector d J p).val := by rw [hval]
+  simpa [a, n, hval] using pow_eq_pow_mod n ha2
 
 /-- Count-powered product formula for an ambiguous integral ideal. Split
 conjugate pairs cancel, inert factors are narrowly principal, and ramified

@@ -25,7 +25,7 @@ p ramified
 
 -/
 
-open scoped NumberField nonZeroDivisors
+open scoped BigOperators NumberField nonZeroDivisors
 open scoped QuadraticNumberFields.Splitting
 
 open Ideal FractionalIdeal
@@ -63,8 +63,8 @@ theorem map_eq_sq_ramifiedPrimeIdealOfIsRamified
 theorem ramifiedPrimeIdealOfIsRamified_ne_bot
     (p : ℕ) [Fact p.Prime] (hr : Ideal.IsRamifiedIn (𝔭(p)) OK) :
     ramifiedPrimeIdealOfIsRamified d p hr ≠ ⊥ := by
-  have hpbot : 𝔭(p) ≠ (⊥ : Ideal ℤ) := by
-    exact Splitting.pIdeal_ne_bot (Fact.out : Nat.Prime p)
+  have hpbot : 𝔭(p) ≠ (⊥ : Ideal ℤ) :=
+    Splitting.pIdeal_ne_bot (Fact.out : Nat.Prime p)
   exact Ideal.ne_bot_of_mem_primesOver hpbot
     (ramifiedPrimeIdealOfIsRamified_mem_primesOver d p hr)
 
@@ -100,9 +100,8 @@ theorem ramifiedPrimeNarrowClassOfIsRamified_mem_twoTorsion
     rw [Ideal.map_span, Set.image_singleton]
     rfl
   have hP0_sq : (P0 ^ 2 : (Ideal OK)⁰) =
-      Splitting.natCastSpanNonzeroIdeal d p (Fact.out : Nat.Prime p) := by
-    apply Subtype.ext
-    exact (map_eq_sq_ramifiedPrimeIdealOfIsRamified d p hr).symm.trans hspan
+      Splitting.natCastSpanNonzeroIdeal d p (Fact.out : Nat.Prime p) :=
+    Subtype.ext ((map_eq_sq_ramifiedPrimeIdealOfIsRamified d p hr).symm.trans hspan)
   change (NarrowClassGroup.mk0 P0) ^ 2 = 1
   rw [← map_pow, hP0_sq]
   exact mk0_natCastSpanNonzeroIdeal_eq_one d (Fact.out : Nat.Prime p)
@@ -271,10 +270,9 @@ theorem normalizedFactorIsRamified_iff_exists_eq_ramifiedPrimeIdeal
     exact normalizedFactor_eq_ramifiedPrimeIdeal_of_isRamifiedIn
       d P hp hcomap hram
   · rintro ⟨p, hP⟩
-    refine ⟨p.1, prime_of_mem_ramifiedPrimeIndex d p, ?_, ?_⟩
-    · rw [hP]
-      exact (ramifiedPrimeIdeal_mem_primesOver d p).2.1.symm
-    · exact isRamified_of_mem_ramifiedPrimeIndex d p
+    exact ⟨p.1, prime_of_mem_ramifiedPrimeIndex d p,
+      by rw [hP]; exact (ramifiedPrimeIdeal_mem_primesOver d p).2.1.symm,
+      isRamified_of_mem_ramifiedPrimeIndex d p⟩
 
 /-- The ramified-prime index attached to a normalized factor known to be
 ramified. -/
@@ -298,6 +296,86 @@ theorem normalizedFactor_eq_ramifiedPrimeIdeal_ramifiedPrimeIndexOfNormalizedFac
   Classical.choose_spec
     ((normalizedFactorIsRamified_iff_exists_eq_ramifiedPrimeIdeal
       d P).mp hP)
+
+/-- A product over ramified normalized factors can be reindexed by
+`RamifiedPrimeIndex`. -/
+theorem normalizedFactors_ramified_prod_eq_ramifiedPrimeIndex_filter_prod
+    {M : Type*} [CommMonoid M]
+    (I : (Ideal OK)⁰)
+    [DecidablePred (fun P :
+        {P // P ∈ UniqueFactorizationMonoid.normalizedFactors (I : Ideal OK)} =>
+      normalizedFactorIsRamified d P)]
+    (f : {P // P ∈ UniqueFactorizationMonoid.normalizedFactors (I : Ideal OK)} → M)
+    (term : RamifiedPrimeIndex d → M)
+    (hterm : ∀ P hP, f P = term (ramifiedPrimeIndexOfNormalizedFactor d P hP)) :
+    (∏ P ∈
+        (UniqueFactorizationMonoid.normalizedFactors (I : Ideal OK)).attach.toFinset with
+        normalizedFactorIsRamified d P,
+      f P) =
+      ∏ p ∈ Finset.univ.filter fun p : RamifiedPrimeIndex d =>
+        ramifiedPrimeIdeal d p ∈
+          UniqueFactorizationMonoid.normalizedFactors (I : Ideal OK),
+        term p := by
+  let s := UniqueFactorizationMonoid.normalizedFactors (I : Ideal OK)
+  let S := s.attach.toFinset
+  refine Finset.prod_bij
+    (fun P hP => ramifiedPrimeIndexOfNormalizedFactor d P (Finset.mem_filter.mp hP).2)
+    ?_ ?_ ?_ ?_
+  · intro P hP
+    rw [Finset.mem_filter]
+    refine ⟨Finset.mem_univ _, ?_⟩
+    have hPram : normalizedFactorIsRamified d P := (Finset.mem_filter.mp hP).2
+    have hP_eq :=
+      normalizedFactor_eq_ramifiedPrimeIdeal_ramifiedPrimeIndexOfNormalizedFactor d P hPram
+    rw [← hP_eq]
+    exact P.2
+  · intro P hP Q hQ hpq
+    apply Subtype.ext
+    have hP_eq :=
+      normalizedFactor_eq_ramifiedPrimeIdeal_ramifiedPrimeIndexOfNormalizedFactor
+        d P (Finset.mem_filter.mp hP).2
+    have hQ_eq :=
+      normalizedFactor_eq_ramifiedPrimeIdeal_ramifiedPrimeIndexOfNormalizedFactor
+        d Q (Finset.mem_filter.mp hQ).2
+    exact hP_eq.trans ((congrArg (ramifiedPrimeIdeal d) hpq).trans hQ_eq.symm)
+  · intro p hpT
+    have hpMem : ramifiedPrimeIdeal d p ∈ s := (Finset.mem_filter.mp hpT).2
+    let P : {P // P ∈ s} := ⟨ramifiedPrimeIdeal d p, hpMem⟩
+    have hPram : normalizedFactorIsRamified d P :=
+      (normalizedFactorIsRamified_iff_exists_eq_ramifiedPrimeIdeal d P).mpr
+        ⟨p, rfl⟩
+    have hPmem : P ∈ S.filter fun P => normalizedFactorIsRamified d P := by
+      rw [Finset.mem_filter]
+      exact ⟨by simp [S, P], hPram⟩
+    refine ⟨P, hPmem, ?_⟩
+    have hP_eq :=
+      normalizedFactor_eq_ramifiedPrimeIdeal_ramifiedPrimeIndexOfNormalizedFactor d P hPram
+    have hIdeal :
+        ramifiedPrimeIdeal d (ramifiedPrimeIndexOfNormalizedFactor d P hPram) =
+          ramifiedPrimeIdeal d p := by
+      simpa [P] using hP_eq.symm
+    exact Subtype.ext (congrArg Subtype.val (ramifiedPrimeIdeal_injective d hIdeal))
+  · intro P hP
+    exact hterm P (Finset.mem_filter.mp hP).2
+
+/-- A product over indexed ramified primes can ignore indices whose ramified
+prime ideal does not occur, provided those terms are `1`. -/
+theorem ramifiedPrimeIndex_filter_prod_eq_univ_prod_of_not_mem_eq_one
+    {M : Type*} [CommMonoid M]
+    (I : (Ideal OK)⁰)
+    (term : RamifiedPrimeIndex d → M)
+    (hnotMem : ∀ p,
+      ramifiedPrimeIdeal d p ∉ UniqueFactorizationMonoid.normalizedFactors (I : Ideal OK) →
+        term p = 1) :
+    (∏ p ∈ Finset.univ.filter fun p : RamifiedPrimeIndex d =>
+        ramifiedPrimeIdeal d p ∈
+          UniqueFactorizationMonoid.normalizedFactors (I : Ideal OK),
+      term p) =
+      ∏ p : RamifiedPrimeIndex d, term p := by
+  refine Finset.prod_filter_of_ne ?_
+  intro p _hp hp_ne
+  by_contra hmem
+  exact hp_ne (hnotMem p hmem)
 
 end Qsqrtd
 

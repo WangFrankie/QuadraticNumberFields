@@ -365,14 +365,10 @@ theorem normalizedFactorIsRamified_conjAutNormalizedFactor_iff
     (P : {P // P ∈ UniqueFactorizationMonoid.normalizedFactors (I : Ideal OK)}) :
     normalizedFactorIsRamified d (conjAutNormalizedFactor (Qsqrtd (d : ℚ)) hI P) ↔
       normalizedFactorIsRamified d P := by
-  constructor
-  · rintro ⟨p, hp, hcomap, hram⟩
-    refine ⟨p, hp, ?_, hram⟩
-    rw [← conjAutNormalizedFactor_comap_eq (Qsqrtd (d : ℚ)) hI P]
+  constructor <;> rintro ⟨p, hp, hcomap, hram⟩ <;> refine ⟨p, hp, ?_, hram⟩
+  · rw [← conjAutNormalizedFactor_comap_eq (Qsqrtd (d : ℚ)) hI P]
     exact hcomap
-  · rintro ⟨p, hp, hcomap, hram⟩
-    refine ⟨p, hp, ?_, hram⟩
-    rw [conjAutNormalizedFactor_comap_eq (Qsqrtd (d : ℚ)) hI P]
+  · rw [conjAutNormalizedFactor_comap_eq (Qsqrtd (d : ℚ)) hI P]
     exact hcomap
 
 end QsqrtdNormalizedFactorConjugation
