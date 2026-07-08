@@ -719,6 +719,62 @@ theorem mk0_eq_one_iff_exists_fraction_ring [IsDedekindDomain R] {I : (Ideal R)�
   simpa using
     (mk0_eq_mk0_iff_exists_fraction_ring (R := R) (I := I) (J := (1 : (Ideal R)⁰)))
 
+/-- A principal nonzero integral ideal has a fraction-field generator whose
+principal fractional ideal is its `mk0`. -/
+theorem exists_toPrincipalIdeal_eq_mk0_of_isPrincipal [IsDedekindDomain R]
+    {I : (Ideal R)⁰} (hI : (I : Ideal R).IsPrincipal) :
+    ∃ γ : (FractionRing R)ˣ,
+      toPrincipalIdeal R (FractionRing R) γ = FractionalIdeal.mk0 (FractionRing R) I := by
+  classical
+  letI : (I : Ideal R).IsPrincipal := hI
+  let a : R := Submodule.IsPrincipal.generator (I : Ideal R)
+  have hIa : Ideal.span ({a} : Set R) = (I : Ideal R) := by
+    simp [a]
+  have hI0 : (I : Ideal R) ≠ ⊥ :=
+    mem_nonZeroDivisors_iff_ne_zero.mp I.2
+  have ha0 : a ≠ 0 :=
+    fun ha => hI0 (by rw [← hIa, ha, Ideal.span_singleton_eq_bot])
+  let γ : (FractionRing R)ˣ := Units.mk0 (algebraMap R (FractionRing R) a) (by
+    simpa using (FaithfulSMul.algebraMap_injective R (FractionRing R)).ne ha0)
+  refine ⟨γ, ?_⟩
+  rw [toPrincipalIdeal_eq_iff]
+  change FractionalIdeal.spanSingleton R⁰ (algebraMap R (FractionRing R) a) =
+    (FractionalIdeal.mk0 (FractionRing R) I : FractionalIdeal R⁰ (FractionRing R))
+  rw [← FractionalIdeal.coeIdeal_span_singleton (P := FractionRing R) a, hIa]
+  rfl
+
+/-- Negating a fraction-field unit does not change its principal fractional ideal. -/
+theorem toPrincipalIdeal_neg [IsDedekindDomain R]
+    (γ : (FractionRing R)ˣ) :
+    toPrincipalIdeal R (FractionRing R) (-γ) = toPrincipalIdeal R (FractionRing R) γ := by
+  rw [← Units.val_inj]
+  rw [coe_toPrincipalIdeal, coe_toPrincipalIdeal]
+  rw [FractionalIdeal.spanSingleton_eq_spanSingleton]
+  exact ⟨-1, by simp⟩
+
+private theorem toPrincipalIdeal_algebraMap_unit_eq_one [IsDedekindDomain R]
+    (u : Rˣ) :
+    toPrincipalIdeal R (FractionRing R)
+        (Units.map (algebraMap R (FractionRing R)).toMonoidHom u) = 1 := by
+  rw [← Units.val_inj]
+  rw [coe_toPrincipalIdeal]
+  change FractionalIdeal.spanSingleton R⁰ (algebraMap R (FractionRing R) (u : R)) =
+    (1 : FractionalIdeal R⁰ (FractionRing R))
+  rw [← FractionalIdeal.coeIdeal_span_singleton (P := FractionRing R) (u : R)]
+  rw [Ideal.span_singleton_eq_top.mpr u.isUnit]
+  rfl
+
+/-- Multiplying a fraction-field generator by an integral unit does not change
+its principal fractional ideal. -/
+theorem toPrincipalIdeal_mul_algebraMap_unit [IsDedekindDomain R]
+    (γ : (FractionRing R)ˣ) (u : Rˣ) :
+    toPrincipalIdeal R (FractionRing R)
+        (γ * Units.map (algebraMap R (FractionRing R)).toMonoidHom u) =
+      toPrincipalIdeal R (FractionRing R) γ := by
+  rw [map_mul]
+  rw [toPrincipalIdeal_algebraMap_unit_eq_one]
+  simp
+
 /-- Multiplication by a square principal fractional ideal preserves the narrow
 ideal class. -/
 theorem mk_eq_mk_mul_toPrincipalIdeal_sq
