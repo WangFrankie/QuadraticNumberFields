@@ -37,23 +37,6 @@ __pycache__/
 
 *.db
 
-#AI
-.omc
-.omx
-.omo
-.claude
-.codex
-.agents
-AGENTS.md
-CLAUDE.md
-docs/superpowers/
-.agent/
-.codegraph/
-.comet/
-.mcp.json
-skills-lock.json
-openspec/
-
 #Local Files
 docs/local/
 *.*.local
