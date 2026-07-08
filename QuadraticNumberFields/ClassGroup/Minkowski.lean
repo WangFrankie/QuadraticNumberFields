@@ -267,8 +267,8 @@ of `𝓞(ℚ(√d))` with absolute norm at most `minkowskiBound d` is principal,
 theorem classNumber_eq_one_of_forall_le_minkowskiBound_isPrincipal
     (h : ∀ P : Ideal (𝓞 (Qsqrtd (d : ℚ))), P.IsPrime → P ≠ ⊥ →
       (Ideal.absNorm P : ℝ) ≤ minkowskiBound d → P.IsPrincipal) :
-    NumberField.classNumber (Qsqrtd (d : ℚ)) = 1 := by
-  exact NumberField.classNumber_eq_one_of_forall_classGroup_eq_one
+    NumberField.classNumber (Qsqrtd (d : ℚ)) = 1 :=
+  NumberField.classNumber_eq_one_of_forall_classGroup_eq_one
     (classGroup_eq_one_of_forall_le_minkowskiBound_isPrincipal d h)
 
 /-- Class-group form of the rational-prime fiber criterion: if for every rational
@@ -298,8 +298,8 @@ ideal above every rational prime `p ≤ minkowskiBound d` is principal, then
 theorem classNumber_eq_one_of_forall_le_minkowskiBound_primesOver_isPrincipal
     (h : ∀ p : ℕ, p.Prime → (p : ℝ) ≤ minkowskiBound d →
       ∀ P ∈ Ideal.primesOver (𝔭(p)) 𝓞(d), P.IsPrincipal) :
-    NumberField.classNumber (Qsqrtd (d : ℚ)) = 1 := by
-  exact NumberField.classNumber_eq_one_of_forall_classGroup_eq_one
+    NumberField.classNumber (Qsqrtd (d : ℚ)) = 1 :=
+  NumberField.classNumber_eq_one_of_forall_classGroup_eq_one
     (classGroup_eq_one_of_forall_le_minkowskiBound_primesOver_isPrincipal d h)
 
 /-- Class number one via inert or split small primes. Inert primes contribute
@@ -380,8 +380,8 @@ and the class group is trivial. -/
 theorem classNumber_eq_one_of_forall_le_minkowskiBound_isInertIn
     (h : ∀ p : ℕ, p.Prime → (p : ℝ) ≤ minkowskiBound d →
       Ideal.IsInertIn (𝔭(p)) 𝓞(d)) :
-    NumberField.classNumber (Qsqrtd (d : ℚ)) = 1 := by
-  exact NumberField.classNumber_eq_one_of_forall_classGroup_eq_one
+    NumberField.classNumber (Qsqrtd (d : ℚ)) = 1 :=
+  NumberField.classNumber_eq_one_of_forall_classGroup_eq_one
     (classGroup_eq_one_of_forall_le_minkowskiBound_isInertIn d h)
 
 end ClassNumberOne

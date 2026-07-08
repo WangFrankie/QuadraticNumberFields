@@ -124,10 +124,9 @@ theorem fixed_totallyPositiveRingUnits_eq_one
     (hfix :
       star ((((u : NarrowClassGroup.totallyPositiveRingUnits OK K) : OKˣ) : OK) : K) =
         ((((u : NarrowClassGroup.totallyPositiveRingUnits OK K) : OKˣ) : OK) : K)) :
-    u = 1 := by
-  apply Subtype.ext
-  exact fixed_totallyPositiveRingUnit_eq_one d hd (u := (u : OKˣ)) (by
-    exact u.2) hfix
+    u = 1 :=
+  Subtype.ext (fixed_totallyPositiveRingUnit_eq_one d hd (u := (u : OKˣ)) (by
+    exact u.2) hfix)
 
 /-- Concrete positive Hilbert 90 for the real quadratic standard model.
 

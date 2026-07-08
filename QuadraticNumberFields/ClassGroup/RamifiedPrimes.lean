@@ -86,25 +86,23 @@ theorem mem_ramifiedPrimes_iff_isRamifiedIn (p : ℕ) :
     p ∈ ramifiedPrimes d ↔ p.Prime ∧ Ideal.IsRamifiedIn (𝔭(p)) 𝓞(d) := by
   constructor
   · intro hp
-    have hp_prime : p.Prime := Nat.prime_of_mem_primeFactors
-      ((mem_ramifiedPrimes_iff d p).mp hp)
-    letI : Fact p.Prime := ⟨hp_prime⟩
+    have hmem := Nat.mem_primeFactors.mp ((mem_ramifiedPrimes_iff d p).mp hp)
+    letI : Fact p.Prime := ⟨hmem.1⟩
     have hp_dvd_disc : (p : ℤ) ∣ NumberField.discr (Qsqrtd (d : ℚ)) := by
-      have hmem := Nat.mem_primeFactors.mp ((mem_ramifiedPrimes_iff d p).mp hp)
       rw [← Int.dvd_natAbs]
       exact_mod_cast hmem.2.1
-    exact ⟨hp_prime, (Splitting.isRamified_iff_dvd_disc d p).mpr hp_dvd_disc⟩
+    exact ⟨hmem.1, (Splitting.isRamified_iff_dvd_disc d p).mpr hp_dvd_disc⟩
   · rintro ⟨hp_prime, hram⟩
     letI : Fact p.Prime := ⟨hp_prime⟩
     have hp_dvd_disc : (p : ℤ) ∣ NumberField.discr (Qsqrtd (d : ℚ)) :=
       (Splitting.isRamified_iff_dvd_disc d p).mp hram
     rw [ramifiedPrimes]
-    apply hp_prime.mem_primeFactors
-    · simpa using
+    exact hp_prime.mem_primeFactors
+      (by simpa using
         (Int.natAbs_dvd_natAbs (a := (p : ℤ))
-          (b := NumberField.discr (Qsqrtd (d : ℚ)))).mpr hp_dvd_disc
-    · rw [Int.natAbs_ne_zero]
-      exact NumberField.discr_ne_zero (Qsqrtd (d : ℚ))
+          (b := NumberField.discr (Qsqrtd (d : ℚ)))).mpr hp_dvd_disc)
+      (by rw [Int.natAbs_ne_zero]
+          exact NumberField.discr_ne_zero (Qsqrtd (d : ℚ)))
 
 /-- The number of `RamifiedPrimeIndex` terms is the ramified-prime count. -/
 theorem fintype_card_ramifiedPrimeIndex :
