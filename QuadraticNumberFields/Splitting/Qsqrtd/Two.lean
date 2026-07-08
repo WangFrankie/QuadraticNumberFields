@@ -101,8 +101,8 @@ private lemma monicFactorsMod_two_eq_singleton_quadratic (hd8 : d % 8 = 5) :
   have : ((X ^ 2 + X + 1 : (ZMod 2)[X]) = (C 1 * X ^ 2 + C 1 * X + C 1:(ZMod 2)[X])) := by
       -- rw [Polynomial.C_mul', Polynomial.C_mul', Polynomial.C_1]
       simp only [Polynomial.C_1, one_mul]
-  have deg_eq_two : (X ^ 2 + X + 1 : (ZMod 2)[X]).natDegree = 2 := by
-    exact this ▸ Polynomial.natDegree_quadratic (one_ne_zero : (1 : ZMod 2) ≠ 0)
+  have deg_eq_two : (X ^ 2 + X + 1 : (ZMod 2)[X]).natDegree = 2 :=
+    this ▸ Polynomial.natDegree_quadratic (one_ne_zero : (1 : ZMod 2) ≠ 0)
   refine ⟨X ^ 2 + X + 1, ?_, deg_eq_two⟩
   have hd4: d % 4 = 1 := by omega
     -- d=8*k+5 for some k, so d/4 = 2k + 1 is odd, so (d/4 : ZMod 2) = 1.

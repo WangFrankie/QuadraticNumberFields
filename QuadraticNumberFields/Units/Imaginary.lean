@@ -33,13 +33,13 @@ section Zsqrtd
 variable {d : ℤ}
 
 /-- For `d < 0` the norm on `ℤ[√d]` is nonnegative. -/
-theorem zsqrtd_norm_nonneg (hd : d < 0) (z : Zsqrtd d) : 0 ≤ Zsqrtd.norm z := by
-  exact norm_nonneg_of_discr_nonpos (a := d) (b := 0) (by nlinarith) z
+theorem zsqrtd_norm_nonneg (hd : d < 0) (z : Zsqrtd d) : 0 ≤ Zsqrtd.norm z :=
+  norm_nonneg_of_discr_nonpos (a := d) (b := 0) (by nlinarith) z
 
 /-- For `d < -1` the only units of `ℤ[√d]` are `±1`. -/
 theorem isUnit_zsqrtd_iff_of_lt_neg_one (hd : d < -1) (z : Zsqrtd d) :
-    IsUnit z ↔ z = 1 ∨ z = -1 := by
-  exact isUnit_iff_eq_one_or_neg_one_of_discr_lt_neg_four (a := d) (b := 0)
+    IsUnit z ↔ z = 1 ∨ z = -1 :=
+  isUnit_iff_eq_one_or_neg_one_of_discr_lt_neg_four (a := d) (b := 0)
     (by nlinarith) z
 
 /-- The units of the Gaussian integers `ℤ[√-1]` are `±1` and `±√-1`. -/
@@ -191,8 +191,8 @@ section ZOnePlusSqrtdOverTwo
 /-- For `k ≤ -2` (so `d = 1 + 4k ≤ -7`) the only units of `ℤ[(1+√(1+4k))/2]`
 are `±1`. -/
 theorem isUnit_zOnePlusSqrtOverTwo_iff_of_le_neg_two {k : ℤ} (hk : k ≤ -2)
-    (z : ZOnePlusSqrtdOverTwo k) : IsUnit z ↔ z = 1 ∨ z = -1 := by
-  exact isUnit_iff_eq_one_or_neg_one_of_discr_lt_neg_four (a := k) (b := 1)
+    (z : ZOnePlusSqrtdOverTwo k) : IsUnit z ↔ z = 1 ∨ z = -1 :=
+  isUnit_iff_eq_one_or_neg_one_of_discr_lt_neg_four (a := k) (b := 1)
     (by nlinarith) z
 
 /-- The Eisenstein integers `ℤ[(1+√-3)/2]` (parameter `k = -1`) have exactly

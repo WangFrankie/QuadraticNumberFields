@@ -24,8 +24,8 @@ namespace Zsqrtd
 
 /-- The project-owned Gaussian order `Zsqrtd (-1)` is a principal ideal ring. -/
 noncomputable instance instIsPrincipalIdealRingNegOne :
-    IsPrincipalIdealRing (Zsqrtd (-1)) := by
-  exact RingEquiv.isPrincipalIdealRing (Zsqrtd.equivMathlib (-1)).symm
+    IsPrincipalIdealRing (Zsqrtd (-1)) :=
+  RingEquiv.isPrincipalIdealRing (Zsqrtd.equivMathlib (-1)).symm
 
 /-- The project-owned Gaussian order `Zsqrtd (-1)` is a domain. -/
 instance instIsDomainNegOne : IsDomain (Zsqrtd (-1)) := by
