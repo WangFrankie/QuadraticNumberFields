@@ -197,12 +197,11 @@ theorem ringHom_eval_eq_algHom_eval
     let R := NumberField.RingOfIntegers (Qsqrtd (d : ℚ))
     let e : FractionRing R ≃ₐ[R] Qsqrtd (d : ℚ) :=
       FractionRing.algEquiv R (Qsqrtd (d : ℚ))
-    let φ : Qsqrtd (d : ℚ) →ₐ[ℚ] ℝ := (σ.comp e.symm.toRingHom).toRatAlgHom
-    σ w = φ (e w) := by
+  let φ : Qsqrtd (d : ℚ) →ₐ[ℚ] ℝ := (σ.comp e.symm.toRingHom).toRatAlgHom
+  σ w = φ (e w) := by
   intro R e φ
   dsimp [φ]
-  have hw : e.toRingEquiv.symm (e w) = w := by
-    exact e.toRingEquiv.symm_apply_apply w
+  have hw : e.toRingEquiv.symm (e w) = w := e.toRingEquiv.symm_apply_apply w
   rw [hw]
 
 end FractionRingEvaluation
@@ -278,8 +277,7 @@ variable (d : ℤ) [Fact (¬ IsSquare ((d : ℤ) : ℚ))]
 
 /-- A quadratic field `Q(√d)` with `d > 0` is totally real. -/
 theorem isTotallyReal (hd : 0 < d) :
-    NumberField.IsTotallyReal (Qsqrtd (d : ℚ)) := by
-  exact {
+    NumberField.IsTotallyReal (Qsqrtd (d : ℚ)) := {
     isReal := fun v => by
       rw [NumberField.InfinitePlace.isReal_iff, NumberField.ComplexEmbedding.isReal_iff]
       simpa using conjugate_embedding_eq v (embedding_omega_im_eq_zero v hd)
@@ -287,8 +285,7 @@ theorem isTotallyReal (hd : 0 < d) :
 
 /-- A quadratic field `Q(√d)` with `d < 0` is totally complex. -/
 theorem isTotallyComplex (hd : d < 0) :
-    NumberField.IsTotallyComplex (Qsqrtd (d : ℚ)) := by
-  exact {
+    NumberField.IsTotallyComplex (Qsqrtd (d : ℚ)) := {
     isComplex := fun v => by
       rw [NumberField.InfinitePlace.isComplex_iff, NumberField.ComplexEmbedding.isReal_iff]
       intro hreal
@@ -336,14 +333,14 @@ variable (d : ℤ) [Fact (¬ IsSquare ((d : ℤ) : ℚ))]
 /-- Transport total reality along an algebra equivalence with `Qsqrtd d`. -/
 theorem isTotallyReal_of_algEquiv_qsqrtd
     (e : K ≃ₐ[ℚ] Qsqrtd (d : ℚ)) (hd : 0 < d) :
-    NumberField.IsTotallyReal K := by
-  exact (NumberField.isTotallyReal_iff_ofAlgEquiv e).mpr (Qsqrtd.isTotallyReal d hd)
+    NumberField.IsTotallyReal K :=
+  (NumberField.isTotallyReal_iff_ofAlgEquiv e).mpr (Qsqrtd.isTotallyReal d hd)
 
 /-- Transport total complexity along an algebra equivalence with `Qsqrtd d`. -/
 theorem isTotallyComplex_of_algEquiv_qsqrtd
     (e : K ≃ₐ[ℚ] Qsqrtd (d : ℚ)) (hd : d < 0) :
-    NumberField.IsTotallyComplex K := by
-  exact (NumberField.isTotallyComplex_iff_ofAlgEquiv e).mpr (Qsqrtd.isTotallyComplex d hd)
+    NumberField.IsTotallyComplex K :=
+  (NumberField.isTotallyComplex_iff_ofAlgEquiv e).mpr (Qsqrtd.isTotallyComplex d hd)
 
 /-- Every abstract quadratic field is real or imaginary after choosing a squarefree
 integer parameter.

@@ -212,8 +212,8 @@ lemma dvd_four_sub_sq_of_norm_eq_int
     (a' b' d n' : ℤ)
     (hnorm :
       (n' : ℚ) = (((a' ^ 2 - d * b' ^ 2 : ℤ) : ℚ) / (4 : ℤ))) :
-    (4 : ℤ) ∣ (a' ^ 2 - d * b' ^ 2) := by
-  exact (Rat.den_div_intCast_eq_one_iff (a' ^ 2 - d * b' ^ 2) 4 (by norm_num)).1 <| by
+    (4 : ℤ) ∣ (a' ^ 2 - d * b' ^ 2) :=
+  (Rat.den_div_intCast_eq_one_iff (a' ^ 2 - d * b' ^ 2) 4 (by norm_num)).1 <| by
     rw [← hnorm]
     simp
 

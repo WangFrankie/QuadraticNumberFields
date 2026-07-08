@@ -166,8 +166,8 @@ variable {K L : Type*} [Field K] [Algebra ℚ K] [Field L] [Algebra ℚ L]
 /-- Transport total complexity across a `ℚ`-algebra equivalence. -/
 theorem ofAlgEquiv [IsTotallyComplex K] (e : K ≃ₐ[ℚ] L) :
     IsTotallyComplex L where
-  isComplex w := by
-    exact NumberField.InfinitePlace.IsComplex.of_comap e.toRingHom
+  isComplex w :=
+    NumberField.InfinitePlace.IsComplex.of_comap e.toRingHom
       (NumberField.IsTotallyComplex.isComplex (w.comap e.toRingHom))
 
 end IsTotallyComplex
