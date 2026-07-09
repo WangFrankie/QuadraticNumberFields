@@ -38,6 +38,18 @@ theorem ker_eq_bot_iff_nat_card_eq_of_surjective
   rw [← injective_iff_nat_card_eq_of_surjective f hf]
   exact MonoidHom.ker_eq_bot_iff f
 
+/-- The cardinality of the domain of a surjective homomorphism of finite groups
+is the product of the cardinalities of its kernel and codomain. -/
+theorem nat_card_eq_card_ker_mul_card_of_surjective
+    [Finite G] [Finite H] (f : G →* H) (hf : Function.Surjective f) :
+    Nat.card G = Nat.card f.ker * Nat.card H := by
+  calc
+    Nat.card G = Nat.card (G ⧸ f.ker) * Nat.card f.ker :=
+      Subgroup.card_eq_card_quotient_mul_card_subgroup f.ker
+    _ = Nat.card H * Nat.card f.ker := by
+      rw [Nat.card_congr (QuotientGroup.quotientKerEquivOfSurjective f hf).toEquiv]
+    _ = Nat.card f.ker * Nat.card H := mul_comm _ _
+
 /-- If a homomorphism from a finite group has nontrivial kernel, then its image
 has cardinality at most half the domain cardinality. -/
 theorem two_mul_card_range_le
