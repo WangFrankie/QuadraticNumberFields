@@ -147,6 +147,69 @@ theorem absNorm_coprime_prime_of_sup_span_natCast_eq_top
 
 end Coprime
 
+section NormalizedFactorProducts
+
+variable {R : Type*} [CommRing R] [Nontrivial R] [IsDedekindDomain R] [Module.Free ℤ R]
+
+private theorem pow_dvd_multiset_prod_of_le_count
+    {M : Type*} [CommMonoid M] [DecidableEq M]
+    (s : Multiset M) (a : M) {n : ℕ} (h : n ≤ s.count a) :
+    a ^ n ∣ s.prod := by
+  have hrep : Multiset.replicate n a ≤ s :=
+    (Multiset.le_count_iff_replicate_le).mp h
+  have hdiv := Multiset.prod_dvd_prod_of_le hrep
+  simpa [Multiset.prod_replicate] using hdiv
+
+/-- If a prime ideal occurs at least twice in the normalized factorization of
+`I`, then the square of its absolute norm divides `Ideal.absNorm I`. -/
+theorem absNorm_sq_dvd_of_two_le_normalizedFactors_count
+    {I P : Ideal R} (hI : I ≠ ⊥)
+    (hcount : 2 ≤ (UniqueFactorizationMonoid.normalizedFactors I).count P) :
+    Ideal.absNorm P ^ 2 ∣ Ideal.absNorm I := by
+  have hP2_dvd : P ^ 2 ∣ I := by
+    have h := pow_dvd_multiset_prod_of_le_count
+      (UniqueFactorizationMonoid.normalizedFactors I) P hcount
+    rwa [Ideal.prod_normalizedFactors_eq_self hI] at h
+  have hnorm := map_dvd Ideal.absNorm hP2_dvd
+  simpa using hnorm
+
+private theorem finset_prod_multiset_attach_toFinset_count
+    {α M : Type*} [DecidableEq α] [CommMonoid M]
+    (s : Multiset α) (f : α → M) :
+    (∏ P ∈ s.attach.toFinset, f P.1 ^ s.count P.1) =
+      ∏ P ∈ s.toFinset, f P ^ s.count P := by
+  classical
+  refine Finset.prod_bij (fun P _hP ↦ P.1) ?_ ?_ ?_ ?_
+  · intro P _hP
+    exact Multiset.mem_toFinset.mpr P.2
+  · intro P _hP Q _hQ hPQ
+    exact Subtype.ext hPQ
+  · intro P hP
+    refine ⟨⟨P, Multiset.mem_toFinset.mp hP⟩, ?_, rfl⟩
+    simp
+  · intro P _hP
+    rfl
+
+/-- The absolute norm of a nonzero ideal is the product of the absolute norms
+of its normalized prime factors, counted with multiplicity. -/
+theorem absNorm_eq_normalizedFactors_absNorm_count_prod
+    (I : Ideal R) (hI0 : I ≠ ⊥) :
+    Ideal.absNorm I =
+      ∏ P ∈ (UniqueFactorizationMonoid.normalizedFactors I).attach.toFinset,
+        Ideal.absNorm P.1 ^
+          (UniqueFactorizationMonoid.normalizedFactors I).count P.1 := by
+  let s := UniqueFactorizationMonoid.normalizedFactors I
+  calc
+    Ideal.absNorm I = Ideal.absNorm s.prod := by
+      rw [Ideal.prod_normalizedFactors_eq_self hI0]
+    _ = (s.map fun P ↦ Ideal.absNorm P).prod := by
+      rw [map_multiset_prod]
+    _ = ∏ P ∈ s.attach.toFinset, Ideal.absNorm P.1 ^ s.count P.1 := by
+      simpa [finset_prod_multiset_attach_toFinset_count] using
+        Finset.prod_multiset_map_count s (fun P ↦ Ideal.absNorm P)
+
+end NormalizedFactorProducts
+
 section NormalizedFactors
 
 variable {R : Type*} [CommRing R] [Nontrivial R] [Algebra ℤ R] [IsDedekindDomain R]
