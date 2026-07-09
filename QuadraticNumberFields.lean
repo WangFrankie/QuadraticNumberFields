@@ -50,6 +50,7 @@ import QuadraticNumberFields.ClassGroup.Narrow.Basic
 import QuadraticNumberFields.ClassGroup.Narrow.Principal
 import QuadraticNumberFields.ClassGroup.Minkowski
 import QuadraticNumberFields.ClassGroup.SmallNorm
+import QuadraticNumberFields.ClassGroup.Ambiguous.UpperBound
 import QuadraticNumberFields.Qsqrtd.TotallyRealComplex
 import QuadraticNumberFields.Units.Pell
 import QuadraticNumberFields.Units.Imaginary
