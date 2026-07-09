@@ -44,6 +44,26 @@ theorem mem_ramifiedPrimes_iff (p : ℕ) :
       p ∈ (NumberField.discr (Qsqrtd (d : ℚ))).natAbs.primeFactors :=
   Iff.rfl
 
+/-- A prime divisor of `|d|` gives a ramified-prime index for `ℚ(√d)`. -/
+noncomputable def ramifiedPrimeIndexOfNatAbsDvd
+    {p : ℕ} (hp : p.Prime) (hpdvd : p ∣ d.natAbs) :
+    RamifiedPrimeIndex d := by
+  have hpdvd_int : (p : ℤ) ∣ d := by
+    rw [← Int.dvd_natAbs]
+    exact_mod_cast hpdvd
+  have hp_formula : (p : ℤ) ∣ RingOfIntegers.discrFormula d := by
+    by_cases hd4 : d % 4 = 1
+    · rw [RingOfIntegers.discrFormula_of_mod_four_eq_one hd4]
+      exact hpdvd_int
+    · rw [RingOfIntegers.discrFormula_of_mod_four_ne_one hd4]
+      exact dvd_mul_of_dvd_right hpdvd_int 4
+  have hp_disc : (p : ℤ) ∣ NumberField.discr (Qsqrtd (d : ℚ)) := by
+    simpa [RingOfIntegers.discr_formula d] using hp_formula
+  refine ⟨p, ?_⟩
+  rw [mem_ramifiedPrimes_iff, Nat.mem_primeFactors]
+  refine ⟨hp, Int.natCast_dvd.mp hp_disc, ?_⟩
+  exact Int.natAbs_ne_zero.mpr (NumberField.discr_ne_zero (Qsqrtd (d : ℚ)))
+
 /-- The ramified-prime set may be computed from the closed discriminant formula
 for `ℚ(√d)`. -/
 theorem ramifiedPrimes_eq_discrFormula_primeFactors :
