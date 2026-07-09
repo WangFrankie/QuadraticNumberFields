@@ -35,6 +35,8 @@ variable (K : Type*) [Field K] [Algebra ℚ K] [QuadraticField K] [QuadraticFiel
 
 local notation "OK" => NumberField.RingOfIntegers K
 
+/-- The Galois action on algebraic integers induced from the fraction-field
+extension. -/
 noncomputable local instance instMulSemiringActionFractionRingGalRingOfIntegersConj
     [NumberField K] :
     MulSemiringAction Gal(FractionRing OK / FractionRing ℤ) OK :=
@@ -90,7 +92,7 @@ theorem conjAutRingOfIntegersAlgEquiv_ne_refl [NumberField K] :
 
 /-- Quadratic conjugation on the fraction field of the ring of integers, obtained
 by localizing the ring-of-integers conjugation. -/
-noncomputable def conjAutFractionRingAlgEquiv [NumberField K] :
+noncomputable def conjAutFractionRingAlgEquiv :
     FractionRing OK ≃ₐ[ℤ] FractionRing OK :=
   IsFractionRing.algEquivOfAlgEquiv (conjAutRingOfIntegersAlgEquiv K)
 
@@ -155,6 +157,57 @@ theorem exists_mul_conjAutRingOfIntegers_eq_self_of_norm_eq_one
       (g := QuadraticField.conjAut K) hg (by simpa using hη)
   refine ⟨ε, hε0, ?_⟩
   simpa [galRestrict_conjAut_eq_conjAutRingOfIntegers K] using hε
+
+/-- Fraction-field Hilbert 90 for localized quadratic conjugation. A norm-one
+fraction-field unit is a conjugation coboundary. -/
+theorem exists_conjAut_coboundary_of_norm_eq_one
+    (K : Type) [Field K] [NumberField K] [Algebra ℚ K]
+    [QuadraticField K] [QuadraticField.Conj K]
+    {x : (FractionRing (𝓞 K))ˣ}
+    (hxnorm :
+      Algebra.norm ℚ
+        (FractionRing.algEquiv (𝓞 K) K
+          (x : FractionRing (𝓞 K))) = 1) :
+    ∃ y : (FractionRing (𝓞 K))ˣ,
+      x = y * (Units.mapEquiv (conjAutFractionRingAlgEquiv K).toRingEquiv y)⁻¹ := by
+  let R := 𝓞 K
+  let e := FractionRing.algEquiv R K
+  haveI : IsGalois ℚ K := Algebra.IsQuadraticExtension.isGalois ℚ K
+  have hcard : Nat.card Gal(K / ℚ) = 2 := QuadraticField.card_aut_eq_two K
+  haveI : IsCyclic Gal(K / ℚ) := isCyclic_of_prime_card hcard
+  have hconj_ne_one : (QuadraticField.conjAut K : Gal(K / ℚ)) ≠ 1 := by
+    simpa using (QuadraticField.Conj.conj_ne_refl (K := K))
+  have hg : ∀ σ : Gal(K / ℚ), σ ∈ Subgroup.zpowers (QuadraticField.conjAut K) :=
+    fun σ ↦ mem_zpowers_of_prime_card (p := 2) hcard hconj_ne_one
+  obtain ⟨yK, hyK⟩ :=
+    groupCohomology.exists_div_of_norm_eq_one
+      (K := ℚ) (L := K) (g := QuadraticField.conjAut K) hg hxnorm
+  let y : (FractionRing R)ˣ := Units.mapEquiv e.symm.toRingEquiv yK
+  refine ⟨y, ?_⟩
+  apply Units.ext
+  apply e.injective
+  have hy_map : e (y : FractionRing R) = (yK : K) := by
+    change e (e.symm (yK : K)) = (yK : K)
+    exact e.apply_symm_apply (yK : K)
+  have hσ_map :
+      e (((Units.mapEquiv (conjAutFractionRingAlgEquiv K).toRingEquiv y) :
+          (FractionRing R)ˣ) : FractionRing R) =
+        QuadraticField.conjAut K (yK : K) := by
+    change e ((conjAutFractionRingAlgEquiv K) (y : FractionRing R)) =
+      QuadraticField.conjAut K (yK : K)
+    rw [fractionRing_algEquiv_conjAutFractionRingAlgEquiv, hy_map]
+  calc
+    e (x : FractionRing R) = (yK : K) / QuadraticField.conjAut K (yK : K) := hyK.symm
+    _ =
+        e (y : FractionRing R) *
+            (e (((Units.mapEquiv (conjAutFractionRingAlgEquiv K).toRingEquiv y) :
+              (FractionRing R)ˣ) : FractionRing R))⁻¹ := by
+      rw [hy_map, hσ_map]
+      exact div_eq_mul_inv (yK : K) (QuadraticField.conjAut K (yK : K))
+    _ = e ((y * (Units.mapEquiv (conjAutFractionRingAlgEquiv K).toRingEquiv y)⁻¹ :
+          (FractionRing R)ˣ) : FractionRing R) := by
+      dsimp
+      simp
 
 /-- The fraction-field Galois element induced by quadratic conjugation on the
 ring of integers. -/
