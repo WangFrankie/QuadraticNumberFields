@@ -5,19 +5,22 @@ Authors: Frankie Wang
 -/
 
 import QNFMathlib.RingTheory.Ideal.Span
+import QuadraticNumberFields.RingOfIntegers.Conj
 import QuadraticNumberFields.Splitting.Qsqrtd.Monogenic
 
 /-!
 # The Integral Square Root `√d`
 
-This file defines the element `√d` of `𝓞(ℚ(√d))` and proves the principal
-ideal identity `(√d)² = (d)`.
+This file defines the element `√d` of `𝓞(ℚ(√d))`, the canonical embedding
+`ℤ[√d] → 𝓞(ℚ(√d))`, and the principal ideal identity `(√d)² = (d)`.
 -/
 
 namespace QuadraticNumberFields
 namespace Splitting
 
 open scoped NumberField nonZeroDivisors QuadraticNumberFields.Splitting QuadraticAlgebra
+
+attribute [-instance] DivisionRing.toRatAlgebra
 
 variable (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
 
@@ -45,6 +48,39 @@ noncomputable def sqrtdInt : 𝓞(d) :=
 theorem coe_sqrtdInt :
     (sqrtdInt d : Qsqrtd (d : ℚ)) = QuadraticAlgebra.omega :=
   rfl
+
+/-- Coercing the integral expression `x + y√d` to `ℚ(√d)` gives coordinates
+`(x, y)`. -/
+theorem coe_intCast_add_intCast_mul_sqrtdInt (x y : ℤ) :
+    ((algebraMap ℤ 𝓞(d) x + algebraMap ℤ 𝓞(d) y * sqrtdInt d : 𝓞(d)) :
+      Qsqrtd (d : ℚ)) =
+      (⟨(x : ℚ), (y : ℚ)⟩ : Qsqrtd (d : ℚ)) := by
+  apply QuadraticAlgebra.ext <;> simp [coe_sqrtdInt, QuadraticAlgebra.omega]
+
+/-- Coercing the integral expression `x - y√d` to `ℚ(√d)` gives coordinates
+`(x, -y)`. -/
+theorem coe_intCast_sub_intCast_mul_sqrtdInt (x y : ℤ) :
+    ((algebraMap ℤ 𝓞(d) x - algebraMap ℤ 𝓞(d) y * sqrtdInt d : 𝓞(d)) :
+      Qsqrtd (d : ℚ)) =
+      (⟨(x : ℚ), -(y : ℚ)⟩ : Qsqrtd (d : ℚ)) := by
+  apply QuadraticAlgebra.ext <;> simp [coe_sqrtdInt, QuadraticAlgebra.omega]
+
+/-- Conjugation negates the `√d` coordinate of an integral `√d`-linear
+expression. -/
+theorem conjAutRingOfIntegers_intCast_add_intCast_mul_sqrtdInt (x y : ℤ) :
+    conjAutRingOfIntegers (Qsqrtd (d : ℚ))
+        (algebraMap ℤ 𝓞(d) x + algebraMap ℤ 𝓞(d) y * sqrtdInt d) =
+      algebraMap ℤ 𝓞(d) x - algebraMap ℤ 𝓞(d) y * sqrtdInt d := by
+  let K := Qsqrtd (d : ℚ)
+  apply NumberField.RingOfIntegers.ext
+  rw [coe_conjAutRingOfIntegers_apply]
+  change QuadraticField.conjAut K
+      ((algebraMap ℤ 𝓞(d) x + algebraMap ℤ 𝓞(d) y * sqrtdInt d : 𝓞(d)) : K) =
+    ((algebraMap ℤ 𝓞(d) x - algebraMap ℤ 𝓞(d) y * sqrtdInt d : 𝓞(d)) : K)
+  rw [coe_intCast_add_intCast_mul_sqrtdInt, coe_intCast_sub_intCast_mul_sqrtdInt]
+  change Qsqrtd.starAlgEquiv (d : ℚ) (⟨(x : ℚ), (y : ℚ)⟩ : K) = _
+  rw [Qsqrtd.starAlgEquiv_apply]
+  apply QuadraticAlgebra.ext <;> simp [QuadraticAlgebra.star_mk]
 
 /-- The integral square root `√d` is nonzero in `𝓞(ℚ(√d))`. -/
 theorem sqrtdInt_ne_zero : sqrtdInt d ≠ 0 := by
@@ -74,6 +110,29 @@ theorem sqrtdInt_sq :
   simp only [coe_sqrtdInt]
   rw [omega_sq_eq_intCast d]
   simp
+
+/-- The canonical embedding `ℤ[√d] → 𝓞(ℚ(√d))` sending the formal square root
+to the integral element `√d`. -/
+noncomputable def zsqrtdEmbedding : Zsqrtd d →+* 𝓞(d) :=
+  Zsqrtd.lift (sqrtdInt d) (by simpa [pow_two] using sqrtdInt_sq d)
+
+@[simp]
+theorem zsqrtdEmbedding_apply (z : Zsqrtd d) :
+    zsqrtdEmbedding d z =
+      algebraMap ℤ (𝓞(d)) z.re + algebraMap ℤ (𝓞(d)) z.im * sqrtdInt d := by
+  simp [zsqrtdEmbedding, Zsqrtd.lift_apply]
+
+/-- The canonical embedding `ℤ[√d] → 𝓞(ℚ(√d))` is injective. -/
+theorem zsqrtdEmbedding_injective : Function.Injective (zsqrtdEmbedding d) := by
+  intro x y hxy
+  have hcoe := congrArg (fun z : 𝓞(d) => ((z : Qsqrtd (d : ℚ)))) hxy
+  apply QuadraticAlgebra.ext
+  · have hre := congrArg QuadraticAlgebra.re hcoe
+    exact_mod_cast (by simpa [zsqrtdEmbedding_apply, coe_sqrtdInt,
+      QuadraticAlgebra.omega] using hre)
+  · have him := congrArg QuadraticAlgebra.im hcoe
+    exact_mod_cast (by simpa [zsqrtdEmbedding_apply, coe_sqrtdInt,
+      QuadraticAlgebra.omega] using him)
 
 /-- The principal ideal `(√d)` squares to the ideal `(d)`. -/
 theorem span_sqrtdInt_sq :
