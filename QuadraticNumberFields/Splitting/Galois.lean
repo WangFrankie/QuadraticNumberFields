@@ -30,6 +30,8 @@ variable (K : Type*) [Field K] [Algebra ℚ K] [QuadraticField K]
 
 local notation "OK" => NumberField.RingOfIntegers K
 
+/-- The Galois action on algebraic integers induced from the fraction-field
+extension. -/
 noncomputable local instance instMulSemiringActionFractionRingGalRingOfIntegersSplittingGalois
     [NumberField K] :
     MulSemiringAction Gal(FractionRing OK / FractionRing ℤ) OK :=
