@@ -9,7 +9,7 @@ defaultTargets = [
   "ImaginaryClassNumberOne",
   "Examples"
 ]
-lintDriver = "runLinter"
+lintDriver = "batteries/runLinter"
 
 [leanOptions]
 pp.unicode.fun = true
@@ -52,8 +52,3 @@ name = "ImaginaryClassNumberOne"
 
 [[lean_lib]]
 name = "Examples"
-
-[[lean_exe]]
-name = "runLinter"
-srcDir = "scripts"
-supportInterpreter = true
