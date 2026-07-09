@@ -105,7 +105,6 @@ theorem mk0_pow_eq_one_iff_pow_isPrincipal
 
 /-- The ideal class `mk0 I` lies in the `n`-power torsion subgroup `Cl[n]` exactly
 when `I ^ n` is principal. -/
-@[simp]
 theorem mk0_mem_torsionBy_iff
     (I : nonZeroDivisors (Ideal R)) (n : ℕ) :
     mk0 I ∈ torsionBy R n ↔ ((I : Ideal R) ^ n).IsPrincipal := by
@@ -113,7 +112,6 @@ theorem mk0_mem_torsionBy_iff
 
 /-- The ideal class `mk0 I` lies in the two-torsion subgroup `Cl[2]` exactly when
 `I ^ 2` is principal. -/
-@[simp]
 theorem mk0_mem_twoTorsion_iff
     (I : nonZeroDivisors (Ideal R)) :
     mk0 I ∈ twoTorsion R ↔ ((I : Ideal R) ^ 2).IsPrincipal := by
