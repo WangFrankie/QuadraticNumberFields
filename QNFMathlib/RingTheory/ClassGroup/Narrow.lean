@@ -86,7 +86,7 @@ def subgroupQuotientToQuotient (N M : Subgroup G) :
 
 @[simp]
 theorem subgroupQuotientToQuotient_mk (N M : Subgroup G) (x : M) :
-    subgroupQuotientToQuotient N M (QuotientGroup.mk' (N.subgroupOf M) x) =
+    subgroupQuotientToQuotient N M (x : M ⧸ N.subgroupOf M) =
       QuotientGroup.mk' N (x : G) :=
   QuotientGroup.map_mk' _ _ _ _ x
 
@@ -101,14 +101,14 @@ theorem mulExact_subgroupQuotientToQuotient_mapOfLE (N M : Subgroup G) (hNM : N 
     obtain ⟨g, rfl⟩ := QuotientGroup.mk'_surjective N q
     rw [MonoidHom.mem_ker, QuotientGroup.map_mk'] at hq
     have hgM : g ∈ M := (QuotientGroup.eq_one_iff (N := M) g).mp hq
-    exact ⟨QuotientGroup.mk' (N.subgroupOf M) ⟨g, hgM⟩, by
-      simpa using subgroupQuotientToQuotient_mk N M ⟨g, hgM⟩⟩
+    exact ⟨QuotientGroup.mk' (N.subgroupOf M) ⟨g, hgM⟩,
+      subgroupQuotientToQuotient_mk N M ⟨g, hgM⟩⟩
   · rintro ⟨qM, rfl⟩
     rw [MonoidHom.mem_ker]
     induction qM using QuotientGroup.induction_on with
     | _ x =>
         change QuotientGroup.map N M (MonoidHom.id G) hNM
-            (subgroupQuotientToQuotient N M (QuotientGroup.mk' (N.subgroupOf M) x)) = 1
+            (subgroupQuotientToQuotient N M (x : M ⧸ N.subgroupOf M)) = 1
         rw [subgroupQuotientToQuotient_mk]
         rw [QuotientGroup.map_mk']
         exact (QuotientGroup.eq_one_iff (N := M) (x : G)).mpr x.2
@@ -173,6 +173,12 @@ theorem isTotallyPositive_sq_of_ne_zero (x : K) (hx : x ≠ 0) :
   intro σ
   have hσx : σ x ≠ 0 := (_root_.map_ne_zero σ).mpr hx
   simpa using sq_pos_of_ne_zero hσx
+
+/-- Integer powers of a totally positive field unit are totally positive. -/
+theorem isTotallyPositive_zpow (u : Kˣ) (hu : IsTotallyPositive (u : K)) (n : ℤ) :
+    IsTotallyPositive ((u ^ n : Kˣ) : K) := by
+  intro σ
+  simpa using zpow_pos (hu σ) n
 
 /-- A totally positive element plus `1` is totally positive. -/
 theorem isTotallyPositive_one_add {x : K} (hx : IsTotallyPositive x) :
@@ -502,6 +508,16 @@ theorem toClassGroup_mk' (R : Type*) [CommRing R] [IsDomain R]
       QuotientGroup.mk' (toPrincipalIdeal R (FractionRing R)).range J :=
   QuotientGroup.map_mk' _ _ _ _ J
 
+/-- The natural map from the narrow ideal class group to the ordinary ideal
+class group is surjective. -/
+theorem toClassGroup_surjective (R : Type*) [CommRing R] [IsDomain R] :
+    Function.Surjective (toClassGroup R) := by
+  intro C
+  induction C using QuotientGroup.induction_on with
+  | _ I =>
+      refine ⟨QuotientGroup.mk' (narrowPrincipalIdeals R (FractionRing R)) I, ?_⟩
+      exact toClassGroup_mk' R I
+
 end QuotientMaps
 
 section NormalizedFactors
@@ -774,6 +790,85 @@ theorem toPrincipalIdeal_mul_algebraMap_unit [IsDedekindDomain R]
   rw [map_mul]
   rw [toPrincipalIdeal_algebraMap_unit_eq_one]
   simp
+
+/-- A principal fractional ideal is trivial in the narrow class group exactly
+when its generator can be made totally positive by multiplying by an integral
+unit. -/
+theorem principalToNarrow_eq_one_iff_exists_unit_mul_isTotallyPositive
+    [IsDedekindDomain R] (x : (FractionRing R)ˣ) :
+    principalToNarrow R x = 1 ↔
+      ∃ u : Rˣ,
+        IsTotallyPositive
+          (((x * ringUnitToFractionRing R (FractionRing R) u :
+            (FractionRing R)ˣ)) : FractionRing R) := by
+  constructor
+  · intro hx
+    change mk (toPrincipalIdeal R (FractionRing R) x) = 1 at hx
+    rw [mk_eq_mk'] at hx
+    rcases (QuotientGroup.eq_one_iff _).mp hx with ⟨y, hy⟩
+    change toNarrowPrincipalIdeal R (FractionRing R) y =
+      toPrincipalIdeal R (FractionRing R) x at hy
+    have hspan :
+        FractionalIdeal.spanSingleton R⁰ ((y : (FractionRing R)ˣ) : FractionRing R) =
+          FractionalIdeal.spanSingleton R⁰ (x : FractionRing R) := by
+      simpa [toNarrowPrincipalIdeal, coe_toPrincipalIdeal] using congrArg Units.val hy
+    rcases
+        (FractionalIdeal.spanSingleton_eq_spanSingleton
+          (S := R⁰) (P := FractionRing R)).mp hspan with
+      ⟨u, hu⟩
+    refine ⟨u⁻¹, ?_⟩
+    have hxu :
+        ((x * ringUnitToFractionRing R (FractionRing R) u⁻¹ :
+          (FractionRing R)ˣ) : FractionRing R) =
+            ((y : (FractionRing R)ˣ) : FractionRing R) := by
+      have hx_eq :
+          (x : FractionRing R) =
+            ((ringUnitToFractionRing R (FractionRing R) u :
+              (FractionRing R)ˣ) : FractionRing R) *
+              ((y : (FractionRing R)ˣ) : FractionRing R) := by
+        simpa [ringUnitToFractionRing, Units.smul_def, Algebra.smul_def] using hu.symm
+      change (x : FractionRing R) *
+          ((ringUnitToFractionRing R (FractionRing R) u⁻¹ :
+            (FractionRing R)ˣ) : FractionRing R) =
+        ((y : (FractionRing R)ˣ) : FractionRing R)
+      rw [hx_eq]
+      change
+        ((ringUnitToFractionRing R (FractionRing R) u :
+          (FractionRing R)ˣ) : FractionRing R) *
+            ((y : (FractionRing R)ˣ) : FractionRing R) *
+          (((ringUnitToFractionRing R (FractionRing R) u)⁻¹ :
+            (FractionRing R)ˣ) : FractionRing R) =
+          ((y : (FractionRing R)ˣ) : FractionRing R)
+      simp [ringUnitToFractionRing, mul_comm]
+    rw [hxu]
+    exact y.2
+  · rintro ⟨u, hxu_pos⟩
+    change mk (toPrincipalIdeal R (FractionRing R) x) = 1
+    rw [← toPrincipalIdeal_mul_algebraMap_unit (R := R) x u]
+    rw [mk_eq_mk']
+    exact (QuotientGroup.eq_one_iff _).mpr
+      ⟨⟨x * ringUnitToFractionRing R (FractionRing R) u, hxu_pos⟩, rfl⟩
+
+/-- If every principal fractional ideal has a totally positive generator after
+multiplication by an integral unit, then the narrow-to-wide map is injective. -/
+theorem toClassGroup_injective_of_forall_exists_unit_mul_isTotallyPositive
+    [IsDedekindDomain R]
+    (hpos : ∀ x : (FractionRing R)ˣ, ∃ u : Rˣ,
+      IsTotallyPositive
+        (((x * ringUnitToFractionRing R (FractionRing R) u :
+          (FractionRing R)ˣ)) : FractionRing R)) :
+    Function.Injective (toClassGroup R) := by
+  rw [← MonoidHom.ker_eq_bot_iff]
+  rw [toClassGroup_ker_eq_principalToNarrow_range]
+  ext C
+  constructor
+  · rintro ⟨x, rfl⟩
+    rw [Subgroup.mem_bot]
+    exact (principalToNarrow_eq_one_iff_exists_unit_mul_isTotallyPositive x).mpr (hpos x)
+  · intro hC
+    rw [Subgroup.mem_bot] at hC
+    rw [hC]
+    exact ⟨1, map_one _⟩
 
 /-- Multiplication by a square principal fractional ideal preserves the narrow
 ideal class. -/
