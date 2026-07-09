@@ -204,6 +204,33 @@ theorem ringHom_eval_eq_algHom_eval
   have hw : e.toRingEquiv.symm (e w) = w := e.toRingEquiv.symm_apply_apply w
   rw [hw]
 
+/-- The real embeddings of the fraction field of `𝓞(ℚ(√d))` are induced by
+`realEmbeddingPos` and `realEmbeddingNeg` through the canonical fraction-field
+equivalence. -/
+theorem fractionRing_ringHom_eq_realEmbeddingPos_or_neg
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : 0 ≤ (d : ℝ))
+    (σ : FractionRing (NumberField.RingOfIntegers (Qsqrtd (d : ℚ))) →+* ℝ) :
+    let R := NumberField.RingOfIntegers (Qsqrtd (d : ℚ))
+    let e : FractionRing R ≃ₐ[R] Qsqrtd (d : ℚ) :=
+      FractionRing.algEquiv R (Qsqrtd (d : ℚ))
+    σ = (realEmbeddingPos d hd).toRingHom.comp e.toRingHom ∨
+      σ = (realEmbeddingNeg d hd).toRingHom.comp e.toRingHom := by
+  intro R e
+  let φ : Qsqrtd (d : ℚ) →ₐ[ℚ] ℝ := (σ.comp e.symm.toRingHom).toRatAlgHom
+  rcases algHom_eq_realEmbeddingPos_or_neg d hd φ with hφ | hφ
+  · left
+    ext w
+    have heval := ringHom_eval_eq_algHom_eval d σ w
+    change σ w = φ (e w) at heval
+    rw [hφ] at heval
+    simpa [RingHom.comp_apply] using heval
+  · right
+    ext w
+    have heval := ringHom_eval_eq_algHom_eval d σ w
+    change σ w = φ (e w) at heval
+    rw [hφ] at heval
+    simpa [RingHom.comp_apply] using heval
+
 end FractionRingEvaluation
 
 section InternalLemmas
