@@ -82,28 +82,20 @@ theorem kroneckerSymNat_sq_one_of_coprime (D : ℤ) {n : ℕ}
     have hm_coprime : Nat.Coprime m D.natAbs :=
       Nat.Coprime.coprime_dvd_left (dvd_mul_left m (2 ^ k)) h
     have hm_int_coprime : Int.gcd D m = 1 := by
-      have hnat : Nat.gcd D.natAbs m = 1 := by
-        simpa [Nat.Coprime, Nat.gcd_comm] using hm_coprime
-      simpa [Int.gcd, Int.natAbs_natCast] using hnat
+      simpa [Int.gcd_eq_natAbs, Nat.Coprime, Nat.gcd_comm] using hm_coprime
     have hjac_sq : jacobiSym D m ^ 2 = 1 := jacobiSym.sq_one hm_int_coprime
     have htwo_pow_sq : (kroneckerTwo D ^ k) ^ 2 = 1 := by
       by_cases hk : k = 0
       · simp [hk]
       · have h2n : 2 ∣ 2 ^ k * m :=
           dvd_mul_of_dvd_left (dvd_pow_self 2 hk) m
-        have h2D : ¬2 ∣ D.natAbs := by
-          intro h2D
-          have h2gcd : 2 ∣ Nat.gcd (2 ^ k * m) D.natAbs := Nat.dvd_gcd h2n h2D
-          have hgcd : Nat.gcd (2 ^ k * m) D.natAbs = 1 := by
-            simpa [Nat.Coprime] using h
-          rw [hgcd] at h2gcd
-          norm_num at h2gcd
-        have htwo_sq : kroneckerTwo D ^ 2 = 1 :=
-          kroneckerTwo_sq_one_of_natAbs_not_even D h2D
+        have h2D : ¬2 ∣ D.natAbs :=
+          (Nat.prime_two.coprime_iff_not_dvd).mp
+            (Nat.Coprime.coprime_dvd_left h2n h)
         calc
           (kroneckerTwo D ^ k) ^ 2 = (kroneckerTwo D ^ 2) ^ k := by
             rw [← pow_mul, Nat.mul_comm, pow_mul]
-          _ = 1 := by simp [htwo_sq]
+          _ = 1 := by simp [kroneckerTwo_sq_one_of_natAbs_not_even D h2D]
     calc
       (kroneckerTwo D ^ k * jacobiSym D m) ^ 2 =
           (kroneckerTwo D ^ k) ^ 2 * (jacobiSym D m) ^ 2 := by

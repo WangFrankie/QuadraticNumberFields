@@ -73,36 +73,10 @@ theorem natAbs_twoPrimeDiscriminantFactor_eq_four_or_eight (d : ℤ) :
   · simp [h2]
 
 private theorem kroneckerSymNat_eight_seven :
-    kroneckerSymNat (8 : ℤ) 7 = 1 := by
-  haveI : Fact (Nat.Prime 7) := ⟨by norm_num⟩
-  rw [kroneckerSymNat_eq_legendreSym_of_ne_two]
-  · refine (legendreSym.eq_one_iff 7 ?_).mpr ?_
-    · intro h
-      have hdiv : (7 : ℤ) ∣ (8 : ℤ) :=
-        (ZMod.intCast_zmod_eq_zero_iff_dvd 8 7).mp h
-      norm_num at hdiv
-    · refine ⟨(1 : ZMod 7), ?_⟩
-      rw [mul_one, ← sub_eq_zero]
-      change (((8 : ℤ) - 1 : ℤ) : ZMod 7) = 0
-      rw [ZMod.intCast_zmod_eq_zero_iff_dvd]
-      norm_num
-  · norm_num
+    kroneckerSymNat (8 : ℤ) 7 = 1 := by decide +kernel
 
 private theorem kroneckerSymNat_neg_eight_three :
-    kroneckerSymNat (-8 : ℤ) 3 = 1 := by
-  haveI : Fact (Nat.Prime 3) := ⟨by norm_num⟩
-  rw [kroneckerSymNat_eq_legendreSym_of_ne_two]
-  · refine (legendreSym.eq_one_iff 3 ?_).mpr ?_
-    · intro h
-      have hdiv : (3 : ℤ) ∣ (-8 : ℤ) :=
-        (ZMod.intCast_zmod_eq_zero_iff_dvd (-8) 3).mp h
-      norm_num at hdiv
-    · refine ⟨(1 : ZMod 3), ?_⟩
-      rw [mul_one, ← sub_eq_zero]
-      change (((-8 : ℤ) - 1 : ℤ) : ZMod 3) = 0
-      rw [ZMod.intCast_zmod_eq_zero_iff_dvd]
-      norm_num
-  · norm_num
+    kroneckerSymNat (-8 : ℤ) 3 = 1 := by decide +kernel
 
 private theorem kroneckerSymNat_neg_four_eq_one_of_mod_four_eq_one
     {n : ℕ} (hn : n % 4 = 1) :

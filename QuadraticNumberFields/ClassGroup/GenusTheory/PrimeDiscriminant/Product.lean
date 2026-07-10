@@ -56,12 +56,8 @@ private theorem prod_oddPrimeDiscriminantFactor_primeFactors_of_squarefree_odd
   intro p hp
   have hp_prime : p.Prime := Nat.prime_of_mem_primeFactors hp
   have hp2 : p ≠ 2 := by
-    intro hp2
-    have hp_dvd : p ∣ n := (Nat.mem_primeFactors.mp hp).2.1
-    have htwo_dvd : 2 ∣ n := by simpa [hp2] using hp_dvd
-    obtain ⟨k, hk⟩ := hn_odd
-    obtain ⟨m, hm⟩ := htwo_dvd
-    omega
+    rintro rfl
+    exact hn_odd.not_two_dvd_nat (Nat.dvd_of_mem_primeFactors hp)
   simp [hp_prime, oddPrimeDiscriminantFactor_eq_legendreSym_neg_one_mul hp_prime hp2]
 
 private theorem prod_primeDiscriminantFactor_eq_discrFormula_of_mod_four_eq_one
@@ -85,12 +81,8 @@ private theorem prod_primeDiscriminantFactor_eq_discrFormula_of_mod_four_eq_one
     intro p hp
     have hp_prime : p.Prime := Nat.prime_of_mem_primeFactors hp
     have hp2 : p ≠ 2 := by
-      intro hp2
-      have hp_dvd : p ∣ d.natAbs := (Nat.mem_primeFactors.mp hp).2.1
-      have htwo_dvd : 2 ∣ d.natAbs := by simpa [hp2] using hp_dvd
-      obtain ⟨k, hk⟩ := hn_odd
-      obtain ⟨m, hm⟩ := htwo_dvd
-      omega
+      rintro rfl
+      exact hn_odd.not_two_dvd_nat (Nat.dvd_of_mem_primeFactors hp)
     simp [primeDiscriminantFactorNat, hp2]
   rw [hfactor, hprod]
   by_cases hdneg : d < 0
@@ -119,25 +111,10 @@ private theorem primeFactors_four_mul_erase_two (n : ℕ) :
 private theorem primeFactors_erase_two_eq_primeFactors_div_two_of_squarefree
     {n : ℕ} (hn : Squarefree n) (h2 : 2 ∣ n) :
     n.primeFactors.erase 2 = (n / 2).primeFactors := by
-  have hnot_four : ¬2 * 2 ∣ n :=
-    Squarefree.not_mul_self_dvd_of_not_isUnit hn (p := 2) (by norm_num)
-  have hnot_two_div : ¬2 ∣ n / 2 := by
-    intro h
-    apply hnot_four
-    obtain ⟨k, hk⟩ := h
-    obtain ⟨m, hm⟩ := h2
-    use k
-    omega
-  have hcop : Nat.Coprime 2 (n / 2) :=
-    (Nat.prime_two.coprime_iff_not_dvd).mpr hnot_two_div
-  have hn_eq : 2 * (n / 2) = n := by omega
-  calc
-    n.primeFactors.erase 2 = (2 * (n / 2)).primeFactors.erase 2 := by rw [hn_eq]
-    _ = ({2} ∪ (n / 2).primeFactors).erase 2 := by
-      rw [hcop.primeFactors_mul, Nat.Prime.primeFactors Nat.prime_two]
-    _ = (n / 2).primeFactors := by
-      ext p
-      by_cases hp2 : p = 2 <;> simp [hp2, hnot_two_div]
+  rw [← Finset.sdiff_singleton_eq_erase,
+    ← Nat.Prime.primeFactors Nat.prime_two,
+    ← Nat.primeFactors_div_gcd hn (by norm_num : (2 : ℕ) ≠ 0),
+    Nat.gcd_eq_right_iff_dvd.mpr h2]
 
 private theorem prod_primeDiscriminantFactor_eq_discrFormula_of_mod_four_ne_one
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
@@ -150,10 +127,10 @@ private theorem prod_primeDiscriminantFactor_eq_discrFormula_of_mod_four_ne_one
     RingOfIntegers.discr_formula d,
     RingOfIntegers.discrFormula_of_mod_four_ne_one hd4, Int.natAbs_mul]
   change (4 * d.natAbs).primeFactors.prod (primeDiscriminantFactorNat d) = 4 * d
-  have htwo_mem : 2 ∈ (4 * d.natAbs).primeFactors := by
-    rw [Nat.mem_primeFactors]
-    exact ⟨Nat.prime_two, ⟨⟨2 * d.natAbs, by ring⟩,
-      mul_ne_zero (by decide) hdabs0⟩⟩
+  have htwo_mem : 2 ∈ (4 * d.natAbs).primeFactors :=
+    Nat.prime_two.mem_primeFactors
+      (dvd_mul_of_dvd_left (by norm_num : 2 ∣ 4) d.natAbs)
+      (mul_ne_zero (by decide) hdabs0)
   rw [← Finset.mul_prod_erase _ _ htwo_mem, primeFactors_four_mul_erase_two]
   have hfactor :
       (d.natAbs.primeFactors.erase 2).prod (primeDiscriminantFactorNat d) =
@@ -170,21 +147,11 @@ private theorem prod_primeDiscriminantFactor_eq_discrFormula_of_mod_four_ne_one
       have h := (Int.natAbs_dvd_natAbs (a := (2 : ℤ)) (b := d)).mpr h2dvd_int
       simpa using h
     rw [primeFactors_erase_two_eq_primeFactors_div_two_of_squarefree hsq_nat h2dvd_abs]
-    have hnot_four_abs : ¬2 ∣ d.natAbs / 2 := by
-      have hnot_four : ¬2 * 2 ∣ d.natAbs :=
-        Squarefree.not_mul_self_dvd_of_not_isUnit hsq_nat (p := 2) (by norm_num)
-      intro h
-      apply hnot_four
-      obtain ⟨k, hk⟩ := h
-      obtain ⟨m, hm⟩ := h2dvd_abs
-      use k
-      omega
     have hquot_odd : Odd (d.natAbs / 2) := by
-      rw [Nat.odd_iff]
-      have hmod_ne : d.natAbs / 2 % 2 ≠ 0 := by
-        intro hmod
-        exact hnot_four_abs (Nat.dvd_of_mod_eq_zero hmod)
-      omega
+      have hcop :=
+        Nat.coprime_div_gcd_of_squarefree hsq_nat (by norm_num : (2 : ℕ) ≠ 0)
+      rw [Nat.gcd_eq_right_iff_dvd.mpr h2dvd_abs] at hcop
+      exact hcop.odd_of_right
     have hquot_sq : Squarefree (d.natAbs / 2) :=
       Squarefree.squarefree_of_dvd (Nat.div_dvd_of_dvd h2dvd_abs) hsq_nat
     have hprod :=
@@ -212,13 +179,8 @@ private theorem prod_primeDiscriminantFactor_eq_discrFormula_of_mod_four_ne_one
   · have hn_odd : Odd d.natAbs := by
       rw [Nat.odd_iff]
       omega
-    have hnot_two_mem : 2 ∉ d.natAbs.primeFactors := by
-      intro hmem
-      have h2dvd_abs : 2 ∣ d.natAbs := (Nat.mem_primeFactors.mp hmem).2.1
-      have h2dvd_int : (2 : ℤ) ∣ d := by
-        rw [← Int.dvd_natAbs]
-        exact_mod_cast h2dvd_abs
-      exact hd2 (Int.emod_eq_zero_of_dvd h2dvd_int)
+    have hnot_two_mem : 2 ∉ d.natAbs.primeFactors :=
+      fun hmem ↦ hn_odd.not_two_dvd_nat (Nat.dvd_of_mem_primeFactors hmem)
     rw [Finset.erase_eq_of_notMem hnot_two_mem]
     have hprod :=
       prod_oddPrimeDiscriminantFactor_primeFactors_of_squarefree_odd

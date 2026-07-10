@@ -59,10 +59,9 @@ noncomputable def ramifiedPrimeIndexOfNatAbsDvd
       exact dvd_mul_of_dvd_right hpdvd_int 4
   have hp_disc : (p : ℤ) ∣ NumberField.discr (Qsqrtd (d : ℚ)) := by
     simpa [RingOfIntegers.discr_formula d] using hp_formula
-  refine ⟨p, ?_⟩
-  rw [mem_ramifiedPrimes_iff, Nat.mem_primeFactors]
-  refine ⟨hp, Int.natCast_dvd.mp hp_disc, ?_⟩
-  exact Int.natAbs_ne_zero.mpr (NumberField.discr_ne_zero (Qsqrtd (d : ℚ)))
+  refine ⟨p, (mem_ramifiedPrimes_iff d p).mpr ?_⟩
+  exact hp.mem_primeFactors (Int.natCast_dvd.mp hp_disc)
+    (Int.natAbs_ne_zero.mpr (NumberField.discr_ne_zero (Qsqrtd (d : ℚ))))
 
 /-- The ramified-prime set may be computed from the closed discriminant formula
 for `ℚ(√d)`. -/
@@ -102,9 +101,8 @@ theorem prime_of_mem_ramifiedPrimeIndex (p : RamifiedPrimeIndex d) :
 /-- Members of `RamifiedPrimeIndex` divide the field discriminant. -/
 theorem dvd_discr_of_mem_ramifiedPrimeIndex (p : RamifiedPrimeIndex d) :
     (p.1 : ℤ) ∣ NumberField.discr (Qsqrtd (d : ℚ)) := by
-  have hmem := Nat.mem_primeFactors.mp ((mem_ramifiedPrimes_iff d p.1).mp p.2)
   rw [← Int.dvd_natAbs]
-  exact_mod_cast hmem.2.1
+  exact_mod_cast Nat.dvd_of_mem_primeFactors ((mem_ramifiedPrimes_iff d p.1).mp p.2)
 
 /-- Members of `RamifiedPrimeIndex` divide the closed discriminant formula. -/
 theorem dvd_discrFormula_of_mem_ramifiedPrimeIndex (p : RamifiedPrimeIndex d) :
