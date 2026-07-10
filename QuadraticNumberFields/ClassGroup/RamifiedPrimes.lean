@@ -117,6 +117,23 @@ theorem isRamified_of_mem_ramifiedPrimeIndex (p : RamifiedPrimeIndex d) :
   exact (Splitting.isRamified_iff_dvd_disc d p.1).mpr
     (dvd_discr_of_mem_ramifiedPrimeIndex d p)
 
+/-- When `d ≡ 1 (mod 4)`, the prime `2` is unramified in `ℚ(√d)`. -/
+theorem ne_two_of_mem_ramifiedPrimeIndex_of_mod_four_eq_one
+    (p : RamifiedPrimeIndex d) (hd4 : d % 4 = 1) :
+    p.1 ≠ 2 := by
+  intro hp2
+  have hram := isRamified_of_mem_ramifiedPrimeIndex d p
+  rw [hp2] at hram
+  exact (Splitting.isRamified_two_iff_mod_four_ne_one d).mp hram hd4
+
+/-- Every odd ramified rational prime of `ℚ(√d)` divides `d`. -/
+theorem dvd_parameter_of_mem_ramifiedPrimeIndex_of_ne_two
+    (p : RamifiedPrimeIndex d) (hp2 : p.1 ≠ 2) :
+    (p.1 : ℤ) ∣ d := by
+  letI : Fact p.1.Prime := ⟨prime_of_mem_ramifiedPrimeIndex d p⟩
+  exact (Splitting.isRamified_iff_odd_dvd d p.1 hp2).mp
+    (isRamified_of_mem_ramifiedPrimeIndex d p)
+
 /-- Membership in `ramifiedPrimes d` is equivalent to ramification of `(p)` in
 `𝓞(ℚ(√d))`. -/
 theorem mem_ramifiedPrimes_iff_isRamifiedIn (p : ℕ) :
