@@ -447,6 +447,43 @@ theorem kroneckerSymNat_natAbs_sub_one_eq_sign (D : ℤ)
       have hlt : D < 0 := by omega
       rw [ZMod.χ₄_nat_three_mod_four hN4, if_pos hlt]
 
+private lemma kroneckerTwo_eq_chi8 (D : ℤ) : kroneckerTwo D = ZMod.χ₈ D := by
+  rw [ZMod.χ₈_int_eq_if_mod_eight]
+  rfl
+
+/-- The supplementary Kronecker value is multiplicative in its numerator. -/
+theorem kroneckerTwo_mul (D E : ℤ) :
+    kroneckerTwo (D * E) = kroneckerTwo D * kroneckerTwo E := by
+  rw [kroneckerTwo_eq_chi8, kroneckerTwo_eq_chi8, kroneckerTwo_eq_chi8]
+  simpa [Int.cast_mul] using map_mul ZMod.χ₈ (D : ZMod 8) (E : ZMod 8)
+
+/-- The Kronecker symbol is multiplicative in the upper argument, for nonzero
+natural denominators. -/
+theorem kroneckerSymNat_mul_left (D E : ℤ) {n : ℕ} (hn : n ≠ 0) :
+    kroneckerSymNat (D * E) n = kroneckerSymNat D n * kroneckerSymNat E n := by
+  rw [kroneckerSymNat, if_neg hn, kroneckerSymNat, if_neg hn, kroneckerSymNat, if_neg hn,
+    kroneckerTwo_mul, jacobiSym.mul_left]
+  ring
+
+/-- The Kronecker symbol with upper argument `1` is trivial. -/
+@[simp]
+theorem kroneckerSymNat_one_left (n : ℕ) : kroneckerSymNat 1 n = 1 := by
+  by_cases hn : n = 0
+  · simp [kroneckerSymNat, hn]
+  · rw [kroneckerSymNat, if_neg hn]
+    simp [kroneckerTwo]
+
+/-- Pull a finite product out of the upper argument of `kroneckerSymNat`, for a
+nonzero natural denominator. -/
+theorem kroneckerSymNat_prod_left {ι : Type*} (s : Finset ι) (f : ι → ℤ)
+    {n : ℕ} (hn : n ≠ 0) :
+    kroneckerSymNat (s.prod f) n = s.prod (fun i ↦ kroneckerSymNat (f i) n) := by
+  classical
+  induction s using Finset.induction_on with
+  | empty => simp
+  | @insert a s ha ih =>
+      rw [Finset.prod_insert ha, Finset.prod_insert ha, kroneckerSymNat_mul_left _ _ hn, ih]
+
 /-- Full multiplicativity of the Kronecker symbol in the lower (natural) argument,
 for nonzero inputs. -/
 theorem kroneckerSymNat_mul (D : ℤ) {m n : ℕ} (hm : m ≠ 0) (hn : n ≠ 0) :
