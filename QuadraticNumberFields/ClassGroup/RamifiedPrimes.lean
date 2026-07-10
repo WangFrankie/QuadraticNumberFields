@@ -75,6 +75,25 @@ theorem ramifiedPrimeCount_eq_card :
     ramifiedPrimeCount d = (ramifiedPrimes d).card :=
   rfl
 
+/-- For squarefree `d ≠ 1`, at least one rational prime ramifies. -/
+theorem one_le_ramifiedPrimeCount :
+    1 ≤ ramifiedPrimeCount d := by
+  have hsq : Squarefree d := Fact.out
+  have hd1 : d ≠ 1 := Fact.out
+  have hd0 : d ≠ 0 := hsq.ne_zero
+  rw [ramifiedPrimeCount, ramifiedPrimes, RingOfIntegers.discr_formula d,
+    Finset.one_le_card, Nat.nonempty_primeFactors]
+  by_cases hd4 : d % 4 = 1
+  · rw [RingOfIntegers.discrFormula_of_mod_four_eq_one hd4]
+    have hdm1 : d ≠ -1 := by rintro rfl; simp at hd4
+    omega
+  · rw [RingOfIntegers.discrFormula_of_mod_four_ne_one hd4]
+    have h : (4 * d).natAbs = 4 * d.natAbs := by
+      simpa using Int.natAbs_mul 4 d
+    rw [h]
+    have hpos : 0 < d.natAbs := Int.natAbs_pos.mpr hd0
+    omega
+
 /-- Members of `RamifiedPrimeIndex` are rational primes. -/
 theorem prime_of_mem_ramifiedPrimeIndex (p : RamifiedPrimeIndex d) :
     p.1.Prime :=
