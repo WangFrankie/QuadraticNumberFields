@@ -19,6 +19,7 @@ as a `MulChar` on `ZMod D.natAbs`:
 * `kroneckerSymNat_add_natAbs_eq` (Shim A): periodicity modulo `|D|`, conditional
   on `D % 4 ∈ {0, 1}`.
 * `kroneckerSymNat_mod_natAbs_eq`: reduction of the denominator modulo `|D|`.
+* `kroneckerSymNat_eq_of_modEq`: invariance modulo any multiple of `|D|`.
 * `kroneckerSymNat_sq_one_of_coprime`: a coprime denominator gives a sign.
 * `kroneckerSymNatUnit`: the corresponding unit-valued symbol under coprimality.
 * `kroneckerSymNat_mul` (Shim B): full multiplicativity in the lower argument
@@ -299,6 +300,18 @@ theorem kroneckerSymNat_mod_natAbs_eq (D : ℤ)
     kroneckerSymNat D (n % D.natAbs) = kroneckerSymNat D n := by
   conv_rhs => rw [← Nat.mod_add_div n D.natAbs]
   exact (kroneckerSymNat_add_natAbs_mul_eq D (n % D.natAbs) (n / D.natAbs)).symm
+
+/-- The Kronecker symbol is constant on natural-number congruence classes modulo
+any multiple of the absolute value of its upper argument. -/
+theorem kroneckerSymNat_eq_of_modEq {D : ℤ}
+    (hD : D % 4 = 0 ∨ D % 4 = 1) {m a b : ℕ} (hDm : D.natAbs ∣ m)
+    (hab : a ≡ b [MOD m]) :
+    kroneckerSymNat D a = kroneckerSymNat D b := by
+  letI : Fact (D % 4 = 0 ∨ D % 4 = 1) := ⟨hD⟩
+  have hperiodic : Function.Periodic (kroneckerSymNat D) D.natAbs :=
+    kroneckerSymNat_add_natAbs_eq D
+  rw [← hperiodic.map_mod_nat a, ← hperiodic.map_mod_nat b]
+  exact congrArg (kroneckerSymNat D) (hab.of_dvd hDm)
 
 /-- Auxiliary computation for the canonical `-1` representative: the denominator
 `4 * A - 1` is congruent to `-1` modulo `A`, so it is the natural representative
