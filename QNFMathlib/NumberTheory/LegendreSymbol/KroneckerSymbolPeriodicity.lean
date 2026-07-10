@@ -19,6 +19,8 @@ as a `MulChar` on `ZMod D.natAbs`:
 * `kroneckerSymNat_add_natAbs_eq` (Shim A): periodicity modulo `|D|`, conditional
   on `D % 4 ∈ {0, 1}`.
 * `kroneckerSymNat_mod_natAbs_eq`: reduction of the denominator modulo `|D|`.
+* `kroneckerSymNat_sq_one_of_coprime`: a coprime denominator gives a sign.
+* `kroneckerSymNatUnit`: the corresponding unit-valued symbol under coprimality.
 * `kroneckerSymNat_mul` (Shim B): full multiplicativity in the lower argument
   for nonzero inputs.
 * `kroneckerSymNat_eq_zero_of_not_coprime` (Shim C): the symbol vanishes whenever
@@ -26,7 +28,7 @@ as a `MulChar` on `ZMod D.natAbs`:
 * `kroneckerSymNat_natAbs_sub_one_eq_sign`: the value at the representative of
   `-1` in `ZMod D.natAbs`.
 
-All three shims depend only on
+These shims depend only on
 `QNFMathlib.NumberTheory.LegendreSymbol.KroneckerSymbol` and
 mathlib; they are project-quadratic-field-independent.
 -/
@@ -53,6 +55,85 @@ private lemma kroneckerSymNat_of_odd (D : ℤ) {n : ℕ} (hn : Odd n) :
   have hfact : n.factorization 2 = 0 :=
     Nat.factorization_eq_zero_of_not_dvd hn.not_two_dvd_nat
   rw [kroneckerSymNat, if_neg hn0, hfact, pow_zero, one_mul, pow_zero, Nat.div_one]
+
+private lemma kroneckerTwo_sq_one_of_natAbs_not_even (D : ℤ)
+    (hD : ¬2 ∣ D.natAbs) :
+    kroneckerTwo D ^ 2 = 1 := by
+  have hDmod : D % 2 ≠ 0 := by
+    intro hmod
+    have h2D : (2 : ℤ) ∣ D := Int.dvd_of_emod_eq_zero hmod
+    exact hD ((Int.natCast_dvd (m := 2) (n := D)).mp h2D)
+  unfold kroneckerTwo
+  by_cases hmod8 : D % 8 = 1 ∨ D % 8 = 7
+  · simp [hDmod, hmod8]
+  · simp [hDmod, hmod8]
+
+/-- If the natural denominator is coprime to `D.natAbs`, then its Kronecker
+symbol has square one. -/
+theorem kroneckerSymNat_sq_one_of_coprime (D : ℤ) {n : ℕ}
+    (h : Nat.Coprime n D.natAbs) :
+    kroneckerSymNat D n ^ 2 = 1 := by
+  rcases Nat.eq_zero_or_pos n with rfl | hn
+  · have hD : D.natAbs = 1 := by
+      simpa [Nat.Coprime] using h
+    simp [kroneckerSymNat, hD]
+  · obtain ⟨k, m, hm, rfl⟩ := Nat.exists_eq_two_pow_mul_odd hn.ne'
+    rw [kroneckerSymNat_two_pow_mul_odd D k hm]
+    have hm_coprime : Nat.Coprime m D.natAbs :=
+      Nat.Coprime.coprime_dvd_left (dvd_mul_left m (2 ^ k)) h
+    have hm_int_coprime : Int.gcd D m = 1 := by
+      have hnat : Nat.gcd D.natAbs m = 1 := by
+        simpa [Nat.Coprime, Nat.gcd_comm] using hm_coprime
+      simpa [Int.gcd, Int.natAbs_natCast] using hnat
+    have hjac_sq : jacobiSym D m ^ 2 = 1 := jacobiSym.sq_one hm_int_coprime
+    have htwo_pow_sq : (kroneckerTwo D ^ k) ^ 2 = 1 := by
+      by_cases hk : k = 0
+      · simp [hk]
+      · have h2n : 2 ∣ 2 ^ k * m :=
+          dvd_mul_of_dvd_left (dvd_pow_self 2 hk) m
+        have h2D : ¬2 ∣ D.natAbs := by
+          intro h2D
+          have h2gcd : 2 ∣ Nat.gcd (2 ^ k * m) D.natAbs := Nat.dvd_gcd h2n h2D
+          have hgcd : Nat.gcd (2 ^ k * m) D.natAbs = 1 := by
+            simpa [Nat.Coprime] using h
+          rw [hgcd] at h2gcd
+          norm_num at h2gcd
+        have htwo_sq : kroneckerTwo D ^ 2 = 1 :=
+          kroneckerTwo_sq_one_of_natAbs_not_even D h2D
+        calc
+          (kroneckerTwo D ^ k) ^ 2 = (kroneckerTwo D ^ 2) ^ k := by
+            rw [← pow_mul, Nat.mul_comm, pow_mul]
+          _ = 1 := by simp [htwo_sq]
+    calc
+      (kroneckerTwo D ^ k * jacobiSym D m) ^ 2 =
+          (kroneckerTwo D ^ k) ^ 2 * (jacobiSym D m) ^ 2 := by
+        rw [mul_pow]
+      _ = 1 := by simp [htwo_pow_sq, hjac_sq]
+
+/-- At a denominator coprime to `D.natAbs`, the Kronecker symbol is `1` or
+`-1`. -/
+theorem kroneckerSymNat_eq_one_or_neg_one_of_coprime (D : ℤ) {n : ℕ}
+    (h : Nat.Coprime n D.natAbs) :
+    kroneckerSymNat D n = 1 ∨ kroneckerSymNat D n = -1 :=
+  sq_eq_one_iff.mp (kroneckerSymNat_sq_one_of_coprime D h)
+
+/-- The unit-valued Kronecker symbol at a denominator coprime to `D.natAbs`. -/
+def kroneckerSymNatUnit (D : ℤ) {n : ℕ}
+    (h : Nat.Coprime n D.natAbs) : ℤˣ where
+  val := kroneckerSymNat D n
+  inv := kroneckerSymNat D n
+  val_inv := by
+    simpa [pow_two] using kroneckerSymNat_sq_one_of_coprime D h
+  inv_val := by
+    simpa [pow_two] using kroneckerSymNat_sq_one_of_coprime D h
+
+/-- Coercing the coprime unit-valued Kronecker symbol to `ℤ` recovers the
+ordinary Kronecker symbol. -/
+@[simp]
+theorem coe_kroneckerSymNatUnit (D : ℤ) {n : ℕ}
+    (h : Nat.Coprime n D.natAbs) :
+    (kroneckerSymNatUnit D h : ℤ) = kroneckerSymNat D n :=
+  rfl
 
 private lemma odd_natAbs_of_emod_four_eq_one (D : ℤ) (hD : D % 4 = 1) :
     Odd D.natAbs := by
