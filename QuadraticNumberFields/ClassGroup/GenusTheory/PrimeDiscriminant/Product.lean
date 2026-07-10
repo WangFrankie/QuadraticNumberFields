@@ -251,6 +251,16 @@ noncomputable def primeDiscriminantModulus
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] : ℕ :=
   ∏ p : RamifiedPrimeIndex d, (primeDiscriminantFactor d p).natAbs
 
+/-- Every local prime-discriminant modulus divides their total product. -/
+theorem natAbs_primeDiscriminantFactor_dvd_primeDiscriminantModulus
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (p : RamifiedPrimeIndex d) :
+    (primeDiscriminantFactor d p).natAbs ∣ primeDiscriminantModulus d := by
+  rw [primeDiscriminantModulus]
+  exact Finset.dvd_prod_of_mem
+    (fun q : RamifiedPrimeIndex d ↦ (primeDiscriminantFactor d q).natAbs)
+    (Finset.mem_univ p)
+
 /-- The prime-discriminant modulus is the absolute field discriminant. -/
 theorem primeDiscriminantModulus_eq_discr_natAbs
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
