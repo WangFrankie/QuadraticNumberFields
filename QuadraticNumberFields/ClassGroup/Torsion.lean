@@ -18,6 +18,15 @@ groups. The ideal-theoretic lemmas at the end characterize torsion of
 `ClassGroup.mk0` by principality of ideal powers.
 -/
 
+namespace CommGroup
+
+variable (G : Type*) [CommGroup G]
+
+/-- The quotient of a commutative group by its subgroup of squares. -/
+abbrev squareQuotient := G ⧸ Subgroup.square G
+
+end CommGroup
+
 namespace Subgroup
 variable (G) (n : ℕ)
 variable [CommGroup G]
@@ -35,10 +44,6 @@ theorem mem_powTorsion_iff (x : G) :
 /-- The two-torsion subgroup of a multiplicative commutative group. -/
 noncomputable abbrev twoTorsion : Subgroup G :=
   powTorsion G 2
-
-/-- The quotient of a multiplicative commutative group by its square subgroup. -/
-abbrev squareQuotient :=
-  G ⧸ square G
 
 variable {G}
 
@@ -58,13 +63,6 @@ theorem square_eq_powMonoidHom_range :
   ext x
   simp [Subgroup.square, IsSquare, pow_two, eq_comm]
 
-/-- For a finite commutative group, the square quotient has the same cardinality
-as the two-torsion subgroup. -/
-theorem card_squareQuotient_eq_card_twoTorsion [Finite G] :
-    Nat.card (squareQuotient G) = Nat.card (twoTorsion G) := by
-  simpa [squareQuotient, square_eq_powMonoidHom_range] using
-    (Subgroup.index_range (f := powMonoidHom (α := G) 2))
-
 /-- A two-torsion element has square one. -/
 theorem twoTorsion_mul_self_eq_one (x : twoTorsion G) :
     (x.1 : G) * x.1 = 1 := by
@@ -76,6 +74,19 @@ theorem twoTorsion_eq_inv (x : twoTorsion G) :
   (eq_inv_iff_mul_eq_one).2 (twoTorsion_mul_self_eq_one x)
 
 end Subgroup
+
+namespace CommGroup
+
+variable {G : Type*} [CommGroup G]
+
+/-- For a finite commutative group, the square quotient has the same cardinality
+as the two-torsion subgroup. -/
+theorem card_squareQuotient_eq_card_twoTorsion [Finite G] :
+    Nat.card (squareQuotient G) = Nat.card (Subgroup.twoTorsion G) := by
+  simpa [squareQuotient, Subgroup.square_eq_powMonoidHom_range] using
+    (Subgroup.index_range (f := powMonoidHom (α := G) 2))
+
+end CommGroup
 
 namespace ClassGroup
 

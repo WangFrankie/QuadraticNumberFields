@@ -15,6 +15,7 @@ the narrow class number from surjectivity of the genus-character map.
 -/
 
 open scoped QuadraticNumberFields.ClassGroup
+open CommGroup
 
 namespace QuadraticNumberFields
 namespace ClassGroup
@@ -27,12 +28,12 @@ theorem genusCharacterMapOnSquareClasses_surjective :
     Function.Surjective (genusCharacterMapOnSquareClasses d) := by
   intro ε
   obtain ⟨C, hC⟩ := genusCharacterMap_surjective d ε
-  exact ⟨(C : NarrowSquareClassGroup d), by simpa using hC⟩
+  exact ⟨(C : squareQuotient (Cl⁺(d))), by simpa using hC⟩
 
 /-- The number of narrow square classes is at least `2 ^ (t - 1)`, where `t`
 is the number of ramified rational primes. -/
 theorem two_pow_sub_one_le_card_narrowSquareClassGroup :
-    2 ^ (ramifiedPrimeCount d - 1) ≤ Nat.card (NarrowSquareClassGroup d) := by
+    2 ^ (ramifiedPrimeCount d - 1) ≤ Nat.card (squareQuotient (Cl⁺(d))) := by
   rw [← card_admissibleGenusSignVector d]
   exact Nat.card_le_card_of_surjective (genusCharacterMapOnSquareClasses d)
     (genusCharacterMapOnSquareClasses_surjective d)
@@ -42,13 +43,12 @@ theorem two_pow_sub_one_dvd_narrowClassNumber :
     2 ^ (ramifiedPrimeCount d - 1) ∣ Qsqrtd.narrowClassNumber d := by
   have htarget_dvd :
       Nat.card (AdmissibleGenusSignVector d) ∣
-        Nat.card (NarrowSquareClassGroup d) :=
+        Nat.card (squareQuotient (Cl⁺(d))) :=
     Subgroup.card_dvd_of_surjective (genusCharacterMapOnSquareClasses d)
       (genusCharacterMapOnSquareClasses_surjective d)
   have hquot_dvd :
-      Nat.card (NarrowSquareClassGroup d) ∣ Qsqrtd.narrowClassNumber d := by
-    simpa [NarrowSquareClassGroup, Subgroup.squareQuotient,
-      Subgroup.index_eq_card, Qsqrtd.narrowClassNumber,
+      Nat.card (squareQuotient (Cl⁺(d))) ∣ Qsqrtd.narrowClassNumber d := by
+    simpa [Subgroup.index_eq_card, Qsqrtd.narrowClassNumber,
       NumberField.narrowClassNumber, NarrowClassGroup.narrowClassNumber,
       Nat.card_eq_fintype_card] using
         (Subgroup.square (Cl⁺(d))).index_dvd_card

@@ -15,16 +15,13 @@ class group by its square subgroup.
 -/
 
 open scoped QuadraticNumberFields.ClassGroup
+open CommGroup
 
 namespace QuadraticNumberFields
 namespace ClassGroup
 namespace GenusTheory
 
 variable (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
-
-/-- The narrow class group modulo its square subgroup. -/
-abbrev NarrowSquareClassGroup :=
-  Subgroup.squareQuotient (Cl⁺(d))
 
 /-- The genus character map is trivial on squares of narrow ideal classes. -/
 theorem square_le_genusCharacterMap_ker :
@@ -37,7 +34,7 @@ theorem square_le_genusCharacterMap_ker :
 
 /-- The genus character map factored through narrow square classes. -/
 noncomputable def genusCharacterMapOnSquareClasses :
-    NarrowSquareClassGroup d →* AdmissibleGenusSignVector d :=
+    squareQuotient (Cl⁺(d)) →* AdmissibleGenusSignVector d :=
   QuotientGroup.lift (Subgroup.square (Cl⁺(d))) (genusCharacterMap d)
     (square_le_genusCharacterMap_ker d)
 
@@ -45,7 +42,7 @@ noncomputable def genusCharacterMapOnSquareClasses :
 narrow class representative. -/
 @[simp]
 theorem genusCharacterMapOnSquareClasses_mk (C : Cl⁺(d)) :
-    genusCharacterMapOnSquareClasses d (C : NarrowSquareClassGroup d) =
+    genusCharacterMapOnSquareClasses d (C : squareQuotient (Cl⁺(d))) =
       genusCharacterMap d C :=
   QuotientGroup.lift_mk' (Subgroup.square (Cl⁺(d))) (φ := genusCharacterMap d)
     (square_le_genusCharacterMap_ker d) C
