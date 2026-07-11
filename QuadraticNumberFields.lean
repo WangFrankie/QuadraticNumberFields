@@ -51,7 +51,8 @@ import QuadraticNumberFields.ClassGroup.Narrow.Principal
 import QuadraticNumberFields.ClassGroup.Minkowski
 import QuadraticNumberFields.ClassGroup.SmallNorm
 import QuadraticNumberFields.ClassGroup.Ambiguous.UpperBound
-import QuadraticNumberFields.ClassGroup.GenusTheory.ExactCardinality
+import QuadraticNumberFields.ClassGroup.GenusTheory.MainTheorem
+import QuadraticNumberFields.ClassGroup.GenusTheory.Imaginary
 import QuadraticNumberFields.ClassGroup.GenusTheory.Sieve
 import QuadraticNumberFields.Qsqrtd.TotallyRealComplex
 import QuadraticNumberFields.Units.Pell

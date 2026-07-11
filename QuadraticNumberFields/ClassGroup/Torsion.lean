@@ -88,6 +88,26 @@ theorem card_squareQuotient_eq_card_twoTorsion [Finite G] :
 
 end CommGroup
 
+namespace Subgroup
+
+variable {G H : Type*} [CommGroup G] [CommGroup H]
+
+/-- Isomorphic commutative groups have `n`-power torsion subgroups of the same
+cardinality. -/
+theorem card_powTorsion_congr (e : G ≃* H) (n : ℕ) :
+    Nat.card (powTorsion G n) = Nat.card (powTorsion H n) :=
+  Nat.card_congr (Equiv.subtypeEquiv e.toEquiv fun x ↦ by
+    simp only [mem_powTorsion_iff, MulEquiv.toEquiv_eq_coe, MulEquiv.coe_toEquiv,
+      ← map_pow, EmbeddingLike.map_eq_one_iff])
+
+/-- Isomorphic commutative groups have two-torsion subgroups of the same
+cardinality. -/
+theorem card_twoTorsion_congr (e : G ≃* H) :
+    Nat.card (twoTorsion G) = Nat.card (twoTorsion H) :=
+  card_powTorsion_congr e 2
+
+end Subgroup
+
 namespace ClassGroup
 
 variable (R)
