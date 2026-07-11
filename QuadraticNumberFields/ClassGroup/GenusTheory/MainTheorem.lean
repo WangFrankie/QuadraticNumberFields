@@ -13,16 +13,13 @@ import QuadraticNumberFields.ClassGroup.Torsion
 
 This file combines the independent genus-character lower bound and
 ramified-parity upper bound into the main results of genus theory for the
-narrow class group of `ℚ(√d)`:
+narrow class group of `ℚ(√d)`. The genus-character map identifies narrow
+square classes with admissible genus sign vectors, its kernel on the narrow
+class group is the subgroup of squares, and the common cardinality is
+`2 ^ (ramifiedPrimeCount d - 1)`.
 
-* the exact cardinalities of the narrow square-class quotient and the narrow
-  two-torsion subgroup;
-* the corrected cardinality formulas with the concrete exponent `ω(|d|)`
-  determined by `d % 4`, valid without any sign hypothesis on `d`;
-* bijectivity of the genus-character map on narrow square classes, and the
-  resulting isomorphism with the admissible genus sign vectors;
-* the principal genus theorem: the kernel of the genus character map is the
-  subgroup of squares.
+The comparison with the ordinary class group is kept separately in
+`GenusTheory.Ordinary`.
 -/
 
 namespace QuadraticNumberFields
@@ -36,6 +33,8 @@ variable (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
 
 local notation "OK" =>
   NumberField.RingOfIntegers (Qsqrtd (d : ℚ))
+
+/-! ### Exact cardinalities -/
 
 /-- The narrow two-torsion subgroup has the exact genus-theory cardinality. -/
 theorem card_narrowClassGroupTwoTorsion_eq_two_pow_sub_one :
@@ -61,31 +60,7 @@ theorem card_narrowSquareClassGroup_eq_two_pow_sub_one :
     _ = 2 ^ (ramifiedPrimeCount d - 1) :=
       card_narrowClassGroupTwoTorsion_eq_two_pow_sub_one d
 
-/-- Corrected genus formula, `d ≡ 1 (mod 4)`: the narrow class group of
-`ℚ(√d)` has `2 ^ (ω(|d|) - 1)` square classes, for real and imaginary fields
-alike. -/
-theorem card_narrowSquareClassGroup_of_mod_four_eq_one (hd4 : d % 4 = 1) :
-    Nat.card (squareQuotient (Cl⁺(d))) =
-      2 ^ (d.natAbs.primeFactors.card - 1) := by
-  rw [card_narrowSquareClassGroup_eq_two_pow_sub_one d,
-    ramifiedPrimeCount_of_mod_four_eq_one d hd4]
-
-/-- Corrected genus formula, `d ≡ 2 (mod 4)`: the narrow class group of
-`ℚ(√d)` has `2 ^ (ω(|d|) - 1)` square classes, for real and imaginary fields
-alike. -/
-theorem card_narrowSquareClassGroup_of_mod_four_eq_two (hd4 : d % 4 = 2) :
-    Nat.card (squareQuotient (Cl⁺(d))) =
-      2 ^ (d.natAbs.primeFactors.card - 1) := by
-  rw [card_narrowSquareClassGroup_eq_two_pow_sub_one d,
-    ramifiedPrimeCount_of_mod_four_eq_two d hd4]
-
-/-- Corrected genus formula, `d ≡ 3 (mod 4)`: the wild prime `2` raises the
-narrow square-class count to `2 ^ ω(|d|)`, for real and imaginary fields
-alike. -/
-theorem card_narrowSquareClassGroup_of_mod_four_eq_three (hd4 : d % 4 = 3) :
-    Nat.card (squareQuotient (Cl⁺(d))) = 2 ^ d.natAbs.primeFactors.card := by
-  rw [card_narrowSquareClassGroup_eq_two_pow_sub_one d,
-    ramifiedPrimeCount_of_mod_four_eq_three d hd4, Nat.add_sub_cancel]
+/-! ### Genus theorem and principal genus theorem -/
 
 /-- The genus-character map on narrow square classes is injective. -/
 theorem genusCharacterMapOnSquareClasses_injective :
