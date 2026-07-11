@@ -6,6 +6,7 @@ Authors: Frankie Wang
 import ImaginaryClassNumberOne.ClassNumberOne
 import ImaginaryClassNumberOne.Framework
 import ImaginaryClassNumberOne.IdealReductions
+import QuadraticNumberFields.ClassGroup.GenusTheory.Sieve
 
 /-!
 # The Baker–Heegner–Stark Theorem (Statement)
@@ -17,11 +18,12 @@ Heegner numbers `-1, -2, -3, -7, -11, -19, -43, -67, -163`.
 
 The easy direction — each Heegner number gives class number one — is proved in
 `QuadraticNumberFields.Heegner.ClassNumberOne` via Minkowski bounds and
-inertness of small primes. The forward direction is assembled from elementary
-ideal-theoretic reductions and the Cox-Weber inert-prime core in
-`QuadraticNumberFields.Heegner.Framework`. The inert-prime core still depends on
-two named inputs: the Weber/CM data provider and the Diophantine endgame
-`heegner_xy_solutions` for `Y ^ 2 = 2 * X * (X ^ 3 + 1)`.
+inertness of small primes. The forward direction is assembled from the
+genus-theory parameter-shape sieve, the split-at-`2` reduction, and the
+Cox-Weber inert-prime core in `QuadraticNumberFields.Heegner.Framework`. The
+inert-prime core still depends on two named inputs: the Weber/CM data provider
+and the Diophantine endgame `heegner_xy_solutions` for
+`Y ^ 2 = 2 * X * (X ^ 3 + 1)`.
 
 ## Reference
 
@@ -76,12 +78,13 @@ theorem classNumber_eq_one_imp_mem_heegnerSet_of_mod_eight_eq_one
   rw [hd_eq]
   simp [heegnerSet]
 
-/-- **Baker-Heegner-Stark prime-family step.** After a prime-shape sieve has
-reduced the class-number-one problem to `d = -1`, `d = -2`, or `d = -p` with
-`p ≡ 3 (mod 4)` prime, the only deep input needed is the inert prime core
-`p ≡ 3 (mod 8)`.  The complementary case `p ≡ 7 (mod 8)` is the elementary
-split-at-`2` branch, which has already been handled ideal-theoretically. -/
-theorem classNumber_eq_one_imp_mem_heegnerSet_of_discr_prime_shape
+/-- **Baker-Heegner-Stark prime-family step.** After the genus-theory
+parameter-shape sieve has reduced the class-number-one problem to `d = -1`,
+`d = -2`, or `d = -p` with `p ≡ 3 (mod 4)` prime, the only deep input needed is
+the inert prime core `p ≡ 3 (mod 8)`. The complementary case `p ≡ 7 (mod 8)` is
+the elementary split-at-`2` branch, which has already been handled
+ideal-theoretically. -/
+theorem classNumber_eq_one_imp_mem_heegnerSet_of_parameter_prime_shape
     (hprovider : InertPrimeWeberDataProvider)
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : d < 0)
     (hshape :
@@ -116,28 +119,24 @@ theorem classNumber_eq_one_imp_mem_heegnerSet_of_mod_eight_eq_five
     omega
   exact baker_heegner_stark_inert_prime_core hprovider d hd p hp hp8 hdp h
 
-/-- **Baker-Heegner-Stark forward direction.** The elementary ideal-theoretic
-branches are closed directly, and the inert half-integral branch is routed
-through the odd prime-shape sieve and the inert prime core. -/
+/-- **Baker-Heegner-Stark forward direction.** The genus-theory sieve supplies
+the parameter shape; the split-at-`2` reduction closes the `p ≡ 7 (mod 8)`
+branch, and the remaining `p ≡ 3 (mod 8)` branch uses the inert prime core. -/
 theorem classNumber_eq_one_imp_mem_heegnerSet
     (hprovider : InertPrimeWeberDataProvider)
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : d < 0)
     (h : NumberField.classNumber (Qsqrtd (d : ℚ)) = 1) :
-    d ∈ heegnerSet := by
-  by_cases hd4 : d % 4 = 1
-  · have hd8_cases : d % 8 = 1 ∨ d % 8 = 5 := by omega
-    rcases hd8_cases with hd8 | hd8
-    · exact classNumber_eq_one_imp_mem_heegnerSet_of_mod_eight_eq_one d hd hd8 h
-    · exact classNumber_eq_one_imp_mem_heegnerSet_of_mod_eight_eq_five
-        hprovider d hd hd8 h
-  · exact classNumber_eq_one_imp_mem_heegnerSet_of_mod_four_ne_one d hd hd4 h
+    d ∈ heegnerSet :=
+  classNumber_eq_one_imp_mem_heegnerSet_of_parameter_prime_shape
+    hprovider d hd
+    (ClassGroup.GenusTheory.classNumber_eq_one_imp_parameter_prime_shape d hd h) h
 
 /-- **Baker–Heegner–Stark theorem.** A negative squarefree integer `d` gives an
 imaginary quadratic field `ℚ(√d)` of class number one if and only if `d` is one
 of the nine Heegner numbers `-1, -2, -3, -7, -11, -19, -43, -67, -163`.
 
 The reverse implication is `classNumber_eq_one_of_mem_heegnerSet`. The forward
-implication now factors through the ideal-theoretic prime-shape sieve; the
+implication factors through the genus-theory parameter-shape sieve; the
 remaining WIP inputs are the inert-prime Weber/CM provider and the Diophantine
 endgame `heegner_xy_solutions`. -/
 theorem classNumber_eq_one_iff_mem_heegnerSet
