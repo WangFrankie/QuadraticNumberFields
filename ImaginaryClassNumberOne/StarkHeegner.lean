@@ -102,6 +102,20 @@ theorem classNumber_eq_one_imp_mem_heegnerSet_of_parameter_prime_shape
         omega
       exact classNumber_eq_one_imp_mem_heegnerSet_of_mod_eight_eq_one d hd hd8 h
 
+/-- Deprecated name for
+`classNumber_eq_one_imp_mem_heegnerSet_of_parameter_prime_shape`. -/
+@[deprecated classNumber_eq_one_imp_mem_heegnerSet_of_parameter_prime_shape
+  (since := "2026-07-12")]
+theorem classNumber_eq_one_imp_mem_heegnerSet_of_discr_prime_shape
+    (hprovider : InertPrimeWeberDataProvider)
+    (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : d < 0)
+    (hshape :
+      d = -1 ∨ d = -2 ∨ ∃ p : ℕ, Nat.Prime p ∧ p % 4 = 3 ∧ d = -(p : ℤ))
+    (h : NumberField.classNumber (Qsqrtd (d : ℚ)) = 1) :
+    d ∈ heegnerSet :=
+  classNumber_eq_one_imp_mem_heegnerSet_of_parameter_prime_shape
+    hprovider d hd hshape h
+
 /-- **Inert half-integral branch of Baker-Heegner-Stark.** In the `d % 8 = 5`
 branch, the ideal-theoretic odd prime-shape sieve reduces class number one to
 `d = -p` with `p ≡ 3 (mod 8)`, so the only remaining input is

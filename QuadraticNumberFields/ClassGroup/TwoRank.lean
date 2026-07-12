@@ -12,18 +12,18 @@ import QuadraticNumberFields.ClassGroup.Torsion
 /-!
 # The 2-Rank of Class Groups
 
-For a finite commutative group `G`, its **2-rank** is the dimension over the
-field with two elements of the square-class group `G / G²`. This file defines
-that invariant and records its cardinality interpretation, together with the
-ordinary and narrow class-group specializations.
+When `G / G²` is finite, the **2-rank** of `G` is its dimension over `ZMod 2`.
+The square quotient has a canonical `ZMod 2`-module structure, and group
+homomorphisms act linearly on it. The definition below relates this dimension
+to the cardinality of `G / G²` and is then specialized to class groups.
 -/
 
 namespace CommGroup
 
 variable (G : Type*) [CommGroup G]
 
-@[implicit_reducible]
-private noncomputable def squareQuotientModule :
+/-- The canonical `ZMod 2`-module structure on the additive form of `G / G²`. -/
+noncomputable instance instModuleSquareQuotient :
     Module (ZMod 2) (Additive (squareQuotient G)) :=
   AddCommGroup.zmodModule fun x ↦ by
     change x.toMul ^ 2 = 1
@@ -33,21 +33,51 @@ private noncomputable def squareQuotientModule :
     exact (QuotientGroup.eq_one_iff (g ^ 2)).mpr
       ((Subgroup.mem_square_iff (g ^ 2)).mpr ⟨g, rfl⟩)
 
-/-- The 2-rank of a commutative group `G`, defined as
-`dim_F₂ (G / G²)`. -/
-noncomputable def twoRank : ℕ :=
-  letI : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
-  letI := squareQuotientModule G
+variable {G H : Type*} [CommGroup G] [CommGroup H]
+
+/-- The `ZMod 2`-linear map on square quotients induced by a group homomorphism. -/
+noncomputable def squareQuotientLinearMap (f : G →* H) :
+    Additive (squareQuotient G) →ₗ[ZMod 2] Additive (squareQuotient H) :=
+  (MonoidHom.toAdditive (squareQuotientMap f)).toZModLinearMap 2
+
+/-- The underlying group map of `squareQuotientLinearMap f` is `squareQuotientMap f`. -/
+@[simp]
+theorem squareQuotientLinearMap_apply (f : G →* H) (x : Additive (squareQuotient G)) :
+    (squareQuotientLinearMap f x).toMul = squareQuotientMap f x.toMul :=
+  rfl
+
+/-- The linear map on square quotients is surjective when the group homomorphism is. -/
+theorem squareQuotientLinearMap_surjective (f : G →* H) (hf : Function.Surjective f) :
+    Function.Surjective (squareQuotientLinearMap f) := by
+  intro y
+  obtain ⟨x, hx⟩ := squareQuotientMap_surjective f hf y.toMul
+  exact ⟨Additive.ofMul x, congrArg Additive.ofMul hx⟩
+
+/-- An isomorphism of commutative groups gives a linear equivalence of their
+square quotients over `ZMod 2`. -/
+noncomputable def squareQuotientLinearEquiv (e : G ≃* H) :
+    Additive (squareQuotient G) ≃ₗ[ZMod 2] Additive (squareQuotient H) :=
+  { (squareQuotientMulEquiv e).toAdditive with
+    map_smul' := ZMod.map_smul _ }
+
+/-- The underlying group equivalence is `squareQuotientMulEquiv e`. -/
+@[simp]
+theorem squareQuotientLinearEquiv_apply (e : G ≃* H)
+    (x : Additive (squareQuotient G)) :
+    (squareQuotientLinearEquiv e x).toMul = squareQuotientMulEquiv e x.toMul :=
+  rfl
+
+variable (G) in
+/-- The `ZMod 2`-dimension of `G / G²`, when this quotient is finite. -/
+@[nolint unusedArguments]
+noncomputable def twoRank [Finite (squareQuotient G)] : ℕ :=
   Module.finrank (ZMod 2) (Additive (squareQuotient G))
 
-variable {G}
-
-/-- The square-class group of a finite commutative group has cardinality
+/-- A finite square-class group has cardinality
 `2 ^ twoRank G`. -/
-theorem card_squareQuotient_eq_two_pow_twoRank [Finite G] :
+theorem card_squareQuotient_eq_two_pow_twoRank [Finite (squareQuotient G)] :
     Nat.card (squareQuotient G) = 2 ^ twoRank G := by
   letI : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
-  letI := squareQuotientModule G
   change Nat.card (squareQuotient G) =
     2 ^ Module.finrank (ZMod 2) (Additive (squareQuotient G))
   simpa using
@@ -59,6 +89,7 @@ end CommGroup
 namespace ClassGroup
 
 variable (R) [CommRing R] [IsDomain R]
+variable [Finite (CommGroup.squareQuotient (ClassGroup R))]
 
 /-- The 2-rank of the ideal class group. -/
 noncomputable abbrev twoRank : ℕ :=
@@ -69,6 +100,7 @@ end ClassGroup
 namespace NarrowClassGroup
 
 variable (R) [CommRing R] [IsDomain R]
+variable [Finite (CommGroup.squareQuotient (NarrowClassGroup R))]
 
 /-- The 2-rank of the narrow ideal class group. -/
 noncomputable abbrev twoRank : ℕ :=

@@ -11,12 +11,11 @@ import QuadraticNumberFields.ClassGroup.TwoRank
 /-!
 # The Genus Theorem
 
-This file combines the independent genus-character lower bound and
-ramified-parity upper bound into the main results of genus theory for the
-narrow class group of `ℚ(√d)`. The genus-character map identifies narrow
-square classes with admissible genus sign vectors, its kernel on the narrow
-class group is the subgroup of squares, and the 2-rank of the narrow class
-group is `ramifiedPrimeCount d - 1`.
+This file combines the genus-character lower bound with the ramified-parity
+upper bound. The resulting genus theorem computes the 2-rank of the narrow
+class group of `ℚ(√d)` as `ramifiedPrimeCount d - 1`. It also identifies the
+square classes with admissible genus sign vectors. The kernel calculation is
+the principal genus theorem.
 
 The comparison with the ordinary class group is kept separately in
 `GenusTheory.Ordinary`.

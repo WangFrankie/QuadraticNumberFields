@@ -12,10 +12,9 @@ import QNFMathlib.RingTheory.ClassGroup.Narrow
 /-!
 # Torsion in Class Groups
 
-This file collects multiplicative torsion and square-subgroup helpers for
-commutative groups, then specializes them to ordinary and narrow ideal class
-groups. The ideal-theoretic lemmas at the end characterize torsion of
-`ClassGroup.mk0` by principality of ideal powers.
+This file defines power-torsion subgroups and square quotients for commutative
+groups, together with their maps under homomorphisms and equivalences. The final
+sections specialize the torsion results to ordinary and narrow ideal class groups.
 -/
 
 namespace CommGroup
@@ -30,6 +29,10 @@ end CommGroup
 namespace Subgroup
 variable (G) (n : ℕ)
 variable [CommGroup G]
+
+/-- Deprecated alias for `CommGroup.squareQuotient`. -/
+@[deprecated CommGroup.squareQuotient (since := "2026-07-12")]
+abbrev squareQuotient := CommGroup.squareQuotient G
 
 /-- The subgroup of elements killed by the `n`th-power map in a multiplicative
 group. This is the multiplicative-group analogue of `AddSubgroup.torsionBy`. -/
@@ -75,9 +78,98 @@ theorem twoTorsion_eq_inv (x : twoTorsion G) :
 
 end Subgroup
 
+namespace Subgroup
+
+variable {G H : Type*} [CommGroup G] [CommGroup H]
+
+/-- A homomorphism of commutative groups maps squares to squares. -/
+theorem square_le_comap_square (f : G →* H) :
+    square G ≤ (square H).comap f := by
+  intro x hx
+  rw [mem_square_iff] at hx
+  rw [mem_comap, mem_square_iff]
+  obtain ⟨y, rfl⟩ := hx
+  exact ⟨f y, by rw [← map_pow]⟩
+
+/-- For a surjective homomorphism, the preimage of the square subgroup is the
+product of the square subgroup and the kernel. -/
+theorem comap_square_eq_square_sup_ker_of_surjective
+    (f : G →* H) (hf : Function.Surjective f) :
+    (square H).comap f = square G ⊔ f.ker := by
+  apply le_antisymm
+  · intro x hx
+    rw [mem_comap, mem_square_iff] at hx
+    obtain ⟨y, hy⟩ := hx
+    obtain ⟨a, ha⟩ := hf y
+    rw [mem_sup]
+    refine ⟨a ^ 2, ?_, x * (a ^ 2)⁻¹, ?_, ?_⟩
+    · rw [mem_square_iff]
+      exact ⟨a, rfl⟩
+    · rw [MonoidHom.mem_ker, map_mul, map_inv, map_pow, ha, hy]
+      group
+    · simp [pow_two, mul_assoc, mul_left_comm]
+  · intro x hx
+    rw [mem_comap]
+    rw [mem_sup] at hx
+    obtain ⟨y, hy, z, hz, hxy⟩ := hx
+    rw [← hxy, map_mul, MonoidHom.mem_ker.mp hz, mul_one]
+    obtain ⟨w, hw⟩ := (mem_square_iff y).mp hy
+    rw [mem_square_iff]
+    exact ⟨f w, by rw [← map_pow, hw]⟩
+
+end Subgroup
+
 namespace CommGroup
 
-variable {G : Type*} [CommGroup G]
+variable {G H : Type*} [CommGroup G] [CommGroup H]
+
+/-- A homomorphism of commutative groups descends to their square quotients. -/
+def squareQuotientMap (f : G →* H) : squareQuotient G →* squareQuotient H :=
+  QuotientGroup.map (Subgroup.square G) (Subgroup.square H) f
+    (Subgroup.square_le_comap_square f)
+
+/-- On representatives, `squareQuotientMap f` is given by `f`. -/
+@[simp]
+theorem squareQuotientMap_mk (f : G →* H) (x : G) :
+    squareQuotientMap f (x : squareQuotient G) = (f x : squareQuotient H) :=
+  QuotientGroup.map_mk (Subgroup.square G) (Subgroup.square H) f _ x
+
+/-- A surjective homomorphism gives a surjective map on square quotients. -/
+theorem squareQuotientMap_surjective (f : G →* H) (hf : Function.Surjective f) :
+    Function.Surjective (squareQuotientMap f) := by
+  apply QuotientGroup.map_surjective_of_surjective
+  intro C
+  obtain ⟨x, rfl⟩ := QuotientGroup.mk'_surjective (Subgroup.square H) C
+  obtain ⟨y, rfl⟩ := hf x
+  exact ⟨y, rfl⟩
+
+/-- The kernel on square quotients is the image of the original kernel when
+the homomorphism is surjective. -/
+theorem squareQuotientMap_ker_eq_map_ker_of_surjective
+    (f : G →* H) (hf : Function.Surjective f) :
+    (squareQuotientMap f).ker =
+      Subgroup.map (QuotientGroup.mk' (Subgroup.square G)) f.ker := by
+  rw [squareQuotientMap, QuotientGroup.ker_map]
+  rw [Subgroup.comap_square_eq_square_sup_ker_of_surjective f hf]
+  rw [Subgroup.map_sup, QuotientGroup.map_mk'_self, bot_sup_eq]
+
+/-- Isomorphic commutative groups have isomorphic square quotients. -/
+noncomputable def squareQuotientMulEquiv (e : G ≃* H) :
+    squareQuotient G ≃* squareQuotient H :=
+  MulEquiv.ofBijective (squareQuotientMap (e : G →* H))
+    ⟨by
+      intro x y hxy
+      obtain ⟨x, rfl⟩ := QuotientGroup.mk'_surjective (Subgroup.square G) x
+      obtain ⟨y, rfl⟩ := QuotientGroup.mk'_surjective (Subgroup.square G) y
+      have h := congrArg (squareQuotientMap (e.symm : H →* G)) hxy
+      simpa using h,
+    squareQuotientMap_surjective (e : G →* H) e.surjective⟩
+
+/-- On representatives, `squareQuotientMulEquiv e` is given by `e`. -/
+@[simp]
+theorem squareQuotientMulEquiv_mk (e : G ≃* H) (x : G) :
+    squareQuotientMulEquiv e (x : squareQuotient G) = (e x : squareQuotient H) :=
+  squareQuotientMap_mk (e : G →* H) x
 
 /-- For a finite commutative group, the square quotient has the same cardinality
 as the two-torsion subgroup. -/
@@ -92,13 +184,31 @@ namespace Subgroup
 
 variable {G H : Type*} [CommGroup G] [CommGroup H]
 
+/-- Deprecated namespace alias for the square-quotient/two-torsion cardinality theorem. -/
+@[deprecated CommGroup.card_squareQuotient_eq_card_twoTorsion (since := "2026-07-12")]
+theorem card_squareQuotient_eq_card_twoTorsion [Finite G] :
+    Nat.card (CommGroup.squareQuotient G) = Nat.card (twoTorsion G) :=
+  CommGroup.card_squareQuotient_eq_card_twoTorsion
+
+/-- An isomorphism restricts to the `n`-power torsion subgroups. -/
+def powTorsionMulEquiv (e : G ≃* H) (n : ℕ) :
+    powTorsion G n ≃* powTorsion H n :=
+  { Equiv.subtypeEquiv e.toEquiv fun x ↦ by
+      simp only [mem_powTorsion_iff, MulEquiv.toEquiv_eq_coe, MulEquiv.coe_toEquiv,
+        ← map_pow, EmbeddingLike.map_eq_one_iff] with
+    map_mul' := fun _ _ ↦ Subtype.ext (map_mul e _ _) }
+
+/-- On the underlying groups, `powTorsionMulEquiv e n` is given by `e`. -/
+@[simp]
+theorem coe_powTorsionMulEquiv_apply (e : G ≃* H) (n : ℕ) (x : powTorsion G n) :
+    ((powTorsionMulEquiv e n x : powTorsion H n) : H) = e x :=
+  rfl
+
 /-- Isomorphic commutative groups have `n`-power torsion subgroups of the same
 cardinality. -/
 theorem card_powTorsion_congr (e : G ≃* H) (n : ℕ) :
     Nat.card (powTorsion G n) = Nat.card (powTorsion H n) :=
-  Nat.card_congr (Equiv.subtypeEquiv e.toEquiv fun x ↦ by
-    simp only [mem_powTorsion_iff, MulEquiv.toEquiv_eq_coe, MulEquiv.coe_toEquiv,
-      ← map_pow, EmbeddingLike.map_eq_one_iff])
+  Nat.card_congr (powTorsionMulEquiv e n).toEquiv
 
 /-- Isomorphic commutative groups have two-torsion subgroups of the same
 cardinality. -/
