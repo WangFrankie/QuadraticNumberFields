@@ -6,7 +6,7 @@ Authors: Frankie Wang
 
 import QuadraticNumberFields.ClassGroup.Ambiguous.UpperBound
 import QuadraticNumberFields.ClassGroup.GenusTheory.LowerBound
-import QuadraticNumberFields.ClassGroup.Torsion
+import QuadraticNumberFields.ClassGroup.TwoRank
 
 /-!
 # The Genus Theorem
@@ -15,8 +15,8 @@ This file combines the independent genus-character lower bound and
 ramified-parity upper bound into the main results of genus theory for the
 narrow class group of `ℚ(√d)`. The genus-character map identifies narrow
 square classes with admissible genus sign vectors, its kernel on the narrow
-class group is the subgroup of squares, and the common cardinality is
-`2 ^ (ramifiedPrimeCount d - 1)`.
+class group is the subgroup of squares, and the 2-rank of the narrow class
+group is `ramifiedPrimeCount d - 1`.
 
 The comparison with the ordinary class group is kept separately in
 `GenusTheory.Ordinary`.
@@ -34,7 +34,7 @@ variable (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
 local notation "OK" =>
   NumberField.RingOfIntegers (Qsqrtd (d : ℚ))
 
-/-! ### Exact cardinalities -/
+/-! ### The 2-rank and equivalent cardinalities -/
 
 /-- The narrow two-torsion subgroup has the exact genus-theory cardinality. -/
 theorem card_narrowClassGroupTwoTorsion_eq_two_pow_sub_one :
@@ -49,16 +49,21 @@ theorem card_narrowClassGroupTwoTorsion_eq_two_pow_sub_one :
       simpa using
         (card_squareQuotient_eq_card_twoTorsion (G := Cl⁺(d)))
 
-/-- The narrow square-class quotient has the exact genus-theory cardinality. -/
+/-- Genus theorem, rank form: the 2-rank of the narrow class group is one less
+than the number of finite ramified primes. -/
+theorem twoRank_narrowClassGroup_eq_ramifiedPrimeCount_sub_one :
+    NarrowClassGroup.twoRank OK = ramifiedPrimeCount d - 1 := by
+  apply Nat.pow_right_injective (a := 2) (by norm_num)
+  change 2 ^ CommGroup.twoRank (Cl⁺(d)) = 2 ^ (ramifiedPrimeCount d - 1)
+  rw [← card_squareQuotient_eq_two_pow_twoRank,
+    card_squareQuotient_eq_card_twoTorsion,
+    card_narrowClassGroupTwoTorsion_eq_two_pow_sub_one d]
+
+/-- Cardinality form of the genus theorem for the narrow square-class group. -/
 theorem card_narrowSquareClassGroup_eq_two_pow_sub_one :
     Nat.card (squareQuotient (Cl⁺(d))) = 2 ^ (ramifiedPrimeCount d - 1) := by
-  calc
-    Nat.card (squareQuotient (Cl⁺(d))) =
-        Nat.card (NarrowClassGroup.twoTorsion OK) := by
-      simpa using
-        (card_squareQuotient_eq_card_twoTorsion (G := Cl⁺(d)))
-    _ = 2 ^ (ramifiedPrimeCount d - 1) :=
-      card_narrowClassGroupTwoTorsion_eq_two_pow_sub_one d
+  rw [card_squareQuotient_eq_two_pow_twoRank]
+  exact congrArg (2 ^ ·) (twoRank_narrowClassGroup_eq_ramifiedPrimeCount_sub_one d)
 
 /-! ### Genus theorem and principal genus theorem -/
 
@@ -92,8 +97,7 @@ theorem genusCharacterMap_ker_eq_square :
   refine le_antisymm (fun C hC ↦ ?_) (square_le_genusCharacterMap_ker d)
   rw [← QuotientGroup.eq_one_iff]
   apply genusCharacterMapOnSquareClasses_injective d
-  rw [map_one, genusCharacterMapOnSquareClasses_mk]
-  exact hC
+  rwa [map_one, genusCharacterMapOnSquareClasses_mk]
 
 /-- Principal genus theorem, elementwise form: a narrow ideal class has
 trivial genus characters exactly when it is a square. -/

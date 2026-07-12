@@ -46,6 +46,7 @@ import QuadraticNumberFields.Splitting.Qsqrtd.Two
 import QuadraticNumberFields.Splitting.QuadraticField.Basic
 import QuadraticNumberFields.ClassGroup.Basic
 import QuadraticNumberFields.ClassGroup.Torsion
+import QuadraticNumberFields.ClassGroup.TwoRank
 import QuadraticNumberFields.ClassGroup.Narrow.Basic
 import QuadraticNumberFields.ClassGroup.Narrow.Principal
 import QuadraticNumberFields.ClassGroup.Minkowski
