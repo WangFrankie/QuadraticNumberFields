@@ -36,6 +36,13 @@ noncomputable def ramifiedPrimeCount : ℕ :=
 abbrev RamifiedPrimeIndex :=
   {p : ℕ // p ∈ ramifiedPrimes d}
 
+/-- The field discriminant has a prime divisor congruent to `3` modulo `4`.
+
+This is the finite-prime condition in Emerton's ordinary genus-theory
+classification. -/
+def DiscriminantHasPrimeModFourThree : Prop :=
+  ∃ p : RamifiedPrimeIndex d, p.1 % 4 = 3
+
 /-- Membership in `ramifiedPrimes d` is membership in the prime-factor set of the
 absolute field discriminant. -/
 @[simp]
@@ -97,6 +104,24 @@ theorem one_le_ramifiedPrimeCount :
 theorem prime_of_mem_ramifiedPrimeIndex (p : RamifiedPrimeIndex d) :
     p.1.Prime :=
   Nat.prime_of_mem_primeFactors ((mem_ramifiedPrimes_iff d p.1).mp p.2)
+
+/-- If the discriminant has no prime divisor congruent to `3` modulo `4`, every
+odd ramified prime is congruent to `1` modulo `4`. -/
+theorem not_discriminantHasPrimeModFourThree_iff :
+    ¬ DiscriminantHasPrimeModFourThree d ↔
+      ∀ p : RamifiedPrimeIndex d, p.1 ≠ 2 → p.1 % 4 = 1 := by
+  constructor
+  · intro h p hp2
+    have hpodd : p.1 % 2 = 1 :=
+      (Nat.Prime.mod_two_eq_one_iff_ne_two
+        (prime_of_mem_ramifiedPrimeIndex d p)).mpr hp2
+    by_contra hp4
+    have hp4three : p.1 % 4 = 3 := by omega
+    exact h ⟨p, hp4three⟩
+  · intro h ⟨p, hp4three⟩
+    have hp2 : p.1 ≠ 2 := by omega
+    have hp4one := h p hp2
+    omega
 
 /-- Members of `RamifiedPrimeIndex` divide the field discriminant. -/
 theorem dvd_discr_of_mem_ramifiedPrimeIndex (p : RamifiedPrimeIndex d) :
