@@ -38,45 +38,6 @@ variable (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
 local notation "OK" => NumberField.RingOfIntegers (Qsqrtd (d : ℚ))
 local notation "conjOK" => conjAutRingOfIntegers (Qsqrtd (d : ℚ))
 
-private theorem isTotallyPositive_or_neg_isTotallyPositive_of_qsqrt_norm_pos
-    (hd : 0 < d)
-    {γ : (FractionRing OK)ˣ}
-    (hNormPos :
-      0 <
-        (Qsqrtd.norm
-          (FractionRing.algEquiv OK (Qsqrtd (d : ℚ)) (γ : FractionRing OK)) : ℝ)) :
-    NarrowClassGroup.IsTotallyPositive (γ : FractionRing OK) ∨
-      NarrowClassGroup.IsTotallyPositive ((-γ : (FractionRing OK)ˣ) :
-        FractionRing OK) := by
-  let e : FractionRing OK ≃ₐ[OK] Qsqrtd (d : ℚ) :=
-    FractionRing.algEquiv OK (Qsqrtd (d : ℚ))
-  let z : Qsqrtd (d : ℚ) := e (γ : FractionRing OK)
-  have hd_nonneg_real : 0 ≤ (d : ℝ) := by exact_mod_cast le_of_lt hd
-  have hprod :
-      0 < Qsqrtd.realEmbeddingPos d hd_nonneg_real z *
-        Qsqrtd.realEmbeddingNeg d hd_nonneg_real z := by
-    simpa [z, e] using
-      (by
-        rw [← Qsqrtd.norm_eq_realEmbeddingPos_mul_realEmbeddingNeg d hd_nonneg_real z]
-        exact hNormPos)
-  rcases mul_pos_iff.mp hprod with hsign | hsign
-  · left
-    intro σ
-    rcases Qsqrtd.fractionRing_ringHom_eq_realEmbeddingPos_or_neg
-      d hd_nonneg_real σ with hσ | hσ
-    · rw [hσ]
-      simpa [z, e, RingHom.comp_apply] using hsign.1
-    · rw [hσ]
-      simpa [z, e, RingHom.comp_apply] using hsign.2
-  · right
-    intro σ
-    rcases Qsqrtd.fractionRing_ringHom_eq_realEmbeddingPos_or_neg
-      d hd_nonneg_real σ with hσ | hσ
-    · rw [hσ]
-      simpa [z, e, RingHom.comp_apply] using neg_pos.mpr hsign.1
-    · rw [hσ]
-      simpa [z, e, RingHom.comp_apply] using neg_pos.mpr hsign.2
-
 private theorem exists_tp_generator_of_qsqrt_norm_pos
     (hd : 0 < d)
     {r : RamifiedParityVector d}
@@ -92,8 +53,8 @@ private theorem exists_tp_generator_of_qsqrt_norm_pos
       NarrowClassGroup.IsTotallyPositive (δ : FractionRing OK) ∧
         toPrincipalIdeal OK (FractionRing OK) δ =
           FractionalIdeal.mk0 (FractionRing OK) (fullRamifiedParityIdealProduct d r) := by
-  rcases isTotallyPositive_or_neg_isTotallyPositive_of_qsqrt_norm_pos d hd hNormPos with
-    hpos | hneg
+  rcases Qsqrtd.Real.isTotallyPositive_or_neg_isTotallyPositive_of_norm_pos
+    d hd hNormPos with hpos | hneg
   · exact ⟨γ, hpos, hγ⟩
   · refine ⟨-γ, hneg, ?_⟩
     rw [NarrowClassGroup.toPrincipalIdeal_neg, hγ]

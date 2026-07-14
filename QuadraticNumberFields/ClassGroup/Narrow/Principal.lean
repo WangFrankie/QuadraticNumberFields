@@ -95,6 +95,210 @@ variable (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
 local notation "K" => Qsqrtd (d : ℚ)
 local notation "OK" => 𝓞 K
 
+/-- A nonzero element of a real quadratic field with positive norm is either
+totally positive or totally negative. In the latter case, its negative is
+totally positive. -/
+theorem isTotallyPositive_or_neg_isTotallyPositive_of_norm_pos
+    (hd : 0 < d)
+    {γ : (FractionRing OK)ˣ}
+    (hNormPos :
+      0 <
+        (Qsqrtd.norm
+          (FractionRing.algEquiv OK K (γ : FractionRing OK)) : ℝ)) :
+    NarrowClassGroup.IsTotallyPositive (γ : FractionRing OK) ∨
+      NarrowClassGroup.IsTotallyPositive
+        ((-γ : (FractionRing OK)ˣ) : FractionRing OK) := by
+  let e : FractionRing OK ≃ₐ[OK] K := FractionRing.algEquiv OK K
+  let z : K := e (γ : FractionRing OK)
+  have hdR : 0 ≤ (d : ℝ) := by exact_mod_cast le_of_lt hd
+  have hprod :
+      0 < Qsqrtd.realEmbeddingPos d hdR z *
+        Qsqrtd.realEmbeddingNeg d hdR z := by
+    simpa [z, e] using
+      (by rwa [← Qsqrtd.norm_eq_realEmbeddingPos_mul_realEmbeddingNeg d hdR z])
+  rcases mul_pos_iff.mp hprod with hsign | hsign
+  · left
+    intro σ
+    rcases Qsqrtd.fractionRing_ringHom_eq_realEmbeddingPos_or_neg d hdR σ with hσ | hσ
+    · rw [hσ]
+      simpa [z, e, RingHom.comp_apply] using hsign.1
+    · rw [hσ]
+      simpa [z, e, RingHom.comp_apply] using hsign.2
+  · right
+    intro σ
+    rcases Qsqrtd.fractionRing_ringHom_eq_realEmbeddingPos_or_neg d hdR σ with hσ | hσ
+    · rw [hσ]
+      simpa [z, e, RingHom.comp_apply] using neg_pos.mpr hsign.1
+    · rw [hσ]
+      simpa [z, e, RingHom.comp_apply] using neg_pos.mpr hsign.2
+
+/-- A nonzero algebraic integer of positive algebra norm is totally positive
+up to multiplication by `-1`. -/
+theorem isTotallyPositive_algebraMap_or_neg_of_algebraNorm_pos
+    (hd : 0 < d) {α : OK} (hNormPos : 0 < Algebra.norm ℤ α) :
+    NarrowClassGroup.IsTotallyPositive (algebraMap OK (FractionRing OK) α) ∨
+      NarrowClassGroup.IsTotallyPositive
+        (algebraMap OK (FractionRing OK) (-α)) := by
+  have hα : α ≠ 0 := Algebra.norm_ne_zero_iff.mp hNormPos.ne'
+  have hαF : algebraMap OK (FractionRing OK) α ≠ 0 :=
+    (FaithfulSMul.algebraMap_eq_zero_iff OK (FractionRing OK)).not.mpr hα
+  let γ : (FractionRing OK)ˣ :=
+    Units.mk0 (algebraMap OK (FractionRing OK) α) hαF
+  have hcompare :
+      Qsqrtd.norm (FractionRing.algEquiv OK K (γ : FractionRing OK)) =
+        (Algebra.norm ℤ α : ℚ) := by
+    have he :
+        FractionRing.algEquiv OK K (γ : FractionRing OK) =
+          algebraMap OK K α := by
+      simp [γ]
+    rw [he, ← Qsqrtd.algebraNorm_ratAlgebra_eq_qsqrtdNorm,
+      ← Algebra.coe_norm_int α]
+  have hNormPosQ :
+      0 <
+        (Qsqrtd.norm
+          (FractionRing.algEquiv OK K (γ : FractionRing OK)) : ℝ) := by
+    rw [hcompare]
+    exact_mod_cast hNormPos
+  rcases isTotallyPositive_or_neg_isTotallyPositive_of_norm_pos d hd hNormPosQ with
+    hγ | hnegγ
+  · left
+    simpa [γ] using hγ
+  · right
+    simpa [γ] using hnegγ
+
+/-- The algebra norm of an integral unit in a quadratic field is `1` or `-1`. -/
+theorem unit_algebraNorm_eq_one_or_neg_one (ε : OKˣ) :
+    Algebra.norm ℤ (ε : OK) = 1 ∨ Algebra.norm ℤ (ε : OK) = -1 := by
+  have hunit : IsUnit (Algebra.norm ℤ (ε : OK)) :=
+    (Units.map (Algebra.norm ℤ : OK →* ℤ) ε).isUnit
+  simpa using (Int.isUnit_iff.mp hunit)
+
+/-- The quadratic norm of an integral unit agrees with its algebra norm after
+passing to the fraction field. -/
+theorem norm_unitToFractionRing_eq_algebraNorm (ε : OKˣ) :
+    Qsqrtd.norm
+        (FractionRing.algEquiv OK K
+          ((unitToFractionRing d ε : (FractionRing OK)ˣ) : FractionRing OK)) =
+      (Algebra.norm ℤ (ε : OK) : ℚ) := by
+  have he :
+      FractionRing.algEquiv OK K
+          ((unitToFractionRing d ε : (FractionRing OK)ˣ) : FractionRing OK) =
+        algebraMap OK K (ε : OK) := by
+    simp [unitToFractionRing]
+  rw [he, ← Qsqrtd.algebraNorm_ratAlgebra_eq_qsqrtdNorm,
+    ← Algebra.coe_norm_int (ε : OK)]
+
+/-- A norm-`-1` integral unit is positive at one of the two real embeddings. -/
+theorem exists_pos_embedding_of_unit_algebraNorm_eq_neg_one
+    (hd : 0 < d) (ε : OKˣ) (hε_norm : Algebra.norm ℤ (ε : OK) = -1) :
+    ∃ σ : FractionRing OK →+* ℝ,
+      0 < σ ((unitToFractionRing d ε : (FractionRing OK)ˣ) : FractionRing OK) := by
+  let e : FractionRing OK ≃ₐ[OK] K := FractionRing.algEquiv OK K
+  let z : K := e ((unitToFractionRing d ε : (FractionRing OK)ˣ) : FractionRing OK)
+  have hdR : 0 ≤ (d : ℝ) := by exact_mod_cast le_of_lt hd
+  have hnorm : (Qsqrtd.norm z : ℝ) = -1 := by
+    exact_mod_cast (norm_unitToFractionRing_eq_algebraNorm d ε).trans (by
+      simp [hε_norm])
+  have hprod :
+      Qsqrtd.realEmbeddingPos d hdR z * Qsqrtd.realEmbeddingNeg d hdR z < 0 := by
+    rw [← Qsqrtd.norm_eq_realEmbeddingPos_mul_realEmbeddingNeg d hdR z, hnorm]
+    norm_num
+  rcases mul_neg_iff.mp hprod with hsign | hsign
+  · exact ⟨(Qsqrtd.realEmbeddingPos d hdR).toRingHom.comp e.toRingHom, by
+      simpa [z, e, RingHom.comp_apply] using hsign.1⟩
+  · exact ⟨(Qsqrtd.realEmbeddingNeg d hdR).toRingHom.comp e.toRingHom, by
+      simpa [z, e, RingHom.comp_apply] using hsign.2⟩
+
+/-- After normalizing an integral unit to be positive at one real embedding,
+it is totally positive exactly when its algebra norm is `1`. -/
+theorem isTotallyPositive_unit_iff_algebraNorm_eq_one
+    (hd : 0 < d) (ε : OKˣ)
+    (hε_pos : ∃ σ : FractionRing OK →+* ℝ,
+      0 < σ ((unitToFractionRing d ε : (FractionRing OK)ˣ) : FractionRing OK)) :
+    NarrowClassGroup.IsTotallyPositive
+          ((unitToFractionRing d ε : (FractionRing OK)ˣ) : FractionRing OK) ↔
+      Algebra.norm ℤ (ε : OK) = 1 := by
+  let εF : (FractionRing OK)ˣ := unitToFractionRing d ε
+  have hcompare :
+      Qsqrtd.norm (FractionRing.algEquiv OK K (εF : FractionRing OK)) =
+        (Algebra.norm ℤ (ε : OK) : ℚ) := by
+    simpa [εF] using norm_unitToFractionRing_eq_algebraNorm d ε
+  constructor
+  · intro hε_tp
+    rcases unit_algebraNorm_eq_one_or_neg_one d ε with hnorm | hnorm
+    · exact hnorm
+    · exfalso
+      have hdR : 0 ≤ (d : ℝ) := by exact_mod_cast le_of_lt hd
+      let e : FractionRing OK ≃ₐ[OK] K := FractionRing.algEquiv OK K
+      let z : K := e (εF : FractionRing OK)
+      have he : z = algebraMap OK K (ε : OK) := by
+        simp [z, e, εF, unitToFractionRing]
+      have hpos : 0 < (Qsqrtd.norm z : ℝ) := by
+        apply Qsqrtd.norm_pos_of_realEmbedding_pos d hdR
+        · simpa [he, RingHom.comp_apply] using
+            hε_tp ((Qsqrtd.realEmbeddingPos d hdR).toRingHom.comp e.toRingHom)
+        · simpa [he, RingHom.comp_apply] using
+            hε_tp ((Qsqrtd.realEmbeddingNeg d hdR).toRingHom.comp e.toRingHom)
+      have hneg : (Qsqrtd.norm z : ℝ) = -1 := by
+        exact_mod_cast hcompare.trans (by simp [hnorm])
+      linarith
+  · intro hnorm_one
+    have hNormPos :
+        0 <
+          (Qsqrtd.norm
+            (FractionRing.algEquiv OK K (εF : FractionRing OK)) : ℝ) := by
+      rw [hcompare, hnorm_one]
+      norm_num
+    rcases isTotallyPositive_or_neg_isTotallyPositive_of_norm_pos d hd hNormPos with
+      hε_tp | hnegε_tp
+    · exact hε_tp
+    · obtain ⟨σ, hσpos⟩ := hε_pos
+      have hσneg := hnegε_tp σ
+      have : σ ((-εF : (FractionRing OK)ˣ) : FractionRing OK) =
+          -σ (εF : FractionRing OK) := by simp
+      rw [this] at hσneg
+      linarith
+
+/-- A norm-`-1` integral unit makes the narrow-to-wide comparison bijective. -/
+theorem narrowToClassGroup_bijective_of_unit_algebraNorm_eq_neg_one
+    (hd : 0 < d) (ε : OKˣ)
+    (hε_norm : Algebra.norm ℤ (ε : OK) = -1) :
+    Function.Bijective (narrowToClassGroup d) := by
+  have hε_pos :=
+    exists_pos_embedding_of_unit_algebraNorm_eq_neg_one d hd ε hε_norm
+  have hε_not_tp : ¬ NarrowClassGroup.IsTotallyPositive
+      ((unitToFractionRing d ε : (FractionRing OK)ˣ) : FractionRing OK) := by
+    rw [isTotallyPositive_unit_iff_algebraNorm_eq_one d hd ε hε_pos]
+    omega
+  exact ⟨narrowToClassGroup_injective_of_mixed_sign_unit
+      d hd ε hε_pos hε_not_tp,
+    NarrowClassGroup.toClassGroup_surjective OK⟩
+
+/-- A norm-`-1` integral unit makes the narrow-to-wide comparison kernel
+trivial. -/
+theorem card_narrowToClassGroup_ker_eq_one_of_unit_algebraNorm_eq_neg_one
+    (hd : 0 < d) (ε : OKˣ)
+    (hε_norm : Algebra.norm ℤ (ε : OK) = -1) :
+    Nat.card (narrowToClassGroup d).ker = 1 := by
+  rw [Subgroup.card_eq_one, MonoidHom.ker_eq_bot_iff]
+  exact (narrowToClassGroup_bijective_of_unit_algebraNorm_eq_neg_one
+    d hd ε hε_norm).1
+
+/-- A norm-`1` fundamental unit makes the narrow-to-wide comparison kernel
+have order two. -/
+theorem card_narrowToClassGroup_ker_eq_two_of_fundamentalUnit_algebraNorm_eq_one
+    (hd : 0 < d) (ε : OKˣ)
+    (hε : Units.IsFundamentalUnit ε)
+    (hε_norm : Algebra.norm ℤ (ε : OK) = 1) :
+    Nat.card (narrowToClassGroup d).ker = 2 := by
+  have hnorm_pos : 0 < Algebra.norm ℤ (ε : OK) := by omega
+  rcases isTotallyPositive_algebraMap_or_neg_of_algebraNorm_pos d hd hnorm_pos with
+    hε_tp | hnegε_tp
+  · exact card_narrowToClassGroup_ker_eq_two_of_isTotallyPositive_fundamentalUnit
+      d hd ε hε (by simpa [unitToFractionRing] using hε_tp)
+  · exact card_narrowToClassGroup_ker_eq_two_of_isTotallyPositive_fundamentalUnit
+      d hd (-ε) hε.neg (by simpa [unitToFractionRing] using hnegε_tp)
+
 /-- Fixed totally positive ring units in a real quadratic standard model are trivial.
 
 This is the concrete fixed-unit form of the `H²(<σ>, (O_Lˣ)⁺) = 1` input in
