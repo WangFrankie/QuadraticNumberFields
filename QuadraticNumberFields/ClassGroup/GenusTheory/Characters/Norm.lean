@@ -331,6 +331,90 @@ theorem kroneckerSymNat_primeDiscriminantFactor_absNorm_span_eq_one
     exact kroneckerSymNat_primeDiscriminantFactor_zsqrtd_norm_eq_one
       p z hd4 (by simpa [hnorm] using hN) hcop
 
+/-- At an odd ramified prime, a principal generator of negative algebra norm
+has local value `(-1 / p)`. -/
+theorem kroneckerSymNat_primeDiscriminantFactor_absNorm_span_of_algebraNorm_neg
+    (p : RamifiedPrimeIndex d) (hp2 : p.1 ≠ 2) {α : OK}
+    (hN : Algebra.norm ℤ α < 0)
+    (hcop : Nat.Coprime (Ideal.absNorm (Ideal.span ({α} : Set OK)))
+      (primeDiscriminantFactor d p).natAbs) :
+    kroneckerSymNat (primeDiscriminantFactor d p)
+      (Ideal.absNorm (Ideal.span ({α} : Set OK))) = ZMod.χ₄ p.1 := by
+  letI : Fact p.1.Prime := ⟨prime_of_mem_ramifiedPrimeIndex d p⟩
+  by_cases hd4 : d % 4 = 1
+  · obtain ⟨k, hk⟩ := RingOfIntegers.exists_k_of_mod_four_eq_one hd4
+    let z : ZOnePlusSqrtdOverTwo k :=
+      (RingOfIntegers.ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_eq d k hk) α
+    have hnorm : Algebra.norm ℤ α = QuadraticAlgebra.norm z := by
+      simpa [z] using RingOfIntegers.algebraNorm_eq_zOnePlusSqrtOverTwo_norm_of_eq
+        (d := d) k hk α
+    rw [Ideal.absNorm_span_singleton, hnorm] at hcop ⊢
+    rw [primeDiscriminantFactor_of_val_ne_two d p hp2] at hcop ⊢
+    rw [kroneckerSymNat_oddPrimeDiscriminantFactor_eq_legendreSym hp2]
+    have hcop_p : Nat.Coprime (QuadraticAlgebra.norm z).natAbs p.1 := by
+      simpa using hcop
+    have hnvd_nat : ¬ p.1 ∣ (QuadraticAlgebra.norm z).natAbs :=
+      ((Fact.out : p.1.Prime).coprime_iff_not_dvd).mp hcop_p.symm
+    have hnvd : ¬ (p.1 : ℤ) ∣ QuadraticAlgebra.norm z :=
+      fun h ↦ hnvd_nat (Int.natCast_dvd.mp h)
+    have hleg : legendreSym p.1 (QuadraticAlgebra.norm z) = 1 :=
+      legendreSym_zOnePlusSqrtOverTwo_norm_eq_one_of_dvd_discr hp2
+        (by simpa [hk] using
+          dvd_parameter_of_mem_ramifiedPrimeIndex_of_ne_two d p hp2)
+        z hnvd
+    rw [show ((QuadraticAlgebra.norm z).natAbs : ℤ) =
+        -QuadraticAlgebra.norm z from
+      Int.ofNat_natAbs_of_nonpos (by simpa [← hnorm] using hN.le),
+      legendreSym.at_neg hp2, hleg, mul_one]
+  · let z : Zsqrtd d :=
+      (RingOfIntegers.ringOfIntegers_equiv_zsqrtd_of_mod_four_ne_one d hd4) α
+    have hnorm : Algebra.norm ℤ α = Zsqrtd.norm z := by
+      simpa [z] using RingOfIntegers.algebraNorm_eq_zsqrtd_norm_of_mod_four_ne_one
+        (d := d) hd4 α
+    rw [Ideal.absNorm_span_singleton, hnorm] at hcop ⊢
+    rw [primeDiscriminantFactor_of_val_ne_two d p hp2] at hcop ⊢
+    rw [kroneckerSymNat_oddPrimeDiscriminantFactor_eq_legendreSym hp2]
+    have hcop_p : Nat.Coprime (Zsqrtd.norm z).natAbs p.1 := by
+      simpa using hcop
+    have hnvd_nat : ¬ p.1 ∣ (Zsqrtd.norm z).natAbs :=
+      ((Fact.out : p.1.Prime).coprime_iff_not_dvd).mp hcop_p.symm
+    have hnvd : ¬ (p.1 : ℤ) ∣ Zsqrtd.norm z :=
+      fun h ↦ hnvd_nat (Int.natCast_dvd.mp h)
+    have hleg : legendreSym p.1 (Zsqrtd.norm z) = 1 :=
+      legendreSym_zsqrtd_norm_eq_one_of_dvd_param
+        (dvd_parameter_of_mem_ramifiedPrimeIndex_of_ne_two d p hp2) z hnvd
+    rw [show ((Zsqrtd.norm z).natAbs : ℤ) = -Zsqrtd.norm z from
+      Int.ofNat_natAbs_of_nonpos (by simpa [← hnorm] using hN.le),
+      legendreSym.at_neg hp2, hleg, mul_one]
+
+/-- A principal ideal has trivial local value at a ramified prime congruent to
+`1` modulo `4`, with no sign condition on its generator. -/
+theorem kroneckerSymNat_primeDiscriminantFactor_absNorm_span_eq_one_of_mod_four_one
+    (p : RamifiedPrimeIndex d) (hp4 : p.1 % 4 = 1) {α : OK}
+    (hcop : Nat.Coprime (Ideal.absNorm (Ideal.span ({α} : Set OK)))
+      (primeDiscriminantFactor d p).natAbs) :
+    kroneckerSymNat (primeDiscriminantFactor d p)
+      (Ideal.absNorm (Ideal.span ({α} : Set OK))) = 1 := by
+  by_cases hN : 0 ≤ Algebra.norm ℤ α
+  · exact kroneckerSymNat_primeDiscriminantFactor_absNorm_span_eq_one d p hN hcop
+  · have hp2 : p.1 ≠ 2 := by omega
+    rw [kroneckerSymNat_primeDiscriminantFactor_absNorm_span_of_algebraNorm_neg
+      d p hp2 (lt_of_not_ge hN) hcop,
+      ZMod.χ₄_nat_one_mod_four hp4]
+
+/-- A negative-norm principal generator has local value `-1` at a ramified
+prime congruent to `3` modulo `4`. -/
+theorem kroneckerSymNat_primeDiscriminantFactor_absNorm_span_eq_neg_one_of_mod_four_three
+    (p : RamifiedPrimeIndex d) (hp4 : p.1 % 4 = 3) {α : OK}
+    (hN : Algebra.norm ℤ α < 0)
+    (hcop : Nat.Coprime (Ideal.absNorm (Ideal.span ({α} : Set OK)))
+      (primeDiscriminantFactor d p).natAbs) :
+    kroneckerSymNat (primeDiscriminantFactor d p)
+      (Ideal.absNorm (Ideal.span ({α} : Set OK))) = -1 := by
+  have hp2 : p.1 ≠ 2 := by omega
+  rw [kroneckerSymNat_primeDiscriminantFactor_absNorm_span_of_algebraNorm_neg
+    d p hp2 hN hcop, ZMod.χ₄_nat_three_mod_four hp4]
+
 end GenusTheory
 end ClassGroup
 end QuadraticNumberFields
