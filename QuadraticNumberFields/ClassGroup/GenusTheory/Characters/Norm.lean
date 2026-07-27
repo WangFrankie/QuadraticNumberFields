@@ -44,18 +44,12 @@ theorem algebraNorm_nonneg_of_isTotallyPositive
   have hdreal : 0 ≤ (d : ℝ) := by exact_mod_cast le_of_lt hdpos
   let e : FractionRing OK ≃ₐ[OK] Qsqrtd (d : ℚ) :=
     FractionRing.algEquiv OK (Qsqrtd (d : ℚ))
-  let σpos : FractionRing OK →+* ℝ :=
-    (Qsqrtd.realEmbeddingPos d hdreal).toRingHom.comp e.toRingHom
-  let σneg : FractionRing OK →+* ℝ :=
-    (Qsqrtd.realEmbeddingNeg d hdreal).toRingHom.comp e.toRingHom
-  have hpos : 0 < Qsqrtd.realEmbeddingPos d hdreal (α : Qsqrtd (d : ℚ)) := by
-    simpa [σpos, e] using hα σpos
-  have hneg : 0 < Qsqrtd.realEmbeddingNeg d hdreal (α : Qsqrtd (d : ℚ)) := by
-    simpa [σneg, e] using hα σneg
-  have hnorm_real : 0 < (Qsqrtd.norm (α : Qsqrtd (d : ℚ)) : ℝ) :=
-    Qsqrtd.norm_pos_of_realEmbedding_pos d hdreal hpos hneg
-  have hnorm_rat : 0 < Qsqrtd.norm (α : Qsqrtd (d : ℚ)) := by
-    exact_mod_cast hnorm_real
+  have hα_qsqrtd :
+      ∀ σ : Qsqrtd (d : ℚ) →ₐ[ℚ] ℝ, 0 < σ (α : Qsqrtd (d : ℚ)) := by
+    intro σ
+    simpa [e] using hα (σ.toRingHom.comp e.toRingHom)
+  have hnorm_rat : 0 < Qsqrtd.norm (α : Qsqrtd (d : ℚ)) :=
+    Qsqrtd.norm_pos_of_forall_algHom_pos d hdreal hα_qsqrtd
   have hcast : (0 : ℚ) ≤ (Algebra.norm ℤ α : ℚ) := by
     rw [Algebra.coe_norm_int (K := Qsqrtd (d : ℚ)),
       Qsqrtd.algebraNorm_ratAlgebra_eq_qsqrtdNorm]
@@ -253,54 +247,31 @@ private theorem legendreSym_zOnePlusSqrtOverTwo_norm_eq_one_of_dvd_discr
       ((k : ZMod p) * 4) * (z.im : ZMod p) ^ 2 by ring, hk]
   ring
 
-private theorem kroneckerSymNat_primeDiscriminantFactor_zsqrtd_norm_eq_one
-    {D : ℤ} [Fact (Squarefree D)] [Fact (D ≠ 1)]
-    (p : RamifiedPrimeIndex D) (z : Zsqrtd D) (hd4 : D % 4 ≠ 1)
-    (hN : 0 ≤ Zsqrtd.norm z)
-    (hcop : Nat.Coprime (Zsqrtd.norm z).natAbs
-      (primeDiscriminantFactor D p).natAbs) :
-    kroneckerSymNat (primeDiscriminantFactor D p) (Zsqrtd.norm z).natAbs = 1 := by
-  by_cases hp2 : p.1 = 2
-  · rw [primeDiscriminantFactor_of_val_eq_two D p hp2] at hcop ⊢
-    exact kroneckerSymNat_twoPrimeDiscriminantFactor_zsqrtd_norm_eq_one
-      z hd4 hN hcop
-  · rw [primeDiscriminantFactor_of_val_ne_two D p hp2] at hcop ⊢
-    letI : Fact p.1.Prime := ⟨prime_of_mem_ramifiedPrimeIndex D p⟩
-    rw [kroneckerSymNat_oddPrimeDiscriminantFactor_eq_legendreSym hp2]
-    have hcop_p : Nat.Coprime (Zsqrtd.norm z).natAbs p.1 := by
-      simpa using hcop
-    have hnvd_nat : ¬ p.1 ∣ (Zsqrtd.norm z).natAbs :=
-      ((Fact.out : p.1.Prime).coprime_iff_not_dvd).mp hcop_p.symm
-    have hnvd : ¬ (p.1 : ℤ) ∣ Zsqrtd.norm z :=
-      fun h ↦ hnvd_nat (Int.natCast_dvd.mp h)
-    rw [Int.natAbs_of_nonneg hN]
+private theorem legendreSym_algebraNorm_eq_one_of_ramifiedPrimeIndex_of_ne_two
+    (p : RamifiedPrimeIndex d) [Fact p.1.Prime] (hp2 : p.1 ≠ 2) {α : OK}
+    (hnvd : ¬ (p.1 : ℤ) ∣ Algebra.norm ℤ α) :
+    legendreSym p.1 (Algebra.norm ℤ α) = 1 := by
+  by_cases hd4 : d % 4 = 1
+  · obtain ⟨k, hk⟩ := RingOfIntegers.exists_k_of_mod_four_eq_one hd4
+    let z : ZOnePlusSqrtdOverTwo k :=
+      (RingOfIntegers.ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_eq d k hk) α
+    have hnorm : Algebra.norm ℤ α = QuadraticAlgebra.norm z := by
+      simpa [z] using RingOfIntegers.algebraNorm_eq_zOnePlusSqrtOverTwo_norm_of_eq
+        (d := d) k hk α
+    rw [hnorm]
+    exact legendreSym_zOnePlusSqrtOverTwo_norm_eq_one_of_dvd_discr hp2
+      (by simpa [hk] using
+        dvd_parameter_of_mem_ramifiedPrimeIndex_of_ne_two d p hp2)
+      z (by simpa [hnorm] using hnvd)
+  · let z : Zsqrtd d :=
+      (RingOfIntegers.ringOfIntegers_equiv_zsqrtd_of_mod_four_ne_one d hd4) α
+    have hnorm : Algebra.norm ℤ α = Zsqrtd.norm z := by
+      simpa [z] using RingOfIntegers.algebraNorm_eq_zsqrtd_norm_of_mod_four_ne_one
+        (d := d) hd4 α
+    rw [hnorm]
     exact legendreSym_zsqrtd_norm_eq_one_of_dvd_param
-      (dvd_parameter_of_mem_ramifiedPrimeIndex_of_ne_two D p hp2) z hnvd
-
-private theorem kroneckerSymNat_primeDiscriminantFactor_halfIntegral_norm_eq_one
-    {D k : ℤ} [Fact (Squarefree D)] [Fact (D ≠ 1)]
-    (p : RamifiedPrimeIndex D) (z : ZOnePlusSqrtdOverTwo k)
-    (hk : D = 1 + 4 * k) (hN : 0 ≤ QuadraticAlgebra.norm z)
-    (hcop : Nat.Coprime (QuadraticAlgebra.norm z).natAbs
-      (primeDiscriminantFactor D p).natAbs) :
-    kroneckerSymNat (primeDiscriminantFactor D p)
-      (QuadraticAlgebra.norm z).natAbs = 1 := by
-  have hd4 : D % 4 = 1 := by omega
-  have hp2 : p.1 ≠ 2 :=
-    ne_two_of_mem_ramifiedPrimeIndex_of_mod_four_eq_one D p hd4
-  rw [primeDiscriminantFactor_of_val_ne_two D p hp2] at hcop ⊢
-  letI : Fact p.1.Prime := ⟨prime_of_mem_ramifiedPrimeIndex D p⟩
-  rw [kroneckerSymNat_oddPrimeDiscriminantFactor_eq_legendreSym hp2]
-  have hcop_p : Nat.Coprime (QuadraticAlgebra.norm z).natAbs p.1 := by
-    simpa using hcop
-  have hnvd_nat : ¬ p.1 ∣ (QuadraticAlgebra.norm z).natAbs :=
-    ((Fact.out : p.1.Prime).coprime_iff_not_dvd).mp hcop_p.symm
-  have hnvd : ¬ (p.1 : ℤ) ∣ QuadraticAlgebra.norm z :=
-    fun h ↦ hnvd_nat (Int.natCast_dvd.mp h)
-  rw [Int.natAbs_of_nonneg hN]
-  exact legendreSym_zOnePlusSqrtOverTwo_norm_eq_one_of_dvd_discr hp2
-    (by simpa [hk] using dvd_parameter_of_mem_ramifiedPrimeIndex_of_ne_two D p hp2)
-    z hnvd
+      (dvd_parameter_of_mem_ramifiedPrimeIndex_of_ne_two d p hp2)
+      z (by simpa [hnorm] using hnvd)
 
 /-- A principal ideal generated by an element with nonnegative algebra norm has
 trivial local Kronecker value whenever its absolute norm is coprime to the
@@ -312,24 +283,31 @@ theorem kroneckerSymNat_primeDiscriminantFactor_absNorm_span_eq_one
       (primeDiscriminantFactor d p).natAbs) :
     kroneckerSymNat (primeDiscriminantFactor d p)
       (Ideal.absNorm (Ideal.span ({α} : Set OK))) = 1 := by
-  by_cases hd4 : d % 4 = 1
-  · obtain ⟨k, hk⟩ := RingOfIntegers.exists_k_of_mod_four_eq_one hd4
-    let z : ZOnePlusSqrtdOverTwo k :=
-      (RingOfIntegers.ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_eq d k hk) α
-    have hnorm : Algebra.norm ℤ α = QuadraticAlgebra.norm z := by
-      simpa [z] using RingOfIntegers.algebraNorm_eq_zOnePlusSqrtOverTwo_norm_of_eq
-        (d := d) k hk α
-    rw [Ideal.absNorm_span_singleton, hnorm] at hcop ⊢
-    exact kroneckerSymNat_primeDiscriminantFactor_halfIntegral_norm_eq_one
-      p z hk (by simpa [hnorm] using hN) hcop
-  · let z : Zsqrtd d :=
+  rw [Ideal.absNorm_span_singleton] at hcop ⊢
+  by_cases hp2 : p.1 = 2
+  · have hd4 : d % 4 ≠ 1 := by
+      intro hd4
+      exact (ne_two_of_mem_ramifiedPrimeIndex_of_mod_four_eq_one d p hd4) hp2
+    let z : Zsqrtd d :=
       (RingOfIntegers.ringOfIntegers_equiv_zsqrtd_of_mod_four_ne_one d hd4) α
     have hnorm : Algebra.norm ℤ α = Zsqrtd.norm z := by
       simpa [z] using RingOfIntegers.algebraNorm_eq_zsqrtd_norm_of_mod_four_ne_one
         (d := d) hd4 α
-    rw [Ideal.absNorm_span_singleton, hnorm] at hcop ⊢
-    exact kroneckerSymNat_primeDiscriminantFactor_zsqrtd_norm_eq_one
-      p z hd4 (by simpa [hnorm] using hN) hcop
+    rw [hnorm, primeDiscriminantFactor_of_val_eq_two d p hp2] at hcop ⊢
+    exact kroneckerSymNat_twoPrimeDiscriminantFactor_zsqrtd_norm_eq_one
+      z hd4 (by simpa [hnorm] using hN) hcop
+  · rw [primeDiscriminantFactor_of_val_ne_two d p hp2] at hcop ⊢
+    letI : Fact p.1.Prime := ⟨prime_of_mem_ramifiedPrimeIndex d p⟩
+    rw [kroneckerSymNat_oddPrimeDiscriminantFactor_eq_legendreSym hp2]
+    have hcop_p : Nat.Coprime (Algebra.norm ℤ α).natAbs p.1 := by
+      simpa using hcop
+    have hnvd_nat : ¬ p.1 ∣ (Algebra.norm ℤ α).natAbs :=
+      ((Fact.out : p.1.Prime).coprime_iff_not_dvd).mp hcop_p.symm
+    have hnvd : ¬ (p.1 : ℤ) ∣ Algebra.norm ℤ α :=
+      fun h ↦ hnvd_nat (Int.natCast_dvd.mp h)
+    rw [Int.natAbs_of_nonneg hN]
+    exact legendreSym_algebraNorm_eq_one_of_ramifiedPrimeIndex_of_ne_two
+      d p hp2 hnvd
 
 /-- At an odd ramified prime, a principal generator of negative algebra norm
 has local value `(-1 / p)`. -/
@@ -340,52 +318,20 @@ theorem kroneckerSymNat_primeDiscriminantFactor_absNorm_span_of_algebraNorm_neg
       (primeDiscriminantFactor d p).natAbs) :
     kroneckerSymNat (primeDiscriminantFactor d p)
       (Ideal.absNorm (Ideal.span ({α} : Set OK))) = ZMod.χ₄ p.1 := by
+  rw [Ideal.absNorm_span_singleton] at hcop ⊢
+  rw [primeDiscriminantFactor_of_val_ne_two d p hp2] at hcop ⊢
   letI : Fact p.1.Prime := ⟨prime_of_mem_ramifiedPrimeIndex d p⟩
-  by_cases hd4 : d % 4 = 1
-  · obtain ⟨k, hk⟩ := RingOfIntegers.exists_k_of_mod_four_eq_one hd4
-    let z : ZOnePlusSqrtdOverTwo k :=
-      (RingOfIntegers.ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_eq d k hk) α
-    have hnorm : Algebra.norm ℤ α = QuadraticAlgebra.norm z := by
-      simpa [z] using RingOfIntegers.algebraNorm_eq_zOnePlusSqrtOverTwo_norm_of_eq
-        (d := d) k hk α
-    rw [Ideal.absNorm_span_singleton, hnorm] at hcop ⊢
-    rw [primeDiscriminantFactor_of_val_ne_two d p hp2] at hcop ⊢
-    rw [kroneckerSymNat_oddPrimeDiscriminantFactor_eq_legendreSym hp2]
-    have hcop_p : Nat.Coprime (QuadraticAlgebra.norm z).natAbs p.1 := by
-      simpa using hcop
-    have hnvd_nat : ¬ p.1 ∣ (QuadraticAlgebra.norm z).natAbs :=
-      ((Fact.out : p.1.Prime).coprime_iff_not_dvd).mp hcop_p.symm
-    have hnvd : ¬ (p.1 : ℤ) ∣ QuadraticAlgebra.norm z :=
-      fun h ↦ hnvd_nat (Int.natCast_dvd.mp h)
-    have hleg : legendreSym p.1 (QuadraticAlgebra.norm z) = 1 :=
-      legendreSym_zOnePlusSqrtOverTwo_norm_eq_one_of_dvd_discr hp2
-        (by simpa [hk] using
-          dvd_parameter_of_mem_ramifiedPrimeIndex_of_ne_two d p hp2)
-        z hnvd
-    rw [show ((QuadraticAlgebra.norm z).natAbs : ℤ) =
-        -QuadraticAlgebra.norm z from
-      Int.ofNat_natAbs_of_nonpos (by simpa [← hnorm] using hN.le),
-      legendreSym.at_neg hp2, hleg, mul_one]
-  · let z : Zsqrtd d :=
-      (RingOfIntegers.ringOfIntegers_equiv_zsqrtd_of_mod_four_ne_one d hd4) α
-    have hnorm : Algebra.norm ℤ α = Zsqrtd.norm z := by
-      simpa [z] using RingOfIntegers.algebraNorm_eq_zsqrtd_norm_of_mod_four_ne_one
-        (d := d) hd4 α
-    rw [Ideal.absNorm_span_singleton, hnorm] at hcop ⊢
-    rw [primeDiscriminantFactor_of_val_ne_two d p hp2] at hcop ⊢
-    rw [kroneckerSymNat_oddPrimeDiscriminantFactor_eq_legendreSym hp2]
-    have hcop_p : Nat.Coprime (Zsqrtd.norm z).natAbs p.1 := by
-      simpa using hcop
-    have hnvd_nat : ¬ p.1 ∣ (Zsqrtd.norm z).natAbs :=
-      ((Fact.out : p.1.Prime).coprime_iff_not_dvd).mp hcop_p.symm
-    have hnvd : ¬ (p.1 : ℤ) ∣ Zsqrtd.norm z :=
-      fun h ↦ hnvd_nat (Int.natCast_dvd.mp h)
-    have hleg : legendreSym p.1 (Zsqrtd.norm z) = 1 :=
-      legendreSym_zsqrtd_norm_eq_one_of_dvd_param
-        (dvd_parameter_of_mem_ramifiedPrimeIndex_of_ne_two d p hp2) z hnvd
-    rw [show ((Zsqrtd.norm z).natAbs : ℤ) = -Zsqrtd.norm z from
-      Int.ofNat_natAbs_of_nonpos (by simpa [← hnorm] using hN.le),
-      legendreSym.at_neg hp2, hleg, mul_one]
+  rw [kroneckerSymNat_oddPrimeDiscriminantFactor_eq_legendreSym hp2]
+  have hcop_p : Nat.Coprime (Algebra.norm ℤ α).natAbs p.1 := by
+    simpa using hcop
+  have hnvd_nat : ¬ p.1 ∣ (Algebra.norm ℤ α).natAbs :=
+    ((Fact.out : p.1.Prime).coprime_iff_not_dvd).mp hcop_p.symm
+  have hnvd : ¬ (p.1 : ℤ) ∣ Algebra.norm ℤ α :=
+    fun h ↦ hnvd_nat (Int.natCast_dvd.mp h)
+  have hleg : legendreSym p.1 (Algebra.norm ℤ α) = 1 :=
+    legendreSym_algebraNorm_eq_one_of_ramifiedPrimeIndex_of_ne_two d p hp2 hnvd
+  rw [show ((Algebra.norm ℤ α).natAbs : ℤ) = -Algebra.norm ℤ α from
+    Int.ofNat_natAbs_of_nonpos hN.le, legendreSym.at_neg hp2, hleg, mul_one]
 
 /-- A principal ideal has trivial local value at a ramified prime congruent to
 `1` modulo `4`, with no sign condition on its generator. -/

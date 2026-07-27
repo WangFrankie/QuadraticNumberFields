@@ -40,10 +40,8 @@ theorem oddPrimeDiscriminantFactor_emod_four_eq_one {p : ℕ}
   have hp_odd : p % 2 = 1 := (Nat.Prime.mod_two_eq_one_iff_ne_two hp).mpr hp2
   rw [oddPrimeDiscriminantFactor]
   by_cases hp4 : p % 4 = 1
-  · simp [hp4]
-    omega
+  · omega
   · have hp4' : p % 4 = 3 := by omega
-    simp [hp4]
     omega
 
 /-- Odd signed prime discriminants evaluate as Legendre symbols. -/

@@ -68,9 +68,8 @@ theorem squareQuotientLinearEquiv_apply (e : G ≃* H)
   rfl
 
 variable (G) in
-/-- The `ZMod 2`-dimension of `G / G²`, when this quotient is finite. -/
-@[nolint unusedArguments]
-noncomputable def twoRank [Finite (squareQuotient G)] : ℕ :=
+/-- The `ZMod 2`-dimension of `G / G²`. -/
+noncomputable def twoRank : ℕ :=
   Module.finrank (ZMod 2) (Additive (squareQuotient G))
 
 /-- A finite square-class group has cardinality

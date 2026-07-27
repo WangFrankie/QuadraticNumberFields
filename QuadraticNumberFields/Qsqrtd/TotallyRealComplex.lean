@@ -184,6 +184,17 @@ theorem norm_pos_of_realEmbedding_pos (d : ℤ) (hd : 0 ≤ (d : ℝ))
   rw [norm_eq_realEmbeddingPos_mul_realEmbeddingNeg d hd z]
   exact mul_pos hpos hneg
 
+/-- An element positive under every real embedding has positive quadratic norm. -/
+theorem norm_pos_of_forall_algHom_pos (d : ℤ) (hd : 0 ≤ (d : ℝ))
+    {z : Qsqrtd (d : ℚ)}
+    (hz : ∀ σ : Qsqrtd (d : ℚ) →ₐ[ℚ] ℝ, 0 < σ z) :
+    0 < Qsqrtd.norm z := by
+  have hsign :=
+    (forall_algHom_pos_iff_realEmbeddingPos_and_realEmbeddingNeg_pos d hd z).mp hz
+  have hnorm : 0 < (Qsqrtd.norm z : ℝ) :=
+    norm_pos_of_realEmbedding_pos d hd hsign.1 hsign.2
+  exact_mod_cast hnorm
+
 end RealEmbeddings
 
 section FractionRingEvaluation

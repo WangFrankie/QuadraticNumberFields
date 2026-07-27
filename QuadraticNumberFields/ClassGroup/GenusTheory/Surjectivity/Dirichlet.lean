@@ -32,14 +32,16 @@ local notation "OK" => NumberField.RingOfIntegers (Qsqrtd (d : ℚ))
 /-- Every genus sign vector is realized by a rational prime. Admissibility is
 not needed until the splitting step. -/
 theorem exists_prime_for_genusSignVector (ε : GenusSignVector d) :
-    ∃ q : ℕ, q.Prime ∧
+    ∃ q : ℕ, q.Prime ∧ q.Coprime (primeDiscriminantModulus d) ∧
       ∀ p : RamifiedPrimeIndex d,
         kroneckerSymNat (primeDiscriminantFactor d p) q = (ε p : ℤ) := by
   rcases exists_residue_for_genusSignVector d ε with ⟨a, ha_coprime, ha_symbols⟩
   rcases Nat.forall_exists_prime_gt_and_modEq 0
       (primeDiscriminantModulus_ne_zero d) ha_coprime with
     ⟨q, _, hq_prime, hq_mod⟩
-  refine ⟨q, hq_prime, ?_⟩
+  have hq_coprime : q.Coprime (primeDiscriminantModulus d) := by
+    simpa [Nat.Coprime] using hq_mod.gcd_eq.trans ha_coprime
+  refine ⟨q, hq_prime, hq_coprime, ?_⟩
   intro p
   exact (kroneckerSymNat_eq_of_modEq
     (primeDiscriminantFactor_emod_four_eq_zero_or_one d p)
@@ -53,7 +55,7 @@ theorem genusCharacterMap_surjective :
   classical
   intro ε
   rcases exists_prime_for_genusSignVector d (ε : GenusSignVector d) with
-    ⟨q, hq_prime, hq_symbols⟩
+    ⟨q, hq_prime, hq_coprime, hq_symbols⟩
   letI : Fact q.Prime := ⟨hq_prime⟩
   have hq_ne : q ≠ 0 := hq_prime.ne_zero
   have hprod_units : ∏ p, (ε : GenusSignVector d) p = 1 :=
@@ -77,17 +79,6 @@ theorem genusCharacterMap_surjective :
     Classical.choice (inferInstance : Nonempty (qIdeal.primesOver OK))
   have hP_norm : Ideal.absNorm (P.1 : Ideal OK) = q :=
     Splitting.absNorm_eq_prime_of_liesOver_of_isSplitIn d q hsplit
-  have hq_coprime : q.Coprime (primeDiscriminantModulus d) := by
-    rw [primeDiscriminantModulus, Nat.coprime_prod_right_iff]
-    intro p _
-    by_contra hp_coprime
-    have hzero : kroneckerSymNat (primeDiscriminantFactor d p) q = 0 :=
-      kroneckerSymNat_eq_zero_of_not_coprime _ (by
-        simpa [Nat.Coprime] using hp_coprime)
-    have hnonzero : kroneckerSymNat (primeDiscriminantFactor d p) q ≠ 0 := by
-      rw [hq_symbols p]
-      exact ((ε : GenusSignVector d) p).ne_zero
-    exact hnonzero hzero
   have hq_bot : qIdeal ≠ ⊥ := by
     dsimp [qIdeal]
     rw [Ideal.span_singleton_eq_bot, Nat.cast_eq_zero]

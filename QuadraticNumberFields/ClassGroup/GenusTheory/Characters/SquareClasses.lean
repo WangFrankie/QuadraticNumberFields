@@ -23,10 +23,6 @@ namespace GenusTheory
 
 variable (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
 
-/-- Deprecated name for the narrow class group modulo squares. -/
-@[deprecated CommGroup.squareQuotient (since := "2026-07-12")]
-abbrev NarrowSquareClassGroup := squareQuotient (Cl⁺(d))
-
 /-- The genus character map is trivial on squares of narrow ideal classes. -/
 theorem square_le_genusCharacterMap_ker :
     Subgroup.square (Cl⁺(d)) ≤ (genusCharacterMap d).ker := by

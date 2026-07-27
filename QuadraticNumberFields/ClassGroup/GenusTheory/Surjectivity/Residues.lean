@@ -53,21 +53,15 @@ private theorem exists_nat_kroneckerSymNat_twoPrimeDiscriminantFactor_eq_unit
     by_cases hd2 : d % 2 = 0
     · by_cases hd8 : d % 8 = 2
       · refine ⟨3, ?_, ?_⟩
-        · simp [Int.dvd_of_emod_eq_zero hd2, hd8]
-          norm_num
-        · simp [hd2, hd8]
-          norm_num [kroneckerSymNat, kroneckerTwo]
+        · norm_num [Int.dvd_of_emod_eq_zero hd2, hd8]
+        · norm_num [hd2, hd8, kroneckerSymNat, kroneckerTwo]
       · refine ⟨5, ?_, ?_⟩
-        · simp [Int.dvd_of_emod_eq_zero hd2, hd8]
-          norm_num
-        · simp [hd2, hd8]
-          norm_num [kroneckerSymNat, kroneckerTwo]
+        · norm_num [Int.dvd_of_emod_eq_zero hd2, hd8]
+        · norm_num [hd2, hd8, kroneckerSymNat, kroneckerTwo]
     · refine ⟨3, ?_, ?_⟩
       · have hd2ndvd : ¬(2 : ℤ) ∣ d := fun h ↦ hd2 (Int.emod_eq_zero_of_dvd h)
-        simp [hd2ndvd]
-        norm_num
-      · simp [hd2]
-        norm_num [kroneckerSymNat, kroneckerTwo]
+        norm_num [hd2ndvd]
+      · norm_num [hd2, kroneckerSymNat, kroneckerTwo]
 
 /-- Every sign occurs as the Kronecker symbol of a residue coprime to one signed
 prime-discriminant factor. -/

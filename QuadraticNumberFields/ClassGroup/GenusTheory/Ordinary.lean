@@ -219,41 +219,17 @@ theorem card_narrowSquareQuotientToClassGroup_ker_eq_two_of_mod_four_three
     simpa [q, K] using
       squareClassMap_injective_on_narrowToClassGroup_ker_of_mod_four_three
         d hd p hp4
-  let e : K ≃* q.range :=
-    MulEquiv.ofBijective q.rangeRestrict
-      ⟨fun _ _ h ↦ hqinj (congrArg Subtype.val h), q.rangeRestrict_surjective⟩
   have hcard_range : Nat.card q.range = 2 := by
-    calc
-      Nat.card q.range = Nat.card K := (Nat.card_congr e.toEquiv).symm
-      _ = 2 := hker
+    change Nat.card (Set.range q) = 2
+    exact (Nat.card_range_of_injective hqinj).trans hker
   have hrange :
       q.range =
         Subgroup.map (QuotientGroup.mk' (Subgroup.square (Cl⁺(d)))) K := by
     ext x
-    constructor
-    · rintro ⟨C, hC⟩
-      exact ⟨C.1, C.2, hC⟩
-    · rintro ⟨C, hCK, hC⟩
-      exact ⟨⟨C, hCK⟩, hC⟩
+    simp [q]
   rw [narrowSquareQuotientToClassGroup_ker_eq_map_narrowToClassGroup_ker d,
     ← hrange]
   exact hcard_range
-
-private noncomputable def narrowSquareQuotientKernelsEquiv :
-    (narrowSquareQuotientLinearMap d).ker ≃
-      (narrowSquareQuotientToClassGroup d).ker where
-  toFun x := ⟨x.1.toMul, by
-    rw [MonoidHom.mem_ker]
-    have hx := LinearMap.mem_ker.mp x.2
-    change (narrowSquareQuotientLinearMap d x.1).toMul = 1
-    rw [hx]
-    rfl⟩
-  invFun x := ⟨Additive.ofMul x.1, by
-    rw [LinearMap.mem_ker]
-    apply Additive.toMul.injective
-    simpa using MonoidHom.mem_ker.mp x.2⟩
-  left_inv _ := rfl
-  right_inv _ := rfl
 
 /-- In the order-two correction case, the linear correction has dimension
 one over `ZMod 2`. -/
@@ -265,7 +241,8 @@ theorem finrank_narrowSquareQuotientLinearMap_ker_eq_one_of_mod_four_three
     card_narrowSquareQuotientToClassGroup_ker_eq_two_of_mod_four_three
       d hd p hp4 hker
   have hcard_linear : Nat.card (narrowSquareQuotientLinearMap d).ker = 2 := by
-    rwa [Nat.card_congr (narrowSquareQuotientKernelsEquiv d)]
+    simpa [narrowSquareQuotientLinearMap, narrowSquareQuotientToClassGroup,
+      squareQuotientLinearMap] using hcard_group
   apply Nat.pow_right_injective (a := 2) (by norm_num)
   calc
     2 ^ Module.finrank (ZMod 2) (narrowSquareQuotientLinearMap d).ker =

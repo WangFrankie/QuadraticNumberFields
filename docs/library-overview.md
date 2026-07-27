@@ -256,6 +256,24 @@ The Heegner wrappers for this interface live in
 `ImaginaryClassNumberOne/ClassNumberBridge.lean`, while the reduced-form
 cardinality bridge lives under `FormClassGroup/ClassGroup/`.
 
+### Genus Theory
+
+Files under `QuadraticNumberFields/ClassGroup/GenusTheory/`
+
+The library develops the classical genus theory of quadratic fields from
+signed prime discriminants and Kronecker characters. It proves surjectivity of
+the genus-character map, the narrow `2`-rank formula, the principal genus
+theorem, and the corresponding ordinary class-group formulas. The resulting
+prime-shape sieve is used by the Baker--Heegner--Stark forward direction.
+
+Key declarations:
+
+- `genusCharacterMap_surjective`
+- `twoRank_narrowClassGroup_eq_ramifiedPrimeCount_sub_one`
+- `genusCharacterMap_ker_eq_square`
+- `twoRank_classGroup_eq_ramifiedPrimeCount_sub_two_of_norm_one_of_exists_prime_mod_four_three`
+- `classNumber_eq_one_imp_parameter_prime_shape`
+
 ## Core Lean Objects
 
 - `Qsqrtd (d : ℚ) := QuadraticAlgebra ℚ d 0`
@@ -294,6 +312,7 @@ The completed public library currently includes:
 - totally real, totally complex, and CM behavior
 - concrete verified examples for `ℤ[√(-5)]`
 - a basic class-number interface
+- narrow and ordinary genus theory for quadratic fields
 
 App-layer libraries contain form-class-group computations, class-number-one
 results, examples, and remaining research-oriented scaffolding.
@@ -349,7 +368,7 @@ results, examples, and remaining research-oriented scaffolding.
 │   │   └── Basic.lean
 │   ├── Splitting/                    # prime splitting
 │   ├── ClassNumber/                  # core class-number interface
-│   ├── ClassGroup/                   # class-group scaffolding
+│   ├── ClassGroup/                   # class groups, ambiguous ideals, genus theory
 │   ├── ContinuedFraction/            # continued-fraction scaffolding
 │   ├── Units/                        # unit and Pell scaffolding
 │   ├── Families/                     # real-quadratic family scaffolding

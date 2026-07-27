@@ -91,31 +91,27 @@ theorem square_le_comap_square (f : G →* H) :
   obtain ⟨y, rfl⟩ := hx
   exact ⟨f y, by rw [← map_pow]⟩
 
+/-- A surjective homomorphism of commutative groups maps the square subgroup
+onto the square subgroup. -/
+theorem map_square_eq_square_of_surjective
+    (f : G →* H) (hf : Function.Surjective f) :
+    Subgroup.map f (square G) = square H := by
+  apply le_antisymm
+  · exact map_le_iff_le_comap.mpr (square_le_comap_square f)
+  · intro y hy
+    obtain ⟨z, hz⟩ := (mem_square_iff y).mp hy
+    obtain ⟨x, hx⟩ := hf z
+    rw [Subgroup.mem_map]
+    refine ⟨x ^ 2, (mem_square_iff (x ^ 2)).mpr ⟨x, rfl⟩, ?_⟩
+    rw [map_pow, hx, hz]
+
 /-- For a surjective homomorphism, the preimage of the square subgroup is the
 product of the square subgroup and the kernel. -/
 theorem comap_square_eq_square_sup_ker_of_surjective
     (f : G →* H) (hf : Function.Surjective f) :
     (square H).comap f = square G ⊔ f.ker := by
-  apply le_antisymm
-  · intro x hx
-    rw [mem_comap, mem_square_iff] at hx
-    obtain ⟨y, hy⟩ := hx
-    obtain ⟨a, ha⟩ := hf y
-    rw [mem_sup]
-    refine ⟨a ^ 2, ?_, x * (a ^ 2)⁻¹, ?_, ?_⟩
-    · rw [mem_square_iff]
-      exact ⟨a, rfl⟩
-    · rw [MonoidHom.mem_ker, map_mul, map_inv, map_pow, ha, hy]
-      group
-    · simp [pow_two, mul_assoc, mul_left_comm]
-  · intro x hx
-    rw [mem_comap]
-    rw [mem_sup] at hx
-    obtain ⟨y, hy, z, hz, hxy⟩ := hx
-    rw [← hxy, map_mul, MonoidHom.mem_ker.mp hz, mul_one]
-    obtain ⟨w, hw⟩ := (mem_square_iff y).mp hy
-    rw [mem_square_iff]
-    exact ⟨f w, by rw [← map_pow, hw]⟩
+  rw [← map_square_eq_square_of_surjective f hf]
+  exact Subgroup.comap_map_eq f (square G)
 
 end Subgroup
 
@@ -137,11 +133,8 @@ theorem squareQuotientMap_mk (f : G →* H) (x : G) :
 /-- A surjective homomorphism gives a surjective map on square quotients. -/
 theorem squareQuotientMap_surjective (f : G →* H) (hf : Function.Surjective f) :
     Function.Surjective (squareQuotientMap f) := by
-  apply QuotientGroup.map_surjective_of_surjective
-  intro C
-  obtain ⟨x, rfl⟩ := QuotientGroup.mk'_surjective (Subgroup.square H) C
-  obtain ⟨y, rfl⟩ := hf x
-  exact ⟨y, rfl⟩
+  exact QuotientGroup.map_surjective_of_surjective _ _ _
+    ((QuotientGroup.mk'_surjective _).comp hf) _
 
 /-- The kernel on square quotients is the image of the original kernel when
 the homomorphism is surjective. -/

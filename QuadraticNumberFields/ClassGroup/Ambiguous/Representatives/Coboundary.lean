@@ -67,16 +67,10 @@ private theorem algebra_norm_nonneg_of_isTotallyPositive_fractionRing_algEquiv_q
   have hd_ne_zero : d ≠ 0 := Squarefree.ne_zero (Fact.out : Squarefree d)
   have hdpos : 0 < d := by omega
   have hd_nonneg_real : 0 ≤ (d : ℝ) := by exact_mod_cast le_of_lt hdpos
-  have hpos_pos : 0 < Qsqrtd.realEmbeddingPos d hd_nonneg_real z := by
-    simpa [z, e, R] using
-      hxpos ((Qsqrtd.realEmbeddingPos d hd_nonneg_real).toRingHom.comp e.toRingHom)
-  have hpos_neg : 0 < Qsqrtd.realEmbeddingNeg d hd_nonneg_real z := by
-    simpa [z, e, R] using
-      hxpos ((Qsqrtd.realEmbeddingNeg d hd_nonneg_real).toRingHom.comp e.toRingHom)
-  have hnorm_pos_real : 0 < (Qsqrtd.norm z : ℝ) :=
-    Qsqrtd.norm_pos_of_realEmbedding_pos d hd_nonneg_real hpos_pos hpos_neg
-  have hnorm_pos_rat : 0 < Qsqrtd.norm z := by exact_mod_cast hnorm_pos_real
-  exact le_of_lt hnorm_pos_rat
+  have hzpos : ∀ σ : Qsqrtd (d : ℚ) →ₐ[ℚ] ℝ, 0 < σ z := by
+    intro σ
+    simpa [z, e, R] using hxpos (σ.toRingHom.comp e.toRingHom)
+  exact (Qsqrtd.norm_pos_of_forall_algHom_pos d hd_nonneg_real hzpos).le
 
 /-- Norm-one extraction boundary. A totally positive principal multiplier
 relating an ideal to its conjugate has field norm `1`.
