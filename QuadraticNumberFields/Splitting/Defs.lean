@@ -80,7 +80,7 @@ per-prime inertia degree — no Galois hypothesis required, since the `Exists.ch
 in the definition is forced to be that unique prime. -/
 lemma inertiaDegIn_eq_inertiaDeg_of_primesOver_eq_singleton {P : Ideal S}
     (hP : primesOver p S = {P}) :
-    inertiaDegIn p S = inertiaDeg p P := by
+    inertiaDegIn p S = P.inertiaDeg R := by
   have hmem : P ∈ primesOver p S := by rw [hP]; exact Set.mem_singleton P
   have hex : ∃ Q : Ideal S, Q.IsPrime ∧ Q.LiesOver p := ⟨P, hmem.1, hmem.2⟩
   rw [inertiaDegIn, dif_pos hex]
@@ -92,7 +92,7 @@ lemma inertiaDegIn_eq_inertiaDeg_of_primesOver_eq_singleton {P : Ideal S}
 per-prime ramification index — no Galois hypothesis required. -/
 lemma ramificationIdxIn_eq_ramificationIdx_of_primesOver_eq_singleton {P : Ideal S}
     (hP : primesOver p S = {P}) :
-    ramificationIdxIn p S = ramificationIdx p P := by
+    ramificationIdxIn p S = P.ramificationIdx R := by
   have hmem : P ∈ primesOver p S := by rw [hP]; exact Set.mem_singleton P
   have hex : ∃ Q : Ideal S, Q.IsPrime ∧ Q.LiesOver p := ⟨P, hmem.1, hmem.2⟩
   rw [ramificationIdxIn, dif_pos hex]
@@ -107,14 +107,14 @@ local notation3 "τ(" p ")" => (e(p), f(p), g(p))
 
 lemma ramificationIdxIn_eq_of_mem (G : Type*) [Group G] [Finite G] [MulSemiringAction G S]
     [IsGaloisGroup G R S] {P : Ideal S} (hP : P ∈ primesOver p S) :
-    e(p) = ramificationIdx p P := by
+    e(p) = P.ramificationIdx R := by
   letI : P.IsPrime := hP.1
   letI : P.LiesOver p := hP.2
   simpa using (Ideal.ramificationIdxIn_eq_ramificationIdx p P G)
 
 lemma inertiaDegIn_eq_of_mem (G : Type*) [Group G] [Finite G] [MulSemiringAction G S]
     [IsGaloisGroup G R S] {P : Ideal S} (hP : P ∈ primesOver p S) :
-    f(p) = Ideal.inertiaDeg p P := by
+    f(p) = P.inertiaDeg R := by
   letI : P.IsPrime := hP.1
   letI : P.LiesOver p := hP.2
   simpa using (Ideal.inertiaDegIn_eq_inertiaDeg p P G)
@@ -139,7 +139,7 @@ exactly when some prime over `p` has ramification index greater than `1`. -/
 lemma ramificationIdxIn_gt_one_iff_exists_ramificationIdx_gt_one
     (G : Type*) [Group G] [Finite G]
     [MulSemiringAction G S] [IsGaloisGroup G R S] :
-    1 < ramificationIdxIn p S ↔ ∃ P ∈ primesOver p S, 1 < ramificationIdx p P := by
+    1 < ramificationIdxIn p S ↔ ∃ P ∈ primesOver p S, 1 < P.ramificationIdx R := by
   constructor
   · intro hpRam
     by_cases hne : ∃ P : Ideal S, P.IsPrime ∧ P.LiesOver p
@@ -204,7 +204,7 @@ the `*_of_primesOver_eq_singleton` uniformity bridges; `efg_trichotomy` and ever
 downstream result depend on the *statement* of this lemma, not on its proof. -/
 theorem ncard_primesOver_mul_ramificationIdxIn_mul_inertiaDegIn_eq_two
     [Nontrivial R] [IsDedekindDomain R] [Algebra.IsQuadraticExtension R S]
-    (hchar : ringChar R ≠ 2) (hp : p ≠ ⊥) [p.IsMaximal] :
+    (hchar : ringChar R ≠ 2) (_hp : p ≠ ⊥) [p.IsMaximal] :
     g(p) * e(p) * f(p) = 2 := by
   let K := FractionRing R
   let L := FractionRing S
@@ -219,7 +219,7 @@ theorem ncard_primesOver_mul_ramificationIdxIn_mul_inertiaDegIn_eq_two
   have : Algebra.IsSeparable K L :=
     Algebra.IsQuadraticExtension.isSeparable_of_field_of_char_ne_two this
   have := IsGaloisGroup.of_isFractionRing Gal(L/K) R S K L
-  have h_mul := Ideal.ncard_primesOver_mul_ramificationIdxIn_mul_inertiaDegIn hp S Gal(L/K)
+  have h_mul := Ideal.ncard_primesOver_mul_ramificationIdxIn_mul_inertiaDegIn p S Gal(L/K)
   have : Nat.card Gal(L/K) = 2 := by
     rw [← Algebra.IsQuadraticExtension.finrank_eq_two K L]
     exact IsGaloisGroup.card_eq_finrank Gal(L/K) K L

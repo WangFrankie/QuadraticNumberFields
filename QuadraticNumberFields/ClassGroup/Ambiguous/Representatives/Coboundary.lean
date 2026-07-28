@@ -97,6 +97,11 @@ private theorem norm_eq_one_of_tp_multiplier_to_conjAut
         (x : FractionRing (OK))) = 1 := by
   let R := OK
   let e := FractionRing.algEquiv R (Qsqrtd (d : ℚ))
+  have hcanonicalMap (z : FractionRing R) :
+      IsLocalization.map (Qsqrtd (d : ℚ)) (T := R⁰) (RingHom.id R)
+          (fun y (hy : y ∈ R⁰) => show RingHom.id R y ∈ R⁰ from hy) z =
+        e z := by
+    rfl
   have habs_map_rat :
       (Ideal.absNorm
           (Ideal.map (conjOK : R →+* R)
@@ -132,7 +137,7 @@ private theorem norm_eq_one_of_tp_multiplier_to_conjAut
       simpa [R, e, E, FractionalIdeal.coe_mk0, FractionalIdeal.coeIdeal_absNorm,
         coe_toPrincipalIdeal, FractionalIdeal.canonicalEquiv_spanSingleton,
         FractionalIdeal.absNorm_span_singleton, coe_conjAutNonzeroIdealMulEquiv_apply,
-        habs_map_rat] using h
+        habs_map_rat, hcanonicalMap] using h
     exact mul_left_cancel₀ hIne (by simpa using h')
   have hnorm_nonneg : 0 ≤ Algebra.norm ℚ (e (x : FractionRing R)) :=
     algebra_norm_nonneg_of_isTotallyPositive_fractionRing_algEquiv_qsqrtd d hxpos

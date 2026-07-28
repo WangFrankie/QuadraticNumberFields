@@ -128,7 +128,8 @@ theorem not_isDedekindDomain_of_mod_four_eq_one
   have h_even : 2 ∣ (1 : ℤ) ∧ 2 ∣ (1 : ℤ) :=
     (Zsqrtd.halfInt_mem_range_toQsqrtdHom_iff_even_even (1 + 4 * k) 1 1).mp
       ⟨z, by
-        simpa [x, RingOfIntegers.halfInt, RingHom.toAlgebra] using hz⟩
+        change Zsqrtd.toQsqrtdHom (1 + 4 * k) z = x at hz
+        simpa [x, RingOfIntegers.halfInt] using hz⟩
   omega
 
 /-- For a squarefree `d ≠ 1`, `ℤ[√d]` is a Dedekind domain if and only if

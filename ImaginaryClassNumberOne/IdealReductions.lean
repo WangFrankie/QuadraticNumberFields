@@ -201,7 +201,7 @@ theorem exists_algebraNorm_natAbs_eq_two_of_classNumber_eq_one_of_mod_eight_eq_o
   have hPover_span : P.LiesOver (Ideal.span ({(2 : ℤ)} : Set ℤ)) := by
     simpa [p] using hP.2
   letI : P.LiesOver (Ideal.span ({(2 : ℤ)} : Set ℤ)) := hPover_span
-  have hfP : (Ideal.span ({(2 : ℤ)} : Set ℤ)).inertiaDeg P = 1 := by
+  have hfP : P.inertiaDeg ℤ = 1 := by
     letI := Ring.instAlgebraFractionRing
     letI := IsIntegralClosure.MulSemiringAction ℤ (FractionRing ℤ) (FractionRing O) O
     letI := Algebra.IsQuadraticExtension.isGaloisGroup (R := ℤ) (S := O) hchar
@@ -218,12 +218,11 @@ theorem exists_algebraNorm_natAbs_eq_two_of_classNumber_eq_one_of_mod_eight_eq_o
     RingOfIntegers.absNorm_eq_natAbs_algebraNorm_of_isPrincipal (d := d) hP_principal
   refine ⟨α, ?_⟩
   have hP_abs : Ideal.absNorm P = 2 := by
-    have hnormP := Ideal.absNorm_eq_pow_inertiaDeg' (P := P) Nat.prime_two
-    have hfP_nat : (Ideal.span ({((2 : ℕ) : ℤ)} : Set ℤ)).inertiaDeg P = 1 := by
-      simpa using hfP
-    rw [hfP_nat] at hnormP
+    letI : P.IsPrime := hP.1
+    have hnormP := Ideal.pow_inertiaDeg 2 P
+    rw [hfP] at hnormP
     norm_num at hnormP
-    exact hnormP
+    exact hnormP.symm
   exact hnorm.symm.trans hP_abs
 
 /-- If a rational prime `q` divides the squarefree parameter `d`, then class
