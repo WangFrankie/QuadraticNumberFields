@@ -112,13 +112,9 @@ theorem kroneckerSymNat_eq_one_or_neg_one_of_coprime (D : ℤ) {n : ℕ}
 
 /-- The unit-valued Kronecker symbol at a denominator coprime to `D.natAbs`. -/
 def kroneckerSymNatUnit (D : ℤ) {n : ℕ}
-    (h : Nat.Coprime n D.natAbs) : ℤˣ where
-  val := kroneckerSymNat D n
-  inv := kroneckerSymNat D n
-  val_inv := by
-    simpa [pow_two] using kroneckerSymNat_sq_one_of_coprime D h
-  inv_val := by
-    simpa [pow_two] using kroneckerSymNat_sq_one_of_coprime D h
+    (h : Nat.Coprime n D.natAbs) : ℤˣ :=
+  Units.mkOfMulEqOne (kroneckerSymNat D n) (kroneckerSymNat D n) (by
+    simpa [pow_two] using kroneckerSymNat_sq_one_of_coprime D h)
 
 /-- Coercing the coprime unit-valued Kronecker symbol to `ℤ` recovers the
 ordinary Kronecker symbol. -/

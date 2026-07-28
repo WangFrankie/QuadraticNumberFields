@@ -271,7 +271,7 @@ Key declarations:
 - `genusCharacterMap_surjective`
 - `twoRank_narrowClassGroup_eq_ramifiedPrimeCount_sub_one`
 - `genusCharacterMap_ker_eq_square`
-- `twoRank_classGroup_eq_ramifiedPrimeCount_sub_two_of_norm_one_of_exists_prime_mod_four_three`
+- `twoRank_classGroup_eq_ramifiedPrimeCount_sub_two_of_fundamentalUnit_norm_one`
 - `classNumber_eq_one_imp_parameter_prime_shape`
 
 ## Core Lean Objects

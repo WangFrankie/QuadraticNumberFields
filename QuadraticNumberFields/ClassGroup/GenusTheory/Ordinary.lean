@@ -171,39 +171,25 @@ private theorem squareClassMap_injective_on_narrowToClassGroup_ker_of_mod_four_t
   let K := (Qsqrtd.narrowToClassGroup d).ker
   let q : K →* squareQuotient (Cl⁺(d)) :=
     (QuotientGroup.mk' (Subgroup.square (Cl⁺(d)))).comp K.subtype
-  intro C D hCD
-  let E : K := C / D
-  have hqE : q E = 1 := by
-    have hCD' :
-        (QuotientGroup.mk' (Subgroup.square (Cl⁺(d)))) (C : Cl⁺(d)) =
-          (QuotientGroup.mk' (Subgroup.square (Cl⁺(d)))) (D : Cl⁺(d)) := by
-      simpa [q, K] using hCD
-    change (QuotientGroup.mk' (Subgroup.square (Cl⁺(d))))
-      ((C : Cl⁺(d)) / (D : Cl⁺(d))) = 1
-    rw [map_div, hCD']
-    simp
-  have hE_square : (E : Cl⁺(d)) ∈ Subgroup.square (Cl⁺(d)) :=
-    (QuotientGroup.eq_one_iff (E : Cl⁺(d))).1 hqE
-  have hE : E = 1 := by
-    by_contra hE1
-    have hE1' : (E : Cl⁺(d)) ≠ 1 := by
-      intro h
-      exact hE1 (Subtype.ext h)
-    have hchar_neg :=
-      genusCharacter_eq_neg_one_of_narrowToClassGroup_eq_one_of_mod_four_three
-        d hd p hp4 (E : Cl⁺(d)) (MonoidHom.mem_ker.mp E.2) hE1'
-    have hgenus : genusCharacterMap d (E : Cl⁺(d)) = 1 :=
-      (genusCharacterMap_eq_one_iff d (E : Cl⁺(d))).2 (by rwa [← Subgroup.mem_square])
-    have hchar_one : genusCharacter d p (E : Cl⁺(d)) = 1 := by
-      have hcoord := congrArg
-        (fun v : AdmissibleGenusSignVector d ↦ (v : GenusSignVector d) p) hgenus
-      simpa using hcoord
-    rw [hchar_neg] at hchar_one
-    norm_num at hchar_one
+  rw [← MonoidHom.ker_eq_bot_iff]
+  apply le_antisymm ?_ bot_le
+  intro E hE
+  rw [Subgroup.mem_bot]
   apply Subtype.ext
-  have hEval : (C : Cl⁺(d)) / (D : Cl⁺(d)) = 1 := by
-    simpa [E] using congrArg Subtype.val hE
-  exact div_eq_one.mp hEval
+  by_contra hE1
+  have hE_square : (E : Cl⁺(d)) ∈ Subgroup.square (Cl⁺(d)) :=
+    (QuotientGroup.eq_one_iff (E : Cl⁺(d))).1 (by
+      simpa [q, K] using MonoidHom.mem_ker.mp hE)
+  have hchar_neg :=
+    genusCharacter_eq_neg_one_of_narrowToClassGroup_eq_one_of_mod_four_three
+      d hd p hp4 (E : Cl⁺(d)) (MonoidHom.mem_ker.mp E.2) hE1
+  have hgenus : genusCharacterMap d (E : Cl⁺(d)) = 1 :=
+    (genusCharacterMap_eq_one_iff d (E : Cl⁺(d))).2 (by rwa [← Subgroup.mem_square])
+  have hchar_one : genusCharacter d p (E : Cl⁺(d)) = 1 := by
+    simpa using congrArg
+      (fun v : AdmissibleGenusSignVector d ↦ (v : GenusSignVector d) p) hgenus
+  rw [hchar_neg] at hchar_one
+  norm_num at hchar_one
 
 /-- If the comparison kernel has order two and the discriminant has a prime
 divisor congruent to `3` modulo `4`, its full order-two image survives in the

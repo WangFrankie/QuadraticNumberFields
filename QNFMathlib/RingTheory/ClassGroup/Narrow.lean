@@ -994,22 +994,11 @@ theorem mk0_surjective [IsDedekindDomain R] :
 private theorem exists_nat_forall_pos_add_nat_mul
     {ι : Type*} [Finite ι] (x c : ι → ℝ) (hc : ∀ i, 0 < c i) :
     ∃ k : ℕ, ∀ i : ι, 0 < x i + (k : ℝ) * c i := by
-  classical
-  letI := Fintype.ofFinite ι
-  let B : ℝ := ∑ i : ι, max 0 ((-x i) / c i)
+  obtain ⟨B, hB⟩ := Finite.bddAbove_range (fun i ↦ (-x i) / c i)
   obtain ⟨k, hk⟩ := exists_nat_gt B
-  refine ⟨k + 1, ?_⟩
-  intro i
-  have hnonneg : ∀ j : ι, 0 ≤ max 0 ((-x j) / c j) := fun j ↦ le_max_left _ _
-  have hi_le_B : (-x i) / c i ≤ B :=
-    (le_max_right _ _).trans
-      (Finset.single_le_sum (fun j _ ↦ hnonneg j) (Finset.mem_univ i))
-  have hlt : (-x i) / c i < (k + 1 : ℕ) :=
-    lt_of_le_of_lt hi_le_B (lt_trans hk (by norm_num))
-  have hlt_real : (-x i) / c i < ((k + 1 : ℕ) : ℝ) := by
-    exact_mod_cast hlt
-  have hmul : -x i < ((k + 1 : ℕ) : ℝ) * c i :=
-    (div_lt_iff₀ (hc i)).mp hlt_real
+  refine ⟨k, fun i ↦ ?_⟩
+  have hi := lt_of_le_of_lt (hB (Set.mem_range_self i)) hk
+  have := (div_lt_iff₀ (hc i)).mp hi
   linarith
 
 /-- In a Dedekind domain with finitely many real embeddings, every narrow ideal

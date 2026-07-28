@@ -49,9 +49,7 @@ theorem squareQuotientLinearMap_apply (f : G →* H) (x : Additive (squareQuotie
 /-- The linear map on square quotients is surjective when the group homomorphism is. -/
 theorem squareQuotientLinearMap_surjective (f : G →* H) (hf : Function.Surjective f) :
     Function.Surjective (squareQuotientLinearMap f) := by
-  intro y
-  obtain ⟨x, hx⟩ := squareQuotientMap_surjective f hf y.toMul
-  exact ⟨Additive.ofMul x, congrArg Additive.ofMul hx⟩
+  simpa [squareQuotientLinearMap] using squareQuotientMap_surjective f hf
 
 /-- An isomorphism of commutative groups gives a linear equivalence of their
 square quotients over `ZMod 2`. -/

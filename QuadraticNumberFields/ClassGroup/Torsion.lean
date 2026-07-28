@@ -86,24 +86,20 @@ variable {G H : Type*} [CommGroup G] [CommGroup H]
 theorem square_le_comap_square (f : G →* H) :
     square G ≤ (square H).comap f := by
   intro x hx
-  rw [mem_square_iff] at hx
-  rw [mem_comap, mem_square_iff]
-  obtain ⟨y, rfl⟩ := hx
-  exact ⟨f y, by rw [← map_pow]⟩
+  exact (mem_square.mp hx).map f
 
 /-- A surjective homomorphism of commutative groups maps the square subgroup
 onto the square subgroup. -/
 theorem map_square_eq_square_of_surjective
     (f : G →* H) (hf : Function.Surjective f) :
     Subgroup.map f (square G) = square H := by
-  apply le_antisymm
-  · exact map_le_iff_le_comap.mpr (square_le_comap_square f)
-  · intro y hy
-    obtain ⟨z, hz⟩ := (mem_square_iff y).mp hy
-    obtain ⟨x, hx⟩ := hf z
-    rw [Subgroup.mem_map]
-    refine ⟨x ^ 2, (mem_square_iff (x ^ 2)).mpr ⟨x, rfl⟩, ?_⟩
-    rw [map_pow, hx, hz]
+  ext y
+  change y ∈ f '' {x : G | IsSquare x} ↔ IsSquare y
+  constructor
+  · rintro ⟨x, hx, rfl⟩
+    exact hx.map f
+  · intro hy
+    exact isSquare_subset_image_isSquare hf hy
 
 /-- For a surjective homomorphism, the preimage of the square subgroup is the
 product of the square subgroup and the kernel. -/
@@ -149,20 +145,16 @@ theorem squareQuotientMap_ker_eq_map_ker_of_surjective
 /-- Isomorphic commutative groups have isomorphic square quotients. -/
 noncomputable def squareQuotientMulEquiv (e : G ≃* H) :
     squareQuotient G ≃* squareQuotient H :=
-  MulEquiv.ofBijective (squareQuotientMap (e : G →* H))
-    ⟨by
-      intro x y hxy
-      obtain ⟨x, rfl⟩ := QuotientGroup.mk'_surjective (Subgroup.square G) x
-      obtain ⟨y, rfl⟩ := QuotientGroup.mk'_surjective (Subgroup.square G) y
-      have h := congrArg (squareQuotientMap (e.symm : H →* G)) hxy
-      simpa using h,
-    squareQuotientMap_surjective (e : G →* H) e.surjective⟩
+  QuotientGroup.congr (Subgroup.square G) (Subgroup.square H) e (by
+    rw [Subgroup.square_eq_powMonoidHom_range,
+      Subgroup.square_eq_powMonoidHom_range]
+    exact MulEquiv.map_range_powMonoidHom e 2)
 
 /-- On representatives, `squareQuotientMulEquiv e` is given by `e`. -/
 @[simp]
 theorem squareQuotientMulEquiv_mk (e : G ≃* H) (x : G) :
     squareQuotientMulEquiv e (x : squareQuotient G) = (e x : squareQuotient H) :=
-  squareQuotientMap_mk (e : G →* H) x
+  rfl
 
 /-- For a finite commutative group, the square quotient has the same cardinality
 as the two-torsion subgroup. -/

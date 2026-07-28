@@ -77,14 +77,9 @@ theorem genusCharacter_product_eq_one (C : Cl⁺(d)) :
 
 /-- The product-one genus character map on the narrow class group. -/
 noncomputable def genusCharacterMap :
-    Cl⁺(d) →* AdmissibleGenusSignVector d where
-  toFun C := ⟨fun p ↦ genusCharacter d p C, genusCharacter_product_eq_one d C⟩
-  map_one' := by
-    ext p
-    simp
-  map_mul' C D := by
-    ext p
-    simp
+    Cl⁺(d) →* AdmissibleGenusSignVector d :=
+  (Pi.monoidHom (genusCharacter d)).codRestrict
+    (admissibleGenusSignVectors d) (genusCharacter_product_eq_one d)
 
 /-- A coordinate of the genus character map is the corresponding descended
 local genus character. -/

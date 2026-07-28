@@ -25,10 +25,10 @@ variable (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
 
 /-- The genus-character map on narrow square classes is surjective. -/
 theorem genusCharacterMapOnSquareClasses_surjective :
-    Function.Surjective (genusCharacterMapOnSquareClasses d) := by
-  intro ε
-  obtain ⟨C, hC⟩ := genusCharacterMap_surjective d ε
-  exact ⟨(C : squareQuotient (Cl⁺(d))), by simpa using hC⟩
+    Function.Surjective (genusCharacterMapOnSquareClasses d) :=
+  QuotientGroup.lift_surjective_of_surjective
+    (Subgroup.square (Cl⁺(d))) (genusCharacterMap d)
+    (genusCharacterMap_surjective d) (square_le_genusCharacterMap_ker d)
 
 /-- The number of narrow square classes is at least `2 ^ (t - 1)`, where `t`
 is the number of ramified rational primes. -/

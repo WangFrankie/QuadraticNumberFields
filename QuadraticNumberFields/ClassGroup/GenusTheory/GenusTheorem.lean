@@ -48,6 +48,12 @@ theorem card_narrowClassGroupTwoTorsion_eq_two_pow_sub_one :
       simpa using
         (card_squareQuotient_eq_card_twoTorsion (G := Cl⁺(d)))
 
+/-- Cardinality form of the genus theorem for the narrow square-class group. -/
+theorem card_narrowSquareClassGroup_eq_two_pow_sub_one :
+    Nat.card (squareQuotient (Cl⁺(d))) = 2 ^ (ramifiedPrimeCount d - 1) := by
+  rw [card_squareQuotient_eq_card_twoTorsion,
+    card_narrowClassGroupTwoTorsion_eq_two_pow_sub_one d]
+
 /-- Genus theorem, rank form: the 2-rank of the narrow class group is one less
 than the number of finite ramified primes. -/
 theorem twoRank_narrowClassGroup_eq_ramifiedPrimeCount_sub_one :
@@ -55,14 +61,7 @@ theorem twoRank_narrowClassGroup_eq_ramifiedPrimeCount_sub_one :
   apply Nat.pow_right_injective (a := 2) (by norm_num)
   change 2 ^ CommGroup.twoRank (Cl⁺(d)) = 2 ^ (ramifiedPrimeCount d - 1)
   rw [← card_squareQuotient_eq_two_pow_twoRank,
-    card_squareQuotient_eq_card_twoTorsion,
-    card_narrowClassGroupTwoTorsion_eq_two_pow_sub_one d]
-
-/-- Cardinality form of the genus theorem for the narrow square-class group. -/
-theorem card_narrowSquareClassGroup_eq_two_pow_sub_one :
-    Nat.card (squareQuotient (Cl⁺(d))) = 2 ^ (ramifiedPrimeCount d - 1) := by
-  rw [card_squareQuotient_eq_two_pow_twoRank]
-  exact congrArg (2 ^ ·) (twoRank_narrowClassGroup_eq_ramifiedPrimeCount_sub_one d)
+    card_narrowSquareClassGroup_eq_two_pow_sub_one d]
 
 /-! ### Genus theorem and principal genus theorem -/
 

@@ -118,9 +118,8 @@ theorem parameter_prime_shape_of_ramifiedPrimeCount_le_one
 
 private theorem le_one_of_two_pow_sub_one_dvd_one {t : ℕ} (h : 2 ^ (t - 1) ∣ 1) :
     t ≤ 1 := by
-  by_contra hle
-  exact (not_lt_of_ge (by rw [Nat.dvd_one.mp h]))
-    (one_lt_pow₀ (by norm_num : 1 < (2 : ℕ)) (by omega : t - 1 ≠ 0))
+  have hp := Nat.pow_eq_one.mp (Nat.dvd_one.mp h)
+  omega
 
 /-- For an imaginary quadratic field, the genus-theory power of two divides
 the ordinary class number. -/
