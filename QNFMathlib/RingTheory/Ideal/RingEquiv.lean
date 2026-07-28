@@ -56,7 +56,9 @@ theorem map_ringEquiv_injective (σ : R ≃+* R) :
 theorem map_ringEquiv_multiset_prod (σ : R ≃+* R) (s : Multiset (Ideal R)) :
     Ideal.map (σ : R →+* R) s.prod =
       (s.map fun P ↦ Ideal.map (σ : R →+* R) P).prod := by
-  simpa using (mapRingEquivMulEquiv σ).toMonoidHom.map_multiset_prod s
+  change (mapRingEquivMulEquiv σ) s.prod =
+    (s.map fun P ↦ (mapRingEquivMulEquiv σ) P).prod
+  exact (mapRingEquivMulEquiv σ).toMonoidHom.map_multiset_prod s
 
 end CommRing
 

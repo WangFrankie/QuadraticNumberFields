@@ -5,12 +5,12 @@ Authors: Frankie Wang
 -/
 
 import Mathlib.Algebra.Algebra.Hom.Rat
-import Mathlib.Algebra.Exact
-import Mathlib.Data.Fintype.Units
-import Mathlib.Data.Real.Archimedean
+import Mathlib.Algebra.Exact.Basic
+import Mathlib.Algebra.GroupWithZero.Units.Fintype
+import Mathlib.Algebra.Order.Archimedean.Real.Basic
 import Mathlib.Data.Real.Basic
 import Mathlib.Data.Sign.Basic
-import Mathlib.RingTheory.ClassGroup
+import Mathlib.RingTheory.ClassGroup.Basic
 import Mathlib.RingTheory.DedekindDomain.Factorization
 import Mathlib.RingTheory.DedekindDomain.Ideal.Lemmas
 
@@ -474,7 +474,7 @@ noncomputable def toClassGroup (R : Type*) [CommRing R] [IsDomain R] :
 corresponding ordinary ideal class. -/
 @[simp]
 theorem toClassGroup_mk (I : (FractionalIdeal R⁰ K)ˣ) :
-    toClassGroup R (mk I) = ClassGroup.mk I := by
+    toClassGroup R (mk I) = ClassGroup.mk K I := by
   rw [mk_def, ClassGroup.mk_def]
   exact QuotientGroup.map_mk' (narrowPrincipalIdeals R (FractionRing R))
     (toPrincipalIdeal R (FractionRing R)).range (MonoidHom.id _)
@@ -655,11 +655,11 @@ noncomputable def principalIdealsQuotientToNarrow (R : Type*) [CommRing R] [IsDo
 theorem mulExact_principalIdealsQuotientToNarrow_toClassGroup
     (R : Type*) [CommRing R] [IsDomain R] :
     Function.MulExact (principalIdealsQuotientToNarrow R) (toClassGroup R) := by
-  simpa [principalIdealsQuotientToNarrow, toClassGroup] using
-    QuotientGroup.mulExact_subgroupQuotientToQuotient_mapOfLE
-      (N := narrowPrincipalIdeals R (FractionRing R))
-      (M := (toPrincipalIdeal R (FractionRing R)).range)
-      (narrowPrincipalIdeals_le_principalIdeals (R := R) (K := FractionRing R))
+  unfold principalIdealsQuotientToNarrow toClassGroup NarrowClassGroup ClassGroup
+  exact QuotientGroup.mulExact_subgroupQuotientToQuotient_mapOfLE
+    (N := narrowPrincipalIdeals R (FractionRing R))
+    (M := (toPrincipalIdeal R (FractionRing R)).range)
+    (narrowPrincipalIdeals_le_principalIdeals (R := R) (K := FractionRing R))
 
 /-- The image of principal fractional ideals in the narrow class group is exactly
 the kernel of the map `Cl⁺(K) → Cl(K)`. -/
@@ -791,8 +791,7 @@ theorem exists_toPrincipalIdeal_eq_mk0_of_isPrincipal [IsDedekindDomain R]
   rfl
 
 /-- Negating a fraction-field unit does not change its principal fractional ideal. -/
-theorem toPrincipalIdeal_neg [IsDedekindDomain R]
-    (γ : (FractionRing R)ˣ) :
+theorem toPrincipalIdeal_neg (γ : (FractionRing R)ˣ) :
     toPrincipalIdeal R (FractionRing R) (-γ) = toPrincipalIdeal R (FractionRing R) γ := by
   rw [← Units.val_inj]
   rw [coe_toPrincipalIdeal, coe_toPrincipalIdeal]
@@ -989,7 +988,8 @@ theorem mk0_surjective [IsDedekindDomain R] :
     QuotientGroup.mk'_surjective (narrowPrincipalIdeals R (FractionRing R)) C
   refine ⟨⟨integralRep I, integralRep_mem_nonZeroDivisors I.ne_zero⟩, ?_⟩
   rw [mk0_integralRep]
-  simpa [mk_eq_mk'] using hI
+  rw [mk_eq_mk']
+  exact hI
 
 private theorem exists_nat_forall_pos_add_nat_mul
     {ι : Type*} [Finite ι] (x c : ι → ℝ) (hc : ∀ i, 0 < c i) :
@@ -1269,7 +1269,7 @@ theorem finite_ker_toClassGroup (R : Type*) [CommRing R] [IsDomain R]
 /-- The narrow class group is finite if the wide class group is finite and the
 fraction field has finitely many real embeddings. -/
 instance instFiniteNarrowClassGroup (R : Type*) [CommRing R] [IsDomain R]
-    [IsDedekindDomain R] [Finite (ClassGroup R)] [Finite (FractionRing R →+* ℝ)] :
+    [Finite (ClassGroup R)] [Finite (FractionRing R →+* ℝ)] :
     Finite (NarrowClassGroup R) := by
   rw [(toClassGroup R).finite_iff_finite_ker_range]
   exact ⟨finite_ker_toClassGroup R, inferInstance⟩

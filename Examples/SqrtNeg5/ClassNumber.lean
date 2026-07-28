@@ -74,7 +74,8 @@ theorem span_two_eq_P_sq :
 /-- The principal ideal `(2)` has absolute norm `4` in `𝓞(ℚ(√-5))`. -/
 private theorem absNorm_span_two :
     Ideal.absNorm (Ideal.span ({(2 : O)} : Set O)) = 4 := by
-  simpa [O] using QuadraticNumberFields.RingOfIntegers.absNorm_span_intCast (-5) 2
+  convert QuadraticNumberFields.RingOfIntegers.absNorm_span_intCast (-5) 2 using 1 <;>
+    norm_num
 
 /-- The transported ramified prime `P` has absolute norm `2`. -/
 theorem absNorm_P : Ideal.absNorm P = 2 := by
@@ -96,9 +97,8 @@ theorem not_isPrincipal_P : ¬ P.IsPrincipal := by
     exact hspan
   let z : Z := ringOfIntegersEquiv x
   have hnorm_transport : Algebra.norm ℤ x = Zsqrtd.norm z := by
-    simpa [z] using
-      QuadraticNumberFields.RingOfIntegers.algebraNorm_eq_zsqrtd_norm_of_mod_four_ne_one
-        (-5) (by decide) x
+    simpa only [z, ringOfIntegersEquiv] using
+      RingOfIntegers.algebraNorm_eq_zsqrtd_norm_of_mod_four_ne_one (-5) (by decide) x
   have hz_abs : (Zsqrtd.norm z).natAbs = 2 := by
     rw [← hnorm_transport]
     exact hxnorm_abs

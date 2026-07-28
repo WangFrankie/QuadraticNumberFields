@@ -233,24 +233,31 @@ theorem basis_first_mul_cox_ideal_generator_eq_neg_normForm_a_mul_basis_second_o
       (((b.basis 0 : 𝓞K) : K).re ^ 2 -
         (d : ℚ) * ((b.basis 0 : 𝓞K) : K).im ^ 2) /
         (Ideal.absNorm (I : Ideal 𝓞K) : ℚ) := by
+    change ((normFormOfBasis hI b).a : ℚ) =
+      (((b.basis 0 : 𝓞K) : K).re ^ 2 -
+        (d : ℚ) * ((b.basis 0 : 𝓞K) : K).im ^ 2) /
+        (Ideal.absNorm (I : Ideal 𝓞K) : ℚ)
     have h := congrArg (fun z : ℤ => (z : ℚ)) (normFormOfBasis_a_mul_absNorm hI b)
-    dsimp [Q, primitivePositiveDefiniteNormFormOfBasis] at h
     rw [fieldNorm_int_eq] at h
     have hN : (Ideal.absNorm (I : Ideal 𝓞K) : ℚ) ≠ 0 := by
       exact_mod_cast (absNorm_pos hI).ne'
     rw [eq_div_iff hN]
-    simpa [Q, primitivePositiveDefiniteNormFormOfBasis] using h
+    simpa using h
   have hb : ((Q.1.b : ℤ) : ℚ) =
       (2 * (((b.basis 0 : 𝓞K) : K).re * ((b.basis 1 : 𝓞K) : K).re -
         (d : ℚ) * ((b.basis 0 : 𝓞K) : K).im *
           ((b.basis 1 : 𝓞K) : K).im)) /
         (Ideal.absNorm (I : Ideal 𝓞K) : ℚ) := by
+    change ((normFormOfBasis hI b).b : ℚ) =
+      (2 * (((b.basis 0 : 𝓞K) : K).re * ((b.basis 1 : 𝓞K) : K).re -
+        (d : ℚ) * ((b.basis 0 : 𝓞K) : K).im *
+          ((b.basis 1 : 𝓞K) : K).im)) /
+        (Ideal.absNorm (I : Ideal 𝓞K) : ℚ)
     have h := congrArg (fun z : ℤ => (z : ℚ)) (normFormOfBasis_b_mul_absNorm hI b)
-    dsimp [Q, primitivePositiveDefiniteNormFormOfBasis] at h
     have hN : (Ideal.absNorm (I : Ideal 𝓞K) : ℚ) ≠ 0 := by
       exact_mod_cast (absNorm_pos hI).ne'
     rw [eq_div_iff hN]
-    simpa [Q, primitivePositiveDefiniteNormFormOfBasis] using
+    simpa using
       show ((normFormOfBasis hI b).b : ℚ) * (Ideal.absNorm (I : Ideal 𝓞K) : ℚ) =
           2 * (((b.basis 0 : 𝓞K) : K).re * ((b.basis 1 : 𝓞K) : K).re -
             (d : ℚ) * ((b.basis 0 : 𝓞K) : K).im *
@@ -310,24 +317,31 @@ theorem basis_first_mul_cox_ideal_generator_eq_neg_normForm_a_mul_basis_second_o
       (((b.basis 0 : 𝓞K) : K).re ^ 2 -
         (d : ℚ) * ((b.basis 0 : 𝓞K) : K).im ^ 2) /
         (Ideal.absNorm (I : Ideal 𝓞K) : ℚ) := by
+    change ((normFormOfBasis hI b).a : ℚ) =
+      (((b.basis 0 : 𝓞K) : K).re ^ 2 -
+        (d : ℚ) * ((b.basis 0 : 𝓞K) : K).im ^ 2) /
+        (Ideal.absNorm (I : Ideal 𝓞K) : ℚ)
     have h := congrArg (fun z : ℤ => (z : ℚ)) (normFormOfBasis_a_mul_absNorm hI b)
-    dsimp [Q, primitivePositiveDefiniteNormFormOfBasis] at h
     rw [fieldNorm_int_eq] at h
     have hN : (Ideal.absNorm (I : Ideal 𝓞K) : ℚ) ≠ 0 := by
       exact_mod_cast (absNorm_pos hI).ne'
     rw [eq_div_iff hN]
-    simpa [Q, primitivePositiveDefiniteNormFormOfBasis] using h
+    simpa using h
   have hb : ((Q.1.b : ℤ) : ℚ) =
       (2 * (((b.basis 0 : 𝓞K) : K).re * ((b.basis 1 : 𝓞K) : K).re -
         (d : ℚ) * ((b.basis 0 : 𝓞K) : K).im *
           ((b.basis 1 : 𝓞K) : K).im)) /
         (Ideal.absNorm (I : Ideal 𝓞K) : ℚ) := by
+    change ((normFormOfBasis hI b).b : ℚ) =
+      (2 * (((b.basis 0 : 𝓞K) : K).re * ((b.basis 1 : 𝓞K) : K).re -
+        (d : ℚ) * ((b.basis 0 : 𝓞K) : K).im *
+          ((b.basis 1 : 𝓞K) : K).im)) /
+        (Ideal.absNorm (I : Ideal 𝓞K) : ℚ)
     have h := congrArg (fun z : ℤ => (z : ℚ)) (normFormOfBasis_b_mul_absNorm hI b)
-    dsimp [Q, primitivePositiveDefiniteNormFormOfBasis] at h
     have hN : (Ideal.absNorm (I : Ideal 𝓞K) : ℚ) ≠ 0 := by
       exact_mod_cast (absNorm_pos hI).ne'
     rw [eq_div_iff hN]
-    simpa [Q, primitivePositiveDefiniteNormFormOfBasis] using
+    simpa using
       show ((normFormOfBasis hI b).b : ℚ) * (Ideal.absNorm (I : Ideal 𝓞K) : ℚ) =
           2 * (((b.basis 0 : 𝓞K) : K).re * ((b.basis 1 : 𝓞K) : K).re -
             (d : ℚ) * ((b.basis 0 : 𝓞K) : K).im *

@@ -61,8 +61,7 @@ theorem algebraNorm_ratAlgebra_eq_qsqrtdNorm
     @Algebra.norm ℚ _ _ _ DivisionRing.toRatAlgebra y = Qsqrtd.norm y := by
   rw [show (@Algebra.norm ℚ (Qsqrtd (d : ℚ)) _ _ DivisionRing.toRatAlgebra)
         = @Algebra.norm ℚ _ _ _ QuadraticAlgebra.instAlgebra from by
-        congr 1
-        exact Subsingleton.elim _ _]
+        congr 1]
   exact algebraNorm_eq_qsqrtdNorm y
 
 /-- If `d < 0`, the coordinate norm on `Q(√d)` is nonnegative. -/

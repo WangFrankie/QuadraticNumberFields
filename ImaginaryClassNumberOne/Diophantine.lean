@@ -81,7 +81,8 @@ theorem isCoprime_X_X_cube_add_one (X : ℤ) :
     IsCoprime X (X ^ 3 + 1) := by
   have h0 : IsCoprime X (1 : ℤ) := isCoprime_one_right
   convert IsCoprime.add_mul_right_right h0 (X ^ 2) using 1
-  ring
+  · rfl
+  · ring
 
 /-- If `X` is even, then `2 * X` is still coprime to `X ^ 3 + 1`. -/
 theorem isCoprime_two_mul_X_X_cube_add_one {X : ℤ} (hXeven : Even X) :

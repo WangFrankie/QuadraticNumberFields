@@ -18,22 +18,23 @@ weak.linter.mathlibStandardSet = true
 maxSynthPendingDepth = 3
 
 [[require]]
-name = "mathlib"
-scope = "leanprover-community"
-rev = "v4.30.0-rc2"
-
-[[require]]
 name = "FiniteAbelianSmith"
 git = "https://github.com/WangFrankie/FiniteAbelianSmith"
+rev = "53054049c63d41a5c80d6ca274452a3856702255"
 
 [[require]]
 name = "repl"
 git = "https://github.com/leanprover-community/repl"
-rev = "v4.30.0-rc2"
+rev = "v4.32.0"
 
 [[require]]
 name = "checkdecls"
 git = "https://github.com/PatrickMassot/checkdecls.git"
+
+[[require]]
+name = "mathlib"
+scope = "leanprover-community"
+rev = "v4.32.1"
 
 [[lean_lib]]
 name = "QNFMathlib"

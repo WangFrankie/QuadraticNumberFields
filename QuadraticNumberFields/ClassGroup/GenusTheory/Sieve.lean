@@ -130,7 +130,9 @@ theorem two_pow_sub_one_dvd_classNumber_of_neg (hd : d < 0) :
   have hcard :
       Qsqrtd.narrowClassNumber d =
         NumberField.classNumber (Qsqrtd (d : ℚ)) := by
-    simpa [Qsqrtd.narrowClassNumber, NumberField.classNumber] using
+    unfold Qsqrtd.narrowClassNumber NumberField.narrowClassNumber
+      NarrowClassGroup.narrowClassNumber NumberField.classNumber
+    simpa [Nat.card_eq_fintype_card] using
       Nat.card_congr (Qsqrtd.Imaginary.narrowMulEquivClassGroup d hd).toEquiv
   simpa [hcard] using hdiv
 

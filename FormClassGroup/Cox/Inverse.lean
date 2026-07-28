@@ -55,6 +55,7 @@ local notation "√dK" => (⟨0, 1⟩ : K)
 `(α, β)` whose orientation ratio `(α β' - α' β) / √d` is positive. This picks a
 proper-equivalence class of binary quadratic forms. -/
 structure OrientedBasis (I : Ideal 𝓞K) where
+  /-- The underlying ordered integral basis of the ideal. -/
   basis : Basis (Fin 2) ℤ I
   oriented : imPartRatio (((basis 0 : 𝓞K) : K) * star ((basis 1 : 𝓞K) : K) -
     ((basis 1 : 𝓞K) : K) * star ((basis 0 : 𝓞K) : K)) > 0
@@ -81,12 +82,6 @@ theorem OrientedBasis.det_eq_natAbs_eq_absNorm {I : Ideal 𝓞K}
     (k : ℤ) (hk : d = 1 + 4 * k) (b : OrientedBasis I) :
     ((RingOfIntegers.ringOfIntegersBasisOfEq k hk).det ((↑) ∘ b.basis)).natAbs = Ideal.absNorm I :=
   Ideal.natAbs_det_basis_change (RingOfIntegers.ringOfIntegersBasisOfEq k hk) I b.basis
-
-/-- Nonzero ideals of `𝓞K` are free `ℤ`-modules of rank 2, so they have bases. -/
-noncomputable instance (I : Ideal 𝓞K) (_hI : I ≠ 0) : Module.Free ℤ I := by
-  have hfin : Module.Finite ℤ I := inferInstance
-  have htors : IsTorsionFree ℤ I := inferInstance
-  exact Module.free_of_finite_type_torsion_free' (R := ℤ) (M := I)
 
 /-- Every nonzero integral ideal admits an oriented `ℤ`-basis. -/
 noncomputable def idealFin2Basis' (I : Ideal 𝓞K) (hI : I ≠ 0) :

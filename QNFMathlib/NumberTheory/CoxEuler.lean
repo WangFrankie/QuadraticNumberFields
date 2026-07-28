@@ -23,8 +23,9 @@ are coprime. -/
 theorem isCoprime_left_quadratic_factor {b c : ℤ} (hcop : IsCoprime b c) :
     IsCoprime b (c ^ 2 - 3 * b * c + 3 * b ^ 2) := by
   have hbc2 : IsCoprime b (c ^ 2) := hcop.pow_right
-  convert IsCoprime.add_mul_left_right hbc2 (-3 * c + 3 * b) using 1
-  ring
+  rw [show c ^ 2 - 3 * b * c + 3 * b ^ 2 =
+    c ^ 2 + b * (-3 * c + 3 * b) by ring]
+  exact IsCoprime.add_mul_left_right hbc2 (-3 * c + 3 * b)
 
 /-- The first Cox-Euler quadratic factor is coprime to `c` when `b` and `c`
 are coprime and `3 ∤ c`. -/
@@ -34,8 +35,9 @@ theorem isCoprime_right_quadratic_factor {b c : ℤ} (hcop : IsCoprime b c)
   have hc3 : IsCoprime c (3 : ℤ) := isCoprime_three_of_not_dvd h3c
   have hcb2 : IsCoprime c (b ^ 2) := hcop.symm.pow_right
   have hc3b2 : IsCoprime c (3 * b ^ 2) := IsCoprime.mul_right hc3 hcb2
-  convert IsCoprime.add_mul_left_right hc3b2 (c - 3 * b) using 1
-  ring
+  rw [show c ^ 2 - 3 * b * c + 3 * b ^ 2 =
+    3 * b ^ 2 + c * (c - 3 * b) by ring]
+  exact IsCoprime.add_mul_left_right hc3b2 (c - 3 * b)
 
 /-- The Cox-Euler quadratic factor `c² - 3bc + 3b²` is positive for positive
 `b`. -/

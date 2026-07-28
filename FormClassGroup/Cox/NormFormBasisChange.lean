@@ -66,14 +66,12 @@ local notation "√dK" => (⟨0, 1⟩ : K)
 `ℤ`-basis `b` of `I` via the representation coordinates. -/
 theorem coe_eq_sum_repr_smul (I : Ideal 𝓞K) (b : Basis (Fin 2) ℤ I) (w : I) :
     ((w : 𝓞K) : K) = ∑ i, (b.repr w i : ℤ) • ((b i : 𝓞K) : K) := by
-  set f : I →ₗ[ℤ] K :=
-    (Algebra.linearMap 𝓞K K).restrictScalars ℤ ∘ₗ (Submodule.restrictScalars ℤ I).subtype
-    with hf
+  let f : I →ₗ[ℤ] K :=
+    (Algebra.linearMap 𝓞K K).restrictScalars ℤ ∘ₗ I.subtype.restrictScalars ℤ
   have h := congrArg f (b.sum_repr w)
   rw [map_sum] at h
   simp only [map_zsmul] at h
-  simpa only [hf, LinearMap.comp_apply, LinearMap.restrictScalars_apply,
-    Submodule.subtype_apply, Submodule.coe_subtype, Algebra.linearMap_apply] using h.symm
+  simpa [f, NumberField.RingOfIntegers.coe_eq_algebraMap] using h.symm
 
 /-- The `re` coordinate of an ideal element expands over a `ℤ`-basis. -/
 theorem coe_re_eq (I : Ideal 𝓞K) (b : Basis (Fin 2) ℤ I) (w : I) :
@@ -107,11 +105,11 @@ theorem imPartRatio_wedge_basis_change (I : Ideal 𝓞K) (b b' : OrientedBasis I
 /-- The image in `𝓞K` of an ideal element expands over a `ℤ`-basis of the ideal. -/
 theorem coe_OK_eq_sum_repr_smul (I : Ideal 𝓞K) (b : Basis (Fin 2) ℤ I) (w : I) :
     (w : 𝓞K) = ∑ i, (b.repr w i : ℤ) • (b i : 𝓞K) := by
-  set f : I →ₗ[ℤ] 𝓞K := (Submodule.restrictScalars ℤ I).subtype with hf
+  let f : I →ₗ[ℤ] 𝓞K := I.subtype.restrictScalars ℤ
   have h := congrArg f (b.sum_repr w)
   rw [map_sum] at h
   simp only [map_zsmul] at h
-  simpa only [hf, Submodule.subtype_apply, Submodule.coe_subtype] using h.symm
+  simpa [f] using h.symm
 
 /-- The change-of-basis matrix between two oriented bases of one ideal has
 determinant `1`: it is a unit (so `±1`), and orientation rules out `-1`. -/
@@ -351,7 +349,8 @@ theorem formClassOfNonzeroIdeal_eq_mk_of_oriented (hdneg : d < 0) (I : (Ideal �
   rw [formClassOfNonzeroIdeal_eq_mk hdneg I (b := b)]
   dsimp [primitivePositiveDefiniteNormFormOfBasis]
   apply Quotient.sound
-  simpa using h_target
+  change (normFormOfBasis hI_ne_zero b).ProperEquivalent Q.1
+  exact h_target
 
 /-! ## Branch-agnostic right-inverse core
 

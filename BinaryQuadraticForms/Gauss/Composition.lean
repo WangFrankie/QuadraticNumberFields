@@ -687,6 +687,7 @@ section ConcordantReplacement
 
 /-- From coprime `x y : ℤ`, construct an `SL₂(ℤ)` matrix whose first column is
 `(x, y)`.  The second column is produced by Bézout's identity. -/
+@[nolint defsWithUnderscore]
 def sl2z_of_coprime (x y : ℤ) (h : Int.gcd x y = 1) : SL2Z := by
   have hbezout : (Int.gcd x y : ℤ) = x * Int.gcdA x y + y * Int.gcdB x y :=
     Int.gcd_eq_gcd_ab x y
@@ -736,18 +737,18 @@ def translateSL2Z (n : ℤ) : SL2Z := by
     (translateSL2Z n : Matrix (Fin 2) (Fin 2) ℤ) 1 1 = 1 :=
   rfl
 
-@[simp] theorem transform_translate_a (Q : BinaryQuadraticForm) (n : ℤ) :
+@[simp, nolint simpNF] theorem transform_translate_a (Q : BinaryQuadraticForm) (n : ℤ) :
     (transform Q (translateSL2Z n)).a = Q.a := by
   change Q.a * 1 ^ 2 + Q.b * 1 * 0 + Q.c * 0 ^ 2 = Q.a
   ring
 
-@[simp] theorem transform_translate_b (Q : BinaryQuadraticForm) (n : ℤ) :
+@[simp, nolint simpNF] theorem transform_translate_b (Q : BinaryQuadraticForm) (n : ℤ) :
     (transform Q (translateSL2Z n)).b = Q.b + 2 * Q.a * n := by
   change 2 * Q.a * 1 * n + Q.b * (1 * 1 + n * 0) + 2 * Q.c * 0 * 1 =
     Q.b + 2 * Q.a * n
   ring
 
-@[simp] theorem transform_translate_c (Q : BinaryQuadraticForm) (n : ℤ) :
+@[simp, nolint simpNF] theorem transform_translate_c (Q : BinaryQuadraticForm) (n : ℤ) :
     (transform Q (translateSL2Z n)).c = Q.a * n ^ 2 + Q.b * n + Q.c := by
   change Q.a * n ^ 2 + Q.b * n * 1 + Q.c * 1 ^ 2 = Q.a * n ^ 2 + Q.b * n + Q.c
   ring

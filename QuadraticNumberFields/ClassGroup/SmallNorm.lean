@@ -27,7 +27,7 @@ private theorem irreducible_two_nat : Irreducible (2 : ℕ) :=
   (Nat.irreducible_iff_prime.mp Nat.prime_two).irreducible
 
 /-- An ideal of absolute norm `2` is prime. -/
-theorem Ideal.isPrime_of_absNorm_eq_two {R : Type*} [CommRing R] [Nontrivial R]
+theorem Ideal.isPrime_of_absNorm_eq_two {R : Type*} [CommRing R]
     [IsDedekindDomain R] [Module.Free ℤ R] {I : Ideal R} (hI : Ideal.absNorm I = 2) :
     I.IsPrime :=
   Ideal.isPrime_of_irreducible_absNorm

@@ -7,7 +7,7 @@ Authors: Frankie Wang
 import Mathlib.Algebra.Group.Subgroup.Even
 import Mathlib.GroupTheory.Index
 import Mathlib.GroupTheory.Torsion
-import Mathlib.RingTheory.ClassGroup
+import Mathlib.RingTheory.ClassGroup.Basic
 import QNFMathlib.RingTheory.ClassGroup.Narrow
 /-!
 # Torsion in Class Groups
@@ -160,8 +160,9 @@ theorem squareQuotientMulEquiv_mk (e : G ≃* H) (x : G) :
 as the two-torsion subgroup. -/
 theorem card_squareQuotient_eq_card_twoTorsion [Finite G] :
     Nat.card (squareQuotient G) = Nat.card (Subgroup.twoTorsion G) := by
-  simpa [squareQuotient, Subgroup.square_eq_powMonoidHom_range] using
-    (Subgroup.index_range (f := powMonoidHom (α := G) 2))
+  rw [squareQuotient, Subgroup.square_eq_powMonoidHom_range,
+    ← (powMonoidHom (α := G) 2).range.index_eq_card]
+  exact Subgroup.index_range (f := powMonoidHom (α := G) 2)
 
 end CommGroup
 

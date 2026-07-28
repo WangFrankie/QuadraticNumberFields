@@ -94,7 +94,7 @@ noncomputable instance : Algebra.IsQuadraticExtension BaseField ExtensionField w
   exists_basis := ⟨_, (AdjoinRoot.powerBasis polynomial_ne_zero).basis⟩
   finrank_eq_two' := by
     simpa [ExtensionField, polynomial] using
-      (finrank_quotient_span_eq_natDegree (f := polynomial) (K := BaseField))
+      (AdjoinRoot.powerBasis polynomial_ne_zero).finrank
 
 theorem not_isSeparable : ¬ Algebra.IsSeparable BaseField ExtensionField := by
   intro hsep

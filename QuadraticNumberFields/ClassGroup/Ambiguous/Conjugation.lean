@@ -116,13 +116,14 @@ theorem relNorm_eq_comap_pow_inertiaDeg_of_isPrime
     (P : Ideal OK) [P.IsPrime] (hP0 : P ≠ ⊥) :
     Ideal.relNorm ℤ P =
       (P.comap (algebraMap ℤ OK)) ^
-        (P.comap (algebraMap ℤ OK)).inertiaDeg P := by
+        P.inertiaDeg ℤ := by
   haveI : IsGalois ℚ K := Algebra.IsQuadraticExtension.isGalois ℚ K
   haveI : IsGalois (FractionRing ℤ) (FractionRing OK) :=
     NumberField.isGalois_fractionRing_ringOfIntegers K
   haveI : P.IsMaximal := Ideal.IsPrime.isMaximal inferInstance hP0
   haveI : (P.comap (algebraMap ℤ OK)).IsMaximal :=
     Ideal.isMaximal_comap_of_isIntegral_of_isMaximal P
+  letI : P.LiesOver (P.comap (algebraMap ℤ OK)) := ⟨rfl⟩
   exact Ideal.relNorm_eq_pow_of_isPrime_isGalois P
     (P.comap (algebraMap ℤ OK))
 
@@ -487,14 +488,14 @@ private theorem map_comap_pow_inertiaDeg_eq_mul_map_conjAut_of_isSplitIn
       Ideal.map (conjAutRingOfIntegers K : OK →+* OK) P ∈
         Ideal.primesOver p OK)
     (hsplit : Ideal.IsSplitIn p OK) :
-    Ideal.map (algebraMap ℤ OK) (p ^ p.inertiaDeg P) =
+    Ideal.map (algebraMap ℤ OK) (p ^ P.inertiaDeg ℤ) =
       P * Ideal.map (conjAutRingOfIntegers K : OK →+* OK) P := by
   let σP : Ideal OK :=
     Ideal.map (conjAutRingOfIntegers K : OK →+* OK) P
   have hσne : σP ≠ P := by
     simpa [σP] using map_conjAut_ne_of_mem_primesOver_of_isSplitIn K hp0 hPmem hsplit
   haveI : P.LiesOver p := hPmem.2
-  have hfP : p.inertiaDeg P = 1 :=
+  have hfP : P.inertiaDeg ℤ = 1 :=
     Ideal.inertiaDeg_eq_one_of_isSplitIn p OK
       ringChar_int_ne_two (P' := P) hsplit
   have hmap :
@@ -512,14 +513,14 @@ private theorem map_comap_pow_inertiaDeg_eq_mul_map_conjAut_of_isInertIn
       Ideal.map (conjAutRingOfIntegers K : OK →+* OK) P ∈
         Ideal.primesOver p OK)
     (hinert : Ideal.IsInertIn p OK) :
-    Ideal.map (algebraMap ℤ OK) (p ^ p.inertiaDeg P) =
+    Ideal.map (algebraMap ℤ OK) (p ^ P.inertiaDeg ℤ) =
       P * Ideal.map (conjAutRingOfIntegers K : OK →+* OK) P := by
   have hsingleton : Ideal.primesOver p OK = {P} :=
     primesOver_eq_singleton_of_ncard_eq_one_of_mem (K := K) hinert.1 hPmem
   have hσP :
       Ideal.map (conjAutRingOfIntegers K : OK →+* OK) P = P :=
     map_conjAut_eq_of_mem_primesOver_singleton (K := K) hσmem hsingleton
-  have hfP : p.inertiaDeg P = 2 := by
+  have hfP : P.inertiaDeg ℤ = 2 := by
     letI : P.LiesOver p := hPmem.2
     exact Ideal.inertiaDeg_eq_two_of_isInertIn p OK
       ringChar_int_ne_two hp0 hinert
@@ -537,7 +538,7 @@ private theorem map_comap_pow_inertiaDeg_eq_mul_map_conjAut_of_isRamifiedIn
       Ideal.map (conjAutRingOfIntegers K : OK →+* OK) P ∈
         Ideal.primesOver p OK)
     (hram : Ideal.IsRamifiedIn p OK) :
-    Ideal.map (algebraMap ℤ OK) (p ^ p.inertiaDeg P) =
+    Ideal.map (algebraMap ℤ OK) (p ^ P.inertiaDeg ℤ) =
       P * Ideal.map (conjAutRingOfIntegers K : OK →+* OK) P := by
   have hsingleton : Ideal.primesOver p OK = {P} :=
     Ideal.primesOver_eq_singleton_of_isRamifiedIn p OK
@@ -545,7 +546,7 @@ private theorem map_comap_pow_inertiaDeg_eq_mul_map_conjAut_of_isRamifiedIn
   have hσP :
       Ideal.map (conjAutRingOfIntegers K : OK →+* OK) P = P :=
     map_conjAut_eq_of_mem_primesOver_singleton (K := K) hσmem hsingleton
-  have hfP : p.inertiaDeg P = 1 := by
+  have hfP : P.inertiaDeg ℤ = 1 := by
     letI : P.LiesOver p := hPmem.2
     exact Ideal.inertiaDeg_eq_one_of_isRamifiedIn p OK
       ringChar_int_ne_two hp0 hram
@@ -561,13 +562,13 @@ theorem map_comap_pow_inertiaDeg_eq_mul_map_conjAut_of_isPrime
     (P : Ideal OK) [P.IsPrime] (hP0 : P ≠ ⊥) :
     Ideal.map (algebraMap ℤ OK)
         ((P.comap (algebraMap ℤ OK)) ^
-          (P.comap (algebraMap ℤ OK)).inertiaDeg P) =
+          P.inertiaDeg ℤ) =
       P * Ideal.map (conjAutRingOfIntegers K :
         OK →+* OK) P := by
   let p : Ideal ℤ := P.comap (algebraMap ℤ OK)
   haveI : P.IsMaximal := Ideal.IsPrime.isMaximal inferInstance hP0
   haveI : p.IsMaximal := Ideal.isMaximal_comap_of_isIntegral_of_isMaximal P
-  have hp0 : p ≠ ⊥ := Ideal.IsIntegralClosure.comap_ne_bot K hP0
+  have hp0 : p ≠ ⊥ := Ideal.IsIntegral.comap_ne_bot ℤ hP0
   have hPmem : P ∈ Ideal.primesOver p OK := ⟨inferInstance, ⟨rfl⟩⟩
   have hσmem :
       Ideal.map (conjAutRingOfIntegers K :
@@ -577,7 +578,7 @@ theorem map_comap_pow_inertiaDeg_eq_mul_map_conjAut_of_isPrime
   have htri :=
     Ideal.split_or_inert_or_ramified p OK
       ringChar_int_ne_two hp0
-  change Ideal.map (algebraMap ℤ OK) (p ^ p.inertiaDeg P) =
+  change Ideal.map (algebraMap ℤ OK) (p ^ P.inertiaDeg ℤ) =
     P * Ideal.map (conjAutRingOfIntegers K : OK →+* OK) P
   rcases htri with hsplit | hinert | hram
   · exact map_comap_pow_inertiaDeg_eq_mul_map_conjAut_of_isSplitIn

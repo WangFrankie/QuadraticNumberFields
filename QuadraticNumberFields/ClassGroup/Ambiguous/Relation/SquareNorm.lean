@@ -160,11 +160,12 @@ private theorem isSquare_finset_prod_of_involution
 
 private theorem absNorm_eq_prime_pow_inertiaDeg_of_comap_eq_p
     {P : Ideal OK}
-    {p : ℕ} (hp : p.Prime)
+    [P.IsPrime]
+    {p : ℕ}
     (hcomap : P.comap (algebraMap ℤ OK) = 𝔭(p)) :
-    Ideal.absNorm P = p ^ ((𝔭(p)).inertiaDeg P) := by
+    Ideal.absNorm P = p ^ P.inertiaDeg ℤ := by
   letI : P.LiesOver (𝔭(p)) := ⟨hcomap.symm⟩
-  simpa using (Ideal.absNorm_eq_pow_inertiaDeg' (P := P) hp)
+  exact (Ideal.pow_inertiaDeg p P).symm
 
 private theorem absNorm_eq_prime_sq_of_isInertIn_of_comap_eq_p
     {P : Ideal OK}
@@ -176,7 +177,7 @@ private theorem absNorm_eq_prime_sq_of_isInertIn_of_comap_eq_p
   haveI : (𝔭(p)).IsMaximal := Splitting.pIdeal_isMaximal hp
   letI : P.IsPrime := hPprime
   letI : P.LiesOver (𝔭(p)) := ⟨hcomap.symm⟩
-  rw [absNorm_eq_prime_pow_inertiaDeg_of_comap_eq_p d hp hcomap,
+  rw [absNorm_eq_prime_pow_inertiaDeg_of_comap_eq_p d hcomap,
     Ideal.inertiaDeg_eq_two_of_isInertIn (p := 𝔭(p)) (S := OK)
       (by norm_num : ringChar ℤ ≠ 2) hpbot hinert]
 

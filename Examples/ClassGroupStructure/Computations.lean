@@ -93,6 +93,9 @@ noncomputable def classGroup_qsqrtd_neg23_mulEquiv :
       simpa [NumberField.classNumber, Fintype.card_eq_nat_card] using classNumber_qsqrtd_neg23)
     (by simp)
 
+attribute [nolint defsWithUnderscore]
+  classGroup_qsqrtd_neg5_mulEquiv classGroup_qsqrtd_neg23_mulEquiv
+
 /-! ## Non-cyclic standard-output checks
 
 The non-cyclic examples below currently stop at the executable classifier

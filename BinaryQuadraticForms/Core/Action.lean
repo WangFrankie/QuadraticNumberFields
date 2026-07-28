@@ -197,24 +197,21 @@ private theorem dvd_coefficients_of_dvd_transform_coefficients
     convert
       dvd_add (dvd_add (dvd_mul_of_dvd_left ha (m00 g⁻¹ ^ 2))
         (dvd_mul_of_dvd_left hb (m00 g⁻¹ * m10 g⁻¹)))
-        (dvd_mul_of_dvd_left hc (m10 g⁻¹ ^ 2)) using 1
-    · simp [transform]
-      ring_nf
+        (dvd_mul_of_dvd_left hc (m10 g⁻¹ ^ 2)) using 1 <;>
+      first | rfl | (simp [transform]; ring)
   · constructor
     · rw [← congrArg BinaryQuadraticForm.b hback]
       convert
         dvd_add (dvd_add (dvd_mul_of_dvd_left ha (2 * m00 g⁻¹ * m01 g⁻¹))
           (dvd_mul_of_dvd_left hb (m00 g⁻¹ * m11 g⁻¹ + m01 g⁻¹ * m10 g⁻¹)))
-          (dvd_mul_of_dvd_left hc (2 * m10 g⁻¹ * m11 g⁻¹)) using 1
-      · simp [transform]
-        ring_nf
+          (dvd_mul_of_dvd_left hc (2 * m10 g⁻¹ * m11 g⁻¹)) using 1 <;>
+        first | rfl | (simp [transform]; ring)
     · rw [← congrArg BinaryQuadraticForm.c hback]
       convert
         dvd_add (dvd_add (dvd_mul_of_dvd_left ha (m01 g⁻¹ ^ 2))
           (dvd_mul_of_dvd_left hb (m01 g⁻¹ * m11 g⁻¹)))
-          (dvd_mul_of_dvd_left hc (m11 g⁻¹ ^ 2)) using 1
-      · simp [transform]
-        ring_nf
+          (dvd_mul_of_dvd_left hc (m11 g⁻¹ ^ 2)) using 1 <;>
+        first | rfl | (simp [transform]; ring)
 
 /-- The `SL₂(ℤ)` coordinate transform preserves primitivity. -/
 theorem isPrimitive_transform (Q : BinaryQuadraticForm)

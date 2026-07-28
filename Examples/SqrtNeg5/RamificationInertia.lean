@@ -7,7 +7,10 @@ Computing ramification index and inertia degree for primes 2 and 3 in ℤ[√-5]
 Ported from the ANT project.
 -/
 import Examples.SqrtNeg5.Ideals
-import Mathlib.NumberTheory.RamificationInertia.Basic
+import QuadraticNumberFields.RingOfIntegers.CommonInstances
+import QuadraticNumberFields.Zsqrtd.Dedekind
+import Mathlib.RingTheory.RamificationInertia.Basic
+import Mathlib.RingTheory.Ideal.Int
 import Mathlib.LinearAlgebra.Dimension.Finrank
 
 /-!
@@ -44,6 +47,9 @@ open Ideal
 namespace QuadraticNumberFields.Examples.SqrtNeg5
 
 local notation "sqrtd" => Zsqrtd.sqrtd
+
+local instance : IsDedekindDomain R :=
+  Zsqrtd.isDedekindDomain_of_mod_four_ne_one (-5) (by decide)
 
 /-! ## Prime ideal definitions -/
 
@@ -119,12 +125,26 @@ private lemma not_span3_le_sq_of_map_le_span3_mod9
     simpa [hφ3] using hzero'
   exact (by decide : (3 : ZMod 9) ≠ 0) hzero
 
+private theorem ramificationIdx_eq_of_le_and_not_succ
+    (p : Ideal ℤ) (P : Ideal R) [P.IsPrime] [P.LiesOver p] (n : ℕ)
+    (hle : Ideal.map (algebraMap ℤ R) p ≤ P ^ n)
+    (hnot : ¬Ideal.map (algebraMap ℤ R) p ≤ P ^ (n + 1)) :
+    P.ramificationIdx ℤ = n := by
+  have hmap_ne : Ideal.map (algebraMap ℤ R) p ≠ ⊥ := by
+    intro hbot
+    apply hnot
+    rw [hbot]
+    exact bot_le
+  rw [Ideal.IsDedekindDomain.ramificationIdx_eq_normalizedFactors_count p P hmap_ne]
+  exact Ideal.count_normalizedFactors_eq hle hnot
+
 private theorem ramificationIdx_eq_one_of_le_and_not_sq
     (P : Ideal R)
+    [P.IsPrime] [P.LiesOver (span {(3 : ℤ)})]
     (hP : (span ({(3 : R)} : Set R) : Ideal R) ≤ P)
     (hnot : ¬ (span ({(3 : R)} : Set R) : Ideal R) ≤ P ^ (1 + 1)) :
-    ramificationIdx (span {(3 : ℤ)}) P = 1 := by
-  rw [ramificationIdx_spec]
+    P.ramificationIdx ℤ = 1 := by
+  apply ramificationIdx_eq_of_le_and_not_succ (span {(3 : ℤ)}) P 1
   · rw [Zsqrtd.Ideal.map_span_int_singleton, pow_one]
     simpa using hP
   · intro h
@@ -172,8 +192,11 @@ noncomputable def quotEquivP3₂ : (R ⧸ P3₂) ≃+* ZMod 3 :=
 Mathematical reason: (2) = P2² in ℤ[√-5], so 2 = e(P2|2) × f(P2|2) = 2 × 1.
 This means P2 appears with exponent 2 in the factorization of (2). -/
 theorem ramificationIdx_P2 :
-    ramificationIdx (span {(2 : ℤ)}) P2 = 2 := by
-  rw [ramificationIdx_spec]
+    P2.ramificationIdx ℤ = 2 := by
+  letI : P2.IsPrime := by
+    simpa [P2] using isPrime_span_two_one_plus_sqrtd
+  letI : P2.LiesOver (span {(2 : ℤ)}) := ⟨comap_P2.symm⟩
+  apply ramificationIdx_eq_of_le_and_not_succ (span {(2 : ℤ)}) P2 2
   · rw [Zsqrtd.Ideal.map_span_int_singleton]
     convert le_refl _ using 1
     exact factorization_of_two.symm
@@ -185,7 +208,7 @@ theorem ramificationIdx_P2 :
     have h' : (span ({(2 : R)} : Set R) : Ideal R) * ⊤ ≤
         (span ({(2 : R)} : Set R) : Ideal R) * P2 := by
       rw [Zsqrtd.Ideal.map_span_int_singleton] at h
-      simpa [pow_succ, factorization_of_two, Ideal.mul_assoc] using h
+      simpa [P2, pow_succ, factorization_of_two, Ideal.mul_assoc] using h
     have htop_le : (⊤ : Ideal R) ≤ P2 :=
       (Ideal.span_singleton_mul_right_mono (I := (⊤ : Ideal R)) (J := P2) h2ne).1 h'
     exact hne_top (top_le_iff.mp htop_le)
@@ -194,8 +217,11 @@ theorem ramificationIdx_P2 :
 
 Mathematical reason: (3) = P3₁ · P3₂, so P3₁ appears with exponent 1. -/
 theorem ramificationIdx_P3₁ :
-    ramificationIdx (span {(3 : ℤ)}) P3₁ = 1 :=
-  ramificationIdx_eq_one_of_le_and_not_sq P3₁
+    P3₁.ramificationIdx ℤ = 1 := by
+  letI : P3₁.IsPrime := by
+    simpa [P3₁] using isPrime_span_three_one_plus_sqrtd
+  letI : P3₁.LiesOver (span {(3 : ℤ)}) := ⟨comap_P3₁.symm⟩
+  exact ramificationIdx_eq_one_of_le_and_not_sq P3₁
     (by
       rw [factorization_of_three]
       exact Ideal.mul_le_right)
@@ -203,8 +229,11 @@ theorem ramificationIdx_P3₁ :
 
 /-- The ramification index of P3₂ over (3) is 1. -/
 theorem ramificationIdx_P3₂ :
-    ramificationIdx (span {(3 : ℤ)}) P3₂ = 1 :=
-  ramificationIdx_eq_one_of_le_and_not_sq P3₂
+    P3₂.ramificationIdx ℤ = 1 := by
+  letI : P3₂.IsPrime := by
+    simpa [P3₂] using isPrime_span_three_one_minus_sqrtd
+  letI : P3₂.LiesOver (span {(3 : ℤ)}) := ⟨comap_P3₂.symm⟩
+  exact ramificationIdx_eq_one_of_le_and_not_sq P3₂
     (by
       rw [factorization_of_three]
       exact Ideal.mul_le_left)
@@ -217,10 +246,19 @@ theorem ramificationIdx_P3₂ :
 Mathematical reason: ℤ[√-5]/(2, 1+√-5) ≅ ℤ/2ℤ, so the residue field has size 2,
 which as a vector space over ℤ/2ℤ has dimension 1. -/
 theorem inertiaDeg_P2 :
-    inertiaDeg (span {(2 : ℤ)}) P2 = 1 := by
+    P2.inertiaDeg ℤ = 1 := by
+  letI : (span {(2 : ℤ)} : Ideal ℤ).IsMaximal :=
+    Int.ideal_span_isMaximal_of_prime 2
+  letI : P2.IsPrime := by
+    simpa [P2] using isPrime_span_two_one_plus_sqrtd
+  letI : P2.LiesOver (span {(2 : ℤ)}) := ⟨comap_P2.symm⟩
+  letI : P2.IsMaximal :=
+    Ideal.IsPrime.isMaximal inferInstance
+      (Ideal.ne_bot_of_liesOver_of_ne_bot
+        (Ideal.IsMaximal.ne_bot_of_isIntegral_int (span {(2 : ℤ)})) P2)
   letI : Algebra (ℤ ⧸ (span ({(2 : ℤ)} : Set ℤ) : Ideal ℤ)) (R ⧸ P2) :=
     Ideal.Quotient.algebraQuotientOfLEComap (le_of_eq comap_P2.symm)
-  rw [Ideal.inertiaDeg, dif_pos comap_P2]
+  rw [Ideal.inertiaDeg_eq_of_isMaximal (span {(2 : ℤ)}) P2]
   have hfin := Algebra.finrank_eq_of_equiv_equiv
     (Int.quotientSpanNatEquivZMod 2) quotEquivP2 (by
       ext n
@@ -230,10 +268,19 @@ theorem inertiaDeg_P2 :
 
 /-- The inertia degree of P3₁ over (3) is 1. -/
 theorem inertiaDeg_P3₁ :
-    inertiaDeg (span {(3 : ℤ)}) P3₁ = 1 := by
+    P3₁.inertiaDeg ℤ = 1 := by
+  letI : (span {(3 : ℤ)} : Ideal ℤ).IsMaximal :=
+    Int.ideal_span_isMaximal_of_prime 3
+  letI : P3₁.IsPrime := by
+    simpa [P3₁] using isPrime_span_three_one_plus_sqrtd
+  letI : P3₁.LiesOver (span {(3 : ℤ)}) := ⟨comap_P3₁.symm⟩
+  letI : P3₁.IsMaximal :=
+    Ideal.IsPrime.isMaximal inferInstance
+      (Ideal.ne_bot_of_liesOver_of_ne_bot
+        (Ideal.IsMaximal.ne_bot_of_isIntegral_int (span {(3 : ℤ)})) P3₁)
   letI : Algebra (ℤ ⧸ (span ({(3 : ℤ)} : Set ℤ) : Ideal ℤ)) (R ⧸ P3₁) :=
     Ideal.Quotient.algebraQuotientOfLEComap (le_of_eq comap_P3₁.symm)
-  rw [Ideal.inertiaDeg, dif_pos comap_P3₁]
+  rw [Ideal.inertiaDeg_eq_of_isMaximal (span {(3 : ℤ)}) P3₁]
   have hfin := Algebra.finrank_eq_of_equiv_equiv
     (Int.quotientSpanNatEquivZMod 3) quotEquivP3₁ (by
       ext n
@@ -243,10 +290,19 @@ theorem inertiaDeg_P3₁ :
 
 /-- The inertia degree of P3₂ over (3) is 1. -/
 theorem inertiaDeg_P3₂ :
-    inertiaDeg (span {(3 : ℤ)}) P3₂ = 1 := by
+    P3₂.inertiaDeg ℤ = 1 := by
+  letI : (span {(3 : ℤ)} : Ideal ℤ).IsMaximal :=
+    Int.ideal_span_isMaximal_of_prime 3
+  letI : P3₂.IsPrime := by
+    simpa [P3₂] using isPrime_span_three_one_minus_sqrtd
+  letI : P3₂.LiesOver (span {(3 : ℤ)}) := ⟨comap_P3₂.symm⟩
+  letI : P3₂.IsMaximal :=
+    Ideal.IsPrime.isMaximal inferInstance
+      (Ideal.ne_bot_of_liesOver_of_ne_bot
+        (Ideal.IsMaximal.ne_bot_of_isIntegral_int (span {(3 : ℤ)})) P3₂)
   letI : Algebra (ℤ ⧸ (span ({(3 : ℤ)} : Set ℤ) : Ideal ℤ)) (R ⧸ P3₂) :=
     Ideal.Quotient.algebraQuotientOfLEComap (le_of_eq comap_P3₂.symm)
-  rw [Ideal.inertiaDeg, dif_pos comap_P3₂]
+  rw [Ideal.inertiaDeg_eq_of_isMaximal (span {(3 : ℤ)}) P3₂]
   have hfin := Algebra.finrank_eq_of_equiv_equiv
     (Int.quotientSpanNatEquivZMod 3) quotEquivP3₂ (by
       ext n

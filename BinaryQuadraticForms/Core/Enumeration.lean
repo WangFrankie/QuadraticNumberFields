@@ -19,6 +19,9 @@ definite forms of a negative discriminant.
 /-- Close concrete reduced-form list cardinality goals by executable enumeration. -/
 syntax "reduce_forms_count" : tactic
 
+/- The name is generated from the user-facing `reduce_forms_count` syntax. -/
+attribute [nolint defsWithUnderscore] tacticReduce_forms_count
+
 namespace QuadraticNumberFields
 namespace BinaryQuadraticForm
 

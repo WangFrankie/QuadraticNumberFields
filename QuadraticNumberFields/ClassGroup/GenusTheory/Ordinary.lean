@@ -161,7 +161,8 @@ theorem narrowSquareQuotientLinearMap_ker_eq_bot_of_no_prime_mod_four_three
   apply (MonoidHom.ker_eq_bot_iff (narrowSquareQuotientToClassGroup d)).1
     (narrowSquareQuotientToClassGroup_ker_eq_bot_of_no_prime_mod_four_three
       d hdisc)
-  simpa using congrArg Additive.toMul hxy
+  simpa only [narrowSquareQuotientLinearMap, narrowSquareQuotientToClassGroup,
+    squareQuotientLinearMap_apply] using congrArg Additive.toMul hxy
 
 private theorem squareClassMap_injective_on_narrowToClassGroup_ker_of_mod_four_three
     (hd : 0 < d) (p : RamifiedPrimeIndex d) (hp4 : p.1 % 4 = 3) :
@@ -227,8 +228,8 @@ theorem finrank_narrowSquareQuotientLinearMap_ker_eq_one_of_mod_four_three
     card_narrowSquareQuotientToClassGroup_ker_eq_two_of_mod_four_three
       d hd p hp4 hker
   have hcard_linear : Nat.card (narrowSquareQuotientLinearMap d).ker = 2 := by
-    simpa [narrowSquareQuotientLinearMap, narrowSquareQuotientToClassGroup,
-      squareQuotientLinearMap] using hcard_group
+    change Nat.card (narrowSquareQuotientToClassGroup d).ker = 2
+    exact hcard_group
   apply Nat.pow_right_injective (a := 2) (by norm_num)
   calc
     2 ^ Module.finrank (ZMod 2) (narrowSquareQuotientLinearMap d).ker =

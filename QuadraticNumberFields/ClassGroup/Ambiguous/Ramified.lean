@@ -251,7 +251,7 @@ theorem normalizedFactor_eq_ramifiedPrimeIdeal_of_isRamifiedIn
     normalizedFactor_mem_primesOver_of_comap d P hcomap
   have hsingleton :
       Ideal.primesOver (𝔭(p)) OK = {ramifiedPrimeIdeal d hpRamified} := by
-    simpa [hpRamified] using
+    simpa [hpRamified, ramifiedPrimeIndexOfRamified] using
       primesOver_eq_singleton_ramifiedPrimeIdeal d hpRamified
   refine ⟨hpRamified, ?_⟩
   have hmem : P.1 ∈ ({ramifiedPrimeIdeal d hpRamified} : Set (Ideal OK)) := by

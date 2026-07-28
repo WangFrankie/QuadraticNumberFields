@@ -49,6 +49,8 @@ private theorem exists_nonzero_fullRamifiedParityVector_span_sqrtdInt_of_ne_neg_
   obtain ⟨p, hp, hpdvd⟩ := Nat.exists_prime_and_dvd hdabs_ne_one
   let pr : RamifiedPrimeIndex d :=
     ramifiedPrimeIndexOfNatAbsDvd d hp hpdvd
+  have hpr : (pr : ℕ) = p := by
+    simp [pr, ramifiedPrimeIndexOfNatAbsDvd]
   by_contra hnone
   have hzero : fullRamifiedParityVector d J pr = 0 := by
     by_contra hne
@@ -64,7 +66,7 @@ private theorem exists_nonzero_fullRamifiedParityVector_span_sqrtdInt_of_ne_neg_
       hJ0 hp hpdivJ
   have hP_eq : P = ramifiedPrimeIdeal d pr := by
     have hPover' : P ∈ Ideal.primesOver (𝔭(pr.1)) OK := by
-      simpa using hPover
+      simpa [hpr] using hPover
     rw [primesOver_eq_singleton_ramifiedPrimeIdeal d pr] at hPover'
     simpa using hPover'
   have hramMem : ramifiedPrimeIdeal d pr ∈
@@ -81,7 +83,7 @@ private theorem exists_nonzero_fullRamifiedParityVector_span_sqrtdInt_of_ne_neg_
           Ideal.absNorm (ramifiedPrimeIdeal d pr) :=
       Int.absNorm_under_dvd_absNorm (ramifiedPrimeIdeal d pr)
     have hunder : (ramifiedPrimeIdeal d pr).under ℤ = 𝔭(p) := by
-      simpa [pr] using (ramifiedPrimeIdeal_mem_primesOver d pr).2.1.symm
+      simpa [hpr] using (ramifiedPrimeIdeal_mem_primesOver d pr).2.1.symm
     have habs : Ideal.absNorm (𝔭(p) : Ideal ℤ) = p := by
       rw [Ideal.absNorm_span_singleton]
       change (Algebra.norm ℤ (p : ℤ)).natAbs = p
@@ -172,7 +174,8 @@ private theorem span_one_add_sqrtdInt_neg_one_mem_primesOver_two :
   let I : Ideal R := Ideal.span ({(1 + Splitting.sqrtdInt (-1))} : Set R)
   have hIprime : I.IsPrime := by
     have hnorm : Ideal.absNorm I = 2 := by
-      simpa [I] using absNorm_span_one_add_sqrtdInt_neg_one
+      unfold I
+      exact absNorm_span_one_add_sqrtdInt_neg_one
     exact Ideal.isPrime_of_irreducible_absNorm
       (hnorm ▸ (Nat.irreducible_iff_prime.mp Nat.prime_two).irreducible)
   refine ⟨hIprime, ?_⟩
@@ -214,7 +217,7 @@ private theorem ramifiedPrimeIdeal_two_neg_one_isPrincipal :
             {ramifiedPrimeIdeal (-1) ramifiedPrimeIndexTwoNegOne} := by
         simpa [R, ramifiedPrimeIndexTwoNegOne] using hsingleton
       simpa [hsingletonR] using hI_mem
-    simpa using hmem_single
+    exact Set.mem_singleton_iff.mp hmem_single
   rw [← hIeq]
   change (Ideal.span ({(1 + Splitting.sqrtdInt (-1))} : Set R)).IsPrincipal
   exact ⟨1 + Splitting.sqrtdInt (-1), rfl⟩

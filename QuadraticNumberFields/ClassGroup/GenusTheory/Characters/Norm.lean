@@ -100,7 +100,7 @@ private theorem zsqrtd_norm_emod_four_eq_one_of_param_mod_four_three
   · have ha4 : z.re ^ 2 ≡ 1 [ZMOD 4] := Int.sq_emod_four_of_odd z.re ha2
     by_cases hb2 : 2 ∣ z.im
     · have hb4 : z.im ^ 2 ≡ 0 [ZMOD 4] := Int.sq_emod_four_of_even z.im hb2
-      simpa using ha4.sub ((Int.ModEq.refl D).mul hb4)
+      simpa using (ha4.sub ((Int.ModEq.refl D).mul hb4)).eq
     · have hb4 : z.im ^ 2 ≡ 1 [ZMOD 4] := Int.sq_emod_four_of_odd z.im hb2
       have hnorm4 : z.re ^ 2 - D * z.im ^ 2 ≡ 2 [ZMOD 4] :=
         (ha4.sub ((show D ≡ 3 [ZMOD 4] from hd4).mul hb4)).trans (by decide)
@@ -137,7 +137,7 @@ private theorem zsqrtd_norm_emod_eight_eq_one_or_one_sub_param_of_param_even
           _ ≡ c * 0 [ZMOD 8] := (Int.ModEq.refl c).mul h2b
           _ = 0 := by ring
       left
-      simpa using ha8.sub hDb
+      simpa using (ha8.sub hDb).eq
     · have hb8 : z.im ^ 2 ≡ 1 [ZMOD 8] :=
         sq_emod_eight_of_odd z.im hb2
       right
