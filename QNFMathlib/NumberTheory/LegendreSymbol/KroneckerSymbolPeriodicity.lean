@@ -13,21 +13,27 @@ import QNFMathlib.NumberTheory.LegendreSymbol.KroneckerSymbol
 
 Material destined for mathlib.
 
-This file collects the three arithmetic lemmas needed to package `kroneckerSymNat`
-as a `MulChar` on `ZMod D.natAbs`:
+This file develops the arithmetic API needed to package `kroneckerSymNat` as a
+`MulChar` on `ZMod D.natAbs`, then transfers the core properties to the full
+integer-denominator symbol `kroneckerSym`:
 
 * `kroneckerSymNat_add_natAbs_eq` (Shim A): periodicity modulo `|D|`, conditional
   on `D % 4 ∈ {0, 1}`.
 * `kroneckerSymNat_mod_natAbs_eq`: reduction of the denominator modulo `|D|`.
 * `kroneckerSymNat_eq_of_modEq`: invariance modulo any multiple of `|D|`.
+* `kroneckerSymNat_eq_jacobiSym_of_odd`: agreement with the Jacobi symbol at
+  odd denominators.
 * `kroneckerSymNat_sq_one_of_coprime`: a coprime denominator gives a sign.
 * `kroneckerSymNatUnit`: the corresponding unit-valued symbol under coprimality.
 * `kroneckerSymNat_mul` (Shim B): full multiplicativity in the lower argument
   for nonzero inputs.
-* `kroneckerSymNat_eq_zero_of_not_coprime` (Shim C): the symbol vanishes whenever
-  the lower argument shares a prime factor with `D.natAbs`.
+* `kroneckerSymNat_eq_zero_iff_not_coprime` (Shim C): exact vanishing criterion.
 * `kroneckerSymNat_natAbs_sub_one_eq_sign`: the value at the representative of
   `-1` in `ZMod D.natAbs`.
+* `kroneckerSym_mul`, `kroneckerSym_mul_left`: multiplicativity for nonzero
+  integer arguments.
+* `kroneckerSym_eq_zero_iff_not_coprime`, `kroneckerSym_trichotomy`: vanishing
+  and range for arbitrary integer denominators.
 
 These shims depend only on
 `QNFMathlib.NumberTheory.LegendreSymbol.KroneckerSymbol` and
@@ -50,7 +56,8 @@ private lemma kroneckerSymNat_two_pow_mul_odd (D : ℤ) (k : ℕ) {m : ℕ} (hm 
   congr 1
   rw [Nat.mul_div_cancel_left m (pow_pos (by decide : (0 : ℕ) < 2) k)]
 
-private lemma kroneckerSymNat_of_odd (D : ℤ) {n : ℕ} (hn : Odd n) :
+/-- At an odd natural denominator, the Kronecker symbol is the Jacobi symbol. -/
+theorem kroneckerSymNat_eq_jacobiSym_of_odd (D : ℤ) {n : ℕ} (hn : Odd n) :
     kroneckerSymNat D n = jacobiSym D n := by
   have hn0 : n ≠ 0 := hn.pos.ne'
   have hfact : n.factorization 2 = 0 :=
@@ -247,6 +254,29 @@ theorem kroneckerSymNat_eq_zero_of_not_coprime (D : ℤ) {n : ℕ}
       have hjac0 : jacobiSym D m = 0 := jacobiSym.eq_zero_iff_not_coprime.mpr hgcd
       rw [hjac0, mul_zero]
 
+/-- The natural-denominator Kronecker symbol vanishes exactly when its
+denominator is not coprime to `D.natAbs`. This includes the denominator-zero
+convention. -/
+theorem kroneckerSymNat_eq_zero_iff_not_coprime (D : ℤ) (n : ℕ) :
+    kroneckerSymNat D n = 0 ↔ Nat.gcd n D.natAbs ≠ 1 := by
+  constructor
+  · intro hzero hcop
+    have hsq := kroneckerSymNat_sq_one_of_coprime D (by
+      simpa [Nat.Coprime] using hcop)
+    rw [hzero] at hsq
+    norm_num at hsq
+  · exact kroneckerSymNat_eq_zero_of_not_coprime D
+
+/-- The natural-denominator Kronecker symbol takes only the values `0`, `1`,
+and `-1`. -/
+theorem kroneckerSymNat_trichotomy (D : ℤ) (n : ℕ) :
+    kroneckerSymNat D n = 0 ∨
+      kroneckerSymNat D n = 1 ∨ kroneckerSymNat D n = -1 := by
+  by_cases h : Nat.Coprime n D.natAbs
+  · exact Or.inr (kroneckerSymNat_eq_one_or_neg_one_of_coprime D h)
+  · exact Or.inl ((kroneckerSymNat_eq_zero_iff_not_coprime D n).2 (by
+      simpa [Nat.Coprime] using h))
+
 /-- Periodicity of the Kronecker symbol modulo `|D|`, valid for every integer
 discriminant `D` with `D % 4 ∈ {0, 1}`. -/
 theorem kroneckerSymNat_add_natAbs_eq (D : ℤ) [Fact (D % 4 = 0 ∨ D % 4 = 1)] (n : ℕ) :
@@ -264,7 +294,8 @@ theorem kroneckerSymNat_add_natAbs_eq (D : ℤ) [Fact (D % 4 = 0 ∨ D % 4 = 1)]
     · have hnodd : Odd n := Nat.not_even_iff_odd.mp (by rwa [even_iff_two_dvd])
       have hD_even : Even D.natAbs := even_iff_two_dvd.mpr h2Dnat
       have hsumodd : Odd (n + D.natAbs) := hnodd.add_even hD_even
-      rw [kroneckerSymNat_of_odd D hsumodd, kroneckerSymNat_of_odd D hnodd]
+      rw [kroneckerSymNat_eq_jacobiSym_of_odd D hsumodd,
+        kroneckerSymNat_eq_jacobiSym_of_odd D hnodd]
       obtain ⟨a, rfl⟩ := h4D
       have h4mod : (4 * a) % 4 = 0 := Int.mul_emod_right 4 a
       rw [← jacobiSym.div_four_left h4mod (Nat.odd_iff.mp hsumodd),
@@ -401,7 +432,8 @@ private lemma jacobiSym_neg_nat_four_mul_sub_one (A : ℕ) (hA : A ≠ 0) :
 appearing in the integer-denominator convention `(D / -1)`. -/
 theorem kroneckerSymNat_natAbs_sub_one_eq_sign (D : ℤ)
     [Fact (D % 4 = 0 ∨ D % 4 = 1)] (hD0 : D.natAbs ≠ 0) :
-    kroneckerSymNat D (D.natAbs - 1) = if D < 0 then -1 else 1 := by
+    kroneckerSymNat D (D.natAbs - 1) = kroneckerNegOne D := by
+  change kroneckerSymNat D (D.natAbs - 1) = if D < 0 then -1 else 1
   rcases (show D % 4 = 0 ∨ D % 4 = 1 from Fact.out) with hd4 | hd4
   · have h4D : (4 : ℤ) ∣ D := Int.dvd_of_emod_eq_zero hd4
     obtain ⟨a, rfl⟩ := h4D
@@ -415,7 +447,7 @@ theorem kroneckerSymNat_natAbs_sub_one_eq_sign (D : ℤ)
       rw [Nat.odd_iff]
       have hpos : 0 < 4 * a.natAbs := by positivity
       omega
-    rw [kroneckerSymNat_of_odd (4 * a) hbodd]
+    rw [kroneckerSymNat_eq_jacobiSym_of_odd (4 * a) hbodd]
     have h4mod : (4 * a) % 4 = 0 := Int.mul_emod_right 4 a
     rw [← jacobiSym.div_four_left h4mod (Nat.odd_iff.mp hbodd)]
     simp only [Int.mul_ediv_cancel_left _ (by norm_num : (4 : ℤ) ≠ 0)]
@@ -550,3 +582,105 @@ theorem kroneckerSymNat_eq_one_of_forall_primeFactors_eq_one
     intro z hz
     rcases List.mem_map.mp hz with ⟨p, hp, rfl⟩
     exact h p ((Nat.mem_primeFactors_iff_mem_primeFactorsList).2 hp))
+
+/-! ### Integer-denominator API -/
+
+/-- The integer-denominator Kronecker symbol vanishes exactly when the absolute
+denominator is not coprime to the absolute numerator. -/
+theorem kroneckerSym_eq_zero_iff_not_coprime (D n : ℤ) :
+    kroneckerSym D n = 0 ↔ Nat.gcd n.natAbs D.natAbs ≠ 1 := by
+  by_cases hn : n < 0
+  · rw [kroneckerSym_of_neg D hn, mul_eq_zero]
+    simp [kroneckerSymNat_eq_zero_iff_not_coprime]
+  · rw [kroneckerSym, if_neg hn, one_mul,
+      kroneckerSymNat_eq_zero_iff_not_coprime]
+
+/-- At a denominator coprime to the numerator, the integer-denominator
+Kronecker symbol has square one. -/
+theorem kroneckerSym_sq_one_of_coprime (D n : ℤ)
+    (h : Nat.Coprime n.natAbs D.natAbs) :
+    kroneckerSym D n ^ 2 = 1 := by
+  have hnat := kroneckerSymNat_sq_one_of_coprime D h
+  by_cases hn : n < 0
+  · rw [kroneckerSym_of_neg D hn, mul_pow, kroneckerNegOne_sq,
+      hnat, one_mul]
+  · rw [kroneckerSym, if_neg hn, one_mul, hnat]
+
+/-- At a denominator coprime to the numerator, the integer-denominator
+Kronecker symbol is `1` or `-1`. -/
+theorem kroneckerSym_eq_one_or_neg_one_of_coprime (D n : ℤ)
+    (h : Nat.Coprime n.natAbs D.natAbs) :
+    kroneckerSym D n = 1 ∨ kroneckerSym D n = -1 :=
+  sq_eq_one_iff.mp (kroneckerSym_sq_one_of_coprime D n h)
+
+/-- The integer-denominator Kronecker symbol takes only the values `0`, `1`,
+and `-1`. -/
+theorem kroneckerSym_trichotomy (D n : ℤ) :
+    kroneckerSym D n = 0 ∨ kroneckerSym D n = 1 ∨ kroneckerSym D n = -1 := by
+  by_cases h : Nat.Coprime n.natAbs D.natAbs
+  · exact Or.inr (kroneckerSym_eq_one_or_neg_one_of_coprime D n h)
+  · exact Or.inl ((kroneckerSym_eq_zero_iff_not_coprime D n).2 (by
+      simpa [Nat.Coprime] using h))
+
+/-- The integer-denominator Kronecker symbol with upper argument `1` is
+trivial, including at denominators `0` and `-1`. -/
+@[simp]
+theorem kroneckerSym_one_left (n : ℤ) : kroneckerSym 1 n = 1 := by
+  simp [kroneckerSym, kroneckerNegOne, kroneckerSymNat_one_left]
+
+private theorem kroneckerDenominatorSign_mul
+    (D m n : ℤ) (hm : m ≠ 0) (hn : n ≠ 0) :
+    (if m * n < 0 then kroneckerNegOne D else 1) =
+      (if m < 0 then kroneckerNegOne D else 1) *
+        (if n < 0 then kroneckerNegOne D else 1) := by
+  by_cases hmneg : m < 0
+  · by_cases hnneg : n < 0
+    · have hprod : ¬m * n < 0 :=
+        not_lt.mpr (le_of_lt (mul_pos_of_neg_of_neg hmneg hnneg))
+      rw [if_neg hprod, if_pos hmneg, if_pos hnneg]
+      simpa [pow_two] using (kroneckerNegOne_sq D).symm
+    · have hnpos : 0 < n :=
+        lt_of_le_of_ne (not_lt.mp hnneg) (Ne.symm hn)
+      have hprod : m * n < 0 := mul_neg_of_neg_of_pos hmneg hnpos
+      simp [hmneg, hnneg, hprod]
+  · have hmpos : 0 < m :=
+      lt_of_le_of_ne (not_lt.mp hmneg) (Ne.symm hm)
+    by_cases hnneg : n < 0
+    · have hprod : m * n < 0 := mul_neg_of_pos_of_neg hmpos hnneg
+      simp [hmneg, hnneg, hprod]
+    · have hnpos : 0 < n :=
+        lt_of_le_of_ne (not_lt.mp hnneg) (Ne.symm hn)
+      have hprod : ¬m * n < 0 :=
+        not_lt.mpr (le_of_lt (mul_pos hmpos hnpos))
+      simp [hmneg, hnneg, hprod]
+
+/-- The Kronecker symbol is multiplicative in nonzero integer denominators. -/
+theorem kroneckerSym_mul (D : ℤ) {m n : ℤ} (hm : m ≠ 0) (hn : n ≠ 0) :
+    kroneckerSym D (m * n) = kroneckerSym D m * kroneckerSym D n := by
+  simp only [kroneckerSym]
+  rw [Int.natAbs_mul,
+    kroneckerSymNat_mul D (Int.natAbs_ne_zero.mpr hm) (Int.natAbs_ne_zero.mpr hn),
+    kroneckerDenominatorSign_mul D m n hm hn]
+  ring
+
+/-- Negating a nonzero denominator multiplies the Kronecker symbol by the
+supplementary value `(D / -1)`. -/
+theorem kroneckerSym_neg (D : ℤ) {n : ℤ} (hn : n ≠ 0) :
+    kroneckerSym D (-n) = kroneckerNegOne D * kroneckerSym D n := by
+  rw [← neg_one_mul n, kroneckerSym_mul D (by norm_num) hn,
+    kroneckerSym_neg_one_right]
+
+/-- The Kronecker symbol is multiplicative in nonzero integer numerators at a
+nonzero integer denominator. The nonzero hypotheses account for the exceptional
+convention `(0 / -1) = 1`. -/
+theorem kroneckerSym_mul_left (D E : ℤ) {n : ℤ}
+    (hD : D ≠ 0) (hE : E ≠ 0) (hn : n ≠ 0) :
+    kroneckerSym (D * E) n = kroneckerSym D n * kroneckerSym E n := by
+  simp only [kroneckerSym]
+  rw [kroneckerSymNat_mul_left D E (Int.natAbs_ne_zero.mpr hn)]
+  by_cases hnneg : n < 0
+  · simp only [if_pos hnneg]
+    rw [kroneckerNegOne_mul D E hD hE]
+    ring
+  · simp only [if_neg hnneg]
+    ring
