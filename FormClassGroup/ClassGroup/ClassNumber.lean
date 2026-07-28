@@ -37,6 +37,9 @@ attribute [-instance] DivisionRing.toRatAlgebra
 reduced forms and evaluating the native reduced-form enumerator. -/
 syntax "compute_class_number_qsqrtd" : tactic
 
+/- The name is generated from the user-facing `compute_class_number_qsqrtd` syntax. -/
+attribute [nolint defsWithUnderscore] tacticCompute_class_number_qsqrtd
+
 namespace QuadraticNumberFields
 
 /-! ## Class-group representatives from reduced forms -/

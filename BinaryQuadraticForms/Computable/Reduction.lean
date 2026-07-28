@@ -34,11 +34,13 @@ section NormalizeB
 
 /-- The value of `b` after normalisation into `(-a, a]`.  Computed as
 `b mod (2a)`, shifted into that interval. -/
+@[nolint defsWithUnderscore]
 def normalizeB_b (a b : ℤ) (_ha : 0 < a) : ℤ :=
   let r := b % (2 * a)
   if r ≤ a then r else r - 2 * a
 
 /-- The `k` in `T^k` that achieves the normalisation. -/
+@[nolint defsWithUnderscore]
 def normalizeB_k (a b : ℤ) (ha : 0 < a) : ℤ :=
   (normalizeB_b a b ha - b) / (2 * a)
 
@@ -388,6 +390,7 @@ All four happen to already be reduced, so `reduceForm` should return them
 unchanged.  We also test a non-reduced form `(6, 6, 5)` which reduces to
 `(5, 4, 5)`. -/
 
+/-- The principal spike form, evaluated by the reduction regression test below. -/
 def testReducePrincipal : BinaryQuadraticForm :=
   let Q := BinaryQuadraticForm.mk 1 0 21
   have hpos : Q.IsPositiveDefinite := by
@@ -402,6 +405,7 @@ example : testReducePrincipal = BinaryQuadraticForm.mk 1 0 21 := by
   norm_num [normalizeB, normalizeB_k, normalizeB_b, disc]
   exact transform_one _
 
+/-- A nonprincipal reduced spike form, evaluated by the regression test below. -/
 def testReduceNonPrincipal : BinaryQuadraticForm :=
   let Q := BinaryQuadraticForm.mk 2 2 11
   have hpos : Q.IsPositiveDefinite := by
@@ -416,6 +420,7 @@ example : testReduceNonPrincipal = BinaryQuadraticForm.mk 2 2 11 := by
   norm_num [normalizeB, normalizeB_k, normalizeB_b, disc]
   exact transform_one _
 
+/-- A non-reduced spike form, evaluated by the reduction regression test below. -/
 def testReduceNonReduced : BinaryQuadraticForm :=
   let Q := BinaryQuadraticForm.mk 6 6 5
   have hpos : Q.IsPositiveDefinite := by
