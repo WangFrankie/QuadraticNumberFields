@@ -241,15 +241,14 @@ private theorem ringUnit_isTotallyPositive_or_neg_of_fundamentalUnit_isTotallyPo
 
 /-! ### Keune, Chapter 6, Exercise 11 -/
 
-/-- Keune Ch6 Ex. 11: the narrow class number is twice the ordinary class
-number when a fundamental unit is totally positive. -/
-theorem narrowClassNumber_eq_two_mul_classNumber_of_isTotallyPositive_fundamentalUnit
+/-- If a fundamental unit is totally positive, the kernel of the comparison
+`Cl⁺(d) → Cl(d)` has order two. -/
+theorem card_narrowToClassGroup_ker_eq_two_of_isTotallyPositive_fundamentalUnit
     (hd : 0 < d) (ε : OKˣ)
     (hε : Units.IsFundamentalUnit ε)
     (hε_tp : NarrowClassGroup.IsTotallyPositive
       ((unitToFractionRing d ε : (FractionRing OK)ˣ) : FractionRing OK)) :
-    narrowClassNumber d = 2 * NumberField.classNumber (Qsqrtd (d : ℚ)) := by
-  rw [narrowClassNumber_eq_ker_card_mul_classNumber d]
+    Nat.card (narrowToClassGroup d).ker = 2 := by
   have hker_range :
       (narrowToClassGroup d).ker = (NarrowClassGroup.principalToNarrow OK).range :=
     NarrowClassGroup.toClassGroup_ker_eq_principalToNarrow_range OK
@@ -383,7 +382,43 @@ theorem narrowClassNumber_eq_two_mul_classNumber_of_isTotallyPositive_fundamenta
         exact hC
       · right
         exact hC
-  rw [hker_card]
+  exact hker_card
+
+/-- Keune Ch6 Ex. 11: the narrow class number is twice the ordinary class
+number when a fundamental unit is totally positive. -/
+theorem narrowClassNumber_eq_two_mul_classNumber_of_isTotallyPositive_fundamentalUnit
+    (hd : 0 < d) (ε : OKˣ)
+    (hε : Units.IsFundamentalUnit ε)
+    (hε_tp : NarrowClassGroup.IsTotallyPositive
+      ((unitToFractionRing d ε : (FractionRing OK)ˣ) : FractionRing OK)) :
+    narrowClassNumber d = 2 * NumberField.classNumber (Qsqrtd (d : ℚ)) := by
+  rw [narrowClassNumber_eq_ker_card_mul_classNumber d,
+    card_narrowToClassGroup_ker_eq_two_of_isTotallyPositive_fundamentalUnit
+      d hd ε hε hε_tp]
+
+/-- A mixed-sign integral unit makes the comparison `Cl⁺(d) → Cl(d)`
+injective. -/
+theorem narrowToClassGroup_injective_of_mixed_sign_unit
+    (hd : 0 < d) (ε : OKˣ)
+    (hε_pos : ∃ σ : FractionRing OK →+* ℝ,
+      0 < σ ((unitToFractionRing d ε : (FractionRing OK)ˣ) : FractionRing OK))
+    (hε_tp : ¬ NarrowClassGroup.IsTotallyPositive
+      ((unitToFractionRing d ε : (FractionRing OK)ˣ) : FractionRing OK)) :
+    Function.Injective (narrowToClassGroup d) :=
+  NarrowClassGroup.toClassGroup_injective_of_forall_exists_unit_mul_isTotallyPositive
+    (forall_exists_unit_mul_isTotallyPositive_of_mixed_sign_unit
+      d hd ε hε_pos hε_tp)
+
+/-- A mixed-sign integral unit makes the comparison kernel trivial. -/
+theorem card_narrowToClassGroup_ker_eq_one_of_mixed_sign_unit
+    (hd : 0 < d) (ε : OKˣ)
+    (hε_pos : ∃ σ : FractionRing OK →+* ℝ,
+      0 < σ ((unitToFractionRing d ε : (FractionRing OK)ˣ) : FractionRing OK))
+    (hε_tp : ¬ NarrowClassGroup.IsTotallyPositive
+      ((unitToFractionRing d ε : (FractionRing OK)ˣ) : FractionRing OK)) :
+    Nat.card (narrowToClassGroup d).ker = 1 := by
+  rw [Subgroup.card_eq_one, MonoidHom.ker_eq_bot_iff]
+  exact narrowToClassGroup_injective_of_mixed_sign_unit d hd ε hε_pos hε_tp
 
 /-- The narrow class number equals the ordinary class number when an integral
 unit has mixed signs at the real embeddings. -/
@@ -393,10 +428,9 @@ theorem narrowClassNumber_eq_classNumber_of_mixed_sign_unit
       0 < σ ((unitToFractionRing d ε : (FractionRing OK)ˣ) : FractionRing OK))
     (hε_tp : ¬ NarrowClassGroup.IsTotallyPositive
       ((unitToFractionRing d ε : (FractionRing OK)ˣ) : FractionRing OK)) :
-    narrowClassNumber d = NumberField.classNumber (Qsqrtd (d : ℚ)) := by
-  exact narrowClassNumber_eq_classNumber_of_narrowToClassGroup_injective d
-    (NarrowClassGroup.toClassGroup_injective_of_forall_exists_unit_mul_isTotallyPositive
-      (forall_exists_unit_mul_isTotallyPositive_of_mixed_sign_unit d hd ε hε_pos hε_tp))
+    narrowClassNumber d = NumberField.classNumber (Qsqrtd (d : ℚ)) :=
+  narrowClassNumber_eq_classNumber_of_narrowToClassGroup_injective d
+    (narrowToClassGroup_injective_of_mixed_sign_unit d hd ε hε_pos hε_tp)
 
 /-- Keune Ch6 Ex. 11, with the two class-number cases bundled together. -/
 theorem narrowClassNumber_eq_cases_fundamentalUnit

@@ -157,7 +157,7 @@ symbol convention.
 Not a `simp` lemma: `kroneckerCharacter_apply` already rewrites the left-hand
 side, so this would never be in simp-normal form; it is used via `rw`. -/
 theorem kroneckerCharacter_neg_one (D : ℤ) [Fact (D % 4 = 0 ∨ D % 4 = 1)] :
-    kroneckerCharacter D (-1 : ZMod D.natAbs) = if D < 0 then -1 else 1 := by
+    kroneckerCharacter D (-1 : ZMod D.natAbs) = kroneckerNegOne D := by
   rcases eq_or_ne D.natAbs 0 with hD0 | hD0
   · have hD : D = 0 := by omega
     subst D
@@ -189,6 +189,4 @@ theorem kroneckerCharacter_apply_intCast (D : ℤ) [Fact (D % 4 = 0 ∨ D % 4 = 
           (-1 : ZMod D.natAbs) * ((m : ℕ) : ZMod D.natAbs)) := by
         norm_num [Int.cast_neg]
       rw [hcast, map_mul, kroneckerCharacter_neg_one D, kroneckerCharacter_apply_natCast]
-      have hne : (-(m : ℤ) : ℤ) ≠ 0 := neg_ne_zero.mpr (by exact_mod_cast hm0)
-      have hlt : (-(m : ℤ) : ℤ) < 0 := neg_neg_of_pos (by exact_mod_cast Nat.pos_of_ne_zero hm0)
-      rw [kroneckerSym, if_neg hne, if_pos hlt, Int.natAbs_neg, Int.natAbs_natCast]
+      rw [kroneckerSym_neg_natCast D hm0]

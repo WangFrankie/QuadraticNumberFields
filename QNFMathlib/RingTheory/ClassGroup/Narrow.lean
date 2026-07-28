@@ -7,9 +7,11 @@ Authors: Frankie Wang
 import Mathlib.Algebra.Algebra.Hom.Rat
 import Mathlib.Algebra.Exact
 import Mathlib.Data.Fintype.Units
+import Mathlib.Data.Real.Archimedean
 import Mathlib.Data.Real.Basic
 import Mathlib.Data.Sign.Basic
 import Mathlib.RingTheory.ClassGroup
+import Mathlib.RingTheory.DedekindDomain.Factorization
 import Mathlib.RingTheory.DedekindDomain.Ideal.Lemmas
 
 /-!
@@ -735,6 +737,35 @@ theorem mk0_eq_one_iff_exists_fraction_ring [IsDedekindDomain R] {I : (Ideal R)�
   simpa using
     (mk0_eq_mk0_iff_exists_fraction_ring (R := R) (I := I) (J := (1 : (Ideal R)⁰)))
 
+/-- A nonzero integral ideal trivial in the narrow class group has a totally
+positive integral generator. -/
+theorem exists_isTotallyPositive_generator_of_mk0_eq_one
+    [IsDedekindDomain R] {I : (Ideal R)⁰} (hI : mk0 I = 1) :
+    ∃ a : R, IsTotallyPositive (algebraMap R (FractionRing R) a) ∧
+      Ideal.span ({a} : Set R) = (I : Ideal R) := by
+  obtain ⟨x, hxpos, hx⟩ :=
+    (mk0_eq_one_iff_exists_fraction_ring (I := I)).mp hI
+  have hI_frac :
+      ((I : Ideal R) : FractionalIdeal R⁰ (FractionRing R)) =
+        FractionalIdeal.spanSingleton R⁰ (x⁻¹ : FractionRing R) := by
+    simpa [coe_toPrincipalIdeal] using
+      congrArg Units.val (eq_inv_of_mul_eq_one_left hx)
+  have hxinv_mem : (x⁻¹ : FractionRing R) ∈
+      ((I : Ideal R) : FractionalIdeal R⁰ (FractionRing R)) := by
+    rw [hI_frac]
+    exact (FractionalIdeal.mem_spanSingleton R⁰).mpr ⟨1, by simp⟩
+  obtain ⟨a, _haI, ha⟩ := (FractionalIdeal.mem_coeIdeal R⁰).mp hxinv_mem
+  have hainvpos : IsTotallyPositive (x⁻¹ : FractionRing R) := by
+    intro σ
+    simpa using inv_pos.mpr (hxpos σ)
+  refine ⟨a, by simpa [ha] using hainvpos, ?_⟩
+  apply FractionalIdeal.coeIdeal_injective (K := FractionRing R)
+  change
+    ((Ideal.span ({a} : Set R) : Ideal R) : FractionalIdeal R⁰ (FractionRing R)) =
+      ((I : Ideal R) : FractionalIdeal R⁰ (FractionRing R))
+  rw [FractionalIdeal.coeIdeal_span_singleton, ha]
+  exact hI_frac.symm
+
 /-- A principal nonzero integral ideal has a fraction-field generator whose
 principal fractional ideal is its `mk0`. -/
 theorem exists_toPrincipalIdeal_eq_mk0_of_isPrincipal [IsDedekindDomain R]
@@ -959,6 +990,124 @@ theorem mk0_surjective [IsDedekindDomain R] :
   refine ⟨⟨integralRep I, integralRep_mem_nonZeroDivisors I.ne_zero⟩, ?_⟩
   rw [mk0_integralRep]
   simpa [mk_eq_mk'] using hI
+
+private theorem exists_nat_forall_pos_add_nat_mul
+    {ι : Type*} [Finite ι] (x c : ι → ℝ) (hc : ∀ i, 0 < c i) :
+    ∃ k : ℕ, ∀ i : ι, 0 < x i + (k : ℝ) * c i := by
+  obtain ⟨B, hB⟩ := Finite.bddAbove_range (fun i ↦ (-x i) / c i)
+  obtain ⟨k, hk⟩ := exists_nat_gt B
+  refine ⟨k, fun i ↦ ?_⟩
+  have hi := lt_of_le_of_lt (hB (Set.mem_range_self i)) hk
+  have := (div_lt_iff₀ (hc i)).mp hi
+  linarith
+
+/-- In a Dedekind domain with finitely many real embeddings, every narrow ideal
+class has an integral representative coprime to a prescribed nonzero ideal. -/
+theorem exists_integralRep_isCoprime
+    [IsDedekindDomain R] [Finite (FractionRing R →+* ℝ)]
+    (C : NarrowClassGroup R) (M : Ideal R) (hM : M ≠ ⊥) :
+    ∃ I : (Ideal R)⁰, mk0 I = C ∧ IsCoprime (I : Ideal R) M := by
+  classical
+  by_cases hMtop : M = ⊤
+  · obtain ⟨I, hI⟩ := mk0_surjective C
+    exact ⟨I, hI, by rw [Ideal.isCoprime_iff_sup_eq, hMtop, sup_top_eq]⟩
+  · obtain ⟨A, hA⟩ := mk0_surjective C⁻¹
+    have hA0 : (A : Ideal R) ≠ 0 := by
+      simpa using mem_nonZeroDivisors_iff_ne_zero.mp A.2
+    have hM0 : M ≠ 0 := by simpa using hM
+    have hle : (A : Ideal R) * M ≤ (A : Ideal R) :=
+      Ideal.mul_le_inf.trans inf_le_left
+    have hAM0 : (A : Ideal R) * M ≠ 0 := mul_ne_zero hA0 hM0
+    obtain ⟨a₀, hsup₀⟩ := IsDedekindDomain.exists_sup_span_eq hle hAM0
+    have hspan₀_le : Ideal.span ({a₀} : Set R) ≤ (A : Ideal R) :=
+      le_sup_right.trans hsup₀.le
+    obtain ⟨b, hb_mem, hb_ne⟩ :=
+      Submodule.exists_mem_ne_zero_of_ne_bot hAM0
+    have hb_sq_mem : b ^ 2 ∈ (A : Ideal R) * M := by
+      simpa [pow_two] using Ideal.mul_mem_left ((A : Ideal R) * M) b hb_mem
+    have hb_frac_ne : algebraMap R (FractionRing R) b ≠ 0 := by
+      simpa using (FaithfulSMul.algebraMap_injective R (FractionRing R)).ne hb_ne
+    have hb_sq_pos : ∀ σ : FractionRing R →+* ℝ,
+        0 < σ (algebraMap R (FractionRing R) (b ^ 2)) := by
+      intro σ
+      simpa only [map_pow] using
+        sq_pos_of_ne_zero ((_root_.map_ne_zero σ).mpr hb_frac_ne)
+    rcases exists_nat_forall_pos_add_nat_mul
+      (fun σ : FractionRing R →+* ℝ ↦ σ (algebraMap R (FractionRing R) a₀))
+      (fun σ : FractionRing R →+* ℝ ↦ σ (algebraMap R (FractionRing R) (b ^ 2)))
+      hb_sq_pos with ⟨k, hk⟩
+    let a : R := a₀ + (k : R) * b ^ 2
+    have ha_sub_mem : a - a₀ ∈ (A : Ideal R) * M := by
+      simpa [a] using Ideal.mul_mem_left ((A : Ideal R) * M) (k : R) hb_sq_mem
+    have ha_pos : IsTotallyPositive (algebraMap R (FractionRing R) a) := by
+      intro σ
+      simpa [a] using hk σ
+    have ha_mem_A : a ∈ (A : Ideal R) := by
+      dsimp [a]
+      exact add_mem (hspan₀_le (Ideal.mem_span_singleton_self a₀))
+        (hle (Ideal.mul_mem_left _ (k : R) hb_sq_mem))
+    have hspan_a_le : Ideal.span ({a} : Set R) ≤ (A : Ideal R) :=
+      (Ideal.span_singleton_le_iff_mem (I := (A : Ideal R))).mpr ha_mem_A
+    have hsup_a :
+        (A : Ideal R) * M ⊔ Ideal.span ({a} : Set R) = (A : Ideal R) := by
+      apply le_antisymm
+      · exact sup_le hle hspan_a_le
+      · calc
+          (A : Ideal R) = (A : Ideal R) * M ⊔ Ideal.span ({a₀} : Set R) :=
+            hsup₀.symm
+          _ ≤ (A : Ideal R) * M ⊔ Ideal.span ({a} : Set R) := by
+            apply sup_le le_sup_left
+            have ha_mem_sup :
+                a ∈ (A : Ideal R) * M ⊔ Ideal.span ({a} : Set R) :=
+              (show Ideal.span ({a} : Set R) ≤
+                (A : Ideal R) * M ⊔ Ideal.span ({a} : Set R) from le_sup_right)
+                  (Ideal.mem_span_singleton_self a)
+            have hdiff_mem_sup :
+                a - a₀ ∈ (A : Ideal R) * M ⊔ Ideal.span ({a} : Set R) :=
+              (show (A : Ideal R) * M ≤
+                (A : Ideal R) * M ⊔ Ideal.span ({a} : Set R) from le_sup_left)
+                  ha_sub_mem
+            have hsub := sub_mem ha_mem_sup hdiff_mem_sup
+            have ha₀_mem_sup :
+                a₀ ∈ (A : Ideal R) * M ⊔ Ideal.span ({a} : Set R) := by
+              convert hsub using 1
+              ring
+            exact (Ideal.span_singleton_le_iff_mem
+              (I := (A : Ideal R) * M ⊔ Ideal.span ({a} : Set R))).mpr ha₀_mem_sup
+    have ha_ne : a ≠ 0 := by
+      intro ha
+      apply hMtop
+      have hspan_zero : Ideal.span ({a} : Set R) = ⊥ := by
+        rw [ha, Ideal.span_singleton_eq_bot]
+      rw [hspan_zero, sup_bot_eq] at hsup_a
+      have hM1 : M = 1 := mul_left_cancel₀ hA0 (by rw [hsup_a, mul_one])
+      rwa [Ideal.one_eq_top] at hM1
+    obtain ⟨I, hImul⟩ := Ideal.dvd_iff_le.mpr hspan_a_le
+    have hI0 : I ≠ 0 := by
+      intro h
+      rw [h, mul_zero, Ideal.zero_eq_bot, Ideal.span_singleton_eq_bot] at hImul
+      exact ha_ne hImul
+    let I0 : (Ideal R)⁰ := ⟨I, mem_nonZeroDivisors_iff_ne_zero.mpr hI0⟩
+    have hC : mk0 I0 = C := by
+      have hprin : mk0 (A * I0) = 1 := by
+        have hAI_eq :
+            A * I0 =
+              ⟨Ideal.span ({a} : Set R), by
+                rw [mem_nonZeroDivisors_iff_ne_zero, Ideal.zero_eq_bot, ne_eq,
+                  Ideal.span_singleton_eq_bot]
+                exact ha_ne⟩ := by
+          ext y
+          change y ∈ (A : Ideal R) * I ↔ y ∈ Ideal.span ({a} : Set R)
+          rw [hImul]
+        rw [hAI_eq]
+        exact mk0_span_singleton_eq_one_of_isTotallyPositive ha_ne ha_pos
+      rw [map_mul, hA, inv_mul_eq_one] at hprin
+      exact hprin.symm
+    have hIcop_M : I ⊔ M = ⊤ := by
+      have hMI : M ⊔ I = 1 := mul_left_cancel₀ hA0 (by
+        rw [Ideal.mul_sup, ← hImul, hsup_a, mul_one])
+      rw [sup_comm, hMI, Ideal.one_eq_top]
+    exact ⟨I0, hC, Ideal.isCoprime_iff_sup_eq.mpr hIcop_M⟩
 
 /-! ### Comparison with the usual class group -/
 
