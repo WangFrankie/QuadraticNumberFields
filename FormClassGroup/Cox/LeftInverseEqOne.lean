@@ -73,7 +73,7 @@ noncomputable def coxIdealBasisOKEqOne (hd4 : d % 4 = 1) (_hdneg : d < 0)
   have hdisc : B ^ 2 - 4 * A * C = bb ^ 2 + 4 * DD := by
     have hdisc_val : Q.1.disc = d := by
       have hfield : fieldDiscriminant d = d := fieldDiscriminant_of_mod_four_eq_one hd4
-      simpa [hfield] using Q.2.1
+      simpa only [HasDiscriminant, hfield] using Q.2.1
     unfold BinaryQuadraticForm.disc at hdisc_val
     dsimp [B] at *
     rw [hk] at hdisc_val
@@ -320,7 +320,9 @@ theorem classGroupToFormClass_idealClassOfForm_leftInverse_of_mod_four_eq_one
     h_equiv.trans (by rw [h_normform_eq]; exact BinaryQuadraticForm.ProperEquivalent.refl Q.1)
   dsimp [primitivePositiveDefiniteNormFormOfBasis]
   apply Quotient.sound
-  simpa using h_target
+  change (normFormOfBasis hI_ne_zero
+    (orientedBasisOfNeZero (I : Ideal 𝓞K) hI_ne_zero)).ProperEquivalent Q.1
+  exact h_target
 
 end CoxLeftInverseEqOne
 
