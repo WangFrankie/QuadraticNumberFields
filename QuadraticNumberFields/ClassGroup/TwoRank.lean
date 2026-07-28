@@ -77,9 +77,13 @@ theorem card_squareQuotient_eq_two_pow_twoRank [Finite (squareQuotient G)] :
   letI : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
   change Nat.card (squareQuotient G) =
     2 ^ Module.finrank (ZMod 2) (Additive (squareQuotient G))
-  simpa using
-    (Module.natCard_eq_pow_finrank
-      (K := ZMod 2) (V := Additive (squareQuotient G)))
+  calc
+    Nat.card (squareQuotient G) = Nat.card (Additive (squareQuotient G)) :=
+      Nat.card_congr Additive.ofMul
+    _ = 2 ^ Module.finrank (ZMod 2) (Additive (squareQuotient G)) :=
+      by simpa using
+        (Module.natCard_eq_pow_finrank
+          (K := ZMod 2) (V := Additive (squareQuotient G)))
 
 end CommGroup
 

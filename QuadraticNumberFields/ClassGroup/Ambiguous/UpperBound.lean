@@ -52,7 +52,7 @@ private theorem card_narrowClassGroupTwoTorsion_le_two_pow_sub_one_of_ker_ne_bot
     rw [Nat.card_eq_fintype_card]
     simp [RamifiedParityVector, RamifiedPrimeIndex, ramifiedPrimeCount]
   have hhalf : 2 * Nat.card φ.range ≤ 2 ^ ramifiedPrimeCount d := by
-    simpa [hdomain] using MonoidHom.two_mul_card_range_le φ hker
+    simpa [hdomain, ramifiedPrimeCount] using MonoidHom.two_mul_card_range_le φ hker
   have htpos : 0 < ramifiedPrimeCount d := by
     have h2le : 2 ≤ 2 ^ ramifiedPrimeCount d :=
       (Nat.mul_le_mul_left 2
