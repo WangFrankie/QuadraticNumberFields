@@ -633,26 +633,15 @@ private theorem kroneckerDenominatorSign_mul
     (if m * n < 0 then kroneckerNegOne D else 1) =
       (if m < 0 then kroneckerNegOne D else 1) *
         (if n < 0 then kroneckerNegOne D else 1) := by
-  by_cases hmneg : m < 0
-  · by_cases hnneg : n < 0
-    · have hprod : ¬m * n < 0 :=
-        not_lt.mpr (le_of_lt (mul_pos_of_neg_of_neg hmneg hnneg))
-      rw [if_neg hprod, if_pos hmneg, if_pos hnneg]
-      simpa [pow_two] using (kroneckerNegOne_sq D).symm
-    · have hnpos : 0 < n :=
-        lt_of_le_of_ne (not_lt.mp hnneg) (Ne.symm hn)
-      have hprod : m * n < 0 := mul_neg_of_neg_of_pos hmneg hnpos
-      simp [hmneg, hnneg, hprod]
-  · have hmpos : 0 < m :=
-      lt_of_le_of_ne (not_lt.mp hmneg) (Ne.symm hm)
-    by_cases hnneg : n < 0
-    · have hprod : m * n < 0 := mul_neg_of_pos_of_neg hmpos hnneg
-      simp [hmneg, hnneg, hprod]
-    · have hnpos : 0 < n :=
-        lt_of_le_of_ne (not_lt.mp hnneg) (Ne.symm hn)
-      have hprod : ¬m * n < 0 :=
-        not_lt.mpr (le_of_lt (mul_pos hmpos hnpos))
-      simp [hmneg, hnneg, hprod]
+  rcases lt_or_gt_of_ne hm with hmneg | hmpos <;>
+    rcases lt_or_gt_of_ne hn with hnneg | hnpos
+  · rw [if_neg (not_lt_of_ge (mul_pos_of_neg_of_neg hmneg hnneg).le),
+      if_pos hmneg, if_pos hnneg]
+    simpa [pow_two] using (kroneckerNegOne_sq D).symm
+  · simp [mul_neg_of_neg_of_pos hmneg hnpos, hmneg, not_lt_of_ge hnpos.le]
+  · simp [mul_neg_of_pos_of_neg hmpos hnneg, not_lt_of_ge hmpos.le, hnneg]
+  · simp [not_lt_of_ge (mul_pos hmpos hnpos).le,
+      not_lt_of_ge hmpos.le, not_lt_of_ge hnpos.le]
 
 /-- The Kronecker symbol is multiplicative in nonzero integer denominators. -/
 theorem kroneckerSym_mul (D : ℤ) {m n : ℤ} (hm : m ≠ 0) (hn : n ≠ 0) :
