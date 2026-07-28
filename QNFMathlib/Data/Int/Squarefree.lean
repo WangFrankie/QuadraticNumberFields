@@ -29,7 +29,7 @@ lemma nat_eq_one_of_squarefree_intcast_of_isSquare (m : ℕ)
     eq_one_of_squarefree_isSquare hsm hsq
   cases hmz with
   | inl h => exact_mod_cast h
-  | inr h => simp only at h; omega
+  | inr h => omega
 
 /-- If `d₁/d₂` is a rational square and `d₂` is squarefree, then `d₂ ∣ d₁`.
 

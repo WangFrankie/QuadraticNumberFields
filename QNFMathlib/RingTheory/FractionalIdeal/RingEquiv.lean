@@ -31,13 +31,6 @@ section Basic
 
 variable (e : A ≃+* B)
 
-@[simp]
-theorem ringEquivOfRingEquiv_smul (a : A) (x : K) :
-    IsFractionRing.ringEquivOfRingEquiv (K := K) (L := L) e (a • x) =
-      e a • IsFractionRing.ringEquivOfRingEquiv (K := K) (L := L) e x := by
-  rw [Algebra.smul_def, Algebra.smul_def, map_mul,
-    IsFractionRing.ringEquivOfRingEquiv_algebraMap]
-
 theorem isInteger_ringEquivOfRingEquiv {x : K}
     (hx : IsLocalization.IsInteger A x) :
     IsLocalization.IsInteger B
@@ -52,6 +45,12 @@ section Domains
 
 variable [IsDomain A] [IsDomain B]
 variable (e : A ≃+* B)
+
+local instance : RingHomInvPair (e : A →+* B) e.symm :=
+  RingHomInvPair.of_ringEquiv e
+
+local instance : RingHomInvPair (e.symm : B →+* A) e :=
+  RingHomInvPair.of_ringEquiv_symm e
 
 /-- The underlying submodule of the image of a fractional ideal under a
 base-ring equivalence. -/
@@ -69,7 +68,11 @@ noncomputable def ringEquivMapSubmodule (I : FractionalIdeal A⁰ K) : Submodule
     rintro b y ⟨y', hy', rfl⟩
     refine ⟨e.symm b • y', ?_, ?_⟩
     · exact (I : Submodule A K).smul_mem (e.symm b) hy'
-    · rw [ringEquivOfRingEquiv_smul, e.apply_symm_apply]
+    · change
+        (IsFractionRing.semilinearEquivOfRingEquiv K L e) (e.symm b • y') =
+          b • (IsFractionRing.semilinearEquivOfRingEquiv K L e) y'
+      have he : (e : A →+* B) (e.symm b) = b := e.apply_symm_apply b
+      rw [(IsFractionRing.semilinearEquivOfRingEquiv K L e).map_smulₛₗ, he]
 
 /-- The image of a fractional ideal under a ring equivalence of base domains and
 the induced equivalence of fraction fields. -/
@@ -84,8 +87,11 @@ noncomputable def ringEquivMap (I : FractionalIdeal A⁰ K) : FractionalIdeal B�
         exact ha0 (e.injective (by simpa using hea0)))
     refine ⟨e a, hea, ?_⟩
     rintro y ⟨x, hx, rfl⟩
-    simpa [ringEquivOfRingEquiv_smul] using
-      isInteger_ringEquivOfRingEquiv (K := K) (L := L) e (hI x hx)
+    have h := isInteger_ringEquivOfRingEquiv (K := K) (L := L) e (hI x hx)
+    change IsLocalization.IsInteger B
+      ((IsFractionRing.semilinearEquivOfRingEquiv K L e) (a • x)) at h
+    rw [(IsFractionRing.semilinearEquivOfRingEquiv K L e).map_smulₛₗ] at h
+    exact h
 
 @[simp]
 theorem mem_ringEquivMap {e : A ≃+* B} {I : FractionalIdeal A⁰ K} {y : L} :
@@ -102,12 +108,18 @@ theorem ringEquivMap_spanSingleton (x : K) :
   constructor
   · rintro ⟨z, hz, rfl⟩
     rcases (mem_spanSingleton A⁰).mp hz with ⟨a, rfl⟩
-    rw [ringEquivOfRingEquiv_smul]
+    change
+      (IsFractionRing.semilinearEquivOfRingEquiv K L e) (a • x) ∈
+        spanSingleton B⁰ (IsFractionRing.semilinearEquivOfRingEquiv K L e x)
+    rw [(IsFractionRing.semilinearEquivOfRingEquiv K L e).map_smulₛₗ]
     exact (mem_spanSingleton B⁰).mpr ⟨e a, rfl⟩
   · intro hy
     rcases (mem_spanSingleton B⁰).mp hy with ⟨b, hb⟩
     refine ⟨e.symm b • x, (mem_spanSingleton A⁰).mpr ⟨e.symm b, rfl⟩, ?_⟩
-    rw [ringEquivOfRingEquiv_smul, e.apply_symm_apply]
+    change
+      (IsFractionRing.semilinearEquivOfRingEquiv K L e) (e.symm b • x) = y
+    have he : (e : A →+* B) (e.symm b) = b := e.apply_symm_apply b
+    rw [(IsFractionRing.semilinearEquivOfRingEquiv K L e).map_smulₛₗ, he]
     exact hb
 
 @[simp]
