@@ -19,6 +19,9 @@ definite forms of a negative discriminant.
 /-- Close concrete reduced-form list cardinality goals by executable enumeration. -/
 syntax "reduce_forms_count" : tactic
 
+/- The name is generated from the user-facing `reduce_forms_count` syntax. -/
+attribute [nolint defsWithUnderscore] tacticReduce_forms_count
+
 namespace QuadraticNumberFields
 namespace BinaryQuadraticForm
 
@@ -221,7 +224,7 @@ theorem mem_reducedFormClasses (D : ℤ) (C : FormClass D) : C ∈ reducedFormCl
     mem_enumPrimitiveReducedForms_of_reduced R.2.1 R.2.2.2 hRred R.2.2.1
   refine Finset.mem_image.mpr ⟨⟨R.1, hRmem⟩, ?_, ?_⟩
   · simp
-  · simpa [primitivePositiveDefiniteFormOfMemEnum] using hRclass
+  · exact hRclass
 
 noncomputable instance formClassFintype (D : ℤ) : Fintype (FormClass D) :=
   ⟨reducedFormClasses D, mem_reducedFormClasses D⟩

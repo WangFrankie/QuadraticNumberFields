@@ -157,7 +157,8 @@ private noncomputable def unitOfPellSolution (a : Pell.Solution₁ d) : OKˣ :=
 private theorem unitOfPellSolution_val (a : Pell.Solution₁ d) :
     (unitOfPellSolution d a : OK) =
       algebraMap ℤ OK a.x + algebraMap ℤ OK a.y * Splitting.sqrtdInt d := by
-  simp [unitOfPellSolution, Splitting.zsqrtdEmbedding_apply]
+  change Splitting.zsqrtdEmbedding d (⟨a.x, a.y⟩ : Zsqrtd d) = _
+  simp [Splitting.zsqrtdEmbedding_apply]
 
 private theorem unitOfPellSolution_conjAut_mul_self_eq_one (a : Pell.Solution₁ d) :
     Units.mapEquiv (conjOK).toMulEquiv
@@ -322,8 +323,7 @@ private theorem pell_isFundamental_not_sq {a : Pell.Solution₁ d}
           rw [zpow_mul']
         _ = b ^ 2 := by
           rw [hbna]
-          try simp
-          rfl
+          simp
         _ = a := hb
     have hone : a ^ (2 * n - 1 : ℤ) = 1 := by
       calc

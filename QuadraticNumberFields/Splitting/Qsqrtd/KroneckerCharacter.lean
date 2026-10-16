@@ -79,14 +79,14 @@ theorem isRamified_iff_kroneckerCharacter_discr_eq_zero (p : ℕ) [Fact p.Prime]
 
 /-- Character value `1` at a natural prime is equivalent to Kronecker-symbol value `1`. -/
 theorem kroneckerCharacter_discr_eq_one_iff_kroneckerSymNat_discr_eq_one
-    (p : ℕ) [Fact p.Prime] :
+    (p : ℕ) :
     (kroneckerCharacter (disc(d)) ((p : ℤ) : ZMod (disc(d)).natAbs) = 1 ↔
       kroneckerSymNat (disc(d)) p = 1) := by
   rw [kroneckerCharacter_apply_intCast, kroneckerSym_natCast]
 
 /-- Character value `-1` at a natural prime is equivalent to Kronecker-symbol value `-1`. -/
 theorem kroneckerCharacter_discr_eq_neg_one_iff_kroneckerSymNat_discr_eq_neg_one
-    (p : ℕ) [Fact p.Prime] :
+    (p : ℕ) :
     (kroneckerCharacter (disc(d)) ((p : ℤ) : ZMod (disc(d)).natAbs) = -1 ↔
       kroneckerSymNat (disc(d)) p = -1) := by
   rw [kroneckerCharacter_apply_intCast, kroneckerSym_natCast]

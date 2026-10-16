@@ -72,6 +72,7 @@ lies in `ℤ[√d]`. -/
 /-- If `d % 4 ≠ 1`, then `𝓞(ℚ(√d)) ≃+* ℤ[√d]`.
 
 **mathlib target: `Mathlib.NumberTheory.QuadraticField.RingOfIntegers`** -/
+@[nolint defsWithUnderscore]
 noncomputable def ringOfIntegers_equiv_zsqrtd_of_mod_four_ne_one (hd4 : d % 4 ≠ 1) :
     𝓞 (Qsqrtd (d : ℚ)) ≃+* Zsqrtd d :=
   let hd_sf : Squarefree d := Fact.out
@@ -109,6 +110,7 @@ supplied explicitly.
 This is the actual workhorse of the `d % 4 = 1` branch:
 `ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one` is a thin wrapper
 that picks `k := d / 4`. -/
+@[nolint defsWithUnderscore]
 noncomputable def ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_eq
     (k : ℤ) (hk : d = 1 + 4 * k) :
     𝓞 (Qsqrtd (d : ℚ)) ≃+* ZOnePlusSqrtdOverTwo k := by
@@ -158,6 +160,7 @@ theorem ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_eq_im
 explicit-parameter `ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_eq`.
 
 **mathlib target: `Mathlib.NumberTheory.QuadraticField.RingOfIntegers`** -/
+@[nolint defsWithUnderscore]
 noncomputable def ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one
     (hd4 : d % 4 = 1) :
     𝓞 (Qsqrtd (d : ℚ)) ≃+* ZOnePlusSqrtdOverTwo (d / 4) :=

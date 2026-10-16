@@ -55,7 +55,7 @@ private theorem transform_T_inv_mk (a b c : ℤ) :
     transform (BinaryQuadraticForm.mk a b c) (ModularGroup.T⁻¹ : SL2Z) =
       BinaryQuadraticForm.mk a (b - 2 * a) (a - b + c) := by
   ext <;> simp only [transform_a, transform_b, transform_c] <;>
-    norm_num [ModularGroup.T, Matrix.SpecialLinearGroup.coe_inv, Matrix.adjugate_fin_two] <;>
+    norm_num [ModularGroup.coe_T, Matrix.SpecialLinearGroup.coe_inv, Matrix.adjugate_fin_two] <;>
     ring
 
 private theorem transform_S_mk (a b c : ℤ) :
@@ -75,7 +75,7 @@ private theorem transform_T_inv_S_self_of_mk_eq (a : ℤ) :
     transform (BinaryQuadraticForm.mk a a a) (ModularGroup.T⁻¹ * ModularGroup.S : SL2Z) =
       BinaryQuadraticForm.mk a a a := by
   ext <;> simp only [transform_a, transform_b, transform_c] <;>
-    norm_num [ModularGroup.S, ModularGroup.T, Matrix.SpecialLinearGroup.coe_inv,
+    norm_num [ModularGroup.coe_S, ModularGroup.coe_T, Matrix.SpecialLinearGroup.coe_inv,
       Matrix.adjugate_fin_two, Matrix.mul_apply, Fin.sum_univ_two]
   all_goals ring
 
@@ -83,7 +83,7 @@ private theorem transform_ST_inv_self_of_mk_eq (a : ℤ) :
     transform (BinaryQuadraticForm.mk a a a) ((ModularGroup.S * ModularGroup.T : SL2Z)⁻¹) =
       BinaryQuadraticForm.mk a a a := by
   ext <;> simp only [transform_a, transform_b, transform_c] <;>
-    norm_num [ModularGroup.S, ModularGroup.T, Matrix.SpecialLinearGroup.coe_inv,
+    norm_num [ModularGroup.coe_S, ModularGroup.coe_T, Matrix.SpecialLinearGroup.coe_inv,
       Matrix.adjugate_fin_two, Matrix.mul_apply, Fin.sum_univ_two]
   all_goals ring
 
@@ -91,7 +91,7 @@ private theorem transform_T_inv_S_inv_self_of_mk_eq (a : ℤ) :
     transform (BinaryQuadraticForm.mk a a a) ((ModularGroup.T⁻¹ * ModularGroup.S : SL2Z)⁻¹) =
       BinaryQuadraticForm.mk a a a := by
   ext <;> simp only [transform_a, transform_b, transform_c] <;>
-    norm_num [ModularGroup.S, ModularGroup.T, Matrix.SpecialLinearGroup.coe_inv,
+    norm_num [ModularGroup.coe_S, ModularGroup.coe_T, Matrix.SpecialLinearGroup.coe_inv,
       Matrix.adjugate_fin_two, Matrix.mul_apply, Fin.sum_univ_two]
   all_goals ring
 

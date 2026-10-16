@@ -5,6 +5,7 @@ Authors: Frankie Wang
 -/
 
 import Mathlib.Algebra.QuadraticAlgebra.Basic
+import Mathlib.Algebra.QuadraticAlgebra.IsQuadraticExtension
 import Mathlib.LinearAlgebra.Dimension.StrongRankCondition
 import Mathlib.LinearAlgebra.Matrix.Reindex
 import Mathlib.LinearAlgebra.Matrix.ToLin
@@ -18,20 +19,6 @@ Material destined for mathlib.
 -/
 
 namespace QuadraticAlgebra
-
-section IsQuadraticExtension
-
-variable {R : Type*} [CommSemiring R] [StrongRankCondition R] (a b : R)
-
-/-- A quadratic algebra is a quadratic extension of its base ring. -/
--- Repository use: this is an instance. It supplies
--- `Algebra.IsQuadraticExtension ℚ (Qsqrtd d)` through the `Qsqrtd` abbreviation,
--- and downstream `NumberField`/ring-of-integers instance search relies on it.
-instance instIsQuadraticExtension :
-    Algebra.IsQuadraticExtension R (QuadraticAlgebra R a b) where
-  finrank_eq_two' := QuadraticAlgebra.finrank_eq_two a b
-
-end IsQuadraticExtension
 
 section CommSemiring
 

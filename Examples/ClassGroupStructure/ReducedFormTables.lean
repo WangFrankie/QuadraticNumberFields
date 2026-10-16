@@ -91,5 +91,8 @@ def composeAndReduce21 := @composeAndReduce
 #guard composeAndReduce21 f21_id f21_C == f21_C
 #guard composeAndReduce21 f21_id f21_id == f21_id
 
+attribute [nolint defsWithUnderscore]
+  f5_id f5_non f23_id f23_a f23_b f21_id f21_A f21_B f21_C
+
 end BinaryQuadraticForm
 end QuadraticNumberFields

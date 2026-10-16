@@ -74,14 +74,16 @@ theorem span_two_eq_P_sq :
 /-- The principal ideal `(2)` has absolute norm `4` in `𝓞(ℚ(√-5))`. -/
 private theorem absNorm_span_two :
     Ideal.absNorm (Ideal.span ({(2 : O)} : Set O)) = 4 := by
-  simpa [O] using QuadraticNumberFields.RingOfIntegers.absNorm_span_intCast (-5) 2
+  convert QuadraticNumberFields.RingOfIntegers.absNorm_span_intCast (-5) 2 using 1 <;>
+    norm_num
 
 /-- The transported ramified prime `P` has absolute norm `2`. -/
 theorem absNorm_P : Ideal.absNorm P = 2 := by
   have hnorm := congrArg Ideal.absNorm span_two_eq_P_sq
   have hsq : Ideal.absNorm P * Ideal.absNorm P = 4 := by
     rw [absNorm_span_two] at hnorm
-    simpa [pow_two] using hnorm.symm
+    rw [map_pow (Ideal.absNorm : Ideal O →*₀ ℕ), pow_two] at hnorm
+    exact hnorm.symm
   nlinarith [sq_nonneg (Ideal.absNorm P : ℤ)]
 
 /-- `P = (2, 1 + √-5)` is not principal: a generator would have norm `2`, but
@@ -96,9 +98,8 @@ theorem not_isPrincipal_P : ¬ P.IsPrincipal := by
     exact hspan
   let z : Z := ringOfIntegersEquiv x
   have hnorm_transport : Algebra.norm ℤ x = Zsqrtd.norm z := by
-    simpa [z] using
-      QuadraticNumberFields.RingOfIntegers.algebraNorm_eq_zsqrtd_norm_of_mod_four_ne_one
-        (-5) (by decide) x
+    simpa only [z, ringOfIntegersEquiv] using
+      RingOfIntegers.algebraNorm_eq_zsqrtd_norm_of_mod_four_ne_one (-5) (by decide) x
   have hz_abs : (Zsqrtd.norm z).natAbs = 2 := by
     rw [← hnorm_transport]
     exact hxnorm_abs
@@ -212,7 +213,7 @@ noncomputable def classGroupMulEquivZMod2 :
     (G := ClassGroup O)
     (G' := Multiplicative (ZMod 2))
     (by
-      simpa [O, NumberField.classNumber, Fintype.card_eq_nat_card] using classNumber_eq_two)
+      simpa only [O, NumberField.classNumber, Nat.card_eq_fintype_card] using classNumber_eq_two)
     (by simp)
 
 end QuadraticNumberFields.Examples.SqrtNeg5

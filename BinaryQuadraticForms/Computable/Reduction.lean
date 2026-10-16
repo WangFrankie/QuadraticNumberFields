@@ -34,11 +34,13 @@ section NormalizeB
 
 /-- The value of `b` after normalisation into `(-a, a]`.  Computed as
 `b mod (2a)`, shifted into that interval. -/
+@[nolint defsWithUnderscore]
 def normalizeB_b (a b : ℤ) (_ha : 0 < a) : ℤ :=
   let r := b % (2 * a)
   if r ≤ a then r else r - 2 * a
 
 /-- The `k` in `T^k` that achieves the normalisation. -/
+@[nolint defsWithUnderscore]
 def normalizeB_k (a b : ℤ) (ha : 0 < a) : ℤ :=
   (normalizeB_b a b ha - b) / (2 * a)
 
@@ -193,7 +195,7 @@ decreasing_by
 
 /-- The swap matrix `(x, y) ↦ (y, -x)` used in the recursive reduction step. -/
 private def swapSL2Z : SL2Z := by
-  refine ⟨![![0, 1], ![-1, 0]], ?_⟩
+  refine ⟨!![0, 1; -1, 0], ?_⟩
   norm_num [Matrix.det_fin_two]
 
 @[simp] private theorem transform_swapSL2Z (Q : BinaryQuadraticForm) :
@@ -308,7 +310,7 @@ private theorem reduceForm_correct (Q : BinaryQuadraticForm) (hpos : Q.IsPositiv
         simpa [Q₁] using normalizeB_properEquivalent Q ha_pos
       rw [reduceForm_eq Q hpos]
       by_cases h_swap : Q₁.a > Q₁.c
-      · rw [dif_pos h_swap]
+      · rw [dite_eq_left h_swap]
         let Q₂ : BinaryQuadraticForm := ⟨Q₁.c, -Q₁.b, Q₁.a⟩
         have hpos₂ : Q₂.IsPositiveDefinite := by
           simpa [Q₂] using swap_isPositiveDefinite hpos₁
@@ -325,15 +327,15 @@ private theorem reduceForm_correct (Q : BinaryQuadraticForm) (hpos : Q.IsPositiv
         have hQ₁_Q₂ : ProperEquivalent Q₁ Q₂ := by
           simpa [Q₂] using swap_properEquivalent Q₁
         exact ⟨hQ_Q₁.trans (hQ₁_Q₂.trans hrec.1), hrec.2⟩
-      · rw [dif_neg h_swap]
+      · rw [dite_eq_right h_swap]
         by_cases hboundary : Q₁.a = Q₁.c ∧ Q₁.b < 0
-        · rw [if_pos hboundary]
+        · rw [ite_eq_left hboundary]
           have hQ₁_flip : ProperEquivalent Q₁ ⟨Q₁.a, -Q₁.b, Q₁.c⟩ :=
             boundary_flip_properEquivalent hboundary.1
           have hred : (BinaryQuadraticForm.mk Q₁.a (-Q₁.b) Q₁.c).IsReduced :=
             isReduced_boundary_flip hb_abs h_swap hboundary
           exact ⟨hQ_Q₁.trans hQ₁_flip, hred⟩
-        · rw [if_neg hboundary]
+        · rw [ite_eq_right hboundary]
           exact ⟨hQ_Q₁, isReduced_of_normalized_no_swap hb_left₁ hb_abs h_swap hboundary⟩
   exact hP Q.a.natAbs Q hpos rfl
 
@@ -388,6 +390,7 @@ All four happen to already be reduced, so `reduceForm` should return them
 unchanged.  We also test a non-reduced form `(6, 6, 5)` which reduces to
 `(5, 4, 5)`. -/
 
+/-- The principal spike form, evaluated by the reduction regression test below. -/
 def testReducePrincipal : BinaryQuadraticForm :=
   let Q := BinaryQuadraticForm.mk 1 0 21
   have hpos : Q.IsPositiveDefinite := by
@@ -398,10 +401,11 @@ def testReducePrincipal : BinaryQuadraticForm :=
 #eval testReducePrincipal
 example : testReducePrincipal = BinaryQuadraticForm.mk 1 0 21 := by
   unfold testReducePrincipal
-  rw [reduceForm_eq]
+  erw [reduceForm_eq]
   norm_num [normalizeB, normalizeB_k, normalizeB_b, disc]
   exact transform_one _
 
+/-- A nonprincipal reduced spike form, evaluated by the regression test below. -/
 def testReduceNonPrincipal : BinaryQuadraticForm :=
   let Q := BinaryQuadraticForm.mk 2 2 11
   have hpos : Q.IsPositiveDefinite := by
@@ -412,10 +416,11 @@ def testReduceNonPrincipal : BinaryQuadraticForm :=
 #eval testReduceNonPrincipal
 example : testReduceNonPrincipal = BinaryQuadraticForm.mk 2 2 11 := by
   unfold testReduceNonPrincipal
-  rw [reduceForm_eq]
+  erw [reduceForm_eq]
   norm_num [normalizeB, normalizeB_k, normalizeB_b, disc]
   exact transform_one _
 
+/-- A non-reduced spike form, evaluated by the reduction regression test below. -/
 def testReduceNonReduced : BinaryQuadraticForm :=
   let Q := BinaryQuadraticForm.mk 6 6 5
   have hpos : Q.IsPositiveDefinite := by
@@ -426,7 +431,7 @@ def testReduceNonReduced : BinaryQuadraticForm :=
 #eval testReduceNonReduced
 example : testReduceNonReduced = BinaryQuadraticForm.mk 5 4 5 := by
   unfold testReduceNonReduced
-  rw [reduceForm_eq]
+  erw [reduceForm_eq]
   norm_num [normalizeB, normalizeB_k, normalizeB_b, disc]
   rw [reduceForm_eq]
   norm_num [normalizeB, normalizeB_k, normalizeB_b, disc]

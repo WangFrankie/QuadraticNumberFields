@@ -50,7 +50,7 @@ theorem exists_genusCoprimeIdeal_mk0_eq (C : Cl⁺(d)) :
   have hcop : Nat.Coprime (Ideal.absNorm (I : Ideal OK)) M :=
     Ideal.absNorm_coprime_of_isCoprime_span_natCast (I : Ideal OK) M hI_ne (by
       simpa [Mideal] using hIcop)
-  refine ⟨⟨I, by simpa [genusCoprimeIdeals, M] using hcop⟩, ?_⟩
+  refine ⟨⟨I, hcop⟩, ?_⟩
   simpa [narrowMk0OnGenusCoprimeIdeals] using hI
 
 /-- The restricted narrow class map is surjective. -/

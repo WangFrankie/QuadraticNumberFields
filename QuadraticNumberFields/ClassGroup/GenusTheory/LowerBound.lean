@@ -44,8 +44,7 @@ theorem two_pow_sub_one_dvd_narrowClassNumber :
   have htarget_dvd :
       Nat.card (AdmissibleGenusSignVector d) ∣
         Nat.card (squareQuotient (Cl⁺(d))) :=
-    Subgroup.card_dvd_of_surjective (genusCharacterMapOnSquareClasses d)
-      (genusCharacterMapOnSquareClasses_surjective d)
+    Subgroup.card_dvd_of_surjective (genusCharacterMapOnSquareClasses_surjective d)
   have hquot_dvd :
       Nat.card (squareQuotient (Cl⁺(d))) ∣ Qsqrtd.narrowClassNumber d := by
     simpa [Subgroup.index_eq_card, Qsqrtd.narrowClassNumber,

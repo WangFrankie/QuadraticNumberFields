@@ -49,6 +49,7 @@ section RingOfIntegersEquiv
 
 /-- **Generic fact**: the ring of integers `𝓞 K` is ring-isomorphic to any
 commutative ring `R` equipped with an `IsIntegralClosure R ℤ K` instance. -/
+@[nolint defsWithUnderscore]
 noncomputable def ringOfIntegers_equiv_of_integralClosure
     (K : Type*) [Field K] (R : Type*) [CommRing R] [Algebra R K] [IsIntegralClosure R ℤ K] :
     𝓞 K ≃+* R :=
@@ -68,6 +69,7 @@ lemma ringOfIntegers_equiv_of_integralClosure_apply
   exact key.symm
 
 /-- **General criterion for identifying the ring of integers.** -/
+@[nolint defsWithUnderscore]
 noncomputable def ringOfIntegers_equiv_of_embedding
     (K : Type*) [Field K]
     (R : Type*) [CommRing R]
@@ -79,14 +81,14 @@ noncomputable def ringOfIntegers_equiv_of_embedding
   letI : Algebra R K := φ.toAlgebra
   letI : IsIntegralClosure R ℤ K :=
     { algebraMap_injective := by
-        simpa [RingHom.toAlgebra] using h_inj
+        exact h_inj
       isIntegral_iff := by
         intro x
         refine ⟨fun hx => ?_, ?_⟩
         · rcases h_exists x hx with ⟨z, hz⟩
-          exact ⟨z, by simpa [RingHom.toAlgebra] using hz⟩
+          exact ⟨z, hz⟩
         · rintro ⟨z, rfl⟩
-          simpa [RingHom.toAlgebra] using h_integral z }
+          exact h_integral z }
   ringOfIntegers_equiv_of_integralClosure K R
 
 /-- The general embedding equiv commutes with `φ`: for any `α : 𝓞 K`, the underlying
@@ -102,14 +104,14 @@ lemma ringOfIntegers_equiv_of_embedding_apply
     φ (ringOfIntegers_equiv_of_embedding K R φ h_inj h_exists h_integral α) = (α : K) := by
   letI : Algebra R K := φ.toAlgebra
   letI : IsIntegralClosure R ℤ K :=
-    { algebraMap_injective := by simpa [RingHom.toAlgebra] using h_inj
+    { algebraMap_injective := h_inj
       isIntegral_iff := by
         intro x
         refine ⟨fun hx => ?_, ?_⟩
         · rcases h_exists x hx with ⟨z, hz⟩
-          exact ⟨z, by simpa [RingHom.toAlgebra] using hz⟩
+          exact ⟨z, hz⟩
         · rintro ⟨z, rfl⟩
-          simpa [RingHom.toAlgebra] using h_integral z }
+          exact h_integral z }
   change algebraMap R K _ = algebraMap (𝓞 K) K α
   exact ringOfIntegers_equiv_of_integralClosure_apply (R := R) α
 

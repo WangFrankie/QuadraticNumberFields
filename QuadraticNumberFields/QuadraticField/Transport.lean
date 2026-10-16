@@ -49,13 +49,15 @@ theorem isQuadraticExtension_of_algEquiv [QuadraticField K] (e : K ≃ₐ[ℚ] L
 them reducible lets instance search unfold them when a local transported
 instance is introduced with `letI`. -/
 
+set_option linter.defProp false in
 /-- Transport the `QuadraticField` class across a `ℚ`-algebra equivalence. -/
-@[reducible, nolint defLemma]
+@[reducible]
 def transportAlong [QuadraticField K] (e : K ≃ₐ[ℚ] L) : QuadraticField L where
   isQuadratic := isQuadraticExtension_of_algEquiv e
 
+set_option linter.defProp false in
 /-- Transport `QuadraticField` in the reverse direction across a `ℚ`-algebra equivalence. -/
-@[reducible, nolint defLemma]
+@[reducible]
 def transportBack [QuadraticField L] (e : K ≃ₐ[ℚ] L) : QuadraticField K :=
   transportAlong e.symm
 

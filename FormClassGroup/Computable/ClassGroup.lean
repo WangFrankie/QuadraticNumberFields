@@ -171,11 +171,12 @@ theorem idealOfForm_composeForm_of_mod_four_ne_one
   let u₂ : ℤ := (-R'.b) / 2
   let u : ℤ := (-B) / 2
   have hcop : Int.gcd Q.1.a R'.a = 1 := by
-    simpa [R'F, R'] using gcd_left_a_unitedRep Q.1 R.1 hRprim hQa
+    change Int.gcd Q.1.a (unitedRep Q.1 R.1 hRprim hQa).a = 1
+    exact gcd_left_a_unitedRep Q.1 R.1 hRprim hQa
   have hdisc_eq : Q.1.disc = R'.disc := by
-    simpa [R'F, R'] using
-      hQR.trans (disc_eq_of_properEquivalent
-        (unitedRep_properEquivalent Q.1 R.1 hRprim hQa))
+    change Q.1.disc = (unitedRep Q.1 R.1 hRprim hQa).disc
+    exact hQR.trans (disc_eq_of_properEquivalent
+      (unitedRep_properEquivalent Q.1 R.1 hRprim hQa))
   have hpar : 2 ∣ R'.b - Q.1.b := by
     rcases even_sub_b_of_same_discriminant hdisc_eq with ⟨k, hk⟩
     exact ⟨k, by rw [hk]; ring⟩
@@ -300,11 +301,12 @@ theorem idealOfForm_composeForm_of_mod_four_eq_one
   let u₂ : ℤ := -(R'.b + 1) / 2
   let u : ℤ := -(B + 1) / 2
   have hcop : Int.gcd Q.1.a R'.a = 1 := by
-    simpa [R'F, R'] using gcd_left_a_unitedRep Q.1 R.1 hRprim hQa
+    change Int.gcd Q.1.a (unitedRep Q.1 R.1 hRprim hQa).a = 1
+    exact gcd_left_a_unitedRep Q.1 R.1 hRprim hQa
   have hdisc_eq : Q.1.disc = R'.disc := by
-    simpa [R'F, R'] using
-      hQR.trans (disc_eq_of_properEquivalent
-        (unitedRep_properEquivalent Q.1 R.1 hRprim hQa))
+    change Q.1.disc = (unitedRep Q.1 R.1 hRprim hQa).disc
+    exact hQR.trans (disc_eq_of_properEquivalent
+      (unitedRep_properEquivalent Q.1 R.1 hRprim hQa))
   have hpar : 2 ∣ R'.b - Q.1.b := by
     rcases even_sub_b_of_same_discriminant hdisc_eq with ⟨k, hk⟩
     exact ⟨k, by rw [hk]; ring⟩
@@ -444,7 +446,10 @@ theorem composeForm_mk [Fact (d < 0)]
     formClassToClassGroup d (q * r)
   rw [show formClassToClassGroup d
       (q * r) = formClassToClassGroup d q * formClassToClassGroup d r by
-    simpa [q, r] using formClassEquivClassGroup_mul hdneg q r]
+    have hmul := formClassEquivClassGroup_mul hdneg q r
+    change formClassToClassGroup d (q * r) =
+      formClassToClassGroup d q * formClassToClassGroup d r at hmul
+    exact hmul]
   by_cases hd4 : d % 4 = 1
   · rw [formClassToClassGroup_mk_eq_of_mod_four_eq_one d hd4]
     rw [formClassToClassGroup_mk_eq_of_mod_four_eq_one d hd4]
@@ -508,8 +513,10 @@ theorem gaussMul_eq_reducedFormRepMul_val
     apply Quotient.sound
     change ProperEquivalent (primitivePositiveDefiniteFormOfMemEnum G.2).1 compP.1
     apply ProperEquivalent.symm
-    unfold G gaussMul compP composeFormPrimitiveOfCoprime Qp Rp
-    simpa using reduceForm_properEquivalent
+    change (composeForm Q.1 R.1 hQR hRprim hQa).ProperEquivalent
+      (reduceForm (composeForm Q.1 R.1 hQR hRprim hQa)
+        (composeForm_isPositiveDefinite Q.1 R.1 hQR hRprim hQa hQpos hRpos))
+    exact reduceForm_properEquivalent
       (composeForm Q.1 R.1 hQR hRprim hQa)
       (composeForm_isPositiveDefinite Q.1 R.1 hQR hRprim hQa hQpos hRpos)
   have hcomp_class :
@@ -564,8 +571,14 @@ section Regression_d21
 
 /-- All four reduced forms for discriminant `-84`. -/
 def f1 : BinaryQuadraticForm := BinaryQuadraticForm.mk 1 0 21
+
+/-- The second reduced form for discriminant `-84`. -/
 def f2 : BinaryQuadraticForm := BinaryQuadraticForm.mk 2 2 11
+
+/-- The third reduced form for discriminant `-84`. -/
 def f3 : BinaryQuadraticForm := BinaryQuadraticForm.mk 3 0 7
+
+/-- The fourth reduced form for discriminant `-84`. -/
 def f4 : BinaryQuadraticForm := BinaryQuadraticForm.mk 5 4 5
 
 /-- Compose and reduce two forms in one step (for `#eval` testing). -/

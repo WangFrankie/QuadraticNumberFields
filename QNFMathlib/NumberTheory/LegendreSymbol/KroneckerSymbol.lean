@@ -75,7 +75,7 @@ theorem kroneckerNegOne_of_neg {D : ℤ} (hD : D < 0) :
 @[simp]
 theorem kroneckerNegOne_of_nonneg {D : ℤ} (hD : 0 ≤ D) :
     kroneckerNegOne D = 1 := by
-  rw [kroneckerNegOne, if_neg (not_lt.mpr hD)]
+  rw [kroneckerNegOne, ite_eq_right (not_lt.mpr hD)]
 
 /-- The supplementary value `(D / -1)` has square one. -/
 @[simp]
@@ -149,7 +149,7 @@ theorem kroneckerTwo_eq_neg_one_iff (D : ℤ) :
 `kroneckerSymNat` at its absolute value. -/
 theorem kroneckerSym_of_nonneg (D : ℤ) {n : ℤ} (hn : 0 ≤ n) :
     kroneckerSym D n = kroneckerSymNat D n.natAbs := by
-  rw [kroneckerSym, if_neg (not_lt.mpr hn), one_mul]
+  rw [kroneckerSym, ite_eq_right (not_lt.mpr hn), one_mul]
 
 /-- At a negative denominator, `kroneckerSym` is the natural-denominator value
 times the supplementary factor `(D / -1)`. -/
@@ -209,7 +209,7 @@ theorem kroneckerSymNat_eq_legendreSym_of_ne_two (D : ℤ) {p : ℕ} [hp : Fact 
   have h2 : p.factorization 2 = 0 :=
     Nat.factorization_eq_zero_of_not_dvd fun hdvd =>
       hp2 ((Nat.prime_dvd_prime_iff_eq Nat.prime_two hp.out).mp hdvd).symm
-  rw [kroneckerSymNat, if_neg hp.out.ne_zero, h2, pow_zero, one_mul, pow_zero, Nat.div_one,
+  rw [kroneckerSymNat, ite_eq_right hp.out.ne_zero, h2, pow_zero, one_mul, pow_zero, Nat.div_one,
     jacobiSym.legendreSym.to_jacobiSym]
 
 /-- For an odd natural prime viewed as an integer denominator, the Kronecker

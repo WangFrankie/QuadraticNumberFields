@@ -21,3 +21,6 @@ jobs:
           build: true
           lint: false
           test: false
+
+      - name: Audit core axioms
+        run: lake env lean scripts/check_core_axioms.lean

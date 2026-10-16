@@ -162,7 +162,7 @@ theorem primeDiscriminantFactor_emod_four_eq_zero_or_one
   · left
     rw [primeDiscriminantFactor_of_val_eq_two d p hp2, twoPrimeDiscriminantFactor]
     by_cases hd2 : d % 2 = 0
-    · simp only [hd2, if_pos]
+    · simp only [hd2, ite_eq_left]
       by_cases hd8 : d % 8 = 2 <;> simp [hd8]
     · simp [hd2]
   · right

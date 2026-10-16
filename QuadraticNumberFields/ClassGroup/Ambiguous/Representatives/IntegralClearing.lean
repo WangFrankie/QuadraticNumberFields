@@ -134,7 +134,7 @@ square denominator. If `a` is a denominator for `F`, this is
 `(a * σ a ^ 2) * F.num`, whose associated fractional ideal is
 `(a * σ a)^2 * F`. -/
 private noncomputable def conjInvariantIntegralRep
-    (K : Type) [Field K] [NumberField K] [Algebra ℚ K]
+    (K : Type) [Field K] [Algebra ℚ K]
     [QuadraticField K] [QuadraticField.Conj K]
     (F : FractionalIdeal (𝓞 K)⁰
       (FractionRing (𝓞 K))) :
@@ -146,7 +146,7 @@ private noncomputable def conjInvariantIntegralRep
 /-- The conjugation-invariant integral representative is nonzero when the
 fractional ideal is nonzero. -/
 private theorem conjInvariantIntegralRep_mem_nonZeroDivisors
-    (K : Type) [Field K] [NumberField K] [Algebra ℚ K]
+    (K : Type) [Field K] [Algebra ℚ K]
     [QuadraticField K] [QuadraticField.Conj K]
     {F : FractionalIdeal (𝓞 K)⁰
       (FractionRing (𝓞 K))}
@@ -167,7 +167,7 @@ private theorem conjInvariantIntegralRep_mem_nonZeroDivisors
 /-- As a fractional ideal, the conjugation-invariant integral representative is
 the original fractional ideal multiplied by a square denominator. -/
 private theorem coe_conjInvariantIntegralRep
-    (K : Type) [Field K] [NumberField K] [Algebra ℚ K]
+    (K : Type) [Field K] [Algebra ℚ K]
     [QuadraticField K] [QuadraticField.Conj K]
     (F : FractionalIdeal (𝓞 K)⁰
       (FractionRing (𝓞 K))) :
@@ -191,7 +191,7 @@ private theorem coe_conjInvariantIntegralRep
     show (F.num : FractionalIdeal R⁰ (FractionRing R)) =
       FractionalIdeal.spanSingleton R⁰ (algebraMap R (FractionRing R) a) * F by
         rw [FractionalIdeal.den_mul_self_eq_num'],
-    ← mul_assoc, FractionalIdeal.spanSingleton_mul_spanSingleton]
+    ← mul_assoc, ← map_mul]
   congr 1
   simp [pow_two, mul_left_comm, mul_comm]
 
@@ -208,7 +208,7 @@ private theorem conjAutRingOfIntegers_mul_conj_fixed
 /-- The conjugation-invariant integral representative is an ambiguous ideal when
 the original fractional ideal is fixed by fractional-ideal conjugation. -/
 private theorem conjInvariantIntegralRep_isAmbiguous
-    (K : Type) [Field K] [NumberField K] [Algebra ℚ K]
+    (K : Type) [Field K] [Algebra ℚ K]
     [QuadraticField K] [QuadraticField.Conj K]
     (F : (FractionalIdeal (𝓞 K)⁰
       (FractionRing (𝓞 K)))ˣ)
@@ -301,10 +301,10 @@ private theorem exists_tp_multiplier_conjInvariantIntegralRep
               FractionalIdeal.spanSingleton R⁰ (z⁻¹ ^ 2)) := by
         ac_rfl
       _ = F.1 * FractionalIdeal.spanSingleton R⁰ 1 := by
-        rw [FractionalIdeal.spanSingleton_mul_spanSingleton,
+        rw [← map_mul,
           show z ^ 2 * (z⁻¹ ^ 2) = 1 by rw [← mul_pow, mul_inv_cancel₀ hz0, one_pow]]
       _ = F.1 := by
-        rw [FractionalIdeal.spanSingleton_one, mul_one]
+        rw [map_one, mul_one]
 
 /-- Integral clearing boundary for a conjugation-stable fractional representative.
 If the fractional representative `I * (y)` matches its conjugate factorization,

@@ -200,8 +200,6 @@ theorem eq_of_tauOfForm_eq_of_disc_eq (Q R : BinaryQuadraticForm)
   have hdQ := disc_lt_zero_real Q hQ
   rcases Q with ⟨a, b, c⟩
   rcases R with ⟨A, B, C⟩
-  change 0 < a ∧ b ^ 2 - 4 * a * c < 0 at hQ
-  change 0 < A ∧ B ^ 2 - 4 * A * C < 0 at hR
   change b ^ 2 - 4 * a * c = B ^ 2 - 4 * A * C at hdisc
   have ha : (a : ℝ) ≠ 0 := by exact_mod_cast (ne_of_gt hQ.1)
   have hA : (A : ℝ) ≠ 0 := by exact_mod_cast (ne_of_gt hR.1)
@@ -320,7 +318,7 @@ weak reduced-form inequalities. -/
 theorem tauOfForm_mem_fd_iff (Q : BinaryQuadraticForm) (hQ : Q.IsPositiveDefinite) :
     tauOfForm Q hQ ∈ ModularGroup.fd ↔ |Q.b| ≤ Q.a ∧ Q.a ≤ Q.c := by
   rw [ModularGroup.fd]
-  simp only [Set.mem_setOf_eq, normSq_tauOfForm, tauOfForm_re]
+  simp only [Set.mem_ofPred_eq, normSq_tauOfForm, tauOfForm_re]
   rw [one_le_div_iff_int hQ.1, abs_re_le_half_iff hQ.1]
   exact and_comm
 
@@ -336,7 +334,7 @@ strict reduced-form inequalities. -/
 theorem tauOfForm_mem_fdo_iff (Q : BinaryQuadraticForm) (hQ : Q.IsPositiveDefinite) :
     tauOfForm Q hQ ∈ ModularGroup.fdo ↔ |Q.b| < Q.a ∧ Q.a < Q.c := by
   rw [ModularGroup.fdo]
-  simp only [Set.mem_setOf_eq, normSq_tauOfForm, tauOfForm_re]
+  simp only [Set.mem_ofPred_eq, normSq_tauOfForm, tauOfForm_re]
   rw [one_lt_div_iff_int hQ.1, abs_re_lt_half_iff hQ.1]
   exact and_comm
 

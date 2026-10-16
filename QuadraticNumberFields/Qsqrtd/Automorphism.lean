@@ -63,7 +63,7 @@ theorem algEquiv_self_eq_refl_or_star
   obtain ⟨ha, -, hr⟩ :=
     ringEquiv_param_rel (not_isSquare_ratCast_of_squarefree_ne_one Fact.out Fact.out)
       σ.toRingEquiv hφ_d
-  simp only [AlgEquiv.coe_ringEquiv] at ha hr
+  simp only [AlgEquiv.coe_toRingEquiv] at ha hr
   set a := (σ (⟨0, 1⟩ : Qsqrtd (d : ℚ))).re
   set b := (σ (⟨0, 1⟩ : Qsqrtd (d : ℚ))).im
   have hφ_eta : σ (⟨0, 1⟩ : Qsqrtd (d : ℚ)) = ⟨a, b⟩ := by ext <;> rfl
@@ -73,7 +73,7 @@ theorem algEquiv_self_eq_refl_or_star
   have hAM :
       ∀ q : ℚ, algebraMap ℚ (Qsqrtd (d : ℚ)) q = (⟨q, 0⟩ : Qsqrtd (d : ℚ)) := by
     intro q
-    rw [← QuadraticAlgebra.algebraMap_eq (R := ℚ) (a := (d : ℚ)) (b := 0) q]
+    ext <;> simp
   -- Every element decomposes as `x = algebraMap x.re + algebraMap x.im * ⟨0, 1⟩`.
   have hdecomp : ∀ x : Qsqrtd (d : ℚ),
       x = algebraMap ℚ (Qsqrtd (d : ℚ)) x.re +

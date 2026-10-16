@@ -5,12 +5,12 @@ Authors: Frankie Wang
 -/
 
 import Mathlib.Algebra.Algebra.Hom.Rat
-import Mathlib.Algebra.Exact
-import Mathlib.Data.Fintype.Units
-import Mathlib.Data.Real.Archimedean
-import Mathlib.Data.Real.Basic
-import Mathlib.Data.Sign.Basic
-import Mathlib.RingTheory.ClassGroup
+import Mathlib.Algebra.Exact.Basic
+import Mathlib.Algebra.GroupWithZero.Units.Fintype
+import Mathlib.Algebra.Order.Archimedean.Real.Basic
+import Mathlib.Basic.Real.Basic
+import Mathlib.Basic.Sign.Basic
+import Mathlib.RingTheory.ClassGroup.Basic
 import Mathlib.RingTheory.DedekindDomain.Factorization
 import Mathlib.RingTheory.DedekindDomain.Ideal.Lemmas
 
@@ -101,7 +101,7 @@ theorem mulExact_subgroupQuotientToQuotient_mapOfLE (N M : Subgroup G) (hNM : N 
   constructor
   · intro hq
     obtain ⟨g, rfl⟩ := QuotientGroup.mk'_surjective N q
-    rw [MonoidHom.mem_ker, QuotientGroup.map_mk'] at hq
+    change QuotientGroup.mk' M g = 1 at hq
     have hgM : g ∈ M := (QuotientGroup.eq_one_iff (N := M) g).mp hq
     exact ⟨QuotientGroup.mk' (N.subgroupOf M) ⟨g, hgM⟩,
       subgroupQuotientToQuotient_mk N M ⟨g, hgM⟩⟩
@@ -112,7 +112,7 @@ theorem mulExact_subgroupQuotientToQuotient_mapOfLE (N M : Subgroup G) (hNM : N 
         change QuotientGroup.map N M (MonoidHom.id G) hNM
             (subgroupQuotientToQuotient N M (x : M ⧸ N.subgroupOf M)) = 1
         rw [subgroupQuotientToQuotient_mk]
-        rw [QuotientGroup.map_mk']
+        change QuotientGroup.mk' M (x : G) = 1
         exact (QuotientGroup.eq_one_iff (N := M) (x : G)).mpr x.2
 
 end SubgroupQuotient
@@ -334,6 +334,8 @@ theorem toPositivePrincipalIdeals_surjective :
   exact ⟨x, Subtype.ext hx⟩
 
 /-- Exactness at `K₊ˣ` in `1 → O_Kˣ⁺ → K₊ˣ → P_K⁺ → 1`. -/
+-- Retain the Dedekind hypothesis to preserve the existing public theorem signature.
+@[nolint unusedArguments]
 theorem totallyPositiveRingUnitsToField_mulExact_toPositivePrincipalIdeals
     [IsDomain R] [IsDedekindDomain R] :
     Function.MulExact (totallyPositiveRingUnitsToField R K) (toPositivePrincipalIdeals R K) := by
@@ -351,7 +353,7 @@ theorem totallyPositiveRingUnitsToField_mulExact_toPositivePrincipalIdeals
     have hspan :
         FractionalIdeal.spanSingleton R⁰ (1 : K) =
           FractionalIdeal.spanSingleton R⁰ ((q : Kˣ) : K) := by
-      rw [FractionalIdeal.spanSingleton_one]
+      rw [map_one]
       exact hq'.symm
     rcases (FractionalIdeal.spanSingleton_eq_spanSingleton (S := R⁰) (P := K)).mp hspan
       with ⟨u, hu⟩
@@ -371,7 +373,7 @@ theorem totallyPositiveRingUnitsToField_mulExact_toPositivePrincipalIdeals
       rw [FractionalIdeal.spanSingleton_eq_spanSingleton]
       exact ⟨u, by simp [Units.smul_def, Algebra.smul_def]⟩
     simpa [toNarrowPrincipalIdeal, totallyPositiveRingUnitsToField, ringUnitToFractionRing,
-      coe_toPrincipalIdeal, FractionalIdeal.spanSingleton_one] using hspan.symm
+      coe_toPrincipalIdeal] using hspan.symm
 
 /-- Concrete principal-layer consequence of positive Hilbert 90.
 
@@ -474,7 +476,7 @@ noncomputable def toClassGroup (R : Type*) [CommRing R] [IsDomain R] :
 corresponding ordinary ideal class. -/
 @[simp]
 theorem toClassGroup_mk (I : (FractionalIdeal R⁰ K)ˣ) :
-    toClassGroup R (mk I) = ClassGroup.mk I := by
+    toClassGroup R (mk I) = ClassGroup.mk K I := by
   rw [mk_def, ClassGroup.mk_def]
   exact QuotientGroup.map_mk' (narrowPrincipalIdeals R (FractionRing R))
     (toPrincipalIdeal R (FractionRing R)).range (MonoidHom.id _)
@@ -655,11 +657,11 @@ noncomputable def principalIdealsQuotientToNarrow (R : Type*) [CommRing R] [IsDo
 theorem mulExact_principalIdealsQuotientToNarrow_toClassGroup
     (R : Type*) [CommRing R] [IsDomain R] :
     Function.MulExact (principalIdealsQuotientToNarrow R) (toClassGroup R) := by
-  simpa [principalIdealsQuotientToNarrow, toClassGroup] using
-    QuotientGroup.mulExact_subgroupQuotientToQuotient_mapOfLE
-      (N := narrowPrincipalIdeals R (FractionRing R))
-      (M := (toPrincipalIdeal R (FractionRing R)).range)
-      (narrowPrincipalIdeals_le_principalIdeals (R := R) (K := FractionRing R))
+  unfold principalIdealsQuotientToNarrow toClassGroup NarrowClassGroup ClassGroup
+  exact QuotientGroup.mulExact_subgroupQuotientToQuotient_mapOfLE
+    (N := narrowPrincipalIdeals R (FractionRing R))
+    (M := (toPrincipalIdeal R (FractionRing R)).range)
+    (narrowPrincipalIdeals_le_principalIdeals (R := R) (K := FractionRing R))
 
 /-- The image of principal fractional ideals in the narrow class group is exactly
 the kernel of the map `Cl⁺(K) → Cl(K)`. -/
@@ -748,7 +750,8 @@ theorem exists_isTotallyPositive_generator_of_mk0_eq_one
   have hI_frac :
       ((I : Ideal R) : FractionalIdeal R⁰ (FractionRing R)) =
         FractionalIdeal.spanSingleton R⁰ (x⁻¹ : FractionRing R) := by
-    simpa [coe_toPrincipalIdeal] using
+    simpa only [← map_inv, coe_toPrincipalIdeal, FractionalIdeal.coe_mk0,
+      Units.val_inv_eq_inv_val] using
       congrArg Units.val (eq_inv_of_mul_eq_one_left hx)
   have hxinv_mem : (x⁻¹ : FractionRing R) ∈
       ((I : Ideal R) : FractionalIdeal R⁰ (FractionRing R)) := by
@@ -791,16 +794,14 @@ theorem exists_toPrincipalIdeal_eq_mk0_of_isPrincipal [IsDedekindDomain R]
   rfl
 
 /-- Negating a fraction-field unit does not change its principal fractional ideal. -/
-theorem toPrincipalIdeal_neg [IsDedekindDomain R]
-    (γ : (FractionRing R)ˣ) :
+theorem toPrincipalIdeal_neg (γ : (FractionRing R)ˣ) :
     toPrincipalIdeal R (FractionRing R) (-γ) = toPrincipalIdeal R (FractionRing R) γ := by
   rw [← Units.val_inj]
   rw [coe_toPrincipalIdeal, coe_toPrincipalIdeal]
   rw [FractionalIdeal.spanSingleton_eq_spanSingleton]
   exact ⟨-1, by simp⟩
 
-private theorem toPrincipalIdeal_algebraMap_unit_eq_one [IsDedekindDomain R]
-    (u : Rˣ) :
+private theorem toPrincipalIdeal_algebraMap_unit_eq_one (u : Rˣ) :
     toPrincipalIdeal R (FractionRing R)
         (Units.map (algebraMap R (FractionRing R)).toMonoidHom u) = 1 := by
   rw [← Units.val_inj]
@@ -813,6 +814,8 @@ private theorem toPrincipalIdeal_algebraMap_unit_eq_one [IsDedekindDomain R]
 
 /-- Multiplying a fraction-field generator by an integral unit does not change
 its principal fractional ideal. -/
+-- Retain the Dedekind hypothesis to preserve the existing public theorem signature.
+@[nolint unusedArguments]
 theorem toPrincipalIdeal_mul_algebraMap_unit [IsDedekindDomain R]
     (γ : (FractionRing R)ˣ) (u : Rˣ) :
     toPrincipalIdeal R (FractionRing R)
@@ -972,7 +975,7 @@ theorem mk0_integralRep [IsDedekindDomain R]
           (spanSingleton R⁰ a * (I : FractionalIdeal R⁰ (FractionRing R))) := by
         rw [FractionalIdeal.den_mul_self_eq_num']
       _ = spanSingleton R⁰ (a ^ 2) * (I : FractionalIdeal R⁰ (FractionRing R)) := by
-        rw [← mul_assoc, FractionalIdeal.spanSingleton_mul_spanSingleton, pow_two]
+        rw [← mul_assoc, ← map_mul, pow_two]
       _ = (P : (FractionalIdeal R⁰ (FractionRing R))ˣ) * I := by
         simp [P, u, toNarrowPrincipalIdeal, coe_toPrincipalIdeal]
   rw [hrep, map_mul]
@@ -989,7 +992,8 @@ theorem mk0_surjective [IsDedekindDomain R] :
     QuotientGroup.mk'_surjective (narrowPrincipalIdeals R (FractionRing R)) C
   refine ⟨⟨integralRep I, integralRep_mem_nonZeroDivisors I.ne_zero⟩, ?_⟩
   rw [mk0_integralRep]
-  simpa [mk_eq_mk'] using hI
+  rw [mk_eq_mk']
+  exact hI
 
 private theorem exists_nat_forall_pos_add_nat_mul
     {ι : Type*} [Finite ι] (x c : ι → ℝ) (hc : ∀ i, 0 < c i) :
@@ -1269,7 +1273,7 @@ theorem finite_ker_toClassGroup (R : Type*) [CommRing R] [IsDomain R]
 /-- The narrow class group is finite if the wide class group is finite and the
 fraction field has finitely many real embeddings. -/
 instance instFiniteNarrowClassGroup (R : Type*) [CommRing R] [IsDomain R]
-    [IsDedekindDomain R] [Finite (ClassGroup R)] [Finite (FractionRing R →+* ℝ)] :
+    [Finite (ClassGroup R)] [Finite (FractionRing R →+* ℝ)] :
     Finite (NarrowClassGroup R) := by
   rw [(toClassGroup R).finite_iff_finite_ker_range]
   exact ⟨finite_ker_toClassGroup R, inferInstance⟩

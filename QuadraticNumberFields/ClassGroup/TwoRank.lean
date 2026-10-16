@@ -56,7 +56,7 @@ square quotients over `ZMod 2`. -/
 noncomputable def squareQuotientLinearEquiv (e : G ≃* H) :
     Additive (squareQuotient G) ≃ₗ[ZMod 2] Additive (squareQuotient H) :=
   { (squareQuotientMulEquiv e).toAdditive with
-    map_smul' := ZMod.map_smul _ }
+    map_smul' := ZMod.map_smul (squareQuotientMulEquiv e).toAdditive }
 
 /-- The underlying group equivalence is `squareQuotientMulEquiv e`. -/
 @[simp]
@@ -77,9 +77,13 @@ theorem card_squareQuotient_eq_two_pow_twoRank [Finite (squareQuotient G)] :
   letI : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
   change Nat.card (squareQuotient G) =
     2 ^ Module.finrank (ZMod 2) (Additive (squareQuotient G))
-  simpa using
-    (Module.natCard_eq_pow_finrank
-      (K := ZMod 2) (V := Additive (squareQuotient G)))
+  calc
+    Nat.card (squareQuotient G) = Nat.card (Additive (squareQuotient G)) :=
+      Nat.card_congr Additive.ofMul
+    _ = 2 ^ Module.finrank (ZMod 2) (Additive (squareQuotient G)) :=
+      by simpa using
+        (Module.natCard_eq_pow_finrank
+          (K := ZMod 2) (V := Additive (squareQuotient G)))
 
 end CommGroup
 

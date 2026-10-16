@@ -95,8 +95,7 @@ noncomputable def reducedRepresentativeRep (C : FormClass D) : ReducedFormRep D 
 /-- The chosen reduced representative represents the original form class. -/
 theorem reducedRepresentativeRep_formClass (C : FormClass D) :
     (reducedRepresentativeRep C).formClass = C := by
-  simpa [ReducedFormRep.formClass, reducedRepresentativeRep,
-    primitivePositiveDefiniteFormOfMemEnum] using reducedRepresentative_mk_eq C
+  exact reducedRepresentative_mk_eq C
 
 /-- Passing from a reduced representative to its class and choosing the reduced
 representative returns the original enumerated representative. -/

@@ -52,7 +52,7 @@ private lemma kroneckerSymNat_two_pow_mul_odd (D : ℤ) (k : ℕ) {m : ℕ} (hm 
     rw [Nat.factorization_mul (pow_ne_zero _ (by decide)) hm0]
     simp [Nat.factorization_pow, Nat.Prime.factorization_self h2,
       Nat.factorization_eq_zero_of_not_dvd (Odd.not_two_dvd_nat hm)]
-  rw [kroneckerSymNat, if_neg hmn0, hfact]
+  rw [kroneckerSymNat, ite_eq_right hmn0, hfact]
   congr 1
   rw [Nat.mul_div_cancel_left m (pow_pos (by decide : (0 : ℕ) < 2) k)]
 
@@ -62,7 +62,7 @@ theorem kroneckerSymNat_eq_jacobiSym_of_odd (D : ℤ) {n : ℕ} (hn : Odd n) :
   have hn0 : n ≠ 0 := hn.pos.ne'
   have hfact : n.factorization 2 = 0 :=
     Nat.factorization_eq_zero_of_not_dvd hn.not_two_dvd_nat
-  rw [kroneckerSymNat, if_neg hn0, hfact, pow_zero, one_mul, pow_zero, Nat.div_one]
+  rw [kroneckerSymNat, ite_eq_right hn0, hfact, pow_zero, one_mul, pow_zero, Nat.div_one]
 
 private lemma kroneckerTwo_sq_one_of_natAbs_not_even (D : ℤ)
     (hD : ¬2 ∣ D.natAbs) :
@@ -189,7 +189,7 @@ theorem kroneckerSymNat_eq_jacobiSym_natAbs_of_emod_four_eq_one (D : ℤ)
     · have hD0 : D.natAbs ≠ 0 := by omega
       have hDgt : 1 < D.natAbs :=
         lt_of_le_of_ne (Nat.one_le_iff_ne_zero.mpr hD0) (Ne.symm hD1)
-      rw [kroneckerSymNat, if_pos rfl, if_neg hD1]
+      rw [kroneckerSymNat, ite_eq_left rfl, ite_eq_right hD1]
       exact (jacobiSym.zero_left hDgt).symm
   · obtain ⟨k, m, hm, rfl⟩ := Nat.exists_eq_two_pow_mul_odd hn0
     rw [kroneckerSymNat_two_pow_mul_odd D k hm]
@@ -455,7 +455,7 @@ theorem kroneckerSymNat_natAbs_sub_one_eq_sign (D : ℤ)
     · rw (occs := .pos [1]) [hpos]
       rw [hN]
       have hlt : ¬4 * a < 0 := by omega
-      rw [if_neg hlt]
+      rw [ite_eq_right hlt]
       exact jacobiSym_nat_four_mul_sub_one a.natAbs ha0
     · calc
         jacobiSym a ((4 * a).natAbs - 1) =
@@ -464,7 +464,7 @@ theorem kroneckerSymNat_natAbs_sub_one_eq_sign (D : ℤ)
         _ = if 4 * a < 0 then -1 else 1 := by
           rw [hN]
           have hlt : 4 * a < 0 := by omega
-          rw [if_pos hlt]
+          rw [ite_eq_left hlt]
           exact jacobiSym_neg_nat_four_mul_sub_one a.natAbs ha0
   · rw [kroneckerSymNat_eq_jacobiSym_natAbs_of_emod_four_eq_one D hd4]
     have hNodd : Odd D.natAbs := odd_natAbs_of_emod_four_eq_one D hd4
@@ -483,10 +483,10 @@ theorem kroneckerSymNat_natAbs_sub_one_eq_sign (D : ℤ)
     rcases Int.natAbs_eq D with hpos | hnegD
     · have hN4 : D.natAbs % 4 = 1 := by omega
       have hlt : ¬D < 0 := by omega
-      rw [ZMod.χ₄_nat_one_mod_four hN4, if_neg hlt]
+      rw [ZMod.χ₄_nat_one_mod_four hN4, ite_eq_right hlt]
     · have hN4 : D.natAbs % 4 = 3 := by omega
       have hlt : D < 0 := by omega
-      rw [ZMod.χ₄_nat_three_mod_four hN4, if_pos hlt]
+      rw [ZMod.χ₄_nat_three_mod_four hN4, ite_eq_left hlt]
 
 private lemma kroneckerTwo_eq_chi8 (D : ℤ) : kroneckerTwo D = ZMod.χ₈ D := by
   rw [ZMod.χ₈_int_eq_if_mod_eight]
@@ -502,7 +502,7 @@ theorem kroneckerTwo_mul (D E : ℤ) :
 natural denominators. -/
 theorem kroneckerSymNat_mul_left (D E : ℤ) {n : ℕ} (hn : n ≠ 0) :
     kroneckerSymNat (D * E) n = kroneckerSymNat D n * kroneckerSymNat E n := by
-  rw [kroneckerSymNat, if_neg hn, kroneckerSymNat, if_neg hn, kroneckerSymNat, if_neg hn,
+  rw [kroneckerSymNat, ite_eq_right hn, kroneckerSymNat, ite_eq_right hn, kroneckerSymNat, ite_eq_right hn,
     kroneckerTwo_mul, jacobiSym.mul_left]
   ring
 
@@ -511,7 +511,7 @@ theorem kroneckerSymNat_mul_left (D E : ℤ) {n : ℕ} (hn : n ≠ 0) :
 theorem kroneckerSymNat_one_left (n : ℕ) : kroneckerSymNat 1 n = 1 := by
   by_cases hn : n = 0
   · simp [kroneckerSymNat, hn]
-  · rw [kroneckerSymNat, if_neg hn]
+  · rw [kroneckerSymNat, ite_eq_right hn]
     simp [kroneckerTwo]
 
 /-- Pull a finite product out of the upper argument of `kroneckerSymNat`, for a
@@ -592,7 +592,7 @@ theorem kroneckerSym_eq_zero_iff_not_coprime (D n : ℤ) :
   by_cases hn : n < 0
   · rw [kroneckerSym_of_neg D hn, mul_eq_zero]
     simp [kroneckerSymNat_eq_zero_iff_not_coprime]
-  · rw [kroneckerSym, if_neg hn, one_mul,
+  · rw [kroneckerSym, ite_eq_right hn, one_mul,
       kroneckerSymNat_eq_zero_iff_not_coprime]
 
 /-- At a denominator coprime to the numerator, the integer-denominator
@@ -604,7 +604,7 @@ theorem kroneckerSym_sq_one_of_coprime (D n : ℤ)
   by_cases hn : n < 0
   · rw [kroneckerSym_of_neg D hn, mul_pow, kroneckerNegOne_sq,
       hnat, one_mul]
-  · rw [kroneckerSym, if_neg hn, one_mul, hnat]
+  · rw [kroneckerSym, ite_eq_right hn, one_mul, hnat]
 
 /-- At a denominator coprime to the numerator, the integer-denominator
 Kronecker symbol is `1` or `-1`. -/
@@ -635,8 +635,8 @@ private theorem kroneckerDenominatorSign_mul
         (if n < 0 then kroneckerNegOne D else 1) := by
   rcases lt_or_gt_of_ne hm with hmneg | hmpos <;>
     rcases lt_or_gt_of_ne hn with hnneg | hnpos
-  · rw [if_neg (not_lt_of_ge (mul_pos_of_neg_of_neg hmneg hnneg).le),
-      if_pos hmneg, if_pos hnneg]
+  · rw [ite_eq_right (not_lt_of_ge (mul_pos_of_neg_of_neg hmneg hnneg).le),
+      ite_eq_left hmneg, ite_eq_left hnneg]
     simpa [pow_two] using (kroneckerNegOne_sq D).symm
   · simp [mul_neg_of_neg_of_pos hmneg hnpos, hmneg, not_lt_of_ge hnpos.le]
   · simp [mul_neg_of_pos_of_neg hmpos hnneg, not_lt_of_ge hmpos.le, hnneg]
@@ -668,8 +668,8 @@ theorem kroneckerSym_mul_left (D E : ℤ) {n : ℤ}
   simp only [kroneckerSym]
   rw [kroneckerSymNat_mul_left D E (Int.natAbs_ne_zero.mpr hn)]
   by_cases hnneg : n < 0
-  · simp only [if_pos hnneg]
+  · simp only [ite_eq_left hnneg]
     rw [kroneckerNegOne_mul D E hD hE]
     ring
-  · simp only [if_neg hnneg]
+  · simp only [ite_eq_right hnneg]
     ring

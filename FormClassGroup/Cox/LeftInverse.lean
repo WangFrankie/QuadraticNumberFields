@@ -224,7 +224,7 @@ noncomputable def coxIdealBasisOK (hd4 : d % 4 ≠ 1) (_hdneg : d < 0)
       have hmem : f_lin y ∈ idealOfForm_of_mod_four_ne_one d hd4 Q := by
         rw [idealOfForm_of_mod_four_ne_one, Ideal.mem_comap]
         dsimp [f_lin, f_alg, toRingOfIntegersAlgEquiv]
-        simpa using hy_J
+        simpa [J, coxIdeal] using hy_J
       -- membership in restrictScalars = membership in original
       simpa [I_ℤ] using hmem
     · intro hx
@@ -276,7 +276,9 @@ theorem coxIdealBasisOK_val_0 (hd4 : d % 4 ≠ 1) (hdneg : d < 0)
     (RingOfIntegers.ringOfIntegers_equiv_zsqrtd_of_mod_four_ne_one d hd4).symm
       (Q.1.a : Zsqrtd d) := by
   dsimp [coxIdealBasisOK]
-  simp [coxIdealBasis, Basis.coe_mk,  toRingOfIntegersAlgEquiv]
+  simp [coxIdealBasis, Basis.coe_mk, toRingOfIntegersAlgEquiv]
+  exact map_intCast
+    (RingOfIntegers.ringOfIntegers_equiv_zsqrtd_of_mod_four_ne_one d hd4).symm Q.1.a
 
 /-- The second Cox basis element in `𝓞K` is `e.symm(coxBetaZ d Q.b)`. -/
 theorem coxIdealBasisOK_val_1 (hd4 : d % 4 ≠ 1) (hdneg : d < 0)
@@ -286,6 +288,7 @@ theorem coxIdealBasisOK_val_1 (hd4 : d % 4 ≠ 1) (hdneg : d < 0)
       (coxBetaZ d Q.1.b) := by
   dsimp [coxIdealBasisOK]
   simp [coxIdealBasis, Basis.coe_mk, toRingOfIntegersAlgEquiv]
+  rfl
 
 /-- The K-coordinates of the Cox basis elements (via the ring embedding). -/
 theorem coxIdealBasisOK_K_re_im (hd4 : d % 4 ≠ 1) (hdneg : d < 0)
@@ -401,7 +404,9 @@ theorem classGroupToFormClass_idealClassOfForm_leftInverse_of_mod_four_ne_one
     h_equiv.trans (by rw [h_normform_eq]; exact BinaryQuadraticForm.ProperEquivalent.refl Q.1)
   dsimp [primitivePositiveDefiniteNormFormOfBasis]
   apply Quotient.sound
-  simpa using h_target
+  change (normFormOfBasis hI_ne_zero
+    (orientedBasisOfNeZero (I : Ideal 𝓞K) hI_ne_zero)).ProperEquivalent Q.1
+  exact h_target
 
 end CoxLeftInverse
 
