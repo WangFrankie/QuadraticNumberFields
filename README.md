@@ -40,6 +40,8 @@ import Examples
 - [Blueprint](https://numbertheory.cc/QuadraticNumberFields/) (fallback:
   [GitHub Pages](https://wangfrankie.github.io/QuadraticNumberFields-blueprint))
 - [Library overview and main results](docs/library-overview.md)
+- [Project implementations and upstream history](docs/contributions.md), including
+  original proofs now covered by mathlib
 - [Quadratic-field architecture](docs/design/quadratic-field-architecture.md)
 - [Mathlib patch rules](docs/mathlib-patch-rules.md)
 
@@ -112,12 +114,12 @@ Counts exclude blank lines.
 | Library | Code Lines | Comment Lines | Total Lines |
 |--------|------------|---------------|-------------|
 | `QuadraticNumberFields` | 12221 | 3353 | 15574 |
-| `FormClassGroup` | 4984 | 1048 | 6032 |
-| `QNFMathlib` | 4075 | 1060 | 5135 |
+| `FormClassGroup` | 4984 | 1051 | 6035 |
+| `QNFMathlib` | 4075 | 1063 | 5138 |
 | `BinaryQuadraticForms` | 3125 | 668 | 3793 |
 | `Examples` | 1241 | 580 | 1821 |
 | `ImaginaryClassNumberOne` | 1109 | 393 | 1502 |
-| **Total** | **26755** | **7102** | **33857** |
+| **Total** | **26755** | **7108** | **33863** |
 
 ### Library Tree
 
@@ -143,7 +145,7 @@ Counts exclude blank lines.
 </details>
 
 <details>
-<summary><code>FormClassGroup</code> (4984 code, 1048 comments, 6032 total)</summary>
+<summary><code>FormClassGroup</code> (4984 code, 1051 comments, 6035 total)</summary>
 
 | Subtree | Code Lines | Comment Lines | Total Lines |
 |--------|------------|---------------|-------------|
@@ -151,25 +153,25 @@ Counts exclude blank lines.
 | `├── ClassGroup/` | 852 | 209 | 1061 |
 | `├── Computable/` | 938 | 208 | 1146 |
 | `├── Computed.lean` | 127 | 56 | 183 |
-| `├── Cox/` | 2954 | 527 | 3481 |
+| `├── Cox/` | 2954 | 530 | 3484 |
 | `└── Gauss/` | 100 | 38 | 138 |
-| **FormClassGroup total** | **4984** | **1048** | **6032** |
+| **FormClassGroup total** | **4984** | **1051** | **6035** |
 
 </details>
 
 <details>
-<summary><code>QNFMathlib</code> (4075 code, 1060 comments, 5135 total)</summary>
+<summary><code>QNFMathlib</code> (4075 code, 1063 comments, 5138 total)</summary>
 
 | Subtree | Code Lines | Comment Lines | Total Lines |
 |--------|------------|---------------|-------------|
 | `├── QNFMathlib.lean` | 32 | 12 | 44 |
-| `├── Algebra/` | 146 | 84 | 230 |
+| `├── Algebra/` | 146 | 87 | 233 |
 | `├── Data/` | 578 | 144 | 722 |
 | `├── FieldTheory/` | 38 | 21 | 59 |
 | `├── GroupTheory/` | 97 | 34 | 131 |
 | `├── NumberTheory/` | 1506 | 363 | 1869 |
 | `└── RingTheory/` | 1678 | 402 | 2080 |
-| **QNFMathlib total** | **4075** | **1060** | **5135** |
+| **QNFMathlib total** | **4075** | **1063** | **5138** |
 
 </details>
 

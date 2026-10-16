@@ -33,6 +33,10 @@ to the forward Cox map defined in `QuadraticNumberFields.Forms.Cox.Bridge`.
 
 We work almost entirely with integral ideals, using `ClassGroup.mk0_surjective` to
 reduce from fractional ideal classes.
+
+The project's original ideal-freeness instance is preserved in
+`docs/contributions.md`. Freeness now comes from mathlib's PID instances; the
+rank-two and oriented-basis constructions below remain project implementations.
 -/
 
 open scoped NumberField nonZeroDivisors

@@ -16,6 +16,10 @@ import Mathlib.Tactic.Ring
 # Quadratic Algebra Defs
 
 Material destined for mathlib.
+
+The project's original `instIsQuadraticExtension` implementation is preserved in
+`docs/contributions.md`. The imported mathlib module now supplies the same public
+declaration; the project implementation's author and proof remain documented.
 -/
 
 namespace QuadraticAlgebra

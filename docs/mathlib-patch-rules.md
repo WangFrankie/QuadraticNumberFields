@@ -50,5 +50,22 @@ belong in mathlib but are not yet available in the pinned dependency.
 - Start every local mathlib patch file with a module docstring saying
   `Material destined for mathlib.`
 - Follow mathlib naming, theorem shape, docstring, and import style.
-- When a result lands upstream, replace local imports/usages with the upstream
-  declaration and delete the local shim in the same change.
+- When an equivalent result becomes available upstream, use the upstream
+  declaration and preserve the project implementation's history as described
+  below before removing the compiled duplicate.
+
+## Preserving implementation history
+
+- Preserve independently implemented project work even when the upstream
+  implementation was authored by someone else or the project version was never
+  submitted upstream.
+- Record the original author, declaration and proof, immutable source commit,
+  upstream replacement, and surviving project applications in
+  [Project implementations and upstream history](contributions.md). Include a
+  readable historical excerpt when removing a complete local implementation.
+- Keep project implementation authorship and upstream authorship separate.
+  Record submission or merge status from evidence; equivalent statements alone
+  do not establish that the upstream code originated in this project.
+- Keep useful public interfaces and project-specific corollaries available.
+  Historical excerpts document the original work without registering duplicate
+  instances in the active library.
