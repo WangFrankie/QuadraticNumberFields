@@ -48,9 +48,6 @@ This shows that scaling the parameter by a rational square yields an
 isomorphic quadratic field. -/
 def Qsqrtd.rescaleOfNeZero (d : ℚ) (a : ℚ) (ha : a ≠ 0) :
     Qsqrtd d ≃ₐ[ℚ] Qsqrtd (a ^ 2 * d) := by
-  have h1d : (1 : Qsqrtd d) = ⟨1, 0⟩ := by ext <;> rfl
-  have h1a : (1 : Qsqrtd (a ^ 2 * d)) = ⟨1, 0⟩ := by
-    ext <;> rfl
   -- This is the change of generator
   -- `√d ↦ a⁻¹ * √(a² d)`, with the real part unchanged.
   exact AlgEquiv.ofLinearEquiv
@@ -62,7 +59,7 @@ def Qsqrtd.rescaleOfNeZero (d : ℚ) (a : ℚ) (ha : a ≠ 0) :
         intro x; ext <;> simp [mul_assoc, inv_mul_cancel₀ ha]
       right_inv := by
         intro y; ext <;> simp [mul_assoc, mul_inv_cancel₀ ha] }
-    (by simp [h1d, h1a])
+    (by ext <;> simp [QuadraticAlgebra.re_one, QuadraticAlgebra.im_one])
     (by intro x y; ext <;> simp <;> field_simp)
 
 /-- `ℚ(√d) ≃ₐ[ℚ] ℚ(√(a²d))` for a unit `a : ℚˣ`.
@@ -95,7 +92,7 @@ theorem Qsqrtd_iso_int_param (d : ℚ) :
 parameter: `∃ z ∈ ℤ, Squarefree z ∧ Q(√d) ≃ₐ[ℚ] Q(√z)`. -/
 theorem Qsqrtd_iso_squarefree_int_param {d : ℤ} (hd : d ≠ 0) :
     ∃ z : ℤ, Squarefree z ∧ Nonempty (Qsqrtd (d : ℚ) ≃ₐ[ℚ] Qsqrtd (z : ℚ)) := by
-  obtain ⟨a, b, heq, ha⟩ := Nat.sq_mul_squarefree d.natAbs
+  obtain ⟨b, a, heq, ha⟩ := exists_sq_mul_squarefree d.natAbs
   have hb : b ≠ 0 := by
     intro h
     subst h

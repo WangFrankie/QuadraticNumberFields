@@ -192,7 +192,7 @@ private theorem forall_exists_unit_mul_isTotallyPositive_of_mixed_sign_unit
       · rw [hρ]
         have hετpos :
             0 < τ ((unitToFractionRing d (-ε) : (FractionRing OK)ˣ) : FractionRing OK) := by
-          simpa [unitToFractionRing, NarrowClassGroup.ringUnitToFractionRing] using
+          simpa [εF, unitToFractionRing, NarrowClassGroup.ringUnitToFractionRing] using
             neg_pos.mpr hτ_neg
         have := mul_pos hτx_pos hετpos
         simpa [unitToFractionRing, NarrowClassGroup.ringUnitToFractionRing, mul_comm,

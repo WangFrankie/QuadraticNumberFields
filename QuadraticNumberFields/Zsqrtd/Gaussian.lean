@@ -73,7 +73,7 @@ theorem exists_associated_cube_mk_im_one_of_cube_eq_sq_add_one {n z : ℤ}
   have hprod :
       (⟨z, 1⟩ : Zsqrtd (-1)) * (⟨z, -1⟩ : Zsqrtd (-1)) =
         (n : Zsqrtd (-1)) ^ 3 := by
-    ext <;> simp [pow_succ]
+    ext <;> simp [pow_succ, QuadraticAlgebra.re_one, QuadraticAlgebra.im_one]
     nlinarith
   exact exists_associated_pow_of_mul_eq_pow' hcop hprod
 

@@ -53,7 +53,7 @@ local notation3 "mapP(" p ")" => Ideal.map (algebraMap R S) p
 private theorem ramificationIdx_eq_ramificationIdxIn
     (hchar : ringChar R ≠ 2)
     {P' : Ideal S} (hP' : P' ∈ P(p)) :
-    ramificationIdx p P' = e(p) := by
+    P'.ramificationIdx R = e(p) := by
   letI := Ring.instAlgebraFractionRing
   letI := IsIntegralClosure.MulSemiringAction R (FractionRing R) (FractionRing S) S
   letI := Algebra.IsQuadraticExtension.isGaloisGroup (R := R) (S := S) hchar
@@ -65,7 +65,7 @@ for a quadratic extension, using `Algebra.IsQuadraticExtension.isGaloisGroup`. -
 private theorem inertiaDeg_eq_inertiaDegIn
     (hchar : ringChar R ≠ 2)
     {P' : Ideal S} (hP' : P' ∈ P(p)) :
-    inertiaDeg p P' = inertiaDegIn p S := by
+    P'.inertiaDeg R = inertiaDegIn p S := by
   letI := Ring.instAlgebraFractionRing
   letI := IsIntegralClosure.MulSemiringAction R (FractionRing R) (FractionRing S) S
   letI := Algebra.IsQuadraticExtension.isGaloisGroup (R := R) (S := S) hchar
@@ -78,7 +78,7 @@ theorem inertiaDeg_eq_one_of_isSplitIn
     (hchar : ringChar R ≠ 2)
     {P' : Ideal S} [P'.IsPrime] [P'.LiesOver p]
     (hs : IsSplitIn p S) :
-    inertiaDeg p P' = 1 := by
+    P'.inertiaDeg R = 1 := by
   have hP' : P' ∈ P(p) := ⟨inferInstance, inferInstance⟩
   rw [inertiaDeg_eq_inertiaDegIn p S hchar hP']
   exact hs.2
@@ -91,7 +91,7 @@ private theorem map_eq_prod_pow_ramificationIdxIn
     [Algebra.IsIntegral R S] [Module.IsTorsionFree R S]
     (hchar : ringChar R ≠ 2) (hp : p ≠ ⊥) :
     mapP(p) = ∏ P' ∈ P(p).toFinset, P' ^ e(p) := by
-  have hfact := Ideal.map_algebraMap_eq_finset_prod_pow (R := S) (S := R)
+  have hfact := Ideal.map_algebraMap_eq_finsetProd_pow (R := S) (S := R)
     (Ne.bot_lt hp).ne'
   rw [hfact]
   apply Finset.prod_congr rfl
@@ -199,7 +199,7 @@ theorem inertiaDeg_eq_two_of_isInertIn
     (hchar : ringChar R ≠ 2) (hp : p ≠ ⊥)
     {P' : Ideal S} [P'.IsPrime] [P'.LiesOver p]
     (hi : IsInertIn p S) :
-    inertiaDeg p P' = 2 := by
+    P'.inertiaDeg R = 2 := by
   have hP' : P' ∈ P(p) := ⟨inferInstance, inferInstance⟩
   rw [inertiaDeg_eq_inertiaDegIn p S hchar hP']
   exact ((ncard_primesOver_eq_one_and_ramificationIdxIn_eq_one_iff_efg p S hchar hp).mp hi).2.2
@@ -210,7 +210,7 @@ theorem inertiaDeg_eq_one_of_isRamifiedIn
     (hchar : ringChar R ≠ 2) (hp : p ≠ ⊥)
     {P' : Ideal S} [P'.IsPrime] [P'.LiesOver p]
     (hr : IsRamifiedIn p S) :
-    inertiaDeg p P' = 1 := by
+    P'.inertiaDeg R = 1 := by
   have hP' : P' ∈ P(p) := ⟨inferInstance, inferInstance⟩
   rw [inertiaDeg_eq_inertiaDegIn p S hchar hP']
   exact ((one_lt_ramificationIdxIn_iff_efg p S hchar hp).mp hr).2.2

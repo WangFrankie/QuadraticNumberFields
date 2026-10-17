@@ -6,6 +6,7 @@ Authors: Frankie Wang
 
 import Mathlib.RepresentationTheory.Homological.GroupCohomology.Hilbert90
 import Mathlib.RingTheory.Invariant.Basic
+import Mathlib.RingTheory.Invariant.Galois
 import QNFMathlib.NumberTheory.NumberField.Galois
 import QuadraticNumberFields.QuadraticField.Conj
 import QuadraticNumberFields.QuadraticField.Galois
@@ -99,7 +100,7 @@ noncomputable def conjAutFractionRingAlgEquiv :
 /-- Fraction-field conjugation sends an embedded algebraic integer to the
 embedded conjugate algebraic integer. -/
 @[simp]
-theorem conjAutFractionRingAlgEquiv_algebraMap [NumberField K] (x : OK) :
+theorem conjAutFractionRingAlgEquiv_algebraMap (x : OK) :
     conjAutFractionRingAlgEquiv K
         (algebraMap OK (FractionRing OK) x) =
       algebraMap OK (FractionRing OK) ((conjAutRingOfIntegers K) x) := by
@@ -147,7 +148,8 @@ theorem exists_mul_conjAutRingOfIntegers_eq_self_of_norm_eq_one
   have hcard : Nat.card Gal(K / ℚ) = 2 := QuadraticField.card_aut_eq_two K
   haveI : IsCyclic Gal(K / ℚ) := isCyclic_of_prime_card hcard
   have hconj_ne_one : (QuadraticField.conjAut K : Gal(K / ℚ)) ≠ 1 := by
-    simpa using (QuadraticField.Conj.conj_ne_refl (K := K))
+    change QuadraticField.conjAut K ≠ AlgEquiv.refl
+    exact QuadraticField.Conj.conj_ne_refl (K := K)
   have hg : ∀ σ : Gal(K / ℚ), σ ∈ Subgroup.zpowers (QuadraticField.conjAut K) := by
     intro σ
     exact mem_zpowers_of_prime_card (p := 2) hcard hconj_ne_one
@@ -156,6 +158,7 @@ theorem exists_mul_conjAutRingOfIntegers_eq_self_of_norm_eq_one
       (A := ℤ) (K := ℚ) (L := K) (B := NumberField.RingOfIntegers K)
       (g := QuadraticField.conjAut K) hg (by simpa using hη)
   refine ⟨ε, hε0, ?_⟩
+  change η * (conjAutRingOfIntegersAlgEquiv K) ε = ε
   simpa [galRestrict_conjAut_eq_conjAutRingOfIntegers K] using hε
 
 /-- Fraction-field Hilbert 90 for localized quadratic conjugation. A norm-one
@@ -176,7 +179,8 @@ theorem exists_conjAut_coboundary_of_norm_eq_one
   have hcard : Nat.card Gal(K / ℚ) = 2 := QuadraticField.card_aut_eq_two K
   haveI : IsCyclic Gal(K / ℚ) := isCyclic_of_prime_card hcard
   have hconj_ne_one : (QuadraticField.conjAut K : Gal(K / ℚ)) ≠ 1 := by
-    simpa using (QuadraticField.Conj.conj_ne_refl (K := K))
+    change QuadraticField.conjAut K ≠ AlgEquiv.refl
+    exact QuadraticField.Conj.conj_ne_refl (K := K)
   have hg : ∀ σ : Gal(K / ℚ), σ ∈ Subgroup.zpowers (QuadraticField.conjAut K) :=
     fun σ ↦ mem_zpowers_of_prime_card (p := 2) hcard hconj_ne_one
   obtain ⟨yK, hyK⟩ :=
@@ -232,13 +236,16 @@ theorem conjAutFractionRingGal_ne_one [NumberField K] :
   apply conjAutRingOfIntegersAlgEquiv_ne_refl (K := K)
   have h := congrArg
     (galRestrict ℤ (FractionRing ℤ) (FractionRing OK) OK) hτ
-  simpa [galRestrict_conjAutFractionRingGal] using h
+  rw [galRestrict_conjAutFractionRingGal, map_one] at h
+  change conjAutRingOfIntegersAlgEquiv K = AlgEquiv.refl
+  exact h
 
 /-- The action of `conjAutFractionRingGal` on ideals is the same as mapping by
 ring-of-integers conjugation. -/
 theorem conjAutFractionRingGal_smul_ideal [NumberField K] (I : Ideal OK) :
     conjAutFractionRingGal K • I =
       Ideal.map (conjAutRingOfIntegers K : OK →+* OK) I := by
+  rw [Ideal.pointwise_smul_def]
   change Ideal.map
     ((galRestrict ℤ (FractionRing ℤ) (FractionRing OK) OK (conjAutFractionRingGal K) :
         OK ≃ₐ[ℤ] OK) : OK →+* OK) I =

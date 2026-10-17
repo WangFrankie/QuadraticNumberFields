@@ -95,7 +95,6 @@ theorem reducedFormRepList_complete (D : ℤ) :
   intro Q
   unfold reducedFormRepList
   have hfin : Q.1 ∈ (enumPrimitiveReducedFormsList D).toFinset := by
-    change Q.1 ∈ (enumPrimitiveReducedFormsList D).toFinset
     exact Q.2
   have hlist : Q.1 ∈ enumPrimitiveReducedFormsList D := List.mem_toFinset.mp hfin
   refine List.mem_map.mpr ⟨⟨Q.1, hlist⟩, ?_, ?_⟩
@@ -143,7 +142,7 @@ def principalReducedFormRep {d : ℤ} (hdneg : d < 0) :
 
 /-- Executable reduced-form table multiplication, backed by `gaussMul`. -/
 def reducedFormRepMulForTable
-    {d : ℤ} [Fact (Squarefree d)] [Fact (d ≠ 1)] (hdneg : d < 0)
+    {d : ℤ} (hdneg : d < 0)
     (Q R : ReducedFormRep (fieldDiscriminant d)) : ReducedFormRep (fieldDiscriminant d) :=
   ⟨gaussMul hdneg Q R, mem_enum_of_gaussMul hdneg Q R⟩
 
@@ -163,7 +162,7 @@ theorem reducedFormRepMulForTable_eq_mul
 /-- On reduced-form representatives, the table multiplication has the same
 underlying form as the raw `composeAndReduce` multiplication. -/
 theorem reducedFormRepMulForTable_val_eq_composeAndReduce
-    {d : ℤ} [Fact (Squarefree d)] [Fact (d ≠ 1)] (hdneg : d < 0)
+    {d : ℤ} (hdneg : d < 0)
     (Q R : ReducedFormRep (fieldDiscriminant d)) :
     (reducedFormRepMulForTable hdneg Q R).1 = composeAndReduce Q.1 R.1 := by
   have hRprim : R.1.IsPrimitive := R.isPrimitive
@@ -243,13 +242,17 @@ theorem tableKilledByPrimePowerCount_reducedFormRep_eq_reducedForms
       change x ∈ (enumPrimitiveReducedFormsList (fieldDiscriminant d)).toFinset
       exact List.mem_toFinset.mpr hx
     simp [hxmem]
-  simp [Subtype.ext_iff, tablePow_reducedFormRepMulForTable_val hdneg]
-  simpa using congrArg List.length hfilter
+  simp only [Subtype.ext_iff]
+  simp only [tablePow_reducedFormRepMulForTable_val]
+  simp only [principalReducedFormRep]
+  have hlen := congrArg List.length hfilter
+  rw [List.length_map] at hlen
+  exact hlen
 
 /-- Run the table classifier on the proof-carrying reduced-form representative
 table. -/
 def standardIsoTypeOfReducedFormReps
-    {d : ℤ} [Fact (Squarefree d)] [Fact (d ≠ 1)] (hdneg : d < 0) :
+    {d : ℤ} (hdneg : d < 0) :
     StandardGroupIsoType :=
   standardIsoTypeOfMulTable (reducedFormRepList (fieldDiscriminant d))
     (principalReducedFormRep hdneg) (reducedFormRepMulForTable hdneg)
@@ -287,7 +290,7 @@ theorem standardIsoTypeOfReducedFormReps_eq_classGroupStandardIsoType
 /-- The reduced-form representative table classifier always returns a product
 in executable invariant-factor normal form. -/
 theorem standardIsoTypeOfReducedFormReps_exists_product_isInvariantFactorList
-    {d : ℤ} [Fact (Squarefree d)] [Fact (d ≠ 1)] (hdneg : d < 0) :
+    {d : ℤ} (hdneg : d < 0) :
     ∃ ns, standardIsoTypeOfReducedFormReps hdneg = StandardGroupIsoType.product ns ∧
       isInvariantFactorList ns = true := by
   have hmem : principalReducedFormRep hdneg ∈ reducedFormRepList (fieldDiscriminant d) :=
@@ -442,7 +445,8 @@ theorem
       (reducedFormRepMulForTable_eq_mul hdneg) hne hmem hcheck
   refine ⟨⟨invariantFactorsOfMulTable (reducedFormRepList (fieldDiscriminant d))
       (principalReducedFormRep hdneg) (reducedFormRepMulForTable hdneg), hclass⟩, ?_, rfl⟩
-  simpa [certifiedReducedFormRepInvariantFactorClassification?] using hresult
+  simpa [certifiedReducedFormRepInvariantFactorClassification?,
+    standardIsoTypeOfReducedFormReps] using hresult
 
 /-- If a full certificate-data candidate is present in the reduced-form
 generator search space, then the proof-carrying class-group classifier succeeds

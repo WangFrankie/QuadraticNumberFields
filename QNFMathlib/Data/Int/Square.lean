@@ -98,8 +98,8 @@ theorem isCoprime_sq_add_one_three (W : ℤ) : IsCoprime (W ^ 2 + 1) (3 : ℤ) :
 theorem isCoprime_sq_add_one_quartic_sub_sq_add_one (W : ℤ) :
     IsCoprime (W ^ 2 + 1) (W ^ 4 - W ^ 2 + 1) := by
   have hcop3 : IsCoprime (W ^ 2 + 1) (3 : ℤ) := Int.isCoprime_sq_add_one_three W
-  convert IsCoprime.add_mul_right_right hcop3 (W ^ 2 - 2) using 1
-  ring
+  rw [show W ^ 4 - W ^ 2 + 1 = 3 + (W ^ 2 - 2) * (W ^ 2 + 1) by ring]
+  exact IsCoprime.add_mul_right_right hcop3 (W ^ 2 - 2)
 
 /-- In the equation `W ^ 6 + 1 = 2 * Z ^ 2`, `W ^ 2 + 1` cannot itself be
 a square. -/

@@ -31,6 +31,7 @@ When `d = 1 + 4k`, we have `𝓞(Q(√d)) ≅ ℤ[(1+√d)/2]`.
 namespace Qsqrtd
 
 /-- The discriminant-like parameter `1 + 4k` viewed in `ℚ`. -/
+@[nolint defsWithUnderscore]
 abbrev d_of_k (k : ℤ) : ℚ := ((1 + 4 * k : ℤ) : ℚ)
 
 /-- `ω_k = (1 + √(1 + 4k)) / 2` in `Q(√(1 + 4k))`. -/

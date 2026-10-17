@@ -153,7 +153,7 @@ theorem reducedFormsComputedClassGroup_card
     (reducedFormsComputedClassGroup d hdneg).card =
       (BinaryQuadraticForm.enumPrimitiveReducedForms
         (BinaryQuadraticForm.fieldDiscriminant d)).card := by
-  simp [ClassGroup.ComputedClassGroup.card, reducedFormsComputedClassGroup]
+  exact BinaryQuadraticForm.reducedFormRep_card _
 
 /-- The reduced-form computed backend recovers the class number of `ℚ(√d)`. -/
 theorem reducedFormsComputedClassGroup_card_eq_classNumber_qsqrtd

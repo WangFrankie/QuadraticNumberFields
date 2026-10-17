@@ -18,19 +18,18 @@ quadratic extension of the fraction field of `R`. -/
 -- Repository use: `Splitting/Defs.lean` uses this in the `(e, f, g)` trichotomy;
 -- `Mathlib/NumberTheory/RamificationInertia/Galois.lean` uses it to build the
 -- fraction-field Galois bridge.
+-- Keep the existing `IsDomain S` argument for API compatibility, although
+-- `IsFractionRing.finrank_eq` no longer needs it.
+@[nolint unusedArguments]
 theorem Algebra.IsQuadraticExtension.fractionRing
     {R S K L : Type*} [CommRing R] [CommRing S] [Field K] [Field L]
     [Algebra R S] [Algebra R K] [Algebra S L] [Algebra R L] [Algebra K L]
     [IsDomain R] [IsDomain S] [IsFractionRing R K] [IsFractionRing S L]
     [IsScalarTower R K L] [IsScalarTower R S L] [Algebra.IsQuadraticExtension R S] :
     Algebra.IsQuadraticExtension K L := by
-  letI : Algebra.IsAlgebraic R S := Algebra.IsAlgebraic.of_finite R S
   refine ⟨?_⟩
   calc
-    Module.finrank K L = Module.finrank R S := by
-      simpa using
-        (Algebra.IsAlgebraic.finrank_of_isFractionRing (R := R) (R' := K) (S := S)
-          (S' := L))
+    Module.finrank K L = Module.finrank R S := IsFractionRing.finrank_eq R K S L
     _ = 2 := Algebra.IsQuadraticExtension.finrank_eq_two R S
 
 /-- If `K` is a quadratic extension of a field `F` of characteristic not equal to

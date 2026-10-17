@@ -387,17 +387,23 @@ results, examples, and remaining research-oriented scaffolding.
 │   └── SqrtNeg5/                     # verified ℤ[√(-5)] examples
 └── docs/
     ├── design/
+    ├── contributions.md
     ├── library-overview.md
     └── mathlib-patch-rules.md
 ```
 
 ## Contributions to mathlib
 
-Temporary general-purpose facts that are intended for mathlib live under
-`QNFMathlib/`. The project still depends on upstream mathlib through Lake; these
-files are local shims, not patches to `.lake/packages/mathlib`.
+Project implementations of general-purpose facts intended for mathlib live under
+`QNFMathlib/`. The project depends on upstream mathlib through Lake. When an
+upstream implementation replaces a local one, the original statement, proof,
+author, and source remain documented in
+[Project implementations and upstream history](contributions.md). This includes
+independent project implementations as well as submissions to mathlib.
+
+The following submissions by Frankie Wang remain open as of 2026-10-16:
 
 - [PR #36347](https://github.com/leanprover-community/mathlib4/pull/36347):
   Define quadratic number fields as `QuadraticAlgebra ℚ d 0`
 - [PR #36387](https://github.com/leanprover-community/mathlib4/pull/36387):
-  Parameter uniqueness for quadratic fields
+  Parameter uniqueness for quadratic fields (draft)

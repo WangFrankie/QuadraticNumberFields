@@ -7,7 +7,7 @@ Authors: Frankie Wang
 import Mathlib.Algebra.Group.Subgroup.Even
 import Mathlib.GroupTheory.Index
 import Mathlib.GroupTheory.Torsion
-import Mathlib.RingTheory.ClassGroup
+import Mathlib.RingTheory.ClassGroup.Basic
 import QNFMathlib.RingTheory.ClassGroup.Narrow
 /-!
 # Torsion in Class Groups
@@ -58,13 +58,13 @@ theorem mem_twoTorsion_iff (x : G) :
 /-- Membership in the square subgroup. -/
 theorem mem_square_iff (x : G) :
     x ∈ square G ↔ ∃ y : G, y ^ 2 = x := by
-  simp [Subgroup.square, IsSquare, pow_two, eq_comm]
+  simp [Subgroup.mem_square, IsSquare, pow_two, eq_comm]
 
 /-- The square subgroup agrees with the range of the square map. -/
 theorem square_eq_powMonoidHom_range :
     square G = (powMonoidHom (α := G) 2).range := by
   ext x
-  simp [Subgroup.square, IsSquare, pow_two, eq_comm]
+  simp [Subgroup.mem_square, IsSquare, pow_two, eq_comm]
 
 /-- A two-torsion element has square one. -/
 theorem twoTorsion_mul_self_eq_one (x : twoTorsion G) :
@@ -160,8 +160,9 @@ theorem squareQuotientMulEquiv_mk (e : G ≃* H) (x : G) :
 as the two-torsion subgroup. -/
 theorem card_squareQuotient_eq_card_twoTorsion [Finite G] :
     Nat.card (squareQuotient G) = Nat.card (Subgroup.twoTorsion G) := by
-  simpa [squareQuotient, Subgroup.square_eq_powMonoidHom_range] using
-    (Subgroup.index_range (f := powMonoidHom (α := G) 2))
+  rw [squareQuotient, Subgroup.square_eq_powMonoidHom_range,
+    ← (powMonoidHom (α := G) 2).range.index_eq_card]
+  exact Subgroup.index_range (f := powMonoidHom (α := G) 2)
 
 end CommGroup
 

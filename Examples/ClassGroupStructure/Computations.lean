@@ -30,7 +30,7 @@ set_option linter.hashCommand false
 
 section ConcreteIsomorphisms
 
-open scoped NumberField
+open scoped _root_.NumberField
 
 attribute [-instance] DivisionRing.toRatAlgebra
 
@@ -90,8 +90,12 @@ noncomputable def classGroup_qsqrtd_neg23_mulEquiv :
     (G := ClassGroup (NumberField.RingOfIntegers (Qsqrtd ((-23 : ℤ) : ℚ))))
     (G' := Multiplicative (ZMod 3))
     (by
-      simpa [NumberField.classNumber, Fintype.card_eq_nat_card] using classNumber_qsqrtd_neg23)
+      simpa only [NumberField.classNumber, Nat.card_eq_fintype_card]
+        using classNumber_qsqrtd_neg23)
     (by simp)
+
+attribute [nolint defsWithUnderscore]
+  classGroup_qsqrtd_neg5_mulEquiv classGroup_qsqrtd_neg23_mulEquiv
 
 /-! ## Non-cyclic standard-output checks
 

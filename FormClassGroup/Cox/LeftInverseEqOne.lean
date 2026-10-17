@@ -73,7 +73,7 @@ noncomputable def coxIdealBasisOKEqOne (hd4 : d % 4 = 1) (_hdneg : d < 0)
   have hdisc : B ^ 2 - 4 * A * C = bb ^ 2 + 4 * DD := by
     have hdisc_val : Q.1.disc = d := by
       have hfield : fieldDiscriminant d = d := fieldDiscriminant_of_mod_four_eq_one hd4
-      simpa [hfield] using Q.2.1
+      simpa only [HasDiscriminant, hfield] using Q.2.1
     unfold BinaryQuadraticForm.disc at hdisc_val
     dsimp [B] at *
     rw [hk] at hdisc_val
@@ -155,6 +155,8 @@ theorem coxIdealBasisOKEqOne_val_0 (hd4 : d % 4 = 1) (hdneg : d < 0)
       (Q.1.a : ZOnePlusSqrtdOverTwo (d / 4)) := by
   dsimp [coxIdealBasisOKEqOne]
   simp [CoxIdealRelation.coxIdealBasis, Basis.coe_mk, toRingOfIntegersAlgEquivEqOne]
+  exact map_intCast
+    (RingOfIntegers.ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one d hd4).symm Q.1.a
 
 /-- The second Cox basis element in the `d % 4 = 1` branch is the transported
 generic Cox beta. -/
@@ -165,6 +167,7 @@ theorem coxIdealBasisOKEqOne_val_1 (hd4 : d % 4 = 1) (hdneg : d < 0)
       (CoxIdealRelation.coxBeta (d / 4) 1 ((-1 + -Q.1.b) / 2)) := by
   dsimp [coxIdealBasisOKEqOne]
   simp [CoxIdealRelation.coxIdealBasis, Basis.coe_mk, toRingOfIntegersAlgEquivEqOne]
+  rfl
 
 /-- The K-coordinates of the transported Cox basis elements (`d % 4 = 1` branch). -/
 theorem coxIdealBasisOKEqOne_K_re_im (hd4 : d % 4 = 1) (hdneg : d < 0)
@@ -320,7 +323,9 @@ theorem classGroupToFormClass_idealClassOfForm_leftInverse_of_mod_four_eq_one
     h_equiv.trans (by rw [h_normform_eq]; exact BinaryQuadraticForm.ProperEquivalent.refl Q.1)
   dsimp [primitivePositiveDefiniteNormFormOfBasis]
   apply Quotient.sound
-  simpa using h_target
+  change (normFormOfBasis hI_ne_zero
+    (orientedBasisOfNeZero (I : Ideal 𝓞K) hI_ne_zero)).ProperEquivalent Q.1
+  exact h_target
 
 end CoxLeftInverseEqOne
 

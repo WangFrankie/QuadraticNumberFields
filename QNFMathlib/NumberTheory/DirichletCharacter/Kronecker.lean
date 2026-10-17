@@ -41,7 +41,7 @@ private def kroneckerCharacterFun (D : ℤ) (x : ZMod D.natAbs) : ℤ :=
   kroneckerSymNat D x.val
 
 /-- `kroneckerSymNat D 1 = 1` for every `D : ℤ`. -/
-private lemma kroneckerCharacterFun_one (D : ℤ) [Fact (D % 4 = 0 ∨ D % 4 = 1)] :
+private lemma kroneckerCharacterFun_one (D : ℤ) :
     kroneckerCharacterFun D 1 = 1 := by
   unfold kroneckerCharacterFun
   rcases eq_or_ne D.natAbs 0 with hD0 | hD0
@@ -93,7 +93,7 @@ private lemma kroneckerCharacterFun_mul (D : ℤ) [Fact (D % 4 = 0 ∨ D % 4 = 1
 
 /-- Nonunits of `ZMod D.natAbs` share a factor with `D.natAbs`, so the Kronecker
 value is `0`. -/
-private lemma kroneckerCharacterFun_nonunit (D : ℤ) [Fact (D % 4 = 0 ∨ D % 4 = 1)]
+private lemma kroneckerCharacterFun_nonunit (D : ℤ)
     {x : ZMod D.natAbs} (hx : ¬ IsUnit x) : kroneckerCharacterFun D x = 0 := by
   unfold kroneckerCharacterFun
   rcases eq_or_ne D.natAbs 0 with hD0 | hD0

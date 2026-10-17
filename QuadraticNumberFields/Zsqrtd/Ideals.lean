@@ -96,7 +96,7 @@ private lemma ker_eq_of_apply_eq_intCast
     exact (ZMod.intCast_zmod_eq_zero_iff_dvd _ p).2 ((hI z).1 hz)
 
 private lemma comap_eq_span_singleton_of_mem_iff_dvd
-    (p : ℕ) [Fact p.Prime] (I : Ideal (Zsqrtd d))
+    (p : ℕ) (I : Ideal (Zsqrtd d))
     (coord : Zsqrtd d → ℤ)
     (hI : ∀ z, z ∈ I ↔ (p : ℤ) ∣ coord z)
     (hcoord_intCast : ∀ z : ℤ, coord (z : Zsqrtd d) = z) :

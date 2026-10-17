@@ -16,9 +16,6 @@ import QNFMathlib.NumberTheory.CoxEuler
 import QNFMathlib.RingTheory.Coprime
 import QNFMathlib.RingTheory.PrincipalIdealDomain
 
--- Avoid the `Algebra ℚ` diamond for quadratic-algebra numerals in this file.
-attribute [-instance] DivisionRing.toRatAlgebra
-
 /-!
 # Diophantine Layer for the Baker-Heegner-Stark Proof
 
@@ -35,6 +32,9 @@ solutions to the Heegner gamma list is proved here.
 * `heegnerGammaSet`: the six gamma values arising from the known solutions.
 * `heegnerPrimeSet`: the six positive odd Heegner primes in the inert branch.
 -/
+
+-- Avoid the `Algebra ℚ` diamond for quadratic-algebra numerals in this file.
+attribute [-instance] DivisionRing.toRatAlgebra
 
 namespace QuadraticNumberFields
 namespace Heegner
@@ -80,8 +80,7 @@ theorem eq_neg_one_of_cube_add_one_eq_zero {X : ℤ} (hX : X ^ 3 + 1 = 0) :
 theorem isCoprime_X_X_cube_add_one (X : ℤ) :
     IsCoprime X (X ^ 3 + 1) := by
   have h0 : IsCoprime X (1 : ℤ) := isCoprime_one_right
-  convert IsCoprime.add_mul_right_right h0 (X ^ 2) using 1
-  ring
+  convert IsCoprime.add_mul_right_right h0 (X ^ 2) using 1 <;> ring
 
 /-- If `X` is even, then `2 * X` is still coprime to `X ^ 3 + 1`. -/
 theorem isCoprime_two_mul_X_X_cube_add_one {X : ℤ} (hXeven : Even X) :
@@ -333,7 +332,8 @@ private theorem exists_associated_cube_zsqrtd_neg_two_of_cube_eq_two_mul_sq_add_
   have hprod :
       (⟨1, z⟩ : Zsqrtd (-2)) * (⟨1, -z⟩ : Zsqrtd (-2)) =
         (n : Zsqrtd (-2)) ^ 3 := by
-    ext <;> simp [pow_succ]
+    ext <;> simp [pow_succ, QuadraticAlgebra.re_one, QuadraticAlgebra.im_one,
+      QuadraticAlgebra.re_ofNat, QuadraticAlgebra.im_ofNat]
     nlinarith
   exact exists_associated_pow_of_mul_eq_pow' hcop hprod
 

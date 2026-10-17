@@ -5,7 +5,7 @@ Authors: Frankie Wang
 -/
 
 import BinaryQuadraticForms.Gauss.Composition
-import Mathlib.Logic.Denumerable
+import Mathlib.Basic.Denumerable
 
 /-!
 # Computable Gauss Composition Data

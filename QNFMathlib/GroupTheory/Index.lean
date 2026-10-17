@@ -22,7 +22,7 @@ variable {G H : Type*} [Group G] [Group H]
 /-- A surjective homomorphism between finite groups is injective iff its domain
 and codomain have the same cardinality. -/
 theorem injective_iff_nat_card_eq_of_surjective
-    [Finite G] [Finite H] (f : G →* H) (hf : Function.Surjective f) :
+    [Finite G] (f : G →* H) (hf : Function.Surjective f) :
     Function.Injective f ↔ Nat.card G = Nat.card H := by
   constructor
   · intro hinj
@@ -33,7 +33,7 @@ theorem injective_iff_nat_card_eq_of_surjective
 /-- A surjective homomorphism between finite groups has trivial kernel iff its
 domain and codomain have the same cardinality. -/
 theorem ker_eq_bot_iff_nat_card_eq_of_surjective
-    [Finite G] [Finite H] (f : G →* H) (hf : Function.Surjective f) :
+    [Finite G] (f : G →* H) (hf : Function.Surjective f) :
     f.ker = ⊥ ↔ Nat.card G = Nat.card H := by
   rw [← injective_iff_nat_card_eq_of_surjective f hf]
   exact MonoidHom.ker_eq_bot_iff f
@@ -41,7 +41,7 @@ theorem ker_eq_bot_iff_nat_card_eq_of_surjective
 /-- The cardinality of the domain of a surjective homomorphism of finite groups
 is the product of the cardinalities of its kernel and codomain. -/
 theorem nat_card_eq_card_ker_mul_card_of_surjective
-    [Finite G] [Finite H] (f : G →* H) (hf : Function.Surjective f) :
+    (f : G →* H) (hf : Function.Surjective f) :
     Nat.card G = Nat.card f.ker * Nat.card H := by
   calc
     Nat.card G = Nat.card (G ⧸ f.ker) * Nat.card f.ker :=

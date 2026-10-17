@@ -31,7 +31,10 @@ section Basic
 
 variable (e : A ≃+* B)
 
-@[simp]
+/-- The induced fraction-ring equivalence respects scalar multiplication along `e`. -/
+-- Retain this public simp wrapper for compatibility. The upstream application
+-- lemma now unfolds its left-hand side to `IsLocalization.map`.
+@[simp, nolint simpNF]
 theorem ringEquivOfRingEquiv_smul (a : A) (x : K) :
     IsFractionRing.ringEquivOfRingEquiv (K := K) (L := L) e (a • x) =
       e a • IsFractionRing.ringEquivOfRingEquiv (K := K) (L := L) e x := by
@@ -84,9 +87,11 @@ noncomputable def ringEquivMap (I : FractionalIdeal A⁰ K) : FractionalIdeal B�
         exact ha0 (e.injective (by simpa using hea0)))
     refine ⟨e a, hea, ?_⟩
     rintro y ⟨x, hx, rfl⟩
-    simpa [ringEquivOfRingEquiv_smul] using
+    simpa only [ringEquivOfRingEquiv_smul] using
       isInteger_ringEquivOfRingEquiv (K := K) (L := L) e (hI x hx)
 
+-- These domain instances occur in `ringEquivMap`'s arguments and cannot be omitted.
+set_option linter.unusedSectionVars false in
 @[simp]
 theorem mem_ringEquivMap {e : A ≃+* B} {I : FractionalIdeal A⁰ K} {y : L} :
     y ∈ ringEquivMap (K := K) (L := L) e I ↔
@@ -94,6 +99,7 @@ theorem mem_ringEquivMap {e : A ≃+* B} {I : FractionalIdeal A⁰ K} {y : L} :
         IsFractionRing.ringEquivOfRingEquiv (K := K) (L := L) e x = y :=
   Iff.rfl
 
+set_option linter.unusedSectionVars false in
 @[simp]
 theorem ringEquivMap_spanSingleton (x : K) :
     ringEquivMap (K := K) (L := L) e (spanSingleton A⁰ x) =
@@ -110,6 +116,7 @@ theorem ringEquivMap_spanSingleton (x : K) :
     rw [ringEquivOfRingEquiv_smul, e.apply_symm_apply]
     exact hb
 
+set_option linter.unusedSectionVars false in
 @[simp]
 theorem ringEquivMap_coeIdeal (I : Ideal A) :
     ringEquivMap (K := K) (L := L) e (I : FractionalIdeal A⁰ K) =

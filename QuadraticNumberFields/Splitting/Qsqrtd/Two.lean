@@ -132,7 +132,9 @@ private lemma monicFactorsMod_two_eq_singleton_quadratic (hd8 : d % 8 = 5) :
     intro x hx
     have hxroot : (X ^ 2 + X + 1 : (ZMod 2)[X]).eval x = 0 :=
       (mem_roots hmon.ne_zero).mp hx
-    fin_cases x <;> norm_num at hxroot <;> contradiction
+    simp only [Polynomial.eval_add, Polynomial.eval_pow,
+      Polynomial.eval_X, Polynomial.eval_one] at hxroot
+    fin_cases x <;> exact absurd hxroot (by decide)
   rw [hmin, normalizedFactors_irreducible hirr, hmon.normalize_eq_self,
     Multiset.toFinset_singleton]
 /-- **(split, `d % 8 = 1`)** `minpoly ≡ X(X+1)` mod `2`, two distinct linear factors. -/

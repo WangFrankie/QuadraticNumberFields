@@ -10,7 +10,7 @@ import BinaryQuadraticForms.Cox.IdealRelation
 import QNFMathlib.Data.Int.Parity
 import QuadraticNumberFields.RingOfIntegers.Classification
 import Mathlib.LinearAlgebra.Matrix.SpecialLinearGroup
-import Mathlib.RingTheory.ClassGroup
+import Mathlib.RingTheory.ClassGroup.Basic
 
 /-!
 # Cox 7.7 Bridge from Forms to Ideal Classes
@@ -171,6 +171,7 @@ For forms of discriminant `fieldDiscriminant d = 4 * d`, the second generator is
 represented in `Zsqrtd d` by `(-b / 2) + √d`. The divisibility-by-two fact is a
 property of the discriminant hypotheses and is intentionally left to later Cox
 bridge lemmas rather than baked into this definition. -/
+@[nolint defsWithUnderscore]
 noncomputable def idealOfForm_of_mod_four_ne_one
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd4 : d % 4 ≠ 1)
     (Q : PrimitivePositiveDefiniteForm (fieldDiscriminant d)) :
@@ -250,6 +251,7 @@ from the `ZOnePlusSqrtdOverTwo (d / 4)` model back to the ring of integers of
 In the basis `1, ω` with `ω = (1 + √d) / 2`, the second generator has coordinates
 `(-(b + 1) / 2, 1)`. The oddness of `b` follows from the discriminant hypotheses
 and is left as a later Cox bridge lemma. -/
+@[nolint defsWithUnderscore]
 noncomputable def idealOfForm_of_mod_four_eq_one
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd4 : d % 4 = 1)
     (Q : PrimitivePositiveDefiniteForm (fieldDiscriminant d)) :
@@ -387,6 +389,7 @@ theorem idealOfForm_of_mod_four_eq_one_ne_zero
   exact (ne_of_gt Q.2.2.2.1) ha0
 
 /-- The Cox ideal in the `d % 4 ≠ 1` branch as a nonzero ideal. -/
+@[nolint defsWithUnderscore]
 noncomputable def nonzeroIdealOfForm_of_mod_four_ne_one
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd4 : d % 4 ≠ 1)
     (Q : PrimitivePositiveDefiniteForm (fieldDiscriminant d)) :
@@ -396,6 +399,7 @@ noncomputable def nonzeroIdealOfForm_of_mod_four_ne_one
       (idealOfForm_of_mod_four_ne_one_ne_zero d hd4 Q)⟩
 
 /-- The Cox ideal in the `d % 4 = 1` branch as a nonzero ideal. -/
+@[nolint defsWithUnderscore]
 noncomputable def nonzeroIdealOfForm_of_mod_four_eq_one
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd4 : d % 4 = 1)
     (Q : PrimitivePositiveDefiniteForm (fieldDiscriminant d)) :
@@ -407,6 +411,7 @@ noncomputable def nonzeroIdealOfForm_of_mod_four_eq_one
 /-- The ideal class attached to a single primitive positive definite form in the
 `d % 4 ≠ 1` branch, used as the representative-level input for the descended
 `FormClass` map. -/
+@[nolint defsWithUnderscore]
 noncomputable def idealClassOfForm_of_mod_four_ne_one
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd4 : d % 4 ≠ 1)
     (Q : PrimitivePositiveDefiniteForm (fieldDiscriminant d)) :
@@ -416,6 +421,7 @@ noncomputable def idealClassOfForm_of_mod_four_ne_one
 /-- The ideal class attached to a single primitive positive definite form in the
 `d % 4 = 1` branch, used as the representative-level input for the descended
 `FormClass` map. -/
+@[nolint defsWithUnderscore]
 noncomputable def idealClassOfForm_of_mod_four_eq_one
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd4 : d % 4 = 1)
     (Q : PrimitivePositiveDefiniteForm (fieldDiscriminant d)) :
@@ -527,6 +533,7 @@ theorem idealClassOfForm_of_mod_four_eq_one_eq_of_properEquivalent
   exact idealClassOfForm_of_mod_four_eq_one_eq_of_transform d hd4 Q R g hg.symm
 
 /-- Map from form classes to ideal classes in the `d % 4 ≠ 1` branch. -/
+@[nolint defsWithUnderscore]
 noncomputable def formClassToClassGroup_of_mod_four_ne_one
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd4 : d % 4 ≠ 1) :
     FormClass (fieldDiscriminant d) → ClassGroup (𝓞 (Qsqrtd (d : ℚ))) := by
@@ -535,6 +542,7 @@ noncomputable def formClassToClassGroup_of_mod_four_ne_one
     (idealClassOfForm_of_mod_four_ne_one_eq_of_properEquivalent d hd4)
 
 /-- Map from form classes to ideal classes in the `d % 4 = 1` branch. -/
+@[nolint defsWithUnderscore]
 noncomputable def formClassToClassGroup_of_mod_four_eq_one
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd4 : d % 4 = 1) :
     FormClass (fieldDiscriminant d) → ClassGroup (𝓞 (Qsqrtd (d : ℚ))) := by

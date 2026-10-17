@@ -60,6 +60,8 @@ structure RingClassNumberConductorTwoData (p : ℕ) where
   /-- Cox's class-number jump gives ring class number `3`. -/
   orderClassNumber_eq_three : orderClassNumber = 3
 
+attribute [nolint simpNF] RingClassNumberConductorTwoData.mk.injEq
+
 /-- The conductor-`2` ring-class-number input used by the Weber/CM layer. -/
 def HasRingClassNumberThreeAtConductorTwo (p : ℕ) : Prop :=
   Nonempty (RingClassNumberConductorTwoData p)

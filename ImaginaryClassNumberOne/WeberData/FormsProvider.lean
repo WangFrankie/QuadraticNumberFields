@@ -52,6 +52,8 @@ structure ConductorTwoFormClassNumberThreeData (p : ℕ) where
   /-- Cox's conductor-`2` class-number jump gives Forms-side class number `3`. -/
   reducedFormClassNumber_eq_three : reducedFormClassNumber = 3
 
+attribute [nolint simpNF] ConductorTwoFormClassNumberThreeData.mk.injEq
+
 /-- There is Forms-side class-number-three data for the conductor-`2`
 discriminant `-4p`. -/
 def HasConductorTwoFormClassNumberThreeData (p : ℕ) : Prop :=

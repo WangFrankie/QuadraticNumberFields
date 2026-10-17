@@ -29,9 +29,8 @@ private theorem prod_primeDiscriminantFactor_eq_prod_ramifiedPrimes
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
     (∏ p : RamifiedPrimeIndex d, primeDiscriminantFactor d p) =
       (ramifiedPrimes d).prod (primeDiscriminantFactorNat d) := by
-  simpa [Finset.univ_eq_attach, primeDiscriminantFactor,
-    primeDiscriminantFactorNat] using
-    Finset.prod_attach (ramifiedPrimes d) (primeDiscriminantFactorNat d)
+  rw [Finset.univ_eq_attach]
+  exact Finset.prod_attach (ramifiedPrimes d) (primeDiscriminantFactorNat d)
 
 private theorem oddPrimeDiscriminantFactor_eq_legendreSym_neg_one_mul
     {p : ℕ} (hp : p.Prime) (hp2 : p ≠ 2) :
@@ -157,9 +156,9 @@ private theorem prod_primeDiscriminantFactor_eq_discrFormula_of_mod_four_ne_one
     have hprod :=
       prod_oddPrimeDiscriminantFactor_primeFactors_of_squarefree_odd hquot_sq hquot_odd
     rw [hprod]
-    simp only [primeDiscriminantFactorNat, twoPrimeDiscriminantFactor, hd2, if_pos]
+    simp only [primeDiscriminantFactorNat, twoPrimeDiscriminantFactor, hd2, ite_eq_left]
     by_cases hd8 : d % 8 = 2
-    · rw [if_pos hd8]
+    · rw [ite_eq_left hd8]
       by_cases hdneg : d < 0
       · have hq4 : d.natAbs / 2 % 4 = 3 := by omega
         rw [ZMod.χ₄_nat_three_mod_four hq4]
@@ -167,7 +166,7 @@ private theorem prod_primeDiscriminantFactor_eq_discrFormula_of_mod_four_ne_one
       · have hq4 : d.natAbs / 2 % 4 = 1 := by omega
         rw [ZMod.χ₄_nat_one_mod_four hq4]
         omega
-    · rw [if_neg hd8]
+    · rw [ite_eq_right hd8]
       have hnot_four_int : ¬(4 : ℤ) ∣ d := squarefree_int_not_dvd_four d hsq
       by_cases hdneg : d < 0
       · have hq4 : d.natAbs / 2 % 4 = 1 := by omega

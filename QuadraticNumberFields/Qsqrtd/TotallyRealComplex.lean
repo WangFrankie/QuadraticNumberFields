@@ -7,7 +7,7 @@ import QuadraticNumberFields.Qsqrtd.Basic
 import QuadraticNumberFields.QuadraticField.Classification
 import QuadraticNumberFields.QuadraticField.Conj
 import QuadraticNumberFields.QuadraticField.Transport
-import Mathlib.Data.Real.Sqrt
+import Mathlib.Analysis.Real.Sqrt
 import Mathlib.NumberTheory.NumberField.InfinitePlace.TotallyRealComplex
 import Mathlib.NumberTheory.NumberField.CMField
 import Mathlib.RingTheory.Localization.FractionRing
@@ -211,9 +211,8 @@ theorem ringHom_eval_eq_algHom_eval
   let φ : Qsqrtd (d : ℚ) →ₐ[ℚ] ℝ := (σ.comp e.symm.toRingHom).toRatAlgHom
   σ w = φ (e w) := by
   intro R e φ
-  dsimp [φ]
-  have hw : e.toRingEquiv.symm (e w) = w := e.toRingEquiv.symm_apply_apply w
-  rw [hw]
+  change σ w = σ (e.symm (e w))
+  rw [e.symm_apply_apply]
 
 /-- The real embeddings of the fraction field of `𝓞(ℚ(√d))` are induced by
 `realEmbeddingPos` and `realEmbeddingNeg` through the canonical fraction-field

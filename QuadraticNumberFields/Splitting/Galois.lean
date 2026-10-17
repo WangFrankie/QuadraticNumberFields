@@ -46,9 +46,7 @@ theorem finrank_fractionRing_ringOfIntegers_eq_two [NumberField K] :
   haveI : Algebra.IsAlgebraic ℤ OK := Algebra.IsAlgebraic.of_finite ℤ OK
   calc
     Module.finrank (FractionRing ℤ) (FractionRing OK) = Module.finrank ℤ OK := by
-      simpa using
-        (Algebra.IsAlgebraic.finrank_of_isFractionRing (R := ℤ) (R' := FractionRing ℤ)
-          (S := OK) (S' := FractionRing OK))
+      exact IsFractionRing.finrank_eq ℤ (FractionRing ℤ) OK (FractionRing OK)
     _ = Module.finrank ℚ K := by
       convert NumberField.RingOfIntegers.rank (K := K)
       exact Subsingleton.elim _ _

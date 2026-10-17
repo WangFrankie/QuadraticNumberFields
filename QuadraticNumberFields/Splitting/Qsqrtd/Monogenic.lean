@@ -257,7 +257,7 @@ theorem minpoly_generator :
   constructor
   · intro hd4
     unfold ringOfIntegersGenerator
-    rw [dif_neg hd4]
+    rw [dite_eq_right hd4]
     calc
       minpoly ℤ ((RingOfIntegers.ringOfIntegers_equiv_zsqrtd_of_mod_four_ne_one d hd4).symm
           QuadraticAlgebra.omega) =
@@ -268,7 +268,7 @@ theorem minpoly_generator :
       _ = Polynomial.X ^ 2 - Polynomial.C d := minpoly_omega_quadAlg_zero d
   · intro hd4
     unfold ringOfIntegersGenerator
-    rw [dif_pos hd4]
+    rw [dite_eq_left hd4]
     calc
       minpoly ℤ ((RingOfIntegers.ringOfIntegers_equiv_zOnePlusSqrtOverTwo_of_mod_four_eq_one
             d hd4).symm QuadraticAlgebra.omega) =

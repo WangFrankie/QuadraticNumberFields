@@ -35,7 +35,7 @@ def genusCoprimeIdeals : Submonoid ((Ideal OK)⁰) where
   one_mem' := by simp [primeDiscriminantModulus]
   mul_mem' := by
     intro I J hI hJ
-    simpa only [Set.mem_setOf_eq, Submonoid.coe_mul, Ideal.absNorm.map_mul] using
+    simpa only [Set.mem_ofPred_eq, Submonoid.coe_mul, Ideal.absNorm.map_mul] using
       Nat.Coprime.mul_left hI hJ
 
 /-- A nonzero integral ideal whose norm is coprime to the field discriminant. -/
