@@ -176,9 +176,9 @@ theorem reducedFormRepMulForTable_val_eq_composeAndReduce
   have hcomp_pos : comp.IsPositiveDefinite :=
     composeForm_isPositiveDefinite Q.1 R.1 hQR hRprim hQa hQpos hRpos
   unfold reducedFormRepMulForTable gaussMul composeAndReduce
-  rw [dif_pos hQR, dif_pos hRprim, dif_pos hQa]
+  rw [dite_eq_left hQR, dite_eq_left hRprim, dite_eq_left hQa]
   change reduceForm comp _ = (if h : comp.IsPositiveDefinite then reduceForm comp h else comp)
-  rw [dif_pos hcomp_pos]
+  rw [dite_eq_left hcomp_pos]
 
 /-- Powers computed in the reduced-representative table project to powers
 computed in the raw reduced-form table. -/

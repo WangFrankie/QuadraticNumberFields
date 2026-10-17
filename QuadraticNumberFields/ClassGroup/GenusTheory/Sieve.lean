@@ -19,7 +19,7 @@ namespace QuadraticNumberFields
 namespace ClassGroup
 namespace GenusTheory
 
-open scoped NumberField QuadraticNumberFields.ClassGroup
+open scoped _root_.NumberField QuadraticNumberFields.ClassGroup
 
 
 private theorem nat_eq_one_or_prime_of_squarefree_of_primeFactors_card_le_one {n : ℕ}

@@ -25,7 +25,7 @@ namespace QuadraticNumberFields
 namespace ClassGroup
 namespace Ambiguous
 
-open scoped NumberField nonZeroDivisors
+open scoped _root_.NumberField nonZeroDivisors
 open scoped QuadraticNumberFields.Splitting
 
 attribute [-instance] DivisionRing.toRatAlgebra
