@@ -19,7 +19,7 @@ namespace QuadraticNumberFields
 namespace ClassGroup
 namespace GenusTheory
 
-open scoped NumberField QuadraticNumberFields.ClassGroup
+open scoped _root_.NumberField QuadraticNumberFields.ClassGroup
 open CommGroup
 
 variable (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]

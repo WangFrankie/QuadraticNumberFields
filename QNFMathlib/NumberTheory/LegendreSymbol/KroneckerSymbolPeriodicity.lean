@@ -502,8 +502,8 @@ theorem kroneckerTwo_mul (D E : ℤ) :
 natural denominators. -/
 theorem kroneckerSymNat_mul_left (D E : ℤ) {n : ℕ} (hn : n ≠ 0) :
     kroneckerSymNat (D * E) n = kroneckerSymNat D n * kroneckerSymNat E n := by
-  rw [kroneckerSymNat, ite_eq_right hn, kroneckerSymNat, ite_eq_right hn, kroneckerSymNat, ite_eq_right hn,
-    kroneckerTwo_mul, jacobiSym.mul_left]
+  rw [kroneckerSymNat, ite_eq_right hn, kroneckerSymNat, ite_eq_right hn,
+    kroneckerSymNat, ite_eq_right hn, kroneckerTwo_mul, jacobiSym.mul_left]
   ring
 
 /-- The Kronecker symbol with upper argument `1` is trivial. -/

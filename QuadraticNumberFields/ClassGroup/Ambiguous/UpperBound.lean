@@ -24,7 +24,7 @@ namespace QuadraticNumberFields
 namespace ClassGroup
 namespace Ambiguous
 
-open scoped NumberField
+open scoped _root_.NumberField
 
 section Qsqrtd
 
