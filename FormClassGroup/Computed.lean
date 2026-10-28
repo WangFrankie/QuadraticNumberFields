@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 
-import Mathlib.Data.ZMod.Basic
 import QuadraticNumberFields.ClassGroup.Basic
 import FormClassGroup.ClassGroup.Law
 import FormClassGroup.ClassGroup.ClassNumber
@@ -12,12 +11,12 @@ import FormClassGroup.ClassGroup.ClassNumber
 /-!
 # Computed Class Groups
 
-This module sketches the intended user-facing API for finite computed
-models of ideal class groups of imaginary quadratic fields.
+This module provides the user-facing API for finite computed models of ideal
+class groups of imaginary quadratic fields.
 
-The backend is intentionally abstract here.  A future implementation can fill
-the `sorry` boundaries using reduced binary quadratic forms, reduced ideals, or
-another certified finite model without changing the facade exposed by this file.
+The facade `computedClassGroup` is currently backed by reduced primitive
+positive definite binary quadratic forms.  Another certified finite model, such
+as reduced ideals, can replace that backend without changing the facade.
 -/
 
 open scoped NumberField
@@ -92,26 +91,7 @@ end ComputedClassGroup
 
 end ClassGroup
 
-/-! ## Facade API -/
-
-/-- A future computed class-group model for `ℚ(√d)`.
-
-The first backend is expected to use reduced positive definite forms and the
-Cox equivalence; later backends may be ideal-native. -/
-noncomputable def computedClassGroup (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
-    ClassGroup.ComputedClassGroup d := by
-  sorry
-
-/-- The class number obtained from the computed class-group facade. -/
-noncomputable def computedClassNumber (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] : ℕ :=
-  (computedClassGroup d).card
-
-/-- The multiplication table obtained from the computed class-group facade. -/
-noncomputable def classGroupMulTable (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] :
-    (computedClassGroup d).Rep → (computedClassGroup d).Rep → (computedClassGroup d).Rep :=
-  (computedClassGroup d).mulTable
-
-/-! ## Reduced-form backend target -/
+/-! ## Reduced-form backend -/
 
 /-- A certified finite computed class-group model for imaginary quadratic fields,
 using reduced primitive positive definite binary quadratic forms. -/
@@ -171,50 +151,31 @@ theorem reducedFormsComputedClassGroup_mul
       BinaryQuadraticForm.reducedFormRepMul hdneg Q R :=
   rfl
 
-/-! ## Target examples -/
+/-! ## Facade API -/
 
-namespace Examples
-namespace SqrtNeg14
+/-- The computed class-group model for the imaginary quadratic field `ℚ(√d)`.
 
-/-- Backend certificate target: the computed model for `ℚ(√-14)` identifies the
-ideal class group with a cyclic group of order four. -/
-theorem classGroup_cyclic_order_four_backend
-    [Fact (Squarefree (-14 : ℤ))] [Fact ((-14 : ℤ) ≠ 1)] :
-    Nonempty
-      (_root_.ClassGroup (𝓞 (Qsqrtd ((-14 : ℤ) : ℚ))) ≃*
-        Multiplicative (ZMod 4)) := by
-  sorry
+This facade currently uses the reduced-form backend. -/
+noncomputable def computedClassGroup (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (hdneg : d < 0) : ClassGroup.ComputedClassGroup d :=
+  reducedFormsComputedClassGroup d hdneg
 
-/-- Target interface: `ℚ(√-14)` has cyclic class group of order four. -/
-theorem classGroup_cyclic_order_four
-    [Fact (Squarefree (-14 : ℤ))] [Fact ((-14 : ℤ) ≠ 1)] :
-    Nonempty
-      (_root_.ClassGroup (𝓞 (Qsqrtd ((-14 : ℤ) : ℚ))) ≃*
-        Multiplicative (ZMod 4)) := by
-  exact classGroup_cyclic_order_four_backend
+/-- The class number obtained from the computed class-group facade. -/
+noncomputable def computedClassNumber (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (hdneg : d < 0) : ℕ :=
+  (computedClassGroup d hdneg).card
 
-end SqrtNeg14
+/-- The multiplication table obtained from the computed class-group facade. -/
+noncomputable def classGroupMulTable (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (hdneg : d < 0) :
+    (computedClassGroup d hdneg).Rep → (computedClassGroup d hdneg).Rep →
+      (computedClassGroup d hdneg).Rep :=
+  (computedClassGroup d hdneg).mulTable
 
-namespace SqrtNeg21
-
-/-- Backend certificate target: the computed model for `ℚ(√-21)` identifies the
-ideal class group with the Klein four group. -/
-theorem classGroup_klein_four_backend
-    [Fact (Squarefree (-21 : ℤ))] [Fact ((-21 : ℤ) ≠ 1)] :
-    Nonempty
-      (_root_.ClassGroup (𝓞 (Qsqrtd ((-21 : ℤ) : ℚ))) ≃*
-        (Multiplicative (ZMod 2) × Multiplicative (ZMod 2))) := by
-  sorry
-
-/-- Target interface: `ℚ(√-21)` has Klein four class group. -/
-theorem classGroup_klein_four
-    [Fact (Squarefree (-21 : ℤ))] [Fact ((-21 : ℤ) ≠ 1)] :
-    Nonempty
-      (_root_.ClassGroup (𝓞 (Qsqrtd ((-21 : ℤ) : ℚ))) ≃*
-        (Multiplicative (ZMod 2) × Multiplicative (ZMod 2))) := by
-  exact classGroup_klein_four_backend
-
-end SqrtNeg21
-end Examples
+/-- The computed class number is the class number of `ℚ(√d)`. -/
+theorem computedClassNumber_eq_classNumber (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)]
+    (hdneg : d < 0) :
+    computedClassNumber d hdneg = NumberField.classNumber (Qsqrtd (d : ℚ)) :=
+  reducedFormsComputedClassGroup_card_eq_classNumber_qsqrtd d hdneg
 
 end QuadraticNumberFields
