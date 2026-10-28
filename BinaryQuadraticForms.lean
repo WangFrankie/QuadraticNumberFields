@@ -10,6 +10,7 @@ import BinaryQuadraticForms.Core.Action
 import BinaryQuadraticForms.Core.Basic
 import BinaryQuadraticForms.Core.Class
 import BinaryQuadraticForms.Core.ClassReduced
+import BinaryQuadraticForms.Core.ConductorTwo
 import BinaryQuadraticForms.Core.Enumeration
 import BinaryQuadraticForms.Core.ReducedUniqueness
 import BinaryQuadraticForms.Core.Reduction
