@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 import ImaginaryClassNumberOne.ClassNumberOne
-import ImaginaryClassNumberOne.Framework
+import ImaginaryClassNumberOne.InertPrimes
 import ImaginaryClassNumberOne.IdealReductions
 import QuadraticNumberFields.ClassGroup.GenusTheory.Sieve
 
@@ -20,9 +20,9 @@ The easy direction — each Heegner number gives class number one — is proved 
 `QuadraticNumberFields.Heegner.ClassNumberOne` via Minkowski bounds and
 inertness of small primes. The forward direction is assembled from the
 genus-theory parameter-shape sieve, the split-at-`2` reduction, and the
-Cox-Weber inert-prime core in `QuadraticNumberFields.Heegner.Framework`. The
-inert-prime core depends on a single named input, the Weber/CM data provider
-`InertPrimeWeberDataProvider`. The Diophantine endgame `heegner_xy_solutions`
+Cox-Weber inert prime case in `ImaginaryClassNumberOne.InertPrimes`. The
+remaining mathematical assumption is `InertPrimeWeberHypothesis`.
+The Diophantine theorem `heegner_xy_solutions`
 for `Y ^ 2 = 2 * X * (X ^ 3 + 1)` is proved in
 `QuadraticNumberFields.Heegner.Diophantine`.
 
@@ -43,14 +43,14 @@ namespace Heegner
 /-
 TODO roadmap for the remaining forward direction:
 
-* Weber/CM route: keep the inert-prime core routed through
-  `Heegner.WeberData.Core`; this file should not import reduced forms directly.
-* Forms-provider route: use `Heegner.WeberData.FormsProvider` only as an
-  optional proof of the conductor-`2` class-number input `h(-4 * p) = 3`.
-* Order/Picard route: a later quadratic-order/Picard-group proof of Cox 7.24
-  or Corollary 7.28 can replace the Forms provider without changing this file.
-* Alternative deep route: Stark's no-Weber variant or Baker's logarithmic route
-  should be added as separate providers for the same named inert-core input.
+* Prove `InertPrimeWeberHypothesis` from Weber functions and complex multiplication.
+* The conductor-`2` reduced-form relation `h(-4p) = 3` is proved in
+  `ImaginaryClassNumberOne.Weber.ConductorTwo`; its identification with the
+  quadratic-order class number still needs to be established.
+* A quadratic-order/Picard-group proof of Cox 7.24 or Corollary 7.28 is an
+  alternative approach to the conductor class-number relation.
+* Stark's argument or Baker's logarithmic estimates give other approaches to
+  the remaining inert prime case.
 -/
 
 /-- **Elementary non-half-integral branch of Baker-Heegner-Stark.** If
@@ -78,12 +78,12 @@ theorem classNumber_eq_one_imp_mem_heegnerSet_of_mod_eight_eq_one
 
 /-- **Baker-Heegner-Stark prime-family step.** After the genus-theory
 parameter-shape sieve has reduced the class-number-one problem to `d = -1`,
-`d = -2`, or `d = -p` with `p ≡ 3 (mod 4)` prime, the only deep input needed is
-the inert prime core `p ≡ 3 (mod 8)`. The complementary case `p ≡ 7 (mod 8)` is
+`d = -2`, or `d = -p` with `p ≡ 3 (mod 4)` prime, the remaining case is
+the inert prime case `p ≡ 3 (mod 8)`. The complementary case `p ≡ 7 (mod 8)` is
 the elementary split-at-`2` branch, which has already been handled
 ideal-theoretically. -/
 theorem classNumber_eq_one_imp_mem_heegnerSet_of_parameter_prime_shape
-    (hprovider : InertPrimeWeberDataProvider)
+    (hweber : InertPrimeWeberHypothesis)
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : d < 0)
     (hshape :
       d = -1 ∨ d = -2 ∨ ∃ p : ℕ, Nat.Prime p ∧ p % 4 = 3 ∧ d = -(p : ℤ))
@@ -94,7 +94,7 @@ theorem classNumber_eq_one_imp_mem_heegnerSet_of_parameter_prime_shape
   · simp [heegnerSet]
   · have hp8_cases : p % 8 = 3 ∨ p % 8 = 7 := by omega
     rcases hp8_cases with hp8 | hp8
-    · exact baker_heegner_stark_inert_prime_core hprovider d hd p hp hp8 hdp h
+    · exact mem_heegnerSet_of_classNumber_eq_one_of_inert_prime hweber d hd p hp hp8 hdp h
     · have hd8 : d % 8 = 1 := by
         subst hdp
         omega
@@ -105,21 +105,21 @@ theorem classNumber_eq_one_imp_mem_heegnerSet_of_parameter_prime_shape
 @[deprecated classNumber_eq_one_imp_mem_heegnerSet_of_parameter_prime_shape
   (since := "2026-07-12")]
 theorem classNumber_eq_one_imp_mem_heegnerSet_of_discr_prime_shape
-    (hprovider : InertPrimeWeberDataProvider)
+    (hweber : InertPrimeWeberHypothesis)
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : d < 0)
     (hshape :
       d = -1 ∨ d = -2 ∨ ∃ p : ℕ, Nat.Prime p ∧ p % 4 = 3 ∧ d = -(p : ℤ))
     (h : NumberField.classNumber (Qsqrtd (d : ℚ)) = 1) :
     d ∈ heegnerSet :=
   classNumber_eq_one_imp_mem_heegnerSet_of_parameter_prime_shape
-    hprovider d hd hshape h
+    hweber d hd hshape h
 
 /-- **Inert half-integral branch of Baker-Heegner-Stark.** In the `d % 8 = 5`
 branch, the ideal-theoretic odd prime-shape sieve reduces class number one to
-`d = -p` with `p ≡ 3 (mod 8)`, so the only remaining input is
-`baker_heegner_stark_inert_prime_core`. -/
+`d = -p` with `p ≡ 3 (mod 8)`, to which we apply
+`mem_heegnerSet_of_classNumber_eq_one_of_inert_prime`. -/
 theorem classNumber_eq_one_imp_mem_heegnerSet_of_mod_eight_eq_five
-    (hprovider : InertPrimeWeberDataProvider)
+    (hweber : InertPrimeWeberHypothesis)
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : d < 0) (hd8 : d % 8 = 5)
     (h : NumberField.classNumber (Qsqrtd (d : ℚ)) = 1) :
     d ∈ heegnerSet := by
@@ -129,18 +129,18 @@ theorem classNumber_eq_one_imp_mem_heegnerSet_of_mod_eight_eq_five
   have hp8 : p % 8 = 3 := by
     subst hdp
     omega
-  exact baker_heegner_stark_inert_prime_core hprovider d hd p hp hp8 hdp h
+  exact mem_heegnerSet_of_classNumber_eq_one_of_inert_prime hweber d hd p hp hp8 hdp h
 
 /-- **Baker-Heegner-Stark forward direction.** The genus-theory sieve supplies
 the parameter shape; the split-at-`2` reduction closes the `p ≡ 7 (mod 8)`
 branch, and the remaining `p ≡ 3 (mod 8)` branch uses the inert prime core. -/
 theorem classNumber_eq_one_imp_mem_heegnerSet
-    (hprovider : InertPrimeWeberDataProvider)
+    (hweber : InertPrimeWeberHypothesis)
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : d < 0)
     (h : NumberField.classNumber (Qsqrtd (d : ℚ)) = 1) :
     d ∈ heegnerSet :=
   classNumber_eq_one_imp_mem_heegnerSet_of_parameter_prime_shape
-    hprovider d hd
+    hweber d hd
     (ClassGroup.GenusTheory.classNumber_eq_one_imp_parameter_prime_shape d hd h) h
 
 /-- **Baker–Heegner–Stark theorem.** A negative squarefree integer `d` gives an
@@ -148,14 +148,14 @@ imaginary quadratic field `ℚ(√d)` of class number one if and only if `d` is 
 of the nine Heegner numbers `-1, -2, -3, -7, -11, -19, -43, -67, -163`.
 
 The reverse implication is `classNumber_eq_one_of_mem_heegnerSet`. The forward
-implication factors through the genus-theory parameter-shape sieve; the only
-remaining input is the inert-prime Weber/CM provider `hprovider`. -/
+implication uses the genus-theory parameter-shape sieve and the explicit
+Weber hypothesis `hweber`. This is a conditional theorem. -/
 theorem classNumber_eq_one_iff_mem_heegnerSet
-    (hprovider : InertPrimeWeberDataProvider)
+    (hweber : InertPrimeWeberHypothesis)
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : d < 0) :
     NumberField.classNumber (Qsqrtd (d : ℚ)) = 1 ↔ d ∈ heegnerSet := by
   constructor
-  · exact classNumber_eq_one_imp_mem_heegnerSet hprovider d hd
+  · exact classNumber_eq_one_imp_mem_heegnerSet hweber d hd
   · exact fun h => classNumber_eq_one_of_mem_heegnerSet h
 
 end Heegner

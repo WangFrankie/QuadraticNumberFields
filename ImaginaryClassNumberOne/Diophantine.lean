@@ -188,7 +188,7 @@ theorem heegner_auxiliary_equation_of_solution {X Y : ℤ}
       ring
   · exact Or.inr (Or.inr (Or.inr ⟨Z, hZ⟩))
 
-/-- **Cox auxiliary Diophantine input.** Exercises 12.28-12.29 classify the
+/-- **Cox auxiliary Diophantine lemma.** Exercises 12.28-12.29 classify the
 square branch `X ^ 3 + 1 = Z ^ 2`. -/
 theorem heegner_x_coordinate_of_cube_add_one_eq_sq {X Z : ℤ}
     (h : X ^ 3 + 1 = Z ^ 2) :
@@ -250,7 +250,7 @@ theorem heegner_x_coordinate_of_cube_add_one_eq_sq {X Z : ℤ}
     · exfalso
       norm_num at hthree_dvd_one
 
-/-- **Cox auxiliary Diophantine input.** Exercise 12.27(a) rules out the
+/-- **Cox auxiliary Diophantine lemma.** Exercise 12.27(a) rules out the
 negative-square branch except for the degenerate root `X = -1`. -/
 theorem heegner_x_coordinate_of_cube_add_one_eq_neg_sq {X Z : ℤ}
     (h : X ^ 3 + 1 = -Z ^ 2) :
@@ -343,7 +343,7 @@ private theorem exists_associated_cube_zsqrtd_neg_two_of_cube_eq_two_mul_sq_add_
     nlinarith
   exact exists_associated_pow_of_mul_eq_pow' hcop hprod
 
-/-- **Cox auxiliary Diophantine input.** The `ℤ[√-2]` branch of Cox's
+/-- **Cox auxiliary Diophantine lemma.** The `ℤ[√-2]` branch of Cox's
 argument rules out `X ^ 3 + 1 = -2 * Z ^ 2` except for `X = -1`. -/
 theorem heegner_x_coordinate_of_cube_add_one_eq_neg_two_mul_sq {X Z : ℤ}
     (h : X ^ 3 + 1 = -2 * Z ^ 2) :
@@ -380,7 +380,7 @@ theorem heegner_x_coordinate_of_cube_add_one_eq_neg_two_mul_sq {X Z : ℤ}
 
 /-- Cox auxiliary Diophantine classification after the four branches have been
 isolated.  The `W ^ 6 + 1 = 2 * Z ^ 2` branch is proved here from the generic
-integer square API; the remaining hard branches are the named Cox inputs above. -/
+integer-square lemmas and Cox's auxiliary Diophantine results above. -/
 theorem heegner_x_coordinate_of_auxiliary_equations {X : ℤ}
     (haux :
       (∃ Z : ℤ, X ^ 3 + 1 = Z ^ 2) ∨

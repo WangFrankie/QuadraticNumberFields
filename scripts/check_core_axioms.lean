@@ -6,6 +6,7 @@ Authors: Frankie Wang
 
 import Lean.Elab.BuiltinEvalCommand
 import Lean.Util.CollectAxioms
+import QNFMathlib.NumberTheory.ModularForms.ModularPolynomialTwo
 import QuadraticNumberFields.QuadraticField.Classification
 import QuadraticNumberFields.RingOfIntegers.Classification
 import QuadraticNumberFields.RingOfIntegers.Discriminant
@@ -16,7 +17,7 @@ import FormClassGroup.ClassGroup.ClassNumber
 import FormClassGroup.Computed
 import ImaginaryClassNumberOne.ClassNumberOne
 import ImaginaryClassNumberOne.StarkHeegner
-import ImaginaryClassNumberOne.WeberData.FormsProvider
+import ImaginaryClassNumberOne.Weber.ConductorTwo
 
 /-!
 # Core axiom audit
@@ -25,15 +26,28 @@ Run `lake env lean scripts/check_core_axioms.lean` after `lake build`.
 
 Check the transitive axioms of representative project results, including both
 the ideal-theoretic and reduced-form routes to class numbers, the computed
-class-group facade, the conductor-`2` reduced-form count, and the
-Baker-Heegner-Stark statements, which take the Weber/CM input as an explicit
-hypothesis. Only Lean's standard classical axioms are allowed; `sorryAx`,
+class-group facade, the conductor-`2` reduced-form count, Weber's cubic and the
+level-two modular polynomial, and the
+Baker-Heegner-Stark statements under the explicit Weber existence hypothesis.
+Only Lean's standard classical axioms are allowed; `sorryAx`,
 native-evaluation axioms, and any new axioms fail the audit.
 -/
 
 open Lean in
 run_cmd do
   let declarations : Array Name := #[
+    ``ModularForm.gamma₂_cube,
+    ``ModularForm.jInvariant_smul,
+    ``ModularForm.mdifferentiable_jInvariant,
+    ``ModularForm.weber_cubic_factorization,
+    ``ModularForm.jInvariant_eq_weberF,
+    ``ModularForm.jInvariant_eq_weberF₁,
+    ``ModularForm.jInvariant_eq_weberF₂,
+    ``ModularForm.modularPolynomialTwo_monic,
+    ``ModularForm.modularPolynomialTwo_natDegree,
+    ``ModularForm.modularPolynomialTwo_jInvariant,
+    ``ModularForm.modularPolynomialTwo_jInvariant_half,
+    ``ModularForm.modularPolynomialTwo_jInvariant_half_add_one,
     ``exists_squarefree_int_param_of_isQuadraticField,
     ``exists_algEquiv_qsqrtd,
     ``isQuadraticField_iff_exists_squarefree_int_param,
@@ -58,7 +72,7 @@ run_cmd do
     ``QuadraticNumberFields.Heegner.classNumber_eq_one_iff_mem_heegnerSet,
     ``QuadraticNumberFields.BinaryQuadraticForm.card_enumPrimitiveReducedForms_neg_four_mul_eq_three,
     ``QuadraticNumberFields.Heegner.conductor_two_form_class_number_three,
-    ``QuadraticNumberFields.Heegner.classNumber_eq_one_iff_mem_heegnerSet_of_conductorTwoWeberInput]
+    ``QuadraticNumberFields.Heegner.classNumber_eq_one_iff_mem_heegnerSet_of_conductorTwoWeberHypothesis]
   let allowed : Array Name := #[``propext, ``Classical.choice, ``Quot.sound]
   for declaration in declarations do
     let axioms ← collectAxioms declaration

@@ -70,8 +70,8 @@ lake env lean scripts/check_core_axioms.lean
 The axiom audit checks representative classification, discriminant, genus-theory,
 form-class-group, and all nine Heegner class-number-one results. It rejects
 dependencies on `sorryAx` or any axioms beyond `propext`, `Classical.choice`, and
-`Quot.sound`. The unfinished Euclidean, computed-class-group facade, and Weber
-provider declarations remain outside this audit.
+`Quot.sound`. The conditional Baker--Heegner--Stark theorem is included in the
+audit; its Weber existence hypothesis remains unproved.
 
 ## Notebook
 
@@ -214,10 +214,10 @@ Counts exclude blank lines.
 | `├── ClassNumberOne.lean` | 133 | 50 | 183 |
 | `├── ClassNumberOneByForms.lean` | 12 | 13 | 25 |
 | `├── Diophantine.lean` | 399 | 69 | 468 |
-| `├── Framework.lean` | 43 | 25 | 68 |
+| `├── InertPrimes.lean` | 43 | 25 | 68 |
 | `├── IdealReductions.lean` | 304 | 41 | 345 |
 | `├── StarkHeegner.lean` | 80 | 63 | 143 |
-| `└── WeberData/` | 130 | 123 | 253 |
+| `└── Weber/` | 130 | 123 | 253 |
 | **ImaginaryClassNumberOne total** | **1109** | **394** | **1503** |
 
 </details>

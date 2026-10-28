@@ -7,15 +7,15 @@ Authors: Frankie Wang
 import ImaginaryClassNumberOne.ClassNumberOne
 import ImaginaryClassNumberOne.ClassNumberOneByForms
 import ImaginaryClassNumberOne.Diophantine
-import ImaginaryClassNumberOne.Framework
+import ImaginaryClassNumberOne.InertPrimes
 import ImaginaryClassNumberOne.IdealReductions
 import ImaginaryClassNumberOne.StarkHeegner
-import ImaginaryClassNumberOne.WeberData.Core
-import ImaginaryClassNumberOne.WeberData.FormsProvider
+import ImaginaryClassNumberOne.Weber.Heegner
+import ImaginaryClassNumberOne.Weber.ConductorTwo
 
 /-!
 # Imaginary Class Number One
 
 This library contains the class-number-one theorems for the nine Heegner
-numbers and the Baker--Heegner--Stark statement framework.
+numbers and the Baker--Heegner--Stark theorem under Weber's existence hypothesis.
 -/

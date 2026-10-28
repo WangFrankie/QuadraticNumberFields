@@ -23,7 +23,7 @@ namespace QuadraticNumberFields
 namespace Heegner
 
 /-- Every Heegner number has class number one, proved by finite case analysis
-and the reduced-form enumeration backend. -/
+and the reduced-form enumeration. -/
 theorem classNumber_eq_one_of_mem_heegnerSet_by_reducedForms
     {d : ℤ} [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : d ∈ heegnerSet) :
     NumberField.classNumber (Qsqrtd (d : ℚ)) = 1 := by

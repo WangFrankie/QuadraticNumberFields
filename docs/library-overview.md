@@ -383,7 +383,7 @@ results, examples, and remaining research-oriented scaffolding.
 │   └── Computable/
 ├── ImaginaryClassNumberOne.lean      # Heegner and Baker--Heegner--Stark layer
 ├── ImaginaryClassNumberOne/
-│   └── WeberData/
+│   └── Weber/
 ├── Examples.lean                     # concrete examples entry point
 ├── Examples/
 │   └── SqrtNeg5/                     # verified ℤ[√(-5)] examples
