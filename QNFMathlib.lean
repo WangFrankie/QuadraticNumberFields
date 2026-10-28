@@ -20,6 +20,8 @@ import QNFMathlib.NumberTheory.DirichletCharacter.Kronecker
 import QNFMathlib.NumberTheory.LegendreSymbol.JacobiSymbol
 import QNFMathlib.NumberTheory.LegendreSymbol.KroneckerSymbol
 import QNFMathlib.NumberTheory.LegendreSymbol.KroneckerSymbolPeriodicity
+import QNFMathlib.NumberTheory.ModularForms.DiscriminantCoeffs
+import QNFMathlib.NumberTheory.ModularForms.HeckeTwo
 import QNFMathlib.NumberTheory.ModularForms.Weber
 import QNFMathlib.NumberTheory.NumberField.ClassNumber
 import QNFMathlib.NumberTheory.NumberField.Galois
