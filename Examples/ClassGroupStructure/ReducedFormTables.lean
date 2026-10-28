@@ -4,12 +4,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 
-import FormClassGroup.Computable.Structure
+import FormClassGroup.Computable.ClassGroup
 
 /-!
 # Reduced-Form Multiplication Tables
 
-This file is the second layer of the class-group structure examples.  It keeps
+This file is the first layer of the class-group structure examples.  It keeps
 the concrete reduced-form table checks separate from the final transport to the
 ideal class group.
 -/

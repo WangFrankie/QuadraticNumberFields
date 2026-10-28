@@ -33,9 +33,8 @@ proof-parametrized helper used by older Cox statements that still take
   `gaussMul_eq_reducedFormRepMul` identifies this executable multiplication
   with the transported class-group law on reduced representatives.
 
-* Concrete class-group isomorphism types for `-5`, `-23`, `-21` live in
-  `Forms.Computable.Structure` (standard type descriptions plus cyclic / Klein
-  four-group identification tools).
+* Concrete class-group isomorphisms for `-5` and `-23` live in
+  `Examples.ClassGroupStructure.Computations`.
 
 * The Cox ideal-class bridge for direct concordant Gauss composition is proved in
   `Forms.ClassGroup.CoxComposition`

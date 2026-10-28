@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 
-import Examples.ClassGroupStructure.StandardTargets
 import Examples.ClassGroupStructure.ReducedFormTables
 import Examples.ClassGroupStructure.Computations
 
@@ -13,6 +12,6 @@ import Examples.ClassGroupStructure.Computations
 
 Concrete class-group structure examples for imaginary quadratic fields.
 
-The files are ordered from generic standard finite-abelian targets, to concrete
-reduced-form multiplication tables, to final class-group isomorphism outputs.
+The files are ordered from concrete reduced-form multiplication tables to final
+class-group isomorphism outputs.
 -/

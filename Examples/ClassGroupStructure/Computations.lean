@@ -4,8 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Frankie Wang
 -/
 
-import Examples.ClassGroupStructure.ReducedFormTables
 import Examples.SqrtNeg5.Forms
+import FormClassGroup.ClassGroup.ClassNumber
 import Mathlib.Data.ZMod.Basic
 import Mathlib.NumberTheory.NumberField.Basic
 
@@ -13,18 +13,12 @@ import Mathlib.NumberTheory.NumberField.Basic
 # Class Group Structure Computations
 
 This file is the final layer of the class-group structure examples.  The
-preceding example files check the standard finite-abelian targets and the raw
-reduced-form multiplication tables.  This file keeps the formal cyclic
-`MulEquiv` outputs for `d = -5` and `d = -23`, and records the non-cyclic
-standard classifier outputs for `d = -21` and `d = -231`.
+preceding example file checks the raw reduced-form multiplication tables.  This
+file keeps the formal cyclic `MulEquiv` outputs for `d = -5` and `d = -23`.
 -/
 
 namespace QuadraticNumberFields
 namespace BinaryQuadraticForm
-
-open FiniteAbelianSmith
-
-set_option linter.hashCommand false
 
 /-! ## Input facts for the concrete fields -/
 
@@ -40,31 +34,6 @@ instance : Fact (Squarefree (-23 : ℤ)) :=
 
 /-- `-23` is not `1`. -/
 instance : Fact ((-23 : ℤ) ≠ 1) := ⟨by decide⟩
-
-/-- `-21` is squarefree. -/
-instance : Fact (Squarefree (-21 : ℤ)) :=
-  ⟨Int.squarefree_natAbs.mp (by
-    change Squarefree (21 : ℕ)
-    rw [show (21 : ℕ) = 3 * 7 by norm_num]
-    rw [Nat.squarefree_mul (by norm_num : Nat.Coprime 3 7)]
-    exact ⟨Nat.prime_three.squarefree, Nat.prime_seven.squarefree⟩)⟩
-
-/-- `-21` is not `1`. -/
-instance : Fact ((-21 : ℤ) ≠ 1) := ⟨by decide⟩
-
-/-- `-231` is squarefree. -/
-instance : Fact (Squarefree (-231 : ℤ)) :=
-  ⟨Int.squarefree_natAbs.mp (by
-    change Squarefree (231 : ℕ)
-    rw [show (231 : ℕ) = 3 * (7 * 11) by norm_num]
-    rw [Nat.squarefree_mul (by norm_num : Nat.Coprime 3 (7 * 11))]
-    constructor
-    · exact Nat.prime_three.squarefree
-    · rw [Nat.squarefree_mul (by norm_num : Nat.Coprime 7 11)]
-      exact ⟨Nat.prime_seven.squarefree, Nat.prime_eleven.squarefree⟩)⟩
-
-/-- `-231` is not `1`. -/
-instance : Fact ((-231 : ℤ) ≠ 1) := ⟨by decide⟩
 
 /-- `ℚ(√-23)` has class number three, computed by reduced forms. -/
 theorem classNumber_qsqrtd_neg23 :
@@ -96,29 +65,6 @@ noncomputable def classGroup_qsqrtd_neg23_mulEquiv :
 
 attribute [nolint defsWithUnderscore]
   classGroup_qsqrtd_neg5_mulEquiv classGroup_qsqrtd_neg23_mulEquiv
-
-/-! ## Non-cyclic standard-output checks
-
-The non-cyclic examples below currently stop at the executable classifier
-boundary.  Formal bundled `MulEquiv` certificates for these tables should be
-added via proof-producing certificates, not by VM-only decision tactics.
--/
-
-/-! ## Public standard-output checks -/
-
-#guard classGroupStandardIsoTypeOfImaginaryParameter (-5) =
-  StandardGroupIsoType.product [2]
-
-#guard classGroupStandardIsoTypeOfImaginaryParameter (-23) =
-  StandardGroupIsoType.product [3]
-
-#guard classGroupStandardIsoTypeOfImaginaryParameter (-21) =
-  StandardGroupIsoType.product [2, 2]
-
-#guard classGroupStandardIsoTypeOfImaginaryParameter (-231) =
-  StandardGroupIsoType.product [2, 6]
-
-#guard (classGroupStandardIsoTypeOfImaginaryParameter (-231)).targetElems.length == 12
 
 end ConcreteIsomorphisms
 

@@ -18,11 +18,6 @@ weak.linter.mathlibStandardSet = true
 maxSynthPendingDepth = 3
 
 [[require]]
-name = "FiniteAbelianSmith"
-git = "https://github.com/WangFrankie/FiniteAbelianSmith"
-rev = "53054049c63d41a5c80d6ca274452a3856702255"
-
-[[require]]
 name = "repl"
 git = "https://github.com/leanprover-community/repl"
 rev = "v4.35.0"
