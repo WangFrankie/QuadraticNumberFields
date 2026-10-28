@@ -21,9 +21,10 @@ The easy direction — each Heegner number gives class number one — is proved 
 inertness of small primes. The forward direction is assembled from the
 genus-theory parameter-shape sieve, the split-at-`2` reduction, and the
 Cox-Weber inert-prime core in `QuadraticNumberFields.Heegner.Framework`. The
-inert-prime core still depends on two named inputs: the Weber/CM data provider
-and the Diophantine endgame `heegner_xy_solutions` for
-`Y ^ 2 = 2 * X * (X ^ 3 + 1)`.
+inert-prime core depends on a single named input, the Weber/CM data provider
+`InertPrimeWeberDataProvider`. The Diophantine endgame `heegner_xy_solutions`
+for `Y ^ 2 = 2 * X * (X ^ 3 + 1)` is proved in
+`QuadraticNumberFields.Heegner.Diophantine`.
 
 ## Reference
 
@@ -44,9 +45,6 @@ TODO roadmap for the remaining forward direction:
 
 * Weber/CM route: keep the inert-prime core routed through
   `Heegner.WeberData.Core`; this file should not import reduced forms directly.
-* Diophantine route: close `Heegner.Diophantine.heegner_xy_solutions`, the
-  remaining integer-equation endgame used after the Weber/CM provider supplies
-  `StarkHeegnerAlgebraicData`.
 * Forms-provider route: use `Heegner.WeberData.FormsProvider` only as an
   optional proof of the conductor-`2` class-number input `h(-4 * p) = 3`.
 * Order/Picard route: a later quadratic-order/Picard-group proof of Cox 7.24
@@ -150,9 +148,8 @@ imaginary quadratic field `ℚ(√d)` of class number one if and only if `d` is 
 of the nine Heegner numbers `-1, -2, -3, -7, -11, -19, -43, -67, -163`.
 
 The reverse implication is `classNumber_eq_one_of_mem_heegnerSet`. The forward
-implication factors through the genus-theory parameter-shape sieve; the
-remaining WIP inputs are the inert-prime Weber/CM provider and the Diophantine
-endgame `heegner_xy_solutions`. -/
+implication factors through the genus-theory parameter-shape sieve; the only
+remaining input is the inert-prime Weber/CM provider `hprovider`. -/
 theorem classNumber_eq_one_iff_mem_heegnerSet
     (hprovider : InertPrimeWeberDataProvider)
     (d : ℤ) [Fact (Squarefree d)] [Fact (d ≠ 1)] (hd : d < 0) :

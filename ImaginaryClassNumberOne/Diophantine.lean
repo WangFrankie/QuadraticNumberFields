@@ -20,9 +20,9 @@ import QNFMathlib.RingTheory.PrincipalIdealDomain
 # Diophantine Layer for the Baker-Heegner-Stark Proof
 
 This file isolates the elementary integer equation that appears in Cox's
-Weber-function route through the Baker-Heegner-Stark theorem.  The hard
-Diophantine theorem is kept as a named input; the finite check from its
-solutions to the Heegner gamma list is proved here.
+Weber-function route through the Baker-Heegner-Stark theorem.  It proves that
+the equation has exactly the six listed integral solutions, and checks the
+finite passage from those solutions to the Heegner gamma list.
 
 ## Main definitions
 
@@ -31,6 +31,12 @@ solutions to the Heegner gamma list is proved here.
 * `heegnerGammaValue`: the gamma value obtained from a solution `(X, Y)`.
 * `heegnerGammaSet`: the six gamma values arising from the known solutions.
 * `heegnerPrimeSet`: the six positive odd Heegner primes in the inert branch.
+
+## Main results
+
+* `heegner_xy_solutions`: every integral solution lies in `heegnerXYSolutionSet`.
+* `gamma_mem_heegnerGammaSet_of_xy_solution`: the gamma value of any integral
+  solution lies in `heegnerGammaSet`.
 -/
 
 -- Avoid the `Algebra ℚ` diamond for quadratic-algebra numerals in this file.
@@ -451,7 +457,7 @@ theorem heegner_xy_solutions_of_X_coordinate
     rcases hY with rfl | rfl <;> norm_num [heegnerXYSolutionSet]
 
 /-- The only integer solutions of `Y ^ 2 = 2 * X * (X ^ 3 + 1)` are the pairs
-in `heegnerXYSolutionSet`, assuming Cox's auxiliary coordinate classification. -/
+in `heegnerXYSolutionSet`. -/
 theorem heegner_xy_solutions
     {X Y : ℤ} (h : HeegnerXYEquation X Y) :
     (X, Y) ∈ heegnerXYSolutionSet := by
