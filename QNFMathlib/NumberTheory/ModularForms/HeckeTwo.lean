@@ -137,34 +137,39 @@ theorem heckeTwoSum_neg_inv {z : ℂ} (hz : 0 < z.im) :
 local notation "𝕢" => Function.Periodic.qParam
 
 /-- The `q`-expansion coefficients `τ(n)` of `Δ`. -/
-private abbrev tau (n : ℕ) : ℂ := (UpperHalfPlane.qExpansion 1 ModularForm.discriminant).coeff n
+abbrev tau (n : ℕ) : ℂ := (UpperHalfPlane.qExpansion 1 ModularForm.discriminant).coeff n
 
-private theorem qParam_one_div_two (z : ℂ) : 𝕢 1 (z / 2) = 𝕢 2 z := by
+/-- `e^{2πi (z/2)} = e^{πi z}`. -/
+theorem qParam_one_div_two (z : ℂ) : 𝕢 1 (z / 2) = 𝕢 2 z := by
   simp only [Function.Periodic.qParam]
   congr 1
   push_cast
   ring
 
-private theorem qParam_one_add_one_div_two (z : ℂ) : 𝕢 1 ((z + 1) / 2) = -𝕢 2 z := by
+/-- `e^{2πi (z+1)/2} = -e^{πi z}`. -/
+theorem qParam_one_add_one_div_two (z : ℂ) : 𝕢 1 ((z + 1) / 2) = -𝕢 2 z := by
   simp only [Function.Periodic.qParam]
   rw [show 2 * (π : ℂ) * I * ((z + 1) / 2) / ((1 : ℝ) : ℂ) =
     2 * π * I * z / ((2 : ℝ) : ℂ) + π * I by push_cast; ring, Complex.exp_add,
     Complex.exp_pi_mul_I]
   ring
 
-private theorem qParam_one_two_mul (z : ℂ) : 𝕢 1 (2 * z) = 𝕢 2 z ^ 4 := by
+/-- `e^{2πi (2z)} = (e^{πi z})⁴`. -/
+theorem qParam_one_two_mul (z : ℂ) : 𝕢 1 (2 * z) = 𝕢 2 z ^ 4 := by
   simp only [Function.Periodic.qParam, ← Complex.exp_nat_mul]
   congr 1
   push_cast
   ring
 
-private theorem qParam_one_eq_sq (z : ℂ) : 𝕢 1 z = 𝕢 2 z ^ 2 := by
+/-- `e^{2πi z} = (e^{πi z})²`. -/
+theorem qParam_one_eq_sq (z : ℂ) : 𝕢 1 z = 𝕢 2 z ^ 2 := by
   simp only [Function.Periodic.qParam, ← Complex.exp_nat_mul]
   congr 1
   push_cast
   ring
 
-private theorem hasSum_discriminantC {w : ℂ} (hw : 0 < w.im) :
+/-- The `q`-expansion of `Δ` at a point of the upper half-plane. -/
+theorem hasSum_discriminantC {w : ℂ} (hw : 0 < w.im) :
     HasSum (fun n : ℕ ↦ tau n * 𝕢 1 w ^ n) (D w) := by
   exact ModularForm.hasSum_qExpansion (f := CuspForm.discriminant) one_pos
     one_mem_strictPeriods_SL ⟨w, hw⟩
@@ -255,7 +260,8 @@ theorem heckeTwo_S_invariant :
   have := z.ne_zero
   field_simp
 
-private theorem differentiableAt_discriminantC {w : ℂ} (hw : 0 < w.im) :
+/-- `Δ` is holomorphic on the upper half-plane. -/
+theorem differentiableAt_discriminantC {w : ℂ} (hw : 0 < w.im) :
     DifferentiableAt ℂ D w :=
   (differentiableAt_eta_of_mem_upperHalfPlaneSet hw).pow 24
 
@@ -277,7 +283,8 @@ theorem differentiableOn_heckeTwoSum :
       positivity)).comp z (differentiableAt_id.const_mul 2)
   exact ((h1.add h2).add (h3.const_mul 4096)).differentiableWithinAt
 
-private theorem tau_zero : tau 0 = 0 := by
+/-- `Δ` is a cusp form: `τ(0) = 0`. -/
+theorem tau_zero : tau 0 = 0 := by
   exact CuspFormClass.qExpansion_coeff_zero CuspForm.discriminant one_pos
     one_mem_strictPeriods_SL
 
