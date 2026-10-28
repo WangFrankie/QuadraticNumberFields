@@ -4,6 +4,11 @@ This note tracks the remaining work for an unconditional Baker--Heegner--Stark
 theorem along Heegner's route (Cox, *Primes of the form x² + ny²*, §12.D,
 Theorem 12.34).
 
+This development is preserved on `legacy/baker-heegner-stark` as of 2026-10-28.
+Completion is planned in a separate repository; the statements below record
+the mathematical status of this snapshot. See the
+[preservation record](../contributions.md#baker-heegner-stark-development).
+
 ## Current state
 
 `classNumber_eq_one_iff_mem_heegnerSet_of_conductorTwoWeberHypothesis` proves the

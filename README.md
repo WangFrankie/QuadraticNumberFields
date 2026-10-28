@@ -8,6 +8,13 @@ A Lean 4 formalization of quadratic number fields `ℚ(√d)`, their rings of
 integers, discriminants, splitting behavior, and related class-number
 infrastructure. The project is built on mathlib's `QuadraticAlgebra`.
 
+> **Preserved Baker-Heegner-Stark development.** The branch
+> `legacy/baker-heegner-stark` retains the partial class-number-one proof and its
+> development history. The unconditional classification is still incomplete;
+> further work is planned in a separate repository. See the
+> [preservation record](docs/contributions.md#baker-heegner-stark-development)
+> and [mathematical status](docs/design/class-number-one-roadmap.md).
+
 ## Imports
 
 The stable, sorry-free public entry point is:

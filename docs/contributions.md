@@ -11,6 +11,51 @@ historical excerpts retain their original context and the project's Apache 2.0
 license; they are documentation rather than additional registered instances.
 See the [project citation](../README.md#citation) when citing this formalization.
 
+## Baker-Heegner-Stark development
+
+The class-number-one development is preserved on
+[`legacy/baker-heegner-stark`](https://github.com/WangFrankie/QuadraticNumberFields/tree/legacy/baker-heegner-stark)
+as of 2026-10-28. Completion of the proof is planned in a separate repository.
+The source retains its existing Frankie Wang authorship and Apache 2.0 license,
+and the branch retains the original commits without rebasing or squashing.
+
+The immutable mathematical snapshot is
+[`e74827d`](https://github.com/WangFrankie/QuadraticNumberFields/commit/e74827d99de2db74feba6f66d27336e430ef6ee4).
+Its history includes the conductor-two reduced-form count, the correction of
+the earlier Weber assumption, the eta-quotient definitions, and the two
+symmetric identities for the translates of the modular discriminant. The
+subsequent work proves Weber's cubic and the level-two modular equation in
+[`5ed698b`](https://github.com/WangFrankie/QuadraticNumberFields/commit/5ed698bb25ae068041c91c058941a78867fba263),
+then gives the conditional classification its mathematical names.
+
+The preserved results include:
+
+- the genus-theory and ideal-theoretic reductions, and the nine individual
+  class-number-one results;
+- the count of three primitive reduced forms of discriminant `-4p` in the
+  non-exceptional inert prime case;
+- the integral-point classification for `Y² = 2X(X³ + 1)`;
+- Weber's transformation and product identities, its cubic factorization,
+  the three rational expressions for `j`, and the level-two modular equation
+  at `2τ`, `τ/2`, and `(τ+1)/2`.
+
+The full classification still assumes `ConductorTwoWeberHypothesis`.
+The relation with actual CM values, their integrality and rationality, the
+quadratic-order interpretation of the reduced-form count, and the remaining
+Weber identities are unfinished. `IsAssociatedHeegnerGamma` is a finite-table
+relation; its identification with the analytic CM values still needs a proof.
+The [roadmap](design/class-number-one-roadmap.md) separates the proved results
+from these remaining statements.
+
+Validation of the mathematical snapshot passed with Lean/mathlib `v4.35.0`:
+the complete `lake build`, lint for all six libraries, and the core axiom audit
+for 37 declarations. The audit permits only `propext`, `Classical.choice`, and
+`Quot.sound`; it does not turn an explicit mathematical hypothesis into a proof.
+The pinned revisions are recorded in `lean-toolchain` and `lake-manifest.json`.
+
+The separate proof repository can refer to this immutable snapshot when
+reusing results or documenting their origin.
+
 ## Quadratic algebras as quadratic extensions
 
 **Project implementation:** Frankie Wang (`WangFrankie`), generalized on
