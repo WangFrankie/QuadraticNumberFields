@@ -7,6 +7,7 @@ Authors: Frankie Wang
 import Lean.Elab.BuiltinEvalCommand
 import Lean.Util.CollectAxioms
 import QNFMathlib.NumberTheory.ModularForms.ModularPolynomialTwo
+import QNFMathlib.NumberTheory.ModularForms.WeberGamma
 import QuadraticNumberFields.QuadraticField.Classification
 import QuadraticNumberFields.RingOfIntegers.Classification
 import QuadraticNumberFields.RingOfIntegers.Discriminant
@@ -43,6 +44,9 @@ run_cmd do
     ``ModularForm.jInvariant_eq_weberF,
     ``ModularForm.jInvariant_eq_weberF₁,
     ``ModularForm.jInvariant_eq_weberF₂,
+    ``ModularForm.gamma₂_mul_weberF_pow_8,
+    ``ModularForm.gamma₂_mul_weberF₁_pow_8,
+    ``ModularForm.gamma₂_mul_weberF₂_pow_8,
     ``ModularForm.modularPolynomialTwo_monic,
     ``ModularForm.modularPolynomialTwo_natDegree,
     ``ModularForm.modularPolynomialTwo_jInvariant,

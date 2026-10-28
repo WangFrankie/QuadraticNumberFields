@@ -36,8 +36,8 @@ The preserved results include:
   non-exceptional inert prime case;
 - the integral-point classification for `Y² = 2X(X³ + 1)`;
 - Weber's transformation and product identities, its cubic factorization,
-  the three rational expressions for `j`, and the level-two modular equation
-  at `2τ`, `τ/2`, and `(τ+1)/2`.
+  the three rational expressions for `j`, the three `γ₂`-identities, and the
+  level-two modular equation at `2τ`, `τ/2`, and `(τ+1)/2`.
 
 The full classification still assumes `ConductorTwoWeberHypothesis`.
 The relation with actual CM values, their integrality and rationality, the

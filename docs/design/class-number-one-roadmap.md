@@ -52,11 +52,15 @@ Proved:
 - Consequently,
   `j = (𝔣²⁴ - 16)³/𝔣²⁴ = (𝔣₁²⁴ + 16)³/𝔣₁²⁴ = (𝔣₂²⁴ + 16)³/𝔣₂²⁴`.
 
+- Weber's `γ₂`-identities (`WeberGamma.lean`):
+  `γ₂ = (𝔣²⁴ - 16)/𝔣⁸ = (𝔣₁²⁴ + 16)/𝔣₁⁸ = (𝔣₂²⁴ + 16)/𝔣₂⁸`.
+  The cubes agree by Weber's cubic. For `𝔣₂` the cube root is fixed because
+  both sides tend to `16` at `i∞`, and the identity theorem extends the
+  equality from a half-plane to `ℍ`; the other two are its `S`- and
+  `T`-transforms.
+
 Remaining:
 
-- Fix the cube-root factors to prove
-  `γ₂ = (𝔣²⁴ - 16)/𝔣⁸ = (𝔣₁²⁴ + 16)/𝔣₁⁸ = (𝔣₂²⁴ + 16)/𝔣₂⁸`.
-  Equality of the cubes alone does not establish these identities.
 - `𝔣⁸ = 𝔣₁⁸ + 𝔣₂⁸`.
 - Values on the imaginary axis are real and positive.
 

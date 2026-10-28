@@ -26,6 +26,7 @@ import QNFMathlib.NumberTheory.ModularForms.HeckeTwoSymmetric
 import QNFMathlib.NumberTheory.ModularForms.JInvariant
 import QNFMathlib.NumberTheory.ModularForms.ModularPolynomialTwo
 import QNFMathlib.NumberTheory.ModularForms.Weber
+import QNFMathlib.NumberTheory.ModularForms.WeberGamma
 import QNFMathlib.NumberTheory.ModularForms.WeberPolynomial
 import QNFMathlib.NumberTheory.NumberField.ClassNumber
 import QNFMathlib.NumberTheory.NumberField.Galois
