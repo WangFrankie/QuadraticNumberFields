@@ -15,6 +15,7 @@ import QuadraticNumberFields.QuadraticField.Galois
 import QuadraticNumberFields.QuadraticField.Conj
 import QuadraticNumberFields.Qsqrtd.Automorphism
 import QuadraticNumberFields.Qsqrtd.Galois
+import QuadraticNumberFields.Qsqrtd.Equiv
 import QuadraticNumberFields.QuadraticField.Transport
 import QuadraticNumberFields.QuadraticField.RingOfIntegers
 import QuadraticNumberFields.RingOfIntegers.ModFour
@@ -28,6 +29,7 @@ import QuadraticNumberFields.Qsqrtd.TraceNorm
 import QuadraticNumberFields.RingOfIntegers.Integrality
 import QuadraticNumberFields.RingOfIntegers.Basis
 import QuadraticNumberFields.RingOfIntegers.Classification
+import QuadraticNumberFields.RingOfIntegers.Basic
 import QuadraticNumberFields.RingOfIntegers.Conj
 import QuadraticNumberFields.RingOfIntegers.Norm
 import QuadraticNumberFields.RingOfIntegers.Discriminant

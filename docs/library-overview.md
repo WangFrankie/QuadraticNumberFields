@@ -369,7 +369,6 @@ results, examples, and remaining research-oriented scaffolding.
 │   ├── Splitting/                    # prime splitting
 │   ├── ClassNumber/                  # core class-number interface
 │   ├── ClassGroup/                   # class groups, ambiguous ideals, genus theory
-│   ├── ContinuedFraction/            # continued-fraction scaffolding
 │   ├── Units/                        # unit and Pell scaffolding
 │   ├── Families/                     # real-quadratic family scaffolding
 │   └── Euclidean/                    # norm-Euclidean skeleton
