@@ -264,7 +264,10 @@ The library develops the classical genus theory of quadratic fields from
 signed prime discriminants and Kronecker characters. It proves surjectivity of
 the genus-character map, the narrow `2`-rank formula, the principal genus
 theorem, and the corresponding ordinary class-group formulas. The resulting
-prime-shape sieve is used by the Baker--Heegner--Stark forward direction.
+prime-shape sieve is used by the Baker--Heegner--Stark forward direction. The
+same two-torsion count separates the order-four class groups of `ℚ(√-14)`
+(cyclic) and `ℚ(√-21)` (Klein four) in
+`Examples/ClassGroupStructure/Computations.lean`.
 
 Key declarations:
 

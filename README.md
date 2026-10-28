@@ -113,26 +113,25 @@ Counts exclude blank lines.
 
 | Library | Code Lines | Comment Lines | Total Lines |
 |--------|------------|---------------|-------------|
-| `QuadraticNumberFields` | 12221 | 3353 | 15574 |
-| `FormClassGroup` | 4984 | 1051 | 6035 |
+| `QuadraticNumberFields` | 12182 | 3292 | 15474 |
+| `FormClassGroup` | 4502 | 936 | 5438 |
 | `QNFMathlib` | 4075 | 1063 | 5138 |
 | `BinaryQuadraticForms` | 3125 | 668 | 3793 |
-| `Examples` | 1241 | 580 | 1821 |
-| `ImaginaryClassNumberOne` | 1109 | 393 | 1502 |
-| **Total** | **26755** | **7108** | **33863** |
+| `Examples` | 1258 | 577 | 1835 |
+| `ImaginaryClassNumberOne` | 1109 | 394 | 1503 |
+| **Total** | **26251** | **6930** | **33181** |
 
 ### Library Tree
 
 <details>
-<summary><code>QuadraticNumberFields</code> (12221 code, 3353 comments, 15574 total)</summary>
+<summary><code>QuadraticNumberFields</code> (12182 code, 3292 comments, 15474 total)</summary>
 
 | Subtree | Code Lines | Comment Lines | Total Lines |
 |--------|------------|---------------|-------------|
-| `├── QuadraticNumberFields.lean` | 57 | 21 | 78 |
+| `├── QuadraticNumberFields.lean` | 59 | 21 | 80 |
 | `├── ClassGroup/` | 6443 | 1032 | 7475 |
-| `├── ContinuedFraction/` | 21 | 36 | 57 |
 | `├── Euclidean/` | 52 | 25 | 77 |
-| `├── Families/` | 38 | 49 | 87 |
+| `├── Families/` | 18 | 24 | 42 |
 | `├── Qsqrtd/` | 715 | 296 | 1011 |
 | `├── QuadraticField/` | 609 | 449 | 1058 |
 | `├── RingOfIntegers/` | 1053 | 417 | 1470 |
@@ -140,22 +139,22 @@ Counts exclude blank lines.
 | `├── Units/` | 409 | 161 | 570 |
 | `├── ZOnePlusSqrtdOverTwo/` | 128 | 50 | 178 |
 | `└── Zsqrtd/` | 731 | 235 | 966 |
-| **QuadraticNumberFields total** | **12221** | **3353** | **15574** |
+| **QuadraticNumberFields total** | **12182** | **3292** | **15474** |
 
 </details>
 
 <details>
-<summary><code>FormClassGroup</code> (4984 code, 1051 comments, 6035 total)</summary>
+<summary><code>FormClassGroup</code> (4502 code, 936 comments, 5438 total)</summary>
 
 | Subtree | Code Lines | Comment Lines | Total Lines |
 |--------|------------|---------------|-------------|
-| `├── FormClassGroup.lean` | 13 | 10 | 23 |
-| `├── ClassGroup/` | 852 | 209 | 1061 |
-| `├── Computable/` | 938 | 208 | 1146 |
-| `├── Computed.lean` | 127 | 56 | 183 |
+| `├── FormClassGroup.lean` | 12 | 10 | 22 |
+| `├── ClassGroup/` | 852 | 208 | 1060 |
+| `├── Computable/` | 481 | 101 | 582 |
+| `├── Computed.lean` | 103 | 49 | 152 |
 | `├── Cox/` | 2954 | 530 | 3484 |
 | `└── Gauss/` | 100 | 38 | 138 |
-| **FormClassGroup total** | **4984** | **1051** | **6035** |
+| **FormClassGroup total** | **4502** | **936** | **5438** |
 
 </details>
 
@@ -190,36 +189,36 @@ Counts exclude blank lines.
 </details>
 
 <details>
-<summary><code>Examples</code> (1241 code, 580 comments, 1821 total)</summary>
+<summary><code>Examples</code> (1258 code, 577 comments, 1835 total)</summary>
 
 | Subtree | Code Lines | Comment Lines | Total Lines |
 |--------|------------|---------------|-------------|
 | `├── Examples.lean` | 16 | 10 | 26 |
-| `├── ClassGroupStructure.lean` | 3 | 11 | 14 |
-| `├── ClassGroupStructure/` | 139 | 70 | 209 |
+| `├── ClassGroupStructure.lean` | 2 | 11 | 13 |
+| `├── ClassGroupStructure/` | 157 | 67 | 224 |
 | `├── Counterexamples/` | 82 | 24 | 106 |
 | `├── Smoke/` | 173 | 44 | 217 |
 | `├── Sqrt17/` | 218 | 140 | 358 |
 | `├── SqrtNeg21/` | 15 | 29 | 44 |
 | `└── SqrtNeg5/` | 595 | 252 | 847 |
-| **Examples total** | **1241** | **580** | **1821** |
+| **Examples total** | **1258** | **577** | **1835** |
 
 </details>
 
 <details>
-<summary><code>ImaginaryClassNumberOne</code> (1109 code, 393 comments, 1502 total)</summary>
+<summary><code>ImaginaryClassNumberOne</code> (1109 code, 394 comments, 1503 total)</summary>
 
 | Subtree | Code Lines | Comment Lines | Total Lines |
 |--------|------------|---------------|-------------|
 | `├── ImaginaryClassNumberOne.lean` | 8 | 10 | 18 |
 | `├── ClassNumberOne.lean` | 133 | 50 | 183 |
 | `├── ClassNumberOneByForms.lean` | 12 | 13 | 25 |
-| `├── Diophantine.lean` | 399 | 65 | 464 |
+| `├── Diophantine.lean` | 399 | 69 | 468 |
 | `├── Framework.lean` | 43 | 25 | 68 |
 | `├── IdealReductions.lean` | 304 | 41 | 345 |
-| `├── StarkHeegner.lean` | 80 | 66 | 146 |
+| `├── StarkHeegner.lean` | 80 | 63 | 143 |
 | `└── WeberData/` | 130 | 123 | 253 |
-| **ImaginaryClassNumberOne total** | **1109** | **393** | **1502** |
+| **ImaginaryClassNumberOne total** | **1109** | **394** | **1503** |
 
 </details>
 
