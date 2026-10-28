@@ -254,6 +254,12 @@ theorem weberF_mul_weberF₁_mul_weberF₂ {z : ℂ} (hz : 0 < z.im) :
     h]
   field_simp
 
+theorem weberF_ne_zero {z : ℂ} (hz : 0 < z.im) : weberF z ≠ 0 := by
+  have hz' : 0 < ((z + 1) / 2).im := by
+    simpa using half_pos hz
+  exact mul_ne_zero (inv_ne_zero zeta48_ne_zero)
+    (div_ne_zero (eta_ne_zero hz') (eta_ne_zero hz))
+
 theorem weberF₁_ne_zero {z : ℂ} (hz : 0 < z.im) : weberF₁ z ≠ 0 := by
   have hz2 : 0 < (z / 2).im := by
     rw [show (z / 2).im = z.im / 2 by simp]
@@ -266,6 +272,14 @@ theorem weberF₂_ne_zero {z : ℂ} (hz : 0 < z.im) : weberF₂ z ≠ 0 := by
     positivity
   exact mul_ne_zero (Complex.ofReal_ne_zero.mpr (Real.sqrt_ne_zero'.mpr (by norm_num)))
     (div_ne_zero (eta_ne_zero h2z) (eta_ne_zero hz))
+
+/-- Doubling exchanges the two eta quotients, up to the factor `√2`. -/
+theorem weberF₁_two_mul_mul_weberF₂ {z : ℂ} (hz : 0 < z.im) :
+    weberF₁ (2 * z) * weberF₂ z = (Real.sqrt 2 : ℂ) := by
+  have hη := eta_ne_zero hz
+  have hη₂ : η (2 * z) ≠ 0 := eta_ne_zero (by simpa using mul_pos two_pos hz)
+  rw [weberF₁, weberF₂, show 2 * z / 2 = z by ring]
+  field_simp
 
 theorem weberF_neg_inv {z : ℂ} (hz : 0 < z.im) : weberF (-1 / z) = weberF z := by
   have hz' : 0 < (-1 / z).im := by

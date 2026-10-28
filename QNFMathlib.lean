@@ -23,7 +23,10 @@ import QNFMathlib.NumberTheory.LegendreSymbol.KroneckerSymbolPeriodicity
 import QNFMathlib.NumberTheory.ModularForms.DiscriminantCoeffs
 import QNFMathlib.NumberTheory.ModularForms.HeckeTwo
 import QNFMathlib.NumberTheory.ModularForms.HeckeTwoSymmetric
+import QNFMathlib.NumberTheory.ModularForms.JInvariant
+import QNFMathlib.NumberTheory.ModularForms.ModularPolynomialTwo
 import QNFMathlib.NumberTheory.ModularForms.Weber
+import QNFMathlib.NumberTheory.ModularForms.WeberPolynomial
 import QNFMathlib.NumberTheory.NumberField.ClassNumber
 import QNFMathlib.NumberTheory.NumberField.Galois
 import QNFMathlib.NumberTheory.NumberField.NarrowClassGroup
