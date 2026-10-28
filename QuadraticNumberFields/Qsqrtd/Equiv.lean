@@ -60,10 +60,11 @@ theorem isSquareRatio_iff_isSquareRatioByDivision {d d' : ℚ} (hd : d ≠ 0) :
       d' = d' / d * d := by field_simp [hd]
       _ = (a : ℚ) ^ 2 * d := by rw [ha]
 
-/-- Non-square standard models are equivalent exactly when their parameters
-differ by a rational square factor. -/
+/-- For a non-square parameter `d`, the standard models `Qsqrtd d` and
+`Qsqrtd d'` are equivalent exactly when their parameters differ by a rational
+square factor. -/
 theorem algEquiv_iff_isSquareRatio
-    (d d' : ℚ) [Fact (¬ IsSquare d)] [Fact (¬ IsSquare d')] :
+    (d d' : ℚ) [Fact (¬ IsSquare d)] :
     Nonempty (Qsqrtd d ≃ₐ[ℚ] Qsqrtd d') ↔ IsSquareRatio d d' := by
   constructor
   · rintro ⟨φ⟩
@@ -79,7 +80,7 @@ theorem algEquiv_iff_isSquareRatio
 /-- Division form of the classification, matching the usual informal statement
 `d' / d ∈ ℚ×²`. -/
 theorem algEquiv_iff_isSquareRatioByDivision
-    (d d' : ℚ) [Fact (¬ IsSquare d)] [Fact (¬ IsSquare d')] :
+    (d d' : ℚ) [Fact (¬ IsSquare d)] :
     Nonempty (Qsqrtd d ≃ₐ[ℚ] Qsqrtd d') ↔ IsSquareRatioByDivision d d' := by
   have hd : d ≠ 0 := by
     intro hd
