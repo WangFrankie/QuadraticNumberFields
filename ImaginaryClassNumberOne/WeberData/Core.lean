@@ -45,7 +45,9 @@ namespace Heegner
 
 This is intentionally a small interface rather than a real theory of quadratic
 orders.  The future replacement should identify `orderClassNumber` with the
-class number of the quadratic order of conductor `2` and discriminant `-4p`. -/
+class number of the quadratic order of conductor `2` and discriminant `-4p`.
+Until then the structure does not constrain `p`: it is inhabited for every `p`,
+so it must not be the only hypothesis of a deep Weber/CM input. -/
 structure RingClassNumberConductorTwoData (p : ℕ) where
   /-- The conductor of the quadratic order. -/
   conductor : ℕ
