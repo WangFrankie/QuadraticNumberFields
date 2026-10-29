@@ -90,17 +90,25 @@ quadratic realizations in
 [`BakerHeegnerStark/ComplexMultiplication/Orders/HalfIntegral.lean`](https://github.com/WangFrankie/BakerHeegnerStark/blob/42c273b84c375c93258ca00774d7d3efe314d7ef/BakerHeegnerStark/ComplexMultiplication/Orders/HalfIntegral.lean)
 at immutable BHS commit `42c273b84c375c93258ca00774d7d3efe314d7ef`.
 
-**Current implementation:** the general algebraic API is in
+**Current providers:** mathlib's
+[`QuadraticAlgebra.changeGenerator` and `changeGenerator_injective`](https://github.com/leanprover-community/mathlib4/blob/56a005855ea17e0b0958f73ec801ae140b0a1679/Mathlib/Algebra/QuadraticAlgebra/Basic.lean#L448-L468)
+supply the homomorphism and its injectivity. The general image and conductor
+theorems are in
+[`QNFMathlib/Algebra/QuadraticAlgebra/Conductor.lean`](../QNFMathlib/Algebra/QuadraticAlgebra/Conductor.lean);
+they hold over any commutative base ring, including zero and nonregular generator
+scales. The unconditional integer index formula in
+[`QNFMathlib/Algebra/QuadraticAlgebra/Index.lean`](../QNFMathlib/Algebra/QuadraticAlgebra/Index.lean)
+uses mathlib's algebra-homomorphism determinant and lattice-index APIs.
+
+The concrete specializations are in
 [`ZOnePlusSqrtdOverTwo/Inclusion.lean`](../QuadraticNumberFields/ZOnePlusSqrtdOverTwo/Inclusion.lean)
 and
 [`ZOnePlusSqrtdOverTwo/Conductor.lean`](../QuadraticNumberFields/ZOnePlusSqrtdOverTwo/Conductor.lean).
 For every `d = 1 + 4*k`, the inclusion has coordinate formula
-`(a,b) ↦ (a-b,2b)`, even-second-coordinate image, and additive index two.
-The conductor is `Ideal.span {2}`, stated using mathlib's existing conductor.
+`(a,b) ↦ (a-b,2b)`, even-second-coordinate image, additive index two, and
+conductor `Ideal.span {2}`. No imaginary-quadratic, domain, or squarefreeness
+hypothesis is needed for these model statements.
 
-The injectivity and index arguments are now purely algebraic, removing the
-original dependence on a faithful complex realization. No imaginary-quadratic,
-domain, or squarefreeness hypothesis is needed for these model statements.
 The generalized API and its proofs retain the original Apache 2.0 attribution.
 BHS's complex-realization and class-number-one applications remain downstream;
 they are not imported into the QNF core.

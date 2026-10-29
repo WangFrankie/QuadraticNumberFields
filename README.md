@@ -29,6 +29,8 @@ import Examples
 - Classification of quadratic fields by squarefree integer parameters.
 - Classification of rings of integers:
   `ℤ[√d]` when `d % 4 ≠ 1`, and `ℤ[(1+√d)/2]` when `d % 4 = 1`.
+- Quadratic-algebra image and conductor formulas over any commutative base ring,
+  and an additive-index formula over `ℤ`, including zero determinants.
 - An injective index-two inclusion of the quadratic-algebra models when
   `d = 1 + 4*k`, with image characterized by coordinate parity and conductor `(2)`.
   These algebraic results do not require domain or squarefreeness hypotheses.
@@ -71,8 +73,9 @@ lake env lean scripts/check_core_axioms.lean
 ```
 
 The axiom audit checks representative classification, discriminant, genus-theory,
-form-class-group, quadratic suborder inclusion/index/conductor, and all nine
-Heegner class-number-one results. It rejects
+form-class-group, general quadratic-algebra image/conductor/index formulas,
+their quadratic-model specializations, and all nine Heegner class-number-one
+results. It rejects
 dependencies on `sorryAx` or any axioms beyond `propext`, `Classical.choice`, and
 `Quot.sound`. The unfinished Euclidean, computed-class-group facade, and Weber
 provider declarations remain outside this audit.
@@ -105,6 +108,10 @@ jupyter lab Examples/Notebook/ClassNumber.ipynb
   machinery used by the class-group bridge.
 - General-purpose facts intended for mathlib live under
   `QNFMathlib/`.
+  Reuse mathlib's structures and maps; prove statements over arbitrary base rings
+  whenever the argument permits. An intrinsic order interface should record
+  finite-module and full-span properties, with the degree-two condition confined
+  to the quadratic specialization rather than imposed on general conductor theory.
 - The project-owned `Zsqrtd` model is separate from mathlib's `_root_.Zsqrtd`.
   Use `QuadraticNumberFields/Zsqrtd/MathlibBridge.lean` only when an interface
   with mathlib's model is genuinely required.
@@ -117,18 +124,18 @@ Counts exclude blank lines.
 
 | Library | Code Lines | Comment Lines | Total Lines |
 |--------|------------|---------------|-------------|
-| `QuadraticNumberFields` | 12316 | 3335 | 15651 |
+| `QuadraticNumberFields` | 12250 | 3337 | 15587 |
 | `FormClassGroup` | 4502 | 936 | 5438 |
-| `QNFMathlib` | 4075 | 1063 | 5138 |
+| `QNFMathlib` | 4160 | 1105 | 5265 |
 | `BinaryQuadraticForms` | 3125 | 668 | 3793 |
 | `Examples` | 1258 | 577 | 1835 |
 | `ImaginaryClassNumberOne` | 1109 | 394 | 1503 |
-| **Total** | **26385** | **6973** | **33358** |
+| **Total** | **26404** | **7017** | **33421** |
 
 ### Library Tree
 
 <details>
-<summary><code>QuadraticNumberFields</code> (12316 code, 3335 comments, 15651 total)</summary>
+<summary><code>QuadraticNumberFields</code> (12250 code, 3337 comments, 15587 total)</summary>
 
 | Subtree | Code Lines | Comment Lines | Total Lines |
 |--------|------------|---------------|-------------|
@@ -141,9 +148,9 @@ Counts exclude blank lines.
 | `├── RingOfIntegers/` | 1053 | 417 | 1470 |
 | `├── Splitting/` | 1965 | 582 | 2547 |
 | `├── Units/` | 409 | 161 | 570 |
-| `├── ZOnePlusSqrtdOverTwo/` | 260 | 91 | 351 |
+| `├── ZOnePlusSqrtdOverTwo/` | 194 | 93 | 287 |
 | `└── Zsqrtd/` | 731 | 235 | 966 |
-| **QuadraticNumberFields total** | **12316** | **3335** | **15651** |
+| **QuadraticNumberFields total** | **12250** | **3337** | **15587** |
 
 </details>
 
@@ -163,18 +170,18 @@ Counts exclude blank lines.
 </details>
 
 <details>
-<summary><code>QNFMathlib</code> (4075 code, 1063 comments, 5138 total)</summary>
+<summary><code>QNFMathlib</code> (4160 code, 1105 comments, 5265 total)</summary>
 
 | Subtree | Code Lines | Comment Lines | Total Lines |
 |--------|------------|---------------|-------------|
-| `├── QNFMathlib.lean` | 32 | 12 | 44 |
-| `├── Algebra/` | 146 | 87 | 233 |
+| `├── QNFMathlib.lean` | 34 | 12 | 46 |
+| `├── Algebra/` | 229 | 129 | 358 |
 | `├── Data/` | 578 | 144 | 722 |
 | `├── FieldTheory/` | 38 | 21 | 59 |
 | `├── GroupTheory/` | 97 | 34 | 131 |
 | `├── NumberTheory/` | 1506 | 363 | 1869 |
 | `└── RingTheory/` | 1678 | 402 | 2080 |
-| **QNFMathlib total** | **4075** | **1063** | **5138** |
+| **QNFMathlib total** | **4160** | **1105** | **5265** |
 
 </details>
 

@@ -94,6 +94,32 @@ Classical examples include:
 - Eisenstein integers, `d = -3`:
   `𝓞 (ℚ(√(-3))) ≃+* ℤ[(1+√(-3))/2]`
 
+### General Quadratic-Algebra Images, Conductors, and Indices
+
+Files: `QNFMathlib/Algebra/QuadraticAlgebra/Conductor.lean`,
+`QNFMathlib/Algebra/QuadraticAlgebra/Index.lean`
+
+For any commutative ring `R` and `x : QuadraticAlgebra R a b`, membership in
+`Algebra.adjoin R {x}` is equivalent to divisibility of the second coordinate
+by `x.im`. Its conductor is `Ideal.span {algebraMap R _ x.im}`. No domain,
+regularity, injectivity, or nonzero hypothesis is required.
+
+For any algebra homomorphism between quadratic algebras, its range is generated
+by the image of `omega`, and the same divisibility criterion describes it.
+Over `ℤ`, its additive index is `Int.natAbs (f omega).im`, the absolute
+determinant in the canonical bases. When the determinant is zero, the index
+is zero, the convention for an infinite quotient.
+
+Key declarations in namespace `QuadraticAlgebra`:
+
+- `mem_adjoin_singleton_iff_dvd_im`, `conductor_eq_span_im`
+- `range_algHom_eq_adjoin`, `mem_range_algHom_iff_dvd_im`
+- `index_range_algHom`
+
+These are mathlib-facing results, independent of the QNF coordinate models.
+They reuse mathlib's existing quadratic-algebra, conductor, and determinant
+machinery rather than introduce a new order structure.
+
 ### Quadratic Suborder Inclusion and Conductor
 
 Files: `QuadraticNumberFields/ZOnePlusSqrtdOverTwo/Inclusion.lean`,
@@ -104,6 +130,9 @@ For arbitrary integers `d, k` with `d = 1 + 4*k`, the canonical algebra map
 In coordinates it sends `(a,b)` to `(a-b,2b)`. It is injective, its image
 consists exactly of elements with even second coordinate, and its additive
 index is two.
+The map is an instantiation of mathlib's `QuadraticAlgebra.changeGenerator`,
+and injectivity uses `changeGenerator_injective`. The image, conductor, and
+index results specialize the general theorems above.
 
 The image is `Algebra.adjoin ℤ {2ω - 1}`. Using mathlib's existing `conductor`
 API, the conductor of this subalgebra in `ZOnePlusSqrtdOverTwo k` is

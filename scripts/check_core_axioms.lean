@@ -33,6 +33,11 @@ computed-class-group and Weber provider interfaces. Only Lean's standard classic
 open Lean in
 run_cmd do
   let declarations : Array Name := #[
+    ``QuadraticAlgebra.mem_adjoin_singleton_iff_dvd_im,
+    ``QuadraticAlgebra.conductor_eq_span_im,
+    ``QuadraticAlgebra.range_algHom_eq_adjoin,
+    ``QuadraticAlgebra.mem_range_algHom_iff_dvd_im,
+    ``QuadraticAlgebra.index_range_algHom,
     ``ZOnePlusSqrtdOverTwo.fromZsqrtd,
     ``ZOnePlusSqrtdOverTwo.fromZsqrtd_apply,
     ``ZOnePlusSqrtdOverTwo.fromZsqrtd_re,
