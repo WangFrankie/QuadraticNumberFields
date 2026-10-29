@@ -9,6 +9,7 @@ import Lean.Util.CollectAxioms
 import QuadraticNumberFields.QuadraticField.Classification
 import QuadraticNumberFields.RingOfIntegers.Classification
 import QuadraticNumberFields.RingOfIntegers.Discriminant
+import QuadraticNumberFields.ZOnePlusSqrtdOverTwo.Conductor
 import QuadraticNumberFields.ClassGroup.GenusTheory.GenusTheorem
 import QuadraticNumberFields.ClassGroup.GenusTheory.Sieve
 import FormClassGroup.Cox.Equivalence
@@ -32,6 +33,17 @@ computed-class-group and Weber provider interfaces. Only Lean's standard classic
 open Lean in
 run_cmd do
   let declarations : Array Name := #[
+    ``ZOnePlusSqrtdOverTwo.fromZsqrtd,
+    ``ZOnePlusSqrtdOverTwo.fromZsqrtd_apply,
+    ``ZOnePlusSqrtdOverTwo.fromZsqrtd_re,
+    ``ZOnePlusSqrtdOverTwo.fromZsqrtd_im,
+    ``ZOnePlusSqrtdOverTwo.fromZsqrtd_sqrtd,
+    ``ZOnePlusSqrtdOverTwo.fromZsqrtd_injective,
+    ``ZOnePlusSqrtdOverTwo.mem_range_fromZsqrtd_iff,
+    ``ZOnePlusSqrtdOverTwo.range_fromZsqrtd,
+    ``ZOnePlusSqrtdOverTwo.index_range_fromZsqrtd,
+    ``ZOnePlusSqrtdOverTwo.mem_conductor_iff_even_coordinates,
+    ``ZOnePlusSqrtdOverTwo.conductor_eq_span_two,
     ``exists_squarefree_int_param_of_isQuadraticField,
     ``exists_algEquiv_qsqrtd,
     ``isQuadraticField_iff_exists_squarefree_int_param,

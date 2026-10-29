@@ -94,6 +94,33 @@ Classical examples include:
 - Eisenstein integers, `d = -3`:
   `𝓞 (ℚ(√(-3))) ≃+* ℤ[(1+√(-3))/2]`
 
+### Quadratic Suborder Inclusion and Conductor
+
+Files: `QuadraticNumberFields/ZOnePlusSqrtdOverTwo/Inclusion.lean`,
+`QuadraticNumberFields/ZOnePlusSqrtdOverTwo/Conductor.lean`
+
+For arbitrary integers `d, k` with `d = 1 + 4*k`, the canonical algebra map
+`ZOnePlusSqrtdOverTwo.fromZsqrtd` sends the square-root generator to `2ω - 1`.
+In coordinates it sends `(a,b)` to `(a-b,2b)`. It is injective, its image
+consists exactly of elements with even second coordinate, and its additive
+index is two.
+
+The image is `Algebra.adjoin ℤ {2ω - 1}`. Using mathlib's existing `conductor`
+API, the conductor of this subalgebra in `ZOnePlusSqrtdOverTwo k` is
+`Ideal.span {2}`; membership is equivalent to both coordinates being even.
+These statements include real and reducible quadratic models. They neither
+require nor establish that the model is a domain or a full ring of integers.
+
+Key declarations in namespace `ZOnePlusSqrtdOverTwo`:
+
+- `fromZsqrtd`, `fromZsqrtd_re`, `fromZsqrtd_im`
+- `fromZsqrtd_injective`, `mem_range_fromZsqrtd_iff`
+- `range_fromZsqrtd`, `index_range_fromZsqrtd`
+- `mem_conductor_iff_even_coordinates`, `conductor_eq_span_two`
+
+The source and generalization history is recorded in
+[Project implementations and upstream history](contributions.md#quadratic-model-suborder-inclusion-and-conductor).
+
 ### Discriminant Formula
 
 File: `QuadraticNumberFields/RingOfIntegers/Discriminant.lean`

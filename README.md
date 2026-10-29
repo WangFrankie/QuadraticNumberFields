@@ -29,6 +29,9 @@ import Examples
 - Classification of quadratic fields by squarefree integer parameters.
 - Classification of rings of integers:
   `ℤ[√d]` when `d % 4 ≠ 1`, and `ℤ[(1+√d)/2]` when `d % 4 = 1`.
+- An injective index-two inclusion of the quadratic-algebra models when
+  `d = 1 + 4*k`, with image characterized by coordinate parity and conductor `(2)`.
+  These algebraic results do not require domain or squarefreeness hypotheses.
 - Discriminant formula: `Δ(ℚ(√d)) = if d % 4 = 1 then d else 4 * d`.
 - Dedekind-domain characterization for the project-owned `ℤ[√d]` model.
 - Galois, conjugation, totally real/totally complex/CM, prime-splitting, and
@@ -50,7 +53,7 @@ import Examples
 - `Qsqrtd (d : ℚ) := QuadraticAlgebra ℚ d 0`
 - `QuadraticField K`, the abstract quadratic-field layer
 - `Zsqrtd d := QuadraticAlgebra ℤ d 0`, the project-owned `ℤ[√d]` model
-- `ZOnePlusSqrtOverTwo k`, the `ℤ[(1+√d)/2]` model
+- `ZOnePlusSqrtdOverTwo k`, the half-integer quadratic-algebra model
 
 Parameters are usually carried by explicit instances such as
 `[Fact (Squarefree d)] [Fact (d ≠ 1)]`.
@@ -68,7 +71,8 @@ lake env lean scripts/check_core_axioms.lean
 ```
 
 The axiom audit checks representative classification, discriminant, genus-theory,
-form-class-group, and all nine Heegner class-number-one results. It rejects
+form-class-group, quadratic suborder inclusion/index/conductor, and all nine
+Heegner class-number-one results. It rejects
 dependencies on `sorryAx` or any axioms beyond `propext`, `Classical.choice`, and
 `Quot.sound`. The unfinished Euclidean, computed-class-group facade, and Weber
 provider declarations remain outside this audit.
@@ -113,33 +117,33 @@ Counts exclude blank lines.
 
 | Library | Code Lines | Comment Lines | Total Lines |
 |--------|------------|---------------|-------------|
-| `QuadraticNumberFields` | 12182 | 3292 | 15474 |
+| `QuadraticNumberFields` | 12316 | 3335 | 15651 |
 | `FormClassGroup` | 4502 | 936 | 5438 |
 | `QNFMathlib` | 4075 | 1063 | 5138 |
 | `BinaryQuadraticForms` | 3125 | 668 | 3793 |
 | `Examples` | 1258 | 577 | 1835 |
 | `ImaginaryClassNumberOne` | 1109 | 394 | 1503 |
-| **Total** | **26251** | **6930** | **33181** |
+| **Total** | **26385** | **6973** | **33358** |
 
 ### Library Tree
 
 <details>
-<summary><code>QuadraticNumberFields</code> (12182 code, 3292 comments, 15474 total)</summary>
+<summary><code>QuadraticNumberFields</code> (12316 code, 3335 comments, 15651 total)</summary>
 
 | Subtree | Code Lines | Comment Lines | Total Lines |
 |--------|------------|---------------|-------------|
-| `├── QuadraticNumberFields.lean` | 59 | 21 | 80 |
+| `├── QuadraticNumberFields.lean` | 61 | 22 | 83 |
 | `├── ClassGroup/` | 6443 | 1032 | 7475 |
 | `├── Euclidean/` | 52 | 25 | 77 |
 | `├── Families/` | 18 | 24 | 42 |
-| `├── Qsqrtd/` | 715 | 296 | 1011 |
+| `├── Qsqrtd/` | 715 | 297 | 1012 |
 | `├── QuadraticField/` | 609 | 449 | 1058 |
 | `├── RingOfIntegers/` | 1053 | 417 | 1470 |
 | `├── Splitting/` | 1965 | 582 | 2547 |
 | `├── Units/` | 409 | 161 | 570 |
-| `├── ZOnePlusSqrtdOverTwo/` | 128 | 50 | 178 |
+| `├── ZOnePlusSqrtdOverTwo/` | 260 | 91 | 351 |
 | `└── Zsqrtd/` | 731 | 235 | 966 |
-| **QuadraticNumberFields total** | **12182** | **3292** | **15474** |
+| **QuadraticNumberFields total** | **12316** | **3335** | **15651** |
 
 </details>
 

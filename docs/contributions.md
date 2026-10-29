@@ -83,6 +83,28 @@ with the oriented-basis and norm-form constructions.
 The project specialization is retained here as implementation history; the
 active Cox construction now obtains freeness from those upstream instances.
 
+## Quadratic-model suborder inclusion and conductor
+
+**Project implementation:** Frankie Wang, originally proved for the imaginary
+quadratic realizations in
+[`BakerHeegnerStark/ComplexMultiplication/Orders/HalfIntegral.lean`](https://github.com/WangFrankie/BakerHeegnerStark/blob/42c273b84c375c93258ca00774d7d3efe314d7ef/BakerHeegnerStark/ComplexMultiplication/Orders/HalfIntegral.lean)
+at immutable BHS commit `42c273b84c375c93258ca00774d7d3efe314d7ef`.
+
+**Current implementation:** the general algebraic API is in
+[`ZOnePlusSqrtdOverTwo/Inclusion.lean`](../QuadraticNumberFields/ZOnePlusSqrtdOverTwo/Inclusion.lean)
+and
+[`ZOnePlusSqrtdOverTwo/Conductor.lean`](../QuadraticNumberFields/ZOnePlusSqrtdOverTwo/Conductor.lean).
+For every `d = 1 + 4*k`, the inclusion has coordinate formula
+`(a,b) ↦ (a-b,2b)`, even-second-coordinate image, and additive index two.
+The conductor is `Ideal.span {2}`, stated using mathlib's existing conductor.
+
+The injectivity and index arguments are now purely algebraic, removing the
+original dependence on a faithful complex realization. No imaginary-quadratic,
+domain, or squarefreeness hypothesis is needed for these model statements.
+The generalized API and its proofs retain the original Apache 2.0 attribution.
+BHS's complex-realization and class-number-one applications remain downstream;
+they are not imported into the QNF core.
+
 ## Submissions to mathlib
 
 The following submissions by Frankie Wang (`FrankieeW`) are linked from this

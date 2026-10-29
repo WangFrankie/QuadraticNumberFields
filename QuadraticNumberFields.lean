@@ -25,6 +25,8 @@ import QuadraticNumberFields.Zsqrtd.MathlibInstances
 import QuadraticNumberFields.Zsqrtd.Ideals
 import QuadraticNumberFields.RingOfIntegers.HalfInt
 import QuadraticNumberFields.ZOnePlusSqrtdOverTwo.Basic
+import QuadraticNumberFields.ZOnePlusSqrtdOverTwo.Inclusion
+import QuadraticNumberFields.ZOnePlusSqrtdOverTwo.Conductor
 import QuadraticNumberFields.Qsqrtd.TraceNorm
 import QuadraticNumberFields.RingOfIntegers.Integrality
 import QuadraticNumberFields.RingOfIntegers.Basis
@@ -73,6 +75,7 @@ including:
 * Basic definitions and the `Qsqrtd d` model
 * Parameter classification via squarefree integers
 * Ring of integers classification (`ℤ[√d]` vs `ℤ[(1+√d)/2]`)
+* The index-two inclusion of quadratic order models and its conductor, without domain hypotheses
 * Discriminant formulas
 * Totally real/complex classification
 * Unit groups: Pell-type units, torsion classification in the imaginary case,
