@@ -7,8 +7,10 @@ Authors: Frankie Wang
 import Lean.Elab.BuiltinEvalCommand
 import Lean.Util.CollectAxioms
 import QuadraticNumberFields.QuadraticField.Classification
+import QuadraticNumberFields.QuadraticField.RingOfIntegers
 import QuadraticNumberFields.RingOfIntegers.Classification
 import QuadraticNumberFields.RingOfIntegers.Discriminant
+import QuadraticNumberFields.ZOnePlusSqrtdOverTwo.Conductor
 import QuadraticNumberFields.ClassGroup.GenusTheory.GenusTheorem
 import QuadraticNumberFields.ClassGroup.GenusTheory.Sieve
 import FormClassGroup.Cox.Equivalence
@@ -32,6 +34,29 @@ computed-class-group and Weber provider interfaces. Only Lean's standard classic
 open Lean in
 run_cmd do
   let declarations : Array Name := #[
+    ``QuadraticAlgebra.mem_adjoin_singleton_iff_dvd_im,
+    ``QuadraticAlgebra.conductor_eq_span_im,
+    ``QuadraticAlgebra.range_algHom_eq_adjoin,
+    ``QuadraticAlgebra.mem_range_algHom_iff_dvd_im,
+    ``QuadraticAlgebra.index_range_algHom,
+    ``QuadraticAlgebra.isQuadraticOrder_map_adjoin_iff,
+    ``QuadraticAlgebra.isQuadraticOrder_map_range_iff,
+    ``QuadraticAlgebra.isQuadraticOrder_map_range_iff_index_ne_zero,
+    ``QuadraticAlgebra.isQuadraticOrder_range_toRat,
+    ``NumberField.isOrder_integralClosure,
+    ``ZOnePlusSqrtdOverTwo.fromZsqrtd,
+    ``ZOnePlusSqrtdOverTwo.fromZsqrtd_apply,
+    ``ZOnePlusSqrtdOverTwo.fromZsqrtd_re,
+    ``ZOnePlusSqrtdOverTwo.fromZsqrtd_im,
+    ``ZOnePlusSqrtdOverTwo.fromZsqrtd_sqrtd,
+    ``ZOnePlusSqrtdOverTwo.fromZsqrtd_injective,
+    ``ZOnePlusSqrtdOverTwo.mem_range_fromZsqrtd_iff,
+    ``ZOnePlusSqrtdOverTwo.range_fromZsqrtd,
+    ``ZOnePlusSqrtdOverTwo.index_range_fromZsqrtd,
+    ``ZOnePlusSqrtdOverTwo.mem_conductor_iff_even_coordinates,
+    ``ZOnePlusSqrtdOverTwo.conductor_eq_span_two,
+    ``ZOnePlusSqrtdOverTwo.isQuadraticOrder_range_fromZsqrtd,
+    ``QuadraticField.isQuadraticOrder_integralClosure,
     ``exists_squarefree_int_param_of_isQuadraticField,
     ``exists_algEquiv_qsqrtd,
     ``isQuadraticField_iff_exists_squarefree_int_param,

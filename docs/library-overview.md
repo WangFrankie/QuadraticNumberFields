@@ -94,6 +94,80 @@ Classical examples include:
 - Eisenstein integers, `d = -3`:
   `𝓞 (ℚ(√(-3))) ≃+* ℤ[(1+√(-3))/2]`
 
+### General Quadratic-Algebra Images, Conductors, and Indices
+
+Files: `QNFMathlib/Algebra/QuadraticAlgebra/Conductor.lean`,
+`QNFMathlib/Algebra/QuadraticAlgebra/Index.lean`
+
+For any commutative ring `R` and `x : QuadraticAlgebra R a b`, membership in
+`Algebra.adjoin R {x}` is equivalent to divisibility of the second coordinate
+by `x.im`. Its conductor is `Ideal.span {algebraMap R _ x.im}`. No domain,
+regularity, injectivity, or nonzero hypothesis is required.
+
+For any algebra homomorphism between quadratic algebras, its range is generated
+by the image of `omega`, and the same divisibility criterion describes it.
+Over `ℤ`, its additive index is `Int.natAbs (f omega).im`, the absolute
+determinant in the canonical bases. When the determinant is zero, the index
+is zero, the convention for an infinite quotient.
+
+Key declarations in namespace `QuadraticAlgebra`:
+
+- `mem_adjoin_singleton_iff_dvd_im`, `conductor_eq_span_im`
+- `range_algHom_eq_adjoin`, `mem_range_algHom_iff_dvd_im`
+- `index_range_algHom`
+
+These are mathlib-facing results, independent of the QNF coordinate models.
+They reuse mathlib's existing quadratic-algebra, conductor, and determinant machinery.
+
+`QNFMathlib/RingTheory/Order/Basic.lean` defines `Subalgebra.IsOrder`: finite generation
+over the base ring and full span over the ambient scalar ring. It imposes no degree
+or fraction-field hypothesis. `QNFMathlib/Algebra/QuadraticAlgebra/Order.lean` defines
+`Subalgebra.IsQuadraticOrder` as a `ℤ`-order in a degree-two `ℚ`-algebra, including
+split and reducible algebras.
+
+The image of `ℤ[x]` under `QuadraticAlgebra.toRat` is a quadratic order iff `x.im ≠ 0`
+(`isQuadraticOrder_map_adjoin_iff`). A model homomorphism's range gives a quadratic
+order iff `(f omega).im ≠ 0` (`isQuadraticOrder_map_range_iff`), equivalently iff its
+additive index is nonzero (`isQuadraticOrder_map_range_iff_index_ne_zero`).
+The integral model itself is an order (`isQuadraticOrder_range_toRat`).
+
+`QNFMathlib/NumberTheory/NumberField/Order.lean` proves
+`NumberField.isOrder_integralClosure`: number-field rings of integers are `ℤ`-orders.
+`QuadraticNumberFields/QuadraticField/RingOfIntegers.lean` specializes this to
+`QuadraticField.isQuadraticOrder_integralClosure`, for any `ℚ`-algebra structure.
+
+### Quadratic Suborder Inclusion and Conductor
+
+Files: `QuadraticNumberFields/ZOnePlusSqrtdOverTwo/Inclusion.lean`,
+`QuadraticNumberFields/ZOnePlusSqrtdOverTwo/Conductor.lean`
+
+For arbitrary integers `d, k` with `d = 1 + 4*k`, the canonical algebra map
+`ZOnePlusSqrtdOverTwo.fromZsqrtd` sends the square-root generator to `2ω - 1`.
+In coordinates it sends `(a,b)` to `(a-b,2b)`. It is injective, its image
+consists exactly of elements with even second coordinate, and its additive
+index is two.
+The map is an instantiation of mathlib's `QuadraticAlgebra.changeGenerator`,
+and injectivity uses `changeGenerator_injective`. The image, conductor, and
+index results specialize the general theorems above.
+
+The image is `Algebra.adjoin ℤ {2ω - 1}`. Using mathlib's existing `conductor`
+API, the conductor of this subalgebra in `ZOnePlusSqrtdOverTwo k` is
+`Ideal.span {2}`; membership is equivalent to both coordinates being even.
+These statements include real and reducible quadratic models. They neither
+require nor establish that the model is a domain or a full ring of integers.
+After mapping into the rational model, the image is a quadratic order.
+
+Key declarations in namespace `ZOnePlusSqrtdOverTwo`:
+
+- `fromZsqrtd`, `fromZsqrtd_re`, `fromZsqrtd_im`
+- `fromZsqrtd_injective`, `mem_range_fromZsqrtd_iff`
+- `range_fromZsqrtd`, `index_range_fromZsqrtd`
+- `mem_conductor_iff_even_coordinates`, `conductor_eq_span_two`
+- `isQuadraticOrder_range_fromZsqrtd`
+
+The source and generalization history is recorded in
+[Project implementations and upstream history](contributions.md#quadratic-model-suborder-inclusion-and-conductor).
+
 ### Discriminant Formula
 
 File: `QuadraticNumberFields/RingOfIntegers/Discriminant.lean`
