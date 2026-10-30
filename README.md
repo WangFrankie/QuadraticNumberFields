@@ -72,10 +72,10 @@ lake build
 lake env lean scripts/check_core_axioms.lean
 ```
 
-The axiom audit checks representative classification, discriminant, genus-theory,
-form-class-group, general quadratic-algebra image/conductor/index formulas,
-their quadratic-model specializations, and all nine Heegner class-number-one
-results. It rejects
+The axiom audit checks 44 representative declarations: classification, discriminant,
+genus-theory, form-class-group, general quadratic-algebra image/conductor/index formulas,
+order characterizations, their quadratic-model specializations, number-field
+rings of integers, and all nine Heegner class-number-one results. It rejects
 dependencies on `sorryAx` or any axioms beyond `propext`, `Classical.choice`, and
 `Quot.sound`. The unfinished Euclidean, computed-class-group facade, and Weber
 provider declarations remain outside this audit.
@@ -109,9 +109,12 @@ jupyter lab Examples/Notebook/ClassNumber.ipynb
 - General-purpose facts intended for mathlib live under
   `QNFMathlib/`.
   Reuse mathlib's structures and maps; prove statements over arbitrary base rings
-  whenever the argument permits. An intrinsic order interface should record
-  finite-module and full-span properties, with the degree-two condition confined
-  to the quadratic specialization rather than imposed on general conductor theory.
+  whenever the argument permits. `Subalgebra.IsOrder` records finite generation over
+  the base ring and full span over the ambient scalar ring; `Subalgebra.IsQuadraticOrder`
+  specializes to `ℤ ⊆ ℚ` and requires a degree-two ambient algebra, not necessarily a field.
+  Model homomorphism images are quadratic orders exactly when their additive index
+  is nonzero. Number-field rings of integers are orders, and quadratic-field rings
+  of integers are quadratic orders. General conductor theory remains degree-independent.
 - The project-owned `Zsqrtd` model is separate from mathlib's `_root_.Zsqrtd`.
   Use `QuadraticNumberFields/Zsqrtd/MathlibBridge.lean` only when an interface
   with mathlib's model is genuinely required.
@@ -124,18 +127,18 @@ Counts exclude blank lines.
 
 | Library | Code Lines | Comment Lines | Total Lines |
 |--------|------------|---------------|-------------|
-| `QuadraticNumberFields` | 12250 | 3337 | 15587 |
+| `QuadraticNumberFields` | 12263 | 3343 | 15606 |
 | `FormClassGroup` | 4502 | 936 | 5438 |
-| `QNFMathlib` | 4160 | 1105 | 5265 |
+| `QNFMathlib` | 4250 | 1157 | 5407 |
 | `BinaryQuadraticForms` | 3125 | 668 | 3793 |
 | `Examples` | 1258 | 577 | 1835 |
 | `ImaginaryClassNumberOne` | 1109 | 394 | 1503 |
-| **Total** | **26404** | **7017** | **33421** |
+| **Total** | **26507** | **7075** | **33582** |
 
 ### Library Tree
 
 <details>
-<summary><code>QuadraticNumberFields</code> (12250 code, 3337 comments, 15587 total)</summary>
+<summary><code>QuadraticNumberFields</code> (12263 code, 3343 comments, 15606 total)</summary>
 
 | Subtree | Code Lines | Comment Lines | Total Lines |
 |--------|------------|---------------|-------------|
@@ -144,13 +147,13 @@ Counts exclude blank lines.
 | `├── Euclidean/` | 52 | 25 | 77 |
 | `├── Families/` | 18 | 24 | 42 |
 | `├── Qsqrtd/` | 715 | 297 | 1012 |
-| `├── QuadraticField/` | 609 | 449 | 1058 |
+| `├── QuadraticField/` | 617 | 453 | 1070 |
 | `├── RingOfIntegers/` | 1053 | 417 | 1470 |
 | `├── Splitting/` | 1965 | 582 | 2547 |
 | `├── Units/` | 409 | 161 | 570 |
-| `├── ZOnePlusSqrtdOverTwo/` | 194 | 93 | 287 |
+| `├── ZOnePlusSqrtdOverTwo/` | 199 | 95 | 294 |
 | `└── Zsqrtd/` | 731 | 235 | 966 |
-| **QuadraticNumberFields total** | **12250** | **3337** | **15587** |
+| **QuadraticNumberFields total** | **12263** | **3343** | **15606** |
 
 </details>
 
@@ -170,18 +173,18 @@ Counts exclude blank lines.
 </details>
 
 <details>
-<summary><code>QNFMathlib</code> (4160 code, 1105 comments, 5265 total)</summary>
+<summary><code>QNFMathlib</code> (4250 code, 1157 comments, 5407 total)</summary>
 
 | Subtree | Code Lines | Comment Lines | Total Lines |
 |--------|------------|---------------|-------------|
-| `├── QNFMathlib.lean` | 34 | 12 | 46 |
-| `├── Algebra/` | 229 | 129 | 358 |
+| `├── QNFMathlib.lean` | 37 | 12 | 49 |
+| `├── Algebra/` | 298 | 153 | 451 |
 | `├── Data/` | 578 | 144 | 722 |
 | `├── FieldTheory/` | 38 | 21 | 59 |
 | `├── GroupTheory/` | 97 | 34 | 131 |
-| `├── NumberTheory/` | 1506 | 363 | 1869 |
-| `└── RingTheory/` | 1678 | 402 | 2080 |
-| **QNFMathlib total** | **4160** | **1105** | **5265** |
+| `├── NumberTheory/` | 1517 | 374 | 1891 |
+| `└── RingTheory/` | 1685 | 419 | 2104 |
+| **QNFMathlib total** | **4250** | **1157** | **5407** |
 
 </details>
 
