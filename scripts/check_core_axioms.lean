@@ -6,6 +6,8 @@ Authors: Frankie Wang
 
 import Lean.Elab.BuiltinEvalCommand
 import Lean.Util.CollectAxioms
+import QNFMathlib.RingTheory.ClassGroup
+import QNFMathlib.RingTheory.Ideal.Maps
 import QuadraticNumberFields.QuadraticField.Classification
 import QuadraticNumberFields.QuadraticField.RingOfIntegers
 import QuadraticNumberFields.RingOfIntegers.Classification
@@ -21,16 +23,20 @@ import FormClassGroup.ClassGroup.ClassNumber
 
 Run `lake env lean scripts/check_core_axioms.lean` after `lake build`.
 
-Check the transitive axioms of representative project results, including both
-the ideal-theoretic and reduced-form routes to class numbers. Precise imports
-keep this audit separate from the unfinished computed-class-group interface.
-Only Lean's standard classical axioms are allowed;
+Check the transitive axioms of representative project results, including
+invertible integral representatives over general domains, conductor action on
+extended ideals, and both the ideal-theoretic and reduced-form routes to class
+numbers. Precise imports keep this audit separate from the unfinished
+computed-class-group interface. Only Lean's standard classical axioms are allowed;
 `sorryAx`, native-evaluation axioms, and any new axioms fail the audit.
 -/
 
 open Lean in
 run_cmd do
   let declarations : Array Name := #[
+    ``ClassGroup.exists_integral_invertible_ideal,
+    ``ClassGroup.exists_integralRep_isCoprime,
+    ``Ideal.conductor_mul_mem_map,
     ``QuadraticAlgebra.mem_adjoin_singleton_iff_dvd_im,
     ``QuadraticAlgebra.conductor_eq_span_im,
     ``QuadraticAlgebra.range_algHom_eq_adjoin,

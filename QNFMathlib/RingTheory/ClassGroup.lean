@@ -11,14 +11,20 @@ import Mathlib.RingTheory.DedekindDomain.Factorization
 
 Material destined for mathlib.
 
-This file currently contains three helper families:
+This file contains four helper families:
 
 * denominator clearing for single principal fractional-ideal multipliers;
 * denominator clearing for square principal fractional-ideal multipliers;
+* integral representatives that are invertible as fractional ideals, without a
+  Dedekind-domain hypothesis;
 * in a Dedekind domain, integral ideal-class representatives coprime to a
   prescribed nonzero ideal. The proof avoids valuations: it uses the `1.5`-generator
   property `IsDedekindDomain.exists_sup_span_eq` together with cancellation in the
-  monoid of nonzero ideals.
+  monoid of nonzero ideals to establish both a nonzero generator and coprimality.
+
+The invertible integral representative theorem is extracted from
+`BakerHeegnerStark/ComplexMultiplication/Orders/Ideals.lean:77–96` at
+BakerHeegnerStark commit `b9abaa376f5da0a80e8321af6aa5db20851aa910`.
 -/
 
 open scoped nonZeroDivisors
@@ -91,6 +97,27 @@ end FractionalIdeal
 
 namespace ClassGroup
 
+/-- Every class has an integral ideal representative that is invertible as a
+fractional ideal, without assuming that the ring is Dedekind. -/
+theorem exists_integral_invertible_ideal
+    {R : Type*} [CommRing R] [IsDomain R] (c : ClassGroup R) :
+    ∃ (A : Ideal R) (I : (FractionalIdeal R⁰ (FractionRing R))ˣ),
+      (I : FractionalIdeal R⁰ (FractionRing R)) = A ∧
+        ClassGroup.mk (FractionRing R) I = c := by
+  classical
+  refine ClassGroup.induction (FractionRing R) (fun I => ?_) c
+  have hunit := FractionalIdeal.isUnit_num.mpr I.isUnit
+  refine ⟨(I : FractionalIdeal R⁰ (FractionRing R)).num, hunit.unit,
+    hunit.unit_spec, ?_⟩
+  symm
+  apply ClassGroup.mk_eq_mk.mpr
+  have hden : algebraMap R (FractionRing R) (I : FractionalIdeal R⁰ (FractionRing R)).den ≠ 0 :=
+    IsFractionRing.to_map_ne_zero_of_mem_nonZeroDivisors (SetLike.coe_mem _)
+  refine ⟨Units.mk0 _ hden, ?_⟩
+  apply Units.ext
+  rw [Units.val_mul, coe_toPrincipalIdeal, Units.val_mk0, hunit.unit_spec, mul_comm]
+  exact FractionalIdeal.den_mul_self_eq_num' R⁰ (FractionRing R) I
+
 variable {R : Type*} [CommRing R] [IsDomain R] [IsDedekindDomain R]
 
 /-- Coprime integral representative. In a Dedekind domain, every ideal class `C`
@@ -103,9 +130,7 @@ theorem exists_integralRep_isCoprime
   · obtain ⟨B, hB⟩ := ClassGroup.mk0_surjective C
     exact ⟨B, hB, by rw [Ideal.isCoprime_iff_sup_eq, hMtop, sup_top_eq]⟩
   · obtain ⟨A, hA⟩ := ClassGroup.mk0_surjective C⁻¹
-    have hA0 : (A : Ideal R) ≠ 0 := by
-      have h := A.2
-      rwa [mem_nonZeroDivisors_iff_ne_zero] at h
+    have hA0 : (A : Ideal R) ≠ 0 := mem_nonZeroDivisors_iff_ne_zero.mp A.2
     have hM0 : M ≠ 0 := by simpa using hM
     have hle : (A : Ideal R) * M ≤ (A : Ideal R) := Ideal.mul_le_inf.trans inf_le_left
     have hAM0 : (A : Ideal R) * M ≠ 0 := mul_ne_zero hA0 hM0
@@ -114,13 +139,9 @@ theorem exists_integralRep_isCoprime
     obtain ⟨I, hImul⟩ := Ideal.dvd_iff_le.mpr hspan_le
     have ha0 : a ≠ 0 := by
       intro ha
-      subst ha
-      apply hMtop
-      have hsz : Ideal.span ({0} : Set R) = ⊥ := Ideal.span_singleton_eq_bot.mpr rfl
-      rw [hsz, sup_bot_eq] at hsup
-      have hAM1 : (A : Ideal R) * M = (A : Ideal R) * 1 := by rw [hsup, mul_one]
-      have := mul_left_cancel₀ hA0 hAM1
-      rwa [Ideal.one_eq_top] at this
+      have hAM1 : (A : Ideal R) * M = (A : Ideal R) * 1 := by
+        simpa [ha] using hsup
+      exact hMtop (by simpa using mul_left_cancel₀ hA0 hAM1)
     have hI0 : I ≠ 0 := by
       intro h
       rw [h, mul_zero, Ideal.zero_eq_bot, Ideal.span_singleton_eq_bot] at hImul
@@ -138,8 +159,8 @@ theorem exists_integralRep_isCoprime
       rw [Ideal.isCoprime_iff_sup_eq]
       have hkey : (A : Ideal R) * (M ⊔ I) = (A : Ideal R) := by
         rw [Ideal.mul_sup, ← hImul, hsup]
-      have hkey1 : (A : Ideal R) * (M ⊔ I) = (A : Ideal R) * 1 := by rw [hkey, mul_one]
-      have hMI : M ⊔ I = 1 := mul_left_cancel₀ hA0 hkey1
-      rw [sup_comm, hMI, Ideal.one_eq_top]
+      have hMI : M ⊔ I = 1 :=
+        mul_left_cancel₀ hA0 (hkey.trans (mul_one _).symm)
+      simpa [sup_comm] using hMI
 
 end ClassGroup
