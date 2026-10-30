@@ -6,6 +6,8 @@ Authors: Frankie Wang
 
 import QuadraticNumberFields.QuadraticField.Basic
 import Mathlib.NumberTheory.NumberField.Basic
+import QNFMathlib.Algebra.QuadraticAlgebra.Order
+import QNFMathlib.NumberTheory.NumberField.Order
 
 /-!
 # Rings of Integers of Abstract Quadratic Fields
@@ -17,6 +19,8 @@ abstract quadratic field.
 
 * `QuadraticField.ringOfIntegers_isQuadraticExtension`: `𝓞 K` is a quadratic
   extension of `ℤ` when `K` is a quadratic field over `ℚ`.
+* `QuadraticField.isQuadraticOrder_integralClosure`: the ring of integers is a quadratic
+  order in `K`, for any `ℚ`-algebra structure.
 -/
 
 open scoped NumberField
@@ -34,5 +38,14 @@ instance ringOfIntegers_isQuadraticExtension
       convert Algebra.IsQuadraticExtension.finrank_eq_two ℚ K using 1
       congr 1
       exact Subsingleton.elim _ _))
+
+/-- The ring of integers of a quadratic field is a quadratic order. The `ℚ`-algebra
+structure is arbitrary (e.g. `Qsqrtd` carries two), since all agree. -/
+theorem isQuadraticOrder_integralClosure
+    (K : Type*) [Field K] [Algebra ℚ K] [QuadraticField K] :
+    (integralClosure ℤ K).IsQuadraticOrder := by
+  rw [Subalgebra.isQuadraticOrder_iff_isOrder]
+  convert NumberField.isOrder_integralClosure K
+  exact Subsingleton.elim _ _
 
 end QuadraticField

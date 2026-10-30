@@ -8,6 +8,7 @@ import QuadraticNumberFields.Zsqrtd.Basic
 import QuadraticNumberFields.ZOnePlusSqrtdOverTwo.Basic
 import QNFMathlib.Algebra.QuadraticAlgebra.Conductor
 import QNFMathlib.Algebra.QuadraticAlgebra.Index
+import QNFMathlib.Algebra.QuadraticAlgebra.Order
 
 /-!
 # The square-root suborder of the half-integer model
@@ -17,7 +18,8 @@ The coordinate formula identifies the image by the parity of its second
 coordinate. All results are algebraic: `k` may be any integer, and no domain,
 squarefreeness, positivity, or complex-realization hypothesis is imposed.
 The map specializes mathlib's `QuadraticAlgebra.changeGenerator`; the range
-and index results specialize the general quadratic-algebra theorems in `QNFMathlib`.
+and index results specialize the general quadratic-algebra theorems in `QNFMathlib`,
+and the image in the rational model is a quadratic order.
 
 Adapted and generalized from `BakerHeegnerStark/ComplexMultiplication/Orders/HalfIntegral.lean`
 at commit `42c273b84c375c93258ca00774d7d3efe314d7ef`:
@@ -89,5 +91,11 @@ theorem range_fromZsqrtd (k : ℤ) (hd : d = 1 + 4 * k) :
 theorem index_range_fromZsqrtd (k : ℤ) (hd : d = 1 + 4 * k) :
     (fromZsqrtd k hd).toRingHom.range.toAddSubgroup.index = 2 := by
   simpa [fromZsqrtd] using QuadraticAlgebra.index_range_algHom (fromZsqrtd k hd)
+
+/-- The square-root suborder is a quadratic order in every half-integer model. -/
+theorem isQuadraticOrder_range_fromZsqrtd (k : ℤ) (hd : d = 1 + 4 * k) :
+    ((fromZsqrtd k hd).range.map (QuadraticAlgebra.toRat k 1)).IsQuadraticOrder := by
+  rw [QuadraticAlgebra.isQuadraticOrder_map_range_iff, fromZsqrtd_im]
+  simp
 
 end ZOnePlusSqrtdOverTwo
