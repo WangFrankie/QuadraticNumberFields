@@ -84,6 +84,5 @@ including:
 ## Main Import
 
 This file is the main entry point for the core quadratic-number-field library.
-App layers such as form class groups, imaginary class-number-one results, and
-examples live in separate Lake libraries.
+Form class groups and examples live in separate Lake libraries.
 -/

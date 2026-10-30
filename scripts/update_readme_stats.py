@@ -21,8 +21,6 @@ README_LEAN_ROOTS = [
     "QuadraticNumberFields",
     "FormClassGroup.lean",
     "FormClassGroup",
-    "ImaginaryClassNumberOne.lean",
-    "ImaginaryClassNumberOne",
     "Examples.lean",
     "Examples",
 ]
@@ -127,7 +125,6 @@ def module_key(file_path: Path) -> ModuleKey:
             "QNFMathlib",
             "BinaryQuadraticForms",
             "FormClassGroup",
-            "ImaginaryClassNumberOne",
             "Examples",
     }:
         subtree = f"{parts[1]}/" if len(parts) >= 3 else parts[1]
@@ -234,9 +231,9 @@ def update_readme(readme_path: str = "README.md") -> None:
         readme_content = f.read()
     
     # Pattern to find the code statistics section.
-    pattern = r'## Code Statistics\n\n.*?(?=\n## History)'
+    pattern = r'^## Code Statistics\n\n.*?(?=\n## |\Z)'
     
-    match = re.search(pattern, readme_content, re.DOTALL)
+    match = re.search(pattern, readme_content, re.DOTALL | re.MULTILINE)
     
     if match:
         # Replace existing section
