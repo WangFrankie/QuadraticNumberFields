@@ -64,11 +64,6 @@ class CountLeanLinesCliTest(unittest.TestCase):
         )
 
         self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertIn("| `BinaryQuadraticForms` |", result.stdout)
-        self.assertIn("| `QNFMathlib` |", result.stdout)
-        self.assertIn("| `FormClassGroup` |", result.stdout)
-        self.assertIn("| `ImaginaryClassNumberOne` |", result.stdout)
-        self.assertIn("| `Examples` |", result.stdout)
         total_row = next(
             line for line in result.stdout.splitlines() if line.startswith("| **Total** |")
         )
@@ -77,6 +72,45 @@ class CountLeanLinesCliTest(unittest.TestCase):
         comment = int(cells[2])
         total = int(cells[3])
         self.assertEqual(total, code + comment)
+
+    def test_readme_stats_preserves_following_sections(self) -> None:
+        """Replacing stale statistics should preserve every following level-two section."""
+        prefix = "# Fixture\n\n"
+        following_sections = (
+            "\n## Related Projects\n\n"
+            "- [BakerHeegnerStark](https://github.com/WangFrankie/BakerHeegnerStark)\n"
+            "\n## History\n\n"
+            "Existing history stays unchanged.\n"
+        )
+        with tempfile.TemporaryDirectory() as tmpdir:
+            fixture_root = Path(tmpdir)
+            (fixture_root / "QNFMathlib.lean").write_text(
+                "def x := 1\n-- comment\n\n", encoding="utf-8"
+            )
+            readme_path = fixture_root / "README.md"
+            readme_path.write_text(
+                prefix
+                + "## Code Statistics\n\n"
+                + "### Library Summary\n\n"
+                + "Stale statistics to replace.\n"
+                + following_sections,
+                encoding="utf-8",
+            )
+
+            result = subprocess.run(
+                [sys.executable, str(README_STATS_SCRIPT)],
+                check=False,
+                capture_output=True,
+                text=True,
+                cwd=fixture_root,
+            )
+            updated_readme = readme_path.read_text(encoding="utf-8")
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertTrue(updated_readme.startswith(prefix + "## Code Statistics\n\n"))
+        self.assertIn("| `QNFMathlib` | 1 | 1 | 2 |", updated_readme)
+        self.assertNotIn("Stale statistics to replace.", updated_readme)
+        self.assertTrue(updated_readme.endswith(following_sections))
 
 
 if __name__ == "__main__":

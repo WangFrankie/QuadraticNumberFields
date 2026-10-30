@@ -326,9 +326,12 @@ bound to `Qsqrtd d` and owns the unified class-number interface:
 - `Qsqrtd.exists_ideal_in_class_of_norm_le_imaginary`
 - `Qsqrtd.exists_ideal_in_class_of_norm_le_real`
 
-The Heegner wrappers for this interface live in
-`ImaginaryClassNumberOne/ClassNumberBridge.lean`, while the reduced-form
-cardinality bridge lives under `FormClassGroup/ClassGroup/`.
+The reduced-form cardinality bridge lives under `FormClassGroup/ClassGroup/`.
+The former `ImaginaryClassNumberOne` application library has been removed;
+Heegner class-number-one results and the full classification now live in
+[BakerHeegnerStark](https://github.com/WangFrankie/BakerHeegnerStark).
+Use `import BakerHeegnerStark.ClassNumberOne.Classification` in that repository,
+not the removed `ImaginaryClassNumberOne.*` imports.
 
 ### Genus Theory
 
@@ -338,8 +341,8 @@ The library develops the classical genus theory of quadratic fields from
 signed prime discriminants and Kronecker characters. It proves surjectivity of
 the genus-character map, the narrow `2`-rank formula, the principal genus
 theorem, and the corresponding ordinary class-group formulas. The resulting
-prime-shape sieve is used by the Baker--Heegner--Stark forward direction. The
-same two-torsion count separates the order-four class groups of `ℚ(√-14)`
+prime-shape sieve is used downstream by the Baker--Heegner--Stark forward
+direction. The same two-torsion count separates the order-four class groups of `ℚ(√-14)`
 (cyclic) and `ℚ(√-21)` (Klein four) in
 `Examples/ClassGroupStructure/Computations.lean`.
 
@@ -391,8 +394,9 @@ The completed public library currently includes:
 - a basic class-number interface
 - narrow and ordinary genus theory for quadratic fields
 
-App-layer libraries contain form-class-group computations, class-number-one
-results, examples, and remaining research-oriented scaffolding.
+App-layer libraries contain form-class-group computations, examples, and
+remaining research-oriented scaffolding. The Baker--Heegner--Stark application
+is maintained separately in the repository linked above.
 
 ## Project Structure
 
@@ -455,9 +459,6 @@ results, examples, and remaining research-oriented scaffolding.
 │   ├── Gauss/
 │   ├── ClassGroup/
 │   └── Computable/
-├── ImaginaryClassNumberOne.lean      # Heegner and Baker--Heegner--Stark layer
-├── ImaginaryClassNumberOne/
-│   └── WeberData/
 ├── Examples.lean                     # concrete examples entry point
 ├── Examples/
 │   └── SqrtNeg5/                     # verified ℤ[√(-5)] examples

@@ -20,7 +20,6 @@ App-layer entry points are separate Lake libraries:
 
 ```lean
 import FormClassGroup
-import ImaginaryClassNumberOne
 import Examples
 ```
 
@@ -72,13 +71,12 @@ lake build
 lake env lean scripts/check_core_axioms.lean
 ```
 
-The axiom audit checks 44 representative declarations: classification, discriminant,
+The axiom audit checks 33 representative declarations: classification, discriminant,
 genus-theory, form-class-group, general quadratic-algebra image/conductor/index formulas,
-order characterizations, their quadratic-model specializations, number-field
-rings of integers, and all nine Heegner class-number-one results. It rejects
-dependencies on `sorryAx` or any axioms beyond `propext`, `Classical.choice`, and
-`Quot.sound`. The unfinished Euclidean, computed-class-group facade, and Weber
-provider declarations remain outside this audit.
+order characterizations, their quadratic-model specializations, and number-field
+rings of integers. It rejects dependencies on `sorryAx` or any axioms beyond
+`propext`, `Classical.choice`, and `Quot.sound`. The unfinished Euclidean and
+computed-class-group facade declarations remain outside this audit.
 
 ## Notebook
 
@@ -100,8 +98,6 @@ jupyter lab Examples/Notebook/ClassNumber.ipynb
 - `QuadraticNumberFields.lean` is the core quadratic-number-field entry point.
 - `FormClassGroup.lean` re-exports the QNF-dependent binary-quadratic-form
   route to imaginary quadratic class groups.
-- `ImaginaryClassNumberOne.lean` re-exports the Heegner class-number-one and
-  Baker--Heegner--Stark app layer.
 - `Examples.lean` re-exports concrete examples and computed class-group
   structure examples.
 - `BinaryQuadraticForms.lean` re-exports the QNF-independent binary-quadratic-form
@@ -127,22 +123,21 @@ Counts exclude blank lines.
 
 | Library | Code Lines | Comment Lines | Total Lines |
 |--------|------------|---------------|-------------|
-| `QuadraticNumberFields` | 12263 | 3343 | 15606 |
+| `QuadraticNumberFields` | 12263 | 3342 | 15605 |
 | `FormClassGroup` | 4502 | 936 | 5438 |
 | `QNFMathlib` | 4250 | 1157 | 5407 |
 | `BinaryQuadraticForms` | 3125 | 668 | 3793 |
 | `Examples` | 1258 | 577 | 1835 |
-| `ImaginaryClassNumberOne` | 1109 | 394 | 1503 |
-| **Total** | **26507** | **7075** | **33582** |
+| **Total** | **25398** | **6680** | **32078** |
 
 ### Library Tree
 
 <details>
-<summary><code>QuadraticNumberFields</code> (12263 code, 3343 comments, 15606 total)</summary>
+<summary><code>QuadraticNumberFields</code> (12263 code, 3342 comments, 15605 total)</summary>
 
 | Subtree | Code Lines | Comment Lines | Total Lines |
 |--------|------------|---------------|-------------|
-| `├── QuadraticNumberFields.lean` | 61 | 22 | 83 |
+| `├── QuadraticNumberFields.lean` | 61 | 21 | 82 |
 | `├── ClassGroup/` | 6443 | 1032 | 7475 |
 | `├── Euclidean/` | 52 | 25 | 77 |
 | `├── Families/` | 18 | 24 | 42 |
@@ -153,7 +148,7 @@ Counts exclude blank lines.
 | `├── Units/` | 409 | 161 | 570 |
 | `├── ZOnePlusSqrtdOverTwo/` | 199 | 95 | 294 |
 | `└── Zsqrtd/` | 731 | 235 | 966 |
-| **QuadraticNumberFields total** | **12263** | **3343** | **15606** |
+| **QuadraticNumberFields total** | **12263** | **3342** | **15605** |
 
 </details>
 
@@ -219,28 +214,15 @@ Counts exclude blank lines.
 
 </details>
 
-<details>
-<summary><code>ImaginaryClassNumberOne</code> (1109 code, 394 comments, 1503 total)</summary>
-
-| Subtree | Code Lines | Comment Lines | Total Lines |
-|--------|------------|---------------|-------------|
-| `├── ImaginaryClassNumberOne.lean` | 8 | 10 | 18 |
-| `├── ClassNumberOne.lean` | 133 | 50 | 183 |
-| `├── ClassNumberOneByForms.lean` | 12 | 13 | 25 |
-| `├── Diophantine.lean` | 399 | 69 | 468 |
-| `├── Framework.lean` | 43 | 25 | 68 |
-| `├── IdealReductions.lean` | 304 | 41 | 345 |
-| `├── StarkHeegner.lean` | 80 | 63 | 143 |
-| `└── WeberData/` | 130 | 123 | 253 |
-| **ImaginaryClassNumberOne total** | **1109** | **394** | **1503** |
-
-</details>
-
 ## Related Projects
 
 - [BakerHeegnerStark](https://github.com/WangFrankie/BakerHeegnerStark):
   an independent Lean formalization of the Baker–Heegner–Stark theorem,
   built on this project's quadratic-field and class-group infrastructure.
+  It replaces the removed `ImaginaryClassNumberOne` library; use
+  `import BakerHeegnerStark.ClassNumberOne.Classification` in that repository
+  for the class-number-one classification. QNF no longer provides the old
+  `ImaginaryClassNumberOne.*` imports.
 
 ## History
 
