@@ -6,6 +6,8 @@ Authors: Frankie Wang
 
 import Lean.Elab.BuiltinEvalCommand
 import Lean.Util.CollectAxioms
+import QNFMathlib.Algebra.QuadraticAlgebra.Matrix
+import QNFMathlib.LinearAlgebra.Matrix.GeneralLinearGroup.Basic
 import QNFMathlib.RingTheory.ClassGroup
 import QNFMathlib.RingTheory.Ideal.Maps
 import QuadraticNumberFields.QuadraticField.Classification
@@ -24,9 +26,10 @@ import FormClassGroup.ClassGroup.ClassNumber
 Run `lake env lean scripts/check_core_axioms.lean` after `lake build`.
 
 Check the transitive axioms of representative project results, including
-invertible integral representatives over general domains, conductor action on
-extended ideals, and both the ideal-theoretic and reduced-form routes to class
-numbers. Precise imports keep this audit separate from the unfinished
+quadratic-matrix centralizers and right normalization, invertible integral
+representatives over general domains, conductor action on extended ideals, and
+both the ideal-theoretic and reduced-form routes to class numbers. Precise imports
+keep this audit separate from the unfinished
 computed-class-group interface. Only Lean's standard classical axioms are allowed;
 `sorryAx`, native-evaluation axioms, and any new axioms fail the audit.
 -/
@@ -34,6 +37,15 @@ computed-class-group interface. Only Lean's standard classical axioms are allowe
 open Lean in
 run_cmd do
   let declarations : Array Name := #[
+    ``QuadraticAlgebra.commute_leftMulMatrix_omega_iff,
+    ``QuadraticAlgebra.leftMulMatrix_eq_of_commute,
+    ``QuadraticAlgebra.commute_leftMulMatrix_omega_iff_existsUnique,
+    ``QuadraticAlgebra.commute_of_commute_leftMulMatrix_omega,
+    ``QuadraticAlgebra.det_leftMulMatrix,
+    ``QuadraticAlgebra.det_eq_norm_of_commute_leftMulMatrix_omega,
+    ``QuadraticAlgebra.norm_mul_inv_det_eq_one_of_commute_leftMulMatrix_omega,
+    ``Matrix.GeneralLinearGroup.specialLinearPart,
+    ``Matrix.GeneralLinearGroup.specialLinearPart_mul_diagonal_det,
     ``ClassGroup.exists_integral_invertible_ideal,
     ``ClassGroup.exists_integralRep_isCoprime,
     ``Ideal.conductor_mul_mem_map,
