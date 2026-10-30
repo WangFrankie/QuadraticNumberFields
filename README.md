@@ -33,6 +33,13 @@ import Examples
 - An injective index-two inclusion of the quadratic-algebra models when
   `d = 1 + 4*k`, with image characterized by coordinate parity and conductor `(2)`.
   These algebraic results do not require domain or squarefreeness hypotheses.
+- Quadratic-generator centralizers are exactly the left-multiplication matrices
+  over any commutative semiring, with unique quadratic elements and a commutative
+  centralizer. Over commutative rings, their determinants are quadratic norms.
+  See [`QuadraticAlgebra/Matrix.lean`](QNFMathlib/Algebra/QuadraticAlgebra/Matrix.lean).
+- Independent right normalization of `GL₂` matrices to determinant one, using
+  the supplied unit inverse determinant rather than division in the base ring.
+  See [`GeneralLinearGroup/Basic.lean`](QNFMathlib/LinearAlgebra/Matrix/GeneralLinearGroup/Basic.lean).
 - Discriminant formula: `Δ(ℚ(√d)) = if d % 4 = 1 then d else 4 * d`.
 - Dedekind-domain characterization for the project-owned `ℤ[√d]` model.
 - Galois, conjugation, totally real/totally complex/CM, prime-splitting, and
@@ -71,8 +78,10 @@ lake build
 lake env lean scripts/check_core_axioms.lean
 ```
 
-The axiom audit checks 33 representative declarations: classification, discriminant,
+The axiom audit checks 45 representative declarations: classification, discriminant,
 genus-theory, form-class-group, general quadratic-algebra image/conductor/index formulas,
+quadratic-matrix centralizers and norm identities, `GL₂` right normalization,
+invertible integral representatives, conductor action on extended ideals,
 order characterizations, their quadratic-model specializations, and number-field
 rings of integers. It rejects dependencies on `sorryAx` or any axioms beyond
 `propext`, `Classical.choice`, and `Quot.sound`. The unfinished Euclidean and

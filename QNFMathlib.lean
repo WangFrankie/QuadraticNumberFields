@@ -9,6 +9,7 @@ import QNFMathlib.Algebra.QuadraticAlgebra.Basic
 import QNFMathlib.Algebra.QuadraticAlgebra.Defs
 import QNFMathlib.Algebra.QuadraticAlgebra.Conductor
 import QNFMathlib.Algebra.QuadraticAlgebra.Index
+import QNFMathlib.Algebra.QuadraticAlgebra.Matrix
 import QNFMathlib.Algebra.QuadraticAlgebra.Order
 import QNFMathlib.Data.Nat.Squarefree
 import QNFMathlib.Data.Int.ModFour
@@ -18,6 +19,7 @@ import QNFMathlib.Data.Int.Squarefree
 import QNFMathlib.FieldTheory.Galois.Basic
 import QNFMathlib.GroupTheory.Index
 import QNFMathlib.GroupTheory.ZModPiPowHom
+import QNFMathlib.LinearAlgebra.Matrix.GeneralLinearGroup.Basic
 import QNFMathlib.NumberTheory.CoxEuler
 import QNFMathlib.NumberTheory.DirichletCharacter.Kronecker
 import QNFMathlib.NumberTheory.LegendreSymbol.JacobiSymbol
