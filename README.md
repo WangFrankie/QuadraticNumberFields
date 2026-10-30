@@ -236,6 +236,12 @@ Counts exclude blank lines.
 
 </details>
 
+## Related Projects
+
+- [BakerHeegnerStark](https://github.com/WangFrankie/BakerHeegnerStark):
+  an independent Lean formalization of the Baker–Heegner–Stark theorem,
+  built on this project's quadratic-field and class-group infrastructure.
+
 ## History
 
 This project was originally developed at
